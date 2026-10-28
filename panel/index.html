@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Garantía Expirada · Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Una sola estética: el almacén del vertedero de noche. Fondo oscuro deliberado. */
+:root {
+  --bg: #12141c;
+  --panel: #1a1e2b;
+  --line: #2e3449;
+  --fg: #e9e6dc;
+  --muted: #a7aec2;
+  --accent: #f6c431;
+  --hot: #ff9a3c;
+  --ok: #58b45a;
+  --bad: #e0453b;
+  --cold: #69dbd8;
+  --display: 'Pixelify Sans', 'Press Start 2P', ui-monospace, monospace;
+  --body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 15px/1.5 var(--body);
+}
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+header { display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: flex-end; justify-content: space-between; }
+.tag {
+  display: inline-block;
+  background: var(--accent);
+  color: #1a1405;
+  font: 500 12px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+}
+h1 { margin: 12px 0 0; font: 700 clamp(40px, 7vw, 72px)/1 var(--display); text-wrap: balance; }
+.meta { margin: 10px 0 0; color: var(--muted); font: 400 14px/1.5 var(--mono); }
+.play {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--hot); color: #1c0f04;
+  font: 700 20px/1 var(--display);
+  padding: 14px 20px; border-radius: 4px; text-decoration: none;
+  box-shadow: 0 4px 0 #a2521a;
+}
+.play:hover { background: #ffb15f; }
+.play:focus-visible, a:focus-visible { outline: 3px solid var(--cold); outline-offset: 3px; }
+h2 { margin: 0 0 14px; font: 700 26px/1.1 var(--display); }
+.label { font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 20px; min-width: 0; }
+.next { border-left: 0; display: flex; flex-direction: column; gap: 10px; }
+.next p { margin: 0; font-size: 18px; }
+.blocks { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.blocks li { background: #2a1418; border: 1px solid #5e1d24; color: #ffd6cf; padding: 10px 12px; border-radius: 4px; }
+.miles { display: flex; flex-direction: column; gap: 10px; }
+.mile { display: grid; grid-template-columns: 52px minmax(0, 1fr) 70px; gap: 12px; align-items: center; }
+.mile .id { font: 500 13px/1 var(--mono); color: var(--muted); }
+.mile .name { font-size: 15px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.bar { height: 10px; background: #252b3e; border-radius: 2px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--muted); }
+.mile.en_curso .bar i { background: var(--hot); }
+.mile.hecho .bar i { background: var(--ok); }
+.mile.en_curso .id { color: var(--hot); }
+.mile.hecho .id { color: var(--ok); }
+.mile .num { font: 400 13px/1 var(--mono); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 6px; border-radius: 3px; margin-left: 8px; vertical-align: 2px; }
+.pill.en_curso { background: #3a2410; color: var(--hot); }
+.pill.hecho { background: #173019; color: #8fd88f; }
+.counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.count { background: var(--panel); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.count b { font: 700 30px/1 var(--display); font-variant-numeric: tabular-nums; }
+.health { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.chip { display: inline-flex; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 4px; background: #202536; font: 500 13px/1 var(--mono); }
+.chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.chip.ok::before { background: var(--ok); }
+.chip.bad::before { background: var(--bad); }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+figure img { display: block; width: 100%; height: auto; image-rendering: pixelated; background: #0e0c16; }
+figcaption { padding: 10px 12px; color: var(--muted); font-size: 13px; }
+.log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.log li { display: grid; grid-template-columns: 150px 52px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px dashed var(--line); }
+.log li:first-child { border-top: 0; }
+.log time, .log .h { font: 400 13px/1.5 var(--mono); color: var(--muted); }
+.log code { font: 400 12px/1 var(--mono); color: var(--cold); }
+@media (max-width: 600px) {
+  .log li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.empty { color: var(--muted); }
+#error[hidden] { display: none; }
+#error { background: #2a1418; border: 1px solid #5e1d24; padding: 16px; border-radius: 6px; }
+footer { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <span class="tag">Panel de progreso</span>
+      <h1>Garantía Expirada</h1>
+      <p class="meta" id="meta">Cargando progreso…</p>
+    </div>
+    <a class="play" href="../" id="play">Jugar la última versión</a>
+  </header>
+
+  <div id="error" hidden>
+    <strong>No se ha podido leer <code>progress.json</code>.</strong>
+    <p class="empty" style="margin: 6px 0 0">El panel lee el archivo desde el sitio publicado. Si lo abres como archivo local, lanza un servidor en la raíz del repositorio (por ejemplo <code>npx serve</code>) y entra en <code>/panel/</code>.</p>
+  </div>
+
+  <section class="grid2">
+    <div class="box next">
+      <span class="label">Siguiente paso</span>
+      <p id="next">—</p>
+      <div id="blocksWrap" hidden>
+        <span class="label" style="color: #ff8a70">Necesita tu decisión</span>
+        <ul class="blocks" id="blocks"></ul>
+      </div>
+    </div>
+    <div class="box">
+      <span class="label">Contenido del juego</span>
+      <div class="counts" id="counts" style="margin-top: 12px"></div>
+      <div class="health" id="health"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Hitos</h2>
+    <div class="box"><div class="miles" id="miles"></div></div>
+  </section>
+
+  <section>
+    <h2>Capturas recientes</h2>
+    <div class="shots" id="shots"></div>
+  </section>
+
+  <section>
+    <h2>Sesiones de trabajo</h2>
+    <div class="box"><ul class="log" id="log"></ul></div>
+  </section>
+
+  <footer>El panel se actualiza solo en cada sesión de trabajo. Para pedir cambios, escribe en <code>docs/NOTAS_DEL_HUMANO.md</code>.</footer>
+</div>
+
+<script>
+(function () {
+  var COUNT_LABELS = [
+    ['personajes', 'Personajes'], ['enemigos', 'Enemigos'], ['jefes', 'Jefes'],
+    ['armas', 'Armas'], ['objetos', 'Objetos'], ['plantillas_sala', 'Salas']
+  ];
+  var ESTADOS = { hecho: 'Hecho', en_curso: 'En curso', pendiente: '' };
+
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function fecha(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+  function hace(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    var m = Math.round((Date.now() - d.getTime()) / 60000);
+    if (m < 1) return 'hace un momento';
+    if (m < 60) return 'hace ' + m + ' min';
+    var h = Math.round(m / 60);
+    if (h < 48) return 'hace ' + h + ' h';
+    return 'hace ' + Math.round(h / 24) + ' días';
+  }
+
+  function render(p) {
+    var m = p.metricas || {};
+    document.getElementById('meta').textContent =
+      'Versión ' + (p.version || '—') + ' · Hito actual ' + (p.hito_actual || '—') +
+      ' · Actualizado ' + fecha(p.actualizado) + ' (' + hace(p.actualizado) + ')';
+    document.getElementById('next').textContent = p.proximo || '—';
+
+    var bl = p.bloqueos || [];
+    var bw = document.getElementById('blocksWrap');
+    var ul = document.getElementById('blocks');
+    ul.textContent = '';
+    bl.forEach(function (b) { ul.appendChild(el('li', null, typeof b === 'string' ? b : (b.texto || JSON.stringify(b)))); });
+    bw.hidden = bl.length === 0;
+
+    var counts = document.getElementById('counts');
+    counts.textContent = '';
+    COUNT_LABELS.forEach(function (c) {
+      var box = el('div', { class: 'count' });
+      box.appendChild(el('b', null, String(m[c[0]] != null ? m[c[0]] : 0)));
+      box.appendChild(el('span', { class: 'label' }, c[1]));
+      counts.appendChild(box);
+    });
+
+    var health = document.getElementById('health');
+    health.textContent = '';
+    var t = m.tests || 0, tok = m.tests_ok || 0;
+    health.appendChild(el('span', { class: 'chip ' + (t === 0 ? '' : (tok === t ? 'ok' : 'bad')) },
+      t === 0 ? 'Sin tests todavía' : tok + ' / ' + t + ' tests en verde'));
+    var pb = m.partidas_bot || 0, fb = m.fallos_bot || 0;
+    health.appendChild(el('span', { class: 'chip ' + (pb === 0 ? '' : (fb === 0 ? 'ok' : 'bad')) },
+      pb === 0 ? 'Bot sin partidas' : pb + ' partidas de bot · ' + fb + ' fallos'));
+    if (m.lineas_codigo) health.appendChild(el('span', { class: 'chip' }, m.lineas_codigo.toLocaleString('es-ES') + ' líneas de código'));
+
+    var miles = document.getElementById('miles');
+    miles.textContent = '';
+    (p.hitos || []).forEach(function (h) {
+      var row = el('div', { class: 'mile ' + (h.estado || 'pendiente') });
+      row.appendChild(el('span', { class: 'id' }, h.id));
+      var name = el('div', { class: 'name' });
+      var title = el('span', null, h.nombre);
+      if (ESTADOS[h.estado]) title.appendChild(el('span', { class: 'pill ' + h.estado }, ESTADOS[h.estado]));
+      name.appendChild(title);
+      var bar = el('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(h.total || 0), 'aria-valuenow': String(h.hechas || 0), 'aria-label': h.nombre });
+      var pct = h.total ? Math.round(100 * (h.hechas || 0) / h.total) : 0;
+      if (h.estado === 'hecho') pct = 100;
+      var fill = el('i'); fill.style.width = pct + '%';
+      bar.appendChild(fill);
+      name.appendChild(bar);
+      row.appendChild(name);
+      row.appendChild(el('span', { class: 'num' }, (h.hechas || 0) + ' / ' + (h.total || 0)));
+      miles.appendChild(row);
+    });
+
+    var shots = document.getElementById('shots');
+    shots.textContent = '';
+    var cs = p.capturas || [];
+    if (!cs.length) shots.appendChild(el('p', { class: 'empty' }, 'Todavía no hay capturas.'));
+    cs.forEach(function (c) {
+      var f = el('figure');
+      var img = el('img', { src: c.archivo, alt: c.pie || 'Captura del juego', loading: 'lazy' });
+      f.appendChild(img);
+      f.appendChild(el('figcaption', null, c.pie || ''));
+      shots.appendChild(f);
+    });
+
+    var log = document.getElementById('log');
+    log.textContent = '';
+    var ss = p.sesiones || [];
+    if (!ss.length) log.appendChild(el('li', { class: 'empty' }, 'Sin sesiones todavía.'));
+    ss.slice(0, 25).forEach(function (s) {
+      var li = el('li');
+      li.appendChild(el('time', { datetime: s.fecha || '' }, fecha(s.fecha)));
+      li.appendChild(el('span', { class: 'h' }, s.hito || ''));
+      var body = el('div', null, s.resumen || '');
+      if (s.commit) { body.appendChild(document.createTextNode(' ')); body.appendChild(el('code', null, String(s.commit).slice(0, 7))); }
+      li.appendChild(body);
+      log.appendChild(li);
+    });
+  }
+
+  fetch('../progress.json', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(render)
+    .catch(function () {
+      document.getElementById('error').hidden = false;
+      document.getElementById('meta').textContent = 'Sin datos';
+    });
+})();
+</script>
+</body>
+</html>

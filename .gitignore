@@ -1,0 +1,12 @@
+node_modules/
+dist/
+capturas/
+logs/
+test-results/
+playwright-report/
+STOP
+.env
+.env.*
+.DS_Store
+__pycache__/
+*.pyc
