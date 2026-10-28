@@ -135,6 +135,14 @@ try {
     return b.state === 'fire' && b.t > 1.7; })()`;
   await page.waitForFunction(bulbFiring, undefined, { timeout: 8000 });
   await shot('08-bombilla.png');
+
+  // Batidora de Mano: let it come close, and catch it winding up for a lunge, already in TURBO.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const m = w.enemies.find((e) => e.def.id === 'batidora');
+    m.damageTaken = Math.ceil(m.def.hp * 0.7); w.player.x = m.x - 70; w.player.y = m.y; })()`);
+  const mixerWinding = `(() => { const m = window.__GE__.scene.world.enemies.find((e) => e.def.id === 'batidora');
+    return !!m && m.state === 'warn' && m.turbo && m.t > m.until * 0.5; })()`;
+  await page.waitForFunction(mixerWinding, undefined, { timeout: 6000 });
+  await shot('08b-batidora.png');
   await page.waitForTimeout(600);
 
   // Taking an enemy apart: the microwave, already worn down, shot from close; then pick up its coupons.

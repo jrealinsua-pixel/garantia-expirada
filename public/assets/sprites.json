@@ -29,6 +29,12 @@
     "frameH": 9,
     "frames": 2
   },
+  "batidora": {
+    "file": "batidora.png",
+    "frameW": 32,
+    "frameH": 38,
+    "frames": 4
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,

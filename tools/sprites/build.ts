@@ -7,6 +7,7 @@ import { buildRoom } from '../../src/sim/room.ts';
 import { ROOMS } from '../../src/data/rooms.ts';
 import { paintRoom } from '../../src/art/room.ts';
 import { HERO_FRAMES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler } from './characters.ts';
+import { makeBatidoraFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { encodePng } from './png.ts';
@@ -36,6 +37,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     microondas: one(makeMicroondas()),
     bombilla: { canvas: strip(makeBombillaFrames()), frameW: 32, frameH: 39 },
     polilla: { canvas: strip(makePolilla()), frameW: 11, frameH: 9 },
+    batidora: { canvas: strip(makeBatidoraFrames()), frameW: 32, frameH: 38 },
     'nevera-suprema': one(makeNevera()),
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
@@ -80,7 +82,7 @@ function main(): void {
   const sheets = allSheets();
   const sheet = new Canvas(400, 100, hx('#1a1e2b'));
   let x = 4;
-  for (const k of ['tostadora', 'maniqui', 'aspirador', 'microondas', 'bombilla', 'polilla']) {
+  for (const k of ['tostadora', 'maniqui', 'aspirador', 'microondas', 'bombilla', 'polilla', 'batidora']) {
     const c = sheets[k]!.canvas;
     sheet.blit(c, x, 96 - c.h);
     x += c.w + 4;

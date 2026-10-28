@@ -34,7 +34,7 @@ export interface Room {
 }
 
 const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito' };
-const ENEMY_CHARS: Record<string, string> = { A: 'aspirador', O: 'microondas', L: 'bombilla' };
+const ENEMY_CHARS: Record<string, string> = { A: 'aspirador', O: 'microondas', L: 'bombilla', T: 'batidora' };
 
 export function buildRoom(t: RoomTemplate): Room {
   const rows = t.rows.length;

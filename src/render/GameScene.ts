@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { DEATH_STAMPS, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE } from '../data/texts.ts';
+import { DEATH_STAMPS, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
@@ -645,6 +645,18 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('encender');
           for (let i = 0; i < 5; i++) this.spark(e.x + this.fx.range(-6, 6), e.y + this.fx.range(-6, 4), this.fx.range(0, Math.PI * 2), this.fx.range(20, 60), 0);
           break;
+        case 'lunge':
+          this.sound2.play('batir', { detune: this.fx.range(-100, 100) });
+          for (let i = 0; i < 3; i++) this.puff(e.x - e.dirX * 6 + this.fx.range(-3, 3), e.y + this.fx.range(-2, 1), 0.3);
+          break;
+        case 'turbo': {
+          this.sound2.play('turbo');
+          this.cameras.main.shake(100, 0.004, true);
+          for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 16, this.fx.range(0, Math.PI * 2), this.fx.range(40, 120), this.fx.int(0, 3));
+          const t = this.add.bitmapText(Math.round(e.x), Math.round(e.y - 38), FONT, fontText(TURBO_LINE), 8).setOrigin(0.5, 1).setDepth(85000).setTint(0xe0453b);
+          this.floats.push({ t, vy: -14, life: 1 });
+          break;
+        }
         case 'dart':
           this.sound2.play('aleteo', { detune: this.fx.range(-200, 200) });
           break;
@@ -853,6 +865,11 @@ export class GameScene extends Phaser.Scene {
       s.setScale(en.facing, 1);
       if (en.def.brain.kind === 'moth') s.setFrame(Math.floor(this.time.now / (en.state === 'charge' ? 35 : 70)) % 2);
       else if (en.def.brain.kind === 'turret' && en.def.brain.startup) s.setFrame(bulbLit(en, this.time.now) ? 0 : 1);
+      else if (en.def.brain.kind === 'chaser') {
+        // Beaters turn all the time; flat out while winding up, lunging or in TURBO.
+        const fast = en.state === 'warn' || en.state === 'charge' || en.turbo;
+        s.setFrame(Math.floor(this.time.now / (fast ? 30 : 90)) % 4);
+      }
       let rot = 0;
       if (en.def.brain.kind === 'moth') rot = en.state === 'charge' ? 0.3 * en.facing : 0;
       else if (en.state === 'charge') rot = 0.18 * en.facing;
@@ -889,6 +906,11 @@ export class GameScene extends Phaser.Scene {
       else if (en.hitT > 0) s.setTint(0xffb0a0);
       else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
       else s.clearTint();
+      // In TURBO the mixer shakes and throws sparks and batter.
+      if (en.turbo) {
+        s.setX(s.x + (Math.floor(this.time.now / 45) % 2 === 0 ? 1 : 0));
+        if (this.fx.chance(0.12)) this.spark(en.x + en.facing * 7, en.y - 6, this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), this.fx.int(0, 2));
+      }
       // Dust trail while charging, sparks from the wheels while braking.
       if (en.state === 'charge' && this.fx.chance(0.5)) this.puff(en.x - en.dirX * 10 + this.fx.range(-3, 3), en.y + this.fx.range(-2, 1), 0.35);
       if (en.state === 'brake' && Math.hypot(en.vx, en.vy) > 40 && this.fx.chance(0.4)) {

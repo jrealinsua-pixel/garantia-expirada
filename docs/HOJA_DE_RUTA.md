@@ -52,7 +52,8 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 - [x] Aspirador Desahuciado (carga en línea recta).
 - [x] Microondas Sin Seguro (anillos de ondas).
 - [x] Bombilla de Bajo Consumo (espirales) con su polilla.
-- [ ] Dos enemigos nuevos de `docs/DISENO.md`, diseñados y dibujados al estilo aprobado.
+- [x] Primer enemigo nuevo de `docs/DISENO.md`: Batidora de Mano (persigue, se lanza cuerpo a cuerpo y entra en TURBO), diseñada y dibujada al estilo aprobado.
+- [ ] Segundo enemigo nuevo de `docs/DISENO.md`: Mando a Distancia (débil, en grupo, se teletransporta), diseñado y dibujado al estilo aprobado.
 - [x] Vida, daño, muerte con desmontaje en piezas y botín (cupones). (Los enemigos; el daño al jugador va con los corazones.)
 - [x] Animaciones de golpe y muerte de la Tostadora (se desmonta: tostadas, muelle, tornillos) y parte de baja provisional.
 - [x] Corazones del jugador y HUD (corazones, munición, cupones, objeto activo). (La ranura del objeto activo está vacía hasta M5.)

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T23:33:00+01:00",
+  "actualizado": "2026-10-28T23:40:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,8 +21,8 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 9,
-      "total": 10
+      "hechas": 10,
+      "total": 11
     },
     {
       "id": "M3",
@@ -97,23 +97,29 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 4,
+    "enemigos": 5,
     "jefes": 0,
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 112,
-    "tests_ok": 112,
+    "tests": 120,
+    "tests_ok": 120,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 4080
+    "lineas_codigo": 4245
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T23:40:00+01:00",
+      "hito": "M2",
+      "resumen": "Nuevo enemigo: la Batidora de Mano. Te persigue andando y, de cerca, se para, gira las varillas y se lanza contra ti. Cinco velocidades, la uno y el turbo: con un tercio de vida el selector se atasca en TURBO y lo hace todo más deprisa, temblando y soltando chispas. Arreglado: los cupones de un enemigo que muere pegado a la pared podían aparecer dentro del muro.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T23:33:00+01:00",
       "hito": "M2",
       "resumen": "La tostadora se desmonta al caer: tiembla con la cara apretada, le saltan las dos tostadas, sale disparado el muelle con un «boing», se sueltan el mando y los tornillos y la carcasa vacía cae de lado echando humo, con los ojos tachados. Después baja el parte de baja de verdad: unidad, causa (según quién dio el último golpe), sala, vida útil, bajas, cupones y una recomendación del fabricante distinta cada vez, con un sello rojo «Dado de baja». Al recibir un golpe pone cara de dolor.",
-      "commit": ""
+      "commit": "e79c840"
     },
     {
       "fecha": "2026-10-28T22:45:00+01:00",
@@ -184,6 +190,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/batidora.png",
+      "pie": "La Batidora de Mano, en TURBO, avisa antes de lanzarse contra la tostadora (al lado, el Aspirador)"
+    },
+    {
       "archivo": "capturas/desmontaje.png",
       "pie": "El Microondas Sin Seguro se desmonta en piezas y suelta un cupón descuento (ampliado)"
     },
@@ -196,10 +206,6 @@
       "pie": "La Bombilla de Bajo Consumo suelta su espiral de chispas; debajo, la Polilla Fiel (ampliado)"
     },
     {
-      "archivo": "capturas/aviso.png",
-      "pie": "Telegrafía: parpadeo, anillo que se cierra, dirección y «!» antes de cada ataque"
-    },
-    {
       "archivo": "capturas/disparando.png",
       "pie": "Sala de Pruebas: la tostadora dispara el Secador a un maniquí (captura del e2e)"
     },
@@ -208,6 +214,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: los dos enemigos nuevos de docs/DISENO.md (Batidora de Mano y Mando a Distancia); con eso M2 queda cerrado.",
+  "proximo": "M2: el Mando a Distancia (débil, en grupo, se teletransporta), último enemigo del hito; después comprobar los criterios de M2 con los 6 enemigos y cerrarlo.",
   "bloqueos": []
 }

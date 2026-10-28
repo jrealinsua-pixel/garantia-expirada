@@ -148,3 +148,22 @@ test('lo que un enemigo iba a disparar se cancela si lo desmontan', () => {
   step(w, NO_INPUT);
   assert.equal(w.emitters.filter((e) => e.source === en.id).length, 0);
 });
+
+test('el botín de un enemigo pegado a la pared no aparece dentro del muro', async () => {
+  const { createWorld, step, NO_INPUT, checkInvariants } = await import('../src/sim/world.ts');
+  const w = createWorld({ seed: 'botin-pared' });
+  const en = w.enemies.find((e) => e.def.id === 'batidora')!;
+  w.enemies = [en];
+  // Feet right against the back wall (it ends at y = 48), like the bot found it.
+  en.x = 256;
+  en.y = 51;
+  en.damageTaken = en.def.hp;
+  en.lastHit = -Math.PI / 2;
+  w.player.x = 100;
+  w.player.y = 300;
+  for (let i = 0; i < 60; i++) {
+    step(w, NO_INPUT);
+    assert.deepEqual(checkInvariants(w), []);
+  }
+  assert.ok(w.pickups.length > 0);
+});

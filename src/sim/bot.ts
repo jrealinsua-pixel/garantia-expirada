@@ -71,8 +71,9 @@ export function dodge(w: World): Dodge {
     const dx = p.x - en.x;
     const dy = p.y - en.y;
     const d = Math.hypot(dx, dy) || 1;
-    // The vacuum's locked line: get off it, roll if it is already coming.
-    if (((en.state === 'warn' && en.t >= BOT_REACTION) || en.state === 'charge') && en.def.brain.kind === 'charger') {
+    // The locked line of a charge or a lunge: get off it, roll if it is already coming.
+    const kind = en.def.brain.kind;
+    if (((en.state === 'warn' && en.t >= BOT_REACTION) || en.state === 'charge') && (kind === 'charger' || kind === 'chaser')) {
       const along = dx * en.dirX + dy * en.dirY;
       const side = dx * -en.dirY + dy * en.dirX;
       if (along > -8 && Math.abs(side) < 22) {

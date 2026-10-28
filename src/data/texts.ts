@@ -17,6 +17,9 @@ export const DEATH_STAMPS: readonly string[] = [
 /** Shown when the test room brings its enemies back. */
 export const RESTOCK_LINE = 'Reposición de stock';
 
+/** Over the mixer when its slider jams on the red notch. */
+export const TURBO_LINE = 'Turbo';
+
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */
 export const DOWN_TITLE = 'Parte de baja';
 export const DOWN_HINT = 'R o clic: pedir otra unidad';
@@ -33,6 +36,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   microondas: { bullet: 'Exposición prolongada a microondas', contact: 'Golpe con microondas sin seguro' },
   bombilla: { bullet: 'Sobretensión de un mando intermedio', contact: 'Roce con un mando intermedio' },
   polilla: { contact: 'Ataque de polilla leal a la empresa' },
+  batidora: { contact: 'Batido a velocidad turbo' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };
 export const DOWN_CAUSE_DEFAULT = 'Daños por mal uso';

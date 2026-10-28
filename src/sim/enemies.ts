@@ -1,6 +1,6 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { ChargerBrain, MothBrain, TurretBrain } from '../data/types.ts';
+import type { ChargerBrain, ChaserBrain, MothBrain, TurretBrain } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
@@ -23,6 +23,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'moth':
         updateMoth(w, en, en.def.brain);
+        break;
+      case 'chaser':
+        updateChaser(w, en, en.def.brain);
         break;
     }
     contact(w, en);
@@ -111,6 +114,69 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
     en.vx = -en.dirX * 60;
     en.vy = -en.dirY * 60;
   }
+}
+
+/** Whether a chaser is in TURBO (low on life): faster at everything. */
+export function inTurbo(en: Enemy): boolean {
+  const b = en.def.brain;
+  return b.kind === 'chaser' && !!b.turbo && en.damageTaken >= en.def.hp * (1 - b.turbo.below);
+}
+
+function updateChaser(w: World, en: Enemy, b: ChaserBrain): void {
+  const p = w.player;
+  const toX = p.x - en.x;
+  const toY = p.y - en.y;
+  const dist = Math.hypot(toX, toY);
+  const turbo = inTurbo(en);
+  const k = turbo && b.turbo ? b.turbo.scale : 1;
+  if (turbo && !en.turbo) {
+    en.turbo = true;
+    w.events.push({ type: 'turbo', x: en.x, y: en.y, source: en.id });
+  }
+  en.t += DT * (en.state === 'walk' ? 1 : k);
+
+  switch (en.state) {
+    case 'walk': {
+      // Straight at the player, weaving a little so a crowd of them does not move as one.
+      const weave = Math.sin(w.tick / 9 + en.id) * 0.35;
+      const dir = normalize(toX - toY * weave, toY + toX * weave);
+      approach(en, dir.x * b.walkSpeed * k, dir.y * b.walkSpeed * k, KNOCK_FRICTION);
+      if (Math.abs(toX) > 2) en.facing = toX > 0 ? 1 : -1;
+      if (en.t >= en.until && dist < b.range && !w.over) {
+        const d = normalize(toX, toY);
+        en.dirX = d.x;
+        en.dirY = d.y;
+        en.facing = d.x >= 0 ? 1 : -1;
+        enter(en, 'warn', b.telegraph);
+        w.events.push({ type: 'telegraph', x: en.x, y: en.y - 2, time: b.telegraph / k, aim: Math.atan2(d.y, d.x), aimed: true, color: 'red', source: en.id });
+      }
+      break;
+    }
+    case 'warn':
+      approach(en, 0, 0, KNOCK_FRICTION);
+      if (en.t >= en.until) {
+        enter(en, 'charge', b.lungeTime);
+        en.vx = en.dirX * b.lungeSpeed;
+        en.vy = en.dirY * b.lungeSpeed;
+        w.events.push({ type: 'lunge', x: en.x, y: en.y, dirX: en.dirX, dirY: en.dirY, source: en.id });
+      }
+      break;
+    case 'charge':
+      en.vx = en.dirX * b.lungeSpeed;
+      en.vy = en.dirY * b.lungeSpeed;
+      if (en.t >= en.until) enter(en, 'brake', b.recover);
+      break;
+    case 'brake':
+      approach(en, 0, 0, b.brake);
+      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]) / k);
+      break;
+    default:
+      enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]));
+  }
+  const ox = en.x;
+  const oy = en.y;
+  slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+  en.moved += Math.hypot(en.x - ox, en.y - oy);
 }
 
 function updateTurret(w: World, en: Enemy, b: TurretBrain): void {

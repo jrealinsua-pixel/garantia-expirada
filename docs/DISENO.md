@@ -80,7 +80,7 @@ Pantalla de muerte: en vez de «Has muerto», un **parte de baja** del producto 
 | **Microondas Sin Seguro** | Aprobado | Se queda quieto, «calienta» 1 s (parpadea) y dispara anillos de ondas. El reloj parpadea en 12:00 desde hace diez años. |
 | **Bombilla de Bajo Consumo** | Aprobada | Mando intermedio. Tarda en encenderse y dispara espirales de chispas. Le acompaña una polilla fiel. |
 | Polilla Fiel | Hecha | Acompaña a la Bombilla: le da vueltas y de vez en cuando se lanza contra ti. Las polillas van a la luz: con la bombilla apagada no ataca. Lo llama lealtad; la bombilla, «compromiso con la empresa». |
-| Batidora de Mano | Por diseñar | Persigue y hace daño cuerpo a cuerpo. |
+| Batidora de Mano | Hecha | Persigue y hace daño cuerpo a cuerpo: de cerca se para, gira las varillas y se lanza. Cinco velocidades: la uno y el turbo; con poca vida el selector por fin se mueve y entra en TURBO (todo más deprisa). Varillas con masa de una tarta de hace años y el cable atado en un nudo. |
 | Mando a Distancia | Por diseñar | Enemigo débil que aparece en grupo. Nunca está donde lo buscas: se teletransporta. |
 
 ### Jefes

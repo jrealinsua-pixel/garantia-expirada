@@ -66,7 +66,7 @@ export interface DummyDef {
 /**
  * Room templates are drawn as text. Legend:
  * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `M` training dummy,
- * `A` Aspirador Desahuciado, `O` Microondas Sin Seguro.
+ * `A` Aspirador Desahuciado, `O` Microondas Sin Seguro, `L` Bombilla de Bajo Consumo (con su polilla), `T` Batidora de Mano.
  * The top two rows are the back wall (shelves are painted on them).
  */
 export interface RoomTemplate {
@@ -145,7 +145,28 @@ export interface MothBrain {
   altitude: number;
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain;
+/**
+ * Chases the player on foot and, when close, lunges: `telegraph` s winding up on the spot (the
+ * direction is locked when it starts), then `lungeTime` s at `lungeSpeed` straight at where the
+ * player was, then `recover` s braking. Waits `cooldown` s (random in the range) between lunges.
+ * Below `turbo.below` of its life it goes into TURBO: everything `turbo.scale` times faster.
+ */
+export interface ChaserBrain {
+  kind: 'chaser';
+  walkSpeed: number;
+  /** Lunges when the player is closer than this (px). */
+  range: number;
+  cooldown: [number, number];
+  telegraph: number;
+  lungeSpeed: number;
+  lungeTime: number;
+  recover: number;
+  /** Deceleration while braking (px/s²). */
+  brake: number;
+  turbo?: { below: number; scale: number };
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain;
 
 export interface EnemyDef {
   id: string;

@@ -90,6 +90,7 @@ export const PICKUP_DELAY = 0.45;
 export const PICKUP_MAGNET = 44;
 const PICKUP_GRAB = 8;
 const PICKUP_FRICTION = 260;
+const PICKUP_RADIUS = 2;
 
 export interface Bullet {
   id: number;
@@ -188,6 +189,8 @@ export interface Enemy {
   phase: number;
   /** Direction of the last bullet that hit it: it comes apart that way. */
   lastHit: number;
+  /** Has gone into TURBO (chasers low on life). */
+  turbo?: boolean;
 }
 
 export type SimEvent =
@@ -205,6 +208,9 @@ export type SimEvent =
   | { type: 'contact'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'switchOn'; x: number; y: number; source: number }
   | { type: 'dart'; x: number; y: number; dirX: number; dirY: number; source: number }
+  /** A chaser (the mixer) lunges, and goes into TURBO when low on life. */
+  | { type: 'lunge'; x: number; y: number; dirX: number; dirY: number; source: number }
+  | { type: 'turbo'; x: number; y: number; source: number }
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
@@ -340,6 +346,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'moth') {
     state = 'idle';
     until = b.interval[0];
+  } else if (b.kind === 'chaser') {
+    // Its first lunge comes sooner than the next ones.
+    until = b.cooldown[0] * 0.5;
   }
   return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0, lastHit: 0 };
 }
@@ -772,11 +781,14 @@ function reapEnemies(w: World): void {
     w.events.push({ type: 'death', x: en.x, y: en.y, alt, angle: en.lastHit, enemy: en.def.id, source: en.id });
     const [lo, hi] = en.def.loot.coupons;
     const n = w.rng.int(lo, hi);
+    // Loot starts on clear floor: right under the enemy, or the nearest free spot if it flew
+    // over a box or stood with its feet against a wall.
+    const spot = n > 0 ? freeSpot(w, en.x, en.y, PICKUP_RADIUS) : { x: en.x, y: en.y };
     for (let i = 0; i < n; i++) {
       // Scattered around, a bit more in the direction of the killing shot.
       const a = en.lastHit + w.rng.range(-1.6, 1.6);
       const sp = w.rng.range(50, 110);
-      w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: en.x, y: en.y - 1, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+      w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: spot.x, y: spot.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
     }
   }
   w.enemies = keep;
@@ -810,11 +822,26 @@ function updatePickups(w: World): void {
         k.vx *= nv / v;
         k.vy *= nv / v;
       }
-      slide(w, k, 2, k.vx * DT, k.vy * DT);
+      slide(w, k, PICKUP_RADIUS, k.vx * DT, k.vy * DT);
     }
     keep.push(k);
   }
   w.pickups = keep;
+}
+
+/** The nearest point to (x, y) where a feet box of radius `r` touches no wall or prop (rings of 4 px). */
+export function freeSpot(w: World, x: number, y: number, r: number): { x: number; y: number } {
+  const clear = (px: number, py: number): boolean => !solidsNear(w, playerFeetBox({ x: px, y: py }, r)).some((s) => overlaps(playerFeetBox({ x: px, y: py }, r), s));
+  if (clear(x, y)) return { x, y };
+  for (let d = 4; d <= 48; d += 4) {
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2;
+      const px = x + Math.cos(a) * d;
+      const py = y + Math.sin(a) * d;
+      if (clear(px, py)) return { x: px, y: py };
+    }
+  }
+  return { x, y };
 }
 
 /** Rooms that restock bring all their enemies back a while after the last one falls. */
