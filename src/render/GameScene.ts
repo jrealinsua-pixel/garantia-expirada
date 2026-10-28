@@ -2,7 +2,8 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText } from '../art/font.ts';
-import { activeWarnings, createWorld, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { DEATH_STAMPS, RESTOCK_LINE } from '../data/texts.ts';
+import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
@@ -31,6 +32,20 @@ interface Particle {
   spin: number;
   fade: boolean;
   anim?: { key: string; frames: number; fps: number };
+  /** Half size of the image, for bouncing particles (their origin moves up with the height). */
+  hw?: number;
+  hh?: number;
+  /** Seconds it fades out over at the end (default 0.4). */
+  fadeTime?: number;
+}
+
+/** A piece of an enemy's sprite (frame `name` of the texture `key`), `dx, dy` px from its feet. */
+interface SpritePiece {
+  name: string;
+  dx: number;
+  dy: number;
+  w: number;
+  h: number;
 }
 
 interface FloatText {
@@ -55,6 +70,9 @@ export interface GameStateForTests {
   enemyDamage: number;
   fps: number;
   shots: number;
+  kills: number;
+  coupons: number;
+  pickups: number;
 }
 
 export class GameScene extends Phaser.Scene {
@@ -78,6 +96,13 @@ export class GameScene extends Phaser.Scene {
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
   private enemySprites = new Map<number, EnemyView>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
+  private pickupSprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image }>();
+  /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
+  private pieces = new Map<string, SpritePiece[]>();
+  private couponIcon!: Phaser.GameObjects.Image;
+  private couponText!: Phaser.GameObjects.BitmapText;
+  private couponPop = 0;
+  private banner!: Phaser.GameObjects.BitmapText;
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
   private hearts: Phaser.GameObjects.Image[] = [];
@@ -121,17 +146,7 @@ export class GameScene extends Phaser.Scene {
       this.dummySprites.set(d.id, this.add.image(d.x, d.y, 'maniqui').setOrigin(0.5, 38 / 40).setDepth(d.y));
     }
 
-    for (const en of this.world.enemies) {
-      const flying = enemyAltitude(en) > 0;
-      const shadow = this.add.image(en.x, en.y, flying ? shadowTexture(this, 4, 2) : shadowTexture(this, 10, 3)).setDepth(-50000);
-      const sheet = this.textures.get(en.def.sprite);
-      const s = this.add.image(en.x, en.y, en.def.sprite, sheet.frameTotal > 2 ? 0 : undefined);
-      s.setOrigin(en.def.anchor.x / s.width, en.def.anchor.y / s.height);
-      const v: EnemyView = { s, shadow };
-      if (SPRITE_BLINKS[en.def.sprite]) v.blink = this.add.graphics();
-      if (SPRITE_GLOWS[en.def.sprite]) v.glow = this.add.graphics().setBlendMode(Phaser.BlendModes.ADD);
-      this.enemySprites.set(en.id, v);
-    }
+    for (const en of this.world.enemies) this.makeEnemyView(en);
 
     this.heroShadow = this.add.image(0, 0, shadowTexture(this, 9, 3)).setDepth(-50000);
     this.hero = this.add.sprite(0, 0, 'tostadora', 0);
@@ -146,6 +161,11 @@ export class GameScene extends Phaser.Scene {
     const mag = this.world.player.weapon.def.magazine;
     for (let i = 0; i < mag; i++) this.ammoPips.push(this.hud(this.add.image(VIEW_W - 8 - (mag - i) * 4, VIEW_H - 14, 'municion', 0).setOrigin(0, 0)));
     this.hud(this.add.image(VIEW_W - 12 - mag * 4 - 20, VIEW_H - 15, 'arma-secador').setOrigin(0, 0));
+    this.couponIcon = this.hud(this.add.image(7, 19, 'cupon', 0).setOrigin(0, 0));
+    this.couponText = this.hud(this.add.bitmapText(21, 20, FONT, '0', 8));
+    this.couponText.setTint(0xf6c431);
+    this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
+    this.banner.setTint(0xf6c431).setAlpha(0);
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.hint = this.hud(
       this.add.bitmapText(8, VIEW_H - 16, FONT, fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar · 1-5 balas enemigas'), 8),
@@ -172,6 +192,132 @@ export class GameScene extends Phaser.Scene {
     };
   }
 
+  private makeEnemyView(en: Enemy): EnemyView {
+    const flying = enemyAltitude(en) > 0;
+    const shadow = this.add.image(en.x, en.y, flying ? shadowTexture(this, 4, 2) : shadowTexture(this, 10, 3)).setDepth(-50000);
+    const sheet = this.textures.get(en.def.sprite);
+    const s = this.add.image(en.x, en.y, en.def.sprite, sheet.frameTotal > 2 ? 0 : undefined);
+    s.setOrigin(en.def.anchor.x / s.width, en.def.anchor.y / s.height);
+    const v: EnemyView = { s, shadow };
+    if (SPRITE_BLINKS[en.def.sprite]) v.blink = this.add.graphics();
+    if (SPRITE_GLOWS[en.def.sprite]) v.glow = this.add.graphics().setBlendMode(Phaser.BlendModes.ADD);
+    this.enemySprites.set(en.id, v);
+    return v;
+  }
+
+  private destroyEnemyView(id: number): void {
+    const v = this.enemySprites.get(id);
+    if (!v) return;
+    v.s.destroy();
+    v.shadow.destroy();
+    v.blink?.destroy();
+    v.glow?.destroy();
+    this.enemySprites.delete(id);
+  }
+
+  /**
+   * Cuts a sprite frame into 8x8 pieces (only the ones with enough pixels), as frames of a new
+   * texture, so an enemy can come apart into bits of itself.
+   */
+  private piecesOf(key: string, frame: string | number, anchor: { x: number; y: number }): { tex: string; list: SpritePiece[] } {
+    const tex = `piezas-${key}-${frame}`;
+    const known = this.pieces.get(tex);
+    if (known) return { tex, list: known };
+    const fr = this.textures.getFrame(key, frame);
+    const ct = this.textures.createCanvas(tex, fr.cutWidth, fr.cutHeight);
+    const list: SpritePiece[] = [];
+    if (!ct) return { tex, list };
+    const ctx = ct.getContext();
+    ctx.drawImage(fr.source.image as CanvasImageSource, fr.cutX, fr.cutY, fr.cutWidth, fr.cutHeight, 0, 0, fr.cutWidth, fr.cutHeight);
+    const data = ctx.getImageData(0, 0, fr.cutWidth, fr.cutHeight).data;
+    const CELL = 8;
+    for (let y = 0; y < fr.cutHeight; y += CELL) {
+      for (let x = 0; x < fr.cutWidth; x += CELL) {
+        const w = Math.min(CELL, fr.cutWidth - x);
+        const h = Math.min(CELL, fr.cutHeight - y);
+        let solid = 0;
+        for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (data[((y + j) * fr.cutWidth + x + i) * 4 + 3]! > 0) solid++;
+        if (solid < 14) continue;
+        const name = `p${list.length}`;
+        ct.add(name, 0, x, y, w, h);
+        list.push({ name, dx: x + w / 2 - anchor.x, dy: y + h / 2 - anchor.y, w, h });
+      }
+    }
+    ct.refresh();
+    this.pieces.set(tex, list);
+    return { tex, list };
+  }
+
+  /** The enemy comes apart: flash, smoke, sparks, bits of its own sprite and loose screws. */
+  private breakApart(e: Extract<SimEvent, { type: 'death' }>): void {
+    const v = this.enemySprites.get(e.source);
+    // Small fry (the moth) gets a smaller send-off.
+    const big = !v || v.s.width >= 20;
+    this.hitstop = big ? 0.08 : 0.04;
+    this.cameras.main.shake(big ? 170 : 90, big ? 0.009 : 0.005, true);
+    this.sound2.play('desmontar', { detune: big ? this.fx.range(-150, 100) : 500, volume: big ? 1 : 0.6 });
+    const cx = e.x;
+    const cy = e.y - e.alt;
+    if (v) {
+      const s = v.s;
+      // A white silhouette for a couple of frames where it was.
+      const ghost = this.add.image(s.x, s.y, s.texture.key, s.frame.name).setOrigin(s.originX, s.originY).setScale(s.scaleX, 1).setTintFill(0xffffff).setDepth(s.depth);
+      this.particles.push({ s: ghost, vx: 0, vy: 0, z: 0, vz: 0, life: 0.07, maxLife: 0.07, gravity: false, spin: 0, fade: false });
+      const { tex, list } = this.piecesOf(s.texture.key, s.frame.name, { x: s.originX * s.width, y: s.originY * s.height });
+      const flip = s.scaleX < 0 ? -1 : 1;
+      for (const pc of list) {
+        const img = this.add.image(0, 0, tex, pc.name).setFlipX(flip < 0);
+        const px = e.x + pc.dx * flip;
+        // Each piece flies off from the centre of the body and along the killing shot.
+        const out = Math.atan2(pc.dy + 14, pc.dx * flip);
+        const sp = this.fx.range(25, 70);
+        const floorY = e.y + this.fx.range(-4, 4);
+        this.particles.push({
+          s: img.setPosition(px, floorY),
+          vx: Math.cos(out) * sp * 0.6 + Math.cos(e.angle) * this.fx.range(30, 70),
+          vy: Math.sin(e.angle) * this.fx.range(10, 30) + this.fx.range(-12, 12),
+          z: Math.max(1, -pc.dy + e.alt),
+          vz: this.fx.range(50, 120),
+          life: this.fx.range(2.2, 3.2),
+          maxLife: 3.2,
+          gravity: true,
+          spin: this.fx.range(-12, 12),
+          fade: true,
+          fadeTime: 0.6,
+          hw: pc.w / 2,
+          hh: pc.h / 2,
+        });
+      }
+      this.destroyEnemyView(e.source);
+    }
+    // Loose screws, nuts and springs.
+    const n = big ? 6 : 2;
+    for (let i = 0; i < n; i++) {
+      const a = e.angle + this.fx.range(-1.8, 1.8);
+      this.particles.push({
+        s: this.add.image(cx, e.y + this.fx.range(-3, 3), 'chatarra', this.fx.int(0, 3)),
+        vx: Math.cos(a) * this.fx.range(30, 90),
+        vy: Math.sin(a) * this.fx.range(10, 30),
+        z: Math.max(2, e.y - cy + 12),
+        vz: this.fx.range(70, 140),
+        life: this.fx.range(1.8, 2.6),
+        maxLife: 2.6,
+        gravity: true,
+        spin: this.fx.range(-16, 16),
+        fade: true,
+        hw: 3,
+        hh: 3,
+      });
+    }
+    for (let i = 0; i < (big ? 6 : 3); i++) this.puff(cx + this.fx.range(-8, 8), cy - this.fx.range(4, 20), this.fx.range(0.4, 0.7));
+    for (let i = 0; i < (big ? 14 : 6); i++) this.spark(cx, cy - 12, this.fx.range(0, Math.PI * 2), this.fx.range(60, 160), this.fx.int(0, 3));
+    if (big) {
+      const stamp = DEATH_STAMPS[this.fx.int(0, DEATH_STAMPS.length - 1)]!;
+      const t = this.add.bitmapText(Math.round(cx), Math.round(cy - 30), FONT, fontText(stamp), 8).setOrigin(0.5, 1).setDepth(85000).setTint(0xe0453b);
+      this.floats.push({ t, vy: -18, life: 1.1 });
+    }
+  }
+
   private hud<T extends Phaser.GameObjects.Components.ScrollFactor & Phaser.GameObjects.Components.Depth>(o: T): T {
     o.setScrollFactor(0);
     o.setDepth(95000);
@@ -195,6 +341,9 @@ export class GameScene extends Phaser.Scene {
       enemyDamage: this.world.enemies.reduce((a, d) => a + d.damageTaken, 0),
       fps: this.game.loop.actualFps,
       shots: this.shots,
+      kills: this.world.kills,
+      coupons: p.coupons,
+      pickups: this.world.pickups.length,
     };
   }
 
@@ -296,6 +445,21 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'dart':
           this.sound2.play('aleteo', { detune: this.fx.range(-200, 200) });
+          break;
+        case 'death':
+          this.breakApart(e);
+          break;
+        case 'pickup':
+          this.couponPop = 0.25;
+          this.sound2.play('cupon', { detune: Math.min(600, (e.total % 8) * 80) });
+          for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 3, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1);
+          break;
+        case 'restock':
+          this.sound2.play('reponer');
+          this.banner.setText(fontText(RESTOCK_LINE)).setAlpha(1);
+          this.tweens.killTweensOf(this.banner);
+          this.tweens.add({ targets: this.banner, alpha: 0, delay: 1400, duration: 600 });
+          for (const en of this.world.enemies) for (let i = 0; i < 4; i++) this.puff(en.x + this.fx.range(-8, 8), en.y - enemyAltitude(en) - this.fx.range(0, 16), 0.5);
           break;
         case 'telegraph':
           this.warnings++;
@@ -413,10 +577,9 @@ export class GameScene extends Phaser.Scene {
       else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
       else s.clearTint();
     }
-    // Enemies.
+    // Enemies (the ones that come back after a restock get their sprites here).
     for (const en of w.enemies) {
-      const v = this.enemySprites.get(en.id);
-      if (!v) continue;
+      const v = this.enemySprites.get(en.id) ?? this.makeEnemyView(en);
       const s = v.s;
       const warnK = sourceTelegraph(w, en.id);
       // Hop of one pixel while walking; leans into the charge, back when braking, wobbles when stunned.
@@ -472,7 +635,13 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    if (this.enemySprites.size > w.enemies.length) {
+      const ids = new Set(w.enemies.map((en) => en.id));
+      for (const id of [...this.enemySprites.keys()]) if (!ids.has(id)) this.destroyEnemyView(id);
+    }
+
     this.drawWarnings();
+    this.drawPickups();
 
     // Bullets.
     const alive = new Set<number>();
@@ -497,6 +666,29 @@ export class GameScene extends Phaser.Scene {
     this.updateParticles(dt);
     this.updateHud(dt);
     this.updateCamera(dt);
+  }
+
+  /** Coupons hop out when they drop, then lie there glinting now and then. */
+  private drawPickups(): void {
+    const alive = new Set<number>();
+    for (const k of this.world.pickups) {
+      alive.add(k.id);
+      let v = this.pickupSprites.get(k.id);
+      if (!v) {
+        v = { s: this.add.image(k.x, k.y, 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, 4, 2)).setDepth(-50000) };
+        this.pickupSprites.set(k.id, v);
+      }
+      const hop = k.age < PICKUP_DELAY ? Math.sin((Math.PI * k.age) / PICKUP_DELAY) * 12 : Math.max(0, Math.sin(this.time.now / 260 + k.id)) * 1.5;
+      const glint = Math.floor(this.time.now / 90 + k.id * 7) % 16 === 0;
+      v.s.setPosition(Math.round(k.x), Math.round(k.y - hop)).setFrame(glint ? 1 : 0).setDepth(k.y);
+      v.shadow.setPosition(Math.round(k.x), Math.round(k.y));
+    }
+    for (const [id, v] of this.pickupSprites) {
+      if (alive.has(id)) continue;
+      v.s.destroy();
+      v.shadow.destroy();
+      this.pickupSprites.delete(id);
+    }
   }
 
   private drawWarnings(): void {
@@ -557,14 +749,15 @@ export class GameScene extends Phaser.Scene {
         q.s.rotation += q.spin * dt;
         q.s.setDepth(q.s.y - 1);
         q.s.setPosition(q.s.x, q.s.y);
-        q.s.setDisplayOrigin(2, 2 + q.z);
+        q.s.setDisplayOrigin(q.hw ?? 2, (q.hh ?? 2) + q.z);
       } else {
         q.vx *= 0.9;
         q.vy *= 0.9;
         q.s.setDepth(85000);
       }
       if (q.anim) q.s.setFrame(Math.min(q.anim.frames - 1, Math.floor((1 - q.life / q.maxLife) * q.anim.frames)));
-      if (q.fade && q.life < 0.4) q.s.setAlpha(Math.round((q.life / 0.4) * 3) / 3);
+      const ft = q.fadeTime ?? 0.4;
+      if (q.fade && q.life < ft) q.s.setAlpha(Math.round((q.life / ft) * 3) / 3);
       keep.push(q);
     }
     this.particles = keep;
@@ -588,6 +781,10 @@ export class GameScene extends Phaser.Scene {
       const hp = p.hp - i * 2;
       h.setFrame(hp >= 2 ? 0 : hp === 1 ? 1 : 2);
     });
+    this.couponText.setText(String(p.coupons));
+    this.couponPop = Math.max(0, this.couponPop - dt);
+    this.couponIcon.setY(this.couponPop > 0.12 ? 17 : 19);
+    this.couponText.setTint(this.couponPop > 0 ? 0xfff1a8 : 0xf6c431);
     const ws = p.weapon;
     this.ammoPips.forEach((s, i) => s.setFrame(i < ws.ammo ? 0 : 1));
     this.ammoText.setText(ws.reload > 0 ? fontText('Recargando') : `${ws.ammo}/${ws.def.magazine}`);

@@ -21,6 +21,9 @@ interface State {
   enemyDamage: number;
   fps: number;
   shots: number;
+  kills: number;
+  coupons: number;
+  pickups: number;
 }
 
 interface Page {
@@ -129,6 +132,38 @@ try {
   await shot('08-bombilla.png');
   await page.waitForTimeout(600);
 
+  // Taking an enemy apart: the microwave, already worn down, shot from close; then pick up its coupons.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const m = w.enemies.find((e) => e.def.id === 'microondas');
+    m.damageTaken = m.def.hp - 3; w.player.x = m.x + 60; w.player.y = m.y + 6; w.player.weapon.ammo = w.player.weapon.def.magazine; w.player.weapon.reload = 0; })()`);
+  const mw = await page.evaluate<{ x: number; y: number }>(`(() => { const m = window.__GE__.scene.world.enemies.find((e) => e.def.id === 'microondas'); return { x: m.x, y: m.y - 14 }; })()`);
+  // Let the camera settle on the new spot, then keep the crosshair on it while firing.
+  await page.waitForTimeout(700);
+  await aimAt(mw.x, mw.y);
+  await page.mouse.down();
+  for (let i = 0; i < 25 && (await state()).kills === 0; i++) {
+    await aimAt(mw.x, mw.y);
+    await page.waitForTimeout(100);
+  }
+  await page.mouse.up();
+  if ((await state()).kills === 0) {
+    await shot('error-desmontaje.png');
+    const dbg = await page.evaluate<string>(`(() => { const w = window.__GE__.scene.world; const m = w.enemies.find((e) => e.def.id === 'microondas');
+      return JSON.stringify({ m: m && { x: m.x, y: m.y, dmg: m.damageTaken }, p: { x: w.player.x, y: w.player.y, aim: w.player.aim, ammo: w.player.weapon.ammo } }); })()`);
+    throw new Error('El microondas no se ha desmontado: ' + dbg);
+  }
+  await page.waitForTimeout(160);
+  await shot('09-desmontaje.png');
+  await page.waitForTimeout(700);
+  await shot('10-cupones.png');
+  const sk = await state();
+  if (sk.pickups === 0 && sk.coupons === 0) {
+    // The loot roll can give nothing only for enemies whose range starts at 0: the microwave always drops some.
+    throw new Error('El microondas no ha soltado cupones');
+  }
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const k of w.pickups) { k.x = w.player.x + 20; k.y = w.player.y; } })()`);
+  await page.waitForTimeout(600);
+  if ((await state()).coupons === 0) throw new Error('La tostadora no ha recogido los cupones');
+
   // Free play for the rest of the time: strafe around shooting at both dummies.
   const keys = ['w', 'a', 's', 'd'];
   const t0 = Date.now();
@@ -172,7 +207,10 @@ try {
   await shot('05-final.png');
   await page.mouse.up();
   const s3 = await state();
-  console.log(`e2e: ${s3.tick} ticks, ${s3.shots} disparos, ${s3.dummyDamage} de daño al maniquí, ${s3.enemyDamage} al aspirador, ${s3.charges} embestidas, ~${Math.round(s3.fps)} fps.`);
+  console.log(
+    `e2e: ${s3.tick} ticks, ${s3.shots} disparos, ${s3.dummyDamage} de daño al maniquí, ${s3.enemyDamage} a los enemigos, ` +
+      `${s3.charges} embestidas, ${s3.kills} bajas, ${s3.coupons} cupones, ~${Math.round(s3.fps)} fps.`,
+  );
   if (s3.charges === 0) throw new Error('El aspirador no ha embestido en toda la partida');
   if (s3.tick < 60 * seconds * 0.5) throw new Error(`La simulación va lenta: ${s3.tick} ticks en ${seconds} s`);
 } catch (e) {

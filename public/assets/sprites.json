@@ -143,6 +143,18 @@
     "frameH": 270,
     "frames": 1
   },
+  "cupon": {
+    "file": "cupon.png",
+    "frameW": 12,
+    "frameH": 9,
+    "frames": 2
+  },
+  "chatarra": {
+    "file": "chatarra.png",
+    "frameW": 6,
+    "frameH": 6,
+    "frames": 4
+  },
   "objeto-pila": {
     "file": "objeto-pila.png",
     "frameW": 16,

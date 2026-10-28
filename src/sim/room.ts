@@ -29,6 +29,8 @@ export interface Room {
   props: PropInstance[];
   dummySpawns: Array<{ def: DummyDef; x: number; y: number }>;
   enemySpawns: Array<{ def: EnemyDef; x: number; y: number }>;
+  /** Seconds before dead enemies come back (0 = never). */
+  restock: number;
 }
 
 const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito' };
@@ -62,7 +64,7 @@ export function buildRoom(t: RoomTemplate): Room {
     if (!tiles[c] || !tiles[(rows - 1) * cols + c]) throw new Error(`Room ${t.id}: the border must be wall`);
   }
   if (!playerStart) throw new Error(`Room ${t.id}: no player start (P)`);
-  return { id: t.id, name: t.name, cols, rows, w: cols * TILE, h: rows * TILE, tiles, playerStart, props, dummySpawns, enemySpawns };
+  return { id: t.id, name: t.name, cols, rows, w: cols * TILE, h: rows * TILE, tiles, playerStart, props, dummySpawns, enemySpawns, restock: t.restock ?? 0 };
 }
 
 export function isWallAt(room: Room, px: number, py: number): boolean {

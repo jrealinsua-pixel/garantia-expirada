@@ -93,5 +93,10 @@ export const SFX: Record<string, SfxParams> = {
   // Bombilla de Bajo Consumo switching on (fluorescent buzz) and its moth diving (wing flutter).
   encender: { wave: 'saw', freq: 100, freqEnd: 125, attack: 0.01, sustain: 0.28, decay: 0.12, volume: 0.13, vibrato: 0.3, vibratoSpeed: 50, lowpass: 0.3 },
   aleteo: { wave: 'noise', freq: 1400, freqEnd: 700, attack: 0.005, sustain: 0.08, decay: 0.1, volume: 0.16, lowpass: 0.4, vibrato: 0.5, vibratoSpeed: 40 },
+  // Coming apart: a crunch of plastic and metal, then the bits rattling down.
+  desmontar: { wave: 'noise', freq: 1800, freqEnd: 160, attack: 0.001, sustain: 0.06, decay: 0.32, volume: 0.34, lowpass: 0.45, crush: 3 },
+  // A coupon picked up: a short, bright till «ding».
+  cupon: { wave: 'square', freq: 1350, freqEnd: 2100, attack: 0.001, sustain: 0.03, decay: 0.08, volume: 0.12, duty: 0.25 },
+  reponer: { wave: 'square', freq: 520, freqEnd: 260, attack: 0.01, sustain: 0.12, decay: 0.15, volume: 0.12, duty: 0.4, vibrato: 0.04, vibratoSpeed: 9 },
   vacio: { wave: 'square', freq: 220, freqEnd: 200, attack: 0.001, sustain: 0.015, decay: 0.02, volume: 0.15, duty: 0.15 },
 };

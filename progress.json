@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T21:32:00+01:00",
+  "actualizado": "2026-10-28T22:34:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 5,
+      "hechas": 6,
       "total": 10
     },
     {
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 77,
-    "tests_ok": 77,
+    "tests": 89,
+    "tests_ok": 89,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 3176
+    "lineas_codigo": 3541
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T22:34:00+01:00",
+      "hito": "M2",
+      "resumen": "Los enemigos ya mueren: se desmontan en trozos de su propio sprite con tornillos, muelles, humo y un sello («Fuera de garantía», «Obsoleto»…), y sueltan cupones descuento que la tostadora recoge. La Sala de Pruebas repone su stock 4 s después de vaciarse. Contador de cupones en el HUD.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T21:32:00+01:00",
       "hito": "M2",
@@ -160,6 +166,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/desmontaje.png",
+      "pie": "El Microondas Sin Seguro se desmonta en piezas y suelta un cupón descuento (ampliado)"
+    },
+    {
       "archivo": "capturas/bombilla.png",
       "pie": "La Bombilla de Bajo Consumo suelta su espiral de chispas; debajo, la Polilla Fiel (ampliado)"
     },
@@ -180,6 +190,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: «Vida, daño, muerte» (desmontaje en piezas y cupones) y corazones del jugador; después la IA del bot que esquiva para medir dificultad.",
+  "proximo": "M2: corazones del jugador y HUD (las balas enemigas ya podrán hacer daño) con la animación de golpe y muerte de la tostadora; después los dos enemigos nuevos y el bot que esquiva.",
   "bloqueos": []
 }

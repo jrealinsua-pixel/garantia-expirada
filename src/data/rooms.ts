@@ -5,6 +5,8 @@ export const ROOMS: Record<string, RoomTemplate> = {
   'sala-pruebas': {
     id: 'sala-pruebas',
     name: 'Sala de Pruebas de Devoluciones',
+    // Returns are restocked: a few seconds after the last enemy falls apart, they are all back.
+    restock: 4,
     rows: [
       '##########################',
       '##########################',

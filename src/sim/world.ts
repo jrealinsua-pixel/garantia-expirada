@@ -65,7 +65,31 @@ export interface Player {
   weapon: WeaponState;
   /** Distance walked, for the walk animation. */
   walked: number;
+  /** Discount coupons picked up (the currency). */
+  coupons: number;
 }
+
+export type PickupKind = 'cupon';
+
+/** Something lying on the floor that the player picks up by walking over it. */
+export interface Pickup {
+  id: number;
+  kind: PickupKind;
+  value: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  /** Seconds since it dropped: it can only be picked up (or pulled in) after PICKUP_DELAY. */
+  age: number;
+}
+
+/** Seconds a fresh pickup scatters before it can be collected. */
+export const PICKUP_DELAY = 0.45;
+/** Pickups closer than this to the player fly towards it (px). */
+export const PICKUP_MAGNET = 44;
+const PICKUP_GRAB = 8;
+const PICKUP_FRICTION = 260;
 
 export interface Bullet {
   id: number;
@@ -157,6 +181,8 @@ export interface Enemy {
   owner: number;
   /** Free angle for brains that circle something (the moth's place in its orbit). */
   phase: number;
+  /** Direction of the last bullet that hit it: it comes apart that way. */
+  lastHit: number;
 }
 
 export type SimEvent =
@@ -174,6 +200,10 @@ export type SimEvent =
   | { type: 'contact'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'switchOn'; x: number; y: number; source: number }
   | { type: 'dart'; x: number; y: number; dirX: number; dirY: number; source: number }
+  /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
+  | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
+  | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
+  | { type: 'restock' }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
 
 export interface World {
@@ -186,8 +216,15 @@ export interface World {
   dummies: Dummy[];
   enemies: Enemy[];
   emitters: Emitter[];
+  pickups: Pickup[];
   events: SimEvent[];
   nextId: number;
+  /** Enemies taken apart so far. */
+  kills: number;
+  /** Seconds the room has been empty, counting towards its restock. */
+  emptyT: number;
+  /** Whether this world spawns the room's enemies at all. */
+  spawnsEnemies: boolean;
 }
 
 export interface WorldOptions {
@@ -208,21 +245,7 @@ export function createWorld(opts: WorldOptions): World {
   const room = buildRoom(tpl);
   let nextId = 1;
   const dummies: Dummy[] = room.dummySpawns.map((s) => ({ id: nextId++, def: s.def, x: s.x, y: s.y, lean: 0, leanV: 0, hitT: 0, damageTaken: 0 }));
-  const enemies: Enemy[] = [];
-  if (!opts.noEnemies) {
-    for (const s of room.enemySpawns) {
-      const en = spawnEnemy(nextId++, s.def, s.x, s.y);
-      enemies.push(en);
-      if (s.def.escort) {
-        const edef = ENEMIES[s.def.escort];
-        if (!edef) throw new Error(`Unknown escort ${s.def.escort}`);
-        const esc = spawnEnemy(nextId++, edef, s.x + 18, s.y - 4);
-        esc.owner = en.id;
-        enemies.push(esc);
-      }
-    }
-  }
-  return {
+  const w: World = {
     seed: opts.seed,
     tick: 0,
     rng: new Rng(opts.seed),
@@ -243,14 +266,36 @@ export function createWorld(opts: WorldOptions): World {
       invulnerable: 0,
       weapon: { def: wdef, ammo: wdef.magazine, cooldown: 0, reload: 0 },
       walked: 0,
+      coupons: 0,
     },
     bullets: [],
     dummies,
-    enemies,
+    enemies: [],
     emitters: [],
+    pickups: [],
     events: [],
     nextId,
+    kills: 0,
+    emptyT: 0,
+    spawnsEnemies: !opts.noEnemies,
   };
+  if (w.spawnsEnemies) spawnRoomEnemies(w);
+  return w;
+}
+
+/** Puts the room's enemies (and their escorts) at their spawn points. */
+function spawnRoomEnemies(w: World): void {
+  for (const s of w.room.enemySpawns) {
+    const en = spawnEnemy(w.nextId++, s.def, s.x, s.y);
+    w.enemies.push(en);
+    if (s.def.escort) {
+      const edef = ENEMIES[s.def.escort];
+      if (!edef) throw new Error(`Unknown escort ${s.def.escort}`);
+      const esc = spawnEnemy(w.nextId++, edef, s.x + 18, s.y - 4);
+      esc.owner = en.id;
+      w.enemies.push(esc);
+    }
+  }
 }
 
 export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Enemy {
@@ -264,7 +309,7 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
     state = 'idle';
     until = b.interval[0];
   }
-  return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0 };
+  return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0, lastHit: 0 };
 }
 
 /** Pixels above the ground an enemy is drawn (and hit) at: only flying ones are off the floor. */
@@ -487,10 +532,12 @@ function updateBullets(w: World): void {
       }
       if (b.owner === 'player') {
         for (const en of w.enemies) {
+          if (isDead(en)) continue;
           const hb = dummyHurtBox(en);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
             en.hitT = 0.12;
             en.damageTaken += b.damage;
+            en.lastHit = angle;
             const k = b.knockback * en.def.knockbackScale;
             en.vx += Math.cos(angle) * k;
             en.vy += Math.sin(angle) * k;
@@ -632,6 +679,84 @@ function updateDummies(w: World): void {
   }
 }
 
+export const isDead = (en: Enemy): boolean => en.damageTaken >= en.def.hp;
+
+/** Takes apart the enemies with no life left: event, loot, and out of the world. */
+function reapEnemies(w: World): void {
+  if (!w.enemies.some(isDead)) return;
+  const keep: Enemy[] = [];
+  for (const en of w.enemies) {
+    if (!isDead(en)) {
+      keep.push(en);
+      continue;
+    }
+    w.kills++;
+    // Whatever it was about to fire dies with it.
+    w.emitters = w.emitters.filter((e) => e.source !== en.id);
+    const alt = enemyAltitude(en);
+    w.events.push({ type: 'death', x: en.x, y: en.y, alt, angle: en.lastHit, enemy: en.def.id, source: en.id });
+    const [lo, hi] = en.def.loot.coupons;
+    const n = w.rng.int(lo, hi);
+    for (let i = 0; i < n; i++) {
+      // Scattered around, a bit more in the direction of the killing shot.
+      const a = en.lastHit + w.rng.range(-1.6, 1.6);
+      const sp = w.rng.range(50, 110);
+      w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: en.x, y: en.y - 1, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+    }
+  }
+  w.enemies = keep;
+}
+
+function updatePickups(w: World): void {
+  if (w.pickups.length === 0) return;
+  const p = w.player;
+  const keep: Pickup[] = [];
+  for (const k of w.pickups) {
+    k.age += DT;
+    const dx = p.x - k.x;
+    const dy = p.y - 2 - k.y;
+    const d = Math.hypot(dx, dy);
+    if (k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
+      p.coupons += k.value;
+      w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: p.coupons });
+      continue;
+    }
+    if (k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
+      // Pulled in faster the closer it gets.
+      const sp = 90 + (1 - d / PICKUP_MAGNET) * 160;
+      k.vx = (dx / d) * sp;
+      k.vy = (dy / d) * sp;
+      k.x += k.vx * DT;
+      k.y += k.vy * DT;
+    } else {
+      const v = Math.hypot(k.vx, k.vy);
+      const nv = Math.max(0, v - PICKUP_FRICTION * DT);
+      if (v > 0) {
+        k.vx *= nv / v;
+        k.vy *= nv / v;
+      }
+      slide(w, k, 2, k.vx * DT, k.vy * DT);
+    }
+    keep.push(k);
+  }
+  w.pickups = keep;
+}
+
+/** Rooms that restock bring all their enemies back a while after the last one falls. */
+function updateRestock(w: World): void {
+  if (!w.spawnsEnemies || w.room.restock <= 0 || w.room.enemySpawns.length === 0) return;
+  if (w.enemies.length > 0) {
+    w.emptyT = 0;
+    return;
+  }
+  w.emptyT += DT;
+  if (w.emptyT >= w.room.restock) {
+    w.emptyT = 0;
+    spawnRoomEnemies(w);
+    w.events.push({ type: 'restock' });
+  }
+}
+
 export function step(w: World, input: Input): void {
   w.events = [];
   updatePlayer(w, input);
@@ -645,8 +770,11 @@ export function step(w: World, input: Input): void {
   }
   updateEmitters(w);
   updateBullets(w);
+  reapEnemies(w);
   updateDummies(w);
   updateEnemies(w);
+  updatePickups(w);
+  updateRestock(w);
   w.tick++;
 }
 
@@ -666,7 +794,10 @@ export function checkInvariants(w: World): string[] {
   if (p.weapon.ammo < 0 || p.weapon.ammo > p.weapon.def.magazine) errs.push(`ammo out of range: ${p.weapon.ammo}`);
   if (w.bullets.length > 2000) errs.push(`too many bullets: ${w.bullets.length}`);
   for (const b of w.bullets) if (!Number.isFinite(b.x) || !Number.isFinite(b.y)) errs.push(`bullet ${b.id} has invalid position`);
+  for (const k of w.pickups) if (!Number.isFinite(k.x) || !Number.isFinite(k.y) || isWallAt(w.room, k.x, k.y)) errs.push(`pickup ${k.id} lost at ${k.x},${k.y}`);
+  if (w.pickups.length > 500) errs.push(`too many pickups: ${w.pickups.length}`);
   for (const en of w.enemies) {
+    if (isDead(en)) errs.push(`enemy ${en.id} is dead but still in the world`);
     if (!Number.isFinite(en.x) || !Number.isFinite(en.y)) errs.push(`enemy ${en.id} has invalid position`);
     const eb = playerFeetBox(en, en.def.footRadius - 0.5);
     const ew: Rect[] = [];
@@ -679,7 +810,7 @@ export function checkInvariants(w: World): string[] {
 /** Compact fingerprint of the state, to check determinism. */
 export function worldHash(w: World): string {
   const p = w.player;
-  const parts = [w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId];
+  const parts = [w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, w.pickups.length];
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   return parts.join('|');

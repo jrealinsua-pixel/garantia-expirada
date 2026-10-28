@@ -11,6 +11,8 @@ export class Bot {
   private lastPos = { x: 0, y: 0, t: 0 };
   /** Times it tried to move and did not get anywhere for a while. */
   stuck = 0;
+  /** Ticks to leave the coupons alone (after getting stuck going for one). */
+  private ignorePickups = 0;
 
   constructor(seed: string) {
     this.rng = new Rng('bot:' + seed);
@@ -28,11 +30,23 @@ export class Bot {
       if (Math.hypot(p.x - this.lastPos.x, p.y - this.lastPos.y) < 3) {
         this.stuck++;
         this.target = null;
+        this.ignorePickups = 240;
       }
       this.lastPos = { x: p.x, y: p.y, t: w.tick };
     }
-    const tx = (this.target?.x ?? p.x) - p.x;
-    const ty = (this.target?.y ?? p.y) - p.y;
+    // Coupons lying close by are worth a detour.
+    let goal = this.target;
+    let near = 110;
+    if (this.ignorePickups > 0) this.ignorePickups--;
+    else for (const k of w.pickups) {
+      const d = Math.hypot(k.x - p.x, k.y - p.y);
+      if (d < near) {
+        near = d;
+        goal = { x: k.x, y: k.y };
+      }
+    }
+    const tx = (goal?.x ?? p.x) - p.x;
+    const ty = (goal?.y ?? p.y) - p.y;
     const l = Math.hypot(tx, ty) || 1;
     // Aim at the nearest target, with a little wobble.
     let aimX = p.x + 50;

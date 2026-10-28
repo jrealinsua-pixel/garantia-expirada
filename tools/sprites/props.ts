@@ -257,3 +257,52 @@ export function makeVignette(w = 480, h = 270, strength = 0.5): Canvas {
   }
   return cv;
 }
+
+/**
+ * Discount coupon (the currency): a yellow ticket with a perforated stub and a red «%».
+ * 2 frames of 12x9: plain and with a glint, so the ones on the floor catch the eye.
+ */
+export function makeCoupon(): Canvas {
+  const sheet = new Canvas(24, 9);
+  const pct = ['X.X', '..X', '.X.', 'X..', 'X.X'];
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(12, 9);
+    cv.rect(1, 1, 10, 7, YEL[1]!);
+    cv.rect(1, 1, 10, 1, YEL[0]!);
+    cv.rect(1, 7, 10, 1, YEL[2]!);
+    cv.rect(1, 2, 1, 5, YEL[2]!);
+    // Perforation between the stub and the body.
+    for (const y of [2, 4, 6]) cv.set(3, y, YEL[3]!);
+    pct.forEach((row, j) => [...row].forEach((ch, i) => ch === 'X' && cv.set(6 + i, 2 + j, RED[2]!)));
+    // Notches cut in both edges.
+    cv.put(1, 4, [0, 0, 0, 0]);
+    cv.put(10, 4, [0, 0, 0, 0]);
+    if (k === 1) {
+      for (const [x, y] of [[4, 2], [5, 2], [4, 3], [9, 5], [9, 6], [8, 6]] as const) cv.set(x, y, WHITE);
+    }
+    sheet.blit(outline(cv), k * 12, 0);
+  }
+  return sheet;
+}
+
+/** Scrap an enemy leaves when it comes apart: screw, nut, spring and a bent plate. 4 frames of 6x6. */
+export function makeScrap(): Canvas {
+  const sheet = new Canvas(24, 6);
+  const frames: string[][] = [
+    // screw: head and thread
+    ['....', '.LL.', '.BB.', '..B.', '..D.', '....'],
+    // nut with its hole
+    ['....', '.LB.', 'LKB.', '.BD.', '....', '....'],
+    // spring
+    ['....', '.LB.', '..D.', '.LB.', '..D.', '....'],
+    // bent plate
+    ['....', 'LL..', 'BBB.', '.DDD', '....', '....'],
+  ];
+  const col: Record<string, RGBA> = { L: STEEL[0]!, B: STEEL[2]!, D: STEEL[3]!, K };
+  frames.forEach((f, k) => {
+    const cv = new Canvas(6, 6);
+    f.forEach((row, j) => [...row].forEach((ch, i) => ch !== '.' && cv.set(i + 1, j, col[ch]!)));
+    sheet.blit(outline(cv), k * 6, 0);
+  });
+  return sheet;
+}

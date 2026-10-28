@@ -5,6 +5,7 @@ export { ROOMS } from './rooms.ts';
 export { PROPS, DUMMIES } from './props.ts';
 
 export { ENEMIES } from './enemies.ts';
+export { DEATH_STAMPS, RESTOCK_LINE } from './texts.ts';
 /** Bosses (M4). */
 export const BOSSES: Record<string, unknown> = {};
 /** Passive and active items (M5). */

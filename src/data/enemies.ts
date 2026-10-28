@@ -14,6 +14,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     footRadius: 6,
     contactPush: 230,
     knockbackScale: 0.5,
+    loot: { coupons: [1, 2] },
     brain: {
       kind: 'charger',
       walkSpeed: 28,
@@ -38,6 +39,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     footRadius: 7,
     contactPush: 120,
     knockbackScale: 0,
+    loot: { coupons: [1, 3] },
     brain: {
       kind: 'turret',
       range: 260,
@@ -59,6 +61,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     footRadius: 6,
     contactPush: 140,
     knockbackScale: 0.25,
+    loot: { coupons: [3, 5] },
     escort: 'polilla',
     brain: {
       kind: 'turret',
@@ -84,6 +87,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     footRadius: 3,
     contactPush: 150,
     knockbackScale: 1.2,
+    loot: { coupons: [0, 1] },
     brain: {
       kind: 'moth',
       orbitRadius: 26,

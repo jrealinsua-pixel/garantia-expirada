@@ -73,6 +73,14 @@ export interface RoomTemplate {
   id: string;
   name: string;
   rows: readonly string[];
+  /** Seconds after the last enemy dies before the room's enemies come back (test room only). */
+  restock?: number;
+}
+
+/** What an enemy leaves behind when it is taken apart. */
+export interface LootDef {
+  /** How many coupons it drops (random in this range, both included). */
+  coupons: [number, number];
 }
 
 /**
@@ -156,6 +164,7 @@ export interface EnemyDef {
   /** How much a bullet's knockback moves it (0 = immovable). */
   knockbackScale: number;
   brain: EnemyBrain;
+  loot: LootDef;
   /** Enemy id that always comes with this one (spawned next to it, owned by it). */
   escort?: string;
 }
