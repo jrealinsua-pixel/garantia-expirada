@@ -17,6 +17,8 @@ interface State {
   rolling: boolean;
   dummyDamage: number;
   warnings: number;
+  charges: number;
+  enemyDamage: number;
   fps: number;
   shots: number;
 }
@@ -156,7 +158,8 @@ try {
   await shot('05-final.png');
   await page.mouse.up();
   const s3 = await state();
-  console.log(`e2e: ${s3.tick} ticks, ${s3.shots} disparos, ${s3.dummyDamage} de daño al maniquí, ~${Math.round(s3.fps)} fps.`);
+  console.log(`e2e: ${s3.tick} ticks, ${s3.shots} disparos, ${s3.dummyDamage} de daño al maniquí, ${s3.enemyDamage} al aspirador, ${s3.charges} embestidas, ~${Math.round(s3.fps)} fps.`);
+  if (s3.charges === 0) throw new Error('El aspirador no ha embestido en toda la partida');
   if (s3.tick < 60 * seconds * 0.5) throw new Error(`La simulación va lenta: ${s3.tick} ticks en ${seconds} s`);
 } catch (e) {
   failed = true;

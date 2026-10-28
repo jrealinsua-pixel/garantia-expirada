@@ -65,11 +65,53 @@ export interface DummyDef {
 
 /**
  * Room templates are drawn as text. Legend:
- * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `M` training dummy.
+ * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `M` training dummy,
+ * `A` Aspirador Desahuciado.
  * The top two rows are the back wall (shelves are painted on them).
  */
 export interface RoomTemplate {
   id: string;
   name: string;
   rows: readonly string[];
+}
+
+/**
+ * Charges in a straight line: walks towards the player, warns (`telegraph` s, direction locked),
+ * dashes at `chargeSpeed` for up to `chargeTime` s, then brakes for `recover` s. Hitting a wall
+ * or a prop mid-charge stuns it for `stun` s.
+ */
+export interface ChargerBrain {
+  kind: 'charger';
+  walkSpeed: number;
+  /** Only charges when the player is closer than this (px). */
+  range: number;
+  /** Seconds walking between charges (random in this range). */
+  walkTime: [number, number];
+  telegraph: number;
+  chargeSpeed: number;
+  chargeTime: number;
+  /** Deceleration while braking (px/s²). */
+  brake: number;
+  recover: number;
+  stun: number;
+}
+
+export type EnemyBrain = ChargerBrain;
+
+export interface EnemyDef {
+  id: string;
+  name: string;
+  description: string;
+  hp: number;
+  /** Texture key. */
+  sprite: string;
+  /** Hit box relative to the feet position. */
+  hurt: { x: number; y: number; w: number; h: number };
+  /** Half size of the feet collision box (px). */
+  footRadius: number;
+  /** Speed given to the player when it bumps into them (px/s). */
+  contactPush: number;
+  /** How much a bullet's knockback moves it (0 = immovable). */
+  knockbackScale: number;
+  brain: EnemyBrain;
 }

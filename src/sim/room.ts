@@ -1,6 +1,7 @@
 // Room geometry built from a text template (src/data/rooms.ts).
 import { DUMMIES, PROPS } from '../data/props.ts';
-import type { DummyDef, PropDef, RoomTemplate } from '../data/types.ts';
+import { ENEMIES } from '../data/enemies.ts';
+import type { DummyDef, EnemyDef, PropDef, RoomTemplate } from '../data/types.ts';
 import type { Rect, Vec } from './vec.ts';
 
 export const TILE = 24;
@@ -27,9 +28,11 @@ export interface Room {
   playerStart: Vec;
   props: PropInstance[];
   dummySpawns: Array<{ def: DummyDef; x: number; y: number }>;
+  enemySpawns: Array<{ def: EnemyDef; x: number; y: number }>;
 }
 
 const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito' };
+const ENEMY_CHARS: Record<string, string> = { A: 'aspirador' };
 
 export function buildRoom(t: RoomTemplate): Room {
   const rows = t.rows.length;
@@ -38,6 +41,7 @@ export function buildRoom(t: RoomTemplate): Room {
   const tiles = new Uint8Array(rows * cols);
   const props: PropInstance[] = [];
   const dummySpawns: Room['dummySpawns'] = [];
+  const enemySpawns: Room['enemySpawns'] = [];
   let playerStart: Vec | null = null;
   t.rows.forEach((line, r) => {
     if (line.length !== cols) throw new Error(`Room ${t.id}: row ${r} has ${line.length} columns, expected ${cols}`);
@@ -47,6 +51,7 @@ export function buildRoom(t: RoomTemplate): Room {
       if (ch === '#') tiles[r * cols + c] = 1;
       else if (ch === 'P') playerStart = { x: cx, y: r * TILE + TILE / 2 + 4 };
       else if (ch === 'M') dummySpawns.push({ def: DUMMIES.maniqui!, x: cx, y: bottom });
+      else if (ENEMY_CHARS[ch]) enemySpawns.push({ def: ENEMIES[ENEMY_CHARS[ch]]!, x: cx, y: r * TILE + TILE / 2 + 4 });
       else if (PROP_CHARS[ch]) {
         const def = PROPS[PROP_CHARS[ch]]!;
         props.push({ def, x: cx, y: bottom, box: { x: cx + def.box.x, y: bottom + def.box.y, w: def.box.w, h: def.box.h } });
@@ -57,7 +62,7 @@ export function buildRoom(t: RoomTemplate): Room {
     if (!tiles[c] || !tiles[(rows - 1) * cols + c]) throw new Error(`Room ${t.id}: the border must be wall`);
   }
   if (!playerStart) throw new Error(`Room ${t.id}: no player start (P)`);
-  return { id: t.id, name: t.name, cols, rows, w: cols * TILE, h: rows * TILE, tiles, playerStart, props, dummySpawns };
+  return { id: t.id, name: t.name, cols, rows, w: cols * TILE, h: rows * TILE, tiles, playerStart, props, dummySpawns, enemySpawns };
 }
 
 export function isWallAt(room: Room, px: number, py: number): boolean {

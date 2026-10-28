@@ -85,5 +85,10 @@ export const SFX: Record<string, SfxParams> = {
   recargado: { wave: 'square', freq: 1300, freqEnd: 1800, attack: 0.001, sustain: 0.03, decay: 0.05, volume: 0.14, duty: 0.25 },
   // Enemy attack warning: a rising, wobbling beep, like an appliance about to do something bad.
   aviso: { wave: 'square', freq: 380, freqEnd: 1100, attack: 0.01, sustain: 0.16, decay: 0.12, volume: 0.13, duty: 0.4, vibrato: 0.06, vibratoSpeed: 18 },
+  // Aspirador Desahuciado: motor revving up for the charge, skid, crash into the wall, bump.
+  motor: { wave: 'saw', freq: 90, freqEnd: 260, attack: 0.02, sustain: 0.3, decay: 0.2, volume: 0.16, vibrato: 0.08, vibratoSpeed: 30, lowpass: 0.4 },
+  derrape: { wave: 'noise', freq: 2200, freqEnd: 900, attack: 0.01, sustain: 0.18, decay: 0.15, volume: 0.14, lowpass: 0.3 },
+  choque: { wave: 'square', freq: 140, freqEnd: 45, attack: 0.001, sustain: 0.05, decay: 0.2, volume: 0.3, duty: 0.5, crush: 3 },
+  empujon: { wave: 'square', freq: 260, freqEnd: 90, attack: 0.001, sustain: 0.02, decay: 0.1, volume: 0.24, duty: 0.35 },
   vacio: { wave: 'square', freq: 220, freqEnd: 200, attack: 0.001, sustain: 0.015, decay: 0.02, volume: 0.15, duty: 0.15 },
 };

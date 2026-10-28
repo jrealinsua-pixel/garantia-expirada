@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText } from '../art/font.ts';
-import { createWorld, DT, gunPivot, isRolling, sourceTelegraph, step, telegraphProgress, BODY_HEIGHT, type SimEvent, type World } from '../sim/world.ts';
+import { activeWarnings, createWorld, DT, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT, type SimEvent, type World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
@@ -49,8 +49,10 @@ export interface GameStateForTests {
   bullets: number;
   rolling: boolean;
   dummyDamage: number;
-  /** Attack warnings seen so far. */
+  /** Attack warnings seen so far, and charges of the vacuum. */
   warnings: number;
+  charges: number;
+  enemyDamage: number;
   fps: number;
   shots: number;
 }
@@ -74,6 +76,7 @@ export class GameScene extends Phaser.Scene {
   private muzzleT = 0;
   private crosshair!: Phaser.GameObjects.Image;
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
+  private enemySprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image }>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
@@ -84,6 +87,7 @@ export class GameScene extends Phaser.Scene {
   /** Attack warnings: shrinking ring, aim dots and «!», redrawn every frame from the emitters. */
   private warn!: Phaser.GameObjects.Graphics;
   private warnings = 0;
+  private charges = 0;
   private hint!: Phaser.GameObjects.BitmapText;
   private hintT = 9;
   private camX = 0;
@@ -115,6 +119,12 @@ export class GameScene extends Phaser.Scene {
     for (const d of this.world.dummies) {
       this.add.image(d.x, d.y - 1, shadowTexture(this, 8, 3)).setDepth(-50000);
       this.dummySprites.set(d.id, this.add.image(d.x, d.y, 'maniqui').setOrigin(0.5, 38 / 40).setDepth(d.y));
+    }
+
+    for (const en of this.world.enemies) {
+      const shadow = this.add.image(en.x, en.y, shadowTexture(this, 10, 3)).setDepth(-50000);
+      const s = this.add.image(en.x, en.y, en.def.sprite).setOrigin(14 / 32, 32 / 36);
+      this.enemySprites.set(en.id, { s, shadow });
     }
 
     this.heroShadow = this.add.image(0, 0, shadowTexture(this, 9, 3)).setDepth(-50000);
@@ -175,6 +185,8 @@ export class GameScene extends Phaser.Scene {
       rolling: isRolling(p),
       dummyDamage: this.world.dummies.reduce((a, d) => a + d.damageTaken, 0),
       warnings: this.warnings,
+      charges: this.charges,
+      enemyDamage: this.world.enemies.reduce((a, d) => a + d.damageTaken, 0),
       fps: this.game.loop.actualFps,
       shots: this.shots,
     };
@@ -250,6 +262,27 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'empty':
           this.sound2.play('vacio');
+          break;
+        case 'charge':
+          this.charges++;
+          this.sound2.play('motor');
+          for (let i = 0; i < 5; i++) this.puff(e.x - e.dirX * 8 + this.fx.range(-4, 4), e.y + this.fx.range(-2, 1), 0.4);
+          break;
+        case 'brake':
+          this.sound2.play('derrape', { volume: 0.8 });
+          break;
+        case 'bonk': {
+          this.cameras.main.shake(120, 0.006, true);
+          this.sound2.play('choque');
+          for (let i = 0; i < 8; i++) this.spark(e.x, e.y, Math.atan2(-e.dirY, -e.dirX) + this.fx.range(-1.4, 1.4), this.fx.range(40, 110), this.fx.int(0, 2));
+          for (let i = 0; i < 3; i++) this.puff(e.x + this.fx.range(-5, 5), e.y + this.fx.range(-3, 3), 0.45);
+          break;
+        }
+        case 'contact':
+          this.cameras.main.shake(90, 0.005, true);
+          this.flashHero = 0.06;
+          this.sound2.play('empujon');
+          for (let i = 0; i < 4; i++) this.spark(e.x, e.y, Math.atan2(e.dirY, e.dirX) + this.fx.range(-1, 1), this.fx.range(40, 90), this.fx.int(0, 2));
           break;
         case 'telegraph':
           this.warnings++;
@@ -367,6 +400,34 @@ export class GameScene extends Phaser.Scene {
       else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
       else s.clearTint();
     }
+    // Enemies.
+    for (const en of w.enemies) {
+      const v = this.enemySprites.get(en.id);
+      if (!v) continue;
+      const s = v.s;
+      const warnK = sourceTelegraph(w, en.id);
+      // Hop of one pixel while walking; leans into the charge, back when braking, wobbles when stunned.
+      const bob = en.state === 'walk' && Math.floor(en.moved / 5) % 2 === 1 ? -1 : 0;
+      const shiver = warnK > 0.6 ? (Math.floor(this.time.now / 40) % 2 === 0 ? 1 : -1) : 0;
+      s.setPosition(Math.round(en.x) + shiver, Math.round(en.y) + bob).setDepth(en.y);
+      s.setScale(en.facing, 1);
+      let rot = 0;
+      if (en.state === 'charge') rot = 0.18 * en.facing;
+      else if (en.state === 'brake') rot = -0.12 * en.facing * (1 - en.t / en.until);
+      else if (en.state === 'stun') rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
+      s.setRotation(rot);
+      v.shadow.setPosition(Math.round(en.x), Math.round(en.y));
+      if (en.hitT > 0.07) s.setTintFill(0xffffff);
+      else if (en.hitT > 0) s.setTint(0xffb0a0);
+      else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
+      else s.clearTint();
+      // Dust trail while charging, sparks from the wheels while braking.
+      if (en.state === 'charge' && this.fx.chance(0.5)) this.puff(en.x - en.dirX * 10 + this.fx.range(-3, 3), en.y + this.fx.range(-2, 1), 0.35);
+      if (en.state === 'brake' && Math.hypot(en.vx, en.vy) > 40 && this.fx.chance(0.4)) {
+        this.spark(en.x + this.fx.range(-6, 6), en.y, Math.atan2(-en.vy, -en.vx) + this.fx.range(-0.6, 0.6), this.fx.range(30, 70), 2);
+      }
+    }
+
     this.drawWarnings();
 
     // Bullets.
@@ -397,29 +458,30 @@ export class GameScene extends Phaser.Scene {
   private drawWarnings(): void {
     const g = this.warn;
     g.clear();
-    for (const e of this.world.emitters) {
-      const k = telegraphProgress(e);
-      if (k < 0) continue;
-      const col = e.color === 'cyan' ? 0x69dbd8 : 0xe0453b;
-      const x = Math.round(e.x);
-      const y = Math.round(e.y);
-      // Ring that closes in on the muzzle: when it reaches it, the bullets come out.
-      const r = Math.round(4 + 16 * (1 - k));
-      pixelRing(g, x, y, r + 1, 0x0e0c16);
-      pixelRing(g, x, y, r, col);
-      // Aimed patterns: a dotted line shows where they will go.
-      if (e.aimed) {
-        const len = 10 + 26 * k;
+    for (const wn of activeWarnings(this.world)) {
+      const k = wn.k;
+      const col = wn.color === 'cyan' ? 0x69dbd8 : 0xe0453b;
+      const x = Math.round(wn.x);
+      const y = Math.round(wn.y);
+      // Bullets: a ring closes in on the muzzle; when it reaches it, they come out.
+      if (wn.bullets) {
+        const r = Math.round(4 + 16 * (1 - k));
+        pixelRing(g, x, y, r + 1, 0x0e0c16);
+        pixelRing(g, x, y, r, col);
+      }
+      // Aimed attacks: dots show where they will go (a charge shows its whole path).
+      if (wn.aimed) {
+        const len = wn.bullets ? 10 + 26 * k : 30 + 110 * k;
         const off = (this.time.now / 60) % 5;
         for (let d = 8 + off; d < 8 + len; d += 5) {
-          const px = Math.round(x + Math.cos(e.aim) * d);
-          const py = Math.round(y + Math.sin(e.aim) * d);
+          const px = Math.round(x + Math.cos(wn.aim) * d);
+          const py = Math.round(y + Math.sin(wn.aim) * d);
           g.fillStyle(0x0e0c16, 1).fillRect(px - 1, py - 1, 3, 3);
           g.fillStyle(col, 1).fillRect(px, py, 1, 1);
         }
       }
       // «!» above whoever attacks (or above the muzzle), in the warning yellow; it pops up.
-      const src = e.source !== undefined ? this.dummySprites.get(e.source) : undefined;
+      const src = wn.source !== undefined ? (this.dummySprites.get(wn.source) ?? this.enemySprites.get(wn.source)?.s) : undefined;
       const top = src ? Math.round(src.getTopCenter().y ?? y) - 11 : y - 14;
       const bx = src ? Math.round(src.x) : x;
       const by = top - (k < 0.15 ? Math.round((0.15 - k) * 20) : 0);

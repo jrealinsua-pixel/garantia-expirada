@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T21:00:00+01:00",
+  "actualizado": "2026-10-28T21:30:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 10
     },
     {
@@ -97,23 +97,29 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 0,
+    "enemigos": 1,
     "jefes": 0,
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 56,
-    "tests_ok": 56,
+    "tests": 66,
+    "tests_ok": 66,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 2470
+    "lineas_codigo": 2814
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T21:30:00+01:00",
+      "hito": "M2",
+      "resumen": "Primer enemigo con IA: el Aspirador Desahuciado avisa, embiste en línea recta, derrapa y se queda aturdido si choca con la pared. Enemigos definidos como datos con un «cerebro».",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T21:00:00+01:00",
       "hito": "M2",
       "resumen": "Telegrafía de ataques: quien va a disparar parpadea y tiembla, un anillo se cierra sobre la boca, los ataques apuntados enseñan su dirección, sale un «!» y suena un aviso. Arreglado: las capturas del panel no estaban subidas.",
-      "commit": ""
+      "commit": "6c96ad8"
     },
     {
       "fecha": "2026-10-28T20:25:00+01:00",
@@ -142,6 +148,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/aspirador.png",
+      "pie": "El Aspirador Desahuciado avisa (parpadeo, «!» y recorrido) y embiste, ampliado"
+    },
+    {
       "archivo": "capturas/aviso.png",
       "pie": "Telegrafía: el maniquí avisa antes de disparar (parpadeo, anillo que se cierra, dirección y «!»), ampliado"
     },
@@ -158,14 +168,10 @@
       "pie": "Esquiva rodando, con polvo y chispas"
     },
     {
-      "archivo": "capturas/andando.png",
-      "pie": "La tostadora andando por la Sala de Pruebas de Devoluciones"
-    },
-    {
       "archivo": "capturas/sala-devoluciones.png",
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: el Microondas Sin Seguro como primer enemigo con IA (tipo EnemyDef en datos, avisa y dispara anillos).",
+  "proximo": "M2: Microondas Sin Seguro (se queda quieto, calienta y dispara anillos).",
   "bloqueos": []
 }

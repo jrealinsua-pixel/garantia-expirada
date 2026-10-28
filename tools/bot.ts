@@ -13,6 +13,8 @@ export interface BotReport {
   disparosMedios: number;
   precision: number;
   atascos: number;
+  /** Times an enemy bumped into the player, per minute (no hearts yet: a proxy for danger). */
+  golpesPorMinuto: number;
   msPorPartida: number;
   errores: string[];
 }
@@ -22,11 +24,12 @@ function arg(name: string, def: number): number {
   return i >= 0 ? Number(process.argv[i + 1]) : def;
 }
 
-function playOne(seed: string, seconds: number): { hash: string; shots: number; hits: number; stuck: number; errors: string[] } {
+function playOne(seed: string, seconds: number): { hash: string; shots: number; hits: number; contacts: number; stuck: number; errors: string[] } {
   const w = createWorld({ seed });
   const bot = new Bot(seed);
   let shots = 0;
   let hits = 0;
+  let contacts = 0;
   const errors: string[] = [];
   const ticks = Math.round(seconds / DT);
   try {
@@ -35,6 +38,7 @@ function playOne(seed: string, seconds: number): { hash: string; shots: number; 
       for (const e of w.events) {
         if (e.type === 'shot') shots++;
         else if (e.type === 'hit') hits++;
+        else if (e.type === 'contact') contacts++;
       }
       if (i % 30 === 0) {
         const errs = checkInvariants(w);
@@ -49,7 +53,7 @@ function playOne(seed: string, seconds: number): { hash: string; shots: number; 
   }
   // Stuck for most of the game counts as a hang.
   if (bot.stuck > (seconds / 3) * 0.5) errors.push(`${seed}: el bot se ha quedado atascado ${bot.stuck} veces`);
-  return { hash: worldHash(w), shots, hits, stuck: bot.stuck, errors };
+  return { hash: worldHash(w), shots, hits, contacts, stuck: bot.stuck, errors };
 }
 
 export function runBots(games: number, seconds: number): BotReport {
@@ -58,12 +62,14 @@ export function runBots(games: number, seconds: number): BotReport {
   let shots = 0;
   let hits = 0;
   let stuck = 0;
+  let contacts = 0;
   let failed = 0;
   for (let i = 0; i < games; i++) {
     const r = playOne(`bot-${i}`, seconds);
     shots += r.shots;
     hits += r.hits;
     stuck += r.stuck;
+    contacts += r.contacts;
     if (r.errors.length) {
       failed++;
       errors.push(...r.errors);
@@ -84,6 +90,7 @@ export function runBots(games: number, seconds: number): BotReport {
     disparosMedios: Math.round(shots / games),
     precision: shots ? Math.round((hits / shots) * 1000) / 10 : 0,
     atascos: stuck,
+    golpesPorMinuto: Math.round((contacts / games / (seconds / 60)) * 10) / 10,
     msPorPartida: Math.round((ms / (games + 2)) * 10) / 10,
     errores: errors.slice(0, 20),
   };
@@ -95,7 +102,7 @@ if (import.meta.main) {
   writeFileSync(join(ROOT, 'logs/bot.json'), JSON.stringify(report, null, 2));
   console.log(
     `${report.partidas} partidas de ${report.segundosPorPartida} s · ${report.fallos} fallos · ` +
-      `${report.disparosMedios} disparos de media · precisión ${report.precision} % · ${report.atascos} atascos · ${report.msPorPartida} ms/partida`,
+      `${report.disparosMedios} disparos de media · precisión ${report.precision} % · ${report.atascos} atascos · ${report.golpesPorMinuto} golpes/min · ${report.msPorPartida} ms/partida`,
   );
   for (const e of report.errores) console.error('✖ ' + e);
   process.exit(report.fallos ? 1 : 0);

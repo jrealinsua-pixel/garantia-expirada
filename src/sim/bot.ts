@@ -34,12 +34,13 @@ export class Bot {
     const tx = (this.target?.x ?? p.x) - p.x;
     const ty = (this.target?.y ?? p.y) - p.y;
     const l = Math.hypot(tx, ty) || 1;
-    // Aim at the nearest dummy, with a little wobble.
+    // Aim at the nearest target, with a little wobble.
     let aimX = p.x + 50;
     let aimY = p.y - HAND_HEIGHT;
     let best = Infinity;
-    for (const d of w.dummies) {
-      const dd = Math.hypot(d.x - p.x, d.y - p.y);
+    // Enemies first (half the distance counts as nearer), then the dummies.
+    for (const d of [...w.enemies.map((e) => ({ x: e.x, y: e.y, k: 0.5 })), ...w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }))]) {
+      const dd = Math.hypot(d.x - p.x, d.y - p.y) * d.k;
       if (dd < best) {
         best = dd;
         aimX = d.x + this.rng.range(-6, 6);

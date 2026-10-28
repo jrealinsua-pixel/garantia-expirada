@@ -2,7 +2,8 @@
 import { CHARACTERS } from '../data/characters.ts';
 import { ROOMS } from '../data/rooms.ts';
 import { WEAPONS } from '../data/weapons.ts';
-import type { CharacterDef, DummyDef, WeaponDef } from '../data/types.ts';
+import type { CharacterDef, DummyDef, EnemyDef, WeaponDef } from '../data/types.ts';
+import { updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
@@ -128,6 +129,31 @@ export interface Dummy {
   damageTaken: number;
 }
 
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun';
+
+export interface Enemy {
+  id: number;
+  def: EnemyDef;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  facing: 1 | -1;
+  state: EnemyState;
+  /** Seconds in the current state, and how long it lasts. */
+  t: number;
+  until: number;
+  /** Locked direction of the current attack. */
+  dirX: number;
+  dirY: number;
+  hitT: number;
+  damageTaken: number;
+  /** Seconds before it can push the player again. */
+  contactCooldown: number;
+  /** Distance travelled, for the walk animation. */
+  moved: number;
+}
+
 export type SimEvent =
   | { type: 'shot'; x: number; y: number; angle: number; weapon: string }
   | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number }
@@ -137,6 +163,10 @@ export type SimEvent =
   | { type: 'reloadStart'; time: number }
   | { type: 'reloadEnd' }
   | { type: 'empty' }
+  | { type: 'charge'; x: number; y: number; dirX: number; dirY: number; source: number }
+  | { type: 'brake'; x: number; y: number; source: number }
+  | { type: 'bonk'; x: number; y: number; dirX: number; dirY: number; source: number }
+  | { type: 'contact'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
 
 export interface World {
@@ -147,6 +177,7 @@ export interface World {
   player: Player;
   bullets: Bullet[];
   dummies: Dummy[];
+  enemies: Enemy[];
   emitters: Emitter[];
   events: SimEvent[];
   nextId: number;
@@ -156,6 +187,8 @@ export interface WorldOptions {
   seed: string;
   room?: string;
   character?: string;
+  /** Leave the room's enemies out (tests that only need the player and the dummies). */
+  noEnemies?: boolean;
 }
 
 export function createWorld(opts: WorldOptions): World {
@@ -168,6 +201,7 @@ export function createWorld(opts: WorldOptions): World {
   const room = buildRoom(tpl);
   let nextId = 1;
   const dummies: Dummy[] = room.dummySpawns.map((s) => ({ id: nextId++, def: s.def, x: s.x, y: s.y, lean: 0, leanV: 0, hitT: 0, damageTaken: 0 }));
+  const enemies: Enemy[] = opts.noEnemies ? [] : room.enemySpawns.map((s) => spawnEnemy(nextId++, s.def, s.x, s.y));
   return {
     seed: opts.seed,
     tick: 0,
@@ -192,10 +226,15 @@ export function createWorld(opts: WorldOptions): World {
     },
     bullets: [],
     dummies,
+    enemies,
     emitters: [],
     events: [],
     nextId,
   };
+}
+
+export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Enemy {
+  return { id, def, x, y, vx: 0, vy: 0, facing: -1, state: 'walk', t: 0, until: 1, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0 };
 }
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
@@ -209,7 +248,7 @@ export function playerFeetBox(p: { x: number; y: number }, r: number): Rect {
   return { x: p.x - r, y: p.y - 3, w: r * 2, h: 4 };
 }
 
-export function dummyHurtBox(d: Dummy): Rect {
+export function dummyHurtBox(d: Dummy | Enemy): Rect {
   return { x: d.x + d.def.hurt.x, y: d.y + d.def.hurt.y, w: d.def.hurt.w, h: d.def.hurt.h };
 }
 
@@ -225,29 +264,36 @@ function solidsNear(w: World, box: Rect): Rect[] {
   return out;
 }
 
-/** Moves an axis-aligned feet box, sliding along whatever is solid. */
-function moveWithCollision(w: World, p: Player, dx: number, dy: number): void {
-  const r = p.def.footRadius;
+/**
+ * Moves a feet box of half-width `r`, sliding along whatever is solid. Zeroes the velocity on
+ * the axis that hits something and says which axes did.
+ */
+export function slide(w: World, b: { x: number; y: number; vx: number; vy: number }, r: number, dx: number, dy: number): { hitX: boolean; hitY: boolean } {
   const eps = 0.001;
+  let hitX = false;
+  let hitY = false;
   if (dx !== 0) {
-    p.x += dx;
-    const box = playerFeetBox(p, r);
+    b.x += dx;
+    const box = playerFeetBox(b, r);
     for (const s of solidsNear(w, box)) {
-      if (!overlaps(playerFeetBox(p, r), s)) continue;
-      p.x = dx > 0 ? s.x - r - eps : s.x + s.w + r + eps;
-      p.vx = 0;
+      if (!overlaps(playerFeetBox(b, r), s)) continue;
+      b.x = dx > 0 ? s.x - r - eps : s.x + s.w + r + eps;
+      b.vx = 0;
+      hitX = true;
     }
   }
   if (dy !== 0) {
-    p.y += dy;
-    const box = playerFeetBox(p, r);
+    b.y += dy;
+    const box = playerFeetBox(b, r);
     for (const s of solidsNear(w, box)) {
-      if (!overlaps(playerFeetBox(p, r), s)) continue;
+      if (!overlaps(playerFeetBox(b, r), s)) continue;
       // feet box spans [y-3, y+1]
-      p.y = dy > 0 ? s.y - 1 - eps : s.y + s.h + 3 + eps;
-      p.vy = 0;
+      b.y = dy > 0 ? s.y - 1 - eps : s.y + s.h + 3 + eps;
+      b.vy = 0;
+      hitY = true;
     }
   }
+  return { hitX, hitY };
 }
 
 function updatePlayer(w: World, input: Input): void {
@@ -313,7 +359,7 @@ function updatePlayer(w: World, input: Input): void {
 
   const ox = p.x;
   const oy = p.y;
-  moveWithCollision(w, p, p.vx * DT, p.vy * DT);
+  slide(w, p, p.def.footRadius, p.vx * DT, p.vy * DT);
   if (!isRolling(p)) p.walked += Math.hypot(p.x - ox, p.y - oy);
 }
 
@@ -402,6 +448,20 @@ function updateBullets(w: World): void {
         break;
       }
       if (b.owner === 'player') {
+        for (const en of w.enemies) {
+          const hb = dummyHurtBox(en);
+          if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
+            en.hitT = 0.12;
+            en.damageTaken += b.damage;
+            const k = b.knockback * en.def.knockbackScale;
+            en.vx += Math.cos(angle) * k;
+            en.vy += Math.sin(angle) * k;
+            w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage: b.damage, target: en.id });
+            alive = false;
+            break;
+          }
+        }
+        if (!alive) break;
         for (const d of w.dummies) {
           const hb = dummyHurtBox(d);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
@@ -456,7 +516,37 @@ export function telegraphProgress(e: Emitter): number {
 export function sourceTelegraph(w: World, source: number): number {
   let best = -1;
   for (const e of w.emitters) if (e.source === source) best = Math.max(best, telegraphProgress(e));
+  for (const en of w.enemies) if (en.id === source && en.state === 'warn') best = Math.max(best, Math.min(1, en.t / en.until));
   return best;
+}
+
+/** Something about to attack, for the renderer: where, how far into the warning, which way. */
+export interface Warning {
+  x: number;
+  y: number;
+  k: number;
+  aim: number;
+  aimed: boolean;
+  color: BulletColor;
+  /** Bullets will come out of (x, y): draw the closing ring. A charge has no ring but a long path. */
+  bullets: boolean;
+  source?: number;
+}
+
+export function activeWarnings(w: World): Warning[] {
+  const out: Warning[] = [];
+  for (const e of w.emitters) {
+    const k = telegraphProgress(e);
+    if (k < 0) continue;
+    const wn: Warning = { x: e.x, y: e.y, k, aim: e.aim, aimed: e.aimed, color: e.color, bullets: true };
+    if (e.source !== undefined) wn.source = e.source;
+    out.push(wn);
+  }
+  for (const en of w.enemies) {
+    if (en.state !== 'warn') continue;
+    out.push({ x: en.x, y: en.y - 2, k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'red', bullets: false, source: en.id });
+  }
+  return out;
 }
 
 export const ENEMY_BULLET_LIFE = 6;
@@ -518,6 +608,7 @@ export function step(w: World, input: Input): void {
   updateEmitters(w);
   updateBullets(w);
   updateDummies(w);
+  updateEnemies(w);
   w.tick++;
 }
 
@@ -537,6 +628,13 @@ export function checkInvariants(w: World): string[] {
   if (p.weapon.ammo < 0 || p.weapon.ammo > p.weapon.def.magazine) errs.push(`ammo out of range: ${p.weapon.ammo}`);
   if (w.bullets.length > 2000) errs.push(`too many bullets: ${w.bullets.length}`);
   for (const b of w.bullets) if (!Number.isFinite(b.x) || !Number.isFinite(b.y)) errs.push(`bullet ${b.id} has invalid position`);
+  for (const en of w.enemies) {
+    if (!Number.isFinite(en.x) || !Number.isFinite(en.y)) errs.push(`enemy ${en.id} has invalid position`);
+    const eb = playerFeetBox(en, en.def.footRadius - 0.5);
+    const ew: Rect[] = [];
+    wallRectsNear(w.room, eb, ew);
+    if (ew.some((r) => overlaps(r, eb))) errs.push(`enemy ${en.id} inside a wall at ${en.x.toFixed(1)},${en.y.toFixed(1)}`);
+  }
   return errs;
 }
 
@@ -545,5 +643,6 @@ export function worldHash(w: World): string {
   const p = w.player;
   const parts = [w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId];
   for (const d of w.dummies) parts.push(d.damageTaken);
+  for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   return parts.join('|');
 }
