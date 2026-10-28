@@ -26,19 +26,19 @@ Que exista un proyecto sano, con tests, bot, capturas y publicación automática
 **Criterios de aceptación:** todos los comandos de `CLAUDE.md` funcionan; `main` publica en
 Pages; el panel muestra datos reales; la escena de prueba enseña la Tostadora en una sala.
 
-## M1 · Bucle de combate
+## M1 · Bucle de combate (hecho)
 
 Que moverse, apuntar, disparar y rodar se sienta muy bien antes de añadir nada más.
 
 - [x] Movimiento en 8 direcciones con aceleración y frenada cortas; el sprite mira hacia el cursor.
-- [ ] Animaciones de la Tostadora: reposo, andar, rodar, golpe y muerte. (Hechas reposo, andar y rodar; faltan golpe y muerte, que llegan con el daño en M2.)
+- [x] Animaciones de la Tostadora: reposo, andar y rodar. (Golpe y muerte pasan a M2, con el daño.)
 - [x] Apuntar con ratón; el arma rota alrededor de la mano flotante.
 - [x] Disparo del Secador Mágnum: cadencia, dispersión, retroceso, fogonazo, casquillos (pelusas).
 - [x] Esquiva rodando con invulnerabilidad, enfriamiento y destello.
 - [x] Colisiones con paredes y obstáculos (cajas, barriles).
 - [x] Cámara que sigue al jugador y se adelanta un poco hacia donde apunta.
 - [x] Respuesta al impacto: temblor de cámara, parón de impacto, partículas, números o destellos.
-- [ ] Soporte de mando (Gamepad API). (Programado en `src/render/input.ts`; falta probarlo con un mando de verdad o simulado en el e2e.)
+- [x] Soporte de mando (Gamepad API). (Probado en el e2e con un mando simulado; falta probar uno de verdad.)
 - [x] Sala de pruebas con un muñeco de práctica (un maniquí de tienda) para probar el arma.
 - [x] Efectos de sonido generados: disparo, rodar, golpe.
 
@@ -54,6 +54,7 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 - [ ] Bombilla de Bajo Consumo (espirales) con su polilla.
 - [ ] Dos enemigos nuevos de `docs/DISENO.md`, diseñados y dibujados al estilo aprobado.
 - [ ] Vida, daño, muerte con desmontaje en piezas y botín (cupones).
+- [ ] Animaciones de golpe y muerte de la Tostadora (se desmonta: tostadas, muelle, tornillos) y parte de baja provisional.
 - [ ] Corazones del jugador y HUD (corazones, munición, cupones, objeto activo).
 - [ ] IA de los bots capaz de esquivar de forma básica, para medir dificultad.
 

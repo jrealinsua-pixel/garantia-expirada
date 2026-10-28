@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-28T20:00:00+01:00",
+  "actualizado": "2026-10-28T20:10:00+01:00",
   "version": "0.1.0",
-  "hito_actual": "M1",
+  "hito_actual": "M2",
   "hitos": [
     {
       "id": "M0",
@@ -13,16 +13,16 @@
     {
       "id": "M1",
       "nombre": "Bucle de combate",
-      "estado": "en_curso",
-      "hechas": 9,
+      "estado": "hecho",
+      "hechas": 11,
       "total": 11
     },
     {
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
-      "total": 9
+      "total": 10
     },
     {
       "id": "M3",
@@ -110,10 +110,16 @@
   },
   "sesiones": [
     {
+      "fecha": "2026-10-28T20:10:00+01:00",
+      "hito": "M1",
+      "resumen": "M1 terminado: el mando (simulado en el e2e) mueve, apunta y dispara. Golpe y muerte de la tostadora pasan a M2.",
+      "commit": ""
+    },
+    {
       "fecha": "2026-10-28T20:00:00+01:00",
       "hito": "M0 + M1",
       "resumen": "M0 terminado: proyecto, sprites aprobados regenerados por código, tests, bot, e2e, panel y publicación. M1 casi entero: ya se juega la Sala de Pruebas con la tostadora andando, rodando y disparando a maniquíes.",
-      "commit": ""
+      "commit": "647d847"
     },
     {
       "fecha": "2026-10-28T19:30:00+01:00",
@@ -144,6 +150,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M1: animaciones de golpe y muerte de la tostadora y prueba del mando; después M2 (patrones de balas y enemigos).",
+  "proximo": "M2: sistema declarativo de patrones de balas (anillo, abanico, espiral, ráfaga, onda) con tests; después los tres enemigos aprobados.",
   "bloqueos": []
 }

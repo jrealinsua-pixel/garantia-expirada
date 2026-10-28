@@ -2,6 +2,14 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-28 20:10 — Hito M1 (terminado) — Mando probado y cierre del hito
+
+- Hecho: el e2e simula un mando con la Gamepad API (mapeo estándar) y comprueba que el stick izquierdo mueve, el derecho apunta y el gatillo dispara. M1 queda cerrado.
+- Decisiones: las animaciones de golpe y muerte de la tostadora pasan a M2 como tarea propia, porque sin daño no hay nada que animar ni probar. Con eso, todos los criterios de M1 se cumplen (capturas moviéndose y disparando, entrada leída en cada tick de 1/60 s, tests y bot en verde).
+- Medidas: e2e de 30 s a ~61 fps, 93 disparos, 72 impactos; 43 tests; bot 200/200 sin fallos.
+- Problemas conocidos: falta probar un mando de verdad; el giro al rodar es una rotación del sprite.
+- Siguiente paso: M2, empezando por el sistema declarativo de patrones de balas (anillo, abanico, espiral, ráfaga, onda) con tests.
+
 ## 2026-10-28 20:00 — Hito M0 (terminado) y M1 — Cimientos y primera sala jugable
 
 - Hecho: M0 completo. Proyecto TypeScript + Phaser 3.90 con resolución 480 × 270 y zoom entero; `src/sim/` (simulación pura y determinista con `Rng` sfc32), `src/data/` (personaje, arma, accesorios, maniquí y sala como datos), `src/art/` (lienzo, rampas, contorno, cubos, fuente «Letra Pequeña» y pintor de salas), `src/render/` (Phaser) y `src/audio/` (sintetizador estilo sfxr). Los comandos `dev`, `build`, `check`, `test`, `bot`, `e2e`, `sprites` y `stats` funcionan. `npm run sprites` porta `build4.py`/`build2.py`/`build.py` y regenera los sprites aprobados **idénticos píxel a píxel** (test incluido; hubo que imitar el redondeo bancario de Python al mezclar alfa). El flujo de Pages ahora pasa check, tests y bot antes de publicar.

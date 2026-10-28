@@ -117,6 +117,23 @@ try {
     await page.keyboard.up(key);
     k++;
   }
+  // Gamepad: a fake pad through the Gamepad API (standard mapping).
+  await page.evaluate(`(() => {
+    const pad = { id: 'mando-falso', index: 0, connected: true, mapping: 'standard', timestamp: 0,
+      axes: [0, 0, 0, 0], buttons: Array.from({ length: 17 }, () => ({ pressed: false, touched: false, value: 0 })) };
+    window.__PAD__ = pad;
+    navigator.getGamepads = () => [pad];
+  })()`);
+  const sp0 = await state();
+  await page.evaluate(`(() => { const p = window.__PAD__; p.axes[0] = -1; p.axes[2] = -1; p.buttons[7].pressed = true; })()`);
+  await page.waitForTimeout(700);
+  await page.evaluate(`(() => { const p = window.__PAD__; p.axes[0] = 0; p.axes[2] = 0; p.buttons[7].pressed = false; })()`);
+  const sp1 = await state();
+  if (sp1.x >= sp0.x - 10) throw new Error(`El mando no mueve a la tostadora (x ${sp0.x} → ${sp1.x})`);
+  if (sp1.shots <= sp0.shots) throw new Error('El gatillo del mando no dispara');
+  await page.evaluate(`(() => { navigator.getGamepads = () => []; })()`);
+  await page.mouse.move(10, 10);
+
   const d1 = await dummy(1);
   await aimAt(d1.x, d1.y);
   await page.mouse.down();
