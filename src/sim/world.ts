@@ -204,6 +204,10 @@ export type SimEvent =
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
   | { type: 'restock' }
+  /** The player lost `damage` life (now `hp`); `dirX, dirY` is where the blow came from towards it. */
+  | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number }
+  /** The player has no life left: the run is over. */
+  | { type: 'down'; x: number; y: number; source: number }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
 
 export interface World {
@@ -225,7 +229,19 @@ export interface World {
   emptyT: number;
   /** Whether this world spawns the room's enemies at all. */
   spawnsEnemies: boolean;
+  /** The player is down: input is ignored and nothing can hurt it any more. */
+  over: boolean;
+  /** Tests and tools only: nothing hurts the player. */
+  noDamage: boolean;
 }
+
+/** Seconds the player cannot be hurt again after a hit (it blinks meanwhile). */
+export const HURT_IFRAMES = 1.1;
+/** Enemy bullets this close to the player vanish when it is hurt, so one mistake costs one hit. */
+export const HURT_CLEAR_RADIUS = 56;
+/** The player's hit box for enemy bullets: a small circle on the body, smaller than the sprite. */
+export const PLAYER_HURT_RADIUS = 4;
+export const PLAYER_HURT_Y = 9;
 
 export interface WorldOptions {
   seed: string;
@@ -278,6 +294,8 @@ export function createWorld(opts: WorldOptions): World {
     kills: 0,
     emptyT: 0,
     spawnsEnemies: !opts.noEnemies,
+    over: false,
+    noDamage: false,
   };
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   return w;
@@ -530,6 +548,18 @@ function updateBullets(w: World): void {
         alive = false;
         break;
       }
+      if (b.owner === 'enemy') {
+        const p = w.player;
+        const dx = b.x - p.x;
+        const dy = b.y - (p.y - PLAYER_HURT_Y);
+        const rr = b.r + PLAYER_HURT_RADIUS;
+        if (dx * dx + dy * dy < rr * rr && canBeHurt(w)) {
+          const d = normalize(b.vx, b.vy);
+          hurtPlayer(w, b.damage, -1, d.x, d.y);
+          alive = false;
+          break;
+        }
+      }
       if (b.owner === 'player') {
         for (const en of w.enemies) {
           if (isDead(en)) continue;
@@ -679,6 +709,34 @@ function updateDummies(w: World): void {
   }
 }
 
+/** Rolling (its i-frames) and the blink after a hit protect the player. */
+export const canBeHurt = (w: World): boolean => !w.over && !w.noDamage && w.player.invulnerable <= 0;
+
+/**
+ * Takes `damage` life from the player (1 = half a heart) if it can be hurt: blink time, nearby
+ * enemy bullets cleared, and the run ends at 0. `dirX, dirY` is the direction of the blow.
+ */
+export function hurtPlayer(w: World, damage: number, source: number, dirX: number, dirY: number): boolean {
+  if (!canBeHurt(w) || damage <= 0) return false;
+  const p = w.player;
+  p.hp = Math.max(0, p.hp - damage);
+  p.invulnerable = HURT_IFRAMES;
+  w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source });
+  const keep: Bullet[] = [];
+  for (const b of w.bullets) {
+    if (b.owner === 'enemy' && Math.hypot(b.x - p.x, b.y - (p.y - PLAYER_HURT_Y)) < HURT_CLEAR_RADIUS) w.events.push({ type: 'bulletFade', x: b.x, y: b.y });
+    else keep.push(b);
+  }
+  w.bullets = keep;
+  if (p.hp <= 0) {
+    w.over = true;
+    p.rollT = -1;
+    p.weapon.reload = 0;
+    w.events.push({ type: 'down', x: p.x, y: p.y, source });
+  }
+  return true;
+}
+
 export const isDead = (en: Enemy): boolean => en.damageTaken >= en.def.hp;
 
 /** Takes apart the enemies with no life left: event, loot, and out of the world. */
@@ -759,8 +817,9 @@ function updateRestock(w: World): void {
 
 export function step(w: World, input: Input): void {
   w.events = [];
-  updatePlayer(w, input);
-  if (input.debugPattern) {
+  // Once down, the toaster lies there: the room goes on without it.
+  updatePlayer(w, w.over ? { ...NO_INPUT, aimX: w.player.x + Math.cos(w.player.aim), aimY: w.player.y - HAND_HEIGHT + Math.sin(w.player.aim) } : input);
+  if (input.debugPattern && !w.over) {
     const def = PATTERNS[input.debugPattern];
     const d = w.dummies[0];
     if (def && d) {
@@ -791,6 +850,8 @@ export function checkInvariants(w: World): string[] {
   wallRectsNear(w.room, box, walls);
   if (walls.some((r) => overlaps(r, box))) errs.push(`player inside a wall at ${p.x.toFixed(1)},${p.y.toFixed(1)}`);
   if (w.room.props.some((pr) => overlaps(pr.box, box))) errs.push(`player inside a prop at ${p.x.toFixed(1)},${p.y.toFixed(1)}`);
+  if (!Number.isInteger(p.hp) || p.hp < 0 || p.hp > p.def.maxHp) errs.push(`player hp out of range: ${p.hp}`);
+  if (p.hp === 0 && !w.over) errs.push('player has no life but the run is not over');
   if (p.weapon.ammo < 0 || p.weapon.ammo > p.weapon.def.magazine) errs.push(`ammo out of range: ${p.weapon.ammo}`);
   if (w.bullets.length > 2000) errs.push(`too many bullets: ${w.bullets.length}`);
   for (const b of w.bullets) if (!Number.isFinite(b.x) || !Number.isFinite(b.y)) errs.push(`bullet ${b.id} has invalid position`);
@@ -810,7 +871,7 @@ export function checkInvariants(w: World): string[] {
 /** Compact fingerprint of the state, to check determinism. */
 export function worldHash(w: World): string {
   const p = w.player;
-  const parts = [w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, w.pickups.length];
+  const parts = [w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, w.pickups.length, p.hp];
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   return parts.join('|');

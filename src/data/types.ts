@@ -161,6 +161,8 @@ export interface EnemyDef {
   footRadius: number;
   /** Speed given to the player when it bumps into them (px/s). */
   contactPush: number;
+  /** Life it takes from the player when it bumps into them (1 = half a heart). */
+  contactDamage: number;
   /** How much a bullet's knockback moves it (0 = immovable). */
   knockbackScale: number;
   brain: EnemyBrain;

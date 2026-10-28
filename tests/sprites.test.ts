@@ -49,3 +49,11 @@ test('public/assets está al día con «npm run sprites»', async () => {
     assert.equal(diff(onDisk, s.canvas), 0, `${file} está desactualizado: ejecuta npm run sprites`);
   }
 });
+
+test('cada hoja de sprites se divide en fotogramas enteros', async () => {
+  const { allSheets } = await import('../tools/sprites/build.ts');
+  for (const [key, s] of Object.entries(allSheets())) {
+    assert.equal(s.canvas.w % s.frameW, 0, `${key}: ancho ${s.canvas.w} no es múltiplo de ${s.frameW}`);
+    assert.equal(s.canvas.h, s.frameH, `${key}: alto ${s.canvas.h} ≠ ${s.frameH}`);
+  }
+});

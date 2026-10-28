@@ -306,3 +306,15 @@ export function makeScrap(): Canvas {
   });
   return sheet;
 }
+
+/** HUD slot for the active item: a dark recessed square with a bevel. 20x20. */
+export function makeSlot(): Canvas {
+  const cv = new Canvas(20, 20);
+  cv.rect(1, 1, 18, 18, hx('#3a3f5c'));
+  cv.rect(2, 2, 16, 16, hx('#1c1f36'));
+  cv.rect(1, 1, 18, 1, hx('#5a627c'));
+  cv.rect(1, 1, 1, 18, hx('#5a627c'));
+  // Corner screws.
+  for (const [x, y] of [[2, 2], [17, 2], [2, 17], [17, 17]] as const) cv.set(x, y, STEEL[2]!);
+  return outline(cv);
+}

@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText } from '../art/font.ts';
-import { DEATH_STAMPS, RESTOCK_LINE } from '../data/texts.ts';
+import { DEATH_STAMPS, DOWN_HINT, DOWN_TITLE, RESTOCK_LINE } from '../data/texts.ts';
 import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
 import { Sound } from './audio.ts';
@@ -73,6 +73,7 @@ export interface GameStateForTests {
   kills: number;
   coupons: number;
   pickups: number;
+  over: boolean;
 }
 
 export class GameScene extends Phaser.Scene {
@@ -103,6 +104,15 @@ export class GameScene extends Phaser.Scene {
   private couponText!: Phaser.GameObjects.BitmapText;
   private couponPop = 0;
   private banner!: Phaser.GameObjects.BitmapText;
+  /** Red flash over the whole screen when hurt, and the heart that just broke. */
+  private hurtFlash!: Phaser.GameObjects.Rectangle;
+  private heartHit = -1;
+  private heartHitT = 0;
+  /** Seconds since the toaster went down (-1 while alive). */
+  private downT = -1;
+  private downPanel: Phaser.GameObjects.GameObject[] = [];
+  /** The restart only listens once the buttons held while dying have been let go. */
+  private downArmed = false;
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
   private hearts: Phaser.GameObjects.Image[] = [];
@@ -123,6 +133,30 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    // create() runs again on restart, on the same object: start from a clean slate.
+    this.acc = 0;
+    this.hitstop = 0;
+    this.shots = 0;
+    this.warnings = 0;
+    this.charges = 0;
+    this.gunKick = 0;
+    this.flashHero = 0;
+    this.muzzleT = 0;
+    this.hintT = 9;
+    this.couponPop = 0;
+    this.heartHit = -1;
+    this.heartHitT = 0;
+    this.downT = -1;
+    this.downPanel = [];
+    this.downArmed = false;
+    this.dummySprites = new Map();
+    this.enemySprites = new Map();
+    this.bulletSprites = new Map();
+    this.pickupSprites = new Map();
+    this.particles = [];
+    this.floats = [];
+    this.hearts = [];
+    this.ammoPips = [];
     const seed = new URLSearchParams(location.search).get('semilla') ?? 'sala-pruebas';
     this.world = createWorld({ seed });
     this.controls = new Controls(this);
@@ -164,6 +198,8 @@ export class GameScene extends Phaser.Scene {
     this.couponIcon = this.hud(this.add.image(7, 19, 'cupon', 0).setOrigin(0, 0));
     this.couponText = this.hud(this.add.bitmapText(21, 20, FONT, '0', 8));
     this.couponText.setTint(0xf6c431);
+    this.hud(this.add.image(7, 31, 'ranura').setOrigin(0, 0)).setAlpha(0.85);
+    this.hurtFlash = this.hud(this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xe0453b, 1).setOrigin(0, 0)).setAlpha(0).setDepth(89000);
     this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
     this.banner.setTint(0xf6c431).setAlpha(0);
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
@@ -318,6 +354,19 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Provisional end screen: title, how long it lasted and how to start again. */
+  private showDownPanel(): void {
+    const secs = Math.round(this.world.tick / 60);
+    const box = this.hud(this.add.rectangle(VIEW_W / 2, VIEW_H / 2, 220, 64, 0x0e0c16, 0.88)).setStrokeStyle(1, 0xe0453b).setDepth(96000);
+    const title = this.hud(this.add.bitmapText(VIEW_W / 2, VIEW_H / 2 - 22, FONT, fontText(DOWN_TITLE), 8).setOrigin(0.5, 0)).setDepth(96001);
+    title.setTint(0xe0453b);
+    const life = this.hud(this.add.bitmapText(VIEW_W / 2, VIEW_H / 2 - 6, FONT, fontText(`Vida útil: ${secs} s · Bajas: ${this.world.kills}`), 8).setOrigin(0.5, 0)).setDepth(96001);
+    life.setTint(0xd6cdb2);
+    const hint = this.hud(this.add.bitmapText(VIEW_W / 2, VIEW_H / 2 + 10, FONT, fontText(DOWN_HINT), 8).setOrigin(0.5, 0)).setDepth(96001);
+    hint.setTint(0xf6c431);
+    this.downPanel = [box, title, life, hint];
+  }
+
   private hud<T extends Phaser.GameObjects.Components.ScrollFactor & Phaser.GameObjects.Components.Depth>(o: T): T {
     o.setScrollFactor(0);
     o.setDepth(95000);
@@ -344,6 +393,7 @@ export class GameScene extends Phaser.Scene {
       kills: this.world.kills,
       coupons: p.coupons,
       pickups: this.world.pickups.length,
+      over: this.world.over,
     };
   }
 
@@ -461,6 +511,26 @@ export class GameScene extends Phaser.Scene {
           this.tweens.add({ targets: this.banner, alpha: 0, delay: 1400, duration: 600 });
           for (const en of this.world.enemies) for (let i = 0; i < 4; i++) this.puff(en.x + this.fx.range(-8, 8), en.y - enemyAltitude(en) - this.fx.range(0, 16), 0.5);
           break;
+        case 'hurt': {
+          this.hitstop = 0.1;
+          this.flashHero = 0.08;
+          this.cameras.main.shake(220, 0.011, true);
+          this.sound2.play('dolor');
+          this.hurtFlash.setAlpha(0.28);
+          this.heartHit = Math.floor(e.hp / 2);
+          this.heartHitT = 0.5;
+          // Crumbs and sparks thrown away from the blow.
+          const a = Math.atan2(e.dirY, e.dirX);
+          for (let i = 0; i < 8; i++) this.spark(e.x, e.y, a + this.fx.range(-1, 1), this.fx.range(50, 140), this.fx.int(1, 3));
+          break;
+        }
+        case 'down':
+          this.downT = 0;
+          this.hitstop = 0.3;
+          this.cameras.main.shake(400, 0.016, true);
+          this.sound2.play('baja');
+          for (let i = 0; i < 8; i++) this.puff(e.x + this.fx.range(-8, 8), e.y - this.fx.range(4, 22), this.fx.range(0.5, 0.9));
+          break;
         case 'telegraph':
           this.warnings++;
           this.sound2.play('aviso', { detune: e.color === 'cyan' ? 300 : 0 });
@@ -538,13 +608,32 @@ export class GameScene extends Phaser.Scene {
       this.hero.setPosition(Math.round(p.x), Math.round(p.y));
       this.hero.setRotation(0);
     }
+    if (w.over) {
+      // Provisional fall: it tips over onto its side and smokes (the full animation is its own task).
+      this.downT += dt;
+      const k = Math.min(1, this.downT / 0.35);
+      this.hero.setFrame(0);
+      this.hero.setRotation(k * k * (Math.PI / 2) * p.facing);
+      if (this.fx.chance(dt * 6)) this.puff(p.x + this.fx.range(-6, 6), p.y - 10 + this.fx.range(-4, 4), 0.8);
+      if (this.downT > 1.6 && this.downPanel.length === 0) this.showDownPanel();
+      if (this.downPanel.length) {
+        const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload || this.input.activePointer.isDown;
+        if (!pressed) this.downArmed = true;
+        else if (this.downArmed) this.scene.restart();
+      }
+    }
     this.hero.setDepth(p.y);
+    this.hero.setAlpha(1);
     this.heroShadow.setPosition(Math.round(p.x), Math.round(p.y));
     if (this.flashHero > 0) {
       this.flashHero -= dt;
       this.hero.setTintFill(0xffffff);
     } else if (p.invulnerable > 0 && rolling) {
       this.hero.setTint(0xfff1c8);
+    } else if (p.invulnerable > 0 && !w.over) {
+      // Blinking after a hit: it cannot be hurt again until it stops.
+      this.hero.clearTint();
+      this.hero.setAlpha(Math.floor(this.time.now / 70) % 2 === 0 ? 0.25 : 1);
     } else this.hero.clearTint();
 
     // Gun and floating hand.
@@ -553,8 +642,8 @@ export class GameScene extends Phaser.Scene {
     const gx = pv.x - Math.cos(p.aim) * this.gunKick;
     const gy = pv.y - Math.sin(p.aim) * this.gunKick;
     const behind = Math.sin(p.aim) < -0.35;
-    this.gun.setVisible(!rolling);
-    this.hand.setVisible(!rolling);
+    this.gun.setVisible(!rolling && !w.over);
+    this.hand.setVisible(!rolling && !w.over);
     this.gun.setPosition(Math.round(gx), Math.round(gy)).setRotation(p.aim).setScale(1, p.facing);
     this.gun.setDepth(p.y + (behind ? -0.5 : 0.5));
     this.hand.setPosition(Math.round(gx), Math.round(gy + 1)).setDepth(p.y + (behind ? -0.4 : 0.6));
@@ -777,10 +866,18 @@ export class GameScene extends Phaser.Scene {
 
   private updateHud(dt: number): void {
     const p = this.world.player;
+    this.heartHitT = Math.max(0, this.heartHitT - dt);
     this.hearts.forEach((h, i) => {
       const hp = p.hp - i * 2;
       h.setFrame(hp >= 2 ? 0 : hp === 1 ? 1 : 2);
+      // The heart that just lost a half jumps and blinks white; with one half left, the last heart beats.
+      const hit = i === this.heartHit && this.heartHitT > 0;
+      const beat = p.hp === 1 && i === 0 && Math.floor(this.time.now / 300) % 3 === 0;
+      h.setY(8 - (hit && this.heartHitT > 0.35 ? 2 : 0) - (beat ? 1 : 0));
+      if (hit && Math.floor(this.heartHitT * 16) % 2 === 0) h.setTintFill(0xffffff);
+      else h.clearTint();
     });
+    this.hurtFlash.setAlpha(Math.max(0, this.hurtFlash.alpha - dt * 1.6));
     this.couponText.setText(String(p.coupons));
     this.couponPop = Math.max(0, this.couponPop - dt);
     this.couponIcon.setY(this.couponPop > 0.12 ? 17 : 19);

@@ -52,11 +52,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     chispas: { canvas: P.makeSparks(), frameW: 2, frameH: 2 },
     polvo: { canvas: P.makePuff(), frameW: 8, frameH: 8 },
     mira: one(P.makeCrosshair()),
-    corazones: { canvas: P.makeHearts(), frameW: 11, frameH: 9 },
+    corazones: { canvas: P.makeHearts(), frameW: 9, frameH: 8 },
     municion: { canvas: P.makeAmmoPip(), frameW: 4, frameH: 6 },
     vineta: one(P.makeVignette()),
     cupon: { canvas: P.makeCoupon(), frameW: 12, frameH: 9 },
     chatarra: { canvas: P.makeScrap(), frameW: 6, frameH: 6 },
+    ranura: one(P.makeSlot()),
   };
   for (const n of Object.keys(ITEM_GRIDS)) sheets['objeto-' + n] = one(makeItem(n));
   return sheets;

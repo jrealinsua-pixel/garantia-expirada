@@ -20,6 +20,10 @@ export interface BotReport {
   cuponesPorMinuto: number;
   /** Mean seconds until the first full clear of the test room (games that never clear it count as the whole game). */
   primeraLimpieza: number;
+  /** Games the bot is still standing at the end (%), mean seconds alive, and hits taken per minute alive. */
+  supervivencia: number;
+  segundosVivo: number;
+  heridasPorMinuto: number;
   msPorPartida: number;
   errores: string[];
 }
@@ -29,13 +33,28 @@ function arg(name: string, def: number): number {
   return i >= 0 ? Number(process.argv[i + 1]) : def;
 }
 
-function playOne(seed: string, seconds: number): { hash: string; shots: number; hits: number; contacts: number; stuck: number; kills: number; coupons: number; clearT: number; errors: string[] } {
+interface GameResult {
+  hash: string;
+  shots: number;
+  hits: number;
+  contacts: number;
+  stuck: number;
+  kills: number;
+  coupons: number;
+  clearT: number;
+  alive: number;
+  hurts: number;
+  errors: string[];
+}
+
+function playOne(seed: string, seconds: number): GameResult {
   const w = createWorld({ seed });
   const bot = new Bot(seed);
   let shots = 0;
   let hits = 0;
   let contacts = 0;
   let clearT = seconds;
+  let hurts = 0;
   const errors: string[] = [];
   const ticks = Math.round(seconds / DT);
   try {
@@ -45,7 +64,9 @@ function playOne(seed: string, seconds: number): { hash: string; shots: number; 
         if (e.type === 'shot') shots++;
         else if (e.type === 'hit') hits++;
         else if (e.type === 'contact') contacts++;
+        else if (e.type === 'hurt') hurts++;
       }
+      if (w.over) break;
       if (clearT === seconds && w.enemies.length === 0) clearT = w.tick * DT;
       if (i % 30 === 0) {
         const errs = checkInvariants(w);
@@ -59,8 +80,9 @@ function playOne(seed: string, seconds: number): { hash: string; shots: number; 
     errors.push(`${seed}: excepción ${(e as Error).stack ?? e}`);
   }
   // Stuck for most of the game counts as a hang.
-  if (bot.stuck > (seconds / 3) * 0.5) errors.push(`${seed}: el bot se ha quedado atascado ${bot.stuck} veces`);
-  return { hash: worldHash(w), shots, hits, contacts, stuck: bot.stuck, kills: w.kills, coupons: w.player.coupons, clearT, errors };
+  const alive = w.over ? w.tick * DT : seconds;
+  if (bot.stuck > (alive / 3) * 0.5 && alive > 9) errors.push(`${seed}: el bot se ha quedado atascado ${bot.stuck} veces`);
+  return { hash: worldHash(w), shots, hits, contacts, stuck: bot.stuck, kills: w.kills, coupons: w.player.coupons, clearT, alive, hurts, errors };
 }
 
 export function runBots(games: number, seconds: number): BotReport {
@@ -73,6 +95,9 @@ export function runBots(games: number, seconds: number): BotReport {
   let kills = 0;
   let coupons = 0;
   let clearT = 0;
+  let alive = 0;
+  let survived = 0;
+  let hurts = 0;
   let failed = 0;
   for (let i = 0; i < games; i++) {
     const r = playOne(`bot-${i}`, seconds);
@@ -83,6 +108,9 @@ export function runBots(games: number, seconds: number): BotReport {
     kills += r.kills;
     coupons += r.coupons;
     clearT += r.clearT;
+    alive += r.alive;
+    hurts += r.hurts;
+    if (r.alive >= seconds) survived++;
     if (r.errors.length) {
       failed++;
       errors.push(...r.errors);
@@ -107,6 +135,9 @@ export function runBots(games: number, seconds: number): BotReport {
     bajasPorMinuto: Math.round((kills / games / (seconds / 60)) * 10) / 10,
     cuponesPorMinuto: Math.round((coupons / games / (seconds / 60)) * 10) / 10,
     primeraLimpieza: Math.round((clearT / games) * 10) / 10,
+    supervivencia: Math.round((survived / games) * 1000) / 10,
+    segundosVivo: Math.round((alive / games) * 10) / 10,
+    heridasPorMinuto: alive ? Math.round((hurts / (alive / 60)) * 10) / 10 : 0,
     msPorPartida: Math.round((ms / (games + 2)) * 10) / 10,
     errores: errors.slice(0, 20),
   };
@@ -119,7 +150,8 @@ if (import.meta.main) {
   console.log(
     `${report.partidas} partidas de ${report.segundosPorPartida} s · ${report.fallos} fallos · ` +
       `${report.disparosMedios} disparos de media · precisión ${report.precision} % · ${report.atascos} atascos · ${report.golpesPorMinuto} golpes/min · ` +
-      `${report.bajasPorMinuto} bajas/min · ${report.cuponesPorMinuto} cupones/min · sala limpia en ${report.primeraLimpieza} s · ${report.msPorPartida} ms/partida`,
+      `${report.bajasPorMinuto} bajas/min · ${report.cuponesPorMinuto} cupones/min · sala limpia en ${report.primeraLimpieza} s · ` +
+      `sobrevive ${report.supervivencia} % · ${report.segundosVivo} s vivo · ${report.heridasPorMinuto} heridas/min · ${report.msPorPartida} ms/partida`,
   );
   for (const e of report.errores) console.error('✖ ' + e);
   process.exit(report.fallos ? 1 : 0);

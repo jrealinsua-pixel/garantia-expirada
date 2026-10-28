@@ -24,6 +24,8 @@ interface State {
   kills: number;
   coupons: number;
   pickups: number;
+  hp: number;
+  over: boolean;
 }
 
 interface Page {
@@ -62,6 +64,8 @@ try {
   });
   await page.goto(url + '?semilla=e2e');
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  // The scripted play is not about surviving: nothing hurts the toaster until the damage test at the end.
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
   const state = (): Promise<State> => page.evaluate<State>('window.__GE__.state()');
   // Screen position of a world point.
   const toScreen = (x: number, y: number): Promise<{ x: number; y: number }> =>
@@ -213,6 +217,27 @@ try {
   );
   if (s3.charges === 0) throw new Error('El aspirador no ha embestido en toda la partida');
   if (s3.tick < 60 * seconds * 0.5) throw new Error(`La simulación va lenta: ${s3.tick} ticks en ${seconds} s`);
+
+  // Damage: an enemy bullet at the toaster takes half a heart and leaves it blinking.
+  const bulletAt = (dx: number): string => `(() => { const w = window.__GE__.scene.world; const p = w.player;
+    w.bullets.push({ id: w.nextId++, owner: 'enemy', x: p.x - ${dx}, y: p.y - 9, vx: 140, vy: 0, r: 2.5, life: 3, damage: 1, knockback: 0,
+      color: 'red', age: 0, dir: 0, speed: 140 }); })()`;
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.invulnerable = 0; w.player.rollT = -1; })()`);
+  const hp0 = (await state()).hp;
+  await page.evaluate(bulletAt(24));
+  await page.waitForTimeout(260);
+  await shot('11-herida.png');
+  const sh = await state();
+  if (sh.hp !== hp0 - 1) throw new Error(`Una bala enemiga no quita medio corazón (${hp0} → ${sh.hp})`);
+  // Down: with half a heart left, one more bullet ends it; the provisional screen shows and R restarts.
+  await page.waitForTimeout(1300);
+  await page.evaluate(`(() => { const p = window.__GE__.scene.world.player; p.hp = 1; p.invulnerable = 0; })()`);
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 });
+  await page.waitForTimeout(2200);
+  await shot('12-baja.png');
+  await page.keyboard.press('r');
+  await page.waitForFunction('!window.__GE__.state().over && window.__GE__.state().tick < 120', undefined, { timeout: 4000 });
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

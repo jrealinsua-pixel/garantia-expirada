@@ -13,6 +13,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     hurt: { x: -10, y: -28, w: 20, h: 26 },
     footRadius: 6,
     contactPush: 230,
+    contactDamage: 1,
     knockbackScale: 0.5,
     loot: { coupons: [1, 2] },
     brain: {
@@ -38,6 +39,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     hurt: { x: -12, y: -28, w: 25, h: 27 },
     footRadius: 7,
     contactPush: 120,
+    contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [1, 3] },
     brain: {
@@ -60,6 +62,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     hurt: { x: -11, y: -31, w: 22, h: 29 },
     footRadius: 6,
     contactPush: 140,
+    contactDamage: 1,
     knockbackScale: 0.25,
     loot: { coupons: [3, 5] },
     escort: 'polilla',
@@ -86,6 +89,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     hurt: { x: -5, y: -21, w: 10, h: 9 },
     footRadius: 3,
     contactPush: 150,
+    contactDamage: 1,
     knockbackScale: 1.2,
     loot: { coupons: [0, 1] },
     brain: {

@@ -81,14 +81,14 @@ test('aspirador: si choca con la pared se queda aturdido', () => {
   assert.ok(en.x < w.room.w - 24);
 });
 
-test('aspirador: al embestir empuja a la tostadora (sin daño todavía)', () => {
+test('aspirador: al embestir empuja a la tostadora y le quita medio corazón', () => {
   const w = arena(150, 260);
   const hp = w.player.hp;
   const c = runUntil(w, (e) => e.type === 'contact', 900);
   assert.ok(c && c.type === 'contact');
   step(w, NO_INPUT);
   assert.ok(w.player.vx > 50, `empuje ${w.player.vx}`);
-  assert.equal(w.player.hp, hp);
+  assert.equal(w.player.hp, hp - asp.contactDamage);
 });
 
 test('aspirador: rodando se le esquiva sin empujón', () => {

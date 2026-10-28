@@ -16,3 +16,7 @@ export const DEATH_STAMPS: readonly string[] = [
 
 /** Shown when the test room brings its enemies back. */
 export const RESTOCK_LINE = 'Reposición de stock';
+
+/** Provisional «game over» while the full sick-leave report (parte de baja) is built. */
+export const DOWN_TITLE = 'Dado de baja';
+export const DOWN_HINT = 'R o clic: pedir otra unidad';

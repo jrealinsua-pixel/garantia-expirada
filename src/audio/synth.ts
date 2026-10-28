@@ -98,5 +98,9 @@ export const SFX: Record<string, SfxParams> = {
   // A coupon picked up: a short, bright till «ding».
   cupon: { wave: 'square', freq: 1350, freqEnd: 2100, attack: 0.001, sustain: 0.03, decay: 0.08, volume: 0.12, duty: 0.25 },
   reponer: { wave: 'square', freq: 520, freqEnd: 260, attack: 0.01, sustain: 0.12, decay: 0.15, volume: 0.12, duty: 0.4, vibrato: 0.04, vibratoSpeed: 9 },
+  // The toaster gets hurt: a short electric crackle that drops.
+  dolor: { wave: 'square', freq: 700, freqEnd: 120, attack: 0.001, sustain: 0.05, decay: 0.18, volume: 0.3, duty: 0.3, crush: 4, vibrato: 0.2, vibratoSpeed: 45 },
+  // Down for good: the motor winding down.
+  baja: { wave: 'saw', freq: 320, freqEnd: 35, attack: 0.005, sustain: 0.25, decay: 0.7, volume: 0.3, lowpass: 0.35, vibrato: 0.1, vibratoSpeed: 12 },
   vacio: { wave: 'square', freq: 220, freqEnd: 200, attack: 0.001, sustain: 0.015, decay: 0.02, volume: 0.15, duty: 0.15 },
 };

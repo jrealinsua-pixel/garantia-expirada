@@ -127,9 +127,9 @@
   },
   "corazones": {
     "file": "corazones.png",
-    "frameW": 11,
-    "frameH": 9,
-    "frames": 2
+    "frameW": 9,
+    "frameH": 8,
+    "frames": 3
   },
   "municion": {
     "file": "municion.png",
@@ -154,6 +154,12 @@
     "frameW": 6,
     "frameH": 6,
     "frames": 4
+  },
+  "ranura": {
+    "file": "ranura.png",
+    "frameW": 20,
+    "frameH": 20,
+    "frames": 1
   },
   "objeto-pila": {
     "file": "objeto-pila.png",

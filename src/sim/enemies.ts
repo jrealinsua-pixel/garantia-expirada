@@ -5,7 +5,7 @@ import { PATTERNS } from '../data/patterns.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { isWallAt, wallRectsNear } from './room.ts';
-import { DT, firePattern, HAND_HEIGHT, isRolling, playerFeetBox, slide, type Enemy, type World } from './world.ts';
+import { DT, firePattern, HAND_HEIGHT, hurtPlayer, isRolling, playerFeetBox, slide, type Enemy, type World } from './world.ts';
 
 /** Bullets push enemies; this friction brings them back to their own speed. */
 const KNOCK_FRICTION = 900;
@@ -250,7 +250,7 @@ function updateMoth(w: World, en: Enemy, b: MothBrain): void {
 /** Bumping into an enemy pushes the player away (damage arrives with the hearts in M2). */
 function contact(w: World, en: Enemy): void {
   const p = w.player;
-  if (en.contactCooldown > 0 || isRolling(p)) return;
+  if (en.contactCooldown > 0 || isRolling(p) || w.over) return;
   const pb = playerFeetBox(p, p.def.footRadius + 2);
   const eb = { x: en.x - en.def.footRadius - 2, y: en.y - 10, w: (en.def.footRadius + 2) * 2, h: 12 };
   if (!overlaps(pb, eb)) return;
@@ -261,5 +261,6 @@ function contact(w: World, en: Enemy): void {
   p.vx += d.x * push;
   p.vy += d.y * push;
   en.contactCooldown = 0.5;
+  hurtPlayer(w, en.def.contactDamage, en.id, d.x, d.y);
   w.events.push({ type: 'contact', x: (p.x + en.x) / 2, y: (p.y + en.y) / 2 - HAND_HEIGHT, dirX: d.x, dirY: d.y, source: en.id });
 }

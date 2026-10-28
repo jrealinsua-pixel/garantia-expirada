@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T22:34:00+01:00",
+  "actualizado": "2026-10-28T22:58:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 6,
+      "hechas": 7,
       "total": 10
     },
     {
@@ -102,18 +102,24 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 89,
-    "tests_ok": 89,
+    "tests": 99,
+    "tests_ok": 99,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 3541
+    "lineas_codigo": 3709
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T22:58:00+01:00",
+      "hito": "M2",
+      "resumen": "La tostadora ya recibe daño: balas y golpes quitan medio corazón, parpadea un segundo sin poder recibir otro y borra las balas cercanas; sin vida cae de lado y sale un cartel provisional «Dado de baja» para pedir otra unidad. Ranura del objeto activo en el HUD. Arreglados los corazones del HUD, que se veían cortados.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T22:34:00+01:00",
       "hito": "M2",
       "resumen": "Los enemigos ya mueren: se desmontan en trozos de su propio sprite con tornillos, muelles, humo y un sello («Fuera de garantía», «Obsoleto»…), y sueltan cupones descuento que la tostadora recoge. La Sala de Pruebas repone su stock 4 s después de vaciarse. Contador de cupones en el HUD.",
-      "commit": ""
+      "commit": "30ff403"
     },
     {
       "fecha": "2026-10-28T21:32:00+01:00",
@@ -170,16 +176,16 @@
       "pie": "El Microondas Sin Seguro se desmonta en piezas y suelta un cupón descuento (ampliado)"
     },
     {
+      "archivo": "capturas/baja.png",
+      "pie": "Sin corazones: la tostadora cae y sale el cartel provisional «Dado de baja»"
+    },
+    {
       "archivo": "capturas/bombilla.png",
       "pie": "La Bombilla de Bajo Consumo suelta su espiral de chispas; debajo, la Polilla Fiel (ampliado)"
     },
     {
       "archivo": "capturas/aviso.png",
       "pie": "Telegrafía: parpadeo, anillo que se cierra, dirección y «!» antes de cada ataque"
-    },
-    {
-      "archivo": "capturas/patrones.png",
-      "pie": "Patrones de balas enemigas sobre el suelo de la Sala de Pruebas"
     },
     {
       "archivo": "capturas/disparando.png",
@@ -190,6 +196,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: corazones del jugador y HUD (las balas enemigas ya podrán hacer daño) con la animación de golpe y muerte de la tostadora; después los dos enemigos nuevos y el bot que esquiva.",
+  "proximo": "M2: el bot que esquiva (hoy sobrevive el 10,5 % de las partidas en la Sala de Pruebas; el criterio pide más del 40 %), la animación de golpe y muerte de la tostadora con su parte de baja, y los dos enemigos nuevos.",
   "bloqueos": []
 }
