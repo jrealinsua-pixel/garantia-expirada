@@ -8,3 +8,4 @@ licencia (solo CC0 o compatibles).
 | --- | --- | --- | --- |
 | Fuente Pixelify Sans (panel) | Stefie Justprince | SIL Open Font License | https://fonts.google.com/specimen/Pixelify+Sans |
 | Fuente IBM Plex (panel) | IBM | SIL Open Font License | https://fonts.google.com/specimen/IBM+Plex+Sans |
+| Phaser 3.90.0 (motor, en `vendor/phaser/`) | Richard Davey, Phaser Studio Inc. | MIT | https://phaser.io |

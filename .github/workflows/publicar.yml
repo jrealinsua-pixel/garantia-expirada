@@ -1,5 +1,5 @@
 # Publica el juego (raíz del sitio) y el panel de progreso (/panel/) en GitHub Pages
-# cada vez que hay un push a main. Antes de que exista package.json, publica solo el panel.
+# cada vez que hay un push a main. Si los tests o el bot fallan, no se publica nada.
 name: Publicar
 
 on:
@@ -26,19 +26,20 @@ jobs:
         with:
           node-version: 22
 
-      - name: Construir el juego
+      # El proyecto no tiene dependencias en package.json (las sesiones automáticas no llegan
+      # a npm); aquí sí hay red, así que se instalan las herramientas con versión fija.
+      - name: Herramientas
+        run: npm install -g esbuild@0.28.2 typescript@6.0.3 @types/node@26.6.3
+
+      - name: Comprobar (typecheck, lint, tests y bot)
         run: |
-          if [ -f package.json ]; then
-            npm ci
-            npm run build
-          else
-            mkdir -p dist
-            cat > dist/index.html <<'HTML'
-          <!doctype html><meta charset="utf-8"><title>Garantía Expirada</title>
-          <body style="background:#12141c;color:#e9e6dc;font-family:system-ui;padding:40px">
-          <h1>Garantía Expirada</h1><p>El juego todavía se está montando. Mira el <a style="color:#f6c431" href="panel/">panel de progreso</a>.</p>
-          HTML
-          fi
+          npm ci
+          npm run check
+          npm test
+          npm run bot -- --partidas 100
+
+      - name: Construir el juego
+        run: npm run build
 
       - name: Añadir el panel y el progreso
         run: |

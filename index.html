@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Garantía Expirada</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0e0c16; overflow: hidden; }
+    #juego { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    #juego canvas { cursor: none; image-rendering: pixelated; image-rendering: crisp-edges; }
+    noscript { color: #f4f1e8; font: 16px system-ui; padding: 2em; display: block; }
+  </style>
+</head>
+<body>
+  <div id="juego"></div>
+  <noscript>Garantía Expirada necesita JavaScript. Como todo lo que se rompe al día siguiente.</noscript>
+  <script src="vendor/phaser.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+// Tiny sfxr-style synthesiser: every sound effect is generated from a handful of parameters.
+// Pure function (seeded noise), so tools can also export the same sounds to WAV later.
+import { Rng } from '../sim/rng.ts';
+
+export type Wave = 'square' | 'saw' | 'sine' | 'noise' | 'triangle';
+
+export interface SfxParams {
+  wave: Wave;
+  /** Start and end frequency in Hz (exponential slide). */
+  freq: number;
+  freqEnd: number;
+  attack: number;
+  sustain: number;
+  decay: number;
+  volume: number;
+  /** Square duty cycle 0..1. */
+  duty?: number;
+  /** Vibrato depth (fraction of frequency) and speed (Hz). */
+  vibrato?: number;
+  vibratoSpeed?: number;
+  /** Bit-crush: hold each sample this many times. */
+  crush?: number;
+  /** Simple one-pole low-pass, 0 (off) .. 1 (heavy). */
+  lowpass?: number;
+}
+
+export function synth(p: SfxParams, sampleRate = 44100, seed = 'sfx'): Float32Array {
+  const rng = new Rng(seed);
+  const total = p.attack + p.sustain + p.decay;
+  const n = Math.max(1, Math.floor(total * sampleRate));
+  const out = new Float32Array(n);
+  let phase = 0;
+  let noise = 0;
+  let lp = 0;
+  let held = 0;
+  const crush = Math.max(1, Math.floor(p.crush ?? 1));
+  const lpk = 1 - Math.min(0.95, p.lowpass ?? 0);
+  for (let i = 0; i < n; i++) {
+    const t = i / sampleRate;
+    const k = t / total;
+    let f = p.freq * Math.pow(p.freqEnd / p.freq, k);
+    if (p.vibrato) f *= 1 + p.vibrato * Math.sin(2 * Math.PI * (p.vibratoSpeed ?? 6) * t);
+    const prev = phase;
+    phase = (phase + f / sampleRate) % 1;
+    if (phase < prev) noise = rng.range(-1, 1);
+    let s: number;
+    switch (p.wave) {
+      case 'square':
+        s = phase < (p.duty ?? 0.5) ? 0.6 : -0.6;
+        break;
+      case 'saw':
+        s = (phase * 2 - 1) * 0.7;
+        break;
+      case 'sine':
+        s = Math.sin(phase * 2 * Math.PI);
+        break;
+      case 'triangle':
+        s = (phase < 0.5 ? phase * 4 - 1 : 3 - phase * 4) * 0.8;
+        break;
+      case 'noise':
+        s = noise;
+        break;
+    }
+    let env: number;
+    if (t < p.attack) env = t / p.attack;
+    else if (t < p.attack + p.sustain) env = 1;
+    else env = Math.max(0, 1 - (t - p.attack - p.sustain) / p.decay);
+    lp += (s - lp) * lpk;
+    if (i % crush === 0) held = lp * env * p.volume;
+    out[i] = held;
+  }
+  return out;
+}
+
+/** The game's sound effects. Names are used by the renderer. */
+export const SFX: Record<string, SfxParams> = {
+  // Hair dryer shot: a puff of noise with a falling whine.
+  disparo: { wave: 'noise', freq: 2400, freqEnd: 500, attack: 0.002, sustain: 0.02, decay: 0.09, volume: 0.32, lowpass: 0.35 },
+  disparoTono: { wave: 'square', freq: 520, freqEnd: 180, attack: 0.001, sustain: 0.01, decay: 0.07, volume: 0.12, duty: 0.3 },
+  golpe: { wave: 'square', freq: 180, freqEnd: 60, attack: 0.001, sustain: 0.02, decay: 0.08, volume: 0.3, duty: 0.5, crush: 2 },
+  golpeRuido: { wave: 'noise', freq: 900, freqEnd: 300, attack: 0.001, sustain: 0.01, decay: 0.06, volume: 0.25 },
+  pared: { wave: 'noise', freq: 3000, freqEnd: 1500, attack: 0.001, sustain: 0.005, decay: 0.04, volume: 0.12, lowpass: 0.5 },
+  rodar: { wave: 'noise', freq: 400, freqEnd: 1600, attack: 0.02, sustain: 0.08, decay: 0.16, volume: 0.22, lowpass: 0.6 },
+  recargar: { wave: 'square', freq: 900, freqEnd: 1300, attack: 0.001, sustain: 0.02, decay: 0.03, volume: 0.14, duty: 0.25 },
+  recargado: { wave: 'square', freq: 1300, freqEnd: 1800, attack: 0.001, sustain: 0.03, decay: 0.05, volume: 0.14, duty: 0.25 },
+  vacio: { wave: 'square', freq: 220, freqEnd: 200, attack: 0.001, sustain: 0.015, decay: 0.02, volume: 0.15, duty: 0.15 },
+};

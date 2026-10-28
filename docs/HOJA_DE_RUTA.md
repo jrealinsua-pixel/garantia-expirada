@@ -8,20 +8,20 @@ Estados: `- [ ]` pendiente · `- [x]` hecha.
 
 ---
 
-## M0 · Cimientos
+## M0 · Cimientos (hecho)
 
 Que exista un proyecto sano, con tests, bot, capturas y publicación automática.
 
-- [ ] Proyecto Vite + TypeScript + Phaser 3 con `base: './'` y `pixelArt: true`, resolución interna 480 × 270 escalada con enteros.
-- [ ] Estructura `src/sim/` (lógica pura con semilla), `src/render/` (Phaser), `src/data/` (contenido).
-- [ ] Generador aleatorio con semilla y su test.
-- [ ] Vitest configurado con un test de ejemplo de la simulación.
-- [ ] `npm run bot`: ejecuta N partidas de la simulación sin interfaz (al principio, un bucle vacío) y falla con excepciones.
-- [ ] Playwright: `npm run e2e` arranca el build, espera, pulsa teclas y guarda capturas en `capturas/`.
-- [ ] `npm run sprites`: porta a TypeScript el método de `tools/referencia/` y regenera los sprites aprobados en `public/assets/`.
-- [ ] `npm run stats`: calcula las métricas y las escribe en `progress.json`.
-- [ ] Lint y typecheck en `npm run check`.
-- [ ] El flujo de GitHub Actions publica el juego y el panel en GitHub Pages.
+- [x] Proyecto TypeScript + Phaser 3 con `pixelArt: true`, resolución interna 480 × 270 escalada con enteros. (Sin Vite: esbuild; ver bitácora 2026-10-28.)
+- [x] Estructura `src/sim/` (lógica pura con semilla), `src/render/` (Phaser), `src/data/` (contenido) y `src/art/` (dibujo compartido).
+- [x] Generador aleatorio con semilla y su test.
+- [x] Tests de la simulación configurados (`node:test` en lugar de Vitest; ver bitácora).
+- [x] `npm run bot`: ejecuta N partidas de la simulación sin interfaz y falla con excepciones, invariantes rotos o falta de determinismo.
+- [x] `npm run e2e`: arranca el build en Chromium sin interfaz, juega 30 s con teclado y ratón simulados y guarda capturas en `capturas/`.
+- [x] `npm run sprites`: porta a TypeScript el método de `tools/referencia/` y regenera los sprites aprobados (idénticos píxel a píxel) en `public/assets/`.
+- [x] `npm run stats`: calcula las métricas y el avance de los hitos y los escribe en `progress.json`.
+- [x] Typecheck y reglas de lint propias en `npm run check`.
+- [x] El flujo de GitHub Actions comprueba, construye y publica el juego y el panel en GitHub Pages.
 
 **Criterios de aceptación:** todos los comandos de `CLAUDE.md` funcionan; `main` publica en
 Pages; el panel muestra datos reales; la escena de prueba enseña la Tostadora en una sala.
@@ -30,17 +30,17 @@ Pages; el panel muestra datos reales; la escena de prueba enseña la Tostadora e
 
 Que moverse, apuntar, disparar y rodar se sienta muy bien antes de añadir nada más.
 
-- [ ] Movimiento en 8 direcciones con aceleración y frenada cortas; el sprite mira hacia el cursor.
-- [ ] Animaciones de la Tostadora: reposo, andar, rodar, golpe y muerte.
-- [ ] Apuntar con ratón; el arma rota alrededor de la mano flotante.
-- [ ] Disparo del Secador Mágnum: cadencia, dispersión, retroceso, fogonazo, casquillos (pelusas).
-- [ ] Esquiva rodando con invulnerabilidad, enfriamiento y destello.
-- [ ] Colisiones con paredes y obstáculos (cajas, barriles).
-- [ ] Cámara que sigue al jugador y se adelanta un poco hacia donde apunta.
-- [ ] Respuesta al impacto: temblor de cámara, parón de impacto, partículas, números o destellos.
-- [ ] Soporte de mando (Gamepad API).
-- [ ] Sala de pruebas con un muñeco de práctica (un maniquí de tienda) para probar el arma.
-- [ ] Efectos de sonido generados: disparo, rodar, golpe.
+- [x] Movimiento en 8 direcciones con aceleración y frenada cortas; el sprite mira hacia el cursor.
+- [ ] Animaciones de la Tostadora: reposo, andar, rodar, golpe y muerte. (Hechas reposo, andar y rodar; faltan golpe y muerte, que llegan con el daño en M2.)
+- [x] Apuntar con ratón; el arma rota alrededor de la mano flotante.
+- [x] Disparo del Secador Mágnum: cadencia, dispersión, retroceso, fogonazo, casquillos (pelusas).
+- [x] Esquiva rodando con invulnerabilidad, enfriamiento y destello.
+- [x] Colisiones con paredes y obstáculos (cajas, barriles).
+- [x] Cámara que sigue al jugador y se adelanta un poco hacia donde apunta.
+- [x] Respuesta al impacto: temblor de cámara, parón de impacto, partículas, números o destellos.
+- [ ] Soporte de mando (Gamepad API). (Programado en `src/render/input.ts`; falta probarlo con un mando de verdad o simulado en el e2e.)
+- [x] Sala de pruebas con un muñeco de práctica (un maniquí de tienda) para probar el arma.
+- [x] Efectos de sonido generados: disparo, rodar, golpe.
 
 **Criterios de aceptación:** las capturas muestran la tostadora en movimiento y disparando;
 la entrada responde en menos de un fotograma; ningún test ni bot falla.

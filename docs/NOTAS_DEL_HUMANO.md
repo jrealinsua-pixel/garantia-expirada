@@ -10,4 +10,5 @@ Ejemplo:
 
 ## Pendientes
 
-- 2026-10-28 · Quiero poder jugar algo cuanto antes, aunque sea una sala con la tostadora disparando.
+- [atendida] 2026-10-28 · Quiero poder jugar algo cuanto antes, aunque sea una sala con la tostadora disparando.
+  → Ya se puede: la Sala de Pruebas tiene a la tostadora andando, rodando y disparando el Secador a dos maniquíes (botón «Jugar» del panel).

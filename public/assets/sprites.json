@@ -1,0 +1,170 @@
+{
+  "tostadora": {
+    "file": "tostadora.png",
+    "frameW": 40,
+    "frameH": 41,
+    "frames": 6
+  },
+  "aspirador": {
+    "file": "aspirador.png",
+    "frameW": 32,
+    "frameH": 36,
+    "frames": 1
+  },
+  "microondas": {
+    "file": "microondas.png",
+    "frameW": 32,
+    "frameH": 40,
+    "frames": 1
+  },
+  "bombilla": {
+    "file": "bombilla.png",
+    "frameW": 32,
+    "frameH": 39,
+    "frames": 1
+  },
+  "nevera-suprema": {
+    "file": "nevera-suprema.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 1
+  },
+  "maniqui": {
+    "file": "maniqui.png",
+    "frameW": 32,
+    "frameH": 40,
+    "frames": 1
+  },
+  "arma-secador": {
+    "file": "arma-secador.png",
+    "frameW": 18,
+    "frameH": 11,
+    "frames": 1
+  },
+  "arma-grapadora": {
+    "file": "arma-grapadora.png",
+    "frameW": 18,
+    "frameH": 11,
+    "frames": 1
+  },
+  "mano": {
+    "file": "mano.png",
+    "frameW": 5,
+    "frameH": 5,
+    "frames": 1
+  },
+  "caja": {
+    "file": "caja.png",
+    "frameW": 24,
+    "frameH": 24,
+    "frames": 1
+  },
+  "barril": {
+    "file": "barril.png",
+    "frameW": 16,
+    "frameH": 24,
+    "frames": 1
+  },
+  "carrito": {
+    "file": "carrito.png",
+    "frameW": 28,
+    "frameH": 24,
+    "frames": 1
+  },
+  "bala-jugador": {
+    "file": "bala-jugador.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 1
+  },
+  "bala-roja": {
+    "file": "bala-roja.png",
+    "frameW": 5,
+    "frameH": 5,
+    "frames": 1
+  },
+  "bala-cian": {
+    "file": "bala-cian.png",
+    "frameW": 5,
+    "frameH": 5,
+    "frames": 1
+  },
+  "fogonazo": {
+    "file": "fogonazo.png",
+    "frameW": 12,
+    "frameH": 10,
+    "frames": 2
+  },
+  "pelusa": {
+    "file": "pelusa.png",
+    "frameW": 4,
+    "frameH": 4,
+    "frames": 3
+  },
+  "chispas": {
+    "file": "chispas.png",
+    "frameW": 2,
+    "frameH": 2,
+    "frames": 4
+  },
+  "polvo": {
+    "file": "polvo.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 4
+  },
+  "mira": {
+    "file": "mira.png",
+    "frameW": 15,
+    "frameH": 15,
+    "frames": 1
+  },
+  "corazones": {
+    "file": "corazones.png",
+    "frameW": 9,
+    "frameH": 8,
+    "frames": 3
+  },
+  "municion": {
+    "file": "municion.png",
+    "frameW": 4,
+    "frameH": 6,
+    "frames": 2
+  },
+  "vineta": {
+    "file": "vineta.png",
+    "frameW": 480,
+    "frameH": 270,
+    "frames": 1
+  },
+  "objeto-pila": {
+    "file": "objeto-pila.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-manual": {
+    "file": "objeto-manual.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-ticket": {
+    "file": "objeto-ticket.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-garantia": {
+    "file": "objeto-garantia.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-caja": {
+    "file": "objeto-caja.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  }
+}

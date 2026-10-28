@@ -1,0 +1,20 @@
+{
+  "name": "garantia-expirada",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Roguelike de disparos en pixel art protagonizado por electrodomésticos desechados.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "node tools/dev.ts",
+    "build": "node tools/build.ts",
+    "check": "node tools/check.ts",
+    "test": "node --test --test-reporter=spec \"tests/**/*.test.ts\"",
+    "bot": "node tools/bot.ts",
+    "e2e": "node tools/e2e.ts",
+    "sprites": "node tools/sprites/build.ts",
+    "stats": "node tools/stats.ts"
+  }
+}

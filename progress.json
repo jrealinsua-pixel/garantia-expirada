@@ -1,36 +1,120 @@
 {
-  "actualizado": "2026-10-28T19:30:00+01:00",
-  "version": "0.0.0",
-  "hito_actual": "M0",
+  "actualizado": "2026-10-28T20:00:00+01:00",
+  "version": "0.1.0",
+  "hito_actual": "M1",
   "hitos": [
-    { "id": "M0", "nombre": "Cimientos", "estado": "en_curso", "hechas": 0, "total": 10 },
-    { "id": "M1", "nombre": "Bucle de combate", "estado": "pendiente", "hechas": 0, "total": 11 },
-    { "id": "M2", "nombre": "Enemigos y patrones de balas", "estado": "pendiente", "hechas": 0, "total": 9 },
-    { "id": "M3", "nombre": "Salas y planta", "estado": "pendiente", "hechas": 0, "total": 6 },
-    { "id": "M4", "nombre": "La Nevera Suprema", "estado": "pendiente", "hechas": 0, "total": 5 },
-    { "id": "M5", "nombre": "Armas, objetos y sinergias", "estado": "pendiente", "hechas": 0, "total": 6 },
-    { "id": "M6", "nombre": "Partida completa", "estado": "pendiente", "hechas": 0, "total": 6 },
-    { "id": "M7", "nombre": "Pulido de la primera versión", "estado": "pendiente", "hechas": 0, "total": 5 },
-    { "id": "M8", "nombre": "Planta 2: Informática", "estado": "pendiente", "hechas": 0, "total": 4 },
-    { "id": "M9", "nombre": "El centro y la historia", "estado": "pendiente", "hechas": 0, "total": 4 },
-    { "id": "M10", "nombre": "Plantas 3 y 4", "estado": "pendiente", "hechas": 0, "total": 2 },
-    { "id": "M11", "nombre": "Más contenido y rejugabilidad", "estado": "pendiente", "hechas": 0, "total": 2 },
-    { "id": "M12", "nombre": "Versión de escritorio", "estado": "pendiente", "hechas": 0, "total": 3 }
+    {
+      "id": "M0",
+      "nombre": "Cimientos",
+      "estado": "hecho",
+      "hechas": 10,
+      "total": 10
+    },
+    {
+      "id": "M1",
+      "nombre": "Bucle de combate",
+      "estado": "en_curso",
+      "hechas": 9,
+      "total": 11
+    },
+    {
+      "id": "M2",
+      "nombre": "Enemigos y patrones de balas",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 9
+    },
+    {
+      "id": "M3",
+      "nombre": "Salas y planta",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 6
+    },
+    {
+      "id": "M4",
+      "nombre": "La Nevera Suprema",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 5
+    },
+    {
+      "id": "M5",
+      "nombre": "Armas, objetos y sinergias",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 6
+    },
+    {
+      "id": "M6",
+      "nombre": "Partida completa (primera versión jugable)",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 6
+    },
+    {
+      "id": "M7",
+      "nombre": "Pulido de la primera versión",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 5
+    },
+    {
+      "id": "M8",
+      "nombre": "Planta 2: Informática",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 4
+    },
+    {
+      "id": "M9",
+      "nombre": "El centro y la historia",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 4
+    },
+    {
+      "id": "M10",
+      "nombre": "Plantas 3 y 4",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 2
+    },
+    {
+      "id": "M11",
+      "nombre": "Más contenido y rejugabilidad",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 2
+    },
+    {
+      "id": "M12",
+      "nombre": "Versión de escritorio",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 3
+    }
   ],
   "metricas": {
-    "personajes": 0,
+    "personajes": 1,
     "enemigos": 0,
     "jefes": 0,
-    "armas": 0,
+    "armas": 1,
     "objetos": 0,
-    "plantillas_sala": 0,
-    "tests": 0,
-    "tests_ok": 0,
-    "partidas_bot": 0,
+    "plantillas_sala": 1,
+    "tests": 43,
+    "tests_ok": 43,
+    "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 0
+    "lineas_codigo": 2093
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T20:00:00+01:00",
+      "hito": "M0 + M1",
+      "resumen": "M0 terminado: proyecto, sprites aprobados regenerados por código, tests, bot, e2e, panel y publicación. M1 casi entero: ya se juega la Sala de Pruebas con la tostadora andando, rodando y disparando a maniquíes.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T19:30:00+01:00",
       "hito": "M0",
@@ -39,9 +123,27 @@
     }
   ],
   "capturas": [
-    { "archivo": "capturas/sala-devoluciones.png", "pie": "Maqueta de estilo aprobada: Sala de Devoluciones" },
-    { "archivo": "capturas/reparto.png", "pie": "Reparto aprobado: tostadora, aspirador, microondas, bombilla y la Nevera Suprema" }
+    {
+      "archivo": "capturas/disparando.png",
+      "pie": "Sala de Pruebas: la tostadora dispara el Secador Mágnum a un maniquí (captura del e2e)"
+    },
+    {
+      "archivo": "capturas/rodando.png",
+      "pie": "Esquiva rodando, con polvo, chispas y números de daño"
+    },
+    {
+      "archivo": "capturas/maniquies.png",
+      "pie": "Los maniquíes de rebajas se tambalean y destellan al recibir"
+    },
+    {
+      "archivo": "capturas/reparto.png",
+      "pie": "Sprites generados por código: los aprobados (idénticos) y los nuevos (maniquí, efectos, HUD)"
+    },
+    {
+      "archivo": "capturas/sala-devoluciones.png",
+      "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
+    }
   ],
-  "proximo": "M0: crear el proyecto Vite + TypeScript + Phaser y la estructura de carpetas.",
+  "proximo": "M1: animaciones de golpe y muerte de la tostadora y prueba del mando; después M2 (patrones de balas y enemigos).",
   "bloqueos": []
 }
