@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T22:58:00+01:00",
+  "actualizado": "2026-10-28T22:45:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 7,
+      "hechas": 8,
       "total": 10
     },
     {
@@ -102,18 +102,24 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 99,
-    "tests_ok": 99,
+    "tests": 103,
+    "tests_ok": 103,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 3709
+    "lineas_codigo": 3828
   },
   "sesiones": [
     {
-      "fecha": "2026-10-28T22:58:00+01:00",
+      "fecha": "2026-10-28T22:45:00+01:00",
+      "hito": "M2",
+      "resumen": "El bot ya esquiva: se aparta de las balas que van a darle, rueda si están encima y se quita de la línea del aspirador. Sin esquivar sobrevivía el 10,5 % de las partidas; esquivando vacía la Sala de Pruebas el 84,5 % de las veces (el criterio de M2 pide más del 40 %).",
+      "commit": ""
+    },
+    {
+      "fecha": "2026-10-28T22:40:00+01:00",
       "hito": "M2",
       "resumen": "La tostadora ya recibe daño: balas y golpes quitan medio corazón, parpadea un segundo sin poder recibir otro y borra las balas cercanas; sin vida cae de lado y sale un cartel provisional «Dado de baja» para pedir otra unidad. Ranura del objeto activo en el HUD. Arreglados los corazones del HUD, que se veían cortados.",
-      "commit": ""
+      "commit": "626395c"
     },
     {
       "fecha": "2026-10-28T22:34:00+01:00",
@@ -196,6 +202,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: el bot que esquiva (hoy sobrevive el 10,5 % de las partidas en la Sala de Pruebas; el criterio pide más del 40 %), la animación de golpe y muerte de la tostadora con su parte de baja, y los dos enemigos nuevos.",
+  "proximo": "M2: animación de golpe y muerte de la tostadora con su parte de baja provisional, y los dos enemigos nuevos de docs/DISENO.md; con eso M2 queda cerrado.",
   "bloqueos": []
 }

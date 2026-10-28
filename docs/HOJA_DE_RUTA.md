@@ -56,7 +56,7 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 - [x] Vida, daño, muerte con desmontaje en piezas y botín (cupones). (Los enemigos; el daño al jugador va con los corazones.)
 - [ ] Animaciones de golpe y muerte de la Tostadora (se desmonta: tostadas, muelle, tornillos) y parte de baja provisional.
 - [x] Corazones del jugador y HUD (corazones, munición, cupones, objeto activo). (La ranura del objeto activo está vacía hasta M5.)
-- [ ] IA de los bots capaz de esquivar de forma básica, para medir dificultad.
+- [x] IA de los bots capaz de esquivar de forma básica, para medir dificultad.
 
 **Criterios de aceptación:** una sala con los 5 enemigos es jugable y legible; el bot sobrevive
 a una sala media más del 40 % de las veces.

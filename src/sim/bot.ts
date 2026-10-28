@@ -1,7 +1,115 @@
 // A simple bot player that drives the simulation through the same Input as a human.
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
-import { HAND_HEIGHT, type Input, type World } from './world.ts';
+import { HAND_HEIGHT, isRolling, PLAYER_HURT_Y, type Input, type World } from './world.ts';
+import { isWallAt } from './room.ts';
+
+/** What the dodging part of the bot wants this tick. */
+interface Dodge {
+  /** Avoidance direction (not normalised; zero when nothing threatens) and how urgent it is (0..1). */
+  x: number;
+  y: number;
+  urgency: number;
+  roll: boolean;
+  rollX: number;
+  rollY: number;
+}
+
+/** How far ahead the bot looks at bullets (s), and how close a pass counts as a hit (px). */
+const LOOKAHEAD = 0.55;
+const DANGER = 11;
+/** Seconds a bullet has to be in the air before the bot «sees» it: a human's reaction time, roughly. */
+export const BOT_REACTION = 0.2;
+
+/**
+ * Basic dodging, enough to measure difficulty: sidesteps bullets that will pass close, rolls
+ * through the ones about to land, gets out of the vacuum's path and keeps a little distance.
+ */
+export function dodge(w: World): Dodge {
+  const p = w.player;
+  const bx = p.x;
+  const by = p.y - PLAYER_HURT_Y;
+  const out: Dodge = { x: 0, y: 0, urgency: 0, roll: false, rollX: 0, rollY: 0 };
+  let soonest = Infinity;
+  for (const b of w.bullets) {
+    if (b.owner !== 'enemy' || b.age < BOT_REACTION) continue;
+    const rx = bx - b.x;
+    const ry = by - b.y;
+    const v2 = b.vx * b.vx + b.vy * b.vy;
+    if (v2 < 1) continue;
+    // Time of closest approach and how close it gets.
+    const t = (rx * b.vx + ry * b.vy) / v2;
+    if (t < 0 || t > LOOKAHEAD) continue;
+    const cx = b.x + b.vx * t - bx;
+    const cy = b.y + b.vy * t - by;
+    const miss = Math.hypot(cx, cy);
+    if (miss > DANGER + 8) continue;
+    // Step away from the closest point of its path (sideways to the bullet).
+    const k = (1 - t / LOOKAHEAD) * (miss < DANGER ? 1 : 0.4);
+    const v = Math.sqrt(v2);
+    let sx = -cx;
+    let sy = -cy;
+    if (Math.hypot(sx, sy) < 0.5) {
+      sx = -b.vy / v;
+      sy = b.vx / v;
+    }
+    const sl = Math.hypot(sx, sy);
+    out.x += (sx / sl) * k;
+    out.y += (sy / sl) * k;
+    if (miss < DANGER && t < soonest) {
+      soonest = t;
+      out.rollX = -b.vy / v;
+      out.rollY = b.vx / v;
+      // Roll to the side that leads away from its path.
+      if (out.rollX * sx + out.rollY * sy < 0) {
+        out.rollX = -out.rollX;
+        out.rollY = -out.rollY;
+      }
+    }
+  }
+  for (const en of w.enemies) {
+    const dx = p.x - en.x;
+    const dy = p.y - en.y;
+    const d = Math.hypot(dx, dy) || 1;
+    // The vacuum's locked line: get off it, roll if it is already coming.
+    if (((en.state === 'warn' && en.t >= BOT_REACTION) || en.state === 'charge') && en.def.brain.kind === 'charger') {
+      const along = dx * en.dirX + dy * en.dirY;
+      const side = dx * -en.dirY + dy * en.dirX;
+      if (along > -8 && Math.abs(side) < 22) {
+        const sgn = side >= 0 ? 1 : -1;
+        const k = en.state === 'charge' ? 1 : 0.7;
+        out.x += -en.dirY * sgn * k * 1.5;
+        out.y += en.dirX * sgn * k * 1.5;
+        if (en.state === 'charge' && along < 70 && along / 230 < soonest) {
+          soonest = along / 230;
+          out.rollX = -en.dirY * sgn;
+          out.rollY = en.dirX * sgn;
+        }
+      }
+    }
+    // A little personal space from everything that bumps.
+    if (d < 46) {
+      out.x += (dx / d) * (1 - d / 46) * 0.8;
+      out.y += (dy / d) * (1 - d / 46) * 0.8;
+    }
+  }
+  // Do not dodge into a wall.
+  const ahead = 18;
+  const l = Math.hypot(out.x, out.y);
+  if (l > 0 && isWallAt(w.room, p.x + (out.x / l) * ahead, p.y + (out.y / l) * ahead)) {
+    if (!isWallAt(w.room, p.x + (out.x / l) * ahead, p.y)) out.y = 0;
+    else if (!isWallAt(w.room, p.x, p.y + (out.y / l) * ahead)) out.x = 0;
+  }
+  out.urgency = Math.min(1, Math.hypot(out.x, out.y));
+  if (soonest < 0.2 && !isRolling(p) && p.rollCooldown <= 0) {
+    out.roll = true;
+    if (isWallAt(w.room, p.x + out.rollX * 40, p.y + out.rollY * 40)) {
+      out.rollX = -out.rollX;
+      out.rollY = -out.rollY;
+    }
+  }
+  return out;
+}
 
 export class Bot {
   private rng: Rng;
@@ -14,8 +122,12 @@ export class Bot {
   /** Ticks to leave the coupons alone (after getting stuck going for one). */
   private ignorePickups = 0;
 
-  constructor(seed: string) {
+  /** Whether it tries to dodge (off, it is the old bot that only walks around and shoots). */
+  readonly dodges: boolean;
+
+  constructor(seed: string, opts: { dodge?: boolean } = {}) {
     this.rng = new Rng('bot:' + seed);
+    this.dodges = opts.dodge ?? true;
   }
 
   think(w: World): Input {
@@ -45,15 +157,22 @@ export class Bot {
         goal = { x: k.x, y: k.y };
       }
     }
-    const tx = (goal?.x ?? p.x) - p.x;
-    const ty = (goal?.y ?? p.y) - p.y;
+    const gx = (goal?.x ?? p.x) - p.x;
+    const gy = (goal?.y ?? p.y) - p.y;
+    const gl = Math.hypot(gx, gy) || 1;
+    // Mix where it wants to go with getting out of the way; danger wins.
+    const dg = this.dodges ? dodge(w) : null;
+    const u = dg ? dg.urgency : 0;
+    const tx = (gx / gl) * (1 - u) + (dg ? dg.x : 0) * 2;
+    const ty = (gy / gl) * (1 - u) + (dg ? dg.y : 0) * 2;
     const l = Math.hypot(tx, ty) || 1;
     // Aim at the nearest target, with a little wobble.
     let aimX = p.x + 50;
     let aimY = p.y - HAND_HEIGHT;
     let best = Infinity;
-    // Enemies first (half the distance counts as nearer), then the dummies.
-    for (const d of [...w.enemies.map((e) => ({ x: e.x, y: e.y, k: 0.5 })), ...w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }))]) {
+    // Enemies first; the dummies only when the room is empty.
+    const targets = w.enemies.length ? w.enemies.map((e) => ({ x: e.x, y: e.y, k: 1 })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
+    for (const d of targets) {
       const dd = Math.hypot(d.x - p.x, d.y - p.y) * d.k;
       if (dd < best) {
         best = dd;
@@ -64,13 +183,17 @@ export class Bot {
     if (this.burst <= 0 && this.rng.chance(0.03)) this.burst = this.rng.int(10, 50);
     const fire = this.burst > 0;
     this.burst--;
+    if (dg?.roll) {
+      // The roll goes where the stick points.
+      return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false };
+    }
     return {
       moveX: tx / l,
       moveY: ty / l,
       aimX,
       aimY,
       fire,
-      roll: this.rng.chance(0.01),
+      roll: dg ? dg.roll : this.rng.chance(0.01),
       reload: this.rng.chance(0.002),
     };
   }

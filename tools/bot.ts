@@ -22,6 +22,8 @@ export interface BotReport {
   primeraLimpieza: number;
   /** Games the bot is still standing at the end (%), mean seconds alive, and hits taken per minute alive. */
   supervivencia: number;
+  /** Games in which the bot empties the room (every enemy taken apart) before going down (%): the M2 criterion. */
+  superaSala: number;
   segundosVivo: number;
   heridasPorMinuto: number;
   msPorPartida: number;
@@ -97,6 +99,7 @@ export function runBots(games: number, seconds: number): BotReport {
   let clearT = 0;
   let alive = 0;
   let survived = 0;
+  let cleared = 0;
   let hurts = 0;
   let failed = 0;
   for (let i = 0; i < games; i++) {
@@ -111,6 +114,7 @@ export function runBots(games: number, seconds: number): BotReport {
     alive += r.alive;
     hurts += r.hurts;
     if (r.alive >= seconds) survived++;
+    if (r.clearT < seconds) cleared++;
     if (r.errors.length) {
       failed++;
       errors.push(...r.errors);
@@ -136,6 +140,7 @@ export function runBots(games: number, seconds: number): BotReport {
     cuponesPorMinuto: Math.round((coupons / games / (seconds / 60)) * 10) / 10,
     primeraLimpieza: Math.round((clearT / games) * 10) / 10,
     supervivencia: Math.round((survived / games) * 1000) / 10,
+    superaSala: Math.round((cleared / games) * 1000) / 10,
     segundosVivo: Math.round((alive / games) * 10) / 10,
     heridasPorMinuto: alive ? Math.round((hurts / (alive / 60)) * 10) / 10 : 0,
     msPorPartida: Math.round((ms / (games + 2)) * 10) / 10,
@@ -151,7 +156,7 @@ if (import.meta.main) {
     `${report.partidas} partidas de ${report.segundosPorPartida} s · ${report.fallos} fallos · ` +
       `${report.disparosMedios} disparos de media · precisión ${report.precision} % · ${report.atascos} atascos · ${report.golpesPorMinuto} golpes/min · ` +
       `${report.bajasPorMinuto} bajas/min · ${report.cuponesPorMinuto} cupones/min · sala limpia en ${report.primeraLimpieza} s · ` +
-      `sobrevive ${report.supervivencia} % · ${report.segundosVivo} s vivo · ${report.heridasPorMinuto} heridas/min · ${report.msPorPartida} ms/partida`,
+      `vacía la sala ${report.superaSala} % · sobrevive ${report.supervivencia} % · ${report.segundosVivo} s vivo · ${report.heridasPorMinuto} heridas/min · ${report.msPorPartida} ms/partida`,
   );
   for (const e of report.errores) console.error('✖ ' + e);
   process.exit(report.fallos ? 1 : 0);
