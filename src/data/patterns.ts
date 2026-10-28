@@ -12,6 +12,8 @@ export const PATTERNS: Record<string, PatternDef> = {
   },
   // Bombilla de Bajo Consumo: slow three-armed spiral of sparks.
   'bombilla-espiral': { kind: 'spiral', arms: 3, steps: 14, stepDeg: 13, interval: 0.09, speed: 65, color: 'cyan' },
+  // Mando a Distancia: a short aimed burst of «infrared» (it is red, so you can see it).
+  'mando-zapeo': { kind: 'burst', count: 3, interval: 0.1, jitterDeg: 3, speed: 115, color: 'red' },
   // Generic aimed fan, for the weaker enemies.
   'abanico-3': { kind: 'fan', count: 3, spreadDeg: 30, speed: 90, color: 'red' },
   // Aimed burst with a little spread.

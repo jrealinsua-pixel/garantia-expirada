@@ -105,6 +105,10 @@ export const SFX: Record<string, SfxParams> = {
   // Hand mixer: the whirr of its lunge, and the jammed slider going into TURBO.
   batir: { wave: 'saw', freq: 220, freqEnd: 420, attack: 0.005, sustain: 0.16, decay: 0.1, volume: 0.16, vibrato: 0.25, vibratoSpeed: 60, lowpass: 0.45 },
   turbo: { wave: 'square', freq: 300, freqEnd: 1500, attack: 0.01, sustain: 0.25, decay: 0.15, volume: 0.17, duty: 0.3, vibrato: 0.15, vibratoSpeed: 35 },
+  // Remote control: an old TV switching off (a high whine dropping to nothing) and back on (a click
+  // and a burst of static).
+  apagar: { wave: 'square', freq: 1600, freqEnd: 90, attack: 0.001, sustain: 0.05, decay: 0.16, volume: 0.13, duty: 0.2, lowpass: 0.6 },
+  zapear: { wave: 'noise', freq: 2400, freqEnd: 1200, attack: 0.001, sustain: 0.05, decay: 0.12, volume: 0.17, crush: 2 },
   // The toaster comes apart: the slices pop out, the spring goes «boing», the report is stamped.
   saltar: { wave: 'square', freq: 260, freqEnd: 980, attack: 0.001, sustain: 0.03, decay: 0.09, volume: 0.22, duty: 0.4, crush: 2 },
   muelle: { wave: 'triangle', freq: 330, freqEnd: 520, attack: 0.002, sustain: 0.2, decay: 0.35, volume: 0.28, vibrato: 0.35, vibratoSpeed: 22 },

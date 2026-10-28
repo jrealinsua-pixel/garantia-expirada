@@ -160,7 +160,7 @@ export interface Dummy {
   damageTaken: number;
 }
 
-export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off';
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone';
 
 export interface Enemy {
   id: number;
@@ -191,6 +191,11 @@ export interface Enemy {
   lastHit: number;
   /** Has gone into TURBO (chasers low on life). */
   turbo?: boolean;
+  /** Where a blinker will switch back on (while it is switching off or gone). */
+  dest?: { x: number; y: number };
+  /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
+  blinkCd?: number;
+  seenDamage?: number;
 }
 
 export type SimEvent =
@@ -211,6 +216,9 @@ export type SimEvent =
   /** A chaser (the mixer) lunges, and goes into TURBO when low on life. */
   | { type: 'lunge'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'turbo'; x: number; y: number; source: number }
+  /** A blinker (the remote) switches off at (x, y) to reappear at (tx, ty); then switches on there. */
+  | { type: 'blinkOut'; x: number; y: number; tx: number; ty: number; source: number }
+  | { type: 'blinkIn'; x: number; y: number; source: number }
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
@@ -321,11 +329,22 @@ export function createWorld(opts: WorldOptions): World {
   return w;
 }
 
-/** Puts the room's enemies (and their escorts) at their spawn points. */
+/** Where the rest of a pack stands around its spawn point (px). */
+const PACK_OFFSETS: readonly (readonly [number, number])[] = [[-22, 14], [22, 14], [0, 28], [-22, -14], [22, -14]];
+
+/** Puts the room's enemies (and their escorts and packs) at their spawn points. */
 function spawnRoomEnemies(w: World): void {
   for (const s of w.room.enemySpawns) {
     const en = spawnEnemy(w.nextId++, s.def, s.x, s.y);
     w.enemies.push(en);
+    // Packs: the rest of the group around the spawn point, each on clear floor.
+    for (let i = 1; i < (s.def.pack ?? 1); i++) {
+      const [ox, oy] = PACK_OFFSETS[(i - 1) % PACK_OFFSETS.length]!;
+      const spot = freeSpot(w, s.x + ox, s.y + oy, s.def.footRadius);
+      const mate = spawnEnemy(w.nextId++, s.def, spot.x, spot.y);
+      mate.until += i * 0.45;
+      w.enemies.push(mate);
+    }
     if (s.def.escort) {
       const edef = ENEMIES[s.def.escort];
       if (!edef) throw new Error(`Unknown escort ${s.def.escort}`);
@@ -349,6 +368,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'chaser') {
     // Its first lunge comes sooner than the next ones.
     until = b.cooldown[0] * 0.5;
+  } else if (b.kind === 'blinker') {
+    state = 'idle';
+    until = b.interval[0];
   }
   return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0, lastHit: 0 };
 }
@@ -585,7 +607,7 @@ function updateBullets(w: World): void {
       }
       if (b.owner === 'player') {
         for (const en of w.enemies) {
-          if (isDead(en)) continue;
+          if (isDead(en) || en.state === 'gone') continue;
           const hb = dummyHurtBox(en);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
             en.hitT = 0.12;
@@ -827,6 +849,12 @@ function updatePickups(w: World): void {
     keep.push(k);
   }
   w.pickups = keep;
+}
+
+/** Whether a feet box of radius `r` at (x, y) touches no wall or prop. */
+export function isClear(w: World, x: number, y: number, r: number): boolean {
+  const box = playerFeetBox({ x, y }, r);
+  return !solidsNear(w, box).some((s) => overlaps(box, s));
 }
 
 /** The nearest point to (x, y) where a feet box of radius `r` touches no wall or prop (rings of 4 px). */

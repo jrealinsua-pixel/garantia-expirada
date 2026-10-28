@@ -35,6 +35,12 @@
     "frameH": 38,
     "frames": 4
   },
+  "mando": {
+    "file": "mando.png",
+    "frameW": 22,
+    "frameH": 32,
+    "frames": 2
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,

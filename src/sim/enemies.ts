@@ -1,11 +1,11 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { ChargerBrain, ChaserBrain, MothBrain, TurretBrain } from '../data/types.ts';
+import type { BlinkerBrain, ChargerBrain, ChaserBrain, MothBrain, TurretBrain } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { isWallAt, wallRectsNear } from './room.ts';
-import { DT, firePattern, HAND_HEIGHT, hurtPlayer, isRolling, playerFeetBox, slide, type Enemy, type World } from './world.ts';
+import { DT, firePattern, HAND_HEIGHT, hurtPlayer, isClear, isRolling, playerFeetBox, slide, type Enemy, type World } from './world.ts';
 
 /** Bullets push enemies; this friction brings them back to their own speed. */
 const KNOCK_FRICTION = 900;
@@ -26,6 +26,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'chaser':
         updateChaser(w, en, en.def.brain);
+        break;
+      case 'blinker':
+        updateBlinker(w, en, en.def.brain);
         break;
     }
     contact(w, en);
@@ -229,6 +232,109 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
   }
 }
 
+/**
+ * Where a blinker switches back on: `hop` px from the player, on clear floor, preferring spots away
+ * from where the player is aiming (never where you look for it) and not on top of the player.
+ */
+export function blinkSpot(w: World, en: Enemy, b: BlinkerBrain): { x: number; y: number } {
+  const p = w.player;
+  let best: { x: number; y: number } | null = null;
+  let bestScore = -Infinity;
+  for (let i = 0; i < 14; i++) {
+    const a = w.rng.range(0, Math.PI * 2);
+    const d = w.rng.range(b.hop[0], b.hop[1]);
+    const x = p.x + Math.cos(a) * d;
+    const y = p.y + Math.sin(a) * d * 0.8;
+    if (!isClear(w, x, y, en.def.footRadius + 1)) continue;
+    // Angle away from the aim (0 in the crosshair, 1 right behind), and a little spread from where it was.
+    let off = Math.abs(a - p.aim) % (Math.PI * 2);
+    if (off > Math.PI) off = Math.PI * 2 - off;
+    const score = off / Math.PI + Math.min(1, Math.hypot(x - en.x, y - en.y) / 120) * 0.4 + w.rng.range(0, 0.3);
+    if (score > bestScore) {
+      bestScore = score;
+      best = { x, y };
+    }
+  }
+  return best ?? { x: en.x, y: en.y };
+}
+
+function startBlink(w: World, en: Enemy, b: BlinkerBrain): void {
+  // Anything it was about to fire goes with it.
+  w.emitters = w.emitters.filter((e) => e.source !== en.id || e.t >= 0);
+  en.dest = blinkSpot(w, en, b);
+  enter(en, 'blink', b.vanish);
+  en.blinkCd = b.hitBlinkCooldown;
+  w.events.push({ type: 'blinkOut', x: en.x, y: en.y, tx: en.dest.x, ty: en.dest.y, source: en.id });
+}
+
+function updateBlinker(w: World, en: Enemy, b: BlinkerBrain): void {
+  const p = w.player;
+  en.t += DT;
+  en.blinkCd = Math.max(0, (en.blinkCd ?? 0) - DT);
+  const hitNow = en.damageTaken > (en.seenDamage ?? 0);
+  en.seenDamage = en.damageTaken;
+  const toX = p.x - en.x;
+  const toY = p.y - HAND_HEIGHT - (en.y - b.muzzleY);
+  if (Math.abs(toX) > 2 && (en.state === 'idle' || en.state === 'fire')) en.facing = toX > 0 ? 1 : -1;
+  let walkX = 0;
+  let walkY = 0;
+  switch (en.state) {
+    case 'idle': {
+      // Sidles around the player at about `keep` px, a different way round each.
+      const d = Math.hypot(p.x - en.x, p.y - en.y) || 1;
+      const ux = (p.x - en.x) / d;
+      const uy = (p.y - en.y) / d;
+      const radial = d > b.keep + 20 ? 1 : d < b.keep - 20 ? -1 : 0;
+      const side = en.id % 2 === 0 ? 0.7 : -0.7;
+      const mx = ux * radial - uy * side;
+      const my = uy * radial + ux * side;
+      const ml = Math.hypot(mx, my) || 1;
+      walkX = (mx / ml) * b.walkSpeed;
+      walkY = (my / ml) * b.walkSpeed;
+      if (hitNow && en.blinkCd <= 0 && !w.over) {
+        startBlink(w, en, b);
+        break;
+      }
+      if (en.t >= en.until && Math.hypot(toX, toY) < b.range && !w.over) {
+        const def = PATTERNS[b.pattern];
+        if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id });
+        // A short pose after the last shot, so you can see who fired before it vanishes.
+        enter(en, 'fire', b.telegraph + patternDuration(def) + 0.2);
+      }
+      break;
+    }
+    case 'fire':
+      if (en.t >= en.until) startBlink(w, en, b);
+      break;
+    case 'blink':
+      if (en.t >= en.until) enter(en, 'gone', b.gone);
+      break;
+    case 'gone':
+      if (en.t >= en.until) {
+        const dest = en.dest && isClear(w, en.dest.x, en.dest.y, en.def.footRadius) ? en.dest : { x: en.x, y: en.y };
+        en.x = dest.x;
+        en.y = dest.y;
+        en.vx = 0;
+        en.vy = 0;
+        delete en.dest;
+        enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+        en.seenDamage = en.damageTaken;
+        w.events.push({ type: 'blinkIn', x: en.x, y: en.y, source: en.id });
+      }
+      break;
+    default:
+      enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+  }
+  if (en.state === 'gone') return;
+  approach(en, walkX, walkY, KNOCK_FRICTION);
+  const ox = en.x;
+  const oy = en.y;
+  slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+  en.moved += Math.hypot(en.x - ox, en.y - oy);
+}
+
 /** Height its bullets come out at: `muzzleY` above the feet, lower if a wall is right above it. */
 function muzzleHeight(w: World, en: Enemy, muzzleY: number): number {
   let h = 0;
@@ -316,7 +422,7 @@ function updateMoth(w: World, en: Enemy, b: MothBrain): void {
 /** Bumping into an enemy pushes the player away (damage arrives with the hearts in M2). */
 function contact(w: World, en: Enemy): void {
   const p = w.player;
-  if (en.contactCooldown > 0 || isRolling(p) || w.over) return;
+  if (en.contactCooldown > 0 || isRolling(p) || w.over || en.state === 'blink' || en.state === 'gone') return;
   const pb = playerFeetBox(p, p.def.footRadius + 2);
   const eb = { x: en.x - en.def.footRadius - 2, y: en.y - 10, w: (en.def.footRadius + 2) * 2, h: 12 };
   if (!overlaps(pb, eb)) return;

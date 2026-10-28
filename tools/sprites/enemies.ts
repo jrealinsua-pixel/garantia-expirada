@@ -93,3 +93,79 @@ export function makeBatidora(spin = 0): Canvas {
 export function makeBatidoraFrames(): Canvas[] {
   return [0, 1, 2, 3].map((k) => makeBatidora(k));
 }
+
+/** Remote-control plastic: charcoal with a blue cast, light enough to read against the outline. */
+const REMOTE = ramp('#a0a6be', '#737992', '#555b75', '#3b3f57');
+const REMOTE_SIDE = ramp('#5d6380', '#484d68', '#363a52', '#24273a');
+const REMOTE_TOP = ramp('#c4c9da', '#a0a6be', '#7e849e', '#5d6380');
+/** Checked house slippers: it lives on the sofa. */
+const SLIPPER = ramp('#c98a6a', '#9c5f4a', '#6e3f35', '#4a2a26');
+const BUTTON = ramp('#d6cdb2', '#a89f86', '#756e5a', '#4a4538');
+
+/**
+ * Mando a Distancia: a TV remote standing on its end, in house slippers. Shifty eyes looking
+ * sideways under heavy lids and a smug half-smile; the dark-red infrared window is its forehead and
+ * the power button sits on top of its head. Jokes: the battery cover is gone (two batteries held in
+ * with a strip of tape), the «1» button is missing, and there is a cheese puff stuck to its head from
+ * years between the sofa cushions. `bob` (0-1) lifts the body 1 px for the idle breath.
+ * 22x32.
+ */
+export function makeMando(bob = 0): Canvas {
+  const cv = new Canvas(22, 30);
+  const u = -bob;
+  hand(cv, 2, 15 + u, REMOTE);
+  feet(cv, 7, 11, 23, { L: 4, leg: REMOTE_SIDE, shoe: SLIPPER });
+  // Slipper check pattern.
+  cv.set(12, 27, SLIPPER[3]!);
+  cv.set(14, 27, SLIPPER[3]!);
+  cv.set(8, 27, SLIPPER[3]!);
+  cube(cv, 5, 2 + u, 12, 21, 4, 2, REMOTE, REMOTE_SIDE, REMOTE_TOP);
+  // Power button on top of the head.
+  cv.rect(13, 2 + u, 2, 1, RED[1]!);
+  cv.set(13, 2 + u, RED[0]!);
+  // Infrared window across the forehead.
+  cv.rect(9, 5 + u, 7, 2, RED[3]!);
+  cv.rect(9, 5 + u, 7, 1, RED[2]!);
+  cv.set(10, 5 + u, RED[0]!);
+  // Eyes looking sideways (the shine on the far edge), lids half down: smug.
+  cv.rect(10, 8 + u, 2, 3, K);
+  cv.set(11, 9 + u, WHITE);
+  cv.rect(10, 8 + u, 2, 1, REMOTE[2]!);
+  cv.rect(13, 8 + u, 3, 3, K);
+  cv.set(15, 9 + u, WHITE);
+  cv.rect(13, 8 + u, 3, 1, REMOTE[2]!);
+  // Half-smile, pulled up at the front.
+  cv.rect(11, 12 + u, 4, 1, K);
+  cv.set(15, 11 + u, K);
+  // Button grid: rows of rubber buttons; the top-left one (the «1») is just a hole.
+  for (const y of [14, 16, 18]) {
+    for (const x of [10, 12, 14]) {
+      cv.set(x, y + u, BUTTON[1]!);
+      cv.set(x, y + 1 + u, BUTTON[2]!);
+    }
+  }
+  cv.set(10, 14 + u, K);
+  cv.set(10, 15 + u, REMOTE[3]!);
+  // Volume rocker, long and worn shiny from use.
+  cv.rect(12, 20 + u, 3, 1, BUTTON[0]!);
+  // Back: no battery cover, two batteries and a strip of tape holding them in.
+  cv.rect(6, 7 + u, 2, 14, REMOTE_SIDE[3]!);
+  cv.rect(6, 8 + u, 1, 12, YEL[1]!);
+  cv.rect(7, 8 + u, 1, 12, YEL[2]!);
+  cv.set(6, 8 + u, STEEL[0]!);
+  cv.set(7, 19 + u, STEEL[2]!);
+  cv.rect(5, 12 + u, 4, 2, CREAM[0]!);
+  cv.set(8, 13 + u, CREAM[2]!);
+  // A cheese puff stuck to the top of its head, and a scratch.
+  cv.rect(8, 2 + u, 3, 1, RUSTR[0]!);
+  cv.set(9, 1 + u, YEL[2]!);
+  cv.set(10, 2 + u, RUSTR[1]!);
+  cv.set(16, 6 + u, REMOTE[0]!);
+  hand(cv, 17, 16 + u, REMOTE);
+  return pad(outline(cv), 2);
+}
+
+/** Two idle frames of the remote (it breathes). */
+export function makeMandoFrames(): Canvas[] {
+  return [makeMando(0), makeMando(1)];
+}

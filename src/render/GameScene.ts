@@ -657,6 +657,16 @@ export class GameScene extends Phaser.Scene {
           this.floats.push({ t, vy: -14, life: 1 });
           break;
         }
+        case 'blinkOut':
+          this.sound2.play('apagar', { detune: this.fx.range(-150, 150) });
+          break;
+        case 'blinkIn': {
+          this.sound2.play('zapear', { detune: this.fx.range(-200, 200) });
+          const v = this.enemySprites.get(e.source);
+          if (v) v.onAt = this.time.now;
+          for (let i = 0; i < 4; i++) this.spark(e.x + this.fx.range(-5, 5), e.y - this.fx.range(4, 22), this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), 0);
+          break;
+        }
         case 'dart':
           this.sound2.play('aleteo', { detune: this.fx.range(-200, 200) });
           break;
@@ -865,6 +875,7 @@ export class GameScene extends Phaser.Scene {
       s.setScale(en.facing, 1);
       if (en.def.brain.kind === 'moth') s.setFrame(Math.floor(this.time.now / (en.state === 'charge' ? 35 : 70)) % 2);
       else if (en.def.brain.kind === 'turret' && en.def.brain.startup) s.setFrame(bulbLit(en, this.time.now) ? 0 : 1);
+      else if (en.def.brain.kind === 'blinker') s.setFrame(Math.floor(this.time.now / 380 + en.id * 0.5) % 2);
       else if (en.def.brain.kind === 'chaser') {
         // Beaters turn all the time; flat out while winding up, lunging or in TURBO.
         const fast = en.state === 'warn' || en.state === 'charge' || en.turbo;
@@ -876,6 +887,11 @@ export class GameScene extends Phaser.Scene {
       else if (en.state === 'brake') rot = -0.12 * en.facing * (1 - en.t / en.until);
       else if (en.state === 'stun') rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
       s.setRotation(rot);
+      // The remote switches off like an old TV (squashed to a line, then to a dot) and back on.
+      const tv = tvScale(en, v.onAt === undefined ? 1 : (this.time.now - v.onAt) / 1000);
+      s.setScale(en.facing * tv.x, tv.y);
+      s.setVisible(tv.x > 0 && tv.y > 0);
+      v.shadow.setVisible(en.state !== 'gone');
       const gl = SPRITE_GLOWS[en.def.sprite];
       if (v.glow && gl) {
         // A soft halo while lit, stronger while it fires.
@@ -902,7 +918,7 @@ export class GameScene extends Phaser.Scene {
         }
         v.blink.setDepth(en.y + 0.1);
       }
-      if (en.hitT > 0.07) s.setTintFill(0xffffff);
+      if (en.hitT > 0.07 || tv.white) s.setTintFill(0xffffff);
       else if (en.hitT > 0) s.setTint(0xffb0a0);
       else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
       else s.clearTint();
@@ -924,6 +940,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.drawWarnings();
+    this.drawStatic();
     this.drawPickups();
 
     // Bullets.
@@ -971,6 +988,32 @@ export class GameScene extends Phaser.Scene {
       v.s.destroy();
       v.shadow.destroy();
       this.pickupSprites.delete(id);
+    }
+  }
+
+  /** Where a remote is about to switch back on, the floor crackles with TV static. */
+  private drawStatic(): void {
+    const g = this.warn;
+    for (const en of this.world.enemies) {
+      if (!en.dest || (en.state !== 'blink' && en.state !== 'gone')) continue;
+      const b = en.def.brain;
+      if (b.kind !== 'blinker') continue;
+      // 0 when it starts switching off, 1 when it reappears.
+      const k = en.state === 'blink' ? (en.t / en.until) * 0.35 : 0.35 + (en.t / en.until) * 0.65;
+      const x = Math.round(en.dest.x);
+      const y = Math.round(en.dest.y);
+      const h = Math.round(6 + 18 * k);
+      g.fillStyle(0x0e0c16, 0.35).fillEllipse(x, y, 16, 5);
+      const n = Math.round(16 + 60 * k);
+      for (let i = 0; i < n; i++) {
+        const px = x + this.fx.int(-7, 7);
+        const py = y - this.fx.int(0, h);
+        const c = this.fx.pick([0xf4f1e8, 0xb7bed0, 0x858ea8, 0x5a627c]);
+        g.fillStyle(c, 1).fillRect(px, py, 1, 1);
+      }
+      // A rolling bright line, like a badly tuned channel.
+      const ly = y - Math.floor((this.time.now / 25) % (h + 1));
+      g.fillStyle(0xf4f1e8, 0.9).fillRect(x - 7, ly, 15, 1);
     }
   }
 
@@ -1138,6 +1181,8 @@ const SPRITE_GLOWS: Record<string, { y: number; r: number; color: number }> = {
 };
 
 interface EnemyView {
+  /** When a remote last switched back on (ms), for the TV «switch on» animation. */
+  onAt?: number;
   s: Phaser.GameObjects.Image;
   shadow: Phaser.GameObjects.Image;
   blink?: Phaser.GameObjects.Graphics;
@@ -1155,6 +1200,28 @@ function bulbLit(en: Enemy, now: number): boolean {
   // Cheap deterministic noise per 70 ms slot (only for drawing).
   const n = ((slot * 2654435761 + en.id * 97) >>> 0) % 100;
   return k > 0.35 && n < k * k * 90;
+}
+
+const TV_ON_TIME = 0.16;
+
+/**
+ * Scale of a remote switching off like an old TV: first it flattens into a white line, then the line
+ * shrinks to a dot and is gone. Switching on (`sinceOn` s after) is the same backwards, faster.
+ */
+function tvScale(en: Enemy, sinceOn: number): { x: number; y: number; white: boolean } {
+  if (en.state === 'gone') return { x: 0, y: 0, white: true };
+  if (en.state === 'blink') {
+    const k = Math.min(1, en.t / en.until);
+    if (k < 0.6) return { x: 1 + k * 0.3, y: Math.max(0.06, 1 - k / 0.6), white: k > 0.25 };
+    const j = (k - 0.6) / 0.4;
+    return { x: Math.max(0.05, 1.18 * (1 - j)), y: 0.06, white: true };
+  }
+  if (sinceOn < TV_ON_TIME) {
+    const k = sinceOn / TV_ON_TIME;
+    if (k < 0.45) return { x: Math.max(0.05, k / 0.45), y: 0.06, white: true };
+    return { x: 1, y: Math.max(0.06, (k - 0.45) / 0.55), white: k < 0.75 };
+  }
+  return { x: 1, y: 1, white: false };
 }
 
 /** Blinks faster as the warning runs out (k from 0 to 1). */

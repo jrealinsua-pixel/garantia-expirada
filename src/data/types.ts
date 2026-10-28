@@ -66,7 +66,8 @@ export interface DummyDef {
 /**
  * Room templates are drawn as text. Legend:
  * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `M` training dummy,
- * `A` Aspirador Desahuciado, `O` Microondas Sin Seguro, `L` Bombilla de Bajo Consumo (con su polilla), `T` Batidora de Mano.
+ * `A` Aspirador Desahuciado, `O` Microondas Sin Seguro, `L` Bombilla de Bajo Consumo (con su polilla), `T` Batidora de Mano,
+ * `Z` Mandos a Distancia (vienen en grupo: see EnemyDef.pack).
  * The top two rows are the back wall (shelves are painted on them).
  */
 export interface RoomTemplate {
@@ -166,7 +167,30 @@ export interface ChaserBrain {
   turbo?: { below: number; scale: number };
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain;
+/**
+ * Never where you look for it: sidles around the player at `keep` px and, every `interval` s, warns
+ * for `telegraph` s and fires `pattern`. After firing (and when hit, at most once every
+ * `hitBlinkCooldown` s) it «switches off» like an old TV for `vanish` s and is gone for `gone` s
+ * (the landing spot crackles with static meanwhile), then «switches on» `hop` px from the player,
+ * preferably away from where the player is aiming. While gone it cannot hit or be hit.
+ */
+export interface BlinkerBrain {
+  kind: 'blinker';
+  walkSpeed: number;
+  keep: number;
+  range: number;
+  interval: [number, number];
+  telegraph: number;
+  pattern: string;
+  muzzleY: number;
+  vanish: number;
+  gone: number;
+  /** Distance from the player of the landing spot (random in this range). */
+  hop: [number, number];
+  hitBlinkCooldown: number;
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain;
 
 export interface EnemyDef {
   id: string;
@@ -190,4 +214,6 @@ export interface EnemyDef {
   loot: LootDef;
   /** Enemy id that always comes with this one (spawned next to it, owned by it). */
   escort?: string;
+  /** How many of it one spawn point brings (they come in groups). Default 1. */
+  pack?: number;
 }

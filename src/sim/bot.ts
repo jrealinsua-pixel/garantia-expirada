@@ -172,7 +172,7 @@ export class Bot {
     let aimY = p.y - HAND_HEIGHT;
     let best = Infinity;
     // Enemies first; the dummies only when the room is empty.
-    const targets = w.enemies.length ? w.enemies.map((e) => ({ x: e.x, y: e.y, k: 1 })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
+    const targets = w.enemies.length ? w.enemies.filter((e) => e.state !== 'gone').map((e) => ({ x: e.x, y: e.y, k: 1 })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
     for (const d of targets) {
       const dd = Math.hypot(d.x - p.x, d.y - p.y) * d.k;
       if (dd < best) {

@@ -143,6 +143,15 @@ try {
     return !!m && m.state === 'warn' && m.turbo && m.t > m.until * 0.5; })()`;
   await page.waitForFunction(mixerWinding, undefined, { timeout: 6000 });
   await shot('08b-batidora.png');
+
+  // Mandos a Distancia: stand near the group and catch one switching off like an old TV, with the
+  // static crackling where it will come back.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const m = w.enemies.find((e) => e.def.id === 'mando');
+    if (m) { w.player.x = m.x + 90; w.player.y = m.y - 20; } })()`);
+  const remoteBlinking = `(() => { const w = window.__GE__.scene.world;
+    return w.enemies.some((e) => e.def.id === 'mando' && (e.state === 'gone' || (e.state === 'blink' && e.t > e.until * 0.4))); })()`;
+  await page.waitForFunction(remoteBlinking, undefined, { timeout: 8000 });
+  await shot('08c-mando.png');
   await page.waitForTimeout(600);
 
   // Taking an enemy apart: the microwave, already worn down, shot from close; then pick up its coupons.

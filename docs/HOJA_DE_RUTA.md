@@ -45,7 +45,7 @@ Que moverse, apuntar, disparar y rodar se sienta muy bien antes de añadir nada 
 **Criterios de aceptación:** las capturas muestran la tostadora en movimiento y disparando;
 la entrada responde en menos de un fotograma; ningún test ni bot falla.
 
-## M2 · Enemigos y patrones de balas
+## M2 · Enemigos y patrones de balas (hecho)
 
 - [x] Sistema de patrones de balas declarativo (anillo, abanico, espiral, ráfaga, onda) con tests.
 - [x] Telegrafía de ataques (parpadeo y sonido previo).
@@ -53,7 +53,7 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 - [x] Microondas Sin Seguro (anillos de ondas).
 - [x] Bombilla de Bajo Consumo (espirales) con su polilla.
 - [x] Primer enemigo nuevo de `docs/DISENO.md`: Batidora de Mano (persigue, se lanza cuerpo a cuerpo y entra en TURBO), diseñada y dibujada al estilo aprobado.
-- [ ] Segundo enemigo nuevo de `docs/DISENO.md`: Mando a Distancia (débil, en grupo, se teletransporta), diseñado y dibujado al estilo aprobado.
+- [x] Segundo enemigo nuevo de `docs/DISENO.md`: Mando a Distancia (débil, viene en grupo de tres, dispara y se apaga como una tele vieja para aparecer en otro sitio), diseñado y dibujado al estilo aprobado.
 - [x] Vida, daño, muerte con desmontaje en piezas y botín (cupones). (Los enemigos; el daño al jugador va con los corazones.)
 - [x] Animaciones de golpe y muerte de la Tostadora (se desmonta: tostadas, muelle, tornillos) y parte de baja provisional.
 - [x] Corazones del jugador y HUD (corazones, munición, cupones, objeto activo). (La ranura del objeto activo está vacía hasta M5.)
@@ -61,6 +61,8 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 
 **Criterios de aceptación:** una sala con los 5 enemigos es jugable y legible; el bot sobrevive
 a una sala media más del 40 % de las veces.
+*Cumplidos el 2026-10-29: la Sala de Pruebas con los seis enemigos (y la polilla) se lee bien en
+las capturas del e2e; el bot la vacía sin caer el 52,5 % de las veces y sobrevive el 92 %.*
 
 ## M3 · Salas y planta
 

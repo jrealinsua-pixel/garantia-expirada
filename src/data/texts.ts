@@ -37,6 +37,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   bombilla: { bullet: 'Sobretensión de un mando intermedio', contact: 'Roce con un mando intermedio' },
   polilla: { contact: 'Ataque de polilla leal a la empresa' },
   batidora: { contact: 'Batido a velocidad turbo' },
+  mando: { bullet: 'Zapeo a quemarropa', contact: 'Cambio de canal no solicitado' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };
 export const DOWN_CAUSE_DEFAULT = 'Daños por mal uso';

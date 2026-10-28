@@ -32,9 +32,9 @@ function runUntil(w: World, pred: (e: SimEvent) => boolean, maxTicks = 600): Sim
   return null;
 }
 
-test('la sala de pruebas tiene aspirador, microondas, bombilla con su polilla y batidora', () => {
+test('la sala de pruebas tiene aspirador, microondas, bombilla con su polilla, batidora y tres mandos', () => {
   const w = createWorld({ seed: 'x' });
-  assert.deepEqual(w.enemies.map((e) => e.def.id).sort(), ['aspirador', 'batidora', 'bombilla', 'microondas', 'polilla']);
+  assert.deepEqual(w.enemies.map((e) => e.def.id).sort(), ['aspirador', 'batidora', 'bombilla', 'mando', 'mando', 'mando', 'microondas', 'polilla']);
   const bulb = w.enemies.find((e) => e.def.id === 'bombilla')!;
   const moth = w.enemies.find((e) => e.def.id === 'polilla')!;
   assert.equal(moth.owner, bulb.id, 'la polilla acompaña a la bombilla');
