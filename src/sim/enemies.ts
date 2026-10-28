@@ -132,7 +132,7 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
     const def = PATTERNS[b.pattern];
     if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
     const mh = muzzleHeight(w, en, b.muzzleY);
-    firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id });
+    firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id });
     enter(en, 'fire', b.telegraph + patternDuration(def));
   } else if (en.state === 'fire' && en.t >= en.until) {
     enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
@@ -261,6 +261,6 @@ function contact(w: World, en: Enemy): void {
   p.vx += d.x * push;
   p.vy += d.y * push;
   en.contactCooldown = 0.5;
-  hurtPlayer(w, en.def.contactDamage, en.id, d.x, d.y);
+  hurtPlayer(w, en.def.contactDamage, en.id, d.x, d.y, { by: en.def.id, how: 'contact' });
   w.events.push({ type: 'contact', x: (p.x + en.x) / 2, y: (p.y + en.y) / 2 - HAND_HEIGHT, dirX: d.x, dirY: d.y, source: en.id });
 }

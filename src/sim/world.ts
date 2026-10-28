@@ -110,6 +110,8 @@ export interface Bullet {
   speed: number;
   wave?: { amp: number; freq: number };
   accel?: number;
+  /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
+  by?: string;
 }
 
 /**
@@ -127,6 +129,8 @@ export interface Emitter {
   telegraph: number;
   /** Id of whoever fires it (a dummy, later an enemy), to make it blink. */
   source?: number;
+  /** Kind of whoever fires it (an enemy id or 'maniqui'), copied to its bullets. */
+  by?: string;
   /** Direction towards the target when fired, and whether the pattern follows it. */
   aim: number;
   aimed: boolean;
@@ -140,6 +144,7 @@ export interface FireOptions {
   owner?: 'player' | 'enemy';
   telegraph?: number;
   source?: number;
+  by?: string;
 }
 
 export interface Dummy {
@@ -207,7 +212,7 @@ export type SimEvent =
   /** The player lost `damage` life (now `hp`); `dirX, dirY` is where the blow came from towards it. */
   | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number }
   /** The player has no life left: the run is over. */
-  | { type: 'down'; x: number; y: number; source: number }
+  | { type: 'down'; x: number; y: number; source: number; cause: DownCause }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
 
 export interface World {
@@ -233,6 +238,14 @@ export interface World {
   over: boolean;
   /** Tests and tools only: nothing hurts the player. */
   noDamage: boolean;
+  /** What took the player down (null while it is up), for the sick-leave report. */
+  cause: DownCause | null;
+}
+
+/** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
+export interface DownCause {
+  by: string;
+  how: 'bullet' | 'contact';
 }
 
 /** Seconds the player cannot be hurt again after a hit (it blinks meanwhile). */
@@ -296,6 +309,7 @@ export function createWorld(opts: WorldOptions): World {
     spawnsEnemies: !opts.noEnemies,
     over: false,
     noDamage: false,
+    cause: null,
   };
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   return w;
@@ -555,7 +569,7 @@ function updateBullets(w: World): void {
         const rr = b.r + PLAYER_HURT_RADIUS;
         if (dx * dx + dy * dy < rr * rr && canBeHurt(w)) {
           const d = normalize(b.vx, b.vy);
-          hurtPlayer(w, b.damage, -1, d.x, d.y);
+          hurtPlayer(w, b.damage, -1, d.x, d.y, { by: b.by ?? 'desconocido', how: 'bullet' });
           alive = false;
           break;
         }
@@ -612,6 +626,7 @@ export function firePattern(w: World, def: PatternDef, x: number, y: number, aim
     color: shots[0]?.color ?? 'red',
   };
   if (opts.source !== undefined) e.source = opts.source;
+  if (opts.by !== undefined) e.by = opts.by;
   w.emitters.push(e);
   if (telegraph > 0) {
     const ev: SimEvent = { type: 'telegraph', x, y, time: telegraph, aim, aimed: e.aimed, color: e.color };
@@ -690,6 +705,7 @@ function updateEmitters(w: World): void {
       };
       if (s.wave) b.wave = s.wave;
       if (s.accel) b.accel = s.accel;
+      if (e.by) b.by = e.by;
       w.bullets.push(b);
     }
     e.t += DT;
@@ -716,7 +732,7 @@ export const canBeHurt = (w: World): boolean => !w.over && !w.noDamage && w.play
  * Takes `damage` life from the player (1 = half a heart) if it can be hurt: blink time, nearby
  * enemy bullets cleared, and the run ends at 0. `dirX, dirY` is the direction of the blow.
  */
-export function hurtPlayer(w: World, damage: number, source: number, dirX: number, dirY: number): boolean {
+export function hurtPlayer(w: World, damage: number, source: number, dirX: number, dirY: number, cause: DownCause = { by: 'desconocido', how: 'contact' }): boolean {
   if (!canBeHurt(w) || damage <= 0) return false;
   const p = w.player;
   p.hp = Math.max(0, p.hp - damage);
@@ -732,7 +748,8 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
     w.over = true;
     p.rollT = -1;
     p.weapon.reload = 0;
-    w.events.push({ type: 'down', x: p.x, y: p.y, source });
+    w.cause = cause;
+    w.events.push({ type: 'down', x: p.x, y: p.y, source, cause });
   }
   return true;
 }
@@ -824,7 +841,7 @@ export function step(w: World, input: Input): void {
     const d = w.dummies[0];
     if (def && d) {
       const y = d.y - 20;
-      firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x), { telegraph: ENEMY_TELEGRAPH, source: d.id });
+      firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x), { telegraph: ENEMY_TELEGRAPH, source: d.id, by: 'maniqui' });
     }
   }
   updateEmitters(w);

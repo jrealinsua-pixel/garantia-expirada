@@ -43,6 +43,8 @@ export interface HeroPose {
   xf: number;
   /** Vertical offset of everything above the legs (idle breathing, walk bounce). */
   bob: number;
+  /** Expression: squeezed eyes when hit, crossed-out eyes and empty slots once broken. */
+  face?: 'hurt' | 'broken';
   /** Animation frame, used for the smoke. */
   frame: number;
 }
@@ -57,7 +59,8 @@ export function makeHero(withGun = true): Canvas {
 export function makeHeroPose(pose: HeroPose): Canvas {
   const cv = new Canvas(40, 36);
   const body = new Canvas(40, 36);
-  hand(body, 9, 21);
+  const broken = pose.face === 'broken';
+  if (!broken) hand(body, 9, 21);
   feet(cv, pose.xb, pose.xf, 25, { L: 4, shoe: SNEAK });
   box(body, 12, 19, 10, 6, DSTEEL);
   body.rect(12, 22, 10, 1, YEL[1]!);
@@ -69,6 +72,8 @@ export function makeHeroPose(pose: HeroPose): Canvas {
   ];
   for (const [sx, top, T] of slots) {
     body.rect(sx - 1, 7, 6, 1, K);
+    // Once broken the slices have popped out: only the dark slots are left.
+    if (broken) continue;
     body.rect(sx, top, 4, 8 - top, T[1]!);
     body.rect(sx, top, 4, 1, T[3]!);
     body.rect(sx, top, 1, 8 - top, T[2]!);
@@ -88,10 +93,29 @@ export function makeHeroPose(pose: HeroPose): Canvas {
     body.rect(ex - 1, 11, 4, 1, K);
     body.set(ex + 1, 13, WHITE);
     body.rect(ex, 15, 3, 1, STEEL[2]!);
+    if (pose.face) {
+      // Wipe the eye and draw it again: squeezed shut (> <) when hit, crossed out when broken.
+      body.rect(ex - 1, 11, 4, 4, STEEL[1]!);
+      const left = ex === 18;
+      const pts: Pt[] =
+        pose.face === 'hurt'
+          ? left
+            ? [[ex, 12], [ex + 1, 13], [ex, 14]]
+            : [[ex + 2, 12], [ex + 1, 13], [ex + 2, 14]]
+          : [[ex, 12], [ex + 2, 12], [ex + 1, 13], [ex, 14], [ex + 2, 14]];
+      for (const [x, y] of pts) body.set(x, y, K);
+      body.rect(ex - 1, 11, 4, 1, STEEL[2]!);
+    }
   }
-  body.rect(21, 17, 3, 1, K);
-  body.set(20, 18, K);
-  body.set(24, 16, K);
+  if (pose.face) {
+    // Mouth open in a grimace (hit) or hanging open (broken).
+    body.rect(21, 17, 3, 2, K);
+    if (pose.face === 'hurt') body.set(22, 17, WHITE);
+  } else {
+    body.rect(21, 17, 3, 1, K);
+    body.set(20, 18, K);
+    body.set(24, 16, K);
+  }
   body.rect(12, 14, 4, 3, YEL[1]!);
   body.rect(12, 15, 4, 1, RED[1]!);
   const rust: Pt[] = [[26, 10], [27, 11], [13, 18], [25, 17], [10, 9], [17, 11]];
@@ -111,6 +135,7 @@ export function makeHeroPose(pose: HeroPose): Canvas {
   for (const [x, y] of crumbs) o.set(x, y, TOASTC[1]!);
   o = pad(o, 5);
   // Smoke from the burnt slice drifts one pixel left and right between frames.
+  if (broken) return o;
   const sx = pose.frame % 2 === 1 ? 1 : 0;
   const smoke: Array<[number, number, number]> = [[22, 4, 0], [23, 3, 0], [22, 2, 1], [21, 1, 1], [22, 0, 2], [24, 2, 1]];
   for (const [x, y, k] of smoke) o.set(x + (y < 3 ? sx : 0), y + pose.bob, SMOKE[k]!);
@@ -125,6 +150,8 @@ export const HERO_FRAMES: ReadonlyArray<{ name: string; pose: HeroPose }> = [
   { name: 'walk1', pose: { gun: false, xb: 14, xf: 16, bob: -1, frame: 1 } },
   { name: 'walk2', pose: { gun: false, xb: 18, xf: 12, bob: 0, frame: 0 } },
   { name: 'walk3', pose: { gun: false, xb: 16, xf: 14, bob: -1, frame: 1 } },
+  { name: 'hurt', pose: { gun: false, xb: 13, xf: 17, bob: 1, frame: 0, face: 'hurt' } },
+  { name: 'broken', pose: { gun: false, xb: 12, xf: 18, bob: 1, frame: 0, face: 'broken' } },
 ];
 
 export function makeAspirador(): Canvas {

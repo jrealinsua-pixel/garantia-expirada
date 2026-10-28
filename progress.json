@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T22:45:00+01:00",
+  "actualizado": "2026-10-28T23:33:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 8,
+      "hechas": 9,
       "total": 10
     },
     {
@@ -102,18 +102,24 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 103,
-    "tests_ok": 103,
+    "tests": 112,
+    "tests_ok": 112,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 3828
+    "lineas_codigo": 4080
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T23:33:00+01:00",
+      "hito": "M2",
+      "resumen": "La tostadora se desmonta al caer: tiembla con la cara apretada, le saltan las dos tostadas, sale disparado el muelle con un «boing», se sueltan el mando y los tornillos y la carcasa vacía cae de lado echando humo, con los ojos tachados. Después baja el parte de baja de verdad: unidad, causa (según quién dio el último golpe), sala, vida útil, bajas, cupones y una recomendación del fabricante distinta cada vez, con un sello rojo «Dado de baja». Al recibir un golpe pone cara de dolor.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T22:45:00+01:00",
       "hito": "M2",
       "resumen": "El bot ya esquiva: se aparta de las balas que van a darle, rueda si están encima y se quita de la línea del aspirador. Sin esquivar sobrevivía el 10,5 % de las partidas; esquivando vacía la Sala de Pruebas el 84,5 % de las veces (el criterio de M2 pide más del 40 %).",
-      "commit": ""
+      "commit": "2e12e11"
     },
     {
       "fecha": "2026-10-28T22:40:00+01:00",
@@ -183,7 +189,7 @@
     },
     {
       "archivo": "capturas/baja.png",
-      "pie": "Sin corazones: la tostadora cae y sale el cartel provisional «Dado de baja»"
+      "pie": "Parte de baja: causa, vida útil, recomendación del fabricante y el sello rojo"
     },
     {
       "archivo": "capturas/bombilla.png",
@@ -202,6 +208,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: animación de golpe y muerte de la tostadora con su parte de baja provisional, y los dos enemigos nuevos de docs/DISENO.md; con eso M2 queda cerrado.",
+  "proximo": "M2: los dos enemigos nuevos de docs/DISENO.md (Batidora de Mano y Mando a Distancia); con eso M2 queda cerrado.",
   "bloqueos": []
 }

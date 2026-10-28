@@ -1,9 +1,10 @@
 // Draws the simulation and plays its events. Phaser only draws and reads input: all the rules
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
-import { fontText } from '../art/font.ts';
-import { DEATH_STAMPS, DOWN_HINT, DOWN_TITLE, RESTOCK_LINE } from '../data/texts.ts';
-import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { fontText, textWidth } from '../art/font.ts';
+import { DEATH_STAMPS, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE } from '../data/texts.ts';
+import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
+import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
@@ -18,6 +19,12 @@ const HERO_W = 40;
 const HERO_H = 41;
 /** Grip of the hair dryer in its 18x11 sprite. */
 const GUN_GRIP = { x: 6.5, y: 8.5 };
+/** Frames of the toaster sheet: squeezed face when hit, and broken (slices gone, eyes crossed out). */
+const HERO_HURT = 6;
+const HERO_BROKEN = 7;
+/** Seconds from going down to the slices popping out, and to the sick-leave report. */
+const DOWN_POP = 0.35;
+const DOWN_REPORT = 1.9;
 
 interface Particle {
   s: Phaser.GameObjects.Image;
@@ -74,6 +81,8 @@ export interface GameStateForTests {
   coupons: number;
   pickups: number;
   over: boolean;
+  /** Text of the sick-leave report once it is on screen (empty before). */
+  report: string[];
 }
 
 export class GameScene extends Phaser.Scene {
@@ -113,6 +122,11 @@ export class GameScene extends Phaser.Scene {
   private downPanel: Phaser.GameObjects.GameObject[] = [];
   /** The restart only listens once the buttons held while dying have been let go. */
   private downArmed = false;
+  private downCause: DownCause | null = null;
+  private popped = false;
+  private report: string[] = [];
+  /** Seconds left showing the squeezed face after a hit. */
+  private hurtFace = 0;
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
   private hearts: Phaser.GameObjects.Image[] = [];
@@ -149,6 +163,10 @@ export class GameScene extends Phaser.Scene {
     this.downT = -1;
     this.downPanel = [];
     this.downArmed = false;
+    this.downCause = null;
+    this.popped = false;
+    this.report = [];
+    this.hurtFace = 0;
     this.dummySprites = new Map();
     this.enemySprites = new Map();
     this.bulletSprites = new Map();
@@ -163,6 +181,10 @@ export class GameScene extends Phaser.Scene {
     const unlock = (): void => this.sound2.unlock();
     this.input.on('pointerdown', unlock);
     this.input.keyboard?.on('keydown', unlock);
+    // Asking for a new unit: a fresh press of R or a click once the report is up (a pad's
+    // reload button is polled in syncView).
+    this.input.keyboard?.on('keydown-R', () => this.newUnit());
+    this.input.on('pointerdown', () => this.newUnit());
 
     const room = this.world.room;
     const art = paintRoom(room, seed);
@@ -354,17 +376,146 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Provisional end screen: title, how long it lasted and how to start again. */
+  /**
+   * The sick-leave report (parte de baja): unit, cause, room, service life and the
+   * manufacturer's advice, on a dark form that drops in; then the red stamp slams onto it.
+   */
   private showDownPanel(): void {
-    const secs = Math.round(this.world.tick / 60);
-    const box = this.hud(this.add.rectangle(VIEW_W / 2, VIEW_H / 2, 220, 64, 0x0e0c16, 0.88)).setStrokeStyle(1, 0xe0453b).setDepth(96000);
-    const title = this.hud(this.add.bitmapText(VIEW_W / 2, VIEW_H / 2 - 22, FONT, fontText(DOWN_TITLE), 8).setOrigin(0.5, 0)).setDepth(96001);
-    title.setTint(0xe0453b);
-    const life = this.hud(this.add.bitmapText(VIEW_W / 2, VIEW_H / 2 - 6, FONT, fontText(`Vida útil: ${secs} s · Bajas: ${this.world.kills}`), 8).setOrigin(0.5, 0)).setDepth(96001);
-    life.setTint(0xd6cdb2);
-    const hint = this.hud(this.add.bitmapText(VIEW_W / 2, VIEW_H / 2 + 10, FONT, fontText(DOWN_HINT), 8).setOrigin(0.5, 0)).setDepth(96001);
-    hint.setTint(0xf6c431);
-    this.downPanel = [box, title, life, hint];
+    const w = this.world;
+    const cause = this.downCause ?? { by: 'desconocido', how: 'contact' as const };
+    const lines = downReport(
+      { by: cause.by, how: cause.how, room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons },
+      (n) => this.fx.int(0, n - 1),
+    );
+    const BW = 296;
+    const BH = 164;
+    const x0 = Math.round(VIEW_W / 2 - BW / 2);
+    const y0 = Math.round(VIEW_H / 2 - BH / 2);
+    const parts: Array<Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor> = [];
+    const add = <T extends Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor>(o: T): T => {
+      this.hud(o).setDepth(96000 + parts.length);
+      parts.push(o);
+      return o;
+    };
+    const text = (x: number, y: number, t: string, tint: number): Phaser.GameObjects.BitmapText => add(this.add.bitmapText(x, y, FONT, fontText(t), 8)).setTint(tint);
+    add(this.add.rectangle(x0, y0, BW, BH, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, 0xe0453b);
+    // A form: title bar, ruled lines, perforated edge.
+    add(this.add.rectangle(x0 + 1, y0 + 1, BW - 2, 15, 0xe0453b, 1).setOrigin(0, 0));
+    text(x0 + 8, y0 + 4, DOWN_TITLE, 0xf4f1e8);
+    const ref = `Exp. ${String(1000 + ((w.tick * 7919) % 9000)).padStart(4, '0')}`;
+    text(x0 + BW - 8 - textWidth(ref), y0 + 4, ref, 0x0e0c16).setTint(0xffd0c8);
+    const g = add(this.add.graphics());
+    for (let x = x0 + 4; x < x0 + BW - 4; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, y0 + BH - 22, 2, 1);
+    let y = y0 + 22;
+    this.report = [];
+    for (const ln of lines) {
+      const advice = ln.label.startsWith('Recomendación');
+      if (advice) y += 5;
+      if (ln.label && !advice) {
+        text(x0 + 10, y, `${ln.label}:`, 0x858ea8);
+        text(x0 + 76, y, ln.text, 0xd6cdb2);
+        y += 11;
+      } else if (advice) {
+        text(x0 + 10, y, `${ln.label}:`, 0xf6c431);
+        text(x0 + 10, y + 11, ln.text, 0xf4f1e8);
+        y += 22;
+      } else {
+        text(x0 + 76, y, ln.text, 0x858ea8);
+        y += 11;
+      }
+      this.report.push(ln.label ? `${ln.label}: ${ln.text}` : ln.text);
+    }
+    const hint = text(VIEW_W / 2 - Math.round(textWidth(DOWN_HINT) / 2), y0 + BH - 15, DOWN_HINT, 0xf6c431);
+    this.tweens.add({ targets: hint, alpha: 0.35, yoyo: true, repeat: -1, duration: 450, delay: 900 });
+    // The whole form drops in from above.
+    for (const o of parts) {
+      const ty = o.y;
+      o.y = ty - 40;
+      this.tweens.add({ targets: o, y: ty, duration: 220, ease: 'Back.easeOut' });
+    }
+    // The stamp slams down a moment later.
+    const stamp = add(this.add.bitmapText(x0 + BW - 64, y0 + BH - 38, FONT, fontText(DOWN_STAMP), 8).setOrigin(0.5, 0.5)).setTint(0xe0453b);
+    const frame = add(this.add.rectangle(stamp.x, stamp.y, textWidth(DOWN_STAMP) + 8, 13).setStrokeStyle(1, 0xe0453b));
+    for (const o of [stamp, frame]) {
+      o.setRotation(-0.22).setScale(5).setAlpha(0);
+      this.tweens.add({
+        targets: o,
+        scale: 2,
+        alpha: 0.9,
+        delay: 520,
+        duration: 130,
+        ease: 'Quad.easeIn',
+        onComplete: () => {
+          if (o !== stamp) return;
+          this.sound2.play('sello');
+          this.cameras.main.shake(120, 0.006, true);
+        },
+      });
+    }
+    this.report.push(DOWN_STAMP);
+    this.downPanel = parts;
+  }
+
+  /**
+   * The toaster comes apart: both slices pop out of the slots, the lever spring shoots off with
+   * a «boing», the knob and screws scatter, and the empty body tips over.
+   */
+  private popToaster(): void {
+    const p = this.world.player;
+    const f = p.facing;
+    this.popped = true;
+    this.hitstop = 0.06;
+    this.cameras.main.shake(160, 0.01, true);
+    this.sound2.play('saltar');
+    this.time.delayedCall(90, () => this.sound2.play('muelle'));
+    this.flashHero = 0.05;
+    // Slots are 2 and 6 px right of the feet (facing right), 30 px up.
+    const flung = (frame: number, dx: number, z: number, vx: number, vz: number, spin: number, life = 99): void => {
+      this.particles.push({
+        s: this.add.image(p.x + dx * f, p.y + this.fx.range(-2, 3), 'despiece', frame).setFlipX(f < 0),
+        vx,
+        vy: this.fx.range(-8, 14),
+        z,
+        vz,
+        life,
+        maxLife: life,
+        gravity: true,
+        spin,
+        fade: false,
+        hw: 4,
+        hh: 4,
+      });
+    };
+    flung(0, -1, 30, f * this.fx.range(-40, -15), this.fx.range(130, 155), this.fx.range(-10, -5));
+    flung(1, 5, 29, f * this.fx.range(25, 55), this.fx.range(115, 140), this.fx.range(6, 12));
+    flung(2, -6, 14, -f * this.fx.range(50, 80), this.fx.range(120, 150), this.fx.range(-20, 20));
+    flung(3, -8, 16, -f * this.fx.range(20, 45), this.fx.range(90, 120), this.fx.range(-14, 14));
+    for (let i = 0; i < 5; i++) {
+      this.particles.push({
+        s: this.add.image(p.x + this.fx.range(-6, 6), p.y + this.fx.range(-2, 2), 'chatarra', this.fx.int(0, 3)),
+        vx: this.fx.range(-80, 80),
+        vy: this.fx.range(-20, 20),
+        z: this.fx.range(6, 18),
+        vz: this.fx.range(70, 130),
+        life: 99,
+        maxLife: 99,
+        gravity: true,
+        spin: this.fx.range(-16, 16),
+        fade: false,
+        hw: 3,
+        hh: 3,
+      });
+    }
+    for (let i = 0; i < 6; i++) this.puff(p.x + this.fx.range(-8, 8) + 2 * f, p.y - 26 + this.fx.range(-4, 4), this.fx.range(0.5, 0.9));
+    for (let i = 0; i < 12; i++) this.spark(p.x + 2 * f, p.y - 26, this.fx.range(-Math.PI, 0), this.fx.range(60, 150), this.fx.int(0, 3));
+  }
+
+  private canAskNewUnit(): boolean {
+    return this.world.over && this.downPanel.length > 0 && this.downT > DOWN_REPORT + 0.5;
+  }
+
+  private newUnit(): void {
+    if (this.canAskNewUnit()) this.scene.restart();
   }
 
   private hud<T extends Phaser.GameObjects.Components.ScrollFactor & Phaser.GameObjects.Components.Depth>(o: T): T {
@@ -394,6 +545,7 @@ export class GameScene extends Phaser.Scene {
       coupons: p.coupons,
       pickups: this.world.pickups.length,
       over: this.world.over,
+      report: this.report,
     };
   }
 
@@ -513,6 +665,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'hurt': {
           this.hitstop = 0.1;
+          this.hurtFace = 0.3;
           this.flashHero = 0.08;
           this.cameras.main.shake(220, 0.011, true);
           this.sound2.play('dolor');
@@ -526,6 +679,7 @@ export class GameScene extends Phaser.Scene {
         }
         case 'down':
           this.downT = 0;
+          this.downCause = e.cause;
           this.hitstop = 0.3;
           this.cameras.main.shake(400, 0.016, true);
           this.sound2.play('baja');
@@ -608,16 +762,34 @@ export class GameScene extends Phaser.Scene {
       this.hero.setPosition(Math.round(p.x), Math.round(p.y));
       this.hero.setRotation(0);
     }
+    this.hurtFace = Math.max(0, this.hurtFace - dt);
+    if (this.hurtFace > 0 && !rolling && !w.over) {
+      // Squeezed face and a quick squash after a hit.
+      this.hero.setFrame(HERO_HURT);
+      this.hero.setScale(p.facing * (1 + this.hurtFace * 0.4), 1 - this.hurtFace * 0.4);
+    }
     if (w.over) {
-      // Provisional fall: it tips over onto its side and smokes (the full animation is its own task).
       this.downT += dt;
-      const k = Math.min(1, this.downT / 0.35);
-      this.hero.setFrame(0);
-      this.hero.setRotation(k * k * (Math.PI / 2) * p.facing);
-      if (this.fx.chance(dt * 6)) this.puff(p.x + this.fx.range(-6, 6), p.y - 10 + this.fx.range(-4, 4), 0.8);
-      if (this.downT > 1.6 && this.downPanel.length === 0) this.showDownPanel();
-      if (this.downPanel.length) {
-        const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload || this.input.activePointer.isDown;
+      if (this.downT < DOWN_POP) {
+        // A last shudder with the face screwed up...
+        this.hero.setFrame(HERO_HURT);
+        this.hero.setX(Math.round(p.x) + (Math.floor(this.time.now / 35) % 2 === 0 ? 1 : -1));
+        if (this.fx.chance(dt * 30)) this.spark(p.x + this.fx.range(-8, 8), p.y - this.fx.range(6, 26), this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), 0);
+      } else {
+        // ...then the slices pop out and the empty body tips over with a little bounce.
+        if (!this.popped) this.popToaster();
+        const t = this.downT - DOWN_POP;
+        const k = Math.min(1, t / 0.28);
+        const bounce = t > 0.28 && t < 0.5 ? Math.sin(((t - 0.28) / 0.22) * Math.PI) * 0.12 : 0;
+        this.hero.setFrame(HERO_BROKEN);
+        this.hero.setRotation((k * k - bounce) * (Math.PI / 2) * p.facing);
+        // Smoke from the empty slots (now on its side) and sparks from the frayed cord.
+        if (this.fx.chance(dt * 7)) this.puff(p.x + p.facing * this.fx.range(22, 30), p.y - 6 + this.fx.range(-3, 3), 0.9);
+        if (this.fx.chance(dt * 2.5)) for (let i = 0; i < 3; i++) this.spark(p.x - p.facing * 12, p.y - 2, this.fx.range(0, Math.PI * 2), this.fx.range(20, 60), 0);
+      }
+      if (this.downT > DOWN_REPORT && this.downPanel.length === 0) this.showDownPanel();
+      if (this.canAskNewUnit()) {
+        const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload;
         if (!pressed) this.downArmed = true;
         else if (this.downArmed) this.scene.restart();
       }

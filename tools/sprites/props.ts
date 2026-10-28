@@ -1,6 +1,6 @@
 // Props, bullets, effects and HUD pieces. Props and bullets are ports of tools/referencia/build2.py.
 import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
-import { BLUE, BROWN, CARD, CREAM, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, STEEL, WHITE, YEL, box, ellipse, hand, outline } from '../../src/art/lib.ts';
+import { BLUE, BROWN, BURNT, CARD, CREAM, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, STEEL, TOASTC, WHITE, YEL, box, ellipse, hand, outline, type Ramp } from '../../src/art/lib.ts';
 
 export function makeCaja(): Canvas {
   const cv = new Canvas(24, 24);
@@ -317,4 +317,43 @@ export function makeSlot(): Canvas {
   // Corner screws.
   for (const [x, y] of [[2, 2], [17, 2], [2, 17], [17, 17]] as const) cv.set(x, y, STEEL[2]!);
   return outline(cv);
+}
+
+/**
+ * What the toaster comes apart into: a slice of toast, the burnt slice, the big spring of the
+ * lever mechanism and the lever knob. 4 frames of 8x8.
+ */
+export function makeToasterBits(): Canvas {
+  const sheet = new Canvas(32, 8);
+  const slice = (T: Ramp): Canvas => {
+    const cv = new Canvas(8, 8);
+    cv.rect(1, 1, 5, 6, T[1]!);
+    cv.rect(1, 1, 5, 1, T[3]!);
+    cv.rect(1, 1, 1, 6, T[2]!);
+    cv.rect(5, 1, 1, 6, T[3]!);
+    cv.rect(1, 6, 5, 1, T[3]!);
+    cv.set(2, 3, T[0]!);
+    cv.set(3, 4, T[2]!);
+    cv.set(4, 2, T[0]!);
+    return outline(cv);
+  };
+  sheet.blit(slice(TOASTC), 0, 0);
+  sheet.blit(slice(BURNT), 8, 0);
+  // Spring: four coils, light on top, dark underneath.
+  const sp = new Canvas(8, 8);
+  for (const y of [1, 3, 5]) {
+    sp.rect(2, y, 3, 1, STEEL[0]!);
+    sp.set(5, y + 1, STEEL[2]!);
+    sp.set(1, y + 1, STEEL[3]!);
+  }
+  sp.rect(2, 7, 3, 1, STEEL[2]!);
+  sheet.blit(outline(sp), 16, 0);
+  // Lever knob: the little black handle with a red dot (the toaster's own).
+  const kn = new Canvas(8, 8);
+  kn.rect(2, 3, 4, 3, hx('#3a3f5c'));
+  kn.rect(2, 3, 4, 1, hx('#5a627c'));
+  kn.set(3, 4, RED[1]!);
+  kn.rect(1, 4, 1, 1, STEEL[2]!);
+  sheet.blit(outline(kn), 24, 0);
+  return sheet;
 }

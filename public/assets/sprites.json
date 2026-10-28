@@ -3,7 +3,7 @@
     "file": "tostadora.png",
     "frameW": 40,
     "frameH": 41,
-    "frames": 6
+    "frames": 8
   },
   "aspirador": {
     "file": "aspirador.png",
@@ -160,6 +160,12 @@
     "frameW": 20,
     "frameH": 20,
     "frames": 1
+  },
+  "despiece": {
+    "file": "despiece.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 4
   },
   "objeto-pila": {
     "file": "objeto-pila.png",
