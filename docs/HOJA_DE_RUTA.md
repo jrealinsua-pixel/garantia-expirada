@@ -67,7 +67,7 @@ las capturas del e2e; el bot la vacía sin caer el 52,5 % de las veces y sobrevi
 ## M3 · Salas y planta
 
 - [ ] Plantillas de sala hechas a mano (al menos 15) con huecos para enemigos y obstáculos.
-- [ ] Generador de planta: grafo de 10–15 salas con entrada, combate, tesoro, tienda, secreta y jefe; tests de conectividad con 10.000 semillas.
+- [x] Generador de planta: grafo de 10–15 salas con entrada, combate, tesoro, tienda, secreta y jefe; tests de conectividad con 10.000 semillas. (La distribución; la planta jugable llega con las plantillas, las puertas y la transición.)
 - [ ] Puertas que se cierran durante el combate (persianas con piloto rojo).
 - [ ] Minimapa.
 - [ ] Juego de casillas de la planta 1 (almacén) con variaciones y decoración.

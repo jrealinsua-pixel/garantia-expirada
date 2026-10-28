@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T00:35:00+01:00",
+  "actualizado": "2026-10-29T00:50:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M3",
   "hitos": [
@@ -28,7 +28,7 @@
       "id": "M3",
       "nombre": "Salas y planta",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 6
     },
     {
@@ -102,18 +102,24 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 127,
-    "tests_ok": 127,
+    "tests": 131,
+    "tests_ok": 131,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 4499
+    "lineas_codigo": 4733
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T00:50:00+01:00",
+      "hito": "M3",
+      "resumen": "Empieza M3: el generador de plantas reparte de 10 a 15 salas con entrada, combate, tesoro, tienda, una sala secreta escondida entre varias salas y el jefe al fondo. Probado con 10.000 semillas; todavía no se ve en el juego.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T00:35:00+01:00",
       "hito": "M2",
       "resumen": "Nuevo enemigo: el Mando a Distancia, que viene de tres en tres. Nunca está donde lo buscas: suelta una ráfaga corta y se apaga como una tele vieja para aparecer en otro sitio, lejos de donde apuntas; el suelo chisporrotea de estática donde va a volver. Sin tapa de las pilas, sin el botón del uno y en zapatillas de casa. Con él, M2 queda terminado: el bot vacía la sala con todos los enemigos el 52,5 % de las veces.",
-      "commit": ""
+      "commit": "b5a48a7"
     },
     {
       "fecha": "2026-10-28T23:40:00+01:00",
@@ -220,6 +226,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M3: plantillas de sala de combate y el generador de planta (grafo de salas con semilla y tests de conectividad).",
+  "proximo": "M3: plantillas de sala de combate hechas a mano (al menos 15) que encajen con las puertas del generador; después las persianas, la transición y el minimapa.",
   "bloqueos": []
 }

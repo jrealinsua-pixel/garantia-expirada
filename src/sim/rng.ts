@@ -78,6 +78,15 @@ export class Rng {
     return items[Math.floor(this.next() * items.length)]!;
   }
 
+  /** Shuffles `items` in place (Fisher-Yates) and returns it. */
+  shuffle<T>(items: T[]): T[] {
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(this.next() * (i + 1));
+      [items[i], items[j]] = [items[j]!, items[i]!];
+    }
+    return items;
+  }
+
   /** Independent child generator, so adding draws in one system does not shift another. */
   fork(label: string): Rng {
     return new Rng((this.nextU32() ^ hashSeed(label)) >>> 0);
