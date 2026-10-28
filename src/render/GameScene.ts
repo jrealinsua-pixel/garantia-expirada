@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText } from '../art/font.ts';
-import { activeWarnings, createWorld, DT, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT, type SimEvent, type World } from '../sim/world.ts';
+import { activeWarnings, createWorld, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
@@ -76,7 +76,7 @@ export class GameScene extends Phaser.Scene {
   private muzzleT = 0;
   private crosshair!: Phaser.GameObjects.Image;
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
-  private enemySprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; blink?: Phaser.GameObjects.Graphics }>();
+  private enemySprites = new Map<number, EnemyView>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
@@ -122,11 +122,15 @@ export class GameScene extends Phaser.Scene {
     }
 
     for (const en of this.world.enemies) {
-      const shadow = this.add.image(en.x, en.y, shadowTexture(this, 10, 3)).setDepth(-50000);
-      const tex = this.textures.get(en.def.sprite).getSourceImage();
-      const s = this.add.image(en.x, en.y, en.def.sprite).setOrigin(en.def.anchor.x / tex.width, en.def.anchor.y / tex.height);
-      const blink = SPRITE_BLINKS[en.def.sprite] ? this.add.graphics() : undefined;
-      this.enemySprites.set(en.id, blink ? { s, shadow, blink } : { s, shadow });
+      const flying = enemyAltitude(en) > 0;
+      const shadow = this.add.image(en.x, en.y, flying ? shadowTexture(this, 4, 2) : shadowTexture(this, 10, 3)).setDepth(-50000);
+      const sheet = this.textures.get(en.def.sprite);
+      const s = this.add.image(en.x, en.y, en.def.sprite, sheet.frameTotal > 2 ? 0 : undefined);
+      s.setOrigin(en.def.anchor.x / s.width, en.def.anchor.y / s.height);
+      const v: EnemyView = { s, shadow };
+      if (SPRITE_BLINKS[en.def.sprite]) v.blink = this.add.graphics();
+      if (SPRITE_GLOWS[en.def.sprite]) v.glow = this.add.graphics().setBlendMode(Phaser.BlendModes.ADD);
+      this.enemySprites.set(en.id, v);
     }
 
     this.heroShadow = this.add.image(0, 0, shadowTexture(this, 9, 3)).setDepth(-50000);
@@ -286,6 +290,13 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('empujon');
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y, Math.atan2(e.dirY, e.dirX) + this.fx.range(-1, 1), this.fx.range(40, 90), this.fx.int(0, 2));
           break;
+        case 'switchOn':
+          this.sound2.play('encender');
+          for (let i = 0; i < 5; i++) this.spark(e.x + this.fx.range(-6, 6), e.y + this.fx.range(-6, 4), this.fx.range(0, Math.PI * 2), this.fx.range(20, 60), 0);
+          break;
+        case 'dart':
+          this.sound2.play('aleteo', { detune: this.fx.range(-200, 200) });
+          break;
         case 'telegraph':
           this.warnings++;
           this.sound2.play('aviso', { detune: e.color === 'cyan' ? 300 : 0 });
@@ -411,13 +422,32 @@ export class GameScene extends Phaser.Scene {
       // Hop of one pixel while walking; leans into the charge, back when braking, wobbles when stunned.
       const bob = en.state === 'walk' && Math.floor(en.moved / 5) % 2 === 1 ? -1 : 0;
       const shiver = warnK > 0.6 ? (Math.floor(this.time.now / 40) % 2 === 0 ? 1 : -1) : 0;
-      s.setPosition(Math.round(en.x) + shiver, Math.round(en.y) + bob).setDepth(en.y);
+      const alt = enemyAltitude(en);
+      // Flyers bob up and down; the moth flaps fast, faster when it dives.
+      const fly = alt > 0 ? Math.round(Math.sin(this.time.now / 160 + en.id) * 1.5) : 0;
+      s.setPosition(Math.round(en.x) + shiver, Math.round(en.y) + bob - alt + fly).setDepth(en.y + (alt > 0 ? 1 : 0));
       s.setScale(en.facing, 1);
+      if (en.def.brain.kind === 'moth') s.setFrame(Math.floor(this.time.now / (en.state === 'charge' ? 35 : 70)) % 2);
+      else if (en.def.brain.kind === 'turret' && en.def.brain.startup) s.setFrame(bulbLit(en, this.time.now) ? 0 : 1);
       let rot = 0;
-      if (en.state === 'charge') rot = 0.18 * en.facing;
+      if (en.def.brain.kind === 'moth') rot = en.state === 'charge' ? 0.3 * en.facing : 0;
+      else if (en.state === 'charge') rot = 0.18 * en.facing;
       else if (en.state === 'brake') rot = -0.12 * en.facing * (1 - en.t / en.until);
       else if (en.state === 'stun') rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
       s.setRotation(rot);
+      const gl = SPRITE_GLOWS[en.def.sprite];
+      if (v.glow && gl) {
+        // A soft halo while lit, stronger while it fires.
+        v.glow.clear();
+        if (bulbLit(en, this.time.now)) {
+          const k = en.state === 'fire' ? 1 : 0.45;
+          const cx = Math.round(en.x);
+          const cy = Math.round(en.y) - gl.y;
+          v.glow.fillStyle(gl.color, 0.07 * k).fillCircle(cx, cy, gl.r);
+          v.glow.fillStyle(gl.color, 0.1 * k).fillCircle(cx, cy, gl.r * 0.6);
+        }
+        v.glow.setDepth(en.y - 0.1);
+      }
       v.shadow.setPosition(Math.round(en.x), Math.round(en.y));
       const bl = SPRITE_BLINKS[en.def.sprite];
       if (v.blink && bl) {
@@ -613,6 +643,31 @@ export class GameScene extends Phaser.Scene {
 const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number }> = {
   microondas: { x: 22, y: 14, w: 4, h: 1, color: 0x0e0c16 },
 };
+
+/** Lights drawn around an enemy (`y` px above its feet, radius `r`) while it is lit. */
+const SPRITE_GLOWS: Record<string, { y: number; r: number; color: number }> = {
+  bombilla: { y: 23, r: 26, color: 0xfff1a0 },
+};
+
+interface EnemyView {
+  s: Phaser.GameObjects.Image;
+  shadow: Phaser.GameObjects.Image;
+  blink?: Phaser.GameObjects.Graphics;
+  glow?: Phaser.GameObjects.Graphics;
+}
+
+/**
+ * Whether a bulb is lit now. While switching on it flickers like an energy-saving bulb: short,
+ * uneven flashes that get longer until it stays on.
+ */
+function bulbLit(en: Enemy, now: number): boolean {
+  if (en.state !== 'off') return true;
+  const k = en.t / en.until;
+  const slot = Math.floor(now / 70);
+  // Cheap deterministic noise per 70 ms slot (only for drawing).
+  const n = ((slot * 2654435761 + en.id * 97) >>> 0) % 100;
+  return k > 0.35 && n < k * k * 90;
+}
 
 /** Blinks faster as the warning runs out (k from 0 to 1). */
 function blinkOn(k: number): boolean {

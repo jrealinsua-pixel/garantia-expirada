@@ -6,7 +6,7 @@ import { Canvas, hx, scaled } from '../../src/art/canvas.ts';
 import { buildRoom } from '../../src/sim/room.ts';
 import { ROOMS } from '../../src/data/rooms.ts';
 import { paintRoom } from '../../src/art/room.ts';
-import { HERO_FRAMES, makeAspirador, makeBombilla, makeHeroPose, makeMicroondas, makeNevera, miniDryer, miniStapler } from './characters.ts';
+import { HERO_FRAMES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler } from './characters.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { encodePng } from './png.ts';
@@ -34,7 +34,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     tostadora: { canvas: strip(hero), frameW: 40, frameH: 41 },
     aspirador: one(makeAspirador()),
     microondas: one(makeMicroondas()),
-    bombilla: one(makeBombilla()),
+    bombilla: { canvas: strip(makeBombillaFrames()), frameW: 32, frameH: 39 },
+    polilla: { canvas: strip(makePolilla()), frameW: 11, frameH: 9 },
     'nevera-suprema': one(makeNevera()),
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
@@ -51,7 +52,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     chispas: { canvas: P.makeSparks(), frameW: 2, frameH: 2 },
     polvo: { canvas: P.makePuff(), frameW: 8, frameH: 8 },
     mira: one(P.makeCrosshair()),
-    corazones: { canvas: P.makeHearts(), frameW: 9, frameH: 8 },
+    corazones: { canvas: P.makeHearts(), frameW: 11, frameH: 9 },
     municion: { canvas: P.makeAmmoPip(), frameW: 4, frameH: 6 },
     vineta: one(P.makeVignette()),
   };
@@ -75,7 +76,7 @@ function main(): void {
   const sheets = allSheets();
   const sheet = new Canvas(400, 100, hx('#1a1e2b'));
   let x = 4;
-  for (const k of ['tostadora', 'maniqui', 'aspirador', 'microondas', 'bombilla']) {
+  for (const k of ['tostadora', 'maniqui', 'aspirador', 'microondas', 'bombilla', 'polilla']) {
     const c = sheets[k]!.canvas;
     sheet.blit(c, x, 96 - c.h);
     x += c.w + 4;

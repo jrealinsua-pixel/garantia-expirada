@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ENEMIES } from '../src/data/enemies.ts';
-import type { ChargerBrain, TurretBrain } from '../src/data/types.ts';
+import type { ChargerBrain, MothBrain, TurretBrain } from '../src/data/types.ts';
 import { PATTERNS } from '../src/data/patterns.ts';
 import { expandPattern } from '../src/sim/patterns.ts';
 import { Rng } from '../src/sim/rng.ts';
@@ -32,9 +32,12 @@ function runUntil(w: World, pred: (e: SimEvent) => boolean, maxTicks = 600): Sim
   return null;
 }
 
-test('la sala de pruebas tiene un Aspirador Desahuciado y un Microondas Sin Seguro', () => {
+test('la sala de pruebas tiene aspirador, microondas y bombilla con su polilla', () => {
   const w = createWorld({ seed: 'x' });
-  assert.deepEqual(w.enemies.map((e) => e.def.id).sort(), ['aspirador', 'microondas']);
+  assert.deepEqual(w.enemies.map((e) => e.def.id).sort(), ['aspirador', 'bombilla', 'microondas', 'polilla']);
+  const bulb = w.enemies.find((e) => e.def.id === 'bombilla')!;
+  const moth = w.enemies.find((e) => e.def.id === 'polilla')!;
+  assert.equal(moth.owner, bulb.id, 'la polilla acompaña a la bombilla');
   assert.equal(createWorld({ seed: 'x', noEnemies: true }).enemies.length, 0);
 });
 
@@ -176,4 +179,111 @@ test('microondas: las balas no lo mueven', () => {
   }
   assert.ok(hits > 3);
   assert.equal(en.x, x0);
+});
+
+/** Test room with only the bulb and its moth, and the toaster at (px, py). */
+function office(px: number, py: number, keepMoth = true): World {
+  const w = createWorld({ seed: 'bombilla' });
+  w.enemies = w.enemies.filter((e) => e.def.id === 'bombilla' || (keepMoth && e.def.id === 'polilla'));
+  w.player.x = px;
+  w.player.y = py;
+  return w;
+}
+const bulbBrain = ENEMIES.bombilla!.brain as TurretBrain;
+const mothBrain = ENEMIES.polilla!.brain as MothBrain;
+
+test('bombilla: tarda en encenderse y no ataca mientras tanto', () => {
+  const w = office(330, 140, false);
+  const en = w.enemies[0]!;
+  assert.equal(en.state, 'off');
+  const startTicks = Math.round(bulbBrain.startup! * 60);
+  let on = -1;
+  for (let i = 0; i < startTicks + 5; i++) {
+    step(w, NO_INPUT);
+    assert.ok(!w.events.some((e) => e.type === 'telegraph'), 'no avisa estando apagada');
+    if (w.events.some((e) => e.type === 'switchOn' && e.source === en.id)) on = i + 1;
+  }
+  assert.ok(Math.abs(on - startTicks) <= 1, `se enciende en el tick ${on}`);
+  assert.equal(en.state, 'idle');
+});
+
+test('bombilla: avisa largo y dispara su espiral de chispas cian', () => {
+  const w = office(330, 140, false);
+  const en = w.enemies[0]!;
+  const tel = runUntil(w, (e) => e.type === 'telegraph', 600);
+  assert.ok(tel && tel.type === 'telegraph' && tel.source === en.id);
+  assert.ok(Math.abs(tel.time - bulbBrain.telegraph) < 1e-9);
+  assert.equal(tel.color, 'cyan');
+  const expected = expandPattern(PATTERNS[bulbBrain.pattern]!, 0, new Rng(1)).length;
+  const seen = new Set<number>();
+  for (let i = 0; i < 180; i++) {
+    step(w, NO_INPUT);
+    for (const b of w.bullets) if (b.owner === 'enemy') seen.add(b.id);
+  }
+  assert.equal(seen.size, expected);
+});
+
+test('bombilla: guarda las distancias (se aleja si te acercas, se acerca si te alejas)', () => {
+  const near = office(0, 0, false);
+  const en = near.enemies[0]!;
+  near.player.x = en.x + 40;
+  near.player.y = en.y + 60;
+  en.state = 'idle';
+  en.until = 99;
+  const d0 = Math.hypot(near.player.x - en.x, near.player.y - en.y);
+  for (let i = 0; i < 60; i++) step(near, NO_INPUT);
+  assert.ok(Math.hypot(near.player.x - en.x, near.player.y - en.y) > d0 + 10, 'se aleja');
+
+  const far = office(40, 340, false);
+  const fe = far.enemies[0]!;
+  fe.state = 'idle';
+  fe.until = 99;
+  const f0 = Math.hypot(far.player.x - fe.x, far.player.y - fe.y);
+  for (let i = 0; i < 60; i++) step(far, NO_INPUT);
+  assert.ok(Math.hypot(far.player.x - fe.x, far.player.y - fe.y) < f0 - 10, 'se acerca');
+});
+
+test('polilla: da vueltas alrededor de su bombilla sin alejarse', () => {
+  const w = office(40, 340);
+  const bulb = w.enemies.find((e) => e.def.id === 'bombilla')!;
+  const moth = w.enemies.find((e) => e.def.id === 'polilla')!;
+  bulb.until = 99;
+  bulb.state = 'off';
+  let maxD = 0;
+  const angles = new Set<number>();
+  for (let i = 0; i < 240; i++) {
+    step(w, NO_INPUT);
+    maxD = Math.max(maxD, Math.hypot(moth.x - bulb.x, moth.y - bulb.y));
+    angles.add(Math.floor((Math.atan2(moth.y - bulb.y, moth.x - bulb.x) + Math.PI) / (Math.PI / 2)));
+  }
+  assert.ok(maxD < mothBrain.orbitRadius * 1.6, `distancia máxima ${maxD.toFixed(1)}`);
+  assert.ok(angles.size >= 4, 'pasa por los cuatro lados');
+});
+
+test('polilla: avisa y se lanza hacia la tostadora, y vuelve', () => {
+  const w = office(0, 0);
+  const moth = w.enemies.find((e) => e.def.id === 'polilla')!;
+  w.player.x = moth.x + 70;
+  w.player.y = moth.y + 30;
+  moth.until = 0.2;
+  // Let the bulb switch on first: a moth does not leave a dark bulb.
+  const tel = runUntil(w, (e) => e.type === 'telegraph' && e.source === moth.id, 400);
+  assert.ok(tel && tel.type === 'telegraph' && tel.aimed);
+  assert.ok(activeWarnings(w).some((x) => x.source === moth.id && !x.bullets));
+  const d0 = Math.hypot(w.player.x - moth.x, w.player.y - moth.y);
+  const dart = runUntil(w, (e) => e.type === 'dart', Math.ceil(mothBrain.telegraph * 60) + 2);
+  assert.ok(dart, 'se lanza');
+  for (let i = 0; i < 15; i++) step(w, NO_INPUT);
+  assert.ok(Math.hypot(w.player.x - moth.x, w.player.y - moth.y) < d0 - 30, 'va hacia la tostadora');
+  for (let i = 0; i < 120; i++) step(w, NO_INPUT);
+  assert.equal(moth.state, 'idle');
+});
+
+test('polilla: sin bombilla, ronda a la tostadora', () => {
+  const w = office(300, 200);
+  w.enemies = w.enemies.filter((e) => e.def.id === 'polilla');
+  const moth = w.enemies[0]!;
+  moth.until = 99;
+  for (let i = 0; i < 300; i++) step(w, NO_INPUT);
+  assert.ok(Math.hypot(w.player.x - moth.x, w.player.y - moth.y) < mothBrain.orbitRadius * 3.5);
 });

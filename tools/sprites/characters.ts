@@ -356,3 +356,63 @@ export function makeNevera(): Canvas {
   for (const [x, y] of cold) o.set(x, y, [225, 240, 250, 140]);
   return o;
 }
+
+/** Pixels of the moth (and its trail) drawn next to the approved bulb: in the game the moth flies on its own. */
+const BULB_MOTH: Pt[] = [[27, 3], [29, 3], [28, 4], [27, 4], [29, 4], [26, 6], [25, 8]];
+
+/**
+ * Game frames of the Bombilla de Bajo Consumo, built from the approved sprite:
+ * 0 = lit (the approved look without the moth), 1 = off (still switching on: grey glass, eyes shut).
+ */
+export function makeBombillaFrames(): Canvas[] {
+  const lit = makeBombilla();
+  for (const [x, y] of BULB_MOTH) lit.p[y]![x] = [0, 0, 0, 0];
+  const off = new Canvas(lit.w, lit.h);
+  const glass: Record<string, RGBA> = {
+    [hx('#fff9d6').join()]: hx('#b3ae98'),
+    [hx('#f9eba0').join()]: hx('#96917c'),
+    [hx('#e3c96a').join()]: hx('#7a7562'),
+    [hx('#b8973e').join()]: hx('#5c5748'),
+    [WHITE.join()]: hx('#cfcbb8'),
+    [GLOW2.join()]: hx('#5c5748'),
+    [GLOW.join()]: K,
+    [hx('#8f7a3a').join()]: hx('#4a463a'),
+  };
+  for (let y = 0; y < lit.h; y++) {
+    for (let x = 0; x < lit.w; x++) {
+      const c = lit.get(x, y);
+      // Only the glass (the bulb is above the collar, y < 20 once padded).
+      off.p[y]![x] = y < 20 ? (glass[c.join()] ?? c) : c;
+    }
+  }
+  return [lit, off];
+}
+
+/** Polilla Fiel: two wing beats, 11 x 9. Faces right like the rest. */
+export function makePolilla(): Canvas[] {
+  const WING = ramp('#efe2bf', '#cdb98f', '#a68d62', '#6f5a3c');
+  // 0 light, 1 mid, 2 dark, 3 spot; '.' empty. Left half only, mirrored around the body column.
+  const UP = ['00...', '011..', '0121.', '.1311', '..111', '.....'];
+  const DOWN = ['.....', '.....', '..111', '01311', '0121.', '01...'];
+  const frames: Canvas[] = [];
+  for (const rows of [UP, DOWN]) {
+    const cv = new Canvas(11, 9);
+    rows.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        const ch = row[x]!;
+        if (ch === '.') continue;
+        const c = WING[Number(ch)]!;
+        cv.set(x, y + 1, c);
+        cv.set(10 - x, y + 1, c);
+      }
+    });
+    // Furry body and head, a bright eye looking right, two antennae.
+    cv.rect(5, 3, 1, 4, hx('#5a4630'));
+    cv.set(5, 2, hx('#7a6040'));
+    cv.set(6, 2, GLOW);
+    cv.set(6, 1, hx('#5a4630'));
+    cv.set(4, 1, hx('#5a4630'));
+    frames.push(outline(cv));
+  }
+  return frames;
+}

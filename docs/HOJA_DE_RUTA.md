@@ -51,7 +51,7 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 - [x] Telegrafía de ataques (parpadeo y sonido previo).
 - [x] Aspirador Desahuciado (carga en línea recta).
 - [x] Microondas Sin Seguro (anillos de ondas).
-- [ ] Bombilla de Bajo Consumo (espirales) con su polilla.
+- [x] Bombilla de Bajo Consumo (espirales) con su polilla.
 - [ ] Dos enemigos nuevos de `docs/DISENO.md`, diseñados y dibujados al estilo aprobado.
 - [ ] Vida, daño, muerte con desmontaje en piezas y botín (cupones).
 - [ ] Animaciones de golpe y muerte de la Tostadora (se desmonta: tostadas, muelle, tornillos) y parte de baja provisional.

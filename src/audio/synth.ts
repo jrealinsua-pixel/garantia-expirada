@@ -90,5 +90,8 @@ export const SFX: Record<string, SfxParams> = {
   derrape: { wave: 'noise', freq: 2200, freqEnd: 900, attack: 0.01, sustain: 0.18, decay: 0.15, volume: 0.14, lowpass: 0.3 },
   choque: { wave: 'square', freq: 140, freqEnd: 45, attack: 0.001, sustain: 0.05, decay: 0.2, volume: 0.3, duty: 0.5, crush: 3 },
   empujon: { wave: 'square', freq: 260, freqEnd: 90, attack: 0.001, sustain: 0.02, decay: 0.1, volume: 0.24, duty: 0.35 },
+  // Bombilla de Bajo Consumo switching on (fluorescent buzz) and its moth diving (wing flutter).
+  encender: { wave: 'saw', freq: 100, freqEnd: 125, attack: 0.01, sustain: 0.28, decay: 0.12, volume: 0.13, vibrato: 0.3, vibratoSpeed: 50, lowpass: 0.3 },
+  aleteo: { wave: 'noise', freq: 1400, freqEnd: 700, attack: 0.005, sustain: 0.08, decay: 0.1, volume: 0.16, lowpass: 0.4, vibrato: 0.5, vibratoSpeed: 40 },
   vacio: { wave: 'square', freq: 220, freqEnd: 200, attack: 0.001, sustain: 0.015, decay: 0.02, volume: 0.15, duty: 0.15 },
 };

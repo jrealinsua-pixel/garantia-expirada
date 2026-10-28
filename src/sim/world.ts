@@ -2,6 +2,7 @@
 import { CHARACTERS } from '../data/characters.ts';
 import { ROOMS } from '../data/rooms.ts';
 import { WEAPONS } from '../data/weapons.ts';
+import { ENEMIES } from '../data/enemies.ts';
 import type { CharacterDef, DummyDef, EnemyDef, WeaponDef } from '../data/types.ts';
 import { updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
@@ -129,7 +130,7 @@ export interface Dummy {
   damageTaken: number;
 }
 
-export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire';
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off';
 
 export interface Enemy {
   id: number;
@@ -152,6 +153,10 @@ export interface Enemy {
   contactCooldown: number;
   /** Distance travelled, for the walk animation. */
   moved: number;
+  /** The enemy it escorts (see EnemyDef.escort), or -1. */
+  owner: number;
+  /** Free angle for brains that circle something (the moth's place in its orbit). */
+  phase: number;
 }
 
 export type SimEvent =
@@ -167,6 +172,8 @@ export type SimEvent =
   | { type: 'brake'; x: number; y: number; source: number }
   | { type: 'bonk'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'contact'; x: number; y: number; dirX: number; dirY: number; source: number }
+  | { type: 'switchOn'; x: number; y: number; source: number }
+  | { type: 'dart'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
 
 export interface World {
@@ -201,7 +208,20 @@ export function createWorld(opts: WorldOptions): World {
   const room = buildRoom(tpl);
   let nextId = 1;
   const dummies: Dummy[] = room.dummySpawns.map((s) => ({ id: nextId++, def: s.def, x: s.x, y: s.y, lean: 0, leanV: 0, hitT: 0, damageTaken: 0 }));
-  const enemies: Enemy[] = opts.noEnemies ? [] : room.enemySpawns.map((s) => spawnEnemy(nextId++, s.def, s.x, s.y));
+  const enemies: Enemy[] = [];
+  if (!opts.noEnemies) {
+    for (const s of room.enemySpawns) {
+      const en = spawnEnemy(nextId++, s.def, s.x, s.y);
+      enemies.push(en);
+      if (s.def.escort) {
+        const edef = ENEMIES[s.def.escort];
+        if (!edef) throw new Error(`Unknown escort ${s.def.escort}`);
+        const esc = spawnEnemy(nextId++, edef, s.x + 18, s.y - 4);
+        esc.owner = en.id;
+        enemies.push(esc);
+      }
+    }
+  }
   return {
     seed: opts.seed,
     tick: 0,
@@ -234,9 +254,26 @@ export function createWorld(opts: WorldOptions): World {
 }
 
 export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Enemy {
-  const state = def.brain.kind === 'turret' ? 'idle' : 'walk';
-  return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until: 1, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0 };
+  const b = def.brain;
+  let state: EnemyState = 'walk';
+  let until = 1;
+  if (b.kind === 'turret') {
+    state = b.startup ? 'off' : 'idle';
+    until = b.startup ?? 1;
+  } else if (b.kind === 'moth') {
+    state = 'idle';
+    until = b.interval[0];
+  }
+  return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0 };
 }
+
+/** Pixels above the ground an enemy is drawn (and hit) at: only flying ones are off the floor. */
+export function enemyAltitude(en: Enemy): number {
+  return en.def.brain.kind === 'moth' ? en.def.brain.altitude : 0;
+}
+
+/** Brains whose own 'warn' state is a telegraph (the turret's comes from its emitter). */
+const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && en.def.brain.kind !== 'turret';
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
 
@@ -517,7 +554,7 @@ export function telegraphProgress(e: Emitter): number {
 export function sourceTelegraph(w: World, source: number): number {
   let best = -1;
   for (const e of w.emitters) if (e.source === source) best = Math.max(best, telegraphProgress(e));
-  for (const en of w.enemies) if (en.id === source && en.state === 'warn' && en.def.brain.kind === 'charger') best = Math.max(best, Math.min(1, en.t / en.until));
+  for (const en of w.enemies) if (en.id === source && warnsByItself(en)) best = Math.max(best, Math.min(1, en.t / en.until));
   return best;
 }
 
@@ -544,8 +581,8 @@ export function activeWarnings(w: World): Warning[] {
     out.push(wn);
   }
   for (const en of w.enemies) {
-    if (en.state !== 'warn' || en.def.brain.kind !== 'charger') continue;
-    out.push({ x: en.x, y: en.y - 2, k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'red', bullets: false, source: en.id });
+    if (!warnsByItself(en)) continue;
+    out.push({ x: en.x, y: en.y - 2 - enemyAltitude(en), k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'red', bullets: false, source: en.id });
   }
   return out;
 }

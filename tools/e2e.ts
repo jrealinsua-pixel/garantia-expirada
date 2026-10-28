@@ -118,6 +118,17 @@ try {
   await page.waitForTimeout(400);
   await page.keyboard.up('s');
 
+  // Bombilla de Bajo Consumo and its moth: stand at a distance and wait for the spiral.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const b = w.enemies.find((e) => e.def.id === 'bombilla');
+    w.player.x = b.x + 20; w.player.y = b.y + 110; })()`);
+  const bulb = await page.evaluate<{ x: number; y: number }>(`(() => { const b = window.__GE__.scene.world.enemies.find((e) => e.def.id === 'bombilla'); return { x: b.x, y: b.y - 20 }; })()`);
+  await aimAt(bulb.x, bulb.y);
+  const bulbFiring = `(() => { const w = window.__GE__.scene.world; const b = w.enemies.find((e) => e.def.id === 'bombilla');
+    return b.state === 'fire' && b.t > 1.7; })()`;
+  await page.waitForFunction(bulbFiring, undefined, { timeout: 8000 });
+  await shot('08-bombilla.png');
+  await page.waitForTimeout(600);
+
   // Free play for the rest of the time: strafe around shooting at both dummies.
   const keys = ['w', 'a', 's', 'd'];
   const t0 = Date.now();
@@ -134,7 +145,10 @@ try {
     await page.keyboard.up(key);
     k++;
   }
-  // Gamepad: a fake pad through the Gamepad API (standard mapping).
+  // Gamepad: a fake pad through the Gamepad API (standard mapping). Reload first, so the trigger
+  // test does not land on an empty magazine.
+  await page.keyboard.press('r');
+  await page.waitForTimeout(1300);
   await page.evaluate(`(() => {
     const pad = { id: 'mando-falso', index: 0, connected: true, mapping: 'standard', timestamp: 0,
       axes: [0, 0, 0, 0], buttons: Array.from({ length: 17 }, () => ({ pressed: false, touched: false, value: 0 })) };

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T21:55:00+01:00",
+  "actualizado": "2026-10-28T21:32:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 4,
+      "hechas": 5,
       "total": 10
     },
     {
@@ -97,18 +97,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 2,
+    "enemigos": 4,
     "jefes": 0,
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 69,
-    "tests_ok": 69,
+    "tests": 77,
+    "tests_ok": 77,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 2892
+    "lineas_codigo": 3176
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T21:32:00+01:00",
+      "hito": "M2",
+      "resumen": "Bombilla de Bajo Consumo: tarda en encenderse (parpadea apagada), guarda las distancias y suelta espirales de chispas cian con un halo de luz. La acompaña la Polilla Fiel, que le da vueltas y de vez en cuando se lanza contra la tostadora. Arreglado: las capturas del panel no llegaban al repositorio (.gitignore).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T21:55:00+01:00",
       "hito": "M2",
@@ -154,30 +160,26 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/microondas.png",
-      "pie": "El Microondas Sin Seguro calienta (anillo que se cierra) y suelta sus anillos de balas, ampliado"
-    },
-    {
-      "archivo": "capturas/aspirador.png",
-      "pie": "El Aspirador Desahuciado avisa (parpadeo, «!» y recorrido) y embiste, ampliado"
+      "archivo": "capturas/bombilla.png",
+      "pie": "La Bombilla de Bajo Consumo suelta su espiral de chispas; debajo, la Polilla Fiel (ampliado)"
     },
     {
       "archivo": "capturas/aviso.png",
-      "pie": "Telegrafía: el maniquí avisa antes de disparar (parpadeo, anillo que se cierra, dirección y «!»), ampliado"
+      "pie": "Telegrafía: parpadeo, anillo que se cierra, dirección y «!» antes de cada ataque"
+    },
+    {
+      "archivo": "capturas/patrones.png",
+      "pie": "Patrones de balas enemigas sobre el suelo de la Sala de Pruebas"
     },
     {
       "archivo": "capturas/disparando.png",
       "pie": "Sala de Pruebas: la tostadora dispara el Secador a un maniquí (captura del e2e)"
     },
     {
-      "archivo": "capturas/rodando.png",
-      "pie": "Esquiva rodando, con polvo y chispas"
-    },
-    {
       "archivo": "capturas/sala-devoluciones.png",
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: Bombilla de Bajo Consumo (espirales) con su polilla; después vida, daño y muerte.",
+  "proximo": "M2: «Vida, daño, muerte» (desmontaje en piezas y cupones) y corazones del jugador; después la IA del bot que esquiva para medir dificultad.",
   "bloqueos": []
 }

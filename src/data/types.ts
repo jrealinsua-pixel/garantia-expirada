@@ -108,9 +108,36 @@ export interface TurretBrain {
   telegraph: number;
   pattern: string;
   muzzleY: number;
+  /** Seconds «switching on» when it appears, before its first attack (it flickers meanwhile). */
+  startup?: number;
+  /** If present, it walks between attacks to stay about `keep` px from the player. */
+  walk?: { speed: number; keep: number };
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain;
+/**
+ * Flies around its owner (the enemy that brought it, see EnemyDef.escort) and now and then darts at
+ * the player: `telegraph` s of fluttering on the spot, then `dartTime` s straight at where the player
+ * was. Flies over props; only the room walls stop it. With no owner left it circles the player.
+ */
+export interface MothBrain {
+  kind: 'moth';
+  orbitRadius: number;
+  /** Radians per second around the owner. */
+  orbitSpeed: number;
+  /** How fast it catches up with its place in the orbit (px/s). */
+  flySpeed: number;
+  /** Only darts when the player is closer than this to it (px). */
+  range: number;
+  /** Seconds between darts (random in this range). */
+  interval: [number, number];
+  telegraph: number;
+  dartSpeed: number;
+  dartTime: number;
+  /** Height it flies at, for drawing (px above its shadow). */
+  altitude: number;
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain;
 
 export interface EnemyDef {
   id: string;
@@ -129,4 +156,6 @@ export interface EnemyDef {
   /** How much a bullet's knockback moves it (0 = immovable). */
   knockbackScale: number;
   brain: EnemyBrain;
+  /** Enemy id that always comes with this one (spawned next to it, owned by it). */
+  escort?: string;
 }
