@@ -94,6 +94,13 @@ try {
   if (s2.shots === 0) throw new Error('No se ha disparado');
   if (s2.dummyDamage === 0) throw new Error('Ninguna bala ha dado al maniquí');
 
+  // Enemy bullet patterns (test room keys 1-5): check they read well on the floor.
+  await page.keyboard.press('1');
+  await page.waitForTimeout(700);
+  await page.keyboard.press('2');
+  await page.waitForTimeout(900);
+  await shot('06-patrones.png');
+
   await page.keyboard.down('s');
   await page.keyboard.press('Space');
   await page.waitForTimeout(120);

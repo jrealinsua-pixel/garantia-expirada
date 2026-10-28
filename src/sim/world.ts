@@ -3,7 +3,9 @@ import { CHARACTERS } from '../data/characters.ts';
 import { ROOMS } from '../data/rooms.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import type { CharacterDef, DummyDef, WeaponDef } from '../data/types.ts';
+import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
+import { expandPattern, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
 import { buildRoom, isWallAt, wallRectsNear, type Room } from './room.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
@@ -29,6 +31,8 @@ export interface Input {
   /** True only on the tick the button is pressed. */
   roll: boolean;
   reload: boolean;
+  /** Test room only: name of a pattern (src/data/patterns.ts) the first dummy fires at the player. */
+  debugPattern?: string;
 }
 
 export const NO_INPUT: Input = { moveX: 0, moveY: 0, aimX: 0, aimY: 0, fire: false, roll: false, reload: false };
@@ -72,6 +76,24 @@ export interface Bullet {
   life: number;
   damage: number;
   knockback: number;
+  color: BulletColor;
+  /** Seconds alive, for the wave motion. */
+  age: number;
+  /** Direction and speed along it (the wave adds a sideways component). */
+  dir: number;
+  speed: number;
+  wave?: { amp: number; freq: number };
+  accel?: number;
+}
+
+/** A pattern being fired: its shots come out of (x, y) as their delay passes. */
+export interface Emitter {
+  x: number;
+  y: number;
+  t: number;
+  next: number;
+  shots: ShotSpec[];
+  owner: 'player' | 'enemy';
 }
 
 export interface Dummy {
@@ -104,6 +126,7 @@ export interface World {
   player: Player;
   bullets: Bullet[];
   dummies: Dummy[];
+  emitters: Emitter[];
   events: SimEvent[];
   nextId: number;
 }
@@ -148,6 +171,7 @@ export function createWorld(opts: WorldOptions): World {
     },
     bullets: [],
     dummies,
+    emitters: [],
     events: [],
     nextId,
   };
@@ -315,6 +339,10 @@ function updateWeapon(w: World, input: Input): void {
       life: def.bulletLife,
       damage: def.damage,
       knockback: def.knockback,
+      color: 'red',
+      age: 0,
+      dir: a,
+      speed: def.bulletSpeed,
     });
   }
   p.vx -= Math.cos(p.aim) * def.recoil;
@@ -333,6 +361,13 @@ function updateBullets(w: World): void {
     if (b.life <= 0) {
       w.events.push({ type: 'bulletFade', x: b.x, y: b.y });
       continue;
+    }
+    b.age += DT;
+    if (b.accel) b.speed = Math.max(10, b.speed + b.accel * DT);
+    if (b.wave || b.accel) {
+      const side = b.wave ? b.wave.amp * 2 * Math.PI * b.wave.freq * Math.cos(2 * Math.PI * b.wave.freq * b.age) : 0;
+      b.vx = Math.cos(b.dir) * b.speed - Math.sin(b.dir) * side;
+      b.vy = Math.sin(b.dir) * b.speed + Math.cos(b.dir) * side;
     }
     // Two sub-steps keep fast bullets from skipping thin things.
     let alive = true;
@@ -364,6 +399,47 @@ function updateBullets(w: World): void {
   w.bullets = keep;
 }
 
+/** Starts firing a pattern from (x, y). `aim` is the angle towards the target. */
+export function firePattern(w: World, def: PatternDef, x: number, y: number, aim: number, owner: 'player' | 'enemy' = 'enemy'): Emitter {
+  const e: Emitter = { x, y, t: 0, next: 0, shots: expandPattern(def, aim, w.rng), owner };
+  w.emitters.push(e);
+  return e;
+}
+
+export const ENEMY_BULLET_LIFE = 6;
+const ENEMY_BULLET_RADIUS = 2.5;
+
+function updateEmitters(w: World): void {
+  const keep: Emitter[] = [];
+  for (const e of w.emitters) {
+    while (e.next < e.shots.length && e.shots[e.next]!.delay <= e.t + 1e-9) {
+      const s = e.shots[e.next++]!;
+      const b: Bullet = {
+        id: w.nextId++,
+        owner: e.owner,
+        x: e.x,
+        y: e.y,
+        vx: Math.cos(s.angle) * s.speed,
+        vy: Math.sin(s.angle) * s.speed,
+        r: ENEMY_BULLET_RADIUS,
+        life: ENEMY_BULLET_LIFE,
+        damage: 1,
+        knockback: 0,
+        color: s.color,
+        age: 0,
+        dir: s.angle,
+        speed: s.speed,
+      };
+      if (s.wave) b.wave = s.wave;
+      if (s.accel) b.accel = s.accel;
+      w.bullets.push(b);
+    }
+    e.t += DT;
+    if (e.next < e.shots.length) keep.push(e);
+  }
+  w.emitters = keep;
+}
+
 function updateDummies(w: World): void {
   for (const d of w.dummies) {
     d.hitT = Math.max(0, d.hitT - DT);
@@ -378,6 +454,15 @@ function updateDummies(w: World): void {
 export function step(w: World, input: Input): void {
   w.events = [];
   updatePlayer(w, input);
+  if (input.debugPattern) {
+    const def = PATTERNS[input.debugPattern];
+    const d = w.dummies[0];
+    if (def && d) {
+      const y = d.y - 20;
+      firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x));
+    }
+  }
+  updateEmitters(w);
   updateBullets(w);
   updateDummies(w);
   w.tick++;

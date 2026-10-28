@@ -127,7 +127,7 @@ export class GameScene extends Phaser.Scene {
     this.hud(this.add.image(VIEW_W - 12 - mag * 4 - 20, VIEW_H - 15, 'arma-secador').setOrigin(0, 0));
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.hint = this.hud(
-      this.add.bitmapText(8, VIEW_H - 16, FONT, fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar'), 8),
+      this.add.bitmapText(8, VIEW_H - 16, FONT, fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar · 1-5 balas enemigas'), 8),
     );
     this.hint.setTint(0xd6cdb2);
     const title = this.hud(this.add.bitmapText(VIEW_W / 2, 30, FONT, fontText(room.name), 8).setOrigin(0.5, 0));
@@ -358,7 +358,7 @@ export class GameScene extends Phaser.Scene {
       alive.add(b.id);
       let s = this.bulletSprites.get(b.id);
       if (!s) {
-        s = this.add.image(b.x, b.y, b.owner === 'player' ? 'bala-jugador' : 'bala-roja');
+        s = this.add.image(b.x, b.y, b.owner === 'player' ? 'bala-jugador' : b.color === 'cyan' ? 'bala-cian' : 'bala-roja');
         this.bulletSprites.set(b.id, s);
       }
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);

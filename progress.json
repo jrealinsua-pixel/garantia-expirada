@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T20:10:00+01:00",
+  "actualizado": "2026-10-28T20:25:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 10
     },
     {
@@ -102,18 +102,24 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 43,
-    "tests_ok": 43,
+    "tests": 52,
+    "tests_ok": 52,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 2093
+    "lineas_codigo": 2323
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T20:25:00+01:00",
+      "hito": "M2",
+      "resumen": "Patrones de balas declarativos (anillo, abanico, espiral, ráfaga, onda y secuencias) con tests; teclas 1–5 en la sala de pruebas para verlos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T20:10:00+01:00",
       "hito": "M1",
       "resumen": "M1 terminado: el mando (simulado en el e2e) mueve, apunta y dispara. Golpe y muerte de la tostadora pasan a M2.",
-      "commit": ""
+      "commit": "41f7c25"
     },
     {
       "fecha": "2026-10-28T20:00:00+01:00",
@@ -134,6 +140,10 @@
       "pie": "Sala de Pruebas: la tostadora dispara el Secador Mágnum a un maniquí (captura del e2e)"
     },
     {
+      "archivo": "capturas/patrones.png",
+      "pie": "Patrones de balas enemigas en la sala de pruebas: anillos del microondas y espiral de la bombilla"
+    },
+    {
       "archivo": "capturas/rodando.png",
       "pie": "Esquiva rodando, con polvo, chispas y números de daño"
     },
@@ -150,6 +160,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: sistema declarativo de patrones de balas (anillo, abanico, espiral, ráfaga, onda) con tests; después los tres enemigos aprobados.",
+  "proximo": "M2: telegrafía de ataques y el Microondas Sin Seguro como primer enemigo con IA.",
   "bloqueos": []
 }

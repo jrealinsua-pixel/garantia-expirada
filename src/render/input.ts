@@ -1,5 +1,6 @@
 // Reads keyboard, mouse and gamepad and turns them into a sim Input for this tick.
 import type { Input } from '../sim/world.ts';
+import { PATTERNS } from '../data/patterns.ts';
 
 const DEADZONE = 0.22;
 
@@ -13,6 +14,7 @@ export class Controls {
   private keys: Record<string, Phaser.Input.Keyboard.Key>;
   private scene: Phaser.Scene;
   private rollQueued = false;
+  private patternQueued: string | undefined;
   private prevPadRoll = false;
   private lastStickAim = { x: 1, y: 0 };
   /** 'mouse' or 'pad': whichever was used last decides the aim and the crosshair. */
@@ -30,6 +32,12 @@ export class Controls {
     }) as Record<string, Phaser.Input.Keyboard.Key>;
     kb.on('keydown-SPACE', () => (this.rollQueued = true));
     kb.on('keydown-SHIFT', () => (this.rollQueued = true));
+    // Test room: number keys fire the enemy bullet patterns from the first dummy.
+    const names = Object.keys(PATTERNS);
+    kb.on('keydown', (e: KeyboardEvent) => {
+      const n = Number(e.key);
+      if (Number.isInteger(n) && n >= 1 && n <= names.length) this.patternQueued = names[n - 1];
+    });
     scene.input.mouse?.disableContextMenu();
     scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       this.mode = 'mouse';
@@ -89,6 +97,10 @@ export class Controls {
       }
     }
     const input: Input = { moveX: mx, moveY: my, aimX, aimY, fire, roll, reload };
+    if (this.patternQueued) {
+      input.debugPattern = this.patternQueued;
+      this.patternQueued = undefined;
+    }
     if (this.override) Object.assign(input, this.override);
     if (this.override?.roll) this.override.roll = false;
     return input;

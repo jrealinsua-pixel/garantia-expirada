@@ -2,6 +2,14 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-28 20:25 — Hito M2 — Patrones de balas declarativos
+
+- Hecho: `src/sim/patterns.ts` con anillo (fijo o apuntado), abanico, espiral de varios brazos, ráfaga con dispersión y secuencias que combinan patrones con desfase de tiempo y giro; modificadores de onda (zigzag lateral) y aceleración. `expandPattern()` convierte un patrón en una lista de disparos con su retardo; el mundo tiene emisores (`firePattern`) que los sueltan a su tiempo. Cinco patrones con nombre en `src/data/patterns.ts` (anillos del microondas, espiral de la bombilla, abanico, ráfaga, anillo en onda). En la sala de pruebas, las teclas 1–5 hacen que el primer maniquí dispare cada patrón; el e2e lo usa para sacar una captura de las balas enemigas.
+- Decisiones: la «onda» es un modificador que se puede poner a cualquier patrón, no un patrón aparte: así se combina con anillos y abanicos. Las balas enemigas aún no hacen daño (llega con «Vida, daño, muerte»); de momento atraviesan a la tostadora. El disparo de prueba entra por `Input.debugPattern` para no saltarse la simulación.
+- Medidas: 52 tests en verde (9 nuevos de patrones). Bot 200/200 sin fallos.
+- Problemas conocidos: las balas rojas de 5 px se leen bien a zoom 3, algo justas a zoom 2; revisarlo cuando haya enemigos de verdad.
+- Siguiente paso: telegrafía de ataques (parpadeo y sonido previo) y el Microondas Sin Seguro como primer enemigo con IA.
+
 ## 2026-10-28 20:10 — Hito M1 (terminado) — Mando probado y cierre del hito
 
 - Hecho: el e2e simula un mando con la Gamepad API (mapeo estándar) y comprueba que el stick izquierdo mueve, el derecho apunta y el gatillo dispara. M1 queda cerrado.
