@@ -128,3 +128,18 @@ export function patternDuration(def: PatternDef): number {
       return Math.max(0, ...def.parts.map((p) => p.at + patternDuration(p.pattern)));
   }
 }
+
+/** True if the pattern points at the target (so the warning can show the direction). */
+export function isAimed(def: PatternDef): boolean {
+  switch (def.kind) {
+    case 'ring':
+      return def.aimed === true;
+    case 'fan':
+    case 'burst':
+      return true;
+    case 'spiral':
+      return false;
+    case 'sequence':
+      return def.parts.some((p) => isAimed(p.pattern));
+  }
+}

@@ -16,6 +16,7 @@ interface State {
   bullets: number;
   rolling: boolean;
   dummyDamage: number;
+  warnings: number;
   fps: number;
   shots: number;
 }
@@ -94,11 +95,18 @@ try {
   if (s2.shots === 0) throw new Error('No se ha disparado');
   if (s2.dummyDamage === 0) throw new Error('Ninguna bala ha dado al maniquí');
 
+  // Attack warning: an aimed burst (key 4) blinks, beeps and shows its direction before firing.
+  await page.keyboard.press('4');
+  await page.waitForTimeout(300);
+  await shot('07-aviso.png');
+  if ((await state()).warnings === 0) throw new Error('El ataque no ha avisado antes de disparar');
+  await page.waitForTimeout(900);
+
   // Enemy bullet patterns (test room keys 1-5): check they read well on the floor.
   await page.keyboard.press('1');
   await page.waitForTimeout(700);
   await page.keyboard.press('2');
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(1400);
   await shot('06-patrones.png');
 
   await page.keyboard.down('s');

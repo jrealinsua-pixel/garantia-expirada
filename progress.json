@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T20:25:00+01:00",
+  "actualizado": "2026-10-28T21:00:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 10
     },
     {
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 52,
-    "tests_ok": 52,
+    "tests": 56,
+    "tests_ok": 56,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 2323
+    "lineas_codigo": 2470
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T21:00:00+01:00",
+      "hito": "M2",
+      "resumen": "Telegrafía de ataques: quien va a disparar parpadea y tiembla, un anillo se cierra sobre la boca, los ataques apuntados enseñan su dirección, sale un «!» y suena un aviso. Arreglado: las capturas del panel no estaban subidas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T20:25:00+01:00",
       "hito": "M2",
@@ -136,30 +142,30 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/disparando.png",
-      "pie": "Sala de Pruebas: la tostadora dispara el Secador Mágnum a un maniquí (captura del e2e)"
+      "archivo": "capturas/aviso.png",
+      "pie": "Telegrafía: el maniquí avisa antes de disparar (parpadeo, anillo que se cierra, dirección y «!»), ampliado"
     },
     {
       "archivo": "capturas/patrones.png",
-      "pie": "Patrones de balas enemigas en la sala de pruebas: anillos del microondas y espiral de la bombilla"
+      "pie": "Patrones de balas enemigas en la sala de pruebas"
+    },
+    {
+      "archivo": "capturas/disparando.png",
+      "pie": "Sala de Pruebas: la tostadora dispara el Secador a un maniquí (captura del e2e)"
     },
     {
       "archivo": "capturas/rodando.png",
-      "pie": "Esquiva rodando, con polvo, chispas y números de daño"
+      "pie": "Esquiva rodando, con polvo y chispas"
     },
     {
-      "archivo": "capturas/maniquies.png",
-      "pie": "Los maniquíes de rebajas se tambalean y destellan al recibir"
-    },
-    {
-      "archivo": "capturas/reparto.png",
-      "pie": "Sprites generados por código: los aprobados (idénticos) y los nuevos (maniquí, efectos, HUD)"
+      "archivo": "capturas/andando.png",
+      "pie": "La tostadora andando por la Sala de Pruebas de Devoluciones"
     },
     {
       "archivo": "capturas/sala-devoluciones.png",
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: telegrafía de ataques y el Microondas Sin Seguro como primer enemigo con IA.",
+  "proximo": "M2: el Microondas Sin Seguro como primer enemigo con IA (tipo EnemyDef en datos, avisa y dispara anillos).",
   "bloqueos": []
 }

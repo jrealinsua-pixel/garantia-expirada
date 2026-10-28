@@ -5,7 +5,7 @@ import { WEAPONS } from '../data/weapons.ts';
 import type { CharacterDef, DummyDef, WeaponDef } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
-import { expandPattern, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
+import { expandPattern, isAimed, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
 import { buildRoom, isWallAt, wallRectsNear, type Room } from './room.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
@@ -86,7 +86,10 @@ export interface Bullet {
   accel?: number;
 }
 
-/** A pattern being fired: its shots come out of (x, y) as their delay passes. */
+/**
+ * A pattern being fired: its shots come out of (x, y) as their delay passes. `t` starts at
+ * -telegraph, so the warning (blink, sound, marker) plays before the first shot.
+ */
 export interface Emitter {
   x: number;
   y: number;
@@ -94,6 +97,23 @@ export interface Emitter {
   next: number;
   shots: ShotSpec[];
   owner: 'player' | 'enemy';
+  /** Seconds of warning before the first shot (0 = fire at once). */
+  telegraph: number;
+  /** Id of whoever fires it (a dummy, later an enemy), to make it blink. */
+  source?: number;
+  /** Direction towards the target when fired, and whether the pattern follows it. */
+  aim: number;
+  aimed: boolean;
+  color: BulletColor;
+}
+
+/** Default warning for enemy attacks (s). Enough to react, short enough to stay tense. */
+export const ENEMY_TELEGRAPH = 0.5;
+
+export interface FireOptions {
+  owner?: 'player' | 'enemy';
+  telegraph?: number;
+  source?: number;
 }
 
 export interface Dummy {
@@ -116,7 +136,8 @@ export type SimEvent =
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
   | { type: 'reloadEnd' }
-  | { type: 'empty' };
+  | { type: 'empty' }
+  | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
 
 export interface World {
   seed: string;
@@ -400,10 +421,42 @@ function updateBullets(w: World): void {
 }
 
 /** Starts firing a pattern from (x, y). `aim` is the angle towards the target. */
-export function firePattern(w: World, def: PatternDef, x: number, y: number, aim: number, owner: 'player' | 'enemy' = 'enemy'): Emitter {
-  const e: Emitter = { x, y, t: 0, next: 0, shots: expandPattern(def, aim, w.rng), owner };
+export function firePattern(w: World, def: PatternDef, x: number, y: number, aim: number, opts: FireOptions = {}): Emitter {
+  const telegraph = Math.max(0, opts.telegraph ?? 0);
+  const shots = expandPattern(def, aim, w.rng);
+  const e: Emitter = {
+    x,
+    y,
+    t: -telegraph,
+    next: 0,
+    shots,
+    owner: opts.owner ?? 'enemy',
+    telegraph,
+    aim,
+    aimed: isAimed(def),
+    color: shots[0]?.color ?? 'red',
+  };
+  if (opts.source !== undefined) e.source = opts.source;
   w.emitters.push(e);
+  if (telegraph > 0) {
+    const ev: SimEvent = { type: 'telegraph', x, y, time: telegraph, aim, aimed: e.aimed, color: e.color };
+    if (e.source !== undefined) ev.source = e.source;
+    w.events.push(ev);
+  }
   return e;
+}
+
+/** How far into its warning an emitter is: 0 just started, 1 about to fire; -1 if it is not warning. */
+export function telegraphProgress(e: Emitter): number {
+  if (e.telegraph <= 0 || e.t >= 0) return -1;
+  return 1 + e.t / e.telegraph;
+}
+
+/** The strongest warning coming from `source` right now (see telegraphProgress), or -1. */
+export function sourceTelegraph(w: World, source: number): number {
+  let best = -1;
+  for (const e of w.emitters) if (e.source === source) best = Math.max(best, telegraphProgress(e));
+  return best;
 }
 
 export const ENEMY_BULLET_LIFE = 6;
@@ -459,7 +512,7 @@ export function step(w: World, input: Input): void {
     const d = w.dummies[0];
     if (def && d) {
       const y = d.y - 20;
-      firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x));
+      firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x), { telegraph: ENEMY_TELEGRAPH, source: d.id });
     }
   }
   updateEmitters(w);

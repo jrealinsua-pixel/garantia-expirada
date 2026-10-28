@@ -2,6 +2,15 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-28 21:00 — Hito M2 — Telegrafía de ataques
+
+- Hecho: los emisores de patrones admiten un tiempo de aviso (`firePattern(..., { telegraph, source })`): el reloj del emisor empieza en negativo y no sale ninguna bala hasta que se acaba. La simulación emite el evento `telegraph` y ofrece `telegraphProgress()` y `sourceTelegraph()` para que el dibujo sepa cuánto falta. En pantalla: quien ataca parpadea en amarillo y luego en blanco cada vez más deprisa y tiembla 1 px al final; un anillo de píxeles del color de las balas se cierra sobre la boca de disparo (cuando llega, sale la ráfaga); los patrones apuntados (abanico, ráfaga, anillo apuntado) muestran una línea de puntos hacia donde irán; un «!» amarillo salta sobre la cabeza. Sonido nuevo `aviso` (pitido ascendente con vibrato, más agudo para las balas cian). Las teclas 1–5 de la sala de pruebas ya avisan. El e2e comprueba que hay aviso y guarda `07-aviso.png`.
+- Decisiones: aviso por defecto de 0,5 s para enemigos (`ENEMY_TELEGRAPH`); cada enemigo podrá cambiarlo en sus datos. Sin aviso (0) se dispara en el acto, como antes, para no romper los tests ni los usos futuros (jefes en fase de furia, trampas). `isAimed()` decide a partir del propio patrón si se dibuja la dirección, así los datos no repiten esa información. El anillo no parpadea (es el reloj); parpadea el sprite. El «!» se coloca sobre el sprite de quien ataca, no sobre la boca, porque tapaba la cara.
+- Arreglo: el panel apuntaba a `panel/capturas/*.png` pero esa carpeta nunca se había subido; ahora tiene 6 capturas reales.
+- Medidas: 56 tests en verde (3 nuevos de telegrafía). Bot 200/200 sin fallos. e2e ~60 fps.
+- Problemas conocidos: el aviso en el maniquí se ve bien; habrá que revisar el tamaño del anillo con enemigos pequeños (bombilla).
+- Siguiente paso: el Microondas Sin Seguro como primer enemigo con IA (andar, apuntar, avisar y disparar `microondas-anillos`), lo que pide un tipo `EnemyDef` en `src/data/`.
+
 ## 2026-10-28 20:25 — Hito M2 — Patrones de balas declarativos
 
 - Hecho: `src/sim/patterns.ts` con anillo (fijo o apuntado), abanico, espiral de varios brazos, ráfaga con dispersión y secuencias que combinan patrones con desfase de tiempo y giro; modificadores de onda (zigzag lateral) y aceleración. `expandPattern()` convierte un patrón en una lista de disparos con su retardo; el mundo tiene emisores (`firePattern`) que los sueltan a su tiempo. Cinco patrones con nombre en `src/data/patterns.ts` (anillos del microondas, espiral de la bombilla, abanico, ráfaga, anillo en onda). En la sala de pruebas, las teclas 1–5 hacen que el primer maniquí dispare cada patrón; el e2e lo usa para sacar una captura de las balas enemigas.

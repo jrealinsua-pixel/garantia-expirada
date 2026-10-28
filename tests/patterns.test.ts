@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PATTERNS } from '../src/data/patterns.ts';
-import { expandPattern, patternDuration, type PatternDef } from '../src/sim/patterns.ts';
+import { expandPattern, isAimed, patternDuration, type PatternDef } from '../src/sim/patterns.ts';
 import { Rng } from '../src/sim/rng.ts';
-import { createWorld, DT, firePattern, NO_INPUT, step } from '../src/sim/world.ts';
+import { createWorld, DT, ENEMY_TELEGRAPH, firePattern, NO_INPUT, sourceTelegraph, step, telegraphProgress } from '../src/sim/world.ts';
 
 const TAU = Math.PI * 2;
 const norm = (a: number): number => ((a % TAU) + TAU) % TAU;
@@ -115,4 +115,46 @@ test('las balas en onda se mueven de lado pero avanzan a su velocidad', () => {
   const b = w.bullets.find((b) => b.owner === 'enemy')!;
   assert.ok(maxSide > 4 && maxSide < 12, `lateral ${maxSide}`);
   assert.ok(Math.abs(b.x - cx - 61) < 3, `avance ${b.x - cx}`);
+});
+
+test('telegrafía: avisa, espera y luego dispara', () => {
+  const w = createWorld({ seed: 'aviso' });
+  const e = firePattern(w, PATTERNS['abanico-3']!, w.room.w / 2, w.room.h / 2, 0, { telegraph: ENEMY_TELEGRAPH, source: 42 });
+  const ev = w.events.find((x) => x.type === 'telegraph');
+  assert.ok(ev && ev.type === 'telegraph');
+  assert.equal(ev.source, 42);
+  assert.equal(ev.aimed, true);
+  assert.ok(close(ev.time, ENEMY_TELEGRAPH));
+  assert.ok(close(telegraphProgress(e), 0));
+  const warnTicks = Math.round(ENEMY_TELEGRAPH / DT);
+  let last = 0;
+  for (let i = 0; i < warnTicks; i++) {
+    step(w, NO_INPUT);
+    assert.equal(w.bullets.filter((b) => b.owner === 'enemy').length, 0, `bala antes de tiempo en el tick ${i}`);
+    const k = sourceTelegraph(w, 42);
+    assert.ok(k >= last, 'el aviso avanza');
+    last = k;
+  }
+  assert.ok(last > 0.9);
+  step(w, NO_INPUT);
+  assert.equal(w.bullets.filter((b) => b.owner === 'enemy').length, 3);
+  assert.equal(sourceTelegraph(w, 42), -1);
+});
+
+test('telegrafía: sin aviso dispara en el acto y los patrones saben si apuntan', () => {
+  const w = createWorld({ seed: 'sin-aviso' });
+  firePattern(w, PATTERNS['abanico-3']!, w.room.w / 2, w.room.h / 2, 0);
+  assert.equal(w.events.filter((x) => x.type === 'telegraph').length, 0);
+  assert.equal(isAimed(PATTERNS['bombilla-espiral']!), false);
+  assert.equal(isAimed(PATTERNS['microondas-anillos']!), false);
+  assert.equal(isAimed(PATTERNS['onda-anillo']!), true);
+  assert.equal(isAimed(PATTERNS['rafaga-5']!), true);
+});
+
+test('telegrafía: el patrón de prueba de la sala avisa desde el maniquí', () => {
+  const w = createWorld({ seed: 'debug' });
+  step(w, { ...NO_INPUT, debugPattern: 'rafaga-5' });
+  const ev = w.events.find((x) => x.type === 'telegraph');
+  assert.ok(ev && ev.type === 'telegraph' && ev.source === w.dummies[0]!.id);
+  assert.ok(sourceTelegraph(w, w.dummies[0]!.id) >= 0);
 });

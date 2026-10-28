@@ -48,7 +48,7 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 ## M2 · Enemigos y patrones de balas
 
 - [x] Sistema de patrones de balas declarativo (anillo, abanico, espiral, ráfaga, onda) con tests.
-- [ ] Telegrafía de ataques (parpadeo y sonido previo).
+- [x] Telegrafía de ataques (parpadeo y sonido previo).
 - [ ] Aspirador Desahuciado (carga en línea recta).
 - [ ] Microondas Sin Seguro (anillos de ondas).
 - [ ] Bombilla de Bajo Consumo (espirales) con su polilla.

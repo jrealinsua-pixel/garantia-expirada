@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText } from '../art/font.ts';
-import { createWorld, DT, gunPivot, isRolling, step, BODY_HEIGHT, type SimEvent, type World } from '../sim/world.ts';
+import { createWorld, DT, gunPivot, isRolling, sourceTelegraph, step, telegraphProgress, BODY_HEIGHT, type SimEvent, type World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
@@ -49,6 +49,8 @@ export interface GameStateForTests {
   bullets: number;
   rolling: boolean;
   dummyDamage: number;
+  /** Attack warnings seen so far. */
+  warnings: number;
   fps: number;
   shots: number;
 }
@@ -79,6 +81,9 @@ export class GameScene extends Phaser.Scene {
   private ammoPips: Phaser.GameObjects.Image[] = [];
   private ammoText!: Phaser.GameObjects.BitmapText;
   private reloadBar!: Phaser.GameObjects.Graphics;
+  /** Attack warnings: shrinking ring, aim dots and «!», redrawn every frame from the emitters. */
+  private warn!: Phaser.GameObjects.Graphics;
+  private warnings = 0;
   private hint!: Phaser.GameObjects.BitmapText;
   private hintT = 9;
   private camX = 0;
@@ -134,6 +139,7 @@ export class GameScene extends Phaser.Scene {
     title.setTint(0xf6c431);
     this.tweens.add({ targets: title, alpha: 0, delay: 2500, duration: 800 });
     this.reloadBar = this.add.graphics().setDepth(80000);
+    this.warn = this.add.graphics().setDepth(84000);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
 
     const cam = this.cameras.main;
@@ -168,6 +174,7 @@ export class GameScene extends Phaser.Scene {
       bullets: this.world.bullets.length,
       rolling: isRolling(p),
       dummyDamage: this.world.dummies.reduce((a, d) => a + d.damageTaken, 0),
+      warnings: this.warnings,
       fps: this.game.loop.actualFps,
       shots: this.shots,
     };
@@ -243,6 +250,10 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'empty':
           this.sound2.play('vacio');
+          break;
+        case 'telegraph':
+          this.warnings++;
+          this.sound2.play('aviso', { detune: e.color === 'cyan' ? 300 : 0 });
           break;
       }
     }
@@ -347,10 +358,16 @@ export class GameScene extends Phaser.Scene {
       const s = this.dummySprites.get(d.id);
       if (!s) continue;
       s.setRotation(d.lean);
+      const warnK = sourceTelegraph(w, d.id);
+      // Shiver in place during the last part of the warning.
+      const shiver = warnK > 0.6 ? (Math.floor(this.time.now / 40) % 2 === 0 ? 1 : -1) : 0;
+      s.setX(d.x + shiver);
       if (d.hitT > 0.07) s.setTintFill(0xffffff);
       else if (d.hitT > 0) s.setTint(0xffb0a0);
+      else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
       else s.clearTint();
     }
+    this.drawWarnings();
 
     // Bullets.
     const alive = new Set<number>();
@@ -375,6 +392,40 @@ export class GameScene extends Phaser.Scene {
     this.updateParticles(dt);
     this.updateHud(dt);
     this.updateCamera(dt);
+  }
+
+  private drawWarnings(): void {
+    const g = this.warn;
+    g.clear();
+    for (const e of this.world.emitters) {
+      const k = telegraphProgress(e);
+      if (k < 0) continue;
+      const col = e.color === 'cyan' ? 0x69dbd8 : 0xe0453b;
+      const x = Math.round(e.x);
+      const y = Math.round(e.y);
+      // Ring that closes in on the muzzle: when it reaches it, the bullets come out.
+      const r = Math.round(4 + 16 * (1 - k));
+      pixelRing(g, x, y, r + 1, 0x0e0c16);
+      pixelRing(g, x, y, r, col);
+      // Aimed patterns: a dotted line shows where they will go.
+      if (e.aimed) {
+        const len = 10 + 26 * k;
+        const off = (this.time.now / 60) % 5;
+        for (let d = 8 + off; d < 8 + len; d += 5) {
+          const px = Math.round(x + Math.cos(e.aim) * d);
+          const py = Math.round(y + Math.sin(e.aim) * d);
+          g.fillStyle(0x0e0c16, 1).fillRect(px - 1, py - 1, 3, 3);
+          g.fillStyle(col, 1).fillRect(px, py, 1, 1);
+        }
+      }
+      // «!» above whoever attacks (or above the muzzle), in the warning yellow; it pops up.
+      const src = e.source !== undefined ? this.dummySprites.get(e.source) : undefined;
+      const top = src ? Math.round(src.getTopCenter().y ?? y) - 11 : y - 14;
+      const bx = src ? Math.round(src.x) : x;
+      const by = top - (k < 0.15 ? Math.round((0.15 - k) * 20) : 0);
+      g.fillStyle(0x0e0c16, 1).fillRect(bx - 2, by - 1, 4, 10);
+      g.fillStyle(0xf6c431, 1).fillRect(bx - 1, by, 2, 5).fillRect(bx - 1, by + 6, 2, 2);
+    }
   }
 
   private updateParticles(dt: number): void {
@@ -479,5 +530,39 @@ export class GameScene extends Phaser.Scene {
     this.camX = Math.max(0, Math.min(room.w - VIEW_W, this.camX));
     this.camY = Math.max(0, Math.min(room.h - VIEW_H, this.camY));
     cam.setScroll(Math.round(this.camX), Math.round(this.camY));
+  }
+}
+
+/** Blinks faster as the warning runs out (k from 0 to 1). */
+function blinkOn(k: number): boolean {
+  const hz = 5 + 13 * k;
+  return Math.floor(k * hz) % 2 === 0;
+}
+
+/** A 1-px circle with no anti-aliasing (midpoint algorithm), to match the pixel art. */
+function pixelRing(g: Phaser.GameObjects.Graphics, cx: number, cy: number, r: number, color: number): void {
+  g.fillStyle(color, 1);
+  let x = r;
+  let y = 0;
+  let err = 1 - r;
+  while (x >= y) {
+    for (const [px, py] of [
+      [x, y],
+      [y, x],
+      [-y, x],
+      [-x, y],
+      [-x, -y],
+      [-y, -x],
+      [y, -x],
+      [x, -y],
+    ] as const) {
+      g.fillRect(cx + px, cy + py, 1, 1);
+    }
+    y++;
+    if (err < 0) err += 2 * y + 1;
+    else {
+      x--;
+      err += 2 * (y - x) + 1;
+    }
   }
 }
