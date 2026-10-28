@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-28T21:30:00+01:00",
+  "actualizado": "2026-10-28T21:55:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M2",
   "hitos": [
@@ -21,7 +21,7 @@
       "id": "M2",
       "nombre": "Enemigos y patrones de balas",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 10
     },
     {
@@ -97,23 +97,29 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 1,
+    "enemigos": 2,
     "jefes": 0,
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 1,
-    "tests": 66,
-    "tests_ok": 66,
+    "tests": 69,
+    "tests_ok": 69,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 2814
+    "lineas_codigo": 2892
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-28T21:55:00+01:00",
+      "hito": "M2",
+      "resumen": "Microondas Sin Seguro: se queda quieto, calienta un segundo con su reloj de 12:00 parpadeando y suelta dos anillos de balas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-28T21:30:00+01:00",
       "hito": "M2",
       "resumen": "Primer enemigo con IA: el Aspirador Desahuciado avisa, embiste en línea recta, derrapa y se queda aturdido si choca con la pared. Enemigos definidos como datos con un «cerebro».",
-      "commit": ""
+      "commit": "52405d6"
     },
     {
       "fecha": "2026-10-28T21:00:00+01:00",
@@ -148,16 +154,16 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/microondas.png",
+      "pie": "El Microondas Sin Seguro calienta (anillo que se cierra) y suelta sus anillos de balas, ampliado"
+    },
+    {
       "archivo": "capturas/aspirador.png",
       "pie": "El Aspirador Desahuciado avisa (parpadeo, «!» y recorrido) y embiste, ampliado"
     },
     {
       "archivo": "capturas/aviso.png",
       "pie": "Telegrafía: el maniquí avisa antes de disparar (parpadeo, anillo que se cierra, dirección y «!»), ampliado"
-    },
-    {
-      "archivo": "capturas/patrones.png",
-      "pie": "Patrones de balas enemigas en la sala de pruebas"
     },
     {
       "archivo": "capturas/disparando.png",
@@ -172,6 +178,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M2: Microondas Sin Seguro (se queda quieto, calienta y dispara anillos).",
+  "proximo": "M2: Bombilla de Bajo Consumo (espirales) con su polilla; después vida, daño y muerte.",
   "bloqueos": []
 }

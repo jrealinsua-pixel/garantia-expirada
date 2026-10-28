@@ -76,7 +76,7 @@ export class GameScene extends Phaser.Scene {
   private muzzleT = 0;
   private crosshair!: Phaser.GameObjects.Image;
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
-  private enemySprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image }>();
+  private enemySprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; blink?: Phaser.GameObjects.Graphics }>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
@@ -123,8 +123,10 @@ export class GameScene extends Phaser.Scene {
 
     for (const en of this.world.enemies) {
       const shadow = this.add.image(en.x, en.y, shadowTexture(this, 10, 3)).setDepth(-50000);
-      const s = this.add.image(en.x, en.y, en.def.sprite).setOrigin(14 / 32, 32 / 36);
-      this.enemySprites.set(en.id, { s, shadow });
+      const tex = this.textures.get(en.def.sprite).getSourceImage();
+      const s = this.add.image(en.x, en.y, en.def.sprite).setOrigin(en.def.anchor.x / tex.width, en.def.anchor.y / tex.height);
+      const blink = SPRITE_BLINKS[en.def.sprite] ? this.add.graphics() : undefined;
+      this.enemySprites.set(en.id, blink ? { s, shadow, blink } : { s, shadow });
     }
 
     this.heroShadow = this.add.image(0, 0, shadowTexture(this, 9, 3)).setDepth(-50000);
@@ -417,6 +419,18 @@ export class GameScene extends Phaser.Scene {
       else if (en.state === 'stun') rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
       s.setRotation(rot);
       v.shadow.setPosition(Math.round(en.x), Math.round(en.y));
+      const bl = SPRITE_BLINKS[en.def.sprite];
+      if (v.blink && bl) {
+        // Covers a lit detail of the sprite now and then (the microwave's 12:00 that never stops blinking).
+        const period = warnK >= 0 ? 120 : 500;
+        const off = Math.floor(this.time.now / period) % 2 === 0;
+        v.blink.clear();
+        if (off && rot === 0) {
+          const lx = en.facing === 1 ? bl.x - en.def.anchor.x : en.def.anchor.x - bl.x - bl.w;
+          v.blink.fillStyle(bl.color, 1).fillRect(s.x + lx, s.y + bl.y - en.def.anchor.y, bl.w, bl.h);
+        }
+        v.blink.setDepth(en.y + 0.1);
+      }
       if (en.hitT > 0.07) s.setTintFill(0xffffff);
       else if (en.hitT > 0) s.setTint(0xffb0a0);
       else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
@@ -594,6 +608,11 @@ export class GameScene extends Phaser.Scene {
     cam.setScroll(Math.round(this.camX), Math.round(this.camY));
   }
 }
+
+/** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
+const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number }> = {
+  microondas: { x: 22, y: 14, w: 4, h: 1, color: 0x0e0c16 },
+};
 
 /** Blinks faster as the warning runs out (k from 0 to 1). */
 function blinkOn(k: number): boolean {

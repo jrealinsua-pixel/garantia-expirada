@@ -2,6 +2,14 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-28 21:55 — Hito M2 — Microondas Sin Seguro
+
+- Hecho: segundo cerebro de enemigo, `turret` (datos: alcance, intervalo, aviso, patrón y altura de la boca). El Microondas no se mueve; cada 1,6–2,6 s, si la tostadora está a menos de 260 px, «calienta» 1 s (parpadea, «!», anillo que se cierra sobre la ventanilla, pitido) y suelta `microondas-anillos` (12 + 18 balas en dos anillos desfasados). Las balas no lo mueven. Su reloj de 12:00 parpadea siempre, y más deprisa mientras calienta (tabla `SPRITE_BLINKS` del dibujo: rectángulos del sprite que se tapan a ratos). Hay uno en la sala de pruebas (letra `O`). Los enemigos guardan en datos el punto del sprite que pisa el suelo (`anchor`).
+- Decisiones: el aviso del microondas sale de su emisor de balas (con anillo), no del propio enemigo; solo los que embisten generan su aviso aparte. 1 s de aviso, como dice el diseño: es lento pero llena la sala de balas, y obliga a moverse o rodar a tiempo.
+- Medidas: 69 tests en verde (3 nuevos). Bot 200 × 60 s sin fallos, precisión 82,8 %, 3,6 golpes/min, 18 ms por partida (más balas en vuelo). e2e ~61 fps.
+- Problemas conocidos: las balas enemigas siguen sin hacer daño (llega con los corazones); el bot aún no las esquiva, así que no hay medida de dificultad del microondas.
+- Siguiente paso: Bombilla de Bajo Consumo (espirales) con su polilla; o, si se prefiere medir antes, «Vida, daño, muerte».
+
 ## 2026-10-28 21:30 — Hito M2 — Aspirador Desahuciado
 
 - Hecho: primer enemigo con IA. Tipo `EnemyDef` en `src/data/types.ts` con un «cerebro» de datos (`ChargerBrain`: velocidad al andar, alcance, aviso, velocidad y duración de la carga, frenada, aturdimiento) y su comportamiento en `src/sim/enemies.ts`. El Aspirador anda despacio hacia la tostadora; cuando está a menos de 190 px fija la dirección, avisa 0,55 s (parpadeo, «!», línea de puntos con todo el recorrido, tiembla), embiste a 230 px/s durante 0,7 s y frena derrapando; si choca contra una pared o una caja se queda aturdido 1,1 s tambaleándose. Al tocar a la tostadora la empuja (con fuerza si está embistiendo); rodando se le atraviesa. Las balas le dan, destella y se le empuja un poco, salvo cuando embiste. En pantalla: se inclina al cargar y hacia atrás al frenar, rastro de polvo, chispas de las ruedas, temblor y chispas al chocar, sonidos nuevos (`motor`, `derrape`, `choque`, `empujon`). Hay uno en la sala de pruebas (letra `A` en las plantillas). `slide()` es ahora el movimiento con colisiones común a jugador y enemigos.

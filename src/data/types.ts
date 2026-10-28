@@ -66,7 +66,7 @@ export interface DummyDef {
 /**
  * Room templates are drawn as text. Legend:
  * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `M` training dummy,
- * `A` Aspirador Desahuciado.
+ * `A` Aspirador Desahuciado, `O` Microondas Sin Seguro.
  * The top two rows are the back wall (shelves are painted on them).
  */
 export interface RoomTemplate {
@@ -96,15 +96,30 @@ export interface ChargerBrain {
   stun: number;
 }
 
-export type EnemyBrain = ChargerBrain;
+/**
+ * Stands still and fires a pattern: every `interval` s (random in the range), if the player is
+ * closer than `range`, it warns for `telegraph` s and then fires `pattern` (src/data/patterns.ts)
+ * from `muzzleY` px above its feet.
+ */
+export interface TurretBrain {
+  kind: 'turret';
+  range: number;
+  interval: [number, number];
+  telegraph: number;
+  pattern: string;
+  muzzleY: number;
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain;
 
 export interface EnemyDef {
   id: string;
   name: string;
   description: string;
   hp: number;
-  /** Texture key. */
+  /** Texture key, and the point of the sprite that sits on the feet (px from its top-left). */
   sprite: string;
+  anchor: { x: number; y: number };
   /** Hit box relative to the feet position. */
   hurt: { x: number; y: number; w: number; h: number };
   /** Half size of the feet collision box (px). */

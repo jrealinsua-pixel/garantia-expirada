@@ -50,7 +50,7 @@ la entrada responde en menos de un fotograma; ningún test ni bot falla.
 - [x] Sistema de patrones de balas declarativo (anillo, abanico, espiral, ráfaga, onda) con tests.
 - [x] Telegrafía de ataques (parpadeo y sonido previo).
 - [x] Aspirador Desahuciado (carga en línea recta).
-- [ ] Microondas Sin Seguro (anillos de ondas).
+- [x] Microondas Sin Seguro (anillos de ondas).
 - [ ] Bombilla de Bajo Consumo (espirales) con su polilla.
 - [ ] Dos enemigos nuevos de `docs/DISENO.md`, diseñados y dibujados al estilo aprobado.
 - [ ] Vida, daño, muerte con desmontaje en piezas y botín (cupones).

@@ -1,8 +1,10 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { ChargerBrain } from '../data/types.ts';
+import type { ChargerBrain, TurretBrain } from '../data/types.ts';
+import { PATTERNS } from '../data/patterns.ts';
+import { patternDuration } from './patterns.ts';
 import { normalize, overlaps } from './vec.ts';
-import { DT, HAND_HEIGHT, isRolling, playerFeetBox, slide, type Enemy, type World } from './world.ts';
+import { DT, firePattern, HAND_HEIGHT, isRolling, playerFeetBox, slide, type Enemy, type World } from './world.ts';
 
 /** Bullets push enemies; this friction brings them back to their own speed. */
 const KNOCK_FRICTION = 900;
@@ -14,6 +16,9 @@ export function updateEnemies(w: World): void {
     switch (en.def.brain.kind) {
       case 'charger':
         updateCharger(w, en, en.def.brain);
+        break;
+      case 'turret':
+        updateTurret(w, en, en.def.brain);
         break;
     }
     contact(w, en);
@@ -102,6 +107,25 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
     en.vx = -en.dirX * 60;
     en.vy = -en.dirY * 60;
   }
+}
+
+function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
+  const p = w.player;
+  const toX = p.x - en.x;
+  const toY = p.y - HAND_HEIGHT - (en.y - b.muzzleY);
+  en.t += DT;
+  if (Math.abs(toX) > 2 && en.state === 'idle') en.facing = toX > 0 ? 1 : -1;
+  if (en.state === 'idle' && en.t >= en.until && Math.hypot(toX, toY) < b.range) {
+    const def = PATTERNS[b.pattern];
+    if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+    firePattern(w, def, en.x, en.y - b.muzzleY, Math.atan2(toY, toX), { telegraph: b.telegraph, source: en.id });
+    enter(en, 'fire', b.telegraph + patternDuration(def));
+  } else if (en.state === 'fire' && en.t >= en.until) {
+    enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+  }
+  // It does not walk, but bullets and bumps may still nudge it if its data allows.
+  approach(en, 0, 0, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
 }
 
 /** Bumping into an enemy pushes the player away (damage arrives with the hearts in M2). */

@@ -129,7 +129,7 @@ export interface Dummy {
   damageTaken: number;
 }
 
-export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun';
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire';
 
 export interface Enemy {
   id: number;
@@ -234,7 +234,8 @@ export function createWorld(opts: WorldOptions): World {
 }
 
 export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Enemy {
-  return { id, def, x, y, vx: 0, vy: 0, facing: -1, state: 'walk', t: 0, until: 1, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0 };
+  const state = def.brain.kind === 'turret' ? 'idle' : 'walk';
+  return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until: 1, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0 };
 }
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
@@ -516,7 +517,7 @@ export function telegraphProgress(e: Emitter): number {
 export function sourceTelegraph(w: World, source: number): number {
   let best = -1;
   for (const e of w.emitters) if (e.source === source) best = Math.max(best, telegraphProgress(e));
-  for (const en of w.enemies) if (en.id === source && en.state === 'warn') best = Math.max(best, Math.min(1, en.t / en.until));
+  for (const en of w.enemies) if (en.id === source && en.state === 'warn' && en.def.brain.kind === 'charger') best = Math.max(best, Math.min(1, en.t / en.until));
   return best;
 }
 
@@ -543,7 +544,7 @@ export function activeWarnings(w: World): Warning[] {
     out.push(wn);
   }
   for (const en of w.enemies) {
-    if (en.state !== 'warn') continue;
+    if (en.state !== 'warn' || en.def.brain.kind !== 'charger') continue;
     out.push({ x: en.x, y: en.y - 2, k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'red', bullets: false, source: en.id });
   }
   return out;

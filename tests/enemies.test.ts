@@ -1,15 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ENEMIES } from '../src/data/enemies.ts';
+import type { ChargerBrain, TurretBrain } from '../src/data/types.ts';
+import { PATTERNS } from '../src/data/patterns.ts';
+import { expandPattern } from '../src/sim/patterns.ts';
+import { Rng } from '../src/sim/rng.ts';
 import { createWorld, NO_INPUT, sourceTelegraph, activeWarnings, step, type SimEvent, type World } from '../src/sim/world.ts';
 
 const ROW3 = 3 * 24 + 12;
 const asp = ENEMIES.aspirador!;
-const brain = asp.brain;
+const brain = asp.brain as ChargerBrain;
 
 /** Test room with the vacuum at (ex, ey) and the toaster at (px, py), both in the empty row 3. */
 function arena(ex: number, px: number): World {
   const w = createWorld({ seed: 'aspirador' });
+  w.enemies = w.enemies.filter((e) => e.def.id === 'aspirador');
   const en = w.enemies[0]!;
   en.x = ex;
   en.y = ROW3;
@@ -27,10 +32,9 @@ function runUntil(w: World, pred: (e: SimEvent) => boolean, maxTicks = 600): Sim
   return null;
 }
 
-test('la sala de pruebas tiene un Aspirador Desahuciado', () => {
+test('la sala de pruebas tiene un Aspirador Desahuciado y un Microondas Sin Seguro', () => {
   const w = createWorld({ seed: 'x' });
-  assert.equal(w.enemies.length, 1);
-  assert.equal(w.enemies[0]!.def.id, 'aspirador');
+  assert.deepEqual(w.enemies.map((e) => e.def.id).sort(), ['aspirador', 'microondas']);
   assert.equal(createWorld({ seed: 'x', noEnemies: true }).enemies.length, 0);
 });
 
@@ -108,4 +112,68 @@ test('las balas de la tostadora dan al aspirador', () => {
   }
   assert.ok(hits > 3, `impactos ${hits}`);
   assert.ok(w.enemies[0]!.damageTaken > 0);
+});
+
+/** Test room with only the microwave, at (ex, ey), and the toaster at (px, py). */
+function kitchen(px: number, py: number): World {
+  const w = createWorld({ seed: 'microondas' });
+  w.enemies = w.enemies.filter((e) => e.def.id === 'microondas');
+  w.player.x = px;
+  w.player.y = py;
+  return w;
+}
+
+test('microondas: calienta un segundo (avisando) y dispara sus anillos', () => {
+  const mw = ENEMIES.microondas!;
+  const b = mw.brain as TurretBrain;
+  const w = kitchen(300, 200);
+  const en = w.enemies[0]!;
+  const x0 = en.x;
+  const tel = runUntil(w, (e) => e.type === 'telegraph', 300);
+  assert.ok(tel && tel.type === 'telegraph' && tel.source === en.id);
+  assert.ok(Math.abs(tel.time - b.telegraph) < 1e-9);
+  assert.equal(tel.aimed, false, 'los anillos no apuntan');
+  assert.equal(en.state, 'fire');
+  assert.ok(sourceTelegraph(w, en.id) >= 0, 'parpadea mientras calienta');
+  const warns = activeWarnings(w).filter((x) => x.source === en.id);
+  assert.equal(warns.length, 1);
+  assert.ok(warns[0]!.bullets, 'con el anillo que se cierra');
+  let first = -1;
+  for (let i = 0; i < 120; i++) {
+    step(w, NO_INPUT);
+    if (w.bullets.some((x) => x.owner === 'enemy')) {
+      first = i + 1;
+      break;
+    }
+  }
+  assert.ok(Math.abs(first - b.telegraph * 60) <= 1, `primera bala en el tick ${first}`);
+  const expected = expandPattern(PATTERNS[b.pattern]!, 0, new Rng(1)).length;
+  const seen = new Set(w.bullets.filter((x) => x.owner === 'enemy').map((x) => x.id));
+  for (let i = 0; i < 60; i++) {
+    step(w, NO_INPUT);
+    for (const x of w.bullets) if (x.owner === 'enemy') seen.add(x.id);
+  }
+  assert.equal(seen.size, expected);
+  assert.equal(en.x, x0, 'no se mueve');
+});
+
+test('microondas: no dispara si la tostadora está lejos', () => {
+  const w = kitchen(40, 340);
+  const en = w.enemies[0]!;
+  assert.ok(Math.hypot(w.player.x - en.x, w.player.y - en.y) > (en.def.brain as TurretBrain).range);
+  assert.equal(runUntil(w, (e) => e.type === 'telegraph', 400), null);
+});
+
+test('microondas: las balas no lo mueven', () => {
+  const w = kitchen(300, 112);
+  const en = w.enemies[0]!;
+  en.until = 99;
+  const x0 = en.x;
+  let hits = 0;
+  for (let i = 0; i < 90; i++) {
+    step(w, { ...NO_INPUT, fire: true, aimX: en.x, aimY: en.y - 14 });
+    hits += w.events.filter((e) => e.type === 'hit' && e.target === en.id).length;
+  }
+  assert.ok(hits > 3);
+  assert.equal(en.x, x0);
 });
