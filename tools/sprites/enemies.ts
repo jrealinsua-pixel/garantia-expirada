@@ -2,7 +2,7 @@
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
-import { CREAM, DSTEEL, K, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
+import { CREAM, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
 
@@ -186,4 +186,92 @@ export const MANDO_LEGS = [7, 11] as const;
 export function makeMandoFrames(): Canvas[] {
   const walk = narrowPoseCycle(MANDO_LEGS[0], MANDO_LEGS[1]).slice(2);
   return [makeMando(0), makeMando(1), ...walk.map((f) => makeMando(-f.pose.bob, [f.pose.xb, f.pose.xf], f.pose.lift))];
+}
+
+/** Office printer beige, yellowed by the years next to the window. */
+const PRINTER = ramp('#ece4cc', '#d2c7a6', '#aa9e7e', '#7b7058');
+const PRINTER_SIDE = ramp('#aa9e7e', '#91856a', '#736950', '#514a3a');
+const PRINTER_TOP = ramp('#f7f1df', '#ece4cc', '#d2c7a6', '#aa9e7e');
+const LCD = ramp('#b9e6a0', '#7fbf6a', '#4f8a48', '#2f5a33');
+
+/**
+ * Impresora que se Atasca: an office printer with a stack of paper sticking up at the back, the
+ * output slot for a mouth and an invoice hanging out of it (white, red border: it only prints
+ * invoices). Tired, resentful eyes; a little LCD on its front says ERR. Jokes: a yellow post-it
+ * on its side («NO»), a red price tag for the ink («39,99») and black office shoes. `jam` (0-1)
+ * draws it jammed: shaken 1 px left or right, the invoice crumpled in its mouth, eyes squeezed
+ * shut and the light red. 34x32.
+ */
+export function makeImpresora(pose: Pose = { xb: PRINTER_LEGS[0], xf: PRINTER_LEGS[1], bob: 0 }, jam?: 0 | 1): Canvas {
+  const legs = new Canvas(34, 30);
+  const cv = new Canvas(34, 30);
+  const jx = jam === undefined ? 0 : jam === 0 ? -1 : 1;
+  poseFeet(legs, pose, 23, { L: 4, leg: PANTL, shoe: OFFICE });
+  hand(cv, 2 + jx, 16, PRINTER);
+  // Paper stack in the input tray, behind the top: three sheets, the front one with print lines.
+  cv.rect(7 + jx, 0, 13, 7, WHITE);
+  cv.rect(8 + jx, 1, 11, 1, CREAM[1]!);
+  for (const y of [3, 5]) cv.rect(9 + jx, y, 8, 1, CREAM[2]!);
+  cv.rect(6 + jx, 2, 1, 5, CREAM[2]!);
+  cube(cv, 3 + jx, 5, 27, 18, 5, 4, PRINTER, PRINTER_SIDE, PRINTER_TOP);
+  // Feed slot along the top where the tray goes in.
+  cv.rect(10 + jx, 6, 15, 1, PRINTER[3]!);
+  // Eyes on the front face: back one smaller, both with heavy lids; jammed, squeezed shut.
+  if (jam === undefined) {
+    cv.rect(13 + jx, 10, 3, 3, K);
+    cv.set(14 + jx, 11, WHITE);
+    cv.rect(13 + jx, 10, 3, 1, PRINTER[2]!);
+    cv.rect(19 + jx, 10, 4, 3, K);
+    cv.set(21 + jx, 11, WHITE);
+    cv.rect(19 + jx, 10, 4, 1, PRINTER[2]!);
+    // Brows slanting down to the middle: fed up with everyone.
+    const brows: Pt[] = [[12, 8], [13, 8], [14, 9], [15, 9], [19, 9], [20, 9], [21, 8], [22, 8], [23, 8]];
+    for (const [x, y] of brows) cv.set(x + jx, y, K);
+  } else {
+    // > <
+    const shut: Pt[] = [[13, 10], [14, 11], [15, 12], [14, 12], [22, 10], [21, 11], [20, 12], [21, 12]];
+    for (const [x, y] of shut) cv.set(x + jx, y, K);
+  }
+  // LCD on the front corner: ERR in three dark pixels, and the light beside it.
+  cv.rect(25 + jx, 9, 4, 3, LCD[1]!);
+  cv.rect(25 + jx, 9, 4, 1, LCD[0]!);
+  cv.rect(26 + jx, 10, 2, 1, LCD[3]!);
+  cv.set(27 + jx, 13, jam === undefined ? YEL[1]! : RED[1]!);
+  // Output slot: the mouth, a dark letterbox across the front.
+  cv.rect(11 + jx, 16, 17, 2, K);
+  cv.rect(12 + jx, 17, 15, 1, PRINTER_SIDE[3]!);
+  if (jam === undefined) {
+    // An invoice hanging out: white with a thick red border, a total in the corner.
+    cv.rect(15 + jx, 17, 10, 6, RED[1]!);
+    cv.rect(16 + jx, 18, 8, 4, WHITE);
+    cv.rect(17 + jx, 19, 5, 1, CREAM[2]!);
+    cv.rect(20 + jx, 21, 3, 1, RED[2]!);
+  } else {
+    // Crumpled in the rollers: a zigzag of paper with red edges sticking out at odd angles.
+    const crumple: Pt[] = [[14, 17], [15, 18], [16, 17], [17, 18], [18, 19], [19, 18], [20, 17], [21, 18], [22, 19], [23, 18], [24, 17], [25, 18]];
+    for (const [x, y] of crumple) {
+      cv.set(x + jx, y, WHITE);
+      cv.set(x + jx, y + 1, x % 3 === 0 ? RED[1]! : CREAM[1]!);
+    }
+    cv.set(18 + jx, 20, WHITE);
+    cv.set(23 + jx, 20, RED[1]!);
+  }
+  // Side: a yellow post-it saying NO, and a red price tag for the ink.
+  cv.rect(4 + jx, 11, 3, 3, YEL[1]!);
+  cv.set(4 + jx, 11, YEL[0]!);
+  cv.rect(5 + jx, 12, 1, 1, YEL[3]!);
+  cv.rect(4 + jx, 16, 3, 2, RED[1]!);
+  cv.set(5 + jx, 17, WHITE);
+  // Wear: a scuff on the top and a dent near the slot.
+  cv.set(24 + jx, 7, PRINTER[3]!);
+  cv.set(9 + jx, 19, RUSTR[1]!);
+  hand(cv, 28 + jx, 17, PRINTER);
+  return pad(outline(joinPose(legs, cv, pose)), 2);
+}
+
+export const PRINTER_LEGS = [11, 18] as const;
+
+/** The printer's frames: 0-1 humming, 2-5 shuffling, 6-7 jammed and shaking. */
+export function makeImpresoraFrames(): Canvas[] {
+  return [...poseCycle(PRINTER_LEGS[0], PRINTER_LEGS[1]).map((f) => makeImpresora(f.pose)), makeImpresora(undefined, 0), makeImpresora(undefined, 1)];
 }

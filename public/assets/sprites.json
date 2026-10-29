@@ -41,6 +41,12 @@
     "frameH": 32,
     "frames": 6
   },
+  "impresora": {
+    "file": "impresora.png",
+    "frameW": 34,
+    "frameH": 32,
+    "frames": 8
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,
@@ -159,6 +165,12 @@
     "file": "bala-tarjeta.png",
     "frameW": 10,
     "frameH": 8,
+    "frames": 4
+  },
+  "bala-factura": {
+    "file": "bala-factura.png",
+    "frameW": 10,
+    "frameH": 10,
     "frames": 4
   },
   "producto-caducado": {

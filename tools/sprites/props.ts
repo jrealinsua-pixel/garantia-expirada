@@ -557,6 +557,29 @@ export function makeLoyaltyCard(): Canvas {
 }
 
 /**
+ * The printer's invoices (enemy bullets): a white sheet with a thick red border and a total,
+ * fluttering as it flies (4 frames of 10x10: flat, turning, edge on, turning back).
+ */
+export function makeInvoice(): Canvas {
+  const W = 10;
+  const H = 10;
+  const frames: Array<readonly string[]> = [
+    ['rrrrrr', 'rwwwwr', 'rwggwr', 'rwwwwr', 'rwwkwr', 'rrrrrr'],
+    ['rrrr', 'rwwr', 'rwgr', 'rwwr', 'rwkr', 'rrrr'],
+    ['rr', 'rw', 'rw', 'rw', 'rw', 'rr'],
+    ['rrrr', 'rwwr', 'rggr', 'rwwr', 'rwwr', 'rrrr'],
+  ];
+  const cols: Record<string, RGBA> = { r: RED[1]!, w: WHITE, g: CREAM[2]!, k: RED[2]! };
+  const sheet = new Canvas(W * frames.length, H);
+  frames.forEach((rows, f) => {
+    const cv = new Canvas(W, H);
+    paintGrid(cv, Math.floor((W - rows[0]!.length) / 2), 2, rows, cols);
+    sheet.blit(outline(cv), f * W, 0);
+  });
+  return sheet;
+}
+
+/**
  * What the fridge spits in its second phase (see EXPIRED_PRODUCTS): 3 frames of 12x14.
  * A yogurt with its lid swollen and green, a milk carton with a mouldy stain and a dented can.
  */

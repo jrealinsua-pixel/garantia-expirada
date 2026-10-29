@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
+import { FLOOR_BOSS_1, ROOMS, slotEnemiesOf, templatesOf } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -239,7 +239,7 @@ export interface Dummy {
  * `roar`: a boss between two phases (it takes no damage and does nothing for BOSS_PHASE_BREAK s).
  * `dying`: a boss with no life left, coming apart for BOSS_DEATH s before it is taken out.
  */
-export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone' | 'roar' | 'dying';
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone' | 'roar' | 'dying' | 'jam';
 
 export interface Enemy {
   id: number;
@@ -275,6 +275,8 @@ export interface Enemy {
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
+  /** Turrets that jam: volleys left before the next jam. */
+  volleys?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
   bossPhase?: number;
   attack?: number;
@@ -326,6 +328,7 @@ export type SimEvent =
   /** A player bullet broke an enemy bullet that can be shot (a loyalty card). */
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
   | { type: 'revive'; item: string; x: number; y: number; hp: number }
+  | { type: 'jam'; x: number; y: number; source: number }
   | { type: 'bulletFade'; x: number; y: number }
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
@@ -550,7 +553,7 @@ export function createWorld(opts: WorldOptions): World {
   const floor = opts.floor ? planFloor(opts.seed, opts.level ?? 1) : null;
   let tpl = floor ? floor.rooms[floor.current]!.template : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
-  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
+  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(opts.level ?? 1), boss: FLOOR_BOSS_1 });
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
@@ -674,7 +677,7 @@ function planFloor(seed: string, level: number): FloorRun {
     return deck.pop()!;
   };
   const rooms = layout.rooms.map((fr): FloorRoomState => {
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1, vary: true });
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: slotEnemiesOf(level), boss: FLOOR_BOSS_1, vary: true });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets, the next ones the chests).

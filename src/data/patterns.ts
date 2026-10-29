@@ -41,6 +41,16 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.55, pattern: { kind: 'fan', count: 2, spreadDeg: 150, speed: 72, homing: { turnDeg: 75, time: 2.2 }, shootable: true, life: 4.5, color: 'card' } },
     ],
   },
+  // Impresora que se Atasca: a stream of invoices, fluttering from side to side as they fly.
+  'impresora-facturas': { kind: 'burst', count: 6, interval: 0.13, jitterDeg: 5, speed: 112, wave: { amp: 6, freq: 1.6 }, color: 'invoice' },
+  // Clearing the jam: two rings of crumpled paper, the second offset so the gaps close.
+  'impresora-atasco': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 12, speed: 95, color: 'red' } },
+      { at: 0.25, pattern: { kind: 'ring', count: 12, speed: 75, offsetDeg: 15, color: 'invoice' } },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

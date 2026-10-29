@@ -159,5 +159,7 @@ export const SFX: Record<string, SfxParams> = {
   // The shop till: the scanner beep of a sale, and its two flat notes of «no».
   escaner: { wave: 'square', freq: 1900, freqEnd: 1900, attack: 0.001, sustain: 0.07, decay: 0.04, volume: 0.12, duty: 0.4 },
   cajaError: { wave: 'square', freq: 340, freqEnd: 250, attack: 0.002, sustain: 0.16, decay: 0.12, volume: 0.13, duty: 0.5, crush: 2 },
+  // A printer jamming: paper grinding in the rollers.
+  atasco: { wave: 'noise', freq: 520, freqEnd: 260, attack: 0.01, sustain: 0.35, decay: 0.2, volume: 0.2, lowpass: 0.4, crush: 4, vibrato: 0.5, vibratoSpeed: 22 },
   espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
 };

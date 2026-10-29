@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T22:25:00+01:00",
+  "actualizado": "2026-10-29T23:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -64,7 +64,7 @@
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
       "hechas": 3,
-      "total": 5
+      "total": 4
     },
     {
       "id": "M9",
@@ -118,18 +118,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 6,
+    "enemigos": 7,
     "jefes": 1,
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 33,
-    "tests": 356,
-    "tests_ok": 356,
+    "tests": 362,
+    "tests_ok": 362,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 13407
+    "lineas_codigo": 13495
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T23:05:00+01:00",
+      "hito": "M8",
+      "resumen": "Enemigos (1): la Impresora que se Atasca, primer enemigo de Informática: te imprime facturas y cada dos o tres ráfagas se atasca (2 s para ir a por ella) y lo suelta todo de golpe.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T22:25:00+01:00",
       "hito": "M8",
@@ -529,6 +535,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/impresora.png",
+      "pie": "La Impresora que se Atasca en la planta 2: cada pocas ráfagas de facturas se queda atascada y temblando («Atasco de papel»)"
+    },
+    {
       "archivo": "capturas/copia.png",
       "pie": "La Copia de Seguridad: a medio corazón y con una bala encima, la tostadora vuelve con un corazón («Restaurando copia del martes») y la copia desaparece del HUD"
     },
@@ -547,13 +557,9 @@
     {
       "archivo": "capturas/planta2.png",
       "pie": "La planta 2, Informática: suelo técnico verde pantalla, monitores de tubo como trincheras, fuentes de agua y persianas a juego. Se ve con ?planta=2 mientras no se llegue jugando"
-    },
-    {
-      "archivo": "capturas/inventario.png",
-      "pie": "El inventario con su barra de desplazamiento: siete objetos, un activo y dos sinergias no caben a la vez"
     }
   ],
-  "proximo": "M8: los 4 enemigos de Informática (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas) y después el jefe, el Router del Wifi.",
+  "proximo": "M8: enemigos (2)–(4): el Cargador Falso, el Ratón Inalámbrico sin Pilas y un cuarto (el «router» de la lista se queda para el jefe, el Router del Wifi, que tiene cogido otra sesión).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -583,11 +589,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-10-29 20:25 UTC",
-      "tarea": "M8: enemigos (1): la Impresora que se Atasca (src/data/enemies.ts, src/sim/enemies.ts, tools/sprites/enemies.ts). Retomada: la sesión que la cogió a las 18:28 UTC no ha dejado ningún commit en 4 h",
-      "desde": "2026-10-29T21:30Z"
-    },
     {
       "sesion": "2026-10-29 21:25 UTC",
       "tarea": "M8: jefe (1): diseño del Router del Wifi en docs/DISENO.md y salas especiales propias de Informática (tesoro, tienda, secreta y sala del jefe) en src/data/rooms.ts. No toca los archivos de enemigos",

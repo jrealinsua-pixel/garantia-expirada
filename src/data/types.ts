@@ -284,6 +284,12 @@ export interface TurretBrain {
   startup?: number;
   /** If present, it walks between attacks to stay about `keep` px from the player. */
   walk?: { speed: number; keep: number };
+  /**
+   * If present, it jams: after `after` volleys (random in the range) it stands shaking for `time` s
+   * without attacking (the opening), then clears the jam by firing `pattern` with `telegraph` s of
+   * warning.
+   */
+  jam?: { after: [number, number]; time: number; pattern: string; telegraph: number };
 }
 
 /**
@@ -471,4 +477,7 @@ export interface EnemyAnim {
   off?: number;
   /** Second boss phase: the same layout from this frame on (`idle`/`walk` + `phaseShift`). */
   phaseShift?: number;
+  /** Jammed turrets: frames cycled every `jamMs` while it shakes. */
+  jam?: readonly number[];
+  jamMs?: number;
 }

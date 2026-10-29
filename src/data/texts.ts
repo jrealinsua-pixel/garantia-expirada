@@ -43,6 +43,8 @@ export const TURBO_LINE = 'Turbo';
 export const CRIT_LINE = 'Doble clic';
 /** When the backup brings the toaster back. */
 export const REVIVE_LINE = 'Restaurando copia del martes';
+/** Over a printer when it jams. */
+export const JAM_LINE = 'Atasco de papel';
 
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */
 export const DOWN_TITLE = 'Parte de baja';
@@ -62,6 +64,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   polilla: { contact: 'Ataque de polilla leal a la empresa' },
   batidora: { contact: 'Batido a velocidad turbo' },
   mando: { bullet: 'Zapeo a quemarropa', contact: 'Cambio de canal no solicitado' },
+  impresora: { bullet: 'Factura impagada', contact: 'Atasco de papel con daños personales' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };

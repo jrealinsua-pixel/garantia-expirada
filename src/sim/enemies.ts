@@ -241,7 +241,7 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
   const toY = p.y - HAND_HEIGHT - (en.y - b.muzzleY);
   const dist = Math.hypot(toX, toY);
   en.t += DT;
-  if (Math.abs(toX) > 2 && en.state !== 'fire') en.facing = toX > 0 ? 1 : -1;
+  if (Math.abs(toX) > 2 && en.state !== 'fire' && en.state !== 'jam') en.facing = toX > 0 ? 1 : -1;
   let walkX = 0;
   let walkY = 0;
   if (en.state === 'off') {
@@ -256,8 +256,24 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
     const mh = muzzleHeight(w, en, b.muzzleY);
     firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
     enter(en, 'fire', b.telegraph + patternDuration(def));
+    // A printer counts its volleys down to the next jam (the count is only drawn if it jams).
+    if (b.jam) en.volleys = (en.volleys ?? w.rng.int(b.jam.after[0], b.jam.after[1])) - 1;
   } else if (en.state === 'fire' && en.t >= en.until) {
-    enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+    if (b.jam && en.volleys !== undefined && en.volleys <= 0) {
+      // Paper jam (once the last invoice is out): it stands there shaking, harmless, until it clears it.
+      if (!w.emitters.some((e) => e.source === en.id)) {
+        en.volleys = undefined;
+        enter(en, 'jam', b.jam.time);
+        w.events.push({ type: 'jam', x: en.x, y: en.y - b.muzzleY, source: en.id });
+      }
+    } else enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+  } else if (en.state === 'jam' && en.t >= en.until && b.jam) {
+    // The jam clears with a bang: everything stuck inside comes out at once.
+    const def = PATTERNS[b.jam.pattern];
+    if (!def) throw new Error(`Unknown pattern ${b.jam.pattern}`);
+    const mh = muzzleHeight(w, en, b.muzzleY);
+    firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.jam.telegraph, source: en.id, by: en.def.id, height: mh });
+    enter(en, 'fire', b.jam.telegraph + patternDuration(def));
   }
   if (b.walk && en.state === 'idle') {
     // Keeps its distance: closer than `keep` it backs off, farther it comes closer, in between it

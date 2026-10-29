@@ -191,7 +191,11 @@ semillas distintas acaban con builds distintas.
     especiales siguen siendo las del almacén; la del jefe propia va con el Router.
 - [x] Encadenar plantas: al bajar en el montacargas tras la jefa se sigue en la planta 2, con la
   misma tostadora, sus armas y sus objetos.
-- [ ] 4 enemigos nuevos (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas…).
+- 4 enemigos nuevos, uno por tarea:
+  - [x] (1) Impresora que se Atasca (torreta que se atasca: una ventana para atacarla y un estallido al soltarse).
+  - [ ] (2) Router (ideas: deja zonas de «cobertura» que aceleran sus balas; se reinicia).
+  - [ ] (3) Cargador Falso (ideas: se hace pasar por recogible, explota o da calambre al acercarse).
+  - [ ] (4) Ratón Inalámbrico sin Pilas (ideas: se mueve a tirones, se queda quieto sin pila y luego corre).
 - [ ] Jefe: El Router del Wifi (con su sala propia en la planta 2).
 - [x] 10 objetos nuevos, en partes:
   - [x] (1) Cinco pasivos de Informática que solo salen desde la planta 2 (`level: 2`, mazo por

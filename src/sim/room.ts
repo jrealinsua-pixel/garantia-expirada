@@ -63,7 +63,7 @@ export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
 const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 'shelf', J: 'boss' };
 
 const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito' };
-const ENEMY_CHARS: Record<string, string> = { A: 'aspirador', O: 'microondas', L: 'bombilla', T: 'batidora', Z: 'mando', N: 'nevera-suprema' };
+const ENEMY_CHARS: Record<string, string> = { A: 'aspirador', O: 'microondas', L: 'bombilla', T: 'batidora', Z: 'mando', N: 'nevera-suprema', I: 'impresora' };
 
 /**
  * Builds a room from a template. `doors` are the walls with an opening: by default all four for

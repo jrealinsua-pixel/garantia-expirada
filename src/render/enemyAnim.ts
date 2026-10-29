@@ -37,6 +37,8 @@ export function enemyFrame(en: Enemy, now: number): number {
   if (!a) return 0;
   const shift = a.phaseShift !== undefined && (en.bossPhase ?? 0) >= 1 ? a.phaseShift : 0;
   if (a.off !== undefined && !bulbLit(en, now)) return a.off;
+  // Jammed: it shakes on the spot.
+  if (a.jam && en.state === 'jam') return a.jam[Math.floor(now / (a.jamMs ?? 60)) % a.jam.length]! + shift;
   if (PLANTED.has(en.state)) return a.idle[0]! + shift;
   const speed = Math.hypot(en.vx, en.vy);
   if (a.walk && a.stepPx && en.state !== 'warn' && speed >= WALK_MIN_SPEED) {

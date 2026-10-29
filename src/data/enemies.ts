@@ -171,6 +171,34 @@ export const ENEMIES: Record<string, EnemyDef> = {
       hitBlinkCooldown: 2.5,
     },
   },
+  // ---- Floor 2 (Informática) ----
+  impresora: {
+    id: 'impresora',
+    name: 'Impresora que se Atasca',
+    description: 'Imprime facturas a quien pasa por delante. Cada pocas hojas se atasca, y nadie sabe abrir la tapa de atrás.',
+    hp: 22,
+    sprite: 'impresora',
+    anchor: { x: 17, y: 32 },
+    hurt: { x: -13, y: -25, w: 26, h: 20 },
+    footRadius: 7,
+    contactPush: 140,
+    contactDamage: 1,
+    knockbackScale: 0.2,
+    loot: { coupons: [1, 3] },
+    // 0-1 humming, 2-5 a heavy shuffle, 6-7 shaking with the paper jammed.
+    anim: { idle: [0, 1], idleMs: 300, walk: [2, 3, 4, 5], stepPx: 5, jam: [6, 7], jamMs: 60 },
+    brain: {
+      kind: 'turret',
+      range: 250,
+      interval: [1.1, 1.8],
+      telegraph: 0.6,
+      pattern: 'impresora-facturas',
+      muzzleY: 14,
+      walk: { speed: 18, keep: 150 },
+      // Two or three volleys, then a jam: 2 s standing still (go for it), and it clears with a burst.
+      jam: { after: [2, 3], time: 2, pattern: 'impresora-atasco', telegraph: 0.7 },
+    },
+  },
   'nevera-suprema': {
     id: 'nevera-suprema',
     name: 'La Nevera Suprema',

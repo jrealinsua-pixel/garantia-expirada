@@ -223,6 +223,8 @@ try {
     window.__PAD__ = pad;
     navigator.getGamepads = () => [pad];
   })()`);
+  // In the middle of the empty row 3, so no box or enemy against its side can hold it back.
+  await page.evaluate(`(() => { const p = window.__GE__.scene.world.player; p.x = 240; p.y = 3 * 24 + 12; p.vx = 0; p.vy = 0; })()`);
   const sp0 = await state();
   await page.evaluate(`(() => { const p = window.__PAD__; p.axes[0] = -1; p.axes[2] = -1; p.buttons[7].pressed = true; })()`);
   await page.waitForTimeout(700);
@@ -366,6 +368,17 @@ try {
   await shot('35d-copia.png');
   if (await page.evaluate<boolean>('window.__GE__.state().over')) throw new Error('La Copia de Seguridad no ha evitado la baja');
   console.log('Planta 2: sus objetos pasivos, en el tesoro y en el inventario; el doble clic del ratón y la copia de seguridad.');
+
+  // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
+  await page.goto(`${url}?semilla=e2e-impresora-6&sala=taller-expres&planta=2`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.color === 'invoice')", undefined, { timeout: 12000 });
+  await page.waitForTimeout(250);
+  await shot('35e-impresora.png');
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.state === 'jam' && e.t > 0.15)", undefined, { timeout: 25000 });
+  await shot('35f-impresora-atasco.png');
+  console.log('Impresora: facturas al vuelo y un atasco de papel.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

@@ -88,6 +88,15 @@ escena al empezar la partida y su propio final (hito M13).
 | Batidora de Mano | Hecha | Persigue y hace daño cuerpo a cuerpo: de cerca se para, gira las varillas y se lanza. Cinco velocidades: la uno y el turbo; con poca vida el selector por fin se mueve y entra en TURBO (todo más deprisa). Varillas con masa de una tarta de hace años y el cable atado en un nudo. |
 | Mando a Distancia | Hecho | Enemigo débil (4 de vida) que viene en grupo de tres. Nunca está donde lo buscas: se pasea alrededor de ti, avisa y suelta una ráfaga corta de «infrarrojos» (rojos, para que se vean) y se apaga como una tele vieja (se aplasta en una raya blanca y luego en un punto); mientras no está, el suelo donde va a volver chisporrotea de estática. Reaparece lejos de donde apuntas. Si le das, también se esfuma (como mucho una vez cada 2,5 s). Sin tapa de las pilas (las sujeta un trozo de celo), sin el botón del uno, con un ganchito pegado en la cabeza y en zapatillas de casa: vive en el sofá. |
 
+### Enemigos de la segunda planta (Informática)
+
+Salen solo desde la planta 2 (letra en la plantilla y en `SLOT_ENEMIES_2` de `src/data/rooms.ts`),
+mezclados con los de la planta 1.
+
+| Enemigo | Estado | Comportamiento |
+| --- | --- | --- |
+| Impresora que se Atasca | Hecha | Torreta que se pasea despacio guardando las distancias y te imprime ráfagas de seis facturas (hojas blancas con borde rojo) que vuelan haciendo eses. Cada dos o tres ráfagas se atasca: 2 s quieta, temblando, sin disparar («Atasco de papel»): es el momento de ir a por ella. Al desatascarse avisa y lo suelta todo en dos anillos (bolas de papel rojas y facturas). Beis amarillento, un montón de folios detrás, la ranura de salida como boca con la factura colgando, un pósit que dice NO, la etiqueta del precio de la tinta y zapatos de oficina. |
+
 ### Jefes
 
 | Jefe | Estado | Idea |

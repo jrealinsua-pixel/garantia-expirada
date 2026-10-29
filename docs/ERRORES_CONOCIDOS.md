@@ -57,6 +57,9 @@ Ninguna conocida.
 
 ## Arreglados
 
+- 2026-10-29 · **e2e intermitente** («El mando no mueve a la tostadora»): la prueba del mando
+  empujaba a la izquierda desde donde hubiera acabado la tostadora, a veces contra una caja. Ahora
+  la pone antes en medio de la fila vacía de la sala de pruebas.
 - 2026-10-29 · **Portada**: el fondo es ahora la Cola de Atención al Cliente (20 casillas, tan
   ancha como la pantalla: sin bordes oscuros), y créditos, opciones, controles e historial se
   ponen a la derecha, sin tapar a la tostadora.

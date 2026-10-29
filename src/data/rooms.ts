@@ -763,6 +763,14 @@ export const SLOT_ENEMIES_1: readonly SlotEnemy[] = [
   { ch: 'L', cost: 5, weight: 2, max: 1 },
 ];
 
+/** Floor 2 (Informática): floor 1's and its own (I: the printer). */
+export const SLOT_ENEMIES_2: readonly SlotEnemy[] = [...SLOT_ENEMIES_1, { ch: 'I', cost: 3, weight: 4, max: 2 }];
+
+/** What can fill an `e` slot on floor `level`. */
+export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
+  return level === 2 ? SLOT_ENEMIES_2 : SLOT_ENEMIES_1;
+}
+
 /** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses floor 1's. */
 export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1): RoomTemplate[] {
   const own = (level === 2 ? FLOOR_2 : FLOOR_1).filter((t) => t.kind === kind);

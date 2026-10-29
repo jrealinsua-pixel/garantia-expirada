@@ -5,9 +5,10 @@ import type { Rng } from './rng.ts';
 
 /**
  * `ice` are the boss's ice cubes: cyan too, but square, so they read as cubes. `card` are its
- * loyalty cards: red, with a white band, spinning.
+ * loyalty cards: red, with a white band, spinning. `invoice` are the printer's invoices: white
+ * sheets with a thick red border, fluttering.
  */
-export type BulletColor = 'red' | 'cyan' | 'ice' | 'card';
+export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice';
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {

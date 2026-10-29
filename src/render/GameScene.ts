@@ -11,7 +11,7 @@ import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
-import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, REVIVE_LINE, TURBO_LINE } from '../data/texts.ts';
+import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, JAM_LINE, REVIVE_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells, isWallAt } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
@@ -1472,6 +1472,12 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('empujon');
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y, Math.atan2(e.dirY, e.dirX) + this.fx.range(-1, 1), this.fx.range(40, 90), this.fx.int(0, 2));
           break;
+        case 'jam':
+          // A printer jams: grinding, a couple of scraps of paper and its line over it.
+          this.sound2.play('atasco', { detune: this.fx.range(-150, 150) });
+          for (let i = 0; i < 4; i++) this.spark(e.x + this.fx.range(-5, 5), e.y, this.fx.range(-Math.PI, 0), this.fx.range(20, 50), 0);
+          this.floatText(e.x, e.y - 14, fontText(JAM_LINE), 0xf4f1e8, `jam:${e.source}`, -16, 1);
+          break;
         case 'switchOn':
           this.sound2.play('encender');
           for (let i = 0; i < 5; i++) this.spark(e.x + this.fx.range(-6, 6), e.y + this.fx.range(-6, 4), this.fx.range(0, Math.PI * 2), this.fx.range(20, 60), 0);
@@ -2370,6 +2376,8 @@ export class GameScene extends Phaser.Scene {
       }
       // Loyalty cards spin as they fly.
       if (b.color === 'card' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 70 + b.id) % 4);
+      // Invoices flutter, slower than the cards spin.
+      if (b.color === 'invoice' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 110 + b.id) % 4);
       const sc = (b.life < 0.15 ? 0.6 : 1) * size;
       s.setScale(sc);
     }
@@ -2929,7 +2937,7 @@ export class GameScene extends Phaser.Scene {
 /** Enemy bullet sprites by colour: the boss's ice is a cube. */
 /** Radius the player's bullet sprite is drawn for (the hair dryer's). */
 const PLAYER_BULLET_R = 3;
-const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta' };
+const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura' };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
 const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number; frameDy?: Record<number, number> }> = {
