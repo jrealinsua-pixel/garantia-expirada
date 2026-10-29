@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T09:05:00+01:00",
+  "actualizado": "2026-10-29T09:30:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -130,6 +130,12 @@
     "lineas_codigo": 8883
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T09:30:00+01:00",
+      "hito": "Nota",
+      "resumen": "Estimación de tiempo por hito, como pediste: quedan unas 143 sesiones de trabajo (unas 185 con margen). La primera versión jugable llegaría en unas 12; el juego completo, en 6–8 días si hay una sesión por hora sin parones, o en 2–3 semanas si van más espaciadas. Está en la hoja de ruta y aquí, junto a cada hito.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T09:05:00+01:00",
       "hito": "M5",
@@ -331,6 +337,33 @@
       "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
     }
   ],
-  "proximo": "M5 · Al menos 4 sinergias con texto propio (Pila + Secador = «Sobrecarga»…); luego cofres y tienda, y la ventana de descripción.",
-  "bloqueos": []
+  "proximo": "M5: al menos 4 sinergias con texto propio.",
+  "bloqueos": [],
+  "estimacion": {
+    "fecha": "2026-10-29",
+    "unidad": "sesiones",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito.",
+    "hitos": {
+      "M5": 4,
+      "M6": 8,
+      "M7": 10,
+      "M8": 12,
+      "M9": 10,
+      "M10": 24,
+      "M11": 13,
+      "M12": 12,
+      "M13": 14,
+      "M14": 30,
+      "M15": 6
+    },
+    "primera_version": {
+      "hasta": "M6",
+      "sesiones": 12
+    },
+    "total": {
+      "sesiones": 143,
+      "con_margen": 185
+    },
+    "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
+  }
 }

@@ -2,6 +2,14 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-29 09:30 — Nota del humano — Estimación de tiempo por hito
+
+- Hecho: atendida la nota que pedía un aproximado de lo que tardará cada fase. Tabla nueva al principio de `docs/HOJA_DE_RUTA.md` («Estimación de tiempo») con sesiones por hito y su porqué; la misma cifra en `progress.json → estimacion`, y el panel la enseña: una línea encima de los hitos (sesiones que quedan, sumadas solo de los hitos sin terminar, y el calendario) y «≈ N ses.» bajo cada hito pendiente. Comprobado con capturas del panel a 1100 y 390 px de ancho.
+- Decisiones: estimo en sesiones y no en fechas, porque el ritmo real depende de los créditos; doy el calendario en dos escenarios (una sesión por hora sin parones → 6–8 días; unas 10 al día → 2–3 semanas). Base: 47 tareas en ~33 sesiones hasta hoy, pero las que quedan son más grandes, así que cuento por tarea (un jefe ≈ 5 sesiones, como la Nevera; una planta ≈ 12). Total 143 sesiones, ~185 con un 30 % de margen. `npm run stats` reescribe `hitos` pero respeta `estimacion`, por eso va en su propia clave.
+- Medidas: check, 251 tests, build y bot en verde (sin cambios de juego).
+- Problemas conocidos: la estimación es a mano; si un hito se desvía mucho, hay que corregirla en los dos sitios.
+- Siguiente paso: M5, «Al menos 4 sinergias con texto propio».
+
 ## 2026-10-29 09:15 — Nota del humano — Hoja de ruta hasta el final
 
 - Hecho: atendida la nota del 2026-10-29. La hoja de ruta acaba ahora así: M10 plantas 3 y 4 (Juguetería y Oficinas) con criterios de aceptación, **M11 planta 5: Atención al Cliente** (nueva; jefe propuesto: La Centralita), **M12 el Servicio Técnico, piso final secreto** con requisitos de desbloqueo guardados entre partidas y el final verdadero, **M13 cinco personajes jugables** con estadísticas, arma, habilidad, historia y final propios, M14 más contenido (objetivo: 30 armas, 80 objetos, 30 enemigos, 8 jefes) y **M15 versión de escritorio, lo último**. `docs/DISENO.md`: 5 plantas más el piso final y un quinto personaje por diseñar, el Móvil Reacondicionado. `CLAUDE.md`: la línea de escritorio decía «hito M12»; ahora dice «lo último de todo, hito M15» (una regla que había quedado mal).

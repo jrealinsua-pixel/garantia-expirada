@@ -6,6 +6,34 @@ ampliar. Cuando se acabe la lista, Claude escribe hitos nuevos al final.
 
 Estados: `- [ ]` pendiente · `- [x]` hecha.
 
+## Estimación de tiempo (revisada el 2026-10-29)
+
+Cuento en **sesiones de trabajo** (cada una cierra una tarea, a veces dos). Ritmo medido: entre
+el 28 y el 29 de octubre se cerraron 47 tareas (M0–M4 y medio M5) en unas 33 sesiones. Las
+tareas que quedan son más gordas (una planta entera, un personaje con historia), así que estimo
+por tarea y no por hito. La misma tabla está en `progress.json → estimacion` y el panel la
+muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí.
+
+| Hito | Sesiones | Por qué |
+| --- | ---: | --- |
+| M5 · Armas, objetos y sinergias (lo que queda) | 4 | Sinergias, ventana de descripción; la tienda y los cofres son dos tareas |
+| M6 · Partida completa | 8 | Menús, pantallas, guardado y dos pistas de música |
+| M7 · Pulido | 10 | Equilibrio y animaciones de todos los enemigos llevan varias vueltas |
+| M8 · Planta 2: Informática | 12 | Casillas 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
+| M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
+| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 |
+| M11 · Planta 5 | 13 | Una planta más dos armas |
+| M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
+| M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
+| M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
+| M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
+| **Total** | **143** | **~185 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+
+En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
+medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
+(M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3
+semanas. Es una estimación, no una promesa: el pulido de cada planta puede pedir más vueltas.
+
 ---
 
 ## M0 · Cimientos (hecho)

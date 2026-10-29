@@ -73,7 +73,7 @@ h2 { margin: 0 0 14px; font: 700 26px/1.1 var(--display); }
 .blocks { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .blocks li { background: #2a1418; border: 1px solid #5e1d24; color: #ffd6cf; padding: 10px 12px; border-radius: 4px; }
 .miles { display: flex; flex-direction: column; gap: 10px; }
-.mile { display: grid; grid-template-columns: 52px minmax(0, 1fr) 70px; gap: 12px; align-items: center; }
+.mile { display: grid; grid-template-columns: 52px minmax(0, 1fr) 84px; gap: 12px; align-items: center; }
 .mile .id { font: 500 13px/1 var(--mono); color: var(--muted); }
 .mile .name { font-size: 15px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .bar { height: 10px; background: #252b3e; border-radius: 2px; overflow: hidden; }
@@ -83,6 +83,9 @@ h2 { margin: 0 0 14px; font: 700 26px/1.1 var(--display); }
 .mile.en_curso .id { color: var(--hot); }
 .mile.hecho .id { color: var(--ok); }
 .mile .num { font: 400 13px/1 var(--mono); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.mile .num small { display: block; white-space: nowrap; margin-top: 4px; font-size: 11px; opacity: 0.8; }
+.estim { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
+.estim b { color: inherit; }
 .pill { display: inline-block; font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 6px; border-radius: 3px; margin-left: 8px; vertical-align: 2px; }
 .pill.en_curso { background: #3a2410; color: var(--hot); }
 .pill.hecho { background: #173019; color: #8fd88f; }
@@ -147,7 +150,7 @@ footer { color: var(--muted); font-size: 13px; }
 
   <section>
     <h2>Hitos</h2>
-    <div class="box"><div class="miles" id="miles"></div></div>
+    <div class="box"><p class="estim" id="estim" hidden></p><div class="miles" id="miles"></div></div>
   </section>
 
   <section>
@@ -227,6 +230,20 @@ footer { color: var(--muted); font-size: 13px; }
       pb === 0 ? 'Bot sin partidas' : pb + ' partidas de bot · ' + fb + ' fallos'));
     if (m.lineas_codigo) health.appendChild(el('span', { class: 'chip' }, m.lineas_codigo.toLocaleString('es-ES') + ' líneas de código'));
 
+    var est = p.estimacion || null;
+    var estEl = document.getElementById('estim');
+    estEl.textContent = '';
+    if (est && est.total) {
+      var restantes = 0;
+      (p.hitos || []).forEach(function (h) { if (h.estado !== 'hecho' && est.hitos && est.hitos[h.id]) restantes += est.hitos[h.id]; });
+      var ef = new Date(est.fecha + 'T12:00:00');
+      estEl.appendChild(el('b', null, 'Estimación del ' + (isNaN(ef) ? est.fecha : ef.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })) + ': '));
+      estEl.appendChild(document.createTextNode(
+        'quedan unas ' + restantes + '–' + Math.round(restantes * 1.3) + ' sesiones de trabajo (≈ ses. en cada hito). ' +
+        (est.calendario || '')));
+      estEl.hidden = false;
+    }
+
     var miles = document.getElementById('miles');
     miles.textContent = '';
     (p.hitos || []).forEach(function (h) {
@@ -243,7 +260,9 @@ footer { color: var(--muted); font-size: 13px; }
       bar.appendChild(fill);
       name.appendChild(bar);
       row.appendChild(name);
-      row.appendChild(el('span', { class: 'num' }, (h.hechas || 0) + ' / ' + (h.total || 0)));
+      var num = el('span', { class: 'num' }, (h.hechas || 0) + ' / ' + (h.total || 0));
+      if (h.estado !== 'hecho' && est && est.hitos && est.hitos[h.id]) num.appendChild(el('small', { title: 'Sesiones de trabajo estimadas' }, '≈ ' + est.hitos[h.id] + ' ses.'));
+      row.appendChild(num);
       miles.appendChild(row);
     });
 
