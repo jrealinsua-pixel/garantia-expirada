@@ -59,6 +59,18 @@
     "frameH": 76,
     "frames": 12
   },
+  "router-wifi": {
+    "file": "router-wifi.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 12
+  },
+  "repetidor": {
+    "file": "repetidor.png",
+    "frameW": 20,
+    "frameH": 24,
+    "frames": 3
+  },
   "maniqui": {
     "file": "maniqui.png",
     "frameW": 32,

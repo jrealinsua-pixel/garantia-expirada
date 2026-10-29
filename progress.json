@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T22:50:00+01:00",
+  "actualizado": "2026-10-29T22:52:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -130,6 +130,12 @@
     "lineas_codigo": 13704
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T22:52:00+01:00",
+      "hito": "M8",
+      "resumen": "Jefe (2a): sprites del Router del Wifi (despierto, andando y reiniciándose con los LEDs encendiéndose uno a uno) y de su repetidor.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T22:45:00+01:00",
       "hito": "M8",
@@ -547,6 +553,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/router.png",
+      "pie": "El Router del Wifi, jefe de la planta 2 (aún no pelea), al lado de la tostadora, su repetidor, la Impresora y el Cargador Falso"
+    },
+    {
       "archivo": "capturas/cargador.png",
       "pie": "El Cargador Falso: dos cargadores tirados por el taller, hasta que te acercas"
     },
@@ -567,7 +577,7 @@
       "pie": "Plantas encadenadas: tras ganar la planta 1, «R» lleva a la planta 2 con la misma tostadora (aquí, con sus 37 cupones), al Rellano de Informática"
     }
   ],
-  "proximo": "M8: enemigos (3): el Ratón Inalámbrico sin Pilas; luego el cuarto enemigo y el jefe (2): el Router del Wifi, que ya tiene diseño en docs/DISENO.md y sala propia (jefe-informatica).",
+  "proximo": "M8: enemigos (3) y (4) de Informática y el jefe (2b): el Router del Wifi en la simulación (diseño en docs/DISENO.md, sala jefe-informatica y sprites router-wifi y repetidor ya hechos).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -601,11 +611,6 @@
       "sesion": "2026-10-29 20:25 UTC",
       "tarea": "M8: enemigos (3): el Ratón Inalámbrico sin Pilas (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts, src/sim/world.ts avisos, tools/sprites/enemies.ts, SLOT_ENEMIES_2)",
       "desde": "2026-10-29T21:45Z"
-    },
-    {
-      "sesion": "2026-10-29 21:25 UTC",
-      "tarea": "M8: jefe (2a): sprites del Router del Wifi y de su repetidor (tools/sprites/router.ts nuevo, dos líneas en tools/sprites/build.ts, public/assets/router-wifi.png y repetidor.png). No toca la lógica ni los archivos de enemigos",
-      "desde": "2026-10-29T21:50Z"
     }
   ]
 }

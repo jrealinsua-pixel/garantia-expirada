@@ -201,7 +201,7 @@ semillas distintas acaban con builds distintas.
   - [x] (1) Su diseño en `docs/DISENO.md` y las salas especiales propias de Informática: tesoro,
     tienda, secreta y la sala del jefe (Sala de Redes). Hasta que llegue el Router, la Nevera
     pelea en ella.
-  - [ ] (2a) Sprites del Router (reposo, andar y el reinicio con las luces encendiéndose una a una)
+  - [x] (2a) Sprites del Router (reposo, andar y el reinicio con las luces encendiéndose una a una)
     y de su repetidor.
   - [ ] (2b) El Router en la simulación: fases, repetidores y reinicio, en la planta 2 en lugar de
     la Nevera, con su cartel y sus sonidos.
