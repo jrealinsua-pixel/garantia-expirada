@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T02:20:00+01:00",
+  "actualizado": "2026-10-29T03:30:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M3",
   "hitos": [
@@ -28,7 +28,7 @@
       "id": "M3",
       "nombre": "Salas y planta",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 6
     },
     {
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 146,
-    "tests_ok": 146,
+    "tests": 153,
+    "tests_ok": 153,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 5445
+    "lineas_codigo": 5840
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T03:30:00+01:00",
+      "hito": "M3",
+      "resumen": "Ya se juega una planta entera: cruzar una puerta abierta lleva a la sala vecina con un fundido, las salas limpias se quedan limpias y el bot recorre la planta completa sin atascarse (100 % sin daño). Arreglado que las balas chocaran con la pared del fondo a la altura del cuerpo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T02:20:00+01:00",
       "hito": "M3",
@@ -214,16 +220,20 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/planta-vecina.png",
+      "pie": "Recién llegada a la sala vecina por la puerta oeste: las persianas bajan detrás y el primer enemigo ya espera"
+    },
+    {
+      "archivo": "capturas/planta-entrada.png",
+      "pie": "Muelle de Entrada de Devoluciones, la primera sala de cada planta: cuatro puertas abiertas a otras salas"
+    },
+    {
       "archivo": "capturas/sala-garantias.png",
-      "pie": "Cámara de Garantías Vencidas, una de las 19 plantillas nuevas: estanterías sueltas, enemigos repartidos por sus huecos"
+      "pie": "Cámara de Garantías Vencidas, una de las 19 plantillas: estanterías sueltas, enemigos repartidos por sus huecos"
     },
     {
       "archivo": "capturas/persianas.png",
       "pie": "Sala vaciada: las persianas suben con el piloto en verde y la tienda agradece su paciencia"
-    },
-    {
-      "archivo": "capturas/sala-archivo.png",
-      "pie": "Archivo de Tickets Sin Sello: pasillos de estanterías llenas de devoluciones"
     },
     {
       "archivo": "capturas/desmontaje.png",
@@ -232,12 +242,8 @@
     {
       "archivo": "capturas/baja.png",
       "pie": "Parte de baja: causa, vida útil, recomendación del fabricante y el sello rojo"
-    },
-    {
-      "archivo": "capturas/sala-devoluciones.png",
-      "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M3: transición entre salas (cruzar una puerta abierta lleva a la sala vecina de la planta generada), con el bot buscando camino entre estanterías; después minimapa y casillas de la planta 1.",
+  "proximo": "M3: minimapa (salas visitadas, vecinas vistas, iconos de tienda, tesoro y jefe); después las casillas de la planta 1 con variaciones y decoración.",
   "bloqueos": []
 }

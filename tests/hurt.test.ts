@@ -28,6 +28,7 @@ function incoming(w: World, dist: number, dy = 0): void {
     age: 0,
     dir: 0,
     speed: 120,
+    h: 0,
   });
 }
 

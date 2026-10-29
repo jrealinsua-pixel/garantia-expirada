@@ -2,7 +2,8 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
+import { BOSS_AWAY_LINE, DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
+import { doorCells } from '../sim/room.ts';
 import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
@@ -87,6 +88,9 @@ export interface GameStateForTests {
 
 /** Pixels of a rolled-up shutter still showing under the lintel (with its pilot light). */
 const SHUTTER_ROLLED = 9;
+/** Milliseconds of the fade between rooms. */
+const ROOM_FADE_OUT = 110;
+const ROOM_FADE_IN = 170;
 
 export class GameScene extends Phaser.Scene {
   world!: World;
@@ -145,6 +149,10 @@ export class GameScene extends Phaser.Scene {
   private hintT = 9;
   private camX = 0;
   private camY = 0;
+  /** The world to keep playing in after a restart (walking into another room), or null for a new run. */
+  private carry: World | null = null;
+  /** Fading out towards the next room. */
+  private leaving = false;
 
   constructor() {
     super('game');
@@ -180,9 +188,21 @@ export class GameScene extends Phaser.Scene {
     this.hearts = [];
     this.ammoPips = [];
     const params = new URLSearchParams(location.search);
-    const seed = params.get('semilla') ?? 'sala-pruebas';
-    // ?sala=<id>&profundidad=<n>: any room template, its slots filled for that depth (to look at them).
-    this.world = createWorld({ seed, room: params.get('sala') ?? undefined, depth: Number(params.get('profundidad') ?? 3) });
+    const carried = this.carry;
+    this.carry = null;
+    if (carried) {
+      // Walked through a door: same run, next room. The controls hint was read already.
+      this.world = carried;
+      this.hintT = 0;
+    } else if (params.get('sala')) {
+      // ?sala=<id>&profundidad=<n>: one room template, its slots filled for that depth (the test
+      // room is ?sala=sala-pruebas).
+      this.world = createWorld({ seed: params.get('semilla') ?? params.get('sala')!, room: params.get('sala')!, depth: Number(params.get('profundidad') ?? 3) });
+    } else {
+      // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true });
+    }
+    const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);
     const unlock = (): void => this.sound2.unlock();
     this.input.on('pointerdown', unlock);
@@ -193,7 +213,10 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', () => this.newUnit());
 
     const room = this.world.room;
-    const art = paintRoom(room, seed);
+    // Open doors are floor in the simulation; the painter wants the wall around the opening.
+    const tiles = room.tiles.slice();
+    for (const d of room.doors) for (const c of doorCells(room.cols, room.rows, d.dir)) tiles[c.r * room.cols + c.c] = 1;
+    const art = paintRoom({ ...room, tiles }, seed);
     addCanvasTexture(this, 'sala', art.canvas);
     this.add.image(0, 0, 'sala').setOrigin(0, 0).setDepth(-100000);
     this.makeShutters(art.doors);
@@ -235,10 +258,15 @@ export class GameScene extends Phaser.Scene {
     this.hint = this.hud(
       this.add.bitmapText(8, VIEW_H - 16, FONT, fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar' + (room.kind === 'test' ? ' · 1-5 balas enemigas' : '')), 8),
     );
-    this.hint.setTint(0xd6cdb2);
+    this.hint.setTint(0xd6cdb2).setAlpha(this.hintT > 0 ? 1 : 0);
     const title = this.hud(this.add.bitmapText(VIEW_W / 2, 30, FONT, fontText(room.name), 8).setOrigin(0.5, 0));
     title.setTint(0xf6c431);
     this.tweens.add({ targets: title, alpha: 0, delay: 2500, duration: 800 });
+    if (room.kind === 'boss') {
+      // Nobody home yet: La Nevera Suprema arrives with M4.
+      this.banner.setText(fontText(BOSS_AWAY_LINE)).setAlpha(1);
+      this.tweens.add({ targets: this.banner, alpha: 0, delay: 4000, duration: 800 });
+    }
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
@@ -249,6 +277,8 @@ export class GameScene extends Phaser.Scene {
     this.camX = this.world.player.x - VIEW_W / 2;
     this.camY = this.world.player.y - VIEW_H / 2;
     cam.setScroll(Math.round(this.camX), Math.round(this.camY));
+    this.leaving = false;
+    if (carried) cam.fadeIn(ROOM_FADE_IN, 14, 12, 22);
 
     this.syncView(0);
     (window as unknown as { __GE__: { state: () => GameStateForTests; scene: GameScene } }).__GE__ = {
@@ -517,6 +547,18 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < 12; i++) this.spark(p.x + 2 * f, p.y - 26, this.fx.range(-Math.PI, 0), this.fx.range(60, 150), this.fx.int(0, 3));
   }
 
+  /** Walked through a door: a quick fade to black, then the scene rebuilds itself around the next room. */
+  private leaveRoom(): void {
+    this.leaving = true;
+    this.acc = 0;
+    this.sound2.play('puerta');
+    this.cameras.main.fadeOut(ROOM_FADE_OUT, 14, 12, 22);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.carry = this.world;
+      this.scene.restart();
+    });
+  }
+
   private canAskNewUnit(): boolean {
     return this.world.over && this.downPanel.length > 0 && this.downT > DOWN_REPORT + 0.5;
   }
@@ -558,6 +600,9 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, deltaMs: number): void {
     const dt = Math.min(deltaMs, 100) / 1000;
+    // Fading out to the next room: the picture freezes (the world is already in the next room)
+    // and the simulation waits for the new scene.
+    if (this.leaving) return;
     if (this.hitstop > 0) {
       this.hitstop -= dt;
     } else {
@@ -568,6 +613,10 @@ export class GameScene extends Phaser.Scene {
         const input = this.controls.read({ bodyX: p.x, bodyY: p.y - BODY_HEIGHT });
         step(this.world, input);
         this.handleEvents(this.world.events);
+        if (this.world.events.some((e) => e.type === 'room')) {
+          this.leaveRoom();
+          break;
+        }
         this.acc -= DT;
         steps++;
         if (this.hitstop > 0) {
@@ -577,7 +626,7 @@ export class GameScene extends Phaser.Scene {
       }
       if (steps === 5) this.acc = 0;
     }
-    this.syncView(dt);
+    if (!this.leaving) this.syncView(dt);
   }
 
   private handleEvents(events: SimEvent[]): void {

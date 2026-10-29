@@ -63,7 +63,7 @@ try {
   page.on('console', (m) => {
     if (m.type?.() === 'error') errors.push(m.text?.() ?? '');
   });
-  await page.goto(url + '?semilla=e2e');
+  await page.goto(url + '?semilla=e2e&sala=sala-pruebas');
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
   // The scripted play is not about surviving: nothing hurts the toaster until the damage test at the end.
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
@@ -282,6 +282,53 @@ try {
   await page.waitForTimeout(900);
   await shot('15b-persianas-abiertas.png');
   if (await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut')) throw new Error('Las persianas no se abren al vaciar la sala');
+
+  // A whole floor (the default page): walk out of the entrance through a door and into the next room.
+  await page.goto(`${url}?semilla=e2e-planta`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const where = (): Promise<{ room: number; kind: string; shut: boolean; enemies: number }> =>
+    page.evaluate(`(() => { const w = window.__GE__.scene.world; return { room: w.floor.current, kind: w.room.kind, shut: w.doorsShut, enemies: w.enemies.length }; })()`);
+  const start = await where();
+  if (start.kind !== 'start' || start.shut) throw new Error(`La planta no empieza en una entrada abierta: ${JSON.stringify(start)}`);
+  await page.waitForTimeout(600);
+  await shot('16a-planta-entrada.png');
+  // Stand a few steps from a door and walk into it (east or west if there is one: it is a longer walk on screen).
+  const door = await page.evaluate<{ dir: string }>(`(() => {
+    const w = window.__GE__.scene.world; const ds = w.room.doors;
+    const d = ds.find((x) => x.dir === 'E') || ds.find((x) => x.dir === 'W') || ds[0];
+    const p = w.player;
+    p.x = d.dir === 'E' ? d.x - 30 : d.dir === 'W' ? d.x + d.w + 30 : d.x + d.w / 2;
+    p.y = d.dir === 'N' ? d.y + d.h + 30 : d.dir === 'S' ? d.y - 30 : d.y + d.h / 2 + 4;
+    return { dir: d.dir };
+  })()`);
+  const key = { N: 'w', S: 's', E: 'd', W: 'a' }[door.dir] ?? 'd';
+  await page.keyboard.down(key);
+  await page.waitForFunction(`window.__GE__.scene.world.floor.current !== ${start.room}`, undefined, { timeout: 4000 });
+  await page.waitForTimeout(60);
+  await shot('16b-planta-fundido.png');
+  await page.keyboard.up(key);
+  await page.waitForTimeout(700);
+  await shot('16c-planta-sala-vecina.png');
+  const next = await where();
+  console.log(`Planta: de la sala ${start.room} (entrada) a la ${next.room} (${next.kind}, ${next.enemies} enemigos) por la puerta ${door.dir}`);
+  if (next.kind === 'combat' && (!next.shut || next.enemies === 0)) throw new Error('Al entrar en una sala de combate no se cierran las persianas');
+  if ((await state()).fps < 30) throw new Error(`Va lento en la planta: ${(await state()).fps} fps`);
+  // Clear it and walk back the way we came.
+  await page.evaluate('window.__GE__.scene.world.enemies.forEach((e) => { e.damageTaken = e.def.hp; })');
+  await page.waitForTimeout(1200);
+  const back = { N: 'S', S: 'N', E: 'W', W: 'E' }[door.dir]!;
+  await page.evaluate(`(() => {
+    const w = window.__GE__.scene.world; const d = w.room.doors.find((x) => x.dir === '${back}'); const p = w.player;
+    p.x = d.dir === 'E' ? d.x - 20 : d.dir === 'W' ? d.x + d.w + 20 : d.x + d.w / 2;
+    p.y = d.dir === 'N' ? d.y + d.h + 20 : d.dir === 'S' ? d.y - 20 : d.y + d.h / 2 + 4;
+  })()`);
+  const bkey = { N: 'w', S: 's', E: 'd', W: 'a' }[back] ?? 'a';
+  await page.keyboard.down(bkey);
+  await page.waitForFunction(`window.__GE__.scene.world.floor.current === ${start.room}`, undefined, { timeout: 4000 });
+  await page.keyboard.up(bkey);
+  await page.waitForTimeout(500);
+  await shot('16d-planta-vuelta.png');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

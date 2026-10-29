@@ -19,6 +19,8 @@ function arena(ex: number, px: number, seed = 'mando'): { w: World; en: Enemy } 
   w.player.x = px;
   w.player.y = ROW3;
   w.noDamage = true;
+  // Nothing in the way: its burst must not splat on a barrel it happened to stand behind.
+  w.room.props = [];
   return { w, en };
 }
 

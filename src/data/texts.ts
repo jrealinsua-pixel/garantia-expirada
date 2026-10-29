@@ -14,6 +14,9 @@ export const DEATH_STAMPS: readonly string[] = [
   'Reacondicionable',
 ];
 
+/** In the boss room while its boss has not been made yet. */
+export const BOSS_AWAY_LINE = 'La Dirección está reunida · Vuelva usted mañana';
+
 /** Shown when the test room brings its enemies back. */
 export const RESTOCK_LINE = 'Reposición de stock';
 

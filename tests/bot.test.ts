@@ -24,6 +24,7 @@ function withBullet(dist: number, age = 1): World {
     age,
     dir: 0,
     speed: 130,
+    h: 0,
   });
   return w;
 }

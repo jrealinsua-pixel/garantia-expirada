@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { ROOMS, SLOT_ENEMIES_1 } from '../data/rooms.ts';
+import { ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { CharacterDef, DummyDef, EnemyDef, RoomTemplate, WeaponDef } from '../data/types.ts';
@@ -8,8 +8,8 @@ import { updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
-import type { Dir } from './floor.ts';
-import { buildRoom, fillTemplate, isWallAt, wallRectsNear, type Room } from './room.ts';
+import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
+import { buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type Room, type RoomDoor } from './room.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
 export const DT = 1 / 60;
@@ -114,6 +114,12 @@ export interface Bullet {
   accel?: number;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
+  /**
+   * Height above the floor it flies at (px). Walls and props stop it where its shadow, h px
+   * below, meets them: in the three-quarter view a bullet flying along the back wall is drawn
+   * over the wall's face without touching it.
+   */
+  h: number;
 }
 
 /**
@@ -133,6 +139,8 @@ export interface Emitter {
   source?: number;
   /** Kind of whoever fires it (an enemy id or 'maniqui'), copied to its bullets. */
   by?: string;
+  /** Height of the muzzle above the floor, copied to its bullets (Bullet.h). */
+  height: number;
   /** Direction towards the target when fired, and whether the pattern follows it. */
   aim: number;
   aimed: boolean;
@@ -147,6 +155,8 @@ export interface FireOptions {
   telegraph?: number;
   source?: number;
   by?: string;
+  /** Height of the muzzle above the floor (px, default 0). */
+  height?: number;
 }
 
 export interface Dummy {
@@ -226,6 +236,8 @@ export type SimEvent =
   | { type: 'restock' }
   /** The shutters of the room come down (shut) or roll up. */
   | { type: 'doors'; shut: boolean }
+  /** The player walked through a door into floor room `id` (coming in through its `via` wall). */
+  | { type: 'room'; id: number; via: Dir }
   /** The player lost `damage` life (now `hp`); `dirX, dirY` is where the blow came from towards it. */
   | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number }
   /** The player has no life left: the run is over. */
@@ -262,6 +274,29 @@ export interface World {
    * always (nobody leaves the test room).
    */
   doorsShut: boolean;
+  /** The floor being played, or null for a single room (the test room, ?sala=). */
+  floor: FloorRun | null;
+}
+
+/** What each room of a floor is and what is left in it. */
+export interface FloorRoomState {
+  /** Its template with the slots already filled (enemies and obstacles for its depth). */
+  template: RoomTemplate;
+  /** Built the first time the player walks in, and kept. */
+  room: Room | null;
+  visited: boolean;
+  /** No enemies left (rooms without combat are clear from the start). */
+  cleared: boolean;
+  /** Coupons left lying on its floor when the player walked out. */
+  pickups: Pickup[];
+}
+
+export interface FloorRun {
+  layout: Floor;
+  /** Id of the room the player is in. */
+  current: number;
+  /** Indexed by room id. */
+  rooms: FloorRoomState[];
 }
 
 /** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
@@ -290,17 +325,20 @@ export interface WorldOptions {
   character?: string;
   /** Leave the room's enemies out (tests that only need the player and the dummies). */
   noEnemies?: boolean;
+  /** Play a whole generated floor (seeded by `seed`), starting in its entrance. Ignores room and template. */
+  floor?: boolean;
 }
 
 export function createWorld(opts: WorldOptions): World {
-  let tpl = opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
+  const floor = opts.floor ? planFloor(opts.seed) : null;
+  let tpl = floor ? floor.rooms[floor.current]!.template : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
-  if (!opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: SLOT_ENEMIES_1 });
+  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: SLOT_ENEMIES_1 });
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
   if (!wdef) throw new Error(`Unknown weapon ${def.startWeapon}`);
-  const room = buildRoom(tpl, opts.doors);
+  const room = floor ? floorRoomOf(floor, floor.current) : buildRoom(tpl, opts.doors);
   let nextId = 1;
   const dummies: Dummy[] = room.dummySpawns.map((s) => ({ id: nextId++, def: s.def, x: s.x, y: s.y, lean: 0, leanV: 0, hitT: 0, damageTaken: 0 }));
   const w: World = {
@@ -340,11 +378,129 @@ export function createWorld(opts: WorldOptions): World {
     noDamage: false,
     cause: null,
     doorsShut: room.kind === 'test',
+    floor,
   };
+  if (floor) {
+    floor.rooms[floor.current]!.visited = true;
+    setDoorTiles(w, true);
+    return w;
+  }
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   // Walking into a combat room brings its shutters down until the last enemy falls.
   if (room.kind === 'combat' && w.enemies.length > 0) w.doorsShut = true;
   return w;
+}
+
+/**
+ * Lays out a floor and decides what every room is: a template of its kind (combat templates
+ * are dealt from a shuffled deck, so a floor repeats one only when it runs out) with its slots
+ * filled for the room's depth. Seeded by the world's seed.
+ */
+function planFloor(seed: string): FloorRun {
+  const layout = generateFloor(seed);
+  const rng = new Rng(`salas:${seed}`);
+  const decks = new Map<string, RoomTemplate[]>();
+  const deal = (kind: NonNullable<RoomTemplate['kind']>): RoomTemplate => {
+    let deck = decks.get(kind);
+    if (!deck || deck.length === 0) {
+      deck = rng.shuffle([...templatesOf(kind)]);
+      if (deck.length === 0) throw new Error(`No templates for ${kind} rooms`);
+      decks.set(kind, deck);
+    }
+    return deck.pop()!;
+  };
+  const rooms = layout.rooms.map((fr): FloorRoomState => {
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1 });
+    return { template, room: null, visited: false, cleared: fr.kind !== 'combat', pickups: [] };
+  });
+  return { layout, current: layout.start, rooms };
+}
+
+/** The built room of floor room `id` (built on first use), with openings for its normal doors. */
+function floorRoomOf(f: FloorRun, id: number): Room {
+  const st = f.rooms[id]!;
+  st.room ??= buildRoom(st.template, f.layout.rooms[id]!.doors.filter((d) => !d.secret).map((d) => d.dir));
+  return st.room;
+}
+
+/** On a floor, open doors are floor tiles the player can walk through; shut ones are wall. */
+function setDoorTiles(w: World, open: boolean): void {
+  if (!w.floor) return;
+  const r = w.room;
+  for (const d of r.doors) for (const c of doorCells(r.cols, r.rows, d.dir)) r.tiles[c.r * r.cols + c.c] = open ? 0 : 1;
+}
+
+/** Where the player stands after coming in through the `dir` wall: just inside the door, on clear floor. */
+export function entrySpot(room: Room, dir: Dir): { x: number; y: number } {
+  const a = doorApron(room.cols, room.rows, dir);
+  const p = a[0]!;
+  const q = a[1]!;
+  return { x: ((p.c + q.c + 1) * TILE) / 2, y: ((p.r + q.r + 1) * TILE) / 2 + 4 };
+}
+
+/**
+ * The player is far enough into an open door to leave through it: past the inner half of the
+ * door's outer tile (north doors: into the top row of the back wall).
+ */
+export function leavingThrough(w: World): RoomDoor | null {
+  if (!w.floor || w.doorsShut || w.over) return null;
+  const p = w.player;
+  for (const d of w.room.doors) {
+    if (!pointInRect(p.x, p.y, d)) continue;
+    if (d.dir === 'N' && p.y < d.y + TILE) return d;
+    if (d.dir === 'S' && p.y > d.y + TILE / 2) return d;
+    if (d.dir === 'W' && p.x < d.x + TILE / 2) return d;
+    if (d.dir === 'E' && p.x > d.x + TILE / 2) return d;
+  }
+  return null;
+}
+
+/**
+ * Moves the player into floor room `id` through its `via` wall: what was left in the old room
+ * stays there (its coupons), bullets and attacks in the air vanish, and an uncleared combat room
+ * brings its enemies and shuts its shutters.
+ */
+export function enterRoom(w: World, id: number, via: Dir): void {
+  const f = w.floor;
+  if (!f) throw new Error('enterRoom needs a floor');
+  f.rooms[f.current]!.pickups = w.pickups;
+  f.current = id;
+  const st = f.rooms[id]!;
+  st.visited = true;
+  w.room = floorRoomOf(f, id);
+  w.bullets = [];
+  w.emitters = [];
+  w.enemies = [];
+  w.dummies = [];
+  w.pickups = st.pickups;
+  st.pickups = [];
+  w.emptyT = 0;
+  const p = w.player;
+  const at = entrySpot(w.room, via);
+  p.x = at.x;
+  p.y = at.y;
+  // Keep walking in the same direction, but a roll ends at the threshold.
+  if (isRolling(p)) {
+    p.rollT = -1;
+    p.rollCooldown = p.def.rollCooldown;
+  }
+  p.vx *= 0.5;
+  p.vy *= 0.5;
+  if (!st.cleared && w.spawnsEnemies) spawnRoomEnemies(w);
+  if (w.enemies.length === 0) st.cleared = true;
+  w.doorsShut = !st.cleared;
+  setDoorTiles(w, !w.doorsShut);
+  w.events.push({ type: 'room', id, via });
+  if (w.doorsShut) w.events.push({ type: 'doors', shut: true });
+}
+
+/** Leaves through the door the player is walking into, if any. */
+function updateExits(w: World): void {
+  const d = leavingThrough(w);
+  if (!d || !w.floor) return;
+  const here = w.floor.layout.rooms[w.floor.current]!;
+  const door = here.doors.find((x) => x.dir === d.dir && !x.secret);
+  if (door) enterRoom(w, door.to, OPPOSITE[d.dir]);
 }
 
 /** Where the rest of a pack stands around its spawn point (px). */
@@ -366,7 +522,8 @@ function spawnRoomEnemies(w: World): void {
     if (s.def.escort) {
       const edef = ENEMIES[s.def.escort];
       if (!edef) throw new Error(`Unknown escort ${s.def.escort}`);
-      const esc = spawnEnemy(w.nextId++, edef, s.x + 18, s.y - 4);
+      const at = freeSpot(w, s.x + 18, s.y - 4, edef.footRadius);
+      const esc = spawnEnemy(w.nextId++, edef, at.x, at.y);
       esc.owner = en.id;
       w.enemies.push(esc);
     }
@@ -574,6 +731,7 @@ function updateWeapon(w: World, input: Input): void {
       age: 0,
       dir: a,
       speed: def.bulletSpeed,
+      h: HAND_HEIGHT,
     });
   }
   p.vx -= Math.cos(p.aim) * def.recoil;
@@ -606,7 +764,8 @@ function updateBullets(w: World): void {
       b.x += (b.vx * DT) / 2;
       b.y += (b.vy * DT) / 2;
       const angle = Math.atan2(b.vy, b.vx);
-      if (isWallAt(w.room, b.x, b.y) || w.room.props.some((pr) => pr.def.blocksBullets && pointInRect(b.x, b.y, pr.box))) {
+      const fy = b.y + b.h;
+      if (isWallAt(w.room, b.x, fy) || w.room.props.some((pr) => pr.def.blocksBullets && pointInRect(b.x, fy, pr.box))) {
         w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle });
         alive = false;
         break;
@@ -670,6 +829,7 @@ export function firePattern(w: World, def: PatternDef, x: number, y: number, aim
     shots,
     owner: opts.owner ?? 'enemy',
     telegraph,
+    height: opts.height ?? 0,
     aim,
     aimed: isAimed(def),
     color: shots[0]?.color ?? 'red',
@@ -751,6 +911,7 @@ function updateEmitters(w: World): void {
         age: 0,
         dir: s.angle,
         speed: s.speed,
+        h: e.height,
       };
       if (s.wave) b.wave = s.wave;
       if (s.accel) b.accel = s.accel;
@@ -910,6 +1071,8 @@ function updateDoors(w: World): void {
   if (w.doorsShut && w.room.kind === 'combat' && w.enemies.length === 0) {
     w.doorsShut = false;
     w.events.push({ type: 'doors', shut: false });
+    if (w.floor) w.floor.rooms[w.floor.current]!.cleared = true;
+    setDoorTiles(w, true);
   }
 }
 
@@ -922,7 +1085,7 @@ export function step(w: World, input: Input): void {
     const d = w.dummies[0];
     if (def && d) {
       const y = d.y - 20;
-      firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x), { telegraph: ENEMY_TELEGRAPH, source: d.id, by: 'maniqui' });
+      firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x), { telegraph: ENEMY_TELEGRAPH, source: d.id, by: 'maniqui', height: 20 });
     }
   }
   updateEmitters(w);
@@ -933,6 +1096,7 @@ export function step(w: World, input: Input): void {
   updatePickups(w);
   updateRestock(w);
   updateDoors(w);
+  updateExits(w);
   w.tick++;
 }
 
@@ -970,7 +1134,7 @@ export function checkInvariants(w: World): string[] {
 /** Compact fingerprint of the state, to check determinism. */
 export function worldHash(w: World): string {
   const p = w.player;
-  const parts = [w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, w.pickups.length, p.hp];
+  const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, w.pickups.length, p.hp];
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   return parts.join('|');

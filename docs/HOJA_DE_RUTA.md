@@ -71,7 +71,7 @@ las capturas del e2e; el bot la vacía sin caer el 52,5 % de las veces y sobrevi
 - [x] Puertas que se cierran durante el combate (persianas con piloto rojo). (Cerrar y abrir; cruzarlas llega con la transición entre salas.)
 - [ ] Minimapa.
 - [ ] Juego de casillas de la planta 1 (almacén) con variaciones y decoración.
-- [ ] Transición entre salas.
+- [x] Transición entre salas. (Fundido entre salas; la planta generada es ya la partida por defecto. Las puertas secretas siguen cerradas hasta que haya algo que las abra.)
 
 **Criterios de aceptación:** 10.000 semillas generan plantas válidas; el bot recorre una planta
 entera sin quedarse atascado.

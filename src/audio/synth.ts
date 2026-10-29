@@ -116,5 +116,7 @@ export const SFX: Record<string, SfxParams> = {
   // Shutters: a metal roller door slamming down, and rattling back up when the room is clear.
   persiana: { wave: 'noise', freq: 900, freqEnd: 90, attack: 0.002, sustain: 0.12, decay: 0.3, volume: 0.3, lowpass: 0.3, crush: 3, vibrato: 0.3, vibratoSpeed: 30 },
   desbloquear: { wave: 'square', freq: 330, freqEnd: 990, attack: 0.005, sustain: 0.18, decay: 0.2, volume: 0.13, duty: 0.35, vibrato: 0.08, vibratoSpeed: 16 },
+  // Walking through a door into the next room: a quick draught.
+  puerta: { wave: 'noise', freq: 500, freqEnd: 1700, attack: 0.02, sustain: 0.04, decay: 0.14, volume: 0.13, lowpass: 0.65 },
   vacio: { wave: 'square', freq: 220, freqEnd: 200, attack: 0.001, sustain: 0.015, decay: 0.02, volume: 0.15, duty: 0.15 },
 };

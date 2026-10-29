@@ -201,7 +201,7 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
     const def = PATTERNS[b.pattern];
     if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
     const mh = muzzleHeight(w, en, b.muzzleY);
-    firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id });
+    firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
     enter(en, 'fire', b.telegraph + patternDuration(def));
   } else if (en.state === 'fire' && en.t >= en.until) {
     enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
@@ -299,7 +299,7 @@ function updateBlinker(w: World, en: Enemy, b: BlinkerBrain): void {
         const def = PATTERNS[b.pattern];
         if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
         const mh = muzzleHeight(w, en, b.muzzleY);
-        firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id });
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(toY + b.muzzleY - mh, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
         // A short pose after the last shot, so you can see who fired before it vanishes.
         enter(en, 'fire', b.telegraph + patternDuration(def) + 0.2);
       }

@@ -8,6 +8,9 @@ import type { RoomKind } from '../data/types.ts';
 export type { RoomKind };
 export type Dir = 'N' | 'S' | 'E' | 'W';
 
+/** The wall facing each one: going out through a room's N door, you come in through the S door of the next. */
+export const OPPOSITE: Readonly<Record<Dir, Dir>> = { N: 'S', S: 'N', E: 'W', W: 'E' };
+
 export interface Door {
   dir: Dir;
   /** Id of the room on the other side. */

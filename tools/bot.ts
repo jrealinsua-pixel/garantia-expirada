@@ -27,7 +27,25 @@ export interface BotReport {
   segundosVivo: number;
   heridasPorMinuto: number;
   msPorPartida: number;
+  /** Whole floors (M3 criterion): see FloorReport. */
+  plantas: FloorReport;
   errores: string[];
+}
+
+export interface FloorReport {
+  plantas: number;
+  /** Floors whose every room (but the secret one) the bot walks into, with nothing able to hurt it: must be 100 %. */
+  recorridoSinDanio: number;
+  /** Mean seconds to walk the whole floor that way. */
+  segundosRecorrido: number;
+  /** The same floors with damage on: walked whole (%), went down (%), rooms visited and combat rooms cleared per floor. */
+  recorridoConDanio: number;
+  caidas: number;
+  salasVisitadas: number;
+  salasLimpias: number;
+  /** Mean seconds a combat room takes to clear (from walking in to the shutters rolling up). */
+  segundosPorSala: number;
+  heridasPorSala: number;
 }
 
 function arg(name: string, def: number): number {
@@ -87,7 +105,121 @@ function playOne(seed: string, seconds: number): GameResult {
   return { hash: worldHash(w), shots, hits, contacts, stuck: bot.stuck, kills: w.kills, coupons: w.player.coupons, clearT, alive, hurts, errors };
 }
 
-export function runBots(games: number, seconds: number): BotReport {
+interface FloorResult {
+  explored: boolean;
+  down: boolean;
+  seconds: number;
+  visited: number;
+  cleared: number;
+  roomSeconds: number[];
+  hurts: number;
+  hash: string;
+  errors: string[];
+}
+
+/** The bot walks one generated floor until every room is visited, it goes down or time runs out. */
+export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): FloorResult {
+  const w = createWorld({ seed, floor: true });
+  w.noDamage = noDamage;
+  const bot = new Bot(seed);
+  const errors: string[] = [];
+  const roomSeconds: number[] = [];
+  let enteredAt = -1;
+  let hurts = 0;
+  const ticks = Math.round(maxSeconds / DT);
+  try {
+    for (let i = 0; i < ticks && !Bot.explored(w) && !w.over; i++) {
+      step(w, bot.think(w));
+      for (const e of w.events) {
+        if (e.type === 'doors') {
+          if (e.shut) enteredAt = w.tick;
+          else if (enteredAt >= 0) roomSeconds.push((w.tick - enteredAt) * DT);
+        } else if (e.type === 'hurt') hurts++;
+      }
+      if (i % 30 === 0) {
+        const errs = checkInvariants(w);
+        if (errs.length) {
+          errors.push(`planta ${seed} tick ${w.tick}: ${errs.join('; ')}`);
+          break;
+        }
+      }
+    }
+  } catch (e) {
+    errors.push(`planta ${seed}: excepción ${(e as Error).stack ?? e}`);
+  }
+  const f = w.floor!;
+  const explored = Bot.explored(w);
+  if (noDamage && !explored && !errors.length) {
+    errors.push(`planta ${seed}: el bot no ha recorrido la planta en ${maxSeconds} s (atascado en ${w.room.id}, ${f.rooms.filter((r) => r.visited).length}/${f.layout.rooms.length - 1} salas)`);
+  }
+  return {
+    explored,
+    down: w.over,
+    seconds: w.tick * DT,
+    visited: f.rooms.filter((r) => r.visited).length,
+    cleared: f.layout.rooms.filter((r) => r.kind === 'combat' && f.rooms[r.id]!.cleared).length,
+    roomSeconds,
+    hurts,
+    hash: worldHash(w),
+    errors,
+  };
+}
+
+export function runFloors(floors: number, maxSeconds = 600): { report: FloorReport; errors: string[]; failed: number } {
+  const errors: string[] = [];
+  let failed = 0;
+  let walked = 0;
+  let walkT = 0;
+  let explored = 0;
+  let down = 0;
+  let visited = 0;
+  let cleared = 0;
+  let hurts = 0;
+  const rooms: number[] = [];
+  for (let i = 0; i < floors; i++) {
+    const a = playFloor(`planta-${i}`, maxSeconds, true);
+    if (a.explored) walked++;
+    walkT += a.seconds;
+    const b = playFloor(`planta-${i}`, maxSeconds, false);
+    if (b.explored) explored++;
+    if (b.down) down++;
+    visited += b.visited;
+    cleared += b.cleared;
+    hurts += b.hurts;
+    rooms.push(...b.roomSeconds);
+    for (const r of [a, b]) {
+      if (r.errors.length) {
+        failed++;
+        errors.push(...r.errors);
+      }
+    }
+  }
+  const x = playFloor('planta-determinismo', 30, false).hash;
+  const y = playFloor('planta-determinismo', 30, false).hash;
+  if (x !== y) {
+    failed++;
+    errors.push(`Planta no determinista: ${x} ≠ ${y}`);
+  }
+  const pct = (n: number): number => Math.round((n / floors) * 1000) / 10;
+  const one = (n: number): number => Math.round(n * 10) / 10;
+  return {
+    report: {
+      plantas: floors,
+      recorridoSinDanio: pct(walked),
+      segundosRecorrido: one(walkT / floors),
+      recorridoConDanio: pct(explored),
+      caidas: pct(down),
+      salasVisitadas: one(visited / floors),
+      salasLimpias: one(cleared / floors),
+      segundosPorSala: rooms.length ? one(rooms.reduce((s, v) => s + v, 0) / rooms.length) : 0,
+      heridasPorSala: rooms.length ? Math.round((hurts / Math.max(1, cleared)) * 100) / 100 : 0,
+    },
+    errors,
+    failed,
+  };
+}
+
+export function runBots(games: number, seconds: number, floors = 0): BotReport {
   const t0 = performance.now();
   const errors: string[] = [];
   let shots = 0;
@@ -128,6 +260,9 @@ export function runBots(games: number, seconds: number): BotReport {
     errors.push(`No determinista: ${a} ≠ ${b}`);
   }
   const ms = performance.now() - t0;
+  const fl = runFloors(floors);
+  failed += fl.failed;
+  errors.push(...fl.errors);
   return {
     partidas: games,
     fallos: failed,
@@ -144,12 +279,13 @@ export function runBots(games: number, seconds: number): BotReport {
     segundosVivo: Math.round((alive / games) * 10) / 10,
     heridasPorMinuto: alive ? Math.round((hurts / (alive / 60)) * 10) / 10 : 0,
     msPorPartida: Math.round((ms / (games + 2)) * 10) / 10,
+    plantas: fl.report,
     errores: errors.slice(0, 20),
   };
 }
 
 if (import.meta.main) {
-  const report = runBots(arg('partidas', 200), arg('segundos', 60));
+  const report = runBots(arg('partidas', 200), arg('segundos', 60), arg('plantas', 20));
   mkdirSync(join(ROOT, 'logs'), { recursive: true });
   writeFileSync(join(ROOT, 'logs/bot.json'), JSON.stringify(report, null, 2));
   console.log(
@@ -158,6 +294,14 @@ if (import.meta.main) {
       `${report.bajasPorMinuto} bajas/min · ${report.cuponesPorMinuto} cupones/min · sala limpia en ${report.primeraLimpieza} s · ` +
       `vacía la sala ${report.superaSala} % · sobrevive ${report.supervivencia} % · ${report.segundosVivo} s vivo · ${report.heridasPorMinuto} heridas/min · ${report.msPorPartida} ms/partida`,
   );
+  const pl = report.plantas;
+  if (pl.plantas) {
+    console.log(
+      `${pl.plantas} plantas · sin daño la recorre entera el ${pl.recorridoSinDanio} % en ${pl.segundosRecorrido} s · ` +
+        `con daño la recorre el ${pl.recorridoConDanio} %, cae el ${pl.caidas} % · ${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
+        `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate`,
+    );
+  }
   for (const e of report.errores) console.error('✖ ' + e);
   process.exit(report.fallos ? 1 : 0);
 }

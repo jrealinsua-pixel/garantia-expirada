@@ -2,7 +2,8 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { HAND_HEIGHT, isRolling, PLAYER_HURT_Y, type Input, type World } from './world.ts';
-import { isWallAt } from './room.ts';
+import { isWallAt, TILE } from './room.ts';
+import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
 
 /** What the dodging part of the bot wants this tick. */
 interface Dodge {
@@ -131,6 +132,49 @@ export class Bot {
     this.dodges = opts.dodge ?? true;
   }
 
+  /**
+   * On a floor, where to go now: with enemies about, towards the nearest one if it is far or
+   * behind something (around the shelves), else somewhere close by to keep moving; with the room
+   * clear, out through the door that leads to the nearest room not visited yet. Null = keep the
+   * current wandering target.
+   */
+  private floorGoal(w: World): Point | null {
+    const p = w.player;
+    const r = p.def.footRadius;
+    const blocked = blockedTiles(w, r);
+    const foes = w.enemies.filter((e) => e.state !== 'gone');
+    if (foes.length > 0) {
+      let near = foes[0]!;
+      for (const e of foes) if (Math.hypot(e.x - p.x, e.y - p.y) < Math.hypot(near.x - p.x, near.y - p.y)) near = e;
+      const d = Math.hypot(near.x - p.x, near.y - p.y);
+      if (d > 130 || !clearLine(w, p, near, 1)) return steer(w, near, r, blocked);
+      // Close and in sight: wander nearby on free floor, steering around things.
+      if (!this.target || this.retargetIn === this.retargetSet) {
+        for (let k = 0; k < 8; k++) {
+          const c = Math.floor((p.x + this.rng.range(-110, 110)) / TILE);
+          const rr = Math.floor((p.y + this.rng.range(-80, 80)) / TILE);
+          if (c < 0 || rr < 0 || c >= w.room.cols || rr >= w.room.rows || blocked[rr * w.room.cols + c]) continue;
+          this.wander = { x: c * TILE + TILE / 2, y: rr * TILE + TILE / 2 + 2 };
+          break;
+        }
+      }
+      return this.wander ? steer(w, this.wander, r, blocked) : null;
+    }
+    const dir = nextDoor(w, w.floor?.layout.boss);
+    const door = dir ? w.room.doors.find((d) => d.dir === dir) : undefined;
+    if (!door) return null;
+    return steer(w, doorGoal(door), r, blocked);
+  }
+
+  private wander: Point | null = null;
+  private retargetSet = 0;
+
+  /** Whether it has walked into every room of the floor (normal doors only). */
+  static explored(w: World): boolean {
+    const f = w.floor;
+    return !!f && f.layout.rooms.every((fr) => fr.kind === 'secret' || f.rooms[fr.id]!.visited);
+  }
+
   think(w: World): Input {
     const p = w.player;
     const r = w.room;
@@ -138,6 +182,7 @@ export class Bot {
     if (!this.target || this.retargetIn <= 0 || Math.hypot(this.target.x - p.x, this.target.y - p.y) < 8) {
       this.target = { x: this.rng.range(40, r.w - 40), y: this.rng.range(64, r.h - 40) };
       this.retargetIn = this.rng.int(60, 240);
+      this.retargetSet = this.retargetIn;
     }
     if (w.tick - this.lastPos.t >= 180) {
       if (Math.hypot(p.x - this.lastPos.x, p.y - this.lastPos.y) < 3) {
@@ -146,6 +191,10 @@ export class Bot {
         this.ignorePickups = 240;
       }
       this.lastPos = { x: p.x, y: p.y, t: w.tick };
+    }
+    if (w.floor) {
+      const plan = this.floorGoal(w);
+      if (plan) this.target = plan;
     }
     // Coupons lying close by are worth a detour.
     let goal = this.target;
@@ -182,7 +231,8 @@ export class Bot {
       }
     }
     if (this.burst <= 0 && this.rng.chance(0.03)) this.burst = this.rng.int(10, 50);
-    const fire = this.burst > 0;
+    // On a floor it only shoots when there is someone to shoot at.
+    const fire = this.burst > 0 && (!w.floor || targets.length > 0);
     this.burst--;
     if (dg?.roll) {
       // The roll goes where the stick points.
