@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T19:45:00+01:00",
+  "actualizado": "2026-10-29T20:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,7 +63,7 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 5,
+      "hechas": 6,
       "total": 5
     },
     {
@@ -122,14 +122,20 @@
     "jefes": 1,
     "armas": 3,
     "objetos": 13,
-    "plantillas_sala": 32,
-    "tests": 343,
-    "tests_ok": 343,
+    "plantillas_sala": 33,
+    "tests": 347,
+    "tests_ok": 347,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 13068
+    "lineas_codigo": 13188
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T20:20:00+01:00",
+      "hito": "M8",
+      "resumen": "Plantas encadenadas: tras la jefa y el montacargas se sigue en la planta 2 con la misma tostadora (armas, objetos, corazones, cupones y tickets). La planta 2 tiene su propia entrada. El historial cuenta plantas y partidas por separado.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T19:45:00+01:00",
       "hito": "M8",
@@ -505,6 +511,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/cadena.png",
+      "pie": "Plantas encadenadas: tras ganar la planta 1, «R» lleva a la planta 2 con la misma tostadora (aquí, con sus 37 cupones), al Rellano de Informática"
+    },
+    {
       "archivo": "capturas/planta2.png",
       "pie": "La planta 2, Informática: suelo técnico verde pantalla, monitores de tubo como trincheras, fuentes de agua y persianas a juego. Se ve con ?planta=2 mientras no se llegue jugando"
     },
@@ -523,13 +533,9 @@
     {
       "archivo": "capturas/montacargas.png",
       "pie": "Los cupones de la jefa salen en corona y se quedan fuera del montacargas (antes lo tapaban)"
-    },
-    {
-      "archivo": "capturas/texto-grande.png",
-      "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     }
   ],
-  "proximo": "M8: encadenar plantas (bajar en el montacargas tras la jefa lleva a la planta 2 con la misma tostadora).",
+  "proximo": "M8: los 4 enemigos de Informática (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

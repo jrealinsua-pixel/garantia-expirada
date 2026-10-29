@@ -211,5 +211,6 @@ test('plantillas de la planta 2: las de combate son suyas, con nombre propio; la
   assert.ok(two.length >= 12, `${two.length} salas de combate en la planta 2`);
   for (const t of two) assert.equal(t.level, 2, t.id);
   for (const t of templatesOf('combat')) assert.equal(t.level ?? 1, 1, t.id);
-  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 2), templatesOf(k), k);
+  for (const k of ['treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 2), templatesOf(k), k);
+  assert.ok(templatesOf('start', 2).every((t) => t.level === 2), 'la planta 2 tiene su propia entrada');
 });

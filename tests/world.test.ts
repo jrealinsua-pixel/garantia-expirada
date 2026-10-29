@@ -158,6 +158,7 @@ test('la planta 2 se arma con sus salas de combate; las especiales, de la planta
     for (const [i, st] of b.floor!.rooms.entries()) {
       const t = ROOMS[st.template.id]!;
       if (t.kind === 'combat') assert.equal(t.level, 2, `${seed}: sala ${i} (${t.id}) de la planta 1`);
+      else if (t.kind === 'start') assert.equal(t.level, 2);
       else assert.equal(t.id, a.floor!.rooms[i]!.template.id);
       if (t.kind === 'combat') assert.equal(ROOMS[a.floor!.rooms[i]!.template.id]!.level ?? 1, 1);
     }

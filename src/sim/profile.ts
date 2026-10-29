@@ -34,6 +34,8 @@ export interface RunResult {
   coupons: number;
   /** Bosses taken down in this run (enemy ids). */
   bosses: readonly string[];
+  /** Seconds on the last floor (for the fastest floor), when the run had several; default `seconds`. */
+  floorSeconds?: number;
   cause?: { by: string; how: 'bullet' | 'contact' };
   items: readonly string[];
   active?: string;
@@ -62,6 +64,32 @@ const bump = (o: Record<string, number>, k: string): void => {
 };
 const union = (a: readonly string[], b: readonly string[]): string[] => [...a, ...b.filter((x, i) => !a.includes(x) && b.indexOf(x) === i)];
 
+/** One floor cleared in the middle of a run (the run goes on upstairs): it counts as a floor, not as a run. */
+export interface FloorResult {
+  character: string;
+  seconds: number;
+  items: readonly string[];
+  active?: string;
+  weapons: readonly string[];
+}
+
+function addFloor(p: Profile, f: FloorResult): void {
+  p.floorsCleared++;
+  bump(p.wins, f.character);
+  const s = Math.round(f.seconds);
+  p.bestFloorSeconds = p.bestFloorSeconds === null ? s : Math.min(p.bestFloorSeconds, s);
+  p.found.items = union(p.found.items, f.items);
+  p.found.actives = union(p.found.actives, f.active ? [f.active] : []);
+  p.found.weapons = union(p.found.weapons, f.weapons);
+}
+
+/** The profile after a floor cleared mid-run (a new object). */
+export function recordFloor(old: Profile, f: FloorResult): Profile {
+  const p: Profile = structuredClone(old);
+  addFloor(p, f);
+  return p;
+}
+
 /** The profile after one more run (a new object; the old one is left as it was). */
 export function recordRun(old: Profile, r: RunResult): Profile {
   const p: Profile = structuredClone(old);
@@ -74,10 +102,7 @@ export function recordRun(old: Profile, r: RunResult): Profile {
     p.downs++;
     if (r.cause) bump(p.causes, `${r.cause.by}:${r.cause.how}`);
   } else {
-    p.floorsCleared++;
-    bump(p.wins, r.character);
-    const s = Math.round(r.seconds);
-    p.bestFloorSeconds = p.bestFloorSeconds === null ? s : Math.min(p.bestFloorSeconds, s);
+    addFloor(p, { ...r, seconds: r.floorSeconds ?? r.seconds });
   }
   p.found.items = union(p.found.items, r.items);
   p.found.actives = union(p.found.actives, r.active ? [r.active] : []);

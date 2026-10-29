@@ -135,9 +135,16 @@ export const HEART_LINE = 'Recambio original';
 export const WIN_TITLE = 'Incidencia resuelta';
 export const WIN_STAMP = 'Planta superada';
 export const WIN_HINT = 'R o clic: empezar otra jornada';
+/** The hint when there is another floor upstairs. */
+export const WIN_HINT_NEXT = 'R o clic: siguiente planta';
+
+/** «Siguiente: …» when there is a next floor, by its number. */
+export const FLOOR_NAMES: Record<number, string> = {
+  2: 'Planta 2: Informática. Cobertura limitada.',
+};
 export const WIN_RESULT = 'Jefa de planta dada de baja';
 
-/** «Siguiente planta: …» (there is no second floor yet). */
+/** «Siguiente: …» on the last floor there is (nothing upstairs yet). */
 export const WIN_NEXT: readonly string[] = [
   'En obras. Disculpe las molestias.',
   'Pendiente de licitación.',
@@ -160,6 +167,8 @@ export interface WinReportInfo {
   seconds: number;
   kills: number;
   coupons: number;
+  /** The floor that comes next, if there is one (its number). */
+  next?: number;
 }
 
 /** The lines of the floor-done report, top to bottom (same layout as the sick-leave report). */
@@ -169,7 +178,7 @@ export function winReport(info: WinReportInfo, pick: (n: number) => number): { l
     { label: 'Resultado', text: WIN_RESULT },
     { label: 'Sala', text: info.room },
     { label: 'Jornada', text: `${clock(info.seconds)} · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
-    { label: 'Siguiente', text: WIN_NEXT[pick(WIN_NEXT.length)]! },
+    { label: 'Siguiente', text: (info.next !== undefined ? FLOOR_NAMES[info.next] : undefined) ?? WIN_NEXT[pick(WIN_NEXT.length)]! },
     { label: 'Nota de la empresa', text: WIN_NOTES[pick(WIN_NOTES.length)]! },
   ];
 }

@@ -301,6 +301,25 @@ try {
     await shot(`33${'abc'[i]}-planta2-${['sala', 'entrada', 'jefe'][i]}.png`);
   }
 
+  // M8: floors in a row. A floor won (here, a lift under the toaster's feet at the entrance) and
+  // R: the run goes on in floor 2 with the same toaster, coupons and all.
+  await page.goto(`${url}?semilla=e2e-cadena`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.player.coupons = 37; w.lift = { x: w.player.x, y: w.player.y, t: 10 }; })()`);
+  await page.waitForFunction('window.__GE__.state().won && window.__GE__.state().report.length > 0', undefined, { timeout: 8000 });
+  await page.waitForTimeout(900);
+  const chainReport = (await state()).report.join(' | ');
+  if (!chainReport.includes('Informática')) throw new Error(`El parte no anuncia la planta 2: ${chainReport}`);
+  await shot('34a-cadena-parte.png');
+  await page.waitForTimeout(400);
+  await page.keyboard.press('r');
+  await page.waitForFunction('window.__GE__.state().ready && !window.__GE__.state().won && window.__GE__.scene.world.level === 2', undefined, { timeout: 8000 });
+  const chain = await page.evaluate<{ coupons: number; kind: string }>('(() => { const w = window.__GE__.scene.world; return { coupons: w.player.coupons, kind: w.room.kind }; })()');
+  if (chain.coupons !== 37 || chain.kind !== 'start') throw new Error(`La planta 2 no sigue con la misma tostadora: ${JSON.stringify(chain)}`);
+  await page.waitForTimeout(600);
+  await shot('34b-cadena-planta2.png');
+  console.log('Plantas encadenadas: tras la planta 1, la 2 con la misma tostadora.');
+
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

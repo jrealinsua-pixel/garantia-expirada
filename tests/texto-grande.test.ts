@@ -15,7 +15,7 @@ import { inventoryBatteries } from '../src/data/texts.ts';
 import { DOORS_OPEN_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, LIFT_LINE, RESTOCK_LINE, SWAP_HINT, SYNERGY_LINE } from '../src/data/texts.ts';
 import { SHOPKEEPER } from '../src/data/shop.ts';
 import { DOWN_ADVICE, DOWN_CAUSE_DEFAULT, DOWN_CAUSES, DOWN_COVERAGE, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport } from '../src/data/texts.ts';
-import { REPORT_MENU_HINT, WIN_HINT, WIN_NEXT, WIN_NOTES, WIN_STAMP, WIN_TITLE, winReport } from '../src/data/texts.ts';
+import { REPORT_MENU_HINT, WIN_HINT, WIN_HINT_NEXT, WIN_NEXT, WIN_NOTES, WIN_STAMP, WIN_TITLE, winReport } from '../src/data/texts.ts';
 import { formContentBottom, formLayout, stampBox } from '../src/render/form.ts';
 
 /** Everything that opens a description window: name, kind, description and effect lines. */
@@ -152,6 +152,8 @@ function reports(): { lines: { label: string; text: string }[]; title: string; h
     }
     for (let i = 0; i < Math.max(WIN_NEXT.length, WIN_NOTES.length); i++) {
       out.push({ lines: winReport({ room, seconds: 5999, kills: 999, coupons: 999 }, (n) => i % n), title: WIN_TITLE, hint: hintWin, stamp: WIN_STAMP });
+      // With a floor upstairs: its name instead of the joke, and the other hint.
+      out.push({ lines: winReport({ room, seconds: 5999, kills: 999, coupons: 999, next: 2 }, (n) => i % n), title: WIN_TITLE, hint: `${WIN_HINT_NEXT} · ${REPORT_MENU_HINT}`, stamp: WIN_STAMP });
     }
   }
   return out;

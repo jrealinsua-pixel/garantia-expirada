@@ -10,12 +10,29 @@ import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
-import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
+import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells, isWallAt } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
-import { activeWarnings, addModifier, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
+import {
+  activeWarnings,
+  addModifier,
+  createWorld,
+  LAST_LEVEL,
+  LIFT_READY,
+  nextFloor,
+  PICKUP_DELAY,
+  DT,
+  enemyAltitude,
+  FROST_FLAT,
+  frostSlow,
+  gunPivot,
+  isRolling,
+  sourceTelegraph,
+  step,
+  BODY_HEIGHT,
+} from '../sim/world.ts';
 import { dropTicket, giveActive, giveItem, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
@@ -24,7 +41,7 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
-import { saveRun } from './save.ts';
+import { saveFloor, saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
@@ -300,6 +317,8 @@ export class GameScene extends Phaser.Scene {
   /** Bosses taken down in this run, and whether its end is already in the record (src/render/save.ts). */
   private runBosses: string[] = [];
   private runRecorded = false;
+  /** Seconds and kills of the floors already cleared in this run (each floor's world counts its own). */
+  private runBefore = { seconds: 0, kills: 0 };
 
   /** Started from the title screen's practice option: that room instead of a floor (kept on restart). */
   private startSala: string | null = null;
@@ -363,6 +382,7 @@ export class GameScene extends Phaser.Scene {
       // A new run: nothing beaten yet, nothing written in the record.
       this.runBosses = [];
       this.runRecorded = false;
+      this.runBefore = { seconds: 0, kills: 0 };
     }
     // ?planta=2: the same rooms with the look of floor 2 (Informática) while it has no rooms of its own.
     const level = Math.max(1, Math.min(2, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
@@ -713,8 +733,9 @@ export class GameScene extends Phaser.Scene {
    */
   private showWinPanel(): void {
     const w = this.world;
-    const lines = winReport({ room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons }, (n) => this.fx.int(0, n - 1));
-    this.showForm(lines, { title: WIN_TITLE, color: 0x3a9ea6, light: 0xb6f1f0, stamp: WIN_STAMP, hint: WIN_HINT });
+    const next = w.level < LAST_LEVEL ? w.level + 1 : undefined;
+    const lines = winReport({ room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, next }, (n) => this.fx.int(0, n - 1));
+    this.showForm(lines, { title: WIN_TITLE, color: 0x3a9ea6, light: 0xb6f1f0, stamp: WIN_STAMP, hint: next ? WIN_HINT_NEXT : WIN_HINT });
   }
 
   /** A report form that drops in, with its lines, a reference number, a hint and a stamp slammed on it. */
@@ -870,13 +891,19 @@ export class GameScene extends Phaser.Scene {
   private recordRun(outcome: 'down' | 'floor'): void {
     const w = this.world;
     if (this.runRecorded || !w.floor) return;
-    this.runRecorded = true;
     const p = w.player;
+    if (outcome === 'floor' && w.level < LAST_LEVEL) {
+      // A floor cleared, but the run goes on upstairs: it counts as a floor, not as a run.
+      saveFloor({ character: p.base.def.id, seconds: w.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons: p.arsenal.map((ws) => ws.base.id) });
+      return;
+    }
+    this.runRecorded = true;
     saveRun({
       character: p.base.def.id,
       outcome,
-      seconds: w.tick * DT,
-      kills: w.kills,
+      seconds: this.runBefore.seconds + w.tick * DT,
+      floorSeconds: w.tick * DT,
+      kills: this.runBefore.kills + w.kills,
       coupons: p.coupons,
       bosses: this.runBosses,
       ...(outcome === 'down' && this.downCause ? { cause: this.downCause } : {}),
@@ -904,7 +931,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   private newUnit(): void {
-    if (this.canAskNewUnit()) this.scene.restart();
+    if (!this.canAskNewUnit()) return;
+    this.goOn();
+  }
+
+  /**
+   * After a report: a floor won with another one upstairs carries on there with the same
+   * toaster (same run); anything else starts a new unit.
+   */
+  private goOn(): void {
+    const next = this.world.won ? nextFloor(this.world) : null;
+    if (next) {
+      this.runBefore = { seconds: this.runBefore.seconds + this.world.tick * DT, kills: this.runBefore.kills + this.world.kills };
+      this.carry = next;
+    }
+    this.scene.restart();
   }
 
   /**
@@ -2131,7 +2172,7 @@ export class GameScene extends Phaser.Scene {
       if (this.canAskNewUnit()) {
         const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload;
         if (!pressed) this.downArmed = true;
-        else if (this.downArmed) this.scene.restart();
+        else if (this.downArmed) this.goOn();
       }
     }
     this.hero.setCrop();
@@ -2150,7 +2191,7 @@ export class GameScene extends Phaser.Scene {
       if (this.canAskNewUnit()) {
         const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload;
         if (!pressed) this.downArmed = true;
-        else if (this.downArmed) this.scene.restart();
+        else if (this.downArmed) this.goOn();
       }
     }
     this.hero.setDepth(p.y);

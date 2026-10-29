@@ -624,6 +624,29 @@ export function createWorld(opts: WorldOptions): World {
   return w;
 }
 
+/** The floors of the store that exist so far (1: the warehouse, 2: Informática). */
+export const LAST_LEVEL = 2;
+
+/**
+ * The next floor of the same run, once this one is won (the toaster went down the lift): a new
+ * floor one level up, seeded from this one, with the same toaster at its entrance: weapons (and
+ * their ammo), items, active item, hearts, coupons and tickets. What it already carries is taken
+ * out of the new floor's loot decks. Null on the last floor (the run ends there).
+ */
+export function nextFloor(w: World): World | null {
+  if (!w.won || !w.floor || w.level >= LAST_LEVEL) return null;
+  const p = w.player;
+  const n = createWorld({ seed: `${w.seed}:planta${w.level + 1}`, floor: true, level: w.level + 1, character: p.base.def.id });
+  const q = n.player;
+  n.player = { ...p, x: q.x, y: q.y, vx: 0, vy: 0, aim: q.aim, facing: q.facing, rollT: q.rollT, rollDirX: q.rollDirX, rollDirY: q.rollDirY, rollCooldown: 0, invulnerable: q.invulnerable };
+  const f = n.floor!;
+  const owned = new Set([...p.arsenal.map((ws) => ws.base.id), ...p.items, ...(p.active ? [p.active.id] : [])]);
+  f.weapons = f.weapons.filter((id) => !owned.has(id));
+  f.items = f.items.filter((id) => !owned.has(id));
+  f.actives = f.actives.filter((id) => !owned.has(id));
+  return n;
+}
+
 /**
  * Lays out a floor and decides what every room is: a template of its kind (combat templates
  * are dealt from a shuffled deck, so a floor repeats one only when it runs out) with its slots

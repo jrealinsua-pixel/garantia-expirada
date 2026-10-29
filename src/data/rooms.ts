@@ -416,9 +416,28 @@ const FLOOR_1: RoomTemplate[] = [
   },
 ];
 
-// Floor 2 (Informática) combat templates: same rules as floor 1's. Its start, treasure, shop,
-// secret and boss rooms are floor 1's until it has its own (templatesOf falls back to them).
+// Floor 2 (Informática) templates: same rules as floor 1's. Its treasure, shop, secret and boss
+// rooms are floor 1's until it has its own (templatesOf falls back to them).
 const FLOOR_2: RoomTemplate[] = [
+  {
+    id: 'entrada-informatica',
+    kind: 'start',
+    level: 2,
+    name: 'Rellano de Informática (Escalera Mecánica Averiada)',
+    rows: [
+      '################',
+      '################',
+      '#c...........bc#',
+      '#..............#',
+      '#...k......k...#',
+      '#..............#',
+      '#.......P......#',
+      '#..............#',
+      '#..b........c..#',
+      '#c............b#',
+      '################',
+    ],
+  },
   {
     id: 'mostrador-telefonia',
     kind: 'combat',

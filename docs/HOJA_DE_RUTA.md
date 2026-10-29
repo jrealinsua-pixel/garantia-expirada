@@ -189,7 +189,7 @@ semillas distintas acaban con builds distintas.
     cada una con su idea y sus grupos; la planta 2 se arma con ellas (`templatesOf(kind, 2)`).
   - [x] (3b) Seis plantillas de combate más para la planta 2 (para llegar a 12). Las salas
     especiales siguen siendo las del almacén; la del jefe propia va con el Router.
-- [ ] Encadenar plantas: al bajar en el montacargas tras la jefa se sigue en la planta 2, con la
+- [x] Encadenar plantas: al bajar en el montacargas tras la jefa se sigue en la planta 2, con la
   misma tostadora, sus armas y sus objetos.
 - [ ] 4 enemigos nuevos (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas…).
 - [ ] Jefe: El Router del Wifi (con su sala propia en la planta 2).
