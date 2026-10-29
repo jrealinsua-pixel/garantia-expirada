@@ -209,7 +209,15 @@ export interface BlinkerBrain {
   hitBlinkCooldown: number;
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain;
+/**
+ * A floor boss. For now it stands its ground and turns to face the player; its attacks arrive
+ * with its phases (M4).
+ */
+export interface BossBrain {
+  kind: 'boss';
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain;
 
 export interface EnemyDef {
   id: string;
@@ -235,4 +243,6 @@ export interface EnemyDef {
   escort?: string;
   /** How many of it one spawn point brings (they come in groups). Default 1. */
   pack?: number;
+  /** Bosses: the name card and motto of their entrance (shown big, in «Letra Pequeña»). */
+  boss?: { title: string; motto: string };
 }

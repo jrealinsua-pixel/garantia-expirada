@@ -333,6 +333,25 @@ try {
   await page.evaluate('(() => { const s = window.__GE__.scene; s.world.floor.rooms.forEach((r) => { r.visited = true; }); s.drawMinimap(); })()');
   await page.waitForTimeout(100);
   await shot('16e-minimapa.png');
+
+  // The boss room (M4): La Nevera Suprema makes her entrance; firing again skips the rest.
+  await page.goto(`${url}?semilla=e2e-jefe&sala=jefe`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  if (!(await page.evaluate<boolean>('!!window.__GE__.scene.world.intro'))) throw new Error('La sala del jefe no tiene presentación');
+  await page.waitForTimeout(450);
+  await shot('17a-jefe-entrada.png');
+  await page.waitForTimeout(850);
+  await shot('17b-jefe-nombre.png');
+  await page.waitForTimeout(700);
+  await shot('17c-jefe-lema.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  await page.waitForTimeout(900);
+  await shot('17d-jefe-combate.png');
+  if (!(await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut'))) throw new Error('La sala del jefe no cierra las persianas');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

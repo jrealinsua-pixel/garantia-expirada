@@ -435,6 +435,9 @@ export const ROOMS: Record<string, RoomTemplate> = {
  * What can fill an `e` slot on floor 1. Cost comes out of the room's budget (enemyBudget in
  * src/sim/room.ts, which grows with depth): a pack of remotes or a bulb with its moth costs more.
  */
+/** Template letter of floor 1's boss (src/sim/room.ts ENEMY_CHARS): La Nevera Suprema. */
+export const FLOOR_BOSS_1 = 'N';
+
 export const SLOT_ENEMIES_1: readonly SlotEnemy[] = [
   { ch: 'A', cost: 2, weight: 4 },
   { ch: 'O', cost: 3, weight: 3, max: 2 },

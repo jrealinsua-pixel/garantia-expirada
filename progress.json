@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T03:35:00+01:00",
+  "actualizado": "2026-10-29T04:20:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M4",
   "hitos": [
@@ -35,7 +35,7 @@
       "id": "M4",
       "nombre": "La Nevera Suprema",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 5
     },
     {
@@ -98,17 +98,23 @@
   "metricas": {
     "personajes": 1,
     "enemigos": 6,
-    "jefes": 0,
+    "jefes": 1,
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 161,
-    "tests_ok": 161,
+    "tests": 168,
+    "tests_ok": 168,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 6523
+    "lineas_codigo": 6710
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T04:20:00+01:00",
+      "hito": "M4",
+      "resumen": "La Nevera Suprema espera en la sala del jefe de cada planta y entra con presentación: bandas negras, la cámara va hacia ella, su nombre en grande con un gruñido de compresor y el lema «Congelamos los precios. Y las reclamaciones.». Se salta pulsando disparar. Aún no ataca.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T03:35:00+01:00",
       "hito": "M3",
@@ -232,6 +238,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/jefe-presentacion.png",
+      "pie": "La Nevera Suprema se presenta: «Jefa de planta · Almacén de devoluciones» y su lema, con bandas de cine y escarcha en el suelo"
+    },
+    {
       "archivo": "capturas/planta-entrada.png",
       "pie": "La entrada de la planta: cartel de Entrada de Personal, pantalla de turnos, felpudo de bienvenida y «Sin devolución» pintado en el suelo"
     },
@@ -248,14 +258,10 @@
       "pie": "El minimapa con la planta entera conocida: calavera del jefe, carrito de la tienda y caja de regalo del tesoro (ampliado)"
     },
     {
-      "archivo": "capturas/desmontaje.png",
-      "pie": "El Microondas Sin Seguro se desmonta en piezas y suelta un cupón descuento (ampliado)"
-    },
-    {
       "archivo": "capturas/baja.png",
       "pie": "Parte de baja: causa, vida útil, recomendación del fabricante y el sello rojo"
     }
   ],
-  "proximo": "M4 · La Nevera Suprema: empezar por la sala del jefe con presentación (nombre y lema en pantalla). Pendiente de equilibrio: sin curación el bot cae en el 55 % de las plantas (llegarán corazones con M5).",
+  "proximo": "M4 · Fase 1 de la Nevera Suprema (ráfagas de cubitos y escarcha que ralentiza) y su barra de vida. Pendiente de equilibrio: sin curación el bot cae en el 55 % de las plantas (llegarán corazones con M5).",
   "bloqueos": []
 }

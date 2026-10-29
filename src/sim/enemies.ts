@@ -30,6 +30,10 @@ export function updateEnemies(w: World): void {
       case 'blinker':
         updateBlinker(w, en, en.def.brain);
         break;
+      case 'boss':
+        // Its attacks come with its phases (M4); for now it only keeps an eye on you.
+        en.facing = w.player.x >= en.x ? 1 : -1;
+        break;
     }
     contact(w, en);
   }

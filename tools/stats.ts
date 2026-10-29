@@ -76,7 +76,7 @@ progress.hitos = hitos;
 progress.hito_actual = hitos.find((h) => h.estado === 'en_curso')?.id ?? hitos.at(-1)?.id ?? '';
 progress.metricas = {
   personajes: Object.keys(CHARACTERS).length,
-  enemigos: Object.keys(content.ENEMIES).length,
+  enemigos: Object.values(content.ENEMIES).filter((d) => !d.boss).length,
   jefes: Object.keys(content.BOSSES).length,
   armas: Object.keys(WEAPONS).length,
   objetos: Object.keys(content.ITEMS).length,

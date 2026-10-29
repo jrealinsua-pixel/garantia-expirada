@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { BOSS_AWAY_LINE, DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
+import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
 import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
@@ -171,6 +171,14 @@ export class GameScene extends Phaser.Scene {
   /** Fading out towards the next room. */
   private leaving = false;
   private mapG: Phaser.GameObjects.Graphics | null = null;
+  /** Where the camera looks instead of the player (a boss's entrance), or null. */
+  private camFocus: { x: number; y: number } | null = null;
+  /** The boss entrance's letterbox bars and texts, removed when it ends. */
+  private introParts: Phaser.GameObjects.GameObject[] = [];
+  private introBars: Phaser.GameObjects.Rectangle[] = [];
+  /** Everything on the HUD (hidden during a boss's entrance), and the room's name. */
+  private hudObjs: Array<Phaser.GameObjects.Components.Visible> = [];
+  private roomTitle: Phaser.GameObjects.BitmapText | null = null;
 
   constructor() {
     super('game');
@@ -197,6 +205,10 @@ export class GameScene extends Phaser.Scene {
     this.popped = false;
     this.report = [];
     this.hurtFace = 0;
+    this.camFocus = null;
+    this.introParts = [];
+    this.introBars = [];
+    this.hudObjs = [];
     this.dummySprites = new Map();
     this.enemySprites = new Map();
     this.bulletSprites = new Map();
@@ -280,12 +292,10 @@ export class GameScene extends Phaser.Scene {
     this.hint.setTint(0xd6cdb2).setAlpha(this.hintT > 0 ? 1 : 0);
     const title = this.hud(this.add.bitmapText(VIEW_W / 2, 30, FONT, fontText(room.name), 8).setOrigin(0.5, 0));
     title.setTint(0xf6c431);
-    this.tweens.add({ targets: title, alpha: 0, delay: 2500, duration: 800 });
-    if (room.kind === 'boss') {
-      // Nobody home yet: La Nevera Suprema arrives with M4.
-      this.banner.setText(fontText(BOSS_AWAY_LINE)).setAlpha(1);
-      this.tweens.add({ targets: this.banner, alpha: 0, delay: 4000, duration: 800 });
-    }
+    // A boss's entrance has its own name card: the room's name waits until it is over.
+    this.roomTitle = title;
+    if (this.world.intro) title.setAlpha(0);
+    else this.tweens.add({ targets: title, alpha: 0, delay: 2500, duration: 800 });
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
@@ -300,6 +310,7 @@ export class GameScene extends Phaser.Scene {
     this.leaving = false;
     if (carried) cam.fadeIn(ROOM_FADE_IN, 14, 12, 22);
 
+    if (this.world.intro) this.startBossIntro(this.world.intro.boss);
     this.syncView(0);
     (window as unknown as { __GE__: { state: () => GameStateForTests; scene: GameScene } }).__GE__ = {
       scene: this,
@@ -309,7 +320,8 @@ export class GameScene extends Phaser.Scene {
 
   private makeEnemyView(en: Enemy): EnemyView {
     const flying = enemyAltitude(en) > 0;
-    const shadow = this.add.image(en.x, en.y, flying ? shadowTexture(this, 4, 2) : shadowTexture(this, 10, 3)).setDepth(-50000);
+    const big = en.def.footRadius > 10;
+    const shadow = this.add.image(en.x, en.y, flying ? shadowTexture(this, 4, 2) : big ? shadowTexture(this, en.def.footRadius + 8, 5) : shadowTexture(this, 10, 3)).setDepth(-50000);
     const sheet = this.textures.get(en.def.sprite);
     const s = this.add.image(en.x, en.y, en.def.sprite, sheet.frameTotal > 2 ? 0 : undefined);
     s.setOrigin(en.def.anchor.x / s.width, en.def.anchor.y / s.height);
@@ -587,9 +599,86 @@ export class GameScene extends Phaser.Scene {
     if (this.canAskNewUnit()) this.scene.restart();
   }
 
+  /**
+   * A boss's entrance (World.intro): black bars close in, the camera glides to the boss, its
+   * name card slams in at the bottom with a groan and its motto follows. The simulation holds
+   * everything still meanwhile; firing again skips it (BOSS_INTRO_SKIP).
+   */
+  private startBossIntro(bossId: number): void {
+    const boss = this.world.enemies.find((e) => e.id === bossId);
+    const card = boss?.def.boss;
+    if (!boss || !card) return;
+    this.camFocus = { x: boss.x, y: boss.y - 40 };
+    for (const o of this.hudObjs) o.setVisible(false);
+    const BAR = 30;
+    for (const top of [true, false]) {
+      const bar = this.hud(this.add.rectangle(0, top ? -BAR : VIEW_H, VIEW_W, BAR, 0x0e0c16, 1).setOrigin(0, 0)).setDepth(96000);
+      this.tweens.add({ targets: bar, y: top ? 0 : VIEW_H - BAR, duration: 260, ease: 'Quad.easeOut' });
+      this.introBars.push(bar);
+    }
+    const x = 22;
+    const y = VIEW_H - BAR - 46;
+    const sub = this.hud(this.add.bitmapText(x, y, FONT, fontText(BOSS_CARD_SUBTITLE), 8)).setDepth(96001);
+    sub.setTint(0x858ea8).setAlpha(0);
+    const name = this.hud(this.add.bitmapText(x, y + 11, FONT, fontText(card.title), 16)).setDepth(96001);
+    name.setTint(0xf6c431).setAlpha(0);
+    const line = this.hud(this.add.rectangle(x, y + 32, 1, 2, 0xe0453b, 1).setOrigin(0, 0)).setDepth(96001);
+    line.setAlpha(0);
+    const motto = this.hud(this.add.bitmapText(x, y + 37, FONT, fontText(`«${card.motto}»`), 8)).setDepth(96001);
+    motto.setTint(0xd6cdb2).setAlpha(0);
+    const skip = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 18, FONT, fontText(BOSS_CARD_SKIP), 8).setOrigin(1, 0)).setDepth(96001);
+    skip.setTint(0x5a627c).setAlpha(0);
+    this.introParts.push(sub, name, line, motto, skip);
+    this.tweens.add({ targets: sub, alpha: 1, delay: 500, duration: 200 });
+    // The name slams in from a bigger size, with a shake and the groan.
+    this.time.delayedCall(800, () => {
+      if (!this.world.intro) return;
+      name.setAlpha(1).setScale(1.6);
+      this.tweens.add({ targets: name, scale: 1, duration: 140, ease: 'Quad.easeIn' });
+      this.time.delayedCall(140, () => {
+        this.cameras.main.shake(180, 0.008, true);
+        this.sound2.play('jefe');
+        line.setAlpha(1);
+        this.tweens.add({ targets: line, width: name.width + 4, duration: 420, ease: 'Quad.easeOut' });
+        // Cold breath out of the fridge.
+        for (let i = 0; i < 14; i++) this.puff(boss.x + this.fx.range(-24, 24), boss.y - this.fx.range(0, 8), 0.6);
+      });
+    });
+    this.time.delayedCall(1500, () => {
+      if (!this.world.intro) return;
+      this.sound2.play('zumbido');
+      this.tweens.add({ targets: motto, alpha: 1, duration: 350 });
+      this.tweens.add({ targets: skip, alpha: 1, duration: 350 });
+    });
+  }
+
+  private endBossIntro(): void {
+    this.camFocus = null;
+    const parts = this.introParts;
+    const bars = this.introBars;
+    for (const bar of this.introBars) {
+      const top = bar.y < VIEW_H / 2;
+      this.tweens.add({ targets: bar, y: top ? -bar.height : VIEW_H, duration: 300, ease: 'Quad.easeIn', onComplete: () => bar.destroy() });
+    }
+    for (const o of this.introParts) {
+      this.tweens.add({ targets: o, alpha: 0, duration: 250, onComplete: () => o.destroy() });
+    }
+    this.introBars = [];
+    this.introParts = [];
+    // (The card's own parts went through hud() too: they are on their way out.)
+    this.hudObjs = this.hudObjs.filter((o) => !parts.includes(o as unknown as Phaser.GameObjects.GameObject) && !bars.includes(o as unknown as Phaser.GameObjects.Rectangle));
+    for (const o of this.hudObjs) o.setVisible(true);
+    const title = this.roomTitle;
+    if (title) {
+      this.tweens.add({ targets: title, alpha: 1, delay: 300, duration: 200 });
+      this.tweens.add({ targets: title, alpha: 0, delay: 2800, duration: 800 });
+    }
+  }
+
   private hud<T extends Phaser.GameObjects.Components.ScrollFactor & Phaser.GameObjects.Components.Depth>(o: T): T {
     o.setScrollFactor(0);
     o.setDepth(95000);
+    if ('setVisible' in o) this.hudObjs.push(o as unknown as Phaser.GameObjects.Components.Visible);
     return o;
   }
 
@@ -652,6 +741,9 @@ export class GameScene extends Phaser.Scene {
   private handleEvents(events: SimEvent[]): void {
     for (const e of events) {
       switch (e.type) {
+        case 'bossIntroEnd':
+          this.endBossIntro();
+          break;
         case 'shot': {
           this.shots++;
           this.gunKick = 3;
@@ -1335,9 +1427,9 @@ export class GameScene extends Phaser.Scene {
       lx = Math.cos(p.aim) * 30;
       ly = Math.sin(p.aim) * 30;
     }
-    const tx = p.x + lx - VIEW_W / 2;
-    const ty = p.y - BODY_HEIGHT + ly - VIEW_H / 2;
-    const k = 1 - Math.pow(0.0005, dt);
+    const tx = this.camFocus ? this.camFocus.x - VIEW_W / 2 : p.x + lx - VIEW_W / 2;
+    const ty = this.camFocus ? this.camFocus.y - VIEW_H / 2 : p.y - BODY_HEIGHT + ly - VIEW_H / 2;
+    const k = 1 - Math.pow(this.camFocus ? 0.02 : 0.0005, dt);
     this.camX += (tx - this.camX) * k;
     this.camY += (ty - this.camY) * k;
     const room = this.world.room;

@@ -14,8 +14,10 @@ export const DEATH_STAMPS: readonly string[] = [
   'Reacondicionable',
 ];
 
-/** In the boss room while its boss has not been made yet. */
-export const BOSS_AWAY_LINE = 'La Dirección está reunida · Vuelva usted mañana';
+/** Over a boss's name in its entrance card. */
+export const BOSS_CARD_SUBTITLE = 'Jefa de planta · Almacén de devoluciones';
+/** Bottom corner of the entrance card, once it can be skipped. */
+export const BOSS_CARD_SKIP = 'Disparar: saltar';
 
 /** Shown when the test room brings its enemies back. */
 export const RESTOCK_LINE = 'Reposición de stock';
@@ -49,6 +51,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   polilla: { contact: 'Ataque de polilla leal a la empresa' },
   batidora: { contact: 'Batido a velocidad turbo' },
   mando: { bullet: 'Zapeo a quemarropa', contact: 'Cambio de canal no solicitado' },
+  'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };
 export const DOWN_CAUSE_DEFAULT = 'Daños por mal uso';

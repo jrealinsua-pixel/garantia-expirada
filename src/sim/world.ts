@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
+import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { CharacterDef, DummyDef, EnemyDef, RoomTemplate, WeaponDef } from '../data/types.ts';
@@ -238,6 +238,10 @@ export type SimEvent =
   | { type: 'doors'; shut: boolean }
   /** The player walked through a door into floor room `id` (coming in through its `via` wall). */
   | { type: 'room'; id: number; via: Dir }
+  /** A boss makes its entrance (World.intro): the player stands still for `duration` s. */
+  | { type: 'bossIntro'; boss: number; duration: number }
+  /** The entrance is over (or was skipped): the fight starts. */
+  | { type: 'bossIntroEnd'; boss: number; skipped: boolean }
   /** The player lost `damage` life (now `hp`); `dirX, dirY` is where the blow came from towards it. */
   | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number }
   /** The player has no life left: the run is over. */
@@ -276,7 +280,22 @@ export interface World {
   doorsShut: boolean;
   /** The floor being played, or null for a single room (the test room, ?sala=). */
   floor: FloorRun | null;
+  /** A boss is making its entrance: nothing moves but the clock (see BOSS_INTRO). */
+  intro: BossIntro | null;
 }
+
+export interface BossIntro {
+  /** Id of the boss. */
+  boss: number;
+  /** Seconds since it started. */
+  t: number;
+  /** Fire was released since it started: pressing it again skips the rest. */
+  armed: boolean;
+}
+
+/** Seconds a boss's entrance lasts (name card and motto), and how soon it can be skipped. */
+export const BOSS_INTRO = 3.6;
+export const BOSS_INTRO_SKIP = 0.8;
 
 /** What each room of a floor is and what is left in it. */
 export interface FloorRoomState {
@@ -333,7 +352,7 @@ export function createWorld(opts: WorldOptions): World {
   const floor = opts.floor ? planFloor(opts.seed) : null;
   let tpl = floor ? floor.rooms[floor.current]!.template : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
-  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: SLOT_ENEMIES_1 });
+  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
@@ -379,6 +398,7 @@ export function createWorld(opts: WorldOptions): World {
     cause: null,
     doorsShut: room.kind === 'test',
     floor,
+    intro: null,
   };
   if (floor) {
     floor.rooms[floor.current]!.visited = true;
@@ -387,7 +407,8 @@ export function createWorld(opts: WorldOptions): World {
   }
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   // Walking into a combat room brings its shutters down until the last enemy falls.
-  if (room.kind === 'combat' && w.enemies.length > 0) w.doorsShut = true;
+  if (fights(room) && w.enemies.length > 0) w.doorsShut = true;
+  startIntro(w);
   return w;
 }
 
@@ -410,7 +431,7 @@ function planFloor(seed: string): FloorRun {
     return deck.pop()!;
   };
   const rooms = layout.rooms.map((fr): FloorRoomState => {
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1 });
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat', pickups: [] };
   });
   return { layout, current: layout.start, rooms };
@@ -492,6 +513,37 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   setDoorTiles(w, !w.doorsShut);
   w.events.push({ type: 'room', id, via });
   if (w.doorsShut) w.events.push({ type: 'doors', shut: true });
+  startIntro(w);
+}
+
+/** Rooms that lock their shutters until their enemies are gone. */
+const fights = (room: Room): boolean => room.kind === 'combat' || room.kind === 'boss';
+
+/** In a boss room with its boss still there, the boss makes its entrance. */
+function startIntro(w: World): void {
+  if (w.room.kind !== 'boss') return;
+  const boss = w.enemies.find((en) => en.def.boss);
+  if (!boss) return;
+  w.intro = { boss: boss.id, t: 0, armed: false };
+  w.events.push({ type: 'bossIntro', boss: boss.id, duration: BOSS_INTRO });
+}
+
+/**
+ * During a boss's entrance only the clock runs: the player stops and looks at the boss, nothing
+ * else moves. Pressing fire again (after BOSS_INTRO_SKIP s) skips the rest.
+ */
+function stepIntro(w: World, intro: BossIntro, input: Input): void {
+  const boss = w.enemies.find((en) => en.id === intro.boss);
+  intro.t += DT;
+  if (!input.fire) intro.armed = true;
+  const skipped = intro.armed && input.fire && intro.t >= BOSS_INTRO_SKIP;
+  const p = w.player;
+  updatePlayer(w, { ...NO_INPUT, aimX: boss ? boss.x : p.x + p.facing, aimY: boss ? boss.y - 30 : p.y - HAND_HEIGHT });
+  if (boss) boss.facing = p.x >= boss.x ? 1 : -1;
+  if (!boss || skipped || intro.t >= BOSS_INTRO) {
+    w.intro = null;
+    w.events.push({ type: 'bossIntroEnd', boss: intro.boss, skipped });
+  }
 }
 
 /** Leaves through the door the player is walking into, if any. */
@@ -1068,7 +1120,7 @@ function updateRestock(w: World): void {
 
 /** A combat room's shutters roll up once its last enemy falls. */
 function updateDoors(w: World): void {
-  if (w.doorsShut && w.room.kind === 'combat' && w.enemies.length === 0) {
+  if (w.doorsShut && fights(w.room) && w.enemies.length === 0) {
     w.doorsShut = false;
     w.events.push({ type: 'doors', shut: false });
     if (w.floor) w.floor.rooms[w.floor.current]!.cleared = true;
@@ -1078,6 +1130,11 @@ function updateDoors(w: World): void {
 
 export function step(w: World, input: Input): void {
   w.events = [];
+  if (w.intro) {
+    stepIntro(w, w.intro, input);
+    w.tick++;
+    return;
+  }
   // Once down, the toaster lies there: the room goes on without it.
   updatePlayer(w, w.over ? { ...NO_INPUT, aimX: w.player.x + Math.cos(w.player.aim), aimY: w.player.y - HAND_HEIGHT + Math.sin(w.player.aim) } : input);
   if (input.debugPattern && !w.over) {

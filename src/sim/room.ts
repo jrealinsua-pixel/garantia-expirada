@@ -53,7 +53,7 @@ export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
 const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 'shelf', J: 'boss' };
 
 const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito' };
-const ENEMY_CHARS: Record<string, string> = { A: 'aspirador', O: 'microondas', L: 'bombilla', T: 'batidora', Z: 'mando' };
+const ENEMY_CHARS: Record<string, string> = { A: 'aspirador', O: 'microondas', L: 'bombilla', T: 'batidora', Z: 'mando', N: 'nevera-suprema' };
 
 /**
  * Builds a room from a template. `doors` are the walls with an opening: by default all four for
@@ -170,6 +170,8 @@ export interface FillOptions {
   depth: number;
   /** Enemies that may fill `e` slots (src/data/rooms.ts SLOT_ENEMIES). */
   pool: readonly SlotEnemy[];
+  /** Template letter of the floor's boss, which takes the `J` spot (src/data/rooms.ts FLOOR_BOSS_1). */
+  boss?: string;
 }
 
 /** Enemy budget of a combat room at a given depth (each enemy costs SlotEnemy.cost). */
@@ -190,6 +192,7 @@ export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): Room
   const enemySlots: Cell[] = [];
   grid.forEach((line, r) => line.forEach((ch, c) => {
     if (ch === 'e') enemySlots.push({ c, r });
+    else if (ch === 'J' && opts.boss) line[c] = opts.boss;
     else if (ch === 'o') line[c] = weighted(rng, OBSTACLES);
   }));
   rng.shuffle(enemySlots);

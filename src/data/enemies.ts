@@ -161,4 +161,22 @@ export const ENEMIES: Record<string, EnemyDef> = {
       hitBlinkCooldown: 2.5,
     },
   },
+  'nevera-suprema': {
+    id: 'nevera-suprema',
+    name: 'La Nevera Suprema',
+    description:
+      'Jefa de la planta del almacén. Clase energética A+++, dispensador de hielo y una pegatina de «Empleada del mes» ' +
+      'que se puso ella misma. Lleva veinte años sin descongelarse y sin dar una sola explicación.',
+    hp: 260,
+    sprite: 'nevera-suprema',
+    anchor: { x: 34, y: 73 },
+    hurt: { x: -25, y: -70, w: 48, h: 62 },
+    footRadius: 16,
+    contactPush: 260,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [10, 14] },
+    brain: { kind: 'boss' },
+    boss: { title: 'La Nevera Suprema', motto: 'Congelamos los precios. Y las reclamaciones.' },
+  },
 };
