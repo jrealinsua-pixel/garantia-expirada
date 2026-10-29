@@ -2,6 +2,12 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-29 09:31 — Sesión duplicada — Dos sesiones a la vez
+
+- Hecho: nada de juego. Esta sesión empezó a la vez que la de las 09:30, eligió la misma tarea (la nota de la estimación), la terminó y al hacer push se encontró la otra ya publicada. He descartado mi versión y me quedo con la publicada.
+- Decisiones: no sigo con la siguiente tarea (sinergias de M5) porque la otra sesión la habrá cogido ya y dos sesiones tocando el mismo código acaban en conflictos. Lo anoto en `progress.json → bloqueos` para que el humano revise si hay dos tareas programadas que se pisan.
+- Siguiente paso: M5, «Al menos 4 sinergias con texto propio» (si nadie lo ha hecho ya).
+
 ## 2026-10-29 09:30 — Nota del humano — Estimación de tiempo por hito
 
 - Hecho: atendida la nota que pedía un aproximado de lo que tardará cada fase. Tabla nueva al principio de `docs/HOJA_DE_RUTA.md` («Estimación de tiempo») con sesiones por hito y su porqué; la misma cifra en `progress.json → estimacion`, y el panel la enseña: una línea encima de los hitos (sesiones que quedan, sumadas solo de los hitos sin terminar, y el calendario) y «≈ N ses.» bajo cada hito pendiente. Comprobado con capturas del panel a 1100 y 390 px de ancho.

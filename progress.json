@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T09:30:00+01:00",
+  "actualizado": "2026-10-29T09:31:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -338,7 +338,9 @@
     }
   ],
   "proximo": "M5: al menos 4 sinergias con texto propio.",
-  "bloqueos": [],
+  "bloqueos": [
+    "Dos sesiones automáticas arrancaron a la vez el 29-10 hacia las 09:20 e hicieron la misma tarea: revisa si hay dos tareas programadas o si se solapan. Se pierde la mitad de los créditos."
+  ],
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
