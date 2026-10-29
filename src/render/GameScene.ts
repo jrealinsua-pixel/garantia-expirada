@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { DEATH_STAMPS, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
+import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
@@ -85,6 +85,9 @@ export interface GameStateForTests {
   report: string[];
 }
 
+/** Pixels of a rolled-up shutter still showing under the lintel (with its pilot light). */
+const SHUTTER_ROLLED = 9;
+
 export class GameScene extends Phaser.Scene {
   world!: World;
   controls!: Controls;
@@ -113,6 +116,7 @@ export class GameScene extends Phaser.Scene {
   private couponText!: Phaser.GameObjects.BitmapText;
   private couponPop = 0;
   private banner!: Phaser.GameObjects.BitmapText;
+  private shutters: Array<{ img: Phaser.GameObjects.Image; h: number }> = [];
   /** Red flash over the whole screen when hurt, and the heart that just broke. */
   private hurtFlash!: Phaser.GameObjects.Rectangle;
   private heartHit = -1;
@@ -192,6 +196,7 @@ export class GameScene extends Phaser.Scene {
     const art = paintRoom(room, seed);
     addCanvasTexture(this, 'sala', art.canvas);
     this.add.image(0, 0, 'sala').setOrigin(0, 0).setDepth(-100000);
+    this.makeShutters(art.doors);
 
     for (const pr of room.props) {
       const key = pr.def.id;
@@ -680,6 +685,9 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('cupon', { detune: Math.min(600, (e.total % 8) * 80) });
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 3, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1);
           break;
+        case 'doors':
+          if (!e.shut) this.openShutters();
+          break;
         case 'restock':
           this.sound2.play('reponer');
           this.banner.setText(fontText(RESTOCK_LINE)).setAlpha(1);
@@ -739,6 +747,49 @@ export class GameScene extends Phaser.Scene {
   private spark(x: number, y: number, a: number, speed: number, frame: number): void {
     const s = this.add.image(x, y, 'chispas', frame);
     this.particles.push({ s, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, z: 0, vz: 0, life: 0.25, maxLife: 0.25, gravity: false, spin: 0, fade: false });
+  }
+
+  /**
+   * One shutter sprite per door. Walking into a combat room brings them down with a slam; in any
+   * other room they are already up (rolled into the lintel, green light).
+   */
+  private makeShutters(doors: ReadonlyArray<{ dir: string; x: number; y: number; w: number; h: number }>): void {
+    this.shutters = [];
+    const slam = this.world.doorsShut && this.world.room.kind === 'combat';
+    for (const d of doors) {
+      const key = d.dir === 'N' ? 'persiana-n' : d.dir === 'S' ? 'persiana-s' : 'persiana-v';
+      const img = this.add.image(d.x, d.y, key, this.world.doorsShut ? 0 : 1).setOrigin(0, 0).setDepth(-99000);
+      const sh = { img, h: d.h };
+      this.shutters.push(sh);
+      if (!this.world.doorsShut) img.setCrop(0, 0, d.w, SHUTTER_ROLLED);
+      else if (slam) {
+        const p = { h: SHUTTER_ROLLED };
+        img.setCrop(0, 0, d.w, p.h);
+        this.tweens.add({ targets: p, h: d.h, duration: 260, delay: 150, ease: 'Quad.easeIn', onUpdate: () => img.setCrop(0, 0, d.w, Math.round(p.h)) });
+      }
+    }
+    if (slam && this.shutters.length) {
+      this.time.delayedCall(410, () => {
+        this.sound2.play('persiana');
+        this.cameras.main.shake(110, 0.005, true);
+        for (const s of this.shutters) for (let i = 0; i < 3; i++) this.puff(s.img.x + this.fx.range(4, s.img.width - 4), s.img.y + s.h - 2, 0.4);
+      });
+    }
+  }
+
+  /** The room is clear: the shutters rattle up, the lights go green, and the shop thanks you. */
+  private openShutters(): void {
+    this.sound2.play('desbloquear');
+    this.time.delayedCall(120, () => this.sound2.play('persiana'));
+    for (const s of this.shutters) {
+      const img = s.img;
+      img.setFrame(1);
+      const p = { h: s.h };
+      this.tweens.add({ targets: p, h: SHUTTER_ROLLED, duration: 650, ease: 'Sine.easeInOut', onUpdate: () => img.setCrop(0, 0, img.width, Math.round(p.h)) });
+    }
+    this.banner.setText(fontText(this.fx.pick(DOORS_OPEN_LINES))).setAlpha(1);
+    this.tweens.killTweensOf(this.banner);
+    this.tweens.add({ targets: this.banner, alpha: 0, delay: 1800, duration: 600 });
   }
 
   private puff(x: number, y: number, life: number): void {

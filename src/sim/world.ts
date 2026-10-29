@@ -8,6 +8,7 @@ import { updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
+import type { Dir } from './floor.ts';
 import { buildRoom, fillTemplate, isWallAt, wallRectsNear, type Room } from './room.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
@@ -223,6 +224,8 @@ export type SimEvent =
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
   | { type: 'restock' }
+  /** The shutters of the room come down (shut) or roll up. */
+  | { type: 'doors'; shut: boolean }
   /** The player lost `damage` life (now `hp`); `dirX, dirY` is where the blow came from towards it. */
   | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number }
   /** The player has no life left: the run is over. */
@@ -254,6 +257,11 @@ export interface World {
   noDamage: boolean;
   /** What took the player down (null while it is up), for the sick-leave report. */
   cause: DownCause | null;
+  /**
+   * The room's shutters are down: in a combat room until its last enemy falls; in the test room,
+   * always (nobody leaves the test room).
+   */
+  doorsShut: boolean;
 }
 
 /** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
@@ -277,6 +285,8 @@ export interface WorldOptions {
   template?: RoomTemplate;
   /** Floor rooms picked by id have their slots filled for this depth (default 3). */
   depth?: number;
+  /** Walls with a door (default: see buildRoom). */
+  doors?: readonly Dir[];
   character?: string;
   /** Leave the room's enemies out (tests that only need the player and the dummies). */
   noEnemies?: boolean;
@@ -290,7 +300,7 @@ export function createWorld(opts: WorldOptions): World {
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
   if (!wdef) throw new Error(`Unknown weapon ${def.startWeapon}`);
-  const room = buildRoom(tpl);
+  const room = buildRoom(tpl, opts.doors);
   let nextId = 1;
   const dummies: Dummy[] = room.dummySpawns.map((s) => ({ id: nextId++, def: s.def, x: s.x, y: s.y, lean: 0, leanV: 0, hitT: 0, damageTaken: 0 }));
   const w: World = {
@@ -329,8 +339,11 @@ export function createWorld(opts: WorldOptions): World {
     over: false,
     noDamage: false,
     cause: null,
+    doorsShut: room.kind === 'test',
   };
   if (w.spawnsEnemies) spawnRoomEnemies(w);
+  // Walking into a combat room brings its shutters down until the last enemy falls.
+  if (room.kind === 'combat' && w.enemies.length > 0) w.doorsShut = true;
   return w;
 }
 
@@ -892,6 +905,14 @@ function updateRestock(w: World): void {
   }
 }
 
+/** A combat room's shutters roll up once its last enemy falls. */
+function updateDoors(w: World): void {
+  if (w.doorsShut && w.room.kind === 'combat' && w.enemies.length === 0) {
+    w.doorsShut = false;
+    w.events.push({ type: 'doors', shut: false });
+  }
+}
+
 export function step(w: World, input: Input): void {
   w.events = [];
   // Once down, the toaster lies there: the room goes on without it.
@@ -911,6 +932,7 @@ export function step(w: World, input: Input): void {
   updateEnemies(w);
   updatePickups(w);
   updateRestock(w);
+  updateDoors(w);
   w.tick++;
 }
 

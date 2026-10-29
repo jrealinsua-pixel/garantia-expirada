@@ -8,6 +8,8 @@ export interface PaintableRoom {
   cols: number;
   rows: number;
   tiles: Uint8Array;
+  /** Door openings in pixels (src/sim/room.ts RoomDoor). */
+  doors?: readonly { dir: string; x: number; y: number; w: number; h: number }[];
 }
 
 const T = 24;
@@ -16,7 +18,8 @@ export interface RoomArt {
   canvas: Canvas;
   /** Lamp centres, for the renderer's light pools / flicker. */
   lamps: Array<{ x: number; y: number }>;
-  doors: Array<{ x: number; y: number; w: number; h: number }>;
+  /** Where each door's shutter goes (sprites persiana-n, -s and -v). */
+  doors: Array<{ dir: string; x: number; y: number; w: number; h: number }>;
 }
 
 const shade = (c: RGBA, d: number): RGBA => [
@@ -25,17 +28,6 @@ const shade = (c: RGBA, d: number): RGBA => [
   Math.max(0, Math.min(255, c[2] + Math.round(d * 1.15))),
   255,
 ];
-
-function shutter(S: Canvas, x: number, y: number, w: number, h: number): void {
-  S.rect(x, y, w, h, hx('#3a4058'));
-  for (let j = y + 2; j < y + h; j += 3) S.rect(x, j, w, 1, hx('#2b3048'));
-  S.rect(x, y, w, 1, K);
-  S.rect(x, y, 1, h, K);
-  S.rect(x + w - 1, y, 1, h, K);
-  S.rect(x + Math.floor(w / 2) - 6, y + 4, 12, 4, K);
-  S.rect(x + Math.floor(w / 2) - 4, y + 5, 8, 2, hx('#e0453b'));
-  S.rect(x + Math.floor(w / 2) - 4, y + 5, 3, 1, hx('#ff8a70'));
-}
 
 const BOX_COLORS = ['#c23d38', '#d9a52a', '#3f74bd', '#4b9a4e', '#d3849a', '#d9782a', '#5cc2c0', '#a8916c', '#aab1c4'];
 
@@ -230,13 +222,22 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
   for (let x = T; x < W - T; x++) for (let y = H - T; y < H - T + 5; y++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
 
-  // Closed shutters at the top and bottom centre (real doors arrive with the floor generator, M3).
-  const dx = Math.floor(W / 2 / T) * T - T;
-  const doors = [
-    { x: dx, y: 14, w: 48, h: 33 },
-    { x: dx, y: H - T, w: 48, h: 24 },
-  ];
-  for (const d of doors) shutter(S, d.x, d.y, d.w, d.h);
+  // Doorways: a dark hole in the wall with a steel frame; the renderer puts the shutter on top.
+  const doors: RoomArt['doors'] = [];
+  for (const d of room.doors ?? []) {
+    const hole = d.dir === 'N' ? { x: d.x, y: 14, w: d.w, h: 34 } : { x: d.x, y: d.y, w: d.w, h: d.h };
+    S.rect(hole.x, hole.y, hole.w, hole.h, hx('#0b0a12'));
+    if (d.dir === 'N' || d.dir === 'S') {
+      S.rect(hole.x - 2, hole.y - (d.dir === 'N' ? 2 : 0), 2, hole.h + 2, hx('#5d658a'));
+      S.rect(hole.x + hole.w, hole.y - (d.dir === 'N' ? 2 : 0), 2, hole.h + 2, hx('#3e4560'));
+      if (d.dir === 'N') S.rect(hole.x - 2, hole.y - 2, hole.w + 4, 2, hx('#5d658a'));
+      doors.push({ dir: d.dir, x: hole.x, y: hole.y, w: hole.w, h: d.dir === 'N' ? 33 : hole.h });
+    } else {
+      S.rect(hole.x, hole.y - 2, hole.w, 2, hx('#5d658a'));
+      S.rect(hole.x, hole.y + hole.h, hole.w, 2, hx('#3e4560'));
+      doors.push({ dir: d.dir, ...hole });
+    }
+  }
 
   // Warm light pools under the lamps.
   for (const l of lamps) {

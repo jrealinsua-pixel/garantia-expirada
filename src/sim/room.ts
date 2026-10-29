@@ -34,8 +34,19 @@ export interface Room {
   /** Seconds before dead enemies come back (0 = never). */
   restock: number;
   kind: RoomKind | 'test';
+  /** Openings in the walls (still solid until the floor's transitions arrive). */
+  doors: RoomDoor[];
   /** Item pedestals, shopkeeper, shop shelves and boss spot (centre of the tile). */
   slots: Array<{ kind: SlotKind; x: number; y: number }>;
+}
+
+export interface RoomDoor {
+  dir: Dir;
+  /** The opening in pixels (the wall tiles it takes). */
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
 export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
@@ -44,7 +55,11 @@ const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 
 const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito' };
 const ENEMY_CHARS: Record<string, string> = { A: 'aspirador', O: 'microondas', L: 'bombilla', T: 'batidora', Z: 'mando' };
 
-export function buildRoom(t: RoomTemplate): Room {
+/**
+ * Builds a room from a template. `doors` are the walls with an opening: by default all four for
+ * floor templates and north and south for the test room.
+ */
+export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
   const rows = t.rows.length;
   const cols = t.rows[0]?.length ?? 0;
   if (rows < 4 || cols < 4) throw new Error(`Room ${t.id}: too small`);
@@ -80,6 +95,16 @@ export function buildRoom(t: RoomTemplate): Room {
     const inner = a[a.length - 1]!;
     playerStart = { x: (inner.c + 1) * TILE, y: inner.r * TILE + TILE / 2 + 4 };
   }
+  const roomDoors: RoomDoor[] = [];
+  for (const dir of doors ?? (t.kind ? (['N', 'S', 'E', 'W'] as const) : (['N', 'S'] as const))) {
+    const cells = doorCells(cols, rows, dir);
+    if (cells.some((c) => !tiles[c.r * cols + c.c])) throw new Error(`Room ${t.id}: door ${dir} is not in a wall`);
+    const c0 = Math.min(...cells.map((c) => c.c));
+    const r0 = Math.min(...cells.map((c) => c.r));
+    const c1 = Math.max(...cells.map((c) => c.c));
+    const r1 = Math.max(...cells.map((c) => c.r));
+    roomDoors.push({ dir, x: c0 * TILE, y: r0 * TILE, w: (c1 - c0 + 1) * TILE, h: (r1 - r0 + 1) * TILE });
+  }
   return {
     id: t.id,
     name: t.name,
@@ -94,6 +119,7 @@ export function buildRoom(t: RoomTemplate): Room {
     enemySpawns,
     restock: t.restock ?? 0,
     kind: t.kind ?? 'test',
+    doors: roomDoors,
     slots,
   };
 }

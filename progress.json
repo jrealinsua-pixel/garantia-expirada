@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T01:50:00+01:00",
+  "actualizado": "2026-10-29T02:20:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M3",
   "hitos": [
@@ -28,7 +28,7 @@
       "id": "M3",
       "nombre": "Salas y planta",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 6
     },
     {
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 140,
-    "tests_ok": 140,
+    "tests": 146,
+    "tests_ok": 146,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 5339
+    "lineas_codigo": 5445
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T02:20:00+01:00",
+      "hito": "M3",
+      "resumen": "Puertas de verdad: cada sala abre hueco en las paredes que le toquen y, en las de combate, las persianas bajan de golpe al entrar y suben con el piloto en verde cuando cae el último enemigo («Incidencia resuelta · Valore nuestra atención»).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T01:50:00+01:00",
       "hito": "M3",
@@ -212,12 +218,12 @@
       "pie": "Cámara de Garantías Vencidas, una de las 19 plantillas nuevas: estanterías sueltas, enemigos repartidos por sus huecos"
     },
     {
-      "archivo": "capturas/sala-archivo.png",
-      "pie": "Archivo de Tickets Sin Sello: pasillos de estanterías llenas de devoluciones"
+      "archivo": "capturas/persianas.png",
+      "pie": "Sala vaciada: las persianas suben con el piloto en verde y la tienda agradece su paciencia"
     },
     {
-      "archivo": "capturas/mando.png",
-      "pie": "Sala de Pruebas con todos los enemigos: abajo, un Mando a Distancia; a la izquierda, la estática donde va a reaparecer otro"
+      "archivo": "capturas/sala-archivo.png",
+      "pie": "Archivo de Tickets Sin Sello: pasillos de estanterías llenas de devoluciones"
     },
     {
       "archivo": "capturas/desmontaje.png",
@@ -232,6 +238,6 @@
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M3: persianas que se cierran durante el combate (y se abren las puertas reales en las salas), luego la transición entre salas para recorrer una planta entera; el bot necesitará buscar camino entre estanterías.",
+  "proximo": "M3: transición entre salas (cruzar una puerta abierta lleva a la sala vecina de la planta generada), con el bot buscando camino entre estanterías; después minimapa y casillas de la planta 1.",
   "bloqueos": []
 }

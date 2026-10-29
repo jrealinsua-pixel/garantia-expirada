@@ -227,7 +227,7 @@ export function makeManiqui(): Canvas {
 }
 
 /** Roll-up shutter door with a red pilot light (build2.shutter), as a standalone sprite. */
-export function makeShutter(w: number, h: number): Canvas {
+export function makeShutter(w: number, h: number, light: 'red' | 'green' = 'red'): Canvas {
   const cv = new Canvas(w, h);
   cv.rect(0, 0, w, h, hx('#3a4058'));
   for (let j = 2; j < h; j += 3) cv.rect(0, j, w, 1, hx('#2b3048'));
@@ -235,9 +235,27 @@ export function makeShutter(w: number, h: number): Canvas {
   cv.rect(0, 0, 1, h, K);
   cv.rect(w - 1, 0, 1, h, K);
   cv.rect(Math.floor(w / 2) - 6, 4, 12, 4, K);
-  cv.rect(Math.floor(w / 2) - 4, 5, 8, 2, RED[1]!);
-  cv.rect(Math.floor(w / 2) - 4, 5, 3, 1, RED[0]!);
+  cv.rect(Math.floor(w / 2) - 4, 5, 8, 2, light === 'red' ? RED[1]! : GREEN);
+  cv.rect(Math.floor(w / 2) - 4, 5, 3, 1, light === 'red' ? RED[0]! : hx('#a8e89a'));
   return cv;
+}
+
+/**
+ * The shutters of a room's doors, two frames each (pilot light red: shut; green: open). Bottom
+ * edge: a black lip and a worn yellow-and-black kick strip, so it reads as the moving part.
+ */
+export function makeShutterFrames(w: number, h: number): Canvas {
+  const out = new Canvas(w * 2, h);
+  (['red', 'green'] as const).forEach((light, i) => {
+    const f = makeShutter(w, h, light);
+    for (let x = 1; x < w - 1; x++) {
+      f.set(x, h - 4, Math.floor(x / 3) % 2 === 0 ? hx('#b08a1c') : hx('#191622'));
+      f.set(x, h - 3, Math.floor((x + 1) / 3) % 2 === 0 ? hx('#b08a1c') : hx('#191622'));
+    }
+    f.rect(0, h - 2, w, 2, K);
+    out.blit(f, i * w, 0);
+  });
+  return out;
 }
 
 /** Screen vignette for 480x270: transparent centre, darker corners. */

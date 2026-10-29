@@ -62,6 +62,10 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     chatarra: { canvas: P.makeScrap(), frameW: 6, frameH: 6 },
     ranura: one(P.makeSlot()),
     despiece: { canvas: P.makeToasterBits(), frameW: 8, frameH: 8 },
+    // Door shutters: in the back wall (north), the front wall (south) and the side walls.
+    'persiana-n': { canvas: P.makeShutterFrames(48, 33), frameW: 48, frameH: 33 },
+    'persiana-s': { canvas: P.makeShutterFrames(48, 24), frameW: 48, frameH: 24 },
+    'persiana-v': { canvas: P.makeShutterFrames(24, 48), frameW: 24, frameH: 48 },
   };
   for (const n of Object.keys(ITEM_GRIDS)) sheets['objeto-' + n] = one(makeItem(n));
   return sheets;

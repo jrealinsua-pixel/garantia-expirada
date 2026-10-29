@@ -113,5 +113,8 @@ export const SFX: Record<string, SfxParams> = {
   saltar: { wave: 'square', freq: 260, freqEnd: 980, attack: 0.001, sustain: 0.03, decay: 0.09, volume: 0.22, duty: 0.4, crush: 2 },
   muelle: { wave: 'triangle', freq: 330, freqEnd: 520, attack: 0.002, sustain: 0.2, decay: 0.35, volume: 0.28, vibrato: 0.35, vibratoSpeed: 22 },
   sello: { wave: 'noise', freq: 600, freqEnd: 120, attack: 0.001, sustain: 0.03, decay: 0.16, volume: 0.32, lowpass: 0.25, crush: 2 },
+  // Shutters: a metal roller door slamming down, and rattling back up when the room is clear.
+  persiana: { wave: 'noise', freq: 900, freqEnd: 90, attack: 0.002, sustain: 0.12, decay: 0.3, volume: 0.3, lowpass: 0.3, crush: 3, vibrato: 0.3, vibratoSpeed: 30 },
+  desbloquear: { wave: 'square', freq: 330, freqEnd: 990, attack: 0.005, sustain: 0.18, decay: 0.2, volume: 0.13, duty: 0.35, vibrato: 0.08, vibratoSpeed: 16 },
   vacio: { wave: 'square', freq: 220, freqEnd: 200, attack: 0.001, sustain: 0.015, decay: 0.02, volume: 0.15, duty: 0.15 },
 };

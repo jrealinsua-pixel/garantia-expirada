@@ -18,6 +18,14 @@ export const DEATH_STAMPS: readonly string[] = [
 export const RESTOCK_LINE = 'Reposición de stock';
 
 /** Over the mixer when its slider jams on the red notch. */
+/** Shown when the last enemy of a combat room falls and the shutters roll up. */
+export const DOORS_OPEN_LINES: readonly string[] = [
+  'Incidencia resuelta · Valore nuestra atención',
+  'Puertas desbloqueadas · Gracias por su paciencia',
+  'Su reclamación ha sido archivada',
+  'Sala despejada · Encuesta de satisfacción enviada',
+];
+
 export const TURBO_LINE = 'Turbo';
 
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */

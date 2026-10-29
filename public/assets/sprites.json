@@ -179,6 +179,24 @@
     "frameH": 8,
     "frames": 4
   },
+  "persiana-n": {
+    "file": "persiana-n.png",
+    "frameW": 48,
+    "frameH": 33,
+    "frames": 2
+  },
+  "persiana-s": {
+    "file": "persiana-s.png",
+    "frameW": 48,
+    "frameH": 24,
+    "frames": 2
+  },
+  "persiana-v": {
+    "file": "persiana-v.png",
+    "frameW": 24,
+    "frameH": 48,
+    "frames": 2
+  },
   "objeto-pila": {
     "file": "objeto-pila.png",
     "frameW": 16,

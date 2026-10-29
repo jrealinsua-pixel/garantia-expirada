@@ -273,7 +273,15 @@ try {
     await shot(`14${'abc'[i]}-sala-${sala}.png`);
     const n = await page.evaluate<number>('window.__GE__.scene.world.enemies.length');
     if (n === 0) throw new Error(`La sala ${sala} no tiene enemigos`);
+    if (!(await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut'))) throw new Error(`La sala ${sala} no cierra las persianas`);
   }
+  // Clearing the last room rolls its shutters up.
+  await page.evaluate('window.__GE__.scene.world.enemies.forEach((e) => { e.damageTaken = e.def.hp; })');
+  await page.waitForTimeout(250);
+  await shot('15a-persianas-subiendo.png');
+  await page.waitForTimeout(900);
+  await shot('15b-persianas-abiertas.png');
+  if (await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut')) throw new Error('Las persianas no se abren al vaciar la sala');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);
