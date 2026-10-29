@@ -12,3 +12,5 @@ Ejemplo:
 
 - [atendida] 2026-10-28 · Quiero poder jugar algo cuanto antes, aunque sea una sala con la tostadora disparando.
   → Ya se puede: la Sala de Pruebas tiene a la tostadora andando, rodando y disparando el Secador a dos maniquíes (botón «Jugar» del panel).
+  
+- 2026-10-29  La versión de escritorio va a ser lo ultimo para hacer, el juego tiene que tener varios unos 5 pisos y un piso final especial solo desbloqueable completando unos requisitos, mucha variedad de enemigos, jefes, armas, objetos y unos 5 personajes jugables con historias diferentes 
