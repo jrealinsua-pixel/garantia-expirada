@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T23:42:00+01:00",
+  "actualizado": "2026-10-30T00:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,8 +63,8 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 16,
-      "total": 17
+      "hechas": 17,
+      "total": 18
     },
     {
       "id": "M9",
@@ -118,18 +118,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 10,
-    "jefes": 1,
+    "enemigos": 11,
+    "jefes": 2,
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 381,
-    "tests_ok": 381,
+    "tests": 387,
+    "tests_ok": 387,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 14091
+    "lineas_codigo": 14399
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T00:05:00+01:00",
+      "hito": "M8",
+      "resumen": "Jefe (2b): el Router del Wifi pelea en la planta 2: repetidores en las esquinas que le reenvían las ondas, anillos con hueco, reinicio a media vida y caídas de conexión. El bot le gana la mitad de las veces (a la Nevera, dos de cada tres).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T23:42:00+01:00",
       "hito": "M8",
@@ -565,12 +571,12 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/webcam.png",
-      "pie": "La Webcam Siempre Encendida grabando: la línea de puntos rojos te sigue; si no te escondes a tiempo, comparte pantalla y los demás atacan a la vez"
+      "archivo": "capturas/router-combate.png",
+      "pie": "El Router del Wifi en su fase 2, «Actualización de firmware»: anillos con dos huecos y tres caídas de conexión marcadas alrededor de la tostadora"
     },
     {
-      "archivo": "capturas/router.png",
-      "pie": "El Router del Wifi, jefe de la planta 2 (aún no pelea), al lado de la tostadora, su repetidor, la Impresora y el Cargador Falso"
+      "archivo": "capturas/webcam.png",
+      "pie": "La Webcam Siempre Encendida grabando: la línea de puntos rojos te sigue; si no te escondes a tiempo, comparte pantalla y los demás atacan a la vez"
     },
     {
       "archivo": "capturas/raton.png",
@@ -589,17 +595,17 @@
       "pie": "La Impresora que se Atasca en la planta 2: cada pocas ráfagas de facturas se queda atascada y temblando («Atasco de papel»)"
     }
   ],
-  "proximo": "M8, jefe (2b): el Router del Wifi en la simulación (fases, repetidores y reinicio; diseño en docs/DISENO.md, sala jefe-informatica y sprites router-wifi y repetidor ya hechos). Es la última tarea de M8; después, medir la planta 2 entera con el bot.",
+  "proximo": "M8: medir la planta 2 entera con el bot (que npm run bot juegue también plantas 2 completas) y ajustar su dificultad; con eso M8 queda terminado y toca M9 (el centro y la historia).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13).",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:05: M8 casi terminado (queda medir la planta 2 entera).",
     "hitos": {
       "M5": 0,
       "M6": 0,
       "M7": 0,
-      "M8": 13,
+      "M8": 1,
       "M9": 10,
       "M10": 24,
       "M11": 13,
@@ -613,16 +619,10 @@
       "sesiones": 0
     },
     "total": {
-      "sesiones": 122,
-      "con_margen": 159
+      "sesiones": 110,
+      "con_margen": 143
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 22:25 UTC",
-      "tarea": "M8: jefe (2b): el Router del Wifi en la simulación",
-      "desde": "2026-10-29T23:45:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

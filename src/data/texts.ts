@@ -75,6 +75,8 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   cargador: { bullet: 'Calambre de un cargador no homologado', contact: 'Cargador no homologado' },
   'raton-inalambrico': { bullet: 'Doble clic accidental', contact: 'Ratón que apareció de repente' },
   webcam: { bullet: 'Foto subida sin consentimiento', contact: 'Videollamada sorpresa' },
+  'router-wifi': { bullet: 'Exceso de cobertura', contact: 'Reinicio forzoso' },
+  repetidor: { bullet: 'Señal repetida', contact: 'Tropiezo con un repetidor' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };

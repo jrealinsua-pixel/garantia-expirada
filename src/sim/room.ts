@@ -74,6 +74,7 @@ const ENEMY_CHARS: Record<string, string> = {
   F: 'cargador',
   R: 'raton-inalambrico',
   W: 'webcam',
+  X: 'router-wifi',
 };
 
 /**
@@ -237,7 +238,7 @@ export interface FillOptions {
   depth: number;
   /** Enemies that may fill `e` slots (src/data/rooms.ts SLOT_ENEMIES). */
   pool: readonly SlotEnemy[];
-  /** Template letter of the floor's boss, which takes the `J` spot (src/data/rooms.ts FLOOR_BOSS_1). */
+  /** Template letter of the floor's boss, which takes the `J` spot (src/data/rooms.ts floorBossOf). */
   boss?: string;
   /** Rooms of a generated floor: a combat room may also come mirrored left to right. */
   vary?: boolean;

@@ -1,12 +1,30 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain } from '../data/types.ts';
+import type { BlinkerBrain, BossAttack, BossBrain, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain } from '../data/types.ts';
+import { ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
-import { isWallAt, wallRectsNear } from './room.ts';
-import { BOSS_PHASE_BREAK, clearEnemyFire, DT, firePattern, freeSpot, HAND_HEIGHT, hurtPlayer, isClear, isRolling, playerFeetBox, slide, throwFrost, type Enemy, type World } from './world.ts';
+import { isWallAt, TILE, wallRectsNear } from './room.ts';
+import {
+  BOSS_PHASE_BREAK,
+  clearEnemyFire,
+  DT,
+  firePattern,
+  freeSpot,
+  HAND_HEIGHT,
+  hurtPlayer,
+  isClear,
+  isRolling,
+  playerFeetBox,
+  slide,
+  spawnEnemy,
+  throwFrost,
+  type Enemy,
+  type SimEvent,
+  type World,
+} from './world.ts';
 
 /** Bullets push enemies; this friction brings them back to their own speed. */
 const KNOCK_FRICTION = 900;
@@ -50,6 +68,9 @@ export function updateEnemies(w: World): void {
       case 'watcher':
         updateWatcher(w, en, en.def.brain);
         break;
+      case 'relay':
+        updateRelay(w, en, en.def.brain);
+        break;
     }
     // Watched live: the time it waits between attacks runs faster.
     if (en.rush) {
@@ -72,7 +93,7 @@ const SEPARATION = 0.25;
  * line between them, sliding along walls and props. Flyers, bosses and the dying are left alone.
  */
 function separate(w: World): void {
-  const walkers = w.enemies.filter((en) => en.state !== 'dying' && en.def.brain.kind !== 'moth' && en.def.brain.kind !== 'boss');
+  const walkers = w.enemies.filter((en) => en.state !== 'dying' && en.def.brain.kind !== 'moth' && en.def.brain.kind !== 'boss' && en.def.brain.kind !== 'relay');
   for (let i = 0; i < walkers.length; i++) {
     const a = walkers[i]!;
     for (let j = i + 1; j < walkers.length; j++) {
@@ -676,15 +697,30 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     const announced = en.bossPhase !== undefined || phaseIdx > 0;
     en.bossPhase = phaseIdx;
     delete en.attack;
+    const next = b.phases[phaseIdx]!;
+    // A reboot takes its relays down with it.
+    if (next.reboot) dropRelays(w, en);
     if (announced) {
-      // Between phases it stops, shrugs bullets off and clears the screen: a breath, and the
-      // phase's name, before the new attacks.
-      w.events.push({ type: 'bossPhase', boss: en.id, phase: phaseIdx, name: b.phases[phaseIdx]!.name });
+      // Between phases it stops, shrugs bullets off and clears the screen: a breath (or a whole
+      // reboot), and the phase's name, before the new attacks.
+      const ev: SimEvent = { type: 'bossPhase', boss: en.id, phase: phaseIdx, name: next.name };
+      if (next.reboot) ev.reboot = next.reboot.line;
+      w.events.push(ev);
       clearEnemyFire(w);
-      enter(en, 'roar', BOSS_PHASE_BREAK);
+      enter(en, 'roar', next.reboot?.time ?? BOSS_PHASE_BREAK);
     }
+    en.relayT = 0;
+    if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
   }
   const phase = b.phases[en.bossPhase]!;
+  // Without relays left, it plants a new one now and then (if the phase says so).
+  if (phase.relays?.every && en.state !== 'roar' && !w.over) {
+    if (relaysOf(w, en).length > 0) en.relayT = 0;
+    else if ((en.relayT = (en.relayT ?? 0) + DT) >= phase.relays.every) {
+      en.relayT = 0;
+      plantRelays(w, en, phase.relays.id, 1);
+    }
+  }
   const toX = p.x - en.x;
   if (Math.abs(toX) > 4 && en.state !== 'fire') en.facing = toX > 0 ? 1 : -1;
   const mx = en.x + b.muzzle.x * en.facing;
@@ -709,6 +745,30 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
           firePattern(w, def, mx, en.y - mh, aim, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: mh });
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.25);
+          // Its relays send the same thing out from where they stand.
+          const relayed = a.relay ? PATTERNS[a.relay] : undefined;
+          if (a.relay && !relayed) throw new Error(`Unknown pattern ${a.relay}`);
+          if (relayed) {
+            for (const r of relaysOf(w, en)) {
+              if (r.def.brain.kind !== 'relay') continue;
+              const rh = muzzleHeight(w, r, r.def.brain.muzzleY);
+              firePattern(w, relayed, r.x, r.y - rh, Math.atan2(p.y - HAND_HEIGHT - (r.y - rh), p.x - r.x), { telegraph: a.telegraph, source: r.id, by: r.def.id, height: rh });
+            }
+          }
+        } else if (a.kind === 'drop') {
+          // Dropped connections: spots on the floor (one under the player) that burst a moment later.
+          const def = PATTERNS[a.pattern];
+          if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
+          for (let k = 0; k < a.count; k++) {
+            const ang = w.rng.range(0, Math.PI * 2);
+            const dist = k === 0 ? 0 : a.spread * w.rng.range(0.45, 1);
+            let tx = p.x + Math.cos(ang) * dist;
+            let ty = p.y + Math.sin(ang) * dist * 0.75;
+            if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
+            firePattern(w, def, tx, ty - DROP_HEIGHT, 0, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: DROP_HEIGHT });
+          }
+          w.events.push({ type: 'drops', boss: en.id, count: a.count });
+          enter(en, 'fire', a.telegraph + patternDuration(def) + 0.4);
         } else {
           // Frost and spit warn by themselves (see activeWarnings): the ring closes on the dispenser
           // (or on the open door).
@@ -769,6 +829,61 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
+}
+
+/** Height a dropped connection bursts at (px above the floor). */
+const DROP_HEIGHT = 3;
+
+/** The relays a boss has planted that are still standing. */
+export function relaysOf(w: World, boss: Enemy): Enemy[] {
+  return w.enemies.filter((r) => r.owner === boss.id && r.def.brain.kind === 'relay' && r.damageTaken < r.def.hp);
+}
+
+/** Knocks down every relay of a boss (they fall like any enemy, loot and all). */
+function dropRelays(w: World, boss: Enemy): void {
+  for (const r of relaysOf(w, boss)) r.damageTaken = r.def.hp;
+}
+
+/**
+ * Plants `n` relays (enemy `id`) in the corners of the room farthest from the player, skipping
+ * corners that already have one.
+ */
+function plantRelays(w: World, boss: Enemy, id: string, n: number): void {
+  const def = ENEMIES[id];
+  if (!def) throw new Error(`Unknown enemy ${id}`);
+  const p = w.player;
+  const { cols, rows } = w.room;
+  // Corners, but far enough in to be on screen when the player stands in the middle.
+  const xs = [TILE * 4.5, (cols - 4.5) * TILE];
+  const ys = [TILE * 4.5, (rows - 2.5) * TILE];
+  const corners = xs.flatMap((x) => ys.map((y) => ({ x, y })));
+  corners.sort((a, b) => Math.hypot(b.x - p.x, b.y - p.y) - Math.hypot(a.x - p.x, a.y - p.y));
+  const standing = relaysOf(w, boss);
+  let planted = 0;
+  for (const c of corners) {
+    if (planted >= n) break;
+    if (standing.some((r) => Math.hypot(r.x - c.x, r.y - c.y) < 40)) continue;
+    const at = freeSpot(w, c.x, c.y, def.footRadius + 1);
+    const r = spawnEnemy(w.nextId++, def, at.x, at.y);
+    r.owner = boss.id;
+    r.facing = p.x > r.x ? 1 : -1;
+    w.enemies.push(r);
+    w.events.push({ type: 'relayPlant', x: r.x, y: r.y, source: r.id });
+    planted++;
+  }
+}
+
+/** A relay just stands there, plugged in, facing the player; it falls when its owner goes down. */
+function updateRelay(w: World, en: Enemy, _b: RelayBrain): void {
+  en.t += DT;
+  const owner = w.enemies.find((o) => o.id === en.owner);
+  if (!owner || owner.state === 'dying' || owner.damageTaken >= owner.def.hp) {
+    en.damageTaken = en.def.hp;
+    return;
+  }
+  if (Math.abs(w.player.x - en.x) > 2) en.facing = w.player.x > en.x ? 1 : -1;
+  en.vx = 0;
+  en.vy = 0;
 }
 
 /** Where a boss attack that warns by itself shows its warning: the dispenser, or the open door. */

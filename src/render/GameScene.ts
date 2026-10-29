@@ -994,7 +994,7 @@ export class GameScene extends Phaser.Scene {
     const mottoText = wrapLines(fontText(`«${card.motto}»`), VIEW_W - 2 * x, scale).join('\n');
     const mottoH = mottoText.split('\n').length * small;
     const y = VIEW_H - BAR - 1 - mottoH - 29 - small;
-    const sub = this.hud(this.add.bitmapText(x, y, FONT, fontText(BOSS_CARD_SUBTITLE), small)).setDepth(96001);
+    const sub = this.hud(this.add.bitmapText(x, y, FONT, fontText(card.subtitle ?? BOSS_CARD_SUBTITLE), small)).setDepth(96001);
     sub.setTint(0x858ea8).setAlpha(0);
     const ny = y + small + 3;
     const name = this.hud(this.add.bitmapText(x, ny, FONT, fontText(card.title), 16)).setDepth(96001);
@@ -1502,6 +1502,15 @@ export class GameScene extends Phaser.Scene {
           // A pair found out at once says it once.
           if (!this.floats.some((f) => f.key === 'reveal' && (f.age ?? 0) < 0.6)) this.floatText(e.x, e.y - 14, fontText(REVEAL_LINE), 0x69dbd8, 'reveal', -16, 0.9);
           break;
+        case 'relayPlant':
+          // A repeater plugged into the floor: a hop, dust and a spark.
+          this.sound2.play('saltar', { detune: -300 });
+          for (let i = 0; i < 4; i++) this.puff(e.x + this.fx.range(-6, 6), e.y + this.fx.range(-2, 2), 0.4);
+          for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 14, this.fx.range(-Math.PI, 0), this.fx.range(30, 60), 0);
+          break;
+        case 'drops':
+          this.sound2.play('apagar', { detune: 400, volume: 0.7 });
+          break;
         case 'recStart':
           // A webcam starts recording: a beep and its red line over it.
           this.sound2.play('grabar');
@@ -1769,7 +1778,11 @@ export class GameScene extends Phaser.Scene {
           this.shake(320, 0.014, true);
           this.flashWhite(0.55, 380);
           const boss = this.world.enemies.find((en) => en.id === e.boss);
-          if (e.phase >= 1 && boss) {
+          if (e.reboot && boss) {
+            // The Router reboots: everything goes dark and its line comes up over it.
+            this.sound2.play('apagar');
+            this.floatText(boss.x, boss.y + 18, fontText(e.reboot), 0xb7bed0, `reboot:${boss.id}`, -1, 4.6);
+          } else if (e.phase >= 1 && boss) {
             this.sound2.play('portazo');
             for (let i = 0; i < 10; i++) this.puff(boss.x + this.fx.range(-14, 22) * boss.facing, boss.y - this.fx.range(8, 40), this.fx.range(0.6, 1.1));
           }
@@ -2373,7 +2386,10 @@ export class GameScene extends Phaser.Scene {
         if (en.def.boss) s.setTint(warnK > 0.75 ? 0xffe9a8 : 0xffc870);
         else this.warnFill(s, warnK);
       } else s.clearTint();
-      if (en.state === 'roar') {
+      if (en.state === 'roar' && en.def.anim?.reboot) {
+        // Rebooting: still and dark, a spark from the lights now and then as they come on.
+        if (this.fx.chance(0.06)) this.spark(en.x + this.fx.range(-14, 10) * en.facing, en.y - 30, this.fx.range(-Math.PI, 0), this.fx.range(20, 40), 0);
+      } else if (en.state === 'roar') {
         // Between phases: it shudders and breathes out cold.
         s.setX(s.x + (Math.floor(this.time.now / 50) % 2 === 0 ? 1 : -1));
         if (this.fx.chance(0.2)) this.puff(en.x + this.fx.range(-24, 24), en.y - this.fx.range(10, 60), 0.7);

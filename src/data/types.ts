@@ -367,6 +367,8 @@ export interface BossPatternAttack {
   telegraph: number;
   /** How often it is picked, relative to the phase's other attacks. */
   weight: number;
+  /** Its relays (see BossPhase.relays) fire this pattern at the same time, from where they stand. */
+  relay?: string;
 }
 
 /**
@@ -404,7 +406,20 @@ export interface BossSpitAttack {
   weight: number;
 }
 
-export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack;
+/**
+ * «Caídas de conexión»: marks `count` spots on the floor (one under the player, the rest up to
+ * `spread` px around it) and, `telegraph` s later, each one fires `pattern` from the floor.
+ */
+export interface BossDropAttack {
+  kind: 'drop';
+  count: number;
+  spread: number;
+  pattern: string;
+  telegraph: number;
+  weight: number;
+}
+
+export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack;
 
 /** A stage of a boss fight, with its own attacks. */
 export interface BossPhase {
@@ -418,6 +433,17 @@ export interface BossPhase {
   /** Seconds of rest between attacks (random in this range). */
   rest: [number, number];
   attacks: BossAttack[];
+  /**
+   * Relays (enemy `id`, see RelayBrain) it plants in the corners of the room when the phase starts
+   * (`count`, in the corners farthest from the player); with `every`, whenever it has none left it
+   * plants a new one each `every` s.
+   */
+  relays?: { id: string; count: number; every?: number };
+  /**
+   * The phase starts with a reboot instead of the usual short break: `time` s switched off, taking
+   * no damage, its relays fall and `line` comes up over it.
+   */
+  reboot?: { time: number; line: string };
 }
 
 /**
@@ -488,7 +514,17 @@ export interface WatcherBrain {
   rush: { time: number; scale: number };
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
+/**
+ * A boss's relay: it stands where it was planted, does nothing by itself and fires its owner's
+ * relayed attacks (BossPatternAttack.relay) from `muzzleY` px above its feet. It falls when its
+ * owner goes down.
+ */
+export interface RelayBrain {
+  kind: 'relay';
+  muzzleY: number;
+}
+
+export type EnemyBrain = RelayBrain | ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
   id: string;
@@ -514,8 +550,8 @@ export interface EnemyDef {
   escort?: string;
   /** How many of it one spawn point brings (they come in groups). Default 1. */
   pack?: number;
-  /** Bosses: the name card and motto of their entrance (shown big, in «Letra Pequeña»). */
-  boss?: { title: string; motto: string };
+  /** Bosses: the name card and motto of their entrance (shown big, in «Letra Pequeña»), and the line over the name. */
+  boss?: { title: string; motto: string; subtitle?: string };
   /** Which frames of its sprite sheet to show standing and walking (see `enemyFrame`). */
   anim?: EnemyAnim;
 }
@@ -536,6 +572,8 @@ export interface EnemyAnim {
   phaseShift?: number;
   /** Frame shown while it warns (the wireless mouse frozen without signal). */
   warn?: number;
+  /** Frames of a reboot (BossPhase.reboot), spread evenly over it. */
+  reboot?: readonly number[];
   /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */
   lurk?: number;
   reveal?: number;

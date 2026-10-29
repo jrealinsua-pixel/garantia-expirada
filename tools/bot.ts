@@ -29,6 +29,8 @@ export interface BotReport {
   msPorPartida: number;
   /** The boss fight (M4 criterion): see BossReport. */
   jefe?: BossReport;
+  /** The same against floor 2's boss, el Router del Wifi, in its Sala de Redes. */
+  router?: BossReport;
   /** Whole floors (M3 criterion): see FloorReport. */
   plantas: FloorReport;
   errores: string[];
@@ -469,6 +471,9 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const boss = runBoss(bosses);
   failed += boss.errors.length;
   errors.push(...boss.errors);
+  const router = runBoss(bosses, 240, 'jefe-informatica', 2);
+  failed += router.errors.length;
+  errors.push(...router.errors);
   return {
     partidas: games,
     fallos: failed,
@@ -487,6 +492,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     msPorPartida: Math.round((ms / (games + 2)) * 10) / 10,
     plantas: fl.report,
     jefe: boss.report,
+    router: router.report,
     errores: errors.slice(0, 20),
   };
 }
@@ -521,6 +527,14 @@ if (import.meta.main) {
         `${j.heridas} heridas por combate (${j.heridasFase1} en la fase 1, ${j.heridasFase2} en la 2) · ${j.segundosEnEscarcha} s en la escarcha · ` +
         `baja en el montacargas el ${j.montacargas} % de las victorias · ` +
         `llega a la fase 2 el ${j.llegaFase2} %, a los ${j.segundoFase2} s`,
+    );
+  }
+  const r = report.router;
+  if (r?.combates) {
+    console.log(
+      `${r.combates} combates contra el Router · gana el ${r.gana} % en ${r.segundos} s (${r.minimo}–${r.maximo} s) · ` +
+        `${r.heridas} heridas por combate (${r.heridasFase1} en la fase 1, ${r.heridasFase2} en la 2) · ` +
+        `llega a la fase 2 el ${r.llegaFase2} %, a los ${r.segundoFase2} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

@@ -427,6 +427,43 @@ try {
   await shot('35m-webcam-comparte.png');
   console.log('Webcam: graba con la línea de mira y comparte pantalla.');
 
+  // M8: el Router del Wifi, floor 2's boss: its card, the waves with their holes from it and its
+  // repeaters, the reboot at half life and the dropped connections of phase 2.
+  await page.goto(`${url}?semilla=e2e-router&sala=jefe-informatica&planta=2`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const routerJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'router-wifi')";
+  if (!(await page.evaluate<boolean>(`!!${routerJs} && !!window.__GE__.scene.world.intro`))) throw new Error('El Router no está en la Sala de Redes o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('36a-router-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  await page.waitForFunction("window.__GE__.scene.world.enemies.filter((e) => e.def.id === 'repetidor').length === 2", undefined, { timeout: 3000 });
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'cyan' && b.age > 0.5 && v.contains(b.x, b.y)).length >= 12; })()`,
+    undefined,
+    { timeout: 20000 },
+  );
+  await shot('36b-router-ondas.png');
+  await page.evaluate(`(() => { const b = ${routerJs}; b.damageTaken = Math.ceil(b.def.hp / 2) + 1; })()`);
+  await page.waitForFunction(`${routerJs}.bossPhase === 1`, undefined, { timeout: 3000 });
+  await page.waitForTimeout(2400);
+  if ((await page.evaluate<string>(`${routerJs}.state`)) !== 'roar') throw new Error('El Router no se está reiniciando');
+  if (await page.evaluate<boolean>("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'repetidor')")) throw new Error('Los repetidores siguen en pie durante el reinicio');
+  await shot('36c-router-reinicio.png');
+  await page.waitForFunction(`${routerJs}.state !== 'roar'`, undefined, { timeout: 4000 });
+  await page.waitForFunction(
+    `(() => { const w = window.__GE__.scene.world; const b = ${routerJs};
+      return w.emitters.filter((e) => e.source === b.id && e.height <= 3 && e.t > -0.5).length >= 3; })()`,
+    undefined,
+    { timeout: 30000 },
+  );
+  await shot('36d-router-caidas.png');
+  console.log('Router del Wifi: cartel, ondas con hueco y repetidores, reinicio y caídas de conexión.');
+
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

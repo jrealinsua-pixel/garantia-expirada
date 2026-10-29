@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { FLOOR_BOSS_1, ROOMS, slotEnemiesOf, templatesOf } from '../data/rooms.ts';
+import { floorBossOf, ROOMS, slotEnemiesOf, templatesOf } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -282,6 +282,8 @@ export interface Enemy {
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
   bossPhase?: number;
   attack?: number;
+  /** Bosses with relays: seconds it has gone without any (see BossPhase.relays.every). */
+  relayT?: number;
 }
 
 /**
@@ -358,7 +360,10 @@ export type SimEvent =
   | { type: 'frostThrow'; x: number; y: number; tx: number; ty: number; flight: number; source: number }
   | { type: 'frostLand'; x: number; y: number; r: number; product?: number }
   /** A boss starts a new phase of its fight. */
-  | { type: 'bossPhase'; boss: number; phase: number; name: string }
+  | { type: 'bossPhase'; boss: number; phase: number; name: string; reboot?: string }
+  /** A boss plants a relay (the Router's repeaters), and marks dropped connections on the floor. */
+  | { type: 'relayPlant'; x: number; y: number; source: number }
+  | { type: 'drops'; boss: number; count: number }
   /** Every enemy bullet (and whatever was in the air) vanished at once: a boss changed phase or fell. */
   | { type: 'fireCleared'; points: Array<{ x: number; y: number; color: BulletColor }> }
   /** A boss has no life left: it comes apart for `duration` s, then the usual `death`. */
@@ -561,7 +566,7 @@ export function createWorld(opts: WorldOptions): World {
   const floor = opts.floor ? planFloor(opts.seed, opts.level ?? 1) : null;
   let tpl = floor ? floor.rooms[floor.current]!.template : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
-  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(opts.level ?? 1), boss: FLOOR_BOSS_1 });
+  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(opts.level ?? 1), boss: floorBossOf(opts.level ?? 1) });
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
@@ -685,7 +690,7 @@ function planFloor(seed: string, level: number): FloorRun {
     return deck.pop()!;
   };
   const rooms = layout.rooms.map((fr): FloorRoomState => {
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: slotEnemiesOf(level), boss: FLOOR_BOSS_1, vary: true });
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: slotEnemiesOf(level), boss: floorBossOf(level), vary: true });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets, the next ones the chests).
@@ -1020,6 +1025,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'mimic') {
     // Lying in wait until someone comes close.
     state = 'lurk';
+    until = Infinity;
+  } else if (b.kind === 'relay') {
+    state = 'idle';
     until = Infinity;
   }
   return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0, lastHit: 0 };
@@ -2157,6 +2165,8 @@ export function step(w: World, input: Input): void {
   reapEnemies(w);
   updateDummies(w);
   if (!held) updateEnemies(w);
+  // Enemies that fell during their own update (a boss's relays when it reboots or goes down).
+  reapEnemies(w);
   updatePickups(w);
   updateChests(w);
   updateRestock(w);

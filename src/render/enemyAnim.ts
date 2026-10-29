@@ -37,6 +37,8 @@ export function enemyFrame(en: Enemy, now: number): number {
   if (!a) return 0;
   const shift = a.phaseShift !== undefined && (en.bossPhase ?? 0) >= 1 ? a.phaseShift : 0;
   if (a.off !== undefined && !bulbLit(en, now)) return a.off;
+  // Rebooting: its lights come on one by one over the reboot.
+  if (a.reboot && en.state === 'roar') return a.reboot[Math.min(a.reboot.length - 1, Math.floor((en.t / en.until) * a.reboot.length))]!;
   // Frozen while it warns (the wireless mouse without signal).
   if (a.warn !== undefined && en.state === 'warn') return a.warn;
   // A mimic lying in wait, and jumping up when found out.

@@ -40,6 +40,11 @@ export interface RingDef extends Common {
   offsetDeg?: number;
   /** If true the ring is rotated so a bullet points at the target. */
   aimed?: boolean;
+  /**
+   * Holes in the ring, to go through: no bullets within `widthDeg` / 2 of the aim turned by each
+   * of `atDeg` (the wifi's «zonas sin cobertura»).
+   */
+  gaps?: { widthDeg: number; atDeg: number[] };
 }
 
 /** `count` bullets spread over `spreadDeg`, centred on the aim. */
@@ -102,13 +107,23 @@ function shot(def: Common, delay: number, angle: number): ShotSpec {
   return s;
 }
 
+/** Angle between two directions (0 to π). */
+function angleGap(a: number, b: number): number {
+  const d = Math.abs(a - b) % (2 * Math.PI);
+  return d > Math.PI ? 2 * Math.PI - d : d;
+}
+
 /** All the shots of a pattern, sorted by delay. `aim` is the angle towards the target. */
 export function expandPattern(def: PatternDef, aim: number, rng: Rng): ShotSpec[] {
   const out: ShotSpec[] = [];
   switch (def.kind) {
     case 'ring': {
       const base = (def.aimed ? aim : 0) + (def.offsetDeg ?? 0) * DEG;
-      for (let i = 0; i < def.count; i++) out.push(shot(def, 0, base + (i * 2 * Math.PI) / def.count));
+      for (let i = 0; i < def.count; i++) {
+        const a = base + (i * 2 * Math.PI) / def.count;
+        if (def.gaps && def.gaps.atDeg.some((g) => angleGap(a, aim + g * DEG) < (def.gaps!.widthDeg * DEG) / 2)) continue;
+        out.push(shot(def, 0, a));
+      }
       break;
     }
     case 'fan': {

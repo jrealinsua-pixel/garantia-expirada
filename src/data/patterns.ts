@@ -75,6 +75,44 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.15, pattern: { kind: 'fan', count: 4, spreadDeg: 30, speed: 105, color: 'red' } },
     ],
   },
+  // El Router del Wifi. «Cobertura total»: two rings of waves, each with a hole that has moved on a little.
+  'router-cobertura': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 24, speed: 72, color: 'cyan', gaps: { widthDeg: 60, atDeg: [35] } } },
+      { at: 0.45, pattern: { kind: 'ring', count: 24, speed: 72, color: 'cyan', gaps: { widthDeg: 60, atDeg: [65] } } },
+    ],
+  },
+  // Packets from the antennas: three quick fans.
+  'router-paquetes': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 125, color: 'red' } },
+      { at: 0.2, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 125, color: 'red' }, turnDeg: 8 },
+      { at: 0.4, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 125, color: 'red' }, turnDeg: -8 },
+    ],
+  },
+  // «Actualización de firmware»: three faster rings with two holes moving apart, each its own way.
+  'router-firmware': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 28, speed: 88, color: 'cyan', gaps: { widthDeg: 48, atDeg: [30, -30] } } },
+      { at: 0.38, pattern: { kind: 'ring', count: 28, speed: 88, color: 'cyan', gaps: { widthDeg: 48, atDeg: [60, -60] } } },
+      { at: 0.76, pattern: { kind: 'ring', count: 28, speed: 88, color: 'cyan', gaps: { widthDeg: 48, atDeg: [90, -90] } } },
+    ],
+  },
+  'router-paquetes-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 7, spreadDeg: 60, speed: 140, color: 'red' } },
+      { at: 0.18, pattern: { kind: 'fan', count: 7, spreadDeg: 60, speed: 140, color: 'red' }, turnDeg: 6 },
+      { at: 0.36, pattern: { kind: 'fan', count: 7, spreadDeg: 60, speed: 140, color: 'red' }, turnDeg: -6 },
+    ],
+  },
+  // A repeater passes the wave on: one thin ring, with a wide hole towards where you are not.
+  'repetidor-onda': { kind: 'ring', count: 12, speed: 64, color: 'cyan', gaps: { widthDeg: 80, atDeg: [40] } },
+  // A dropped connection bursts out of the floor: a short ring.
+  'router-caida': { kind: 'ring', count: 8, speed: 72, life: 0.7, color: 'cyan' },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.
