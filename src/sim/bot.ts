@@ -266,7 +266,9 @@ export class Bot {
     let near = 110;
     if (this.ignorePickups > 0) this.ignorePickups--;
     else for (const k of w.pickups) {
-      if ((k.kind === 'corazon' && p.hp >= p.def.maxHp) || k.price !== undefined) continue;
+      // Not an active item when it already has one: it would swap them back and forth (and stand
+      // on the one it just put down, waiting to step off it, for ever).
+      if ((k.kind === 'corazon' && p.hp >= p.def.maxHp) || k.price !== undefined || (k.kind === 'activo' && p.active)) continue;
       const d = Math.hypot(k.x - p.x, k.y - p.y);
       if (d < near) {
         near = d;

@@ -3,7 +3,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Bot } from '../src/sim/bot.ts';
-import { checkInvariants, createWorld, DT, frostSlow, step, worldHash } from '../src/sim/world.ts';
+import { checkInvariants, createWorld, DT, frostSlow, nextFloor, step, worldHash, type World } from '../src/sim/world.ts';
 import { ROOT } from './lib/deps.ts';
 
 export interface BotReport {
@@ -36,8 +36,25 @@ export interface BotReport {
   errores: string[];
 }
 
+/** Floor 2 (Informática), as part of the same runs: see runFloors. */
+export interface Floor2Report {
+  /** Floor 2 walked whole with nothing able to hurt the bot (%; must be 100), on its own. */
+  recorridoSinDanio: number;
+  /** Runs that won floor 1 and so went on to floor 2, and the half hearts they arrived with. */
+  llegan: number;
+  vidaAlLlegar: number;
+  /** Of those: floor 2 won (its boss beaten, down the lift), went down (%), and went down in the boss room (%). */
+  gana: number;
+  caidas: number;
+  caeEnElJefe: number;
+  salasLimpias: number;
+  segundosPorSala: number;
+  heridasPorSala: number;
+}
+
 export interface FloorReport {
   plantas: number;
+  planta2?: Floor2Report;
   /** Floors whose every room (but the secret one) the bot walks into, with nothing able to hurt it: must be 100 %. */
   recorridoSinDanio: number;
   /** Mean seconds to walk the whole floor that way. */
@@ -161,14 +178,19 @@ interface FloorResult {
   hurts: number;
   hash: string;
   errors: string[];
+  /** Hearts left (half hearts) at the end, and the world itself (to go on to the next floor). */
+  life: number;
+  world: World;
 }
 
 /**
  * The bot walks one generated floor until every room is visited, it goes down or time runs out;
  * with `full`, it goes on until the boss is beaten and it takes the goods lift (a whole run).
+ * `level` picks the floor of the store; `start` goes on from a world already made (the next
+ * floor of a run, see nextFloor) instead of a new one.
  */
-export function playFloor(seed: string, maxSeconds: number, noDamage: boolean, full = false): FloorResult {
-  const w = createWorld({ seed, floor: true });
+export function playFloor(seed: string, maxSeconds: number, noDamage: boolean, full = false, level = 1, start?: World): FloorResult {
+  const w = start ?? createWorld({ seed, floor: true, level });
   w.noDamage = noDamage;
   const bot = new Bot(seed);
   const errors: string[] = [];
@@ -236,6 +258,8 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean, f
     uses,
     hash: worldHash(w),
     errors,
+    life: w.player.hp,
+    world: w,
   };
 }
 
@@ -350,9 +374,25 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let chests = 0;
   let buys = 0;
   let spent = 0;
+  // Floor 2: walked on its own without damage, and played on from floor 1 when the run gets there.
+  let walked2 = 0;
+  let reached2 = 0;
+  let life2 = 0;
+  let won2 = 0;
+  let down2 = 0;
+  let downAtBoss2 = 0;
+  let cleared2 = 0;
+  let hurts2 = 0;
+  const rooms2: number[] = [];
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
+    const a2 = playFloor(`planta-${i}`, maxSeconds, true, false, 2);
+    if (a2.explored) walked2++;
+    if (a2.errors.length) {
+      failed++;
+      errors.push(...a2.errors);
+    }
     walkT += a.seconds;
     const b = playFloor(`planta-${i}`, maxSeconds, false, true);
     if (b.won) {
@@ -376,6 +416,23 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     buys += b.buys;
     spent += b.spent;
     items += b.items ? b.items.split('+').length : 0;
+    const next = b.won ? nextFloor(b.world) : null;
+    if (next) {
+      reached2++;
+      life2 += next.player.hp;
+      // Floor 2 has more enemies per room: half as much time again.
+      const c = playFloor(`planta-${i}`, maxSeconds * 1.5, false, true, 2, next);
+      if (c.won) won2++;
+      if (c.down) down2++;
+      if (c.downAtBoss) downAtBoss2++;
+      cleared2 += c.cleared;
+      hurts2 += c.hurts;
+      rooms2.push(...c.roomSeconds);
+      if (c.errors.length) {
+        failed++;
+        errors.push(...c.errors);
+      }
+    }
     for (const r of [a, b]) {
       if (r.errors.length) {
         failed++;
@@ -391,9 +448,22 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   }
   const pct = (n: number): number => Math.round((n / floors) * 1000) / 10;
   const one = (n: number): number => Math.round(n * 10) / 10;
+  const of2 = (n: number): number => (reached2 ? Math.round((n / reached2) * 1000) / 10 : 0);
+  const planta2: Floor2Report = {
+    recorridoSinDanio: pct(walked2),
+    llegan: reached2,
+    vidaAlLlegar: reached2 ? one(life2 / reached2) : 0,
+    gana: of2(won2),
+    caidas: of2(down2),
+    caeEnElJefe: of2(downAtBoss2),
+    salasLimpias: reached2 ? one(cleared2 / reached2) : 0,
+    segundosPorSala: rooms2.length ? one(rooms2.reduce((t, v) => t + v, 0) / rooms2.length) : 0,
+    heridasPorSala: rooms2.length ? Math.round((hurts2 / Math.max(1, cleared2)) * 100) / 100 : 0,
+  };
   return {
     report: {
       plantas: floors,
+      planta2,
       recorridoSinDanio: pct(walked),
       segundosRecorrido: one(walkT / floors),
       recorridoConDanio: pct(explored),
@@ -518,6 +588,14 @@ if (import.meta.main) {
         `acaba con ${pl.armas} armas y ${pl.objetos} objetos, ${pl.arsenalesDistintos} arsenales y ${pl.buildsDistintas} builds distintas · ` +
         `el ${pl.conActivo} % con objeto activo, ${pl.usosActivo} usos por planta · el ${pl.conSinergia} % con alguna sinergia · ${pl.tickets} tickets y ${pl.cofres} cofres abiertos por planta · ` +
         `compra ${pl.compras} cosas en la tienda (${pl.gastoTienda} cupones) por planta`,
+    );
+  }
+  const p2 = pl.planta2;
+  if (pl.plantas && p2) {
+    console.log(
+      `Planta 2 · sin daño la recorre entera el ${p2.recorridoSinDanio} % · llegan ${p2.llegan} de ${pl.plantas} partidas, con ${p2.vidaAlLlegar} medios corazones · ` +
+        `la gana el ${p2.gana} % y cae el ${p2.caidas} % (${p2.caeEnElJefe} % ante el Router) · ` +
+        `${p2.salasLimpias} salas de combate limpias · ${p2.segundosPorSala} s y ${p2.heridasPorSala} heridas por sala de combate`,
     );
   }
   const j = report.jefe;

@@ -205,7 +205,7 @@ semillas distintas acaban con builds distintas.
     y de su repetidor.
   - [x] (2b) El Router en la simulación: fases, repetidores y reinicio, en la planta 2 en lugar de
     la Nevera, con su cartel y sus sonidos.
-- [ ] La planta 2 entera medida con el bot (`npm run bot` juega también plantas 2 completas, con
+- [x] La planta 2 entera medida con el bot (`npm run bot` juega también plantas 2 completas, con
   lo que se trae de la 1) y su dificultad ajustada: más difícil que la 1 sin ser un muro (el muro
   de verdad es la 3, según la nota del humano).
 - [x] 10 objetos nuevos, en partes:

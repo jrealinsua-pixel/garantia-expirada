@@ -648,6 +648,9 @@ export function createWorld(opts: WorldOptions): World {
   return w;
 }
 
+/** How many rooms deeper each floor of the store starts (see planFloor): the enemy budget grows with it. */
+export const LEVEL_DEPTH = 3;
+
 /** The floors of the store that exist so far (1: the warehouse, 2: Informática). */
 export const LAST_LEVEL = 2;
 
@@ -690,7 +693,9 @@ function planFloor(seed: string, level: number): FloorRun {
     return deck.pop()!;
   };
   const rooms = layout.rooms.map((fr): FloorRoomState => {
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: slotEnemiesOf(level), boss: floorBossOf(level), vary: true });
+    // Each floor up counts as LEVEL_DEPTH rooms deeper: more enemies per room.
+    const depth = Math.max(1, fr.depth) + (level - 1) * LEVEL_DEPTH;
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss: floorBossOf(level), vary: true });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets, the next ones the chests).
@@ -1960,9 +1965,11 @@ export function isClear(w: World, x: number, y: number, r: number): boolean {
 export function freeSpot(w: World, x: number, y: number, r: number): { x: number; y: number } {
   const clear = (px: number, py: number): boolean => !solidsNear(w, playerFeetBox({ x: px, y: py }, r)).some((s) => overlaps(playerFeetBox({ x: px, y: py }, r), s));
   if (clear(x, y)) return { x, y };
-  for (let d = 4; d <= 48; d += 4) {
-    for (let i = 0; i < 16; i++) {
-      const a = (i / 16) * Math.PI * 2;
+  // Rings of 4 px, farther and farther (a room's middle can be a block of shelving 6 tiles wide).
+  for (let d = 4; d <= 240; d += 4) {
+    const n = d <= 48 ? 16 : 32;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
       const px = x + Math.cos(a) * d;
       const py = y + Math.sin(a) * d;
       if (clear(px, py)) return { x: px, y: py };

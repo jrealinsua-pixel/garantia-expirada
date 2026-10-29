@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T00:05:00+01:00",
+  "actualizado": "2026-10-30T00:29:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,8 +63,8 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 17,
-      "total": 18
+      "hechas": 4,
+      "total": 4
     },
     {
       "id": "M9",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 387,
-    "tests_ok": 387,
+    "tests": 389,
+    "tests_ok": 389,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 14399
+    "lineas_codigo": 14407
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T00:29:00+01:00",
+      "hito": "M8",
+      "resumen": "M8 terminado: el bot juega ya la planta 2 entera, siguiendo la partida desde la 1. Arreglados cuatro fallos que solo salían allí (tickets y enemigos dentro de un bloque de estanterías, el bot plantado sobre un objeto activo) y la planta 2 trae más enemigos por sala: de los que llegan, la gana el 64 % (antes, el 96 %).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T00:05:00+01:00",
       "hito": "M8",
@@ -595,17 +601,17 @@
       "pie": "La Impresora que se Atasca en la planta 2: cada pocas ráfagas de facturas se queda atascada y temblando («Atasco de papel»)"
     }
   ],
-  "proximo": "M8: medir la planta 2 entera con el bot (que npm run bot juegue también plantas 2 completas) y ajustar su dificultad; con eso M8 queda terminado y toca M9 (el centro y la historia).",
+  "proximo": "M9 (el centro y la historia): el Mostrador de Devoluciones como centro entre partidas. Conviene partirlo en tareas pequeñas en la hoja de ruta antes de empezar.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:05: M8 casi terminado (queda medir la planta 2 entera).",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:29: M8 terminado en unas 14 sesiones (estimadas 13).",
     "hitos": {
       "M5": 0,
       "M6": 0,
       "M7": 0,
-      "M8": 1,
+      "M8": 0,
       "M9": 10,
       "M10": 24,
       "M11": 13,
@@ -619,8 +625,8 @@
       "sesiones": 0
     },
     "total": {
-      "sesiones": 110,
-      "con_margen": 143
+      "sesiones": 109,
+      "con_margen": 142
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
