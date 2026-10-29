@@ -581,6 +581,11 @@
       "sesion": "2026-10-29 16:3x UTC (rutina, la de las casillas)",
       "tarea": "M8: enemigos (1): la Impresora que se Atasca (src/data/enemies.ts, src/sim/enemies.ts, tools/sprites/enemies.ts)",
       "desde": "2026-10-29T18:28Z"
+    },
+    {
+      "sesion": "2026-10-29 20:25 UTC",
+      "tarea": "M8: objetos nuevos (2b): Modo Avión, Copia de Seguridad y sinergias de la planta 2 (src/data/items.ts, src/data/synergies.ts, src/sim/world.ts: voltereta y baja)",
+      "desde": "2026-10-29T21:00Z"
     }
   ]
 }
