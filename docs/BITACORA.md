@@ -5,7 +5,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 ## 2026-10-29 09:31 — Sesión duplicada — Dos sesiones a la vez
 
 - Hecho: nada de juego. Esta sesión empezó a la vez que la de las 09:30, eligió la misma tarea (la nota de la estimación), la terminó y al hacer push se encontró la otra ya publicada. He descartado mi versión y me quedo con la publicada.
-- Decisiones: no sigo con la siguiente tarea (sinergias de M5) porque la otra sesión la habrá cogido ya y dos sesiones tocando el mismo código acaban en conflictos. Lo anoto en `progress.json → bloqueos` para que el humano revise si hay dos tareas programadas que se pisan.
+- Decisiones: no sigo con la siguiente tarea (sinergias de M5) porque la otra sesión la habrá cogido ya y dos sesiones tocando el mismo código acaban en conflictos. Comprobado: solo hay una tarea programada (cada hora, al minuto 24); esta vez se disparó dos veces a las 08:24 UTC. Parece un fallo puntual del programador, así que no lo dejo en `bloqueos`; si se repite, hay que avisar al humano.
 - Siguiente paso: M5, «Al menos 4 sinergias con texto propio» (si nadie lo ha hecho ya).
 
 ## 2026-10-29 09:30 — Nota del humano — Estimación de tiempo por hito
