@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T22:55:00+01:00",
+  "actualizado": "2026-10-29T22:41:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -131,7 +131,7 @@
   },
   "sesiones": [
     {
-      "fecha": "2026-10-29T22:55:00+01:00",
+      "fecha": "2026-10-29T22:41:00+01:00",
       "hito": "M8",
       "resumen": "Enemigos (2): el Cargador Falso, que espera tirado en el suelo como un cargador olvidado (con su etiqueta de GRATIS), salta al acercarte y da un calambre en corro.",
       "commit": ""

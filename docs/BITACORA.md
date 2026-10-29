@@ -2,7 +2,7 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
-## 2026-10-29 22:55 — Hito M8 — Enemigos (2): el Cargador Falso
+## 2026-10-29 22:41 — Hito M8 — Enemigos (2): el Cargador Falso
 
 - Hecho: **segundo enemigo de Informática**, con un cerebro nuevo (`MimicBrain`, `kind: 'mimic'`, estados `lurk` y `reveal`). Viene en pareja y espera **tirado en el suelo como un cargador olvidado**, de lado, con los ojos cerrados en una raya y su etiqueta amarilla de GRATIS (fotograma 6). Si te acercas a 64 px o le disparas, **salta** (fotograma 7, chispas entre las clavijas, «No homologado» en cian y el sonido de saltar), corre hacia ti a 72 px/s y, a 50 px, se para, chisporrotea 0,45 s (el aviso de siempre) y suelta **un calambre en corro**: dos anillos de 10 chispas cian que viven 0,45 s (`cargador-calambre`). 8 de vida, de 0 a 2 cupones. Tirado en el suelo no hace daño por contacto. Sprite de 8 fotogramas (`makeCargadorFrames`): clavijas como cuernos, cejas de malas intenciones, sonrisa de dientes, quemadura en la cara, cable de cola y chanclas. Letra `F` en `SLOT_ENEMIES_2` (coste 3, como mucho una pareja por sala). Causa de baja: «Calambre de un cargador no homologado». Tests nuevos en `tests/cargador.test.ts` (5) y tres capturas en el e2e (35g cebo, 35h descubierto, 35i calambre).
 - Decisiones: el cebo tiene que poder verse: en la captura se distingue del decorado si te fijas (es blanco y está en mitad del paso), pero no grita «enemigo». Despierta a 64 px, más lejos que el alcance de su calambre (50 px), así que siempre hay tiempo de verlo saltar. Si salen dos a la vez, el letrero sale una sola vez. Lo de «No homologado» en vez de una exclamación: el tono del juego es seco.
