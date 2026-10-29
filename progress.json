@@ -503,6 +503,11 @@
       "sesion": "2026-10-29 14:43 UTC",
       "tarea": "M7: accesibilidad parte 3, remapeo de controles",
       "desde": "2026-10-29T15:30:00Z"
+    },
+    {
+      "sesion": "2026-10-29 15:41 UTC",
+      "tarea": "M7: lista de errores conocidos (reunirla en docs/ERRORES_CONOCIDOS.md y arreglar los primeros)",
+      "desde": "2026-10-29T15:44:00Z"
     }
   ]
 }
