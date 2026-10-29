@@ -101,6 +101,8 @@ export interface SlotEnemy {
 export interface LootDef {
   /** How many coupons it drops (random in this range, both included). */
   coupons: [number, number];
+  /** Spare hearts it drops (each gives back a heart: 2 life). A boss's reward. */
+  hearts?: number;
 }
 
 /**

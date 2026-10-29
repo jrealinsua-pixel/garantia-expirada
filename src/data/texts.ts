@@ -114,3 +114,51 @@ export function downReport(info: DownReportInfo, pick: (n: number) => number): {
     { label: 'Recomendación del fabricante', text: DOWN_ADVICE[pick(DOWN_ADVICE.length)]! },
   ];
 }
+
+/** Over the goods lift when it is ready to go down after the boss. */
+export const LIFT_LINE = 'Montacargas a la planta 2 · Carga máxima: una tostadora';
+/** Floats up when the toaster picks up a spare heart. */
+export const HEART_LINE = 'Recambio original';
+
+/** The report shown when the floor is done (the toaster went down the lift). */
+export const WIN_TITLE = 'Incidencia resuelta';
+export const WIN_STAMP = 'Planta superada';
+export const WIN_HINT = 'R o clic: empezar otra jornada';
+export const WIN_RESULT = 'Jefa de planta dada de baja';
+
+/** «Siguiente planta: …» (there is no second floor yet). */
+export const WIN_NEXT: readonly string[] = [
+  'En obras. Disculpe las molestias.',
+  'Pendiente de licitación.',
+  'Cerrada por inventario.',
+  'Disponible próximamente. Sin fecha.',
+];
+
+/** «Nota de la empresa»: a different joke each time. */
+export const WIN_NOTES: readonly string[] = [
+  'Su esfuerzo ha sido registrado y no será recompensado.',
+  'Enhorabuena: ha ascendido a becario sin sueldo.',
+  'Esta victoria no incluye garantía.',
+  'Recuerde valorar a su jefa de planta con cinco estrellas.',
+  'Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05.',
+  'La Dirección ha sido sustituida por otra idéntica. Gracias.',
+];
+
+export interface WinReportInfo {
+  room: string;
+  seconds: number;
+  kills: number;
+  coupons: number;
+}
+
+/** The lines of the floor-done report, top to bottom (same layout as the sick-leave report). */
+export function winReport(info: WinReportInfo, pick: (n: number) => number): { label: string; text: string }[] {
+  return [
+    { label: 'Unidad', text: DOWN_UNIT },
+    { label: 'Resultado', text: WIN_RESULT },
+    { label: 'Sala', text: info.room },
+    { label: 'Jornada', text: `${info.seconds} s · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
+    { label: 'Siguiente', text: WIN_NEXT[pick(WIN_NEXT.length)]! },
+    { label: 'Nota de la empresa', text: WIN_NOTES[pick(WIN_NOTES.length)]! },
+  ];
+}

@@ -139,5 +139,9 @@ export const SFX: Record<string, SfxParams> = {
   // A boss coming apart: short blasts all over it, then the whole thing collapsing.
   estallido: { wave: 'noise', freq: 1200, freqEnd: 80, attack: 0.001, sustain: 0.04, decay: 0.22, volume: 0.3, lowpass: 0.35, crush: 4 },
   derrumbe: { wave: 'noise', freq: 700, freqEnd: 40, attack: 0.005, sustain: 0.35, decay: 1.1, volume: 0.34, lowpass: 0.25, crush: 3, vibrato: 0.2, vibratoSpeed: 9 },
+  // The goods lift: a low motor whine that rises (or falls, detuned) with a rattle.
+  ascensor: { wave: 'saw', freq: 70, freqEnd: 140, attack: 0.05, sustain: 0.7, decay: 0.4, volume: 0.15, vibrato: 0.15, vibratoSpeed: 26, lowpass: 0.3, crush: 2 },
+  // A spare heart picked up: two quick rising notes.
+  curar: { wave: 'square', freq: 660, freqEnd: 1320, attack: 0.005, sustain: 0.08, decay: 0.18, volume: 0.14, duty: 0.4, vibrato: 0.04, vibratoSpeed: 12 },
   tarjeta: { wave: 'square', freq: 1800, freqEnd: 2600, attack: 0.001, sustain: 0.015, decay: 0.05, volume: 0.12, duty: 0.25 },
 };

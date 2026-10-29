@@ -2,11 +2,11 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel } from '../data/texts.ts';
+import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
-import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
+import { activeWarnings, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -30,6 +30,9 @@ const HERO_BROKEN = 7;
 /** Seconds from going down to the slices popping out, and to the sick-leave report. */
 const DOWN_POP = 0.35;
 const DOWN_REPORT = 1.9;
+/** Seconds the lift takes to sink with the toaster, and until the floor-done report shows. */
+const WIN_SINK = 1.3;
+const WIN_REPORT = 2.1;
 
 interface Particle {
   s: Phaser.GameObjects.Image;
@@ -86,7 +89,9 @@ export interface GameStateForTests {
   coupons: number;
   pickups: number;
   over: boolean;
-  /** Text of the sick-leave report once it is on screen (empty before). */
+  /** The toaster went down the goods lift: the floor is done. */
+  won: boolean;
+  /** Text of the sick-leave report (or the floor-done one) once it is on screen (empty before). */
   report: string[];
 }
 
@@ -190,6 +195,10 @@ export class GameScene extends Phaser.Scene {
   private whiteFlash!: Phaser.GameObjects.Rectangle;
   /** Seconds to the next blast on a boss that is coming apart. */
   private blastT = 0;
+  /** The goods lift (once the boss has fallen) and the dark shaft it leaves when it goes down. */
+  private liftView: { s: Phaser.GameObjects.Image; hole: Phaser.GameObjects.Rectangle; arrow: Phaser.GameObjects.Graphics; upT: number } | null = null;
+  /** Seconds since the toaster stepped on the lift (-1 before). */
+  private winT = -1;
 
   constructor() {
     super('game');
@@ -222,6 +231,8 @@ export class GameScene extends Phaser.Scene {
     this.hudObjs = [];
     this.bossBar = null;
     this.blastT = 0;
+    this.liftView = null;
+    this.winT = -1;
     this.dummySprites = new Map();
     this.enemySprites = new Map();
     this.bulletSprites = new Map();
@@ -478,6 +489,22 @@ export class GameScene extends Phaser.Scene {
       { by: cause.by, how: cause.how, room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons },
       (n) => this.fx.int(0, n - 1),
     );
+    this.showForm(lines, { title: DOWN_TITLE, color: 0xe0453b, light: 0xffd0c8, stamp: DOWN_STAMP, hint: DOWN_HINT });
+  }
+
+  /**
+   * The floor is done: «Incidencia resuelta», the same kind of form as the sick-leave report, in
+   * Fridge cyan, with «Planta superada» stamped on it.
+   */
+  private showWinPanel(): void {
+    const w = this.world;
+    const lines = winReport({ room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons }, (n) => this.fx.int(0, n - 1));
+    this.showForm(lines, { title: WIN_TITLE, color: 0x3a9ea6, light: 0xb6f1f0, stamp: WIN_STAMP, hint: WIN_HINT });
+  }
+
+  /** A report form that drops in, with its lines, a reference number, a hint and a stamp slammed on it. */
+  private showForm(lines: { label: string; text: string }[], look: { title: string; color: number; light: number; stamp: string; hint: string }): void {
+    const w = this.world;
     const BW = 296;
     const BH = 164;
     const x0 = Math.round(VIEW_W / 2 - BW / 2);
@@ -489,18 +516,18 @@ export class GameScene extends Phaser.Scene {
       return o;
     };
     const text = (x: number, y: number, t: string, tint: number): Phaser.GameObjects.BitmapText => add(this.add.bitmapText(x, y, FONT, fontText(t), 8)).setTint(tint);
-    add(this.add.rectangle(x0, y0, BW, BH, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, 0xe0453b);
+    add(this.add.rectangle(x0, y0, BW, BH, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, look.color);
     // A form: title bar, ruled lines, perforated edge.
-    add(this.add.rectangle(x0 + 1, y0 + 1, BW - 2, 15, 0xe0453b, 1).setOrigin(0, 0));
-    text(x0 + 8, y0 + 4, DOWN_TITLE, 0xf4f1e8);
+    add(this.add.rectangle(x0 + 1, y0 + 1, BW - 2, 15, look.color, 1).setOrigin(0, 0));
+    text(x0 + 8, y0 + 4, look.title, 0xf4f1e8);
     const ref = `Exp. ${String(1000 + ((w.tick * 7919) % 9000)).padStart(4, '0')}`;
-    text(x0 + BW - 8 - textWidth(ref), y0 + 4, ref, 0x0e0c16).setTint(0xffd0c8);
+    text(x0 + BW - 8 - textWidth(ref), y0 + 4, ref, 0x0e0c16).setTint(look.light);
     const g = add(this.add.graphics());
     for (let x = x0 + 4; x < x0 + BW - 4; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, y0 + BH - 22, 2, 1);
     let y = y0 + 22;
     this.report = [];
     for (const ln of lines) {
-      const advice = ln.label.startsWith('Recomendación');
+      const advice = ln.label.startsWith('Recomendación') || ln.label.startsWith('Nota');
       if (advice) y += 5;
       if (ln.label && !advice) {
         text(x0 + 10, y, `${ln.label}:`, 0x858ea8);
@@ -516,7 +543,7 @@ export class GameScene extends Phaser.Scene {
       }
       this.report.push(ln.label ? `${ln.label}: ${ln.text}` : ln.text);
     }
-    const hint = text(VIEW_W / 2 - Math.round(textWidth(DOWN_HINT) / 2), y0 + BH - 15, DOWN_HINT, 0xf6c431);
+    const hint = text(VIEW_W / 2 - Math.round(textWidth(look.hint) / 2), y0 + BH - 15, look.hint, 0xf6c431);
     this.tweens.add({ targets: hint, alpha: 0.35, yoyo: true, repeat: -1, duration: 450, delay: 900 });
     // The whole form drops in from above.
     for (const o of parts) {
@@ -525,8 +552,9 @@ export class GameScene extends Phaser.Scene {
       this.tweens.add({ targets: o, y: ty, duration: 220, ease: 'Back.easeOut' });
     }
     // The stamp slams down a moment later.
-    const stamp = add(this.add.bitmapText(x0 + BW - 64, y0 + BH - 38, FONT, fontText(DOWN_STAMP), 8).setOrigin(0.5, 0.5)).setTint(0xe0453b);
-    const frame = add(this.add.rectangle(stamp.x, stamp.y, textWidth(DOWN_STAMP) + 8, 13).setStrokeStyle(1, 0xe0453b));
+    const stampColor = look.color === 0xe0453b ? 0xe0453b : 0x69dbd8;
+    const stamp = add(this.add.bitmapText(x0 + BW - 64, y0 + BH - 38, FONT, fontText(look.stamp), 8).setOrigin(0.5, 0.5)).setTint(stampColor);
+    const frame = add(this.add.rectangle(stamp.x, stamp.y, textWidth(look.stamp) + 8, 13).setStrokeStyle(1, stampColor));
     for (const o of [stamp, frame]) {
       o.setRotation(-0.22).setScale(5).setAlpha(0);
       this.tweens.add({
@@ -543,7 +571,7 @@ export class GameScene extends Phaser.Scene {
         },
       });
     }
-    this.report.push(DOWN_STAMP);
+    this.report.push(look.stamp);
     this.downPanel = parts;
   }
 
@@ -614,6 +642,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private canAskNewUnit(): boolean {
+    if (this.world.won) return this.downPanel.length > 0 && this.winT > WIN_REPORT + 0.5;
     return this.world.over && this.downPanel.length > 0 && this.downT > DOWN_REPORT + 0.5;
   }
 
@@ -727,6 +756,48 @@ export class GameScene extends Phaser.Scene {
         g.fillStyle(0x0e0c16, 1).fillRect(nx, y - 2, 1, BOSS_BAR_H + 4);
         g.fillStyle(0xd6cdb2, 1).fillRect(nx, y - 3, 1, 2);
       }
+    }
+  }
+
+  /** The goods lift rises out of the floor where the boss fell, with dust and a rumble. */
+  private raiseLift(x: number, y: number): void {
+    this.liftView?.s.destroy();
+    this.liftView?.hole.destroy();
+    this.liftView?.arrow.destroy();
+    const hole = this.add.rectangle(Math.round(x) - 20, Math.round(y) - 10, 40, 23, 0x0e0c16, 1).setOrigin(0, 0).setDepth(-60001).setAlpha(0);
+    const s = this.add.image(Math.round(x), Math.round(y), 'montacargas', 0).setOrigin(0.5, 20 / 34).setDepth(-60000);
+    const arrow = this.add.graphics().setDepth(85000);
+    this.liftView = { s, hole, arrow, upT: 0 };
+    this.sound2.play('ascensor', { detune: 300 });
+    this.time.delayedCall(300, () => this.sound2.play('persiana', { volume: 0.6 }));
+    for (let i = 0; i < 12; i++) this.puff(x + this.fx.range(-24, 24), y + this.fx.range(-10, 12), this.fx.range(0.5, 0.8));
+  }
+
+  /** The lift rising, its arrow once ready, and the lift sinking with the toaster on it. */
+  private drawLift(dt: number): void {
+    const v = this.liftView;
+    const l = this.world.lift;
+    if (!v || !l) return;
+    const W = 44;
+    const H = 34;
+    v.upT += dt;
+    let d = Math.round((1 - Math.min(1, v.upT / 0.6)) * 22);
+    if (this.winT >= 0) {
+      const k = Math.min(1, this.winT / WIN_SINK);
+      d = Math.round(k * k * 34);
+      v.hole.setAlpha(1);
+    }
+    v.s.setPosition(Math.round(l.x), Math.round(l.y) + d);
+    v.s.setCrop(0, 0, W, Math.max(0, H - d));
+    v.s.setVisible(d < H);
+    v.arrow.clear();
+    if (l.t >= LIFT_READY && this.winT < 0) {
+      // A bouncing yellow arrow over it: step on here.
+      const bob = Math.round(Math.abs(Math.sin(this.time.now / 180)) * 4);
+      const ax = Math.round(l.x);
+      const ay = Math.round(l.y) - 30 - bob;
+      v.arrow.fillStyle(0x0e0c16, 1).fillTriangle(ax - 6, ay - 1, ax + 6, ay - 1, ax, ay + 7);
+      v.arrow.fillStyle(0xf6c431, 1).fillTriangle(ax - 4, ay, ax + 4, ay, ax, ay + 5);
     }
   }
 
@@ -875,7 +946,7 @@ export class GameScene extends Phaser.Scene {
       const line = this.add.bitmapText(VIEW_W / 2, ly, FONT, fontText(BOSS_DOWN_LINE), 8).setOrigin(0.5, 0).setScrollFactor(0).setDepth(95500);
       line.setTint(0xd6cdb2).setAlpha(0);
       this.tweens.add({ targets: line, alpha: 1, delay: 500, duration: 300 });
-      this.tweens.add({ targets: [stamp, box, line, back], alpha: 0, delay: 4200, duration: 600, onComplete: () => [stamp, box, line, back].forEach((o) => o.destroy()) });
+      this.tweens.add({ targets: [stamp, box, line, back], alpha: 0, delay: 2000, duration: 450, onComplete: () => [stamp, box, line, back].forEach((o) => o.destroy()) });
     });
     this.time.delayedCall(1400, () => {
       this.camFocus = null;
@@ -933,6 +1004,7 @@ export class GameScene extends Phaser.Scene {
       coupons: p.coupons,
       pickups: this.world.pickups.length,
       over: this.world.over,
+      won: this.world.won,
       report: this.report,
     };
   }
@@ -1079,6 +1151,15 @@ export class GameScene extends Phaser.Scene {
           if (ENEMIES[e.enemy]?.boss) this.bossDown(e);
           break;
         case 'pickup':
+          if (e.kind === 'corazon') {
+            // A spare heart: a warm chime, red sparks and the heart in the HUD pumps.
+            this.sound2.play('curar');
+            for (let i = 0; i < 8; i++) this.spark(e.x, e.y - 4, this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), 2);
+            this.floatText(e.x, e.y - 14, fontText(HEART_LINE), 0xe0453b);
+            this.heartHit = Math.floor((e.total - 1) / 2);
+            this.heartHitT = 0.5;
+            break;
+          }
           this.couponPop = 0.25;
           this.sound2.play('cupon', { detune: Math.min(600, (e.total % 8) * 80) });
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 3, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1);
@@ -1161,6 +1242,22 @@ export class GameScene extends Phaser.Scene {
           if (this.bossBar) this.bossBar.flash = 0.5;
           break;
         }
+        case 'lift':
+          this.raiseLift(e.x, e.y);
+          break;
+        case 'liftReady':
+          this.sound2.play('desbloquear');
+          if (this.liftView) this.liftView.s.setFrame(1);
+          this.banner.setText(fontText(LIFT_LINE)).setTint(0x69dbd8).setAlpha(1);
+          this.tweens.killTweensOf(this.banner);
+          this.tweens.add({ targets: this.banner, alpha: 0, delay: 3200, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
+          break;
+        case 'floorDone':
+          this.winT = 0;
+          this.sound2.play('ascensor');
+          this.cameras.main.shake(200, 0.006, true);
+          for (let i = 0; i < 8; i++) this.puff(e.x + this.fx.range(-20, 20), e.y + this.fx.range(-8, 8), 0.6);
+          break;
         case 'fireCleared': {
           // Every enemy bullet pops at once: a sparkle of its colour where it was, and one sweep.
           if (e.points.length) this.sound2.play('barrido');
@@ -1350,6 +1447,7 @@ export class GameScene extends Phaser.Scene {
   private syncView(dt: number): void {
     const w = this.world;
     this.drawBossBar(dt);
+    this.drawLift(dt);
     const p = w.player;
     const rolling = isRolling(p);
 
@@ -1403,8 +1501,28 @@ export class GameScene extends Phaser.Scene {
         else if (this.downArmed) this.scene.restart();
       }
     }
+    this.hero.setCrop();
+    if (w.won && this.winT >= 0) {
+      // Going down with the lift: it sinks into the shaft, hidden by the front edge of the hole.
+      this.winT += dt;
+      const k = Math.min(1, this.winT / WIN_SINK);
+      const d = Math.round(k * k * 34);
+      const edge = (w.lift ? w.lift.y : p.y) + 13;
+      this.hero.setFrame(0).setRotation(0).setScale(p.facing, 1);
+      this.hero.setY(Math.round(p.y) + d);
+      const rows = Math.max(0, Math.round(edge - (p.y + d - HERO_FEET_Y)));
+      this.hero.setCrop(0, 0, HERO_W, Math.min(HERO_H, rows));
+      this.hero.setVisible(rows > 0);
+      if (this.winT > WIN_REPORT && this.downPanel.length === 0) this.showWinPanel();
+      if (this.canAskNewUnit()) {
+        const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload;
+        if (!pressed) this.downArmed = true;
+        else if (this.downArmed) this.scene.restart();
+      }
+    }
     this.hero.setDepth(p.y);
     this.hero.setAlpha(1);
+    this.heroShadow.setVisible(!w.won);
     this.heroShadow.setPosition(Math.round(p.x), Math.round(p.y));
     if (this.flashHero > 0) {
       this.flashHero -= dt;
@@ -1423,8 +1541,8 @@ export class GameScene extends Phaser.Scene {
     const gx = pv.x - Math.cos(p.aim) * this.gunKick;
     const gy = pv.y - Math.sin(p.aim) * this.gunKick;
     const behind = Math.sin(p.aim) < -0.35;
-    this.gun.setVisible(!rolling && !w.over);
-    this.hand.setVisible(!rolling && !w.over);
+    this.gun.setVisible(!rolling && !w.over && !w.won);
+    this.hand.setVisible(!rolling && !w.over && !w.won);
     this.gun.setPosition(Math.round(gx), Math.round(gy)).setRotation(p.aim).setScale(1, p.facing);
     this.gun.setDepth(p.y + (behind ? -0.5 : 0.5));
     this.hand.setPosition(Math.round(gx), Math.round(gy + 1)).setDepth(p.y + (behind ? -0.4 : 0.6));
@@ -1576,11 +1694,13 @@ export class GameScene extends Phaser.Scene {
       alive.add(k.id);
       let v = this.pickupSprites.get(k.id);
       if (!v) {
-        v = { s: this.add.image(k.x, k.y, 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, 4, 2)).setDepth(-50000) };
+        const heart = k.kind === 'corazon';
+        v = { s: this.add.image(k.x, k.y, heart ? 'corazon-suelo' : 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
         this.pickupSprites.set(k.id, v);
       }
       const hop = k.age < PICKUP_DELAY ? Math.sin((Math.PI * k.age) / PICKUP_DELAY) * 12 : Math.max(0, Math.sin(this.time.now / 260 + k.id)) * 1.5;
-      const glint = Math.floor(this.time.now / 90 + k.id * 7) % 16 === 0;
+      // Hearts glint more often, so they are noticed on the floor.
+      const glint = Math.floor(this.time.now / 90 + k.id * 7) % (k.kind === 'corazon' ? 6 : 16) === 0;
       v.s.setPosition(Math.round(k.x), Math.round(k.y - hop)).setFrame(glint ? 1 : 0).setDepth(k.y);
       v.shadow.setPosition(Math.round(k.x), Math.round(k.y));
     }

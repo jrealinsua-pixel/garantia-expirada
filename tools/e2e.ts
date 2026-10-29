@@ -397,6 +397,27 @@ try {
   await page.waitForTimeout(1100);
   await shot('17m-nevera-liquidada.png');
   if (await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut')) throw new Error('Las persianas no suben al caer la jefa');
+  // The reward: a spare heart among the coupons, and the goods lift down to the next floor.
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.pickups.some((k) => k.kind === 'corazon')"))) throw new Error('La jefa no suelta un corazón');
+  if (!(await page.evaluate<boolean>('!!window.__GE__.scene.world.lift'))) throw new Error('No aparece el montacargas');
+  await page.waitForFunction('window.__GE__.scene.world.lift.t > 3.1', undefined, { timeout: 5000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = w.lift.x - 40; w.player.y = w.lift.y; })()`);
+  await page.waitForTimeout(150);
+  await shot('17n-montacargas.png');
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.state().won', undefined, { timeout: 5000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(700);
+  await shot('17o-montacargas-bajando.png');
+  await page.waitForFunction('window.__GE__.state().report.length > 0', undefined, { timeout: 5000 });
+  await page.waitForTimeout(900);
+  await shot('17p-planta-superada.png');
+  const won = await state();
+  console.log(`Planta superada: ${won.report.join(' | ')}`);
+  // R asks for a new unit: the run starts again.
+  await page.waitForTimeout(400);
+  await page.keyboard.press('r');
+  await page.waitForFunction('window.__GE__.state().ready && !window.__GE__.state().won', undefined, { timeout: 5000 });
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

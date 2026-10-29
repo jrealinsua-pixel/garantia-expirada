@@ -70,7 +70,8 @@ export interface Player {
   coupons: number;
 }
 
-export type PickupKind = 'cupon';
+/** A discount coupon (currency), or a spare heart (gives back `value` life; left alone at full life). */
+export type PickupKind = 'cupon' | 'corazon';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -291,7 +292,13 @@ export type SimEvent =
   | { type: 'bossDying'; boss: number; x: number; y: number; duration: number; enemy: string }
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
+  /** Picked something up; `total` is the coupons after it, or the life for a heart. */
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
+  /** The goods lift came up where the boss fell (it can be used once it is `ready`). */
+  | { type: 'lift'; x: number; y: number }
+  | { type: 'liftReady'; x: number; y: number }
+  /** The toaster stepped on the lift: the floor is done (see World.won). */
+  | { type: 'floorDone'; x: number; y: number; seconds: number; kills: number; coupons: number }
   | { type: 'restock' }
   /** The shutters of the room come down (shut) or roll up. */
   | { type: 'doors'; shut: boolean }
@@ -343,7 +350,24 @@ export interface World {
   floor: FloorRun | null;
   /** A boss is making its entrance: nothing moves but the clock (see BOSS_INTRO). */
   intro: BossIntro | null;
+  /** The goods lift down to the next floor, once the boss has fallen. */
+  lift: Lift | null;
+  /** The toaster took the lift: the floor is done and the world stands still. */
+  won: boolean;
 }
+
+export interface Lift {
+  x: number;
+  y: number;
+  /** Seconds since it came up: it takes the toaster from LIFT_READY on. */
+  t: number;
+}
+
+/** Seconds the lift takes to come up and be ready (the «Liquidación total» stamp is read meanwhile), and how close the toaster's feet must be (px). */
+export const LIFT_READY = 2.6;
+export const LIFT_RADIUS = 12;
+/** Half size of the lift's plate (the sprite is 40 × 20 px of plate). */
+export const LIFT_HALF = { x: 20, y: 10 };
 
 export interface BossIntro {
   /** Id of the boss. */
@@ -464,6 +488,8 @@ export function createWorld(opts: WorldOptions): World {
     doorsShut: room.kind === 'test',
     floor,
     intro: null,
+    lift: null,
+    won: false,
   };
   if (floor) {
     floor.rooms[floor.current]!.visited = true;
@@ -1234,8 +1260,59 @@ function reapEnemies(w: World): void {
       const sp = w.rng.range(50, 110);
       w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: spot.x, y: spot.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
     }
+    for (let i = 0; i < (en.def.loot.hearts ?? 0); i++) {
+      // Spare hearts roll out slowly towards the player, so they are easy to see.
+      const a = Math.atan2(w.player.y - en.y, w.player.x - en.x) + w.rng.range(-0.5, 0.5);
+      const sp = w.rng.range(40, 60);
+      const at = freeSpot(w, en.x, en.y, PICKUP_RADIUS);
+      w.pickups.push({ id: w.nextId++, kind: 'corazon', value: 2, x: at.x, y: at.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+    }
+    // A boss leaves the way down: the goods lift comes up where it stood.
+    if (en.def.boss && w.lift === null) openLift(w, en.x, en.y);
   }
   w.enemies = keep;
+}
+
+/** Raises the goods lift on clear floor as close to (x, y) as possible. */
+function openLift(w: World, x: number, y: number): void {
+  const r = Math.max(LIFT_HALF.x, LIFT_HALF.y);
+  let at = { x, y };
+  // Rings outward until the whole plate is on free floor.
+  search: for (let d = 0; d <= 96; d += 6) {
+    for (let i = 0; i < (d === 0 ? 1 : 16); i++) {
+      const a = (i / 16) * Math.PI * 2;
+      const px = x + Math.cos(a) * d;
+      const py = y + Math.sin(a) * d;
+      if (isClear(w, px, py, r)) {
+        at = { x: px, y: py };
+        break search;
+      }
+    }
+  }
+  w.lift = { x: at.x, y: at.y, t: 0 };
+  w.events.push({ type: 'lift', x: at.x, y: at.y });
+}
+
+/** Whether (x, y) is on the lift's plate (well inside it). */
+export function onLift(l: Lift, x: number, y: number): boolean {
+  return Math.abs(x - l.x) < LIFT_HALF.x - 4 && Math.abs(y - l.y) < LIFT_HALF.y - 2;
+}
+
+function updateLift(w: World): void {
+  const l = w.lift;
+  if (!l || w.over) return;
+  const was = l.t;
+  l.t += DT;
+  if (was < LIFT_READY && l.t >= LIFT_READY) w.events.push({ type: 'liftReady', x: l.x, y: l.y });
+  const p = w.player;
+  if (l.t >= LIFT_READY && !isRolling(p) && onLift(l, p.x, p.y)) {
+    w.won = true;
+    p.vx = 0;
+    p.vy = 0;
+    w.bullets = [];
+    w.emitters = [];
+    w.events.push({ type: 'floorDone', x: l.x, y: l.y, seconds: Math.round(w.tick * DT), kills: w.kills, coupons: p.coupons });
+  }
 }
 
 function updatePickups(w: World): void {
@@ -1247,12 +1324,15 @@ function updatePickups(w: World): void {
     const dx = p.x - k.x;
     const dy = p.y - 2 - k.y;
     const d = Math.hypot(dx, dy);
-    if (k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
-      p.coupons += k.value;
-      w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: p.coupons });
+    // A spare heart stays where it is while the toaster has all its life.
+    const wanted = k.kind !== 'corazon' || p.hp < p.def.maxHp;
+    if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
+      if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);
+      else p.coupons += k.value;
+      w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: k.kind === 'corazon' ? p.hp : p.coupons });
       continue;
     }
-    if (k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
+    if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
       // Pulled in faster the closer it gets; it slides round pillars and boxes instead of
       // flying through them.
       const sp = 90 + (1 - d / PICKUP_MAGNET) * 160;
@@ -1321,6 +1401,11 @@ function updateDoors(w: World): void {
 
 export function step(w: World, input: Input): void {
   w.events = [];
+  // Gone down the lift: the floor is done and nothing moves any more.
+  if (w.won) {
+    w.tick++;
+    return;
+  }
   if (w.intro) {
     stepIntro(w, w.intro, input);
     w.tick++;
@@ -1345,6 +1430,7 @@ export function step(w: World, input: Input): void {
   updatePickups(w);
   updateRestock(w);
   updateDoors(w);
+  updateLift(w);
   updateExits(w);
   w.tick++;
 }
@@ -1388,5 +1474,6 @@ export function worldHash(w: World): string {
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));
+  if (w.lift) parts.push(w.lift.x.toFixed(2), w.lift.y.toFixed(2), w.won ? 'won' : 'lift');
   return parts.join('|');
 }

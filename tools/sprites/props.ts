@@ -509,3 +509,83 @@ export function makeExpiredProducts(): Canvas {
   });
   return sheet;
 }
+
+/**
+ * The goods lift (montacargas) that appears where a boss fell and takes the toaster down to the
+ * next floor. A raised steel plate seen from above in three-quarter view, with a worn
+ * yellow-and-black hazard edge, a grid of treads and a big painted arrow pointing down, plus a
+ * little control post on the back left. Two frames of 44 × 34: closed (red light, dull arrow)
+ * and ready (green light, bright arrow).
+ */
+export function makeGoodsLift(): Canvas {
+  const W = 44;
+  const H = 34;
+  const out = new Canvas(W * 2, H);
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(W, H);
+    const x0 = 2;
+    const y0 = 10;
+    const pw = 40;
+    const ph = 20;
+    // Front face of the plate (it stands a little off the floor).
+    cv.rect(x0, y0 + ph, pw, 3, hx('#2c3048'));
+    cv.rect(x0, y0 + ph, pw, 1, hx('#434963'));
+    // Hazard edge: diagonal stripes, worn.
+    for (let y = y0; y < y0 + ph; y++) {
+      for (let x = x0; x < x0 + pw; x++) {
+        const edge = x < x0 + 3 || x >= x0 + pw - 3 || y < y0 + 3 || y >= y0 + ph - 3;
+        if (!edge) continue;
+        const stripe = Math.floor((x + y) / 3) % 2 === 0;
+        cv.set(x, y, stripe ? hx('#d9a326') : hx('#1b1d2e'));
+      }
+    }
+    for (const [x, y] of [[x0 + 5, y0], [x0 + 18, y0 + 1], [x0 + pw - 2, y0 + 9], [x0 + 27, y0 + ph - 1], [x0, y0 + 14]] as const) cv.set(x, y, hx('#6b5a3a'));
+    // Steel treads inside.
+    cv.rect(x0 + 3, y0 + 3, pw - 6, ph - 6, hx('#5d647e'));
+    for (let y = y0 + 4; y < y0 + ph - 3; y += 3) for (let x = x0 + 4 + ((y >> 1) % 2); x < x0 + pw - 4; x += 3) cv.set(x, y, hx('#838ca6'));
+    cv.rect(x0 + 3, y0 + 3, pw - 6, 1, hx('#838ca6'));
+    cv.rect(x0 + 3, y0 + ph - 4, pw - 6, 1, hx('#434963'));
+    // Painted arrow pointing down (towards the next floor).
+    const arrow = ['..XXX..', '..XXX..', '..XXX..', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...'];
+    const ac = k === 1 ? YEL[1]! : hx('#8f7a3c');
+    const al = k === 1 ? YEL[0]! : hx('#a8915a');
+    arrow.forEach((row, j) => [...row].forEach((ch, i) => ch === 'X' && cv.set(x0 + 17 + i, y0 + 6 + j, j === 0 || (j === 3 && i < 2) ? al : ac)));
+    // Rivets in the corners of the treads.
+    for (const [x, y] of [[x0 + 4, y0 + 4], [x0 + pw - 5, y0 + 4], [x0 + 4, y0 + ph - 5], [x0 + pw - 5, y0 + ph - 5]] as const) cv.set(x, y, hx('#b7bed0'));
+    // Control post on the back left: a box on a pole with the pilot light and a down button.
+    box(cv, x0 + 2, 0, 7, 8, STEEL);
+    cv.rect(x0 + 4, 8, 3, 4, hx('#434963'));
+    cv.rect(x0 + 4, 8, 1, 4, hx('#5d647e'));
+    cv.rect(x0 + 3, 2, 5, 3, K);
+    cv.rect(x0 + 4, 3, 3, 1, k === 1 ? GREEN : RED[1]!);
+    cv.set(x0 + 4, 3, k === 1 ? hx('#a8e89a') : RED[0]!);
+    cv.set(x0 + 5, 6, YEL[1]!);
+    out.blit(outline(cv), k * W, 0);
+  }
+  return out;
+}
+
+/**
+ * A spare heart lying on the floor (a boss's reward): a red heart with a highlight and a little
+ * «original part» tag, 13 × 12. Two frames: the second catches the light.
+ */
+export function makeSpareHeart(): Canvas {
+  const out = new Canvas(26, 12);
+  const pat = ['.111.111.', '122111111', '121111111', '111111113', '.1111113.', '..11113..', '...113...', '....3....'];
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(13, 12);
+    pat.forEach((row, j) =>
+      [...row].forEach((ch, i) => {
+        if (ch === '.') return;
+        cv.set(i + 1, j + 1, ch === '1' ? RED[1]! : ch === '2' ? (k === 1 ? WHITE : RED[0]!) : RED[2]!);
+      }),
+    );
+    // The tag on a string: a tiny cream label hanging off the right lobe.
+    cv.set(9, 2, CREAM[2]!);
+    cv.rect(10, 3, 2, 3, CREAM[1]!);
+    cv.set(10, 3, CREAM[0]!);
+    cv.set(11, 5, CREAM[2]!);
+    out.blit(outline(cv), k * 13, 0);
+  }
+  return out;
+}

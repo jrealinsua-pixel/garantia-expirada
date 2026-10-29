@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-29T06:37:00+01:00",
+  "actualizado": "2026-10-29T06:48:00+01:00",
   "version": "0.1.0",
-  "hito_actual": "M4",
+  "hito_actual": "M5",
   "hitos": [
     {
       "id": "M0",
@@ -34,14 +34,14 @@
     {
       "id": "M4",
       "nombre": "La Nevera Suprema",
-      "estado": "en_curso",
-      "hechas": 4,
+      "estado": "hecho",
+      "hechas": 5,
       "total": 5
     },
     {
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 6
     },
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 195,
-    "tests_ok": 195,
+    "tests": 203,
+    "tests_ok": 203,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 7634
+    "lineas_codigo": 7886
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T06:48:00+01:00",
+      "hito": "M4",
+      "resumen": "M4 terminado. Al caer la Nevera Suprema suelta, además de los cupones, un corazón de recambio (cura un corazón; con la vida llena se queda en el suelo) y sube un montacargas donde estaba. Cuando se enciende la luz verde, al pisarlo la tostadora baja con él y sale el informe «Incidencia resuelta» con el sello «Planta superada» (la planta 2 está «pendiente de licitación»). El bot baja en el montacargas en el 100 % de sus victorias; el combate dura 83–116 s.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T06:37:00+01:00",
       "hito": "M4",
@@ -256,6 +262,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/planta-superada.png",
+      "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
+    },
+    {
+      "archivo": "capturas/montacargas.png",
+      "pie": "La recompensa: cupones, un corazón de recambio y el montacargas a la planta 2 («Carga máxima: una tostadora»), con su flecha cuando está listo"
+    },
+    {
       "archivo": "capturas/nevera-liquidada.png",
       "pie": "Fin de la Nevera Suprema: se desmonta en piezas y cupones, y le cae el sello «Liquidación total» · «La Dirección ha cesado su actividad»"
     },
@@ -268,18 +282,10 @@
       "pie": "Fase 2, «Oferta irrechazable»: la nevera abre la puerta y escupe yogures hinchados, bricks y latas abolladas; un anillo rojo marca dónde caerán y revientan en balas"
     },
     {
-      "archivo": "capturas/nevera-tarjetas.png",
-      "pie": "Tarjetas de fidelización que giran en el aire y persiguen a la tostadora un rato; se pueden romper a tiros"
-    },
-    {
-      "archivo": "capturas/nevera-escarcha.png",
-      "pie": "Fase 1 de la Nevera Suprema: charcos de escarcha que ralentizan a la tostadora (se tiñe de frío) y las esquirlas que sueltan al caer"
-    },
-    {
       "archivo": "capturas/jefe-presentacion.png",
       "pie": "La Nevera Suprema se presenta: «Jefa de planta · Almacén de devoluciones» y su lema, con bandas de cine y escarcha en el suelo"
     }
   ],
-  "proximo": "M4 · Recompensa y pantalla de victoria al vencer a la jefa (cierra M4). Después, M5: modificadores de estadísticas y balas.",
+  "proximo": "M5 · Sistema de modificadores de estadísticas y de comportamiento de balas (la base de armas y objetos).",
   "bloqueos": []
 }

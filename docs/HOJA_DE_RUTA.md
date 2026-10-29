@@ -79,13 +79,13 @@ entera sin quedarse atascado.
 válidas, y sin daño el bot recorre la planta entera en 20 de 20 plantas (y 100 de 100 en una
 prueba aparte) sin atascarse.*
 
-## M4 · La Nevera Suprema
+## M4 · La Nevera Suprema (hecho)
 
 - [x] Sala del jefe con presentación (nombre y lema en pantalla).
 - [x] Fase 1: ráfagas de cubitos, escarcha que ralentiza.
 - [x] Fase 2: tarjetas de fidelización que persiguen; la nevera se abre y escupe productos caducados.
 - [x] Barra de vida del jefe, transición de fase, muerte espectacular.
-- [ ] Recompensa y subida a la siguiente planta (de momento, pantalla de victoria).
+- [x] Recompensa y subida a la siguiente planta (de momento, pantalla de victoria).
 
 **Criterios de aceptación:** el combate dura entre 60 y 120 s para el bot; las dos fases se
 distinguen claramente en las capturas.

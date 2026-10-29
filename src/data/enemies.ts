@@ -175,7 +175,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [10, 14] },
+    loot: { coupons: [10, 14], hearts: 1 },
     brain: {
       kind: 'boss',
       // The ice dispenser on its door, facing right.

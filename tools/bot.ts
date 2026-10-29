@@ -182,6 +182,8 @@ export interface BossReport {
   segundoFase2: number;
   heridasFase1: number;
   heridasFase2: number;
+  /** Fights won that end with the toaster going down the goods lift (%). */
+  montacargas: number;
 }
 
 /** The bot fights the floor boss in its room (entrance skipped), with damage, up to `maxSeconds`. */
@@ -192,6 +194,7 @@ export function runBoss(fights: number, maxSeconds = 240): { report: BossReport;
   let frostT = 0;
   const phase2At: number[] = [];
   const phaseHurts = [0, 0];
+  let lifted = 0;
   for (let i = 0; i < fights; i++) {
     const seed = `jefe-${i}`;
     let phase = 0;
@@ -214,7 +217,11 @@ export function runBoss(fights: number, maxSeconds = 240): { report: BossReport;
           }
         }
         if (frostSlow(w, w.player.x, w.player.y) < 1) frostT += DT;
-        if (w.enemies.length === 0) break;
+        // After the fight, down the lift (that is the end of the floor).
+        if (w.won) {
+          lifted++;
+          break;
+        }
         if (t % 30 === 0) {
           const errs = checkInvariants(w);
           if (errs.length) {
@@ -241,6 +248,7 @@ export function runBoss(fights: number, maxSeconds = 240): { report: BossReport;
       segundoFase2: phase2At.length ? one(phase2At.reduce((a, b) => a + b, 0) / phase2At.length) : 0,
       heridasFase1: Math.round((phaseHurts[0]! / fights) * 100) / 100,
       heridasFase2: Math.round((phaseHurts[1]! / fights) * 100) / 100,
+      montacargas: won.length ? one((lifted / won.length) * 100) : 0,
     },
     errors,
   };
@@ -392,6 +400,7 @@ if (import.meta.main) {
     console.log(
       `${j.combates} combates contra la jefa · gana el ${j.gana} % en ${j.segundos} s (${j.minimo}–${j.maximo} s) · ` +
         `${j.heridas} heridas por combate (${j.heridasFase1} en la fase 1, ${j.heridasFase2} en la 2) · ${j.segundosEnEscarcha} s en la escarcha · ` +
+        `baja en el montacargas el ${j.montacargas} % de las victorias · ` +
         `llega a la fase 2 el ${j.llegaFase2} %, a los ${j.segundoFase2} s`,
     );
   }

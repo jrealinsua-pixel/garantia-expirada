@@ -227,6 +227,18 @@
     "frameH": 48,
     "frames": 2
   },
+  "montacargas": {
+    "file": "montacargas.png",
+    "frameW": 44,
+    "frameH": 34,
+    "frames": 2
+  },
+  "corazon-suelo": {
+    "file": "corazon-suelo.png",
+    "frameW": 13,
+    "frameH": 12,
+    "frames": 2
+  },
   "objeto-pila": {
     "file": "objeto-pila.png",
     "frameW": 16,

@@ -172,6 +172,8 @@ export class Bot {
       }
       return this.wander ? steer(w, this.wander, r, blocked) : null;
     }
+    // The boss has fallen: down the goods lift.
+    if (w.lift) return steer(w, { x: w.lift.x, y: w.lift.y }, r, blocked);
     const dir = nextDoor(w, w.floor?.layout.boss);
     const door = dir ? w.room.doors.find((d) => d.dir === dir) : undefined;
     if (!door) return null;
@@ -207,12 +209,16 @@ export class Bot {
     if (w.floor) {
       const plan = this.floorGoal(w);
       if (plan) this.target = plan;
+    } else if (w.lift && w.enemies.length === 0) {
+      // A single room with the lift up (the boss fight): straight to it.
+      this.target = steer(w, { x: w.lift.x, y: w.lift.y }, p.def.footRadius, blockedTiles(w, p.def.footRadius));
     }
     // Coupons lying close by are worth a detour.
     let goal = this.target;
     let near = 110;
     if (this.ignorePickups > 0) this.ignorePickups--;
     else for (const k of w.pickups) {
+      if (k.kind === 'corazon' && p.hp >= p.def.maxHp) continue;
       const d = Math.hypot(k.x - p.x, k.y - p.y);
       if (d < near) {
         near = d;
