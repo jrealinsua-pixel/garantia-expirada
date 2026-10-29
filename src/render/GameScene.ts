@@ -6,8 +6,9 @@ import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bo
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
-import { activeWarnings, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
+import { activeWarnings, addModifier, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
+import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { BulletColor } from '../sim/patterns.ts';
@@ -166,6 +167,7 @@ export class GameScene extends Phaser.Scene {
   private floats: FloatText[] = [];
   private hearts: Phaser.GameObjects.Image[] = [];
   private ammoPips: Phaser.GameObjects.Image[] = [];
+  private gunIcon!: Phaser.GameObjects.Image;
   private ammoText!: Phaser.GameObjects.BitmapText;
   private reloadBar!: Phaser.GameObjects.Graphics;
   /** Attack warnings: shrinking ring, aim dots and «!», redrawn every frame from the emitters. */
@@ -298,11 +300,8 @@ export class GameScene extends Phaser.Scene {
 
     // HUD, fixed to the screen.
     this.add.image(0, 0, 'vineta').setOrigin(0, 0).setScrollFactor(0).setDepth(90000);
-    const maxHearts = Math.ceil(this.world.player.def.maxHp / 2);
-    for (let i = 0; i < maxHearts; i++) this.hearts.push(this.hud(this.add.image(8 + i * 10, 8, 'corazones', 0).setOrigin(0, 0)));
-    const mag = this.world.player.weapon.def.magazine;
-    for (let i = 0; i < mag; i++) this.ammoPips.push(this.hud(this.add.image(VIEW_W - 8 - (mag - i) * 4, VIEW_H - 14, 'municion', 0).setOrigin(0, 0)));
-    this.hud(this.add.image(VIEW_W - 12 - mag * 4 - 20, VIEW_H - 15, 'arma-secador').setOrigin(0, 0));
+    this.gunIcon = this.hud(this.add.image(0, VIEW_H - 15, 'arma-secador').setOrigin(0, 0));
+    this.syncHudSlots();
     this.couponIcon = this.hud(this.add.image(7, 19, 'cupon', 0).setOrigin(0, 0));
     this.couponText = this.hud(this.add.bitmapText(21, 20, FONT, '0', 8));
     this.couponText.setTint(0xf6c431);
@@ -345,9 +344,11 @@ export class GameScene extends Phaser.Scene {
 
     if (this.world.intro) this.startBossIntro(this.world.intro.boss);
     this.syncView(0);
-    (window as unknown as { __GE__: { state: () => GameStateForTests; scene: GameScene } }).__GE__ = {
+    (window as unknown as { __GE__: { state: () => GameStateForTests; scene: GameScene; addModifier: (m: Modifier) => void } }).__GE__ = {
       scene: this,
       state: () => this.testState(),
+      // Tests (and curious humans in the console) can hand the toaster any modifier.
+      addModifier: (m: Modifier) => addModifier(this.world, m),
     };
   }
 
@@ -1669,10 +1670,12 @@ export class GameScene extends Phaser.Scene {
         s = this.add.image(b.x, b.y, b.owner === 'player' ? 'bala-jugador' : BULLET_TEXTURES[b.color]);
         this.bulletSprites.set(b.id, s);
       }
+      // Bigger (or smaller) player bullets from items: the sprite is drawn for the base radius.
+      const size = b.owner === 'player' ? b.r / PLAYER_BULLET_R : 1;
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);
       // Loyalty cards spin as they fly.
       if (b.color === 'card' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 70 + b.id) % 4);
-      const sc = b.life < 0.15 ? 0.6 : 1;
+      const sc = (b.life < 0.15 ? 0.6 : 1) * size;
       s.setScale(sc);
     }
     for (const [id, s] of this.bulletSprites) {
@@ -1879,8 +1882,43 @@ export class GameScene extends Phaser.Scene {
     this.floats = fk;
   }
 
+  /**
+   * One heart per 2 life and one pip per round, rebuilt when an item changes the maximum life or
+   * the magazine; the gun icon sits left of the pips.
+   */
+  private syncHudSlots(): void {
+    const p = this.world.player;
+    const maxHearts = Math.ceil(p.def.maxHp / 2);
+    const drop = (o: Phaser.GameObjects.Image): void => {
+      this.hudObjs = this.hudObjs.filter((h) => h !== (o as unknown));
+      o.destroy();
+    };
+    while (this.hearts.length > maxHearts) drop(this.hearts.pop()!);
+    while (this.hearts.length < maxHearts) {
+      const h = this.hud(this.add.image(8 + this.hearts.length * 10, 8, 'corazones', 0).setOrigin(0, 0));
+      h.setVisible(this.gunIcon.visible);
+      this.hearts.push(h);
+    }
+    const mag = p.weapon.def.magazine;
+    if (this.ammoPips.length !== mag) {
+      for (const s of this.ammoPips) drop(s);
+      this.ammoPips = [];
+      // Long magazines go in two rows.
+      const perRow = 24;
+      for (let i = 0; i < mag; i++) {
+        const row = Math.floor(i / perRow);
+        const inRow = Math.min(perRow, mag - row * perRow);
+        const pip = this.hud(this.add.image(VIEW_W - 8 - (inRow - (i % perRow)) * 4, VIEW_H - 14 - row * 8, 'municion', 0).setOrigin(0, 0));
+        pip.setVisible(this.gunIcon.visible);
+        this.ammoPips.push(pip);
+      }
+      this.gunIcon.setX(VIEW_W - 12 - Math.min(mag, perRow) * 4 - 20);
+    }
+  }
+
   private updateHud(dt: number): void {
     const p = this.world.player;
+    this.syncHudSlots();
     this.heartHitT = Math.max(0, this.heartHitT - dt);
     this.hearts.forEach((h, i) => {
       const hp = p.hp - i * 2;
@@ -1899,6 +1937,8 @@ export class GameScene extends Phaser.Scene {
     this.couponText.setTint(this.couponPop > 0 ? 0xfff1a8 : 0xf6c431);
     const ws = p.weapon;
     this.ammoPips.forEach((s, i) => s.setFrame(i < ws.ammo ? 0 : 1));
+    // Above the second row of pips when the magazine is long.
+    this.ammoText.setY(VIEW_H - 26 - Math.floor((ws.def.magazine - 1) / 24) * 8);
     this.ammoText.setText(ws.reload > 0 ? fontText('Recargando') : `${ws.ammo}/${ws.def.magazine}`);
     this.ammoText.setTint(ws.reload > 0 || ws.ammo === 0 ? 0xe0453b : 0xf4f1e8);
     this.reloadBar.clear();
@@ -1956,6 +1996,8 @@ export class GameScene extends Phaser.Scene {
 }
 
 /** Enemy bullet sprites by colour: the boss's ice is a cube. */
+/** Radius the player's bullet sprite is drawn for (the hair dryer's). */
+const PLAYER_BULLET_R = 3;
 const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta' };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

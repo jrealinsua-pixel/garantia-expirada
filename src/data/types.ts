@@ -22,6 +22,55 @@ export interface WeaponDef {
   knockback: number;
   /** Bullets per trigger pull. */
   pellets: number;
+  /** What its bullets do besides flying straight (from items; see src/sim/mods.ts). */
+  bullets?: BulletBehaviour;
+}
+
+/**
+ * What the player's bullets do besides flying straight (items give these; see src/sim/mods.ts).
+ * Counts add up between items; homing takes the strongest.
+ */
+export interface BulletBehaviour {
+  /** Enemies it goes through before stopping (each one is hit once). */
+  pierce?: number;
+  /** Times it bounces off walls and props before stopping. */
+  bounce?: number;
+  /** Turns towards the nearest enemy within `range` px, `turnDeg` per second, for `time` s. */
+  homing?: { turnDeg: number; time: number; range: number };
+}
+
+/** A number a modifier can change: the weapon's and the character's. */
+export type StatKey =
+  | 'damage'
+  | 'fireRate'
+  | 'magazine'
+  | 'reloadTime'
+  | 'spreadDeg'
+  | 'bulletSpeed'
+  | 'bulletLife'
+  | 'bulletRadius'
+  | 'knockback'
+  | 'recoil'
+  | 'pellets'
+  | 'speed'
+  | 'maxHp'
+  | 'rollCooldown';
+
+/** One change to a stat: `add` first (all modifiers summed), then `mul` (all multiplied). */
+export interface StatChange {
+  stat: StatKey;
+  add?: number;
+  mul?: number;
+}
+
+/**
+ * Everything one source (an item, a synergy, a curse) does to the player: stat changes and
+ * bullet behaviours. Several stack; taking one away undoes exactly what it did.
+ */
+export interface Modifier {
+  id: string;
+  stats?: StatChange[];
+  bullets?: BulletBehaviour;
 }
 
 export interface CharacterDef {

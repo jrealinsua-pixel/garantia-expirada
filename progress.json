@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T06:48:00+01:00",
+  "actualizado": "2026-10-29T06:57:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -42,7 +42,7 @@
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 6
     },
     {
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 203,
-    "tests_ok": 203,
+    "tests": 212,
+    "tests_ok": 212,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 7886
+    "lineas_codigo": 8157
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T06:57:00+01:00",
+      "hito": "M5",
+      "resumen": "Empieza M5 con la base de armas y objetos: un sistema de modificadores. Cada objeto podrá cambiar el daño, la cadencia, el cargador, la recarga, la dispersión, la velocidad, el alcance y el tamaño de las balas, los perdigones, el retroceso, la velocidad al andar, la vida máxima o el enfriamiento de la voltereta, y dar a las balas tres comportamientos: atravesar enemigos, rebotar en las paredes y perseguir al enemigo más cercano. Se puede probar en la consola del navegador con window.__GE__.addModifier(…).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T06:48:00+01:00",
       "hito": "M4",
@@ -270,6 +276,10 @@
       "pie": "La recompensa: cupones, un corazón de recambio y el montacargas a la planta 2 («Carga máxima: una tostadora»), con su flecha cuando está listo"
     },
     {
+      "archivo": "capturas/modificadores.png",
+      "pie": "Prueba del sistema de modificadores: tres balas por disparo, más grandes y que rebotan dos veces en las paredes, y un cargador de 30"
+    },
+    {
       "archivo": "capturas/nevera-liquidada.png",
       "pie": "Fin de la Nevera Suprema: se desmonta en piezas y cupones, y le cae el sello «Liquidación total» · «La Dirección ha cesado su actividad»"
     },
@@ -280,12 +290,8 @@
     {
       "archivo": "capturas/nevera-caducados.png",
       "pie": "Fase 2, «Oferta irrechazable»: la nevera abre la puerta y escupe yogures hinchados, bricks y latas abolladas; un anillo rojo marca dónde caerán y revientan en balas"
-    },
-    {
-      "archivo": "capturas/jefe-presentacion.png",
-      "pie": "La Nevera Suprema se presenta: «Jefa de planta · Almacén de devoluciones» y su lema, con bandas de cine y escarcha en el suelo"
     }
   ],
-  "proximo": "M5 · Sistema de modificadores de estadísticas y de comportamiento de balas (la base de armas y objetos).",
+  "proximo": "M5 · Las 3 armas (Secador Mágnum, Grapadora Táctica y una nueva), con cambio de arma; después, los objetos pasivos usando los modificadores.",
   "bloqueos": []
 }

@@ -418,6 +418,28 @@ try {
   await page.waitForTimeout(400);
   await page.keyboard.press('r');
   await page.waitForFunction('window.__GE__.state().ready && !window.__GE__.state().won', undefined, { timeout: 5000 });
+
+  // M5: modifiers. In the test room the toaster gets three bullets per shot, bigger and bouncing,
+  // and a longer magazine (the HUD grows a second row of pips).
+  await page.goto(`${url}?semilla=e2e-mods&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => {
+    window.__GE__.scene.world.noDamage = true;
+    window.__GE__.addModifier({
+      id: 'prueba',
+      stats: [{ stat: 'pellets', add: 2 }, { stat: 'spreadDeg', add: 8 }, { stat: 'bulletRadius', mul: 1.6 }, { stat: 'magazine', add: 16 }],
+      bullets: { bounce: 2 },
+    });
+  })()`);
+  const mag = await page.evaluate<number>('window.__GE__.scene.world.player.weapon.def.magazine');
+  if (mag !== 30) throw new Error(`El modificador no cambia el cargador: ${mag}`);
+  await page.mouse.move(60, 150);
+  await page.mouse.down();
+  await page.waitForTimeout(700);
+  await shot('18a-modificadores.png');
+  await page.mouse.up();
+  const bounced = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player' && b.bounce < 2).length");
+  console.log(`Modificadores: cargador ${mag}, ${bounced} balas ya rebotadas en pantalla.`);
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

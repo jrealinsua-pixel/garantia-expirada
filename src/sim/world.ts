@@ -3,7 +3,8 @@ import { CHARACTERS } from '../data/characters.ts';
 import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ENEMIES } from '../data/enemies.ts';
-import type { CharacterDef, DummyDef, EnemyDef, RoomTemplate, WeaponDef } from '../data/types.ts';
+import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
+import { moddedCharacter, moddedWeapon } from './mods.ts';
 import { bossWarnSpot, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
@@ -49,7 +50,11 @@ export interface WeaponState {
 }
 
 export interface Player {
+  /** The character as its modifiers leave it (see refreshPlayer); `base` is the untouched one. */
   def: CharacterDef;
+  base: { def: CharacterDef; weapon: WeaponDef };
+  /** What items (and later synergies) do to it, in the order they were picked up. */
+  mods: Modifier[];
   x: number;
   y: number;
   vx: number;
@@ -117,6 +122,12 @@ export interface Bullet {
   homing?: Homing;
   /** The player's bullets break it (the boss's loyalty cards). */
   shootable?: boolean;
+  /** Player bullets with item behaviours: enemies it can still go through, walls it can still bounce off, */
+  pierce?: number;
+  bounce?: number;
+  /** the enemies (and dummies) it already hit, and how it seeks the nearest enemy. */
+  hits?: number[];
+  seek?: NonNullable<BulletBehaviour['homing']>;
   /** Shot down this tick: it is gone. */
   cut?: boolean;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
@@ -261,7 +272,9 @@ export const MAX_FROST = 8;
 export type SimEvent =
   | { type: 'shot'; x: number; y: number; angle: number; weapon: string }
   | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number }
-  | { type: 'bulletWall'; x: number; y: number; angle: number }
+  | { type: 'bulletWall'; x: number; y: number; angle: number; bounced?: boolean }
+  /** The player's modifiers changed (an item picked up or lost): its stats are recomputed. */
+  | { type: 'mods'; id: string; added: boolean }
   /** A player bullet broke an enemy bullet that can be shot (a loyalty card). */
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
   | { type: 'bulletFade'; x: number; y: number }
@@ -455,6 +468,8 @@ export function createWorld(opts: WorldOptions): World {
     room,
     player: {
       def,
+      base: { def, weapon: wdef },
+      mods: [],
       x: room.playerStart.x,
       y: room.playerStart.y,
       vx: 0,
@@ -830,6 +845,50 @@ function updatePlayer(w: World, input: Input): void {
   if (!isRolling(p)) p.walked += Math.hypot(p.x - ox, p.y - oy);
 }
 
+/** The fields a bullet needs for the weapon's item behaviours. */
+function shotBehaviour(b: BulletBehaviour | undefined): Partial<Bullet> {
+  if (!b) return {};
+  const out: Partial<Bullet> = {};
+  if (b.pierce) out.pierce = b.pierce;
+  if (b.bounce) out.bounce = b.bounce;
+  if (b.homing) out.seek = b.homing;
+  return out;
+}
+
+/**
+ * Recomputes the player's character and weapon from their base and its modifiers. A bigger
+ * magazine comes with its rounds and ammo never passes it; more maximum life comes with that
+ * life, less never leaves it at 0.
+ */
+export function refreshPlayer(p: Player): void {
+  const oldMax = p.def.maxHp;
+  const oldMag = p.weapon.def.magazine;
+  p.def = moddedCharacter(p.base.def, p.mods);
+  p.weapon.def = moddedWeapon(p.base.weapon, p.mods);
+  // A bigger magazine comes loaded (the extra rounds); a smaller one drops what no longer fits.
+  if (p.weapon.def.magazine > oldMag) p.weapon.ammo += p.weapon.def.magazine - oldMag;
+  p.weapon.ammo = Math.min(p.weapon.ammo, p.weapon.def.magazine);
+  if (p.def.maxHp > oldMax) p.hp += p.def.maxHp - oldMax;
+  p.hp = Math.max(Math.min(p.hp, p.def.maxHp), p.hp > 0 ? 1 : 0);
+}
+
+/** Gives the player a modifier (picking up an item). */
+export function addModifier(w: World, m: Modifier): void {
+  w.player.mods.push(m);
+  refreshPlayer(w.player);
+  w.events.push({ type: 'mods', id: m.id, added: true });
+}
+
+/** Takes away the player's last modifier with this id, if it has one. */
+export function removeModifier(w: World, id: string): boolean {
+  const i = w.player.mods.map((m) => m.id).lastIndexOf(id);
+  if (i < 0) return false;
+  w.player.mods.splice(i, 1);
+  refreshPlayer(w.player);
+  w.events.push({ type: 'mods', id, added: false });
+  return true;
+}
+
 function updateWeapon(w: World, input: Input): void {
   const p = w.player;
   const ws = p.weapon;
@@ -878,6 +937,7 @@ function updateWeapon(w: World, input: Input): void {
       dir: a,
       speed: def.bulletSpeed,
       h: HAND_HEIGHT,
+      ...shotBehaviour(def.bullets),
     });
   }
   p.vx -= Math.cos(p.aim) * def.recoil;
@@ -901,14 +961,15 @@ function updateBullets(w: World): void {
     b.age += DT;
     if (b.accel) b.speed = Math.min(b.maxSpeed ?? Infinity, Math.max(10, b.speed + b.accel * DT));
     // Homing: it turns towards the player (towards its body, not its feet) for a while.
-    const homing = b.homing && b.age < b.homing.time && !w.over;
-    if (homing) {
-      const want = Math.atan2(w.player.y - PLAYER_HURT_Y - b.y, w.player.x - b.x);
-      let d = want - b.dir;
-      while (d > Math.PI) d -= 2 * Math.PI;
-      while (d < -Math.PI) d += 2 * Math.PI;
-      const max = (b.homing!.turnDeg * Math.PI * DT) / 180;
-      b.dir += Math.max(-max, Math.min(max, d));
+    let homing = !!b.homing && b.age < b.homing.time && !w.over;
+    if (homing) turnTowards(b, w.player.x, w.player.y - PLAYER_HURT_Y, b.homing!.turnDeg);
+    // A player bullet that seeks (an item): towards the nearest enemy in range it has not hit yet.
+    if (b.seek && b.age < b.seek.time) {
+      const t = seekTarget(w, b);
+      if (t) {
+        turnTowards(b, t.x, t.y, b.seek.turnDeg);
+        homing = true;
+      }
     }
     if (b.wave || b.accel || homing) {
       const side = b.wave ? b.wave.amp * 2 * Math.PI * b.wave.freq * Math.cos(2 * Math.PI * b.wave.freq * b.age) : 0;
@@ -922,7 +983,12 @@ function updateBullets(w: World): void {
       b.y += (b.vy * DT) / 2;
       const angle = Math.atan2(b.vy, b.vx);
       const fy = b.y + b.h;
-      if (isWallAt(w.room, b.x, fy) || w.room.props.some((pr) => pr.def.blocksBullets && pointInRect(b.x, fy, pr.box))) {
+      if (stopsBullet(w, b.x, fy)) {
+        if (b.bounce && b.bounce > 0) {
+          bounceBullet(w, b);
+          w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle, bounced: true });
+          continue;
+        }
         w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle });
         alive = false;
         break;
@@ -941,7 +1007,7 @@ function updateBullets(w: World): void {
       }
       if (b.owner === 'player') {
         for (const en of w.enemies) {
-          if (isDead(en) || en.state === 'gone') continue;
+          if (isDead(en) || en.state === 'gone' || b.hits?.includes(en.id)) continue;
           const hb = dummyHurtBox(en);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
             // A boss between phases shrugs bullets off (they still stop on it).
@@ -953,6 +1019,7 @@ function updateBullets(w: World): void {
             en.vx += Math.cos(angle) * k;
             en.vy += Math.sin(angle) * k;
             w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage, target: en.id });
+            if (pierces(b, en.id)) continue;
             alive = false;
             break;
           }
@@ -973,12 +1040,14 @@ function updateBullets(w: World): void {
         }
         if (!alive) break;
         for (const d of w.dummies) {
+          if (b.hits?.includes(d.id)) continue;
           const hb = dummyHurtBox(d);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
             d.hitT = 0.12;
             d.damageTaken += b.damage;
             d.leanV += Math.cos(angle) * b.knockback * 0.06;
             w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage: b.damage, target: d.id });
+            if (pierces(b, d.id)) continue;
             alive = false;
             break;
           }
@@ -988,6 +1057,65 @@ function updateBullets(w: World): void {
     if (alive) keep.push(b);
   }
   w.bullets = keep.filter((b) => !b.cut);
+}
+
+/** Turns a bullet's direction towards (x, y), at most `turnDeg` degrees per second. */
+function turnTowards(b: Bullet, x: number, y: number, turnDeg: number): void {
+  let d = Math.atan2(y - b.y, x - b.x) - b.dir;
+  while (d > Math.PI) d -= 2 * Math.PI;
+  while (d < -Math.PI) d += 2 * Math.PI;
+  const max = (turnDeg * Math.PI * DT) / 180;
+  b.dir += Math.max(-max, Math.min(max, d));
+}
+
+/** The body of the nearest enemy a seeking bullet can go for (in range, not hit yet), or null. */
+function seekTarget(w: World, b: Bullet): { x: number; y: number } | null {
+  let best: { x: number; y: number } | null = null;
+  let bd = b.seek!.range;
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || b.hits?.includes(en.id)) continue;
+    const hb = dummyHurtBox(en);
+    const x = hb.x + hb.w / 2;
+    const y = hb.y + hb.h / 2;
+    const d = Math.hypot(x - b.x, y - b.y);
+    if (d < bd) {
+      bd = d;
+      best = { x, y };
+    }
+  }
+  return best;
+}
+
+/** Whether a wall or a prop that stops bullets is at (x, y) (a bullet's shadow). */
+function stopsBullet(w: World, x: number, y: number): boolean {
+  return isWallAt(w.room, x, y) || w.room.props.some((pr) => pr.def.blocksBullets && pointInRect(x, y, pr.box));
+}
+
+/**
+ * Bounces a bullet off what it just flew into: back to where it was, and its speed flipped on
+ * the axis that was blocked (both, into a corner).
+ */
+function bounceBullet(w: World, b: Bullet): void {
+  const px = b.x - (b.vx * DT) / 2;
+  const py = b.y - (b.vy * DT) / 2;
+  const blockedX = stopsBullet(w, b.x, py + b.h);
+  const blockedY = stopsBullet(w, px, b.y + b.h);
+  const flipX = blockedX || !blockedY;
+  const flipY = blockedY || !blockedX;
+  if (flipX) b.vx = -b.vx;
+  if (flipY) b.vy = -b.vy;
+  b.x = px;
+  b.y = py;
+  b.dir = Math.atan2(b.vy, b.vx);
+  b.bounce!--;
+}
+
+/** A bullet that pierces goes on through what it just hit (once per target), while it has pierce left. */
+function pierces(b: Bullet, target: number): boolean {
+  if (!b.pierce || b.pierce <= 0) return false;
+  b.pierce--;
+  (b.hits ??= []).push(target);
+  return true;
 }
 
 /** Starts firing a pattern from (x, y). `aim` is the angle towards the target. */
