@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T14:55:00+01:00",
+  "actualizado": "2026-10-29T14:47:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -131,7 +131,7 @@
   },
   "sesiones": [
     {
-      "fecha": "2026-10-29T14:55:00+01:00",
+      "fecha": "2026-10-29T14:47:00+01:00",
       "hito": "M7",
       "resumen": "Rendimiento medido en el juego de verdad: con 300 balas enemigas en pantalla va a 59 fps, igual que vacío, y aguanta hasta unas 600 antes de bajar. Las balas ahora reutilizan sus sprites en vez de crearlos y tirarlos cientos de veces por segundo.",
       "commit": ""

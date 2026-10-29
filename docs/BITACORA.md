@@ -2,7 +2,7 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
-## 2026-10-29 14:55 — Hito M7 — Rendimiento con 300 balas
+## 2026-10-29 14:47 — Hito M7 — Rendimiento con 300 balas
 
 - Hecho: `tools/rendimiento.ts` (`npm run rendimiento`, opciones `--balas` y `--segundos`): abre el juego de verdad en Chromium sin interfaz, mantiene N balas enemigas en la Sala de pruebas y mide los fotogramas por segundo, el p95 y el peor fotograma, frente a la sala casi vacía; además cronometra la simulación sola con las mismas balas y guarda una captura (`capturas/30-300-balas.png`). Los sprites de las balas se **reutilizan** (`bulletPool` en `GameScene`): antes se creaba y destruía una imagen por bala, cientos por segundo.
 - Medidas (Chromium con SwiftShader, que dibuja con la CPU: un ordenador con tarjeta gráfica va mejor): **300 balas: 59,1–59,5 fps, p95 16,8 ms** (igual que sin balas). Margen: 600 balas, 54 fps; 900 balas, 41 → 46 fps con la reutilización; 1500, 32 fps. Simulación sola: 0,17 ms por paso con 300 balas (el presupuesto es 16,7 ms). Criterio cumplido.
