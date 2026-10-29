@@ -569,6 +569,11 @@
       "sesion": "2026-10-29 18:25 UTC",
       "tarea": "M8: encadenar plantas (montacargas tras la jefa → planta 2)",
       "desde": "2026-10-29T19:25:00+01:00"
+    },
+    {
+      "sesion": "2026-10-29 16:3x UTC (rutina, la de las casillas)",
+      "tarea": "M8: enemigos (1): la Impresora que se Atasca (src/data/enemies.ts, src/sim/enemies.ts, tools/sprites/enemies.ts)",
+      "desde": "2026-10-29T18:28Z"
     }
   ]
 }
