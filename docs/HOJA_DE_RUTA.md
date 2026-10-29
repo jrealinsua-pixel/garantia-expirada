@@ -6,7 +6,7 @@ ampliar. Cuando se acabe la lista, Claude escribe hitos nuevos al final.
 
 Estados: `- [ ]` pendiente · `- [x]` hecha.
 
-## Estimación de tiempo (revisada el 2026-10-29, 11:55)
+## Estimación de tiempo (revisada el 2026-10-29, 13:55)
 
 Cuento en **sesiones de trabajo** (cada una cierra una tarea, a veces dos). Ritmo medido: entre
 el 28 y el 29 de octubre se cerraron 47 tareas (M0–M4 y medio M5) en unas 33 sesiones. Las

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T15:20:00+01:00",
+  "actualizado": "2026-10-29T14:40:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -131,19 +131,19 @@
   },
   "sesiones": [
     {
-      "fecha": "2026-10-29T15:20:00+01:00",
+      "fecha": "2026-10-29T14:40:00+01:00",
       "hito": "M7",
       "resumen": "Repaso de los objetos con el bot: la Regleta era obligatoria (duplicaba el daño) y ahora da y quita; el Manual en Chino era inútil y ahora sus balas duran más para aprovechar los rebotes; la Resistencia, un poco más lenta. Un test vigila que ningún objeto sea obligatorio.",
       "commit": ""
     },
     {
-      "fecha": "2026-10-29T14:55:00+01:00",
+      "fecha": "2026-10-29T14:30:00+01:00",
       "hito": "M7",
       "resumen": "Las tres armas ya son distintas de verdad: el Secador pega 2 por bala y llega lejos pero dispara despacio, la Grapadora escupe 11 grapas por segundo de 1 de daño y la Plancha hace 10 de golpe pero solo de cerca. Hay una herramienta que lo mide (npm run armas) y un test que vigila que cada una gane en algo y pierda en otra cosa. El bot sigue ganando la mitad de las plantas.",
       "commit": ""
     },
     {
-      "fecha": "2026-10-29T14:25:00+01:00",
+      "fecha": "2026-10-29T14:05:00+01:00",
       "hito": "M7",
       "resumen": "Error grave arreglado: en la planta generada la Nevera Suprema no aparecía nunca y la planta no se podía terminar. Ahora sale, espera al fondo de su sala y el montacargas se queda donde cayó. El bot juega partidas enteras: gana el 45 % de las plantas, casi siempre pierde ante la jefa. Dificultad media-alta, como se pidió.",
       "commit": ""
