@@ -10,7 +10,7 @@ import {
   ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
 } from './characters.ts';
 import { narrowPoseCycle, poseCycle } from './pose.ts';
-import { makeBatidoraFrames, makeImpresoraFrames, makeMandoFrames } from './enemies.ts';
+import { makeBatidoraFrames, makeCargadorFrames, makeImpresoraFrames, makeMandoFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { encodePng } from './png.ts';
@@ -46,6 +46,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     batidora: { canvas: strip(makeBatidoraFrames()), frameW: 32, frameH: 38 },
     mando: { canvas: strip(makeMandoFrames()), frameW: 22, frameH: 32 },
     impresora: { canvas: strip(makeImpresoraFrames()), frameW: 34, frameH: 32 },
+    cargador: { canvas: strip(makeCargadorFrames()), frameW: 22, frameH: 26 },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
     'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
     maniqui: one(P.makeManiqui()),

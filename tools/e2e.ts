@@ -380,6 +380,24 @@ try {
   await shot('35f-impresora-atasco.png');
   console.log('Impresora: facturas al vuelo y un atasco de papel.');
 
+  // M8: the fake chargers: lying as bait, then jumping up and giving a shock.
+  await page.goto(`${url}?semilla=e2e-cargador-1&sala=taller-expres&planta=2`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  // Only the chargers, and the toaster near them (but not near enough to wake them), so the camera shows them.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = w.enemies.filter((e) => e.def.id === 'cargador');
+    const c = w.enemies[0]; w.player.x = c.x - 110; w.player.y = c.y + 30; })()`);
+  await page.waitForTimeout(1200);
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.enemies.every((e) => e.state === 'lurk')"))) throw new Error('Los cargadores no esperan tirados en el suelo');
+  await shot('35g-cargador-cebo.png');
+  await page.evaluate("(() => { const w = window.__GE__.scene.world; const c = w.enemies[0]; w.player.x = c.x - 52; w.player.y = c.y; w.player.vx = 0; w.player.vy = 0; })()");
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.state === 'reveal')", undefined, { timeout: 3000 });
+  await page.waitForTimeout(200);
+  await shot('35h-cargador-descubierto.png');
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.owner === 'enemy' && b.color === 'cyan')", undefined, { timeout: 8000 });
+  await page.waitForTimeout(120);
+  await shot('35i-cargador-calambre.png');
+  console.log('Cargador Falso: de cebo en el suelo a calambre.');
+
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

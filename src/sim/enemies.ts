@@ -1,6 +1,6 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, MothBrain, TurretBrain } from '../data/types.ts';
+import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, MimicBrain, MothBrain, TurretBrain } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
@@ -40,6 +40,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'boss':
         updateBoss(w, en, en.def.brain);
+        break;
+      case 'mimic':
+        updateMimic(w, en, en.def.brain);
         break;
     }
     contact(w, en);
@@ -233,6 +236,53 @@ function updateChaser(w: World, en: Enemy, b: ChaserBrain): void {
   const oy = en.y;
   slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
   en.moved += Math.hypot(en.x - ox, en.y - oy);
+}
+
+function updateMimic(w: World, en: Enemy, b: MimicBrain): void {
+  const p = w.player;
+  const toX = p.x - en.x;
+  const toY = p.y - en.y;
+  const dist = Math.hypot(toX, toY);
+  en.t += DT;
+  switch (en.state) {
+    case 'lurk':
+      // Just a charger on the floor... until you come close or shoot it.
+      if ((dist < b.wake && !w.over) || en.damageTaken > 0) {
+        enter(en, 'reveal', b.reveal);
+        if (Math.abs(toX) > 2) en.facing = toX > 0 ? 1 : -1;
+        w.events.push({ type: 'reveal', x: en.x, y: en.y - b.muzzleY, source: en.id });
+      }
+      break;
+    case 'reveal':
+      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]) * 0.5);
+      break;
+    case 'walk': {
+      const dir = normalize(toX, toY);
+      approach(en, dir.x * b.walkSpeed, dir.y * b.walkSpeed, KNOCK_FRICTION);
+      if (Math.abs(toX) > 2) en.facing = toX > 0 ? 1 : -1;
+      if (en.t >= en.until && dist < b.range && !w.over) {
+        // It stops, crackles and lets go a shock all round itself.
+        const def = PATTERNS[b.pattern];
+        if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(toY, toX), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
+        enter(en, 'fire', b.telegraph + patternDuration(def));
+      }
+      break;
+    }
+    case 'fire':
+      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]));
+      break;
+    default:
+      enter(en, 'walk', b.cooldown[0]);
+  }
+  if (en.state !== 'walk') approach(en, 0, 0, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
 }
 
 function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
@@ -628,7 +678,7 @@ function updateMoth(w: World, en: Enemy, b: MothBrain): void {
 /** Bumping into an enemy pushes the player away (damage arrives with the hearts in M2). */
 function contact(w: World, en: Enemy): void {
   const p = w.player;
-  if (en.contactCooldown > 0 || isRolling(p) || w.over || en.state === 'blink' || en.state === 'gone') return;
+  if (en.contactCooldown > 0 || isRolling(p) || w.over || en.state === 'blink' || en.state === 'gone' || en.state === 'lurk') return;
   const pb = playerFeetBox(p, p.def.footRadius + 2);
   const eb = { x: en.x - en.def.footRadius - 2, y: en.y - 10, w: (en.def.footRadius + 2) * 2, h: 12 };
   if (!overlaps(pb, eb)) return;

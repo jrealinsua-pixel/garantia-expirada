@@ -51,6 +51,14 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.25, pattern: { kind: 'ring', count: 12, speed: 75, offsetDeg: 15, color: 'invoice' } },
     ],
   },
+  // Cargador Falso: a shock all round it, short-lived sparks (you get out of reach or roll).
+  'cargador-calambre': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 10, speed: 140, life: 0.45, color: 'cyan' } },
+      { at: 0.12, pattern: { kind: 'ring', count: 10, speed: 110, life: 0.45, offsetDeg: 18, color: 'cyan' } },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

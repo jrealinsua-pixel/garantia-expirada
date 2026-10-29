@@ -45,6 +45,8 @@ export const CRIT_LINE = 'Doble clic';
 export const REVIVE_LINE = 'Restaurando copia del martes';
 /** Over a printer when it jams. */
 export const JAM_LINE = 'Atasco de papel';
+/** Over a fake charger when it jumps up. */
+export const REVEAL_LINE = 'No homologado';
 
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */
 export const DOWN_TITLE = 'Parte de baja';
@@ -65,6 +67,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   batidora: { contact: 'Batido a velocidad turbo' },
   mando: { bullet: 'Zapeo a quemarropa', contact: 'Cambio de canal no solicitado' },
   impresora: { bullet: 'Factura impagada', contact: 'Atasco de papel con daños personales' },
+  cargador: { bullet: 'Calambre de un cargador no homologado', contact: 'Cargador no homologado' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };

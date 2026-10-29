@@ -239,7 +239,7 @@ export interface Dummy {
  * `roar`: a boss between two phases (it takes no damage and does nothing for BOSS_PHASE_BREAK s).
  * `dying`: a boss with no life left, coming apart for BOSS_DEATH s before it is taken out.
  */
-export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone' | 'roar' | 'dying' | 'jam';
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone' | 'roar' | 'dying' | 'jam' | 'lurk' | 'reveal';
 
 export interface Enemy {
   id: number;
@@ -329,6 +329,7 @@ export type SimEvent =
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
   | { type: 'revive'; item: string; x: number; y: number; hp: number }
   | { type: 'jam'; x: number; y: number; source: number }
+  | { type: 'reveal'; x: number; y: number; source: number }
   | { type: 'bulletFade'; x: number; y: number }
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
@@ -1009,6 +1010,10 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'blinker') {
     state = 'idle';
     until = b.interval[0];
+  } else if (b.kind === 'mimic') {
+    // Lying in wait until someone comes close.
+    state = 'lurk';
+    until = Infinity;
   }
   return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0, lastHit: 0 };
 }

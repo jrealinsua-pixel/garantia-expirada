@@ -431,7 +431,25 @@ export interface BossBrain {
   phases: BossPhase[];
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain;
+/**
+ * Lies on the floor passing for something else until the player comes within `wake` px (or hits
+ * it): then it jumps up (`reveal` s), runs at the player and, within `range` px, gives a shock:
+ * `pattern` fired round itself with `telegraph` s of warning. Waits `cooldown` s between shocks.
+ */
+export interface MimicBrain {
+  kind: 'mimic';
+  wake: number;
+  reveal: number;
+  walkSpeed: number;
+  range: number;
+  telegraph: number;
+  pattern: string;
+  /** Height the shock comes from (px above its feet). */
+  muzzleY: number;
+  cooldown: [number, number];
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain;
 
 export interface EnemyDef {
   id: string;
@@ -477,6 +495,9 @@ export interface EnemyAnim {
   off?: number;
   /** Second boss phase: the same layout from this frame on (`idle`/`walk` + `phaseShift`). */
   phaseShift?: number;
+  /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */
+  lurk?: number;
+  reveal?: number;
   /** Jammed turrets: frames cycled every `jamMs` while it shakes. */
   jam?: readonly number[];
   jamMs?: number;

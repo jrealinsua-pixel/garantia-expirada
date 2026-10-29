@@ -96,6 +96,7 @@ mezclados con los de la planta 1.
 | Enemigo | Estado | Comportamiento |
 | --- | --- | --- |
 | Impresora que se Atasca | Hecha | Torreta que se pasea despacio guardando las distancias y te imprime ráfagas de seis facturas (hojas blancas con borde rojo) que vuelan haciendo eses. Cada dos o tres ráfagas se atasca: 2 s quieta, temblando, sin disparar («Atasco de papel»): es el momento de ir a por ella. Al desatascarse avisa y lo suelta todo en dos anillos (bolas de papel rojas y facturas). Beis amarillento, un montón de folios detrás, la ranura de salida como boca con la factura colgando, un pósit que dice NO, la etiqueta del precio de la tinta y zapatos de oficina. |
+| Cargador Falso | Hecho | Viene en pareja y espera tirado en el suelo como un cargador olvidado, con su etiqueta de GRATIS. Si te acercas (64 px) o le disparas, salta («No homologado»), corre hacia ti y, de cerca, chisporrotea medio segundo y suelta un calambre en corro: dos anillos de chispas cian que se apagan enseguida (alejarse o rodar basta). 8 de vida. Las clavijas son sus cuernos, el cable es su cola, tiene una quemadura en la cara (se recalienta) y lleva chanclas. |
 
 ### Jefes
 

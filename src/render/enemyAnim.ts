@@ -37,6 +37,9 @@ export function enemyFrame(en: Enemy, now: number): number {
   if (!a) return 0;
   const shift = a.phaseShift !== undefined && (en.bossPhase ?? 0) >= 1 ? a.phaseShift : 0;
   if (a.off !== undefined && !bulbLit(en, now)) return a.off;
+  // A mimic lying in wait, and jumping up when found out.
+  if (a.lurk !== undefined && en.state === 'lurk') return a.lurk;
+  if (a.reveal !== undefined && en.state === 'reveal') return a.reveal;
   // Jammed: it shakes on the spot.
   if (a.jam && en.state === 'jam') return a.jam[Math.floor(now / (a.jamMs ?? 60)) % a.jam.length]! + shift;
   if (PLANTED.has(en.state)) return a.idle[0]! + shift;

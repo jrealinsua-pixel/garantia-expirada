@@ -193,7 +193,7 @@ semillas distintas acaban con builds distintas.
   misma tostadora, sus armas y sus objetos.
 - 4 enemigos nuevos, uno por tarea:
   - [x] (1) Impresora que se Atasca (torreta que se atasca: una ventana para atacarla y un estallido al soltarse).
-  - [ ] (2) Cargador Falso (ideas: se hace pasar por recogible, explota o da calambre al acercarse).
+  - [x] (2) Cargador Falso (espera tirado como cebo, salta al acercarte y da un calambre en corro).
   - [ ] (3) Ratón Inalámbrico sin Pilas (ideas: se mueve a tirones, se queda quieto sin pila y luego corre).
   - [ ] (4) Uno más por decidir (el «router» de la lista original es el jefe, el Router del Wifi;
     ideas: Webcam que te sigue con la mirada y avisa a los demás, Disco Duro que se cuelga).

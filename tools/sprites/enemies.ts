@@ -2,7 +2,7 @@
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
-import { CREAM, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
+import { BURNT, CREAM, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
 
@@ -274,4 +274,110 @@ export const PRINTER_LEGS = [11, 18] as const;
 /** The printer's frames: 0-1 humming, 2-5 shuffling, 6-7 jammed and shaking. */
 export function makeImpresoraFrames(): Canvas[] {
   return [...poseCycle(PRINTER_LEGS[0], PRINTER_LEGS[1]).map((f) => makeImpresora(f.pose)), makeImpresora(undefined, 0), makeImpresora(undefined, 1)];
+}
+
+/** Cheap white charger plastic, already a little yellow. */
+const CHARGER = ramp('#f4f1e8', '#d8d4c6', '#aba696', '#7a7668');
+const CHARGER_SIDE = ramp('#aba696', '#918c7d', '#757062', '#545046');
+const CHARGER_TOP = ramp('#ffffff', '#f4f1e8', '#d8d4c6', '#aba696');
+
+/**
+ * Cargador Falso: a phone charger brick on short legs, its two metal prongs sticking up like horns
+ * and a toothy grin. Its cable trails behind like a tail. Jokes: a scorch mark on its face (it
+ * overheats), a yellow GRATIS tag tied to the cable, and grey flip-flops. `mood`: 0 rest, 1 humming
+ * (a spark between the prongs), 2 found out (eyes wide, sparks). 22x26.
+ */
+export function makeCargador(pose: Pose = { xb: CHARGER_LEGS[0], xf: CHARGER_LEGS[1], bob: 0 }, mood: 0 | 1 | 2 = 0): Canvas {
+  const legs = new Canvas(22, 24);
+  const cv = new Canvas(22, 24);
+  poseFeet(legs, pose, 18, { L: 3, leg: PANTL, shoe: RUBBER });
+  hand(cv, 1, 12, CHARGER);
+  // Prongs: two metal horns on top.
+  for (const x of [9, 14]) {
+    cv.rect(x, 3, 2, 3, STEEL[2]!);
+    cv.rect(x, 3, 1, 3, STEEL[0]!);
+  }
+  cube(cv, 4, 5, 14, 13, 4, 3, CHARGER, CHARGER_SIDE, CHARGER_TOP);
+  // Eyes: narrowed and shifty; found out, wide open.
+  if (mood === 2) {
+    cv.rect(9, 9, 3, 3, K);
+    cv.set(10, 10, WHITE);
+    cv.rect(13, 9, 3, 3, K);
+    cv.set(14, 10, WHITE);
+  } else {
+    cv.rect(9, 10, 2, 2, K);
+    cv.set(10, 10, WHITE);
+    cv.rect(13, 10, 3, 2, K);
+    cv.set(15, 10, WHITE);
+    // Brows slanting down to the middle: up to no good.
+    const brows: Pt[] = [[8, 8], [9, 8], [10, 9], [13, 9], [14, 8], [15, 8], [16, 8]];
+    for (const [x, y] of brows) cv.set(x, y, K);
+  }
+  // Toothy grin across the front.
+  cv.rect(9, 13, 8, 3, K);
+  for (const x of [10, 12, 14]) cv.rect(x, 13, 1, 2, WHITE);
+  cv.set(16, 12, K);
+  // Scorch mark: it overheats.
+  cv.set(16, 7, BURNT[1]!);
+  cv.set(17, 8, BURNT[2]!);
+  cv.set(16, 8, BURNT[0]!);
+  hand(cv, 17, 13, CHARGER);
+  let o = outline(joinPose(legs, cv, pose));
+  // Cable tail out of its back, down to the floor, with the GRATIS tag tied on.
+  const cable: Pt[] = [[3, 15], [2, 16], [1, 17], [1, 18], [1, 19], [2, 20], [3, 21]];
+  for (const [x, y] of cable) o.set(x, y + (y < 18 ? pose.bob : 0), K);
+  o.rect(0, 20, 2, 2, YEL[1]!);
+  o.set(0, 20, YEL[0]!);
+  // Sparks between the prongs.
+  if (mood >= 1) {
+    o.set(12, 4 + pose.bob, CYAN);
+    o.set(11, 5 + pose.bob, WHITE);
+    if (mood === 2) {
+      o.set(13, 3 + pose.bob, CYAN);
+      o.set(8, 2 + pose.bob, CYAN);
+      o.set(17, 2 + pose.bob, CYAN);
+    }
+  }
+  return pad(o, 2);
+}
+
+export const CHARGER_LEGS = [7, 12] as const;
+
+/**
+ * Lying in wait: just a charger dropped on the floor, on its side, prongs to the right, eyes shut
+ * to a line, its cable coiled and the GRATIS tag showing. 22x26.
+ */
+export function makeCargadorBait(): Canvas {
+  const cv = new Canvas(22, 26);
+  box(cv, 4, 16, 13, 8, CHARGER);
+  cv.rect(4, 16, 13, 2, CHARGER_TOP[1]!);
+  cv.rect(4, 22, 13, 2, CHARGER_SIDE[1]!);
+  for (const y of [18, 21]) {
+    cv.rect(17, y, 4, 1, STEEL[1]!);
+    cv.set(20, y, STEEL[2]!);
+  }
+  // Eyes shut: two dark slits (you only notice if you look).
+  cv.rect(9, 19, 2, 1, CHARGER[3]!);
+  cv.rect(13, 19, 2, 1, CHARGER[3]!);
+  cv.set(15, 17, BURNT[1]!);
+  let o = outline(cv);
+  // Coiled cable and the tag.
+  const coil: Pt[] = [[3, 21], [2, 22], [1, 23], [2, 24], [3, 24], [4, 25], [1, 25]];
+  for (const [x, y] of coil) o.set(x, y, K);
+  o.rect(0, 18, 3, 2, YEL[1]!);
+  o.set(0, 18, YEL[0]!);
+  o.set(1, 20, K);
+  return o;
+}
+
+/** The fake charger's frames: 0-1 humming, 2-5 scuttling, 6 lying in wait, 7 found out. */
+export function makeCargadorFrames(): Canvas[] {
+  const cyc = narrowPoseCycle(CHARGER_LEGS[0], CHARGER_LEGS[1]);
+  return [
+    makeCargador(cyc[0]!.pose, 0),
+    makeCargador(cyc[1]!.pose, 1),
+    ...cyc.slice(2).map((f, k) => makeCargador(f.pose, (k % 2) as 0 | 1)),
+    makeCargadorBait(),
+    makeCargador({ xb: CHARGER_LEGS[0], xf: CHARGER_LEGS[1], bob: -2 }, 2),
+  ];
 }

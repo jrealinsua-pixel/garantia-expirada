@@ -11,7 +11,7 @@ import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
-import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, JAM_LINE, REVIVE_LINE, TURBO_LINE } from '../data/texts.ts';
+import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, JAM_LINE, REVEAL_LINE, REVIVE_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells, isWallAt } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
@@ -1471,6 +1471,13 @@ export class GameScene extends Phaser.Scene {
           this.flashHero = 0.06;
           this.sound2.play('empujon');
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y, Math.atan2(e.dirY, e.dirX) + this.fx.range(-1, 1), this.fx.range(40, 90), this.fx.int(0, 2));
+          break;
+        case 'reveal':
+          // A fake charger found out: it jumps up with a spark and its line.
+          this.sound2.play('saltar', { detune: 300 });
+          for (let i = 0; i < 5; i++) this.spark(e.x, e.y, this.fx.range(-Math.PI, 0), this.fx.range(30, 70), 0);
+          // A pair found out at once says it once.
+          if (!this.floats.some((f) => f.key === 'reveal' && (f.age ?? 0) < 0.6)) this.floatText(e.x, e.y - 14, fontText(REVEAL_LINE), 0x69dbd8, 'reveal', -16, 0.9);
           break;
         case 'jam':
           // A printer jams: grinding, a couple of scraps of paper and its line over it.

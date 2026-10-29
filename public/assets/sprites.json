@@ -47,6 +47,12 @@
     "frameH": 32,
     "frames": 8
   },
+  "cargador": {
+    "file": "cargador.png",
+    "frameW": 22,
+    "frameH": 26,
+    "frames": 8
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,
