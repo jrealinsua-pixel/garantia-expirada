@@ -1,7 +1,7 @@
 // New enemies drawn after the approved set, by the same rules (docs/ESTILO_ARTE.md): 3/4 cube
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
-import { joinPose, poseCycle, poseFeet, type Pose } from './pose.ts';
+import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
 import { CREAM, DSTEEL, K, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
@@ -118,16 +118,18 @@ const BUTTON = ramp('#d6cdb2', '#a89f86', '#756e5a', '#4a4538');
  * years between the sofa cushions. `bob` (0-1) lifts the body 1 px for the idle breath.
  * 22x32.
  */
-export function makeMando(bob = 0, legs: readonly [number, number] = MANDO_LEGS): Canvas {
+export function makeMando(bob = 0, legs: readonly [number, number] = MANDO_LEGS, lift?: Pose['lift']): Canvas {
   const cv = new Canvas(22, 30);
   const u = -bob;
   const [xb, xf] = legs;
   hand(cv, 2, 15 + u, REMOTE);
-  poseFeet(cv, { xb, xf, bob: u }, 23, { L: 4, leg: REMOTE_SIDE, shoe: SLIPPER });
-  // Slipper check pattern.
-  cv.set(xf + 1, 27, SLIPPER[3]!);
-  cv.set(xf + 3, 27, SLIPPER[3]!);
-  cv.set(xb + 1, 27, SLIPPER[3]!);
+  poseFeet(cv, { xb, xf, bob: u, ...(lift ? { lift } : {}) }, 23, { L: 4, leg: REMOTE_SIDE, shoe: SLIPPER });
+  // Slipper check pattern (on the lifted slipper too).
+  const yb = 27 - (lift?.leg === -1 ? lift.px : 0);
+  const yf = 27 - (lift?.leg === 1 ? lift.px : 0);
+  cv.set(xf + 1, yf, SLIPPER[3]!);
+  cv.set(xf + 3, yf, SLIPPER[3]!);
+  cv.set(xb + 1, yb, SLIPPER[3]!);
   cube(cv, 5, 2 + u, 12, 21, 4, 2, REMOTE, REMOTE_SIDE, REMOTE_TOP);
   // Power button on top of the head.
   cv.rect(13, 2 + u, 2, 1, RED[1]!);
@@ -177,10 +179,11 @@ export function makeMando(bob = 0, legs: readonly [number, number] = MANDO_LEGS)
 export const MANDO_LEGS = [7, 11] as const;
 
 /**
- * The remote's frames: 0-1 breathing, 2-5 shuffling sideways around you in its slippers (it
- * lifts on the passing steps, like everyone else).
+ * The remote's frames: 0-1 breathing, 2-5 shuffling sideways around you in its slippers. Its legs
+ * are only 4 px apart, so on the passing steps they don't cross: the swinging slipper comes off
+ * the floor (`narrowPoseCycle`).
  */
 export function makeMandoFrames(): Canvas[] {
-  const walk = poseCycle(MANDO_LEGS[0], MANDO_LEGS[1]).slice(2);
-  return [makeMando(0), makeMando(1), ...walk.map((f) => makeMando(-f.pose.bob, [f.pose.xb, f.pose.xf]))];
+  const walk = narrowPoseCycle(MANDO_LEGS[0], MANDO_LEGS[1]).slice(2);
+  return [makeMando(0), makeMando(1), ...walk.map((f) => makeMando(-f.pose.bob, [f.pose.xb, f.pose.xf], f.pose.lift))];
 }

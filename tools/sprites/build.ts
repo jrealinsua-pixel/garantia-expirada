@@ -9,7 +9,7 @@ import { paintRoom } from '../../src/art/room.ts';
 import {
   ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
 } from './characters.ts';
-import { poseCycle } from './pose.ts';
+import { narrowPoseCycle, poseCycle } from './pose.ts';
 import { makeBatidoraFrames, makeMandoFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -38,7 +38,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     tostadora: { canvas: strip(hero), frameW: 40, frameH: 41 },
     // Frame 0 of every enemy sheet is its approved (or first) sprite; the order of the rest is in
     // the enemy's `anim` (src/data/enemies.ts).
-    aspirador: { canvas: strip(poseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },
+    aspirador: { canvas: strip(narrowPoseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },
     // It never walks (bullets only nudge it): just its breathing.
     microondas: { canvas: strip(poseCycle(...MICROONDAS_LEGS).slice(0, 2).map((f) => makeMicroondas(f.pose))), frameW: 32, frameH: 40 },
     bombilla: { canvas: strip(makeBombillaFrames()), frameW: 32, frameH: 39 },

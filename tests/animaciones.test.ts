@@ -5,6 +5,9 @@ import { ENEMIES } from '../src/data/enemies.ts';
 import { spawnEnemy } from '../src/sim/world.ts';
 import { enemyFrame, MAX_STEP_FPS } from '../src/render/enemyAnim.ts';
 import { allSheets } from '../tools/sprites/build.ts';
+import { narrowPoseCycle } from '../tools/sprites/pose.ts';
+import { ASPIRADOR_LEGS } from '../tools/sprites/characters.ts';
+import { MANDO_LEGS } from '../tools/sprites/enemies.ts';
 
 const manifest = JSON.parse(readFileSync('public/assets/sprites.json', 'utf8')) as Record<string, { frames: number }>;
 /** Brains that move on their feet (the moth flies, so it flaps instead). */
@@ -102,4 +105,26 @@ test('la bombilla apagada enseña su fotograma apagado y la jefa abierta los suy
   for (let t = 0; t < 4000; t += 70) open.add(enemyFrame(n, t));
   for (const f of open) assert.ok(f >= a.phaseShift!, `fotograma ${f} con la puerta abierta`);
   for (const f of closed) assert.ok(f < a.phaseShift!, `fotograma ${f} con la puerta cerrada`);
+});
+
+test('piernas juntas: en los pasos elevados las dos zapatillas no se tapan (Mando y Aspirador)', () => {
+  for (const [name, legs] of [['mando', MANDO_LEGS], ['aspirador', ASPIRADOR_LEGS]] as const) {
+    for (const { name: f, pose } of narrowPoseCycle(legs[0], legs[1]).slice(2)) {
+      const apart = Math.abs(pose.xf - pose.xb) >= 4;
+      const lifted = (pose.lift?.px ?? 0) >= 2; // shoes are 2 px tall: a 2 px lift clears the other one
+      assert.ok(apart || lifted, `${name} ${f}: las dos zapatillas caen una encima de otra`);
+      assert.ok(pose.bob <= 0, `${name} ${f}`);
+    }
+  }
+});
+
+test('la boquilla del Aspirador se queda en el suelo en todos los fotogramas', () => {
+  const s = allSheets().aspirador!;
+  const region = (i: number) => {
+    const rows: string[] = [];
+    for (let y = 27; y < 32; y++) rows.push(s.canvas.p[y]!.slice(i * s.frameW + 22, i * s.frameW + 32).map((c) => c.join()).join('|'));
+    return rows.join('/');
+  };
+  const n = s.canvas.w / s.frameW;
+  for (let i = 1; i < n; i++) assert.equal(region(i), region(0), `fotograma ${i}: la boquilla se mueve`);
 });

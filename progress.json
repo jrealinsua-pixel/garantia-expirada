@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T17:21:00+01:00",
+  "actualizado": "2026-10-29T17:34:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 332,
-    "tests_ok": 332,
+    "tests": 334,
+    "tests_ok": 334,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 12254
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T17:34:00+01:00",
+      "hito": "M7",
+      "resumen": "Animación: las piernas del Mando y del Aspirador ya no se tapan en los pasos (el pie que avanza se levanta) y la boquilla del Aspirador se queda en el suelo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T17:21:00+01:00",
       "hito": "M7",
@@ -521,11 +527,6 @@
       "sesion": "2026-10-29 15:41 UTC",
       "tarea": "M7: errores conocidos (3), las asperezas de docs/ERRORES_CONOCIDOS.md",
       "desde": "2026-10-29T16:24:00Z"
-    },
-    {
-      "sesion": "2026-10-29 16:26 UTC",
-      "tarea": "M7: errores conocidos, aspereza de animación (piernas del Mando y boquilla del Aspirador); solo tools/sprites y public/assets",
-      "desde": "2026-10-29T16:30:00Z"
     }
   ]
 }

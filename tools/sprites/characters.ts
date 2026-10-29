@@ -166,9 +166,11 @@ export function makeAspirador(pose: Pose = { xb: ASPIRADOR_LEGS[0], xf: ASPIRADO
   hand(body, 6, 20, BLUE);
   poseFeet(cv, pose, 24, { L: 4, shoe: ramp('#8fb5e6', '#5f93d4', '#3f66a6', '#27447a') });
   // Roller wheels under the shoes (it rolls about like it does on the carpet).
-  for (const wx of [pose.xb + 1, pose.xb + 3, pose.xf + 1, pose.xf + 3]) {
-    cv.rect(wx, 30, 2, 2, K);
-    cv.set(wx, 30, STEEL[2]!);
+  const lb = pose.lift?.leg === -1 ? pose.lift.px : 0;
+  const lf = pose.lift?.leg === 1 ? pose.lift.px : 0;
+  for (const [wx, l] of [[pose.xb + 1, lb], [pose.xb + 3, lb], [pose.xf + 1, lf], [pose.xf + 3, lf]] as const) {
+    cv.rect(wx, 30 - l, 2, 2, K);
+    cv.set(wx, 30 - l, STEEL[2]!);
   }
   box(body, 9, 19, 9, 5, GLOVE);
   const tag: Pt[] = [[9, 2], [8, 3], [7, 4]];
@@ -197,10 +199,12 @@ export function makeAspirador(pose: Pose = { xb: ASPIRADOR_LEGS[0], xf: ASPIRADO
   for (const [x, y] of rust) body.set(x, y, RUSTR[1]!);
   const hose: Pt[] = [[25, 15], [26, 16], [27, 17], [28, 18], [28, 19], [28, 20], [27, 21], [27, 22], [27, 23]];
   for (const [x, y] of hose) body.rect(x, y, 2, 1, y % 2 ? DSTEEL[1]! : DSTEEL[3]!);
-  const hose2: Pt[] = [[27, 24], [27, 25], [27, 26], [26, 27]];
-  for (const [x, y] of hose2) body.rect(x, y, 2, 1, y % 2 ? DSTEEL[1]! : DSTEEL[3]!);
-  box(body, 23, 28, 9, 3, STEEL);
-  body.rect(23, 30, 9, 1, K);
+  // The end of the hose and the nozzle rest on the floor, on the legs layer: they stay put while
+  // the body breathes or lifts mid-stride (the extra segment at y 23 fills the gap when it lifts).
+  const hose2: Pt[] = [[27, 23], [27, 24], [27, 25], [27, 26], [26, 27]];
+  for (const [x, y] of hose2) cv.rect(x, y, 2, 1, y % 2 ? DSTEEL[1]! : DSTEEL[3]!);
+  box(cv, 23, 28, 9, 3, STEEL);
+  cv.rect(23, 30, 9, 1, K);
   hand(body, 25, 19, BLUE);
   const o = outline(joinPose(cv, body, pose));
   const dust: Array<[number, number, number]> = [[5, 31, 0], [3, 30, 1], [2, 32, 2], [6, 33, 1]];

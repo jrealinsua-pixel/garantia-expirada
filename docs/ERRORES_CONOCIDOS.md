@@ -28,8 +28,6 @@ Ninguno conocido.
 - [ ] Con **Destellos suaves**, los avisos amarillos siguen parpadeando (a unos 8 Hz al final).
 - [ ] Con **Texto grande**, la tarjeta de presentación de la jefa y los textos flotantes (daño,
   cupones) siguen a tamaño normal.
-- [ ] (En curso, sesión de las 16:26 UTC.) Animación: en los pasos elevados las dos piernas del Mando casi se tapan, y la boquilla
-  del Aspirador sube con el cuerpo (parece que la balancea).
 
 ## No son errores (decidido, con su motivo)
 
@@ -65,6 +63,11 @@ Ninguno conocido.
 
 ## Arreglados
 
+- 2026-10-29 · **Animación: las piernas del Mando se tapaban** en los pasos elevados y **la boquilla
+  del Aspirador subía con el cuerpo**. Las piernas juntas (5 px o menos) ya no se cruzan por el
+  centro: pasan a su distancia de reposo y la zapatilla que avanza se levanta 2 px
+  (`narrowPoseCycle` en `tools/sprites/pose.ts`; también el Aspirador, que tenía el mismo
+  borrón). El final de la manguera y la boquilla van en la capa del suelo y no se mueven.
 - 2026-10-29 · **La jefa salía cortada por arriba** al empezar el combate, con el nombre de la
   sala encima de la cabeza: la cámara ahora encuadra a la jefa entera (corona incluida) siempre
   que quepa con la tostadora (`frameAxis` en `src/render/camera.ts`), y el nombre de la sala sale

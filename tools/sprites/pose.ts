@@ -1,7 +1,7 @@
 // Poses for the enemies' idle and walk frames, drawn the same way as the toaster's (HERO_FRAMES):
 // the legs on their own layer and everything above them on another, moved up or down by `bob`.
 import { Canvas } from '../../src/art/canvas.ts';
-import { feet, type Ramp } from '../../src/art/lib.ts';
+import { feet, GLOVE, PANTL, type Ramp } from '../../src/art/lib.ts';
 
 export interface Pose {
   /** Back and front leg x positions. */
@@ -36,13 +36,52 @@ export function poseCycle(xb: number, xf: number): PoseFrame[] {
 }
 
 /**
+ * The walk for legs set close together (5 px or less between them): if they crossed in the
+ * middle like `poseCycle`'s, the two shoes would sit on top of each other and the passing steps
+ * would read as one blurry foot. Here the legs pass at their rest spacing and the swinging foot
+ * comes off the floor instead, so both stay readable (contact, back foot lifted, contact with the
+ * legs swapped, front foot lifted).
+ */
+export function narrowPoseCycle(xb: number, xf: number, liftPx = 2): PoseFrame[] {
+  const [rest, breath] = poseCycle(xb, xf);
+  return [
+    rest!,
+    breath!,
+    { name: 'walk0', pose: { xb: xb - 1, xf: xf + 1, bob: 0 } },
+    { name: 'walk1', pose: { xb, xf, bob: -1, lift: { leg: -1, px: liftPx } } },
+    { name: 'walk2', pose: { xb: xf + 1, xf: xb - 1, bob: 0 } },
+    { name: 'walk3', pose: { xb: xf, xf: xb, bob: -1, lift: { leg: 1, px: liftPx } } },
+  ];
+}
+
+/**
  * Short legs for a pose: like `feet`, but when the body is lifted the legs grow one px upwards
- * so they never come loose from it.
+ * so they never come loose from it, and a lifted foot (`pose.lift`) is drawn off the floor.
  */
 export function poseFeet(cv: Canvas, pose: Pose, y: number, opts: { R?: Ramp; L?: number; leg?: Ramp; shoe?: Ramp }): void {
   const L = opts.L ?? 4;
   const up = Math.max(0, -pose.bob);
-  feet(cv, pose.xb, pose.xf, y - up, { ...opts, L: L + up });
+  if (!pose.lift) {
+    feet(cv, pose.xb, pose.xf, y - up, { ...opts, L: L + up });
+    return;
+  }
+  // Same drawing as `feet`, with each leg's own length: the lifted one is shorter by `px`.
+  const R = opts.R ?? GLOVE;
+  const leg = opts.leg ?? PANTL;
+  const shoe = opts.shoe ?? R;
+  const top = y - up;
+  const lb = L + up - (pose.lift.leg === -1 ? pose.lift.px : 0);
+  const lf = L + up - (pose.lift.leg === 1 ? pose.lift.px : 0);
+  const { xb, xf } = pose;
+  cv.rect(xb + 1, top, 2, lb, leg[2]!);
+  cv.set(xb + 1, top, leg[3]!);
+  cv.rect(xf + 1, top, 2, lf, leg[1]!);
+  cv.set(xf + 1, top, leg[0]!);
+  cv.rect(xb, top + lb, 4, 2, shoe[2]!);
+  cv.set(xb, top + lb, shoe[1]!);
+  cv.rect(xf, top + lf, 5, 2, shoe[1]!);
+  cv.rect(xf, top + lf, 4, 1, shoe[0]!);
+  cv.rect(xf, top + lf + 1, 5, 1, shoe[2]!);
 }
 
 /** Legs layer under the body layer, the body moved by `bob`. */
