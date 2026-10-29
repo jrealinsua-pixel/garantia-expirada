@@ -1,7 +1,7 @@
 // What an item or a weapon does, as short lines for the description window (and, later, the
 // inventory). Each line says whether it is good or bad for the player, so the window can colour
 // it: almost every item gives something and takes something.
-import { activeHint } from './texts.ts';
+import { activeHint, DEFAULT_KEY_WORDS, type KeyWords } from './texts.ts';
 import type { ActiveItemDef, CharacterDef, Modifier, StatKey, WeaponDef } from './types.ts';
 
 export interface EffectLine {
@@ -52,7 +52,8 @@ export function modifierLines(m: Modifier): EffectLine[] {
 }
 
 /** What an active item does, and what it costs to use. */
-export function activeLines(a: ActiveItemDef): EffectLine[] {
+/** What an active item does, and how to use it (with `keys`, the keys the player has chosen). */
+export function activeLines(a: ActiveItemDef, keys: KeyWords = DEFAULT_KEY_WORDS): EffectLine[] {
   const e = a.effect;
   let what: string;
   if (e.type === 'clearFire') what = 'Borra las balas enemigas';
@@ -60,7 +61,7 @@ export function activeLines(a: ActiveItemDef): EffectLine[] {
   else what = `Cura ${e.amount / 2} ${e.amount === 2 ? 'corazón' : 'corazones'}`;
   return [
     { text: what, good: true },
-    { text: activeHint(a.charges), good: true },
+    { text: activeHint(a.charges, keys), good: true },
   ];
 }
 

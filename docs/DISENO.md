@@ -106,6 +106,10 @@ escena al empezar la partida y su propio final (hito M13).
 - **Esquiva rodando** (espacio o botón): recorre unas 3 casillas, invulnerable las primeras
   0,4 s, enfriamiento corto. Es la mecánica central: el combate se diseña alrededor de ella.
 - Objeto activo (Q o botón) y cambio de arma (rueda o botón).
+- **Accesibilidad** (Opciones): quitar el temblor de cámara, **destellos suaves** (sin blancos
+  sólidos ni parpadeos), **texto grande** (lo que se lee con calma a doble tamaño; el HUD no
+  cambia) y **cambiar teclas** (cada acción del teclado a la tecla que se quiera; Esc y P son
+  de la pausa). Los textos que nombran teclas dicen las elegidas.
 
 ### Estructura de una partida
 

@@ -2,14 +2,14 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
-import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, CONTROLS_HINT, RELOADING, SWAP_HINT, TEST_ROOM_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
+import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, controlsHint, RELOADING, swapHint, TEST_ROOM_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
 import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { REPORT_MENU_HINT } from '../data/texts.ts';
-import { ACTIVE_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, NO_CHARGE_LINE } from '../data/texts.ts';
+import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
@@ -22,7 +22,7 @@ import { ENEMIES } from '../data/enemies.ts';
 import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
-import { readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
+import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
@@ -476,7 +476,7 @@ export class GameScene extends Phaser.Scene {
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.weaponName = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 37, FONT, '', 8).setOrigin(1, 0)).setTint(0xf6c431).setAlpha(0);
     this.arsenalMarks = this.hud(this.add.graphics());
-    this.hintText = fontText(CONTROLS_HINT + (room.kind === 'test' ? ` · ${TEST_ROOM_HINT}` : ''));
+    this.refreshHint();
     this.hint = [0, 1].map(() => this.hud(this.add.bitmapText(8, VIEW_H - 16, FONT, '', 8)).setTint(0xd6cdb2).setAlpha(this.hintT > 0 ? 1 : 0));
     this.mapSize = { w: 0, h: 0 };
     if (this.world.floor) this.drawMinimap();
@@ -1449,12 +1449,12 @@ export class GameScene extends Phaser.Scene {
             for (let i = 0; i < 12; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), this.fx.int(0, 2));
             this.floatText(e.x, e.y - 22, fontText(this.fx.pick(WEAPON_FOUND_LINES)), 0xd6cdb2);
             const wd = WEAPONS[e.weapon ?? ''];
-            if (wd) this.showCard(wd.look.sprite, wd.name, ITEM_KIND_WEAPON, wd.description, weaponLines(wd), 0xd6cdb2);
+            if (wd) this.showCard(wd.look.sprite, wd.name, itemKindWeapon(keyWords()), wd.description, weaponLines(wd), 0xd6cdb2);
             if (e.total > 1 && !this.swapHinted) {
               this.swapHinted = true;
               this.hintT = 0;
               for (const h of this.hint) h.setAlpha(0);
-              this.setBanner(SWAP_HINT).setTint(0xf4f1e8).setAlpha(1);
+              this.setBanner(swapHint(keyWords())).setTint(0xf4f1e8).setAlpha(1);
               this.tweens.killTweensOf(this.banner);
               this.tweens.add({ targets: this.banner, alpha: 0, delay: 3200, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
             }
@@ -1466,7 +1466,7 @@ export class GameScene extends Phaser.Scene {
             const pas = e.kind === 'objeto' ? ITEMS[e.item ?? ''] : undefined;
             this.sound2.play('arma', { detune: 500 });
             for (let i = 0; i < 14; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 1);
-            if (act) this.showCard(act.sprite, act.name, ITEM_KIND_ACTIVE, act.description, activeLines(act), 0x69dbd8);
+            if (act) this.showCard(act.sprite, act.name, itemKindActive(keyWords()), act.description, activeLines(act, keyWords()), 0x69dbd8);
             else if (pas) this.showCard(pas.sprite, pas.name, ITEM_KIND_PASSIVE, pas.description, modifierLines(pas.mod), 0xf6c431);
             break;
           }
@@ -2593,6 +2593,11 @@ export class GameScene extends Phaser.Scene {
       }
       this.gunIcon.setPosition(l.gun.x, l.gun.y);
     }
+  }
+
+  /** The controls hint, with the keys as they are now (Opciones › Teclas may have changed them). */
+  refreshHint(): void {
+    this.hintText = fontText(controlsHint(keyWords()) + (this.world.room.kind === 'test' ? ` · ${TEST_ROOM_HINT}` : ''));
   }
 
   /** Where everything on the HUD goes right now (see src/render/hud.ts). */

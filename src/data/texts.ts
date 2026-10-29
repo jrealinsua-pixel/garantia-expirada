@@ -174,14 +174,35 @@ export function winReport(info: WinReportInfo, pick: (n: number) => number): { l
   ];
 }
 
+/**
+ * How the texts name the keys (Opciones › Teclas can change them): each action's own key, and
+ * all of its keys («WASD o flechas»). src/render/keymap.ts writes these from the options.
+ */
+export interface KeyWords {
+  move: { own: string; all: string };
+  roll: { own: string; all: string };
+  reload: { own: string; all: string };
+  swap: { own: string; all: string };
+  use: { own: string; all: string };
+}
+export const DEFAULT_KEY_WORDS: KeyWords = {
+  move: { own: 'WASD', all: 'WASD o flechas' },
+  roll: { own: 'Espacio', all: 'Espacio o mayúsculas' },
+  reload: { own: 'R', all: 'R' },
+  swap: { own: 'E', all: 'E' },
+  use: { own: 'Q', all: 'Q' },
+};
+
 /** The line of controls under the first room (and the test room's extra keys). */
-export const CONTROLS_HINT = 'WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar';
+export const controlsHint = (k: KeyWords): string => `${k.move.own} mover · ratón apuntar · clic disparar · ${k.roll.own} rodar · ${k.reload.own} recargar`;
+export const CONTROLS_HINT = controlsHint(DEFAULT_KEY_WORDS);
 export const TEST_ROOM_HINT = '1-5 balas enemigas';
 /** Instead of the ammo count while reloading. */
 export const RELOADING = 'Recargando';
 
 /** How to change weapon, shown the first time the toaster carries more than one. */
-export const SWAP_HINT = 'E o rueda del ratón: cambiar de arma';
+export const swapHint = (k: KeyWords): string => `${k.swap.own} o rueda del ratón: cambiar de arma`;
+export const SWAP_HINT = swapHint(DEFAULT_KEY_WORDS);
 /** Over a weapon just found (one at random). */
 export const WEAPON_FOUND_LINES: readonly string[] = [
   'Sin ticket, sin garantía, sin preguntas',
@@ -191,7 +212,7 @@ export const WEAPON_FOUND_LINES: readonly string[] = [
 ];
 
 /** Active items: a line under its description when one is picked up (`n` batteries it needs). */
-export const activeHint = (n: number): string => `Q: usar · necesita ${n} pila${n === 1 ? '' : 's'} (una por sala limpia)`;
+export const activeHint = (n: number, k: KeyWords = DEFAULT_KEY_WORDS): string => `${k.use.own}: usar · necesita ${n} pila${n === 1 ? '' : 's'} (una por sala limpia)`;
 /** Over the toaster when an active item is used, by effect. */
 export const ACTIVE_LINES: Record<string, string> = {
   clearFire: 'Encuesta enviada. Gracias por su tiempo.',
@@ -222,8 +243,10 @@ export const CHEST_OPEN_LINES: readonly string[] = [
 
 /** Second line of the description window: what kind of thing was picked up. */
 export const ITEM_KIND_PASSIVE = 'Objeto pasivo · se queda contigo';
-export const ITEM_KIND_ACTIVE = 'Objeto activo · se usa con Q';
-export const ITEM_KIND_WEAPON = 'Arma · E o rueda para cambiar';
+export const itemKindActive = (k: KeyWords): string => `Objeto activo · se usa con ${k.use.own}`;
+export const itemKindWeapon = (k: KeyWords): string => `Arma · ${k.swap.own} o rueda para cambiar`;
+export const ITEM_KIND_ACTIVE = itemKindActive(DEFAULT_KEY_WORDS);
+export const ITEM_KIND_WEAPON = itemKindWeapon(DEFAULT_KEY_WORDS);
 
 /** The pause menu (Esc, P or Start). */
 export const PAUSE_TITLE = 'En pausa';
@@ -249,6 +272,24 @@ export const OPTION_LABELS = {
   shake: 'Temblor de cámara',
   flashes: 'Destellos suaves',
   bigText: 'Texto grande',
+  keys: 'Cambiar teclas',
+} as const;
+/** Opciones › Teclas: which key does what. */
+export const KEYS_TITLE = 'Teclas';
+export const KEYS_SUB = 'Cambio de titularidad de las teclas. Sin coste adicional.';
+export const KEYS_WAITING = 'Pulse la tecla nueva. Esc: cancelar.';
+export const KEYS_RESERVED = 'Esa tecla es de la pausa. Elija otra.';
+export const KEYS_RESET = 'Restablecer de fábrica';
+export const KEYS_NONE = 'Sin tecla';
+export const KEYS_ACTIONS = {
+  up: 'Arriba',
+  down: 'Abajo',
+  left: 'Izquierda',
+  right: 'Derecha',
+  roll: 'Rodar',
+  reload: 'Recargar',
+  swap: 'Cambiar de arma',
+  use: 'Objeto activo',
 } as const;
 export const CONFIRM_TITLE = '¿Pedir otra unidad?';
 export const CONFIRM_TEXT = 'La unidad actual irá al punto limpio. Lo que lleva, también.';
@@ -256,16 +297,17 @@ export const CONFIRM_MENU = { yes: 'Sí, al punto limpio', no: 'No, que aguante'
 export const CONTROLS_TITLE = 'Controles';
 export const CONTROLS_HEADERS = ['Teclado y ratón', 'Mando'] as const;
 /** Action, keyboard and mouse, pad. */
-export const CONTROLS_ROWS: readonly (readonly [string, string, string])[] = [
-  ['Mover', 'WASD o flechas', 'Stick izquierdo'],
+export const controlsRows = (k: KeyWords): readonly (readonly [string, string, string])[] => [
+  ['Mover', k.move.all, 'Stick izquierdo'],
   ['Apuntar', 'Ratón', 'Stick derecho'],
   ['Disparar', 'Clic izquierdo', 'RT o RB'],
-  ['Rodar', 'Espacio o mayúsculas', 'A, LB o LT'],
-  ['Recargar', 'R', 'X'],
-  ['Cambiar de arma', 'E o rueda', 'Y'],
-  ['Objeto activo', 'Q', 'B'],
+  ['Rodar', k.roll.all, 'A, LB o LT'],
+  ['Recargar', k.reload.all, 'X'],
+  ['Cambiar de arma', `${k.swap.all} o rueda`, 'Y'],
+  ['Objeto activo', k.use.all, 'B'],
   ['Pausa', 'Esc o P', 'Start'],
 ];
+export const CONTROLS_ROWS = controlsRows(DEFAULT_KEY_WORDS);
 export const MENU_HINT = 'Flechas o WASD: elegir · Intro o espacio: aceptar · Esc: volver';
 export const QUIT_TITLE = '¿Salir al menú principal?';
 export const QUIT_TEXT = 'Esta partida se perderá. Como su garantía.';

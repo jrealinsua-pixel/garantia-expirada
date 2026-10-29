@@ -12,7 +12,14 @@ import {
   CONFIRM_TEXT,
   CONFIRM_TITLE,
   CONTROLS_HEADERS,
-  CONTROLS_ROWS,
+  controlsRows,
+  KEYS_ACTIONS,
+  KEYS_NONE,
+  KEYS_RESERVED,
+  KEYS_RESET,
+  KEYS_SUB,
+  KEYS_TITLE,
+  KEYS_WAITING,
   CONTROLS_TITLE,
   CREDITS_LINES,
   INVENTORY_BEFORE,
@@ -49,7 +56,8 @@ import { topCause } from '../sim/profile.ts';
 import { profile } from './save.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { Menu, type MenuItem, type MenuResult } from './menu.ts';
-import { saveSettings, settings } from './settings.ts';
+import { keyWords, saveSettings, settings } from './settings.ts';
+import { ACTIONS, copyKeymap, DEFAULT_KEYMAP, keyLabel, rebind, RESERVED_KEYS, type Action } from './keymap.ts';
 import { cardLayout, INVENTORY, inventoryCardAt } from './hud.ts';
 import { addCanvasTexture, FONT } from './textures.ts';
 import type { GameScene } from './GameScene.ts';
@@ -63,7 +71,7 @@ const GOLD = 0xf6c431;
 const CREAM = 0xd6cdb2;
 const GREY = 0x858ea8;
 
-type Screen = 'main' | 'history' | 'inventory' | 'options' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
+type Screen = 'main' | 'history' | 'inventory' | 'options' | 'keys' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
 
 /** Where each first-screen action sits, so going back from a screen lands on what opened it. */
 const PAUSE_ITEMS: MenuItem[] = [
@@ -97,6 +105,10 @@ const OPENED_BY: Partial<Record<Screen, string>> = {
 export class PauseScene extends Phaser.Scene {
   protected readonly mode: 'pause' | 'title';
   private screen: Screen = 'main';
+  /** Opciones › Teclas: the action waiting for its new key. */
+  private waiting: Action | null = null;
+  /** Opciones › Teclas: a word about the last key pressed (a reserved one). */
+  private keysNote = '';
   private menu!: Menu;
   private objs: Phaser.GameObjects.GameObject[] = [];
   private subtitle = '';
@@ -142,7 +154,7 @@ export class PauseScene extends Phaser.Scene {
       snd.duckMusic(true);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => snd.duckMusic(false));
     }
-    this.input.keyboard!.on('keydown', (e: KeyboardEvent) => this.key(e.code));
+    this.input.keyboard!.on('keydown', (e: KeyboardEvent) => this.key(e.code, e.key));
     this.show('main');
   }
 
@@ -156,7 +168,23 @@ export class PauseScene extends Phaser.Scene {
     this.add.image(0, 0, 'vineta').setOrigin(0, 0);
   }
 
-  private key(code: string): void {
+  private key(code: string, typed = ''): void {
+    // Opciones › Teclas, waiting for the new key: this one is it (or Esc, to leave it as it was).
+    if (this.waiting) {
+      if (code === 'Escape') this.waiting = null;
+      else if (RESERVED_KEYS.includes(code)) this.keysNote = KEYS_RESERVED;
+      else {
+        const s = settings();
+        const keyLabels = { ...s.keyLabels };
+        if (typed.length === 1 && typed.trim()) keyLabels[code] = typed;
+        saveSettings({ keys: rebind(s.keys, this.waiting, code), keyLabels });
+        this.waiting = null;
+        this.keysNote = '';
+        this.game_.sound2.play('cupon', { volume: 0.7 });
+      }
+      this.show('keys', this.menu.index);
+      return;
+    }
     if (code === 'ArrowUp' || code === 'KeyW') this.move(-1);
     else if (code === 'ArrowDown' || code === 'KeyS') this.move(1);
     else if (code === 'ArrowLeft' || code === 'KeyA') this.apply(this.menu.adjust(-1));
@@ -172,6 +200,10 @@ export class PauseScene extends Phaser.Scene {
   }
 
   private back(): void {
+    if (this.screen === 'keys') {
+      this.show('options', this.optionIndex('keys'));
+      return;
+    }
     if (this.screen === 'main') {
       if (this.mode === 'pause') this.resume();
       return;
@@ -180,9 +212,17 @@ export class PauseScene extends Phaser.Scene {
     this.show('main', Math.max(0, items.findIndex((it) => it.id === OPENED_BY[this.screen])));
   }
 
+  /** Where `id` sits in the options (to come back to it). */
+  private optionIndex(id: string): number {
+    this.show('options');
+    return Math.max(0, this.menu.items.findIndex((it) => it.id === id));
+  }
+
   private resume(): void {
     const g = this.game_;
     g.input.keyboard?.resetKeys();
+    g.controls.releaseAll();
+    g.refreshHint();
     g.sound2.play('cambiar', { detune: 300 });
     this.scene.resume('game');
     this.scene.stop();
@@ -215,6 +255,25 @@ export class PauseScene extends Phaser.Scene {
     }
     if (r.type !== 'action') return;
     const id = r.id;
+    if (id.startsWith('key:')) {
+      this.waiting = id.slice(4) as Action;
+      this.keysNote = '';
+      this.game_.sound2.play('recargar');
+      this.show('keys', this.menu.index);
+      return;
+    }
+    if (id === 'keysReset') {
+      saveSettings({ keys: copyKeymap(DEFAULT_KEYMAP), keyLabels: {} });
+      this.game_.sound2.play('cupon', { volume: 0.7 });
+      this.show('keys', this.menu.index);
+      return;
+    }
+    if (id === 'keys') {
+      this.game_.sound2.play('recargar');
+      this.keysNote = '';
+      this.show('keys');
+      return;
+    }
     // A line of the inventory: nothing to do but read it.
     if (id.includes(':')) return;
     snd.play('recargar');
@@ -248,8 +307,18 @@ export class PauseScene extends Phaser.Scene {
         { kind: 'toggle', id: 'shake', label: OPTION_LABELS.shake, value: s.shake },
         { kind: 'toggle', id: 'flashes', label: OPTION_LABELS.flashes, value: !s.flashes },
         { kind: 'toggle', id: 'bigText', label: OPTION_LABELS.bigText, value: s.bigText },
+        { kind: 'action', id: 'keys', label: OPTION_LABELS.keys },
         { kind: 'action', id: 'back', label: PAUSE_MENU.back },
       ]);
+    } else if (screen === 'keys') {
+      const s = settings();
+      const lines: MenuItem[] = ACTIONS.map((a) => ({
+        kind: 'action',
+        id: `key:${a}`,
+        label: `${KEYS_ACTIONS[a]}: ${this.waiting === a ? '...' : s.keys[a][0] ? keyLabel(s.keys[a][0]!, s.keyLabels) : KEYS_NONE}`,
+      }));
+      lines.push({ kind: 'action', id: 'keysReset', label: KEYS_RESET }, { kind: 'action', id: 'back', label: PAUSE_MENU.back });
+      this.menu = new Menu(lines);
     } else if (screen === 'inventory') {
       // One line per thing carried (passive items in the order found, the active one, the synergies on), then back.
       const p = this.game_.world.player;
@@ -290,15 +359,17 @@ export class PauseScene extends Phaser.Scene {
       history: HISTORY_TITLE,
       inventory: INVENTORY_TITLE,
       options: OPTIONS_TITLE,
+      keys: KEYS_TITLE,
       controls: CONTROLS_TITLE,
       credits: CREDITS_TITLE,
       confirmNew: CONFIRM_TITLE,
       confirmQuit: QUIT_TITLE,
     };
     const history = this.screen === 'history' ? this.historyRows() : [];
-    const subs: Partial<Record<Screen, string>> = { history: HISTORY_SUB, main: this.subtitle, confirmNew: CONFIRM_TEXT, confirmQuit: QUIT_TEXT };
+    const keysSub = this.waiting ? KEYS_WAITING : this.keysNote || KEYS_SUB;
+    const subs: Partial<Record<Screen, string>> = { history: HISTORY_SUB, main: this.subtitle, confirmNew: CONFIRM_TEXT, confirmQuit: QUIT_TEXT, keys: keysSub };
     const sub = titleMain ? '' : subs[this.screen] ?? '';
-    const rows = this.screen === 'controls' ? CONTROLS_ROWS.length + 1 : this.screen === 'credits' ? CREDITS.length : history.length;
+    const rows = this.screen === 'controls' ? controlsRows(keyWords()).length + 1 : this.screen === 'credits' ? CREDITS.length : history.length;
     let h = 44 + (sub ? 12 : 0) + (rows ? rows * 11 + 8 : 0) + this.menu.items.length * 13 + 18;
     let w = this.screen === 'controls' || this.screen === 'credits' || this.screen === 'history' ? 360 : PANEL_W;
     let y0 = Math.round((VIEW_H - h) / 2) - 6;
@@ -335,7 +406,7 @@ export class PauseScene extends Phaser.Scene {
       text(c2, y, CONTROLS_HEADERS[0], GREY, 0);
       text(c3, y, CONTROLS_HEADERS[1], GREY, 0);
       y += 11;
-      for (const [a, k, p] of CONTROLS_ROWS) {
+      for (const [a, k, p] of controlsRows(keyWords())) {
         text(c1, y, a, CREAM, 0);
         text(c2, y, k, 0xf4f1e8, 0);
         text(c3, y, p, 0x69dbd8, 0);
@@ -449,7 +520,7 @@ export class PauseScene extends Phaser.Scene {
       const sprite = kind === 'item' ? ITEMS[id]?.sprite : kind === 'active' ? ACTIVE_ITEMS[id]?.sprite : undefined;
       if (on) g.fillStyle(0x2c3048, 1).fillRect(rx - 3, ry - 1, W - (rx - x0) - 8, INVENTORY.rowH);
       if (sprite) this.objs.push(this.add.image(rx + 8, ry + 8, sprite).setOrigin(0.5, 0.5));
-      const t = text(rx + 20, ry + 4, it.label + (kind === 'active' ? ' (Q)' : ''), on ? GOLD : kind === 'syn' ? 0x69dbd8 : CREAM);
+      const t = text(rx + 20, ry + 4, it.label + (kind === 'active' ? ` (${keyWords().use.own})` : ''), on ? GOLD : kind === 'syn' ? 0x69dbd8 : CREAM);
       t.setInteractive({ useHandCursor: true }).on('pointerover', () => {
         if (this.menu.index !== i) {
           this.menu.index = i;
@@ -481,7 +552,7 @@ export class PauseScene extends Phaser.Scene {
         sprite = a.sprite;
         edge = 0x69dbd8;
         desc = a.description;
-        lines = [...activeLines(a), { text: inventoryBatteries(p.active?.charge ?? 0, a.charges), good: (p.active?.charge ?? 0) >= a.charges }];
+        lines = [...activeLines(a, keyWords()), { text: inventoryBatteries(p.active?.charge ?? 0, a.charges), good: (p.active?.charge ?? 0) >= a.charges }];
       } else if (kind === 'syn' && SYNERGIES[id]) {
         name = SYNERGIES[id].name;
         edge = 0x69dbd8;

@@ -1,5 +1,7 @@
 // The player's options, kept in the browser between games (localStorage; if it is not there or
 // it fails, the defaults). The pause menu changes them; the game scene reads them.
+import { copyKeymap, DEFAULT_KEYMAP, keyNames, parseKeymap, type KeyMap } from './keymap.ts';
+import type { KeyWords } from '../data/texts.ts';
 
 export interface Settings {
   /** Effects volume, 0 to 10. */
@@ -15,9 +17,13 @@ export interface Settings {
    * the room's name) at double size. The HUD's numbers stay as they are.
    */
   bigText: boolean;
+  /** Which key does what (see keymap.ts). */
+  keys: KeyMap;
+  /** What the layout-dependent keys typed when they were chosen (code → character), for their names. */
+  keyLabels: Record<string, string>;
 }
 
-export const DEFAULT_SETTINGS: Settings = { volume: 7, music: 6, shake: true, flashes: true, bigText: false };
+export const DEFAULT_SETTINGS: Settings = { volume: 7, music: 6, shake: true, flashes: true, bigText: false, keys: DEFAULT_KEYMAP, keyLabels: {} };
 
 /** How many times its own size the reading text is drawn (1, or 2 with «Texto grande»). */
 export function readScale(s: Pick<Settings, 'bigText'>): number {
@@ -37,7 +43,7 @@ const KEY = 'garantia-expirada/opciones';
 
 /** Reads saved options, keeping only what makes sense (anything else stays at its default). */
 export function parseSettings(raw: string | null): Settings {
-  const s = { ...DEFAULT_SETTINGS };
+  const s: Settings = { ...DEFAULT_SETTINGS, keys: copyKeymap(DEFAULT_KEYMAP), keyLabels: {} };
   if (!raw) return s;
   try {
     const o = JSON.parse(raw) as Partial<Record<keyof Settings, unknown>>;
@@ -46,6 +52,12 @@ export function parseSettings(raw: string | null): Settings {
     if (typeof o.shake === 'boolean') s.shake = o.shake;
     if (typeof o.flashes === 'boolean') s.flashes = o.flashes;
     if (typeof o.bigText === 'boolean') s.bigText = o.bigText;
+    if (o.keys !== undefined) s.keys = parseKeymap(o.keys);
+    if (o.keyLabels && typeof o.keyLabels === 'object') {
+      for (const [k, v] of Object.entries(o.keyLabels as Record<string, unknown>)) {
+        if (/^[A-Za-z0-9]{1,24}$/.test(k) && typeof v === 'string' && v.length === 1) s.keyLabels[k] = v;
+      }
+    }
   } catch {
     // A broken save is the same as none.
   }
@@ -75,4 +87,10 @@ export function saveSettings(change: Partial<Settings>): Settings {
     // Private mode or blocked storage: the change lasts until the page is closed.
   }
   return s;
+}
+
+/** How the texts name the keys right now (after Opciones › Teclas). */
+export function keyWords(): KeyWords {
+  const s = settings();
+  return keyNames(s.keys, s.keyLabels);
 }

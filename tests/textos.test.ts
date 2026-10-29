@@ -87,6 +87,8 @@ test('variado: no se repite el mismo chiste en dos sitios', () => {
     TEXTS.CHEST_NAME, SHOPKEEPER.name, ...Object.values(GOOD_NAMES), ...Object.values(TEXTS.PAUSE_MENU),
     TEXTS.OPTIONS_TITLE, TEXTS.CONTROLS_TITLE, TEXTS.INVENTORY_TITLE, TEXTS.CREDITS_TITLE, TEXTS.TITLE, TEXTS.DOWN_UNIT,
     'La Nevera Suprema',
+    // Key names and actions: the controls screen and Opciones › Teclas use the same words.
+    ...Object.values(TEXTS.KEYS_ACTIONS), ...Object.values(TEXTS.DEFAULT_KEY_WORDS).flatMap((w) => [w.own, w.all]),
   ]);
   // Only the written texts: the function-built ones quote them on purpose.
   for (const s of BASE) if (s.length > 12 && !shared.has(s)) seen.set(s, (seen.get(s) ?? 0) + 1);

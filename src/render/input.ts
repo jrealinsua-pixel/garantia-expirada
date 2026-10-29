@@ -1,6 +1,8 @@
 // Reads keyboard, mouse and gamepad and turns them into a sim Input for this tick.
 import type { Input } from '../sim/world.ts';
 import { PATTERNS } from '../data/patterns.ts';
+import { actionOf, type Action } from './keymap.ts';
+import { settings } from './settings.ts';
 
 const DEADZONE = 0.22;
 
@@ -11,7 +13,8 @@ export interface AimSource {
 }
 
 export class Controls {
-  private keys: Record<string, Phaser.Input.Keyboard.Key>;
+  /** Keys held down right now (KeyboardEvent.code). */
+  private held = new Set<string>();
   private scene: Phaser.Scene;
   private rollQueued = false;
   private patternQueued: string | undefined;
@@ -31,22 +34,29 @@ export class Controls {
     this.scene = scene;
     const kb = scene.input.keyboard!;
     const K = Phaser.Input.Keyboard.KeyCodes;
-    this.keys = kb.addKeys({
-      W: K.W, A: K.A, S: K.S, D: K.D, UP: K.UP, DOWN: K.DOWN, LEFT: K.LEFT, RIGHT: K.RIGHT,
-      SPACE: K.SPACE, SHIFT: K.SHIFT, R: K.R,
-    }) as Record<string, Phaser.Input.Keyboard.Key>;
-    kb.on('keydown-SPACE', () => (this.rollQueued = true));
-    // Change weapon: E (next), the mouse wheel (one notch, one weapon; a fast spin counts once).
-    kb.on('keydown-E', () => (this.swapQueued = 1));
-    // Use the active item: Q.
-    kb.on('keydown-Q', () => (this.useQueued = true));
+    // The page must not scroll with the arrows or the space bar.
+    kb.addCapture([K.SPACE, K.UP, K.DOWN, K.LEFT, K.RIGHT]);
+    // The keys are read by what they do (Opciones › Teclas can change them), from the options.
+    kb.on('keydown', (e: KeyboardEvent) => {
+      this.held.add(e.code);
+      if (e.repeat) return;
+      const a = actionOf(settings().keys, e.code);
+      if (a === 'roll') this.rollQueued = true;
+      // Change weapon: its key (next), or the mouse wheel (below).
+      else if (a === 'swap') this.swapQueued = 1;
+      else if (a === 'use') this.useQueued = true;
+    });
+    kb.on('keyup', (e: KeyboardEvent) => this.held.delete(e.code));
+    // Keys let go while the window was not looking would stay held.
+    const forget = (): void => this.held.clear();
+    scene.game.events.on(Phaser.Core.Events.BLUR, forget);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.game.events.off(Phaser.Core.Events.BLUR, forget));
     scene.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
       const now = scene.time.now;
       if (dy === 0 || now - this.lastWheel < 140) return;
       this.lastWheel = now;
       this.swapQueued = Math.sign(dy);
     });
-    kb.on('keydown-SHIFT', () => (this.rollQueued = true));
     // Test room: number keys fire the enemy bullet patterns from the first dummy.
     const names = Object.keys(PATTERNS);
     kb.on('keydown', (e: KeyboardEvent) => {
@@ -78,17 +88,26 @@ export class Controls {
     return hit;
   }
 
+  /** Whether any key of `a` is held. */
+  private down(a: Action): boolean {
+    return settings().keys[a].some((c) => this.held.has(c));
+  }
+
+  /** Forgets every key held (the pause menu was up: their key-ups went elsewhere). */
+  releaseAll(): void {
+    this.held.clear();
+  }
+
   read(src: AimSource): Input {
-    const k = this.keys;
-    let mx = (k.D!.isDown || k.RIGHT!.isDown ? 1 : 0) - (k.A!.isDown || k.LEFT!.isDown ? 1 : 0);
-    let my = (k.S!.isDown || k.DOWN!.isDown ? 1 : 0) - (k.W!.isDown || k.UP!.isDown ? 1 : 0);
+    let mx = (this.down('right') ? 1 : 0) - (this.down('left') ? 1 : 0);
+    let my = (this.down('down') ? 1 : 0) - (this.down('up') ? 1 : 0);
     const pointer = this.scene.input.activePointer;
     const cam = this.scene.cameras.main;
     const wp = cam.getWorldPoint(pointer.x, pointer.y);
     let aimX = wp.x;
     let aimY = wp.y;
     let fire = pointer.leftButtonDown();
-    let reload = k.R!.isDown;
+    let reload = this.down('reload');
     let roll = this.rollQueued;
     this.rollQueued = false;
     let swap = this.swapQueued;

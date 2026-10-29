@@ -646,7 +646,8 @@ try {
   await page.waitForTimeout(150);
   await shot('25b-opciones.png');
   const saved = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')");
-  if (saved !== JSON.stringify({ volume: 4, music: 6, shake: false, flashes: false, bigText: true })) throw new Error(`Opciones mal guardadas: ${saved}`);
+  const so = JSON.parse(saved ?? '{}') as Record<string, unknown>;
+  if (JSON.stringify([so.volume, so.music, so.shake, so.flashes, so.bigText]) !== JSON.stringify([4, 6, false, false, true])) throw new Error(`Opciones mal guardadas: ${saved}`);
   await tapKeys('Escape', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25c-controles.png');
@@ -656,6 +657,48 @@ try {
   if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) === pausedAt) throw new Error('El juego no vuelve después de la pausa');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
   console.log('Pausa: congela el juego, guarda volumen 4, sin temblor, con destellos suaves y texto grande, enseña los controles y vuelve.');
+
+  // M7: Opciones › Teclas. Rolling goes to K and up to I; then K rolls and the space bar does
+  // not, I goes up and W does not; the controls hint says so.
+  await page.goto(`${url}?semilla=e2e-teclas&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  await page.waitForTimeout(300);
+  await tapKeys('Escape', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('32a-teclas.png');
+  await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('32b-teclas-esperando.png');
+  await tapKeys('k', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'Enter', 'p', 'i');
+  await page.waitForTimeout(150);
+  await shot('32c-teclas-cambiadas.png');
+  const keymap = JSON.parse((await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')")) ?? '{}').keys as Record<string, string[]>;
+  if (keymap?.roll?.[0] !== 'KeyK' || keymap?.up?.[0] !== 'KeyI' || keymap.roll.includes('Space')) throw new Error(`Teclas mal guardadas: ${JSON.stringify(keymap)}`);
+  await tapKeys('Escape', 'Escape', 'Escape');
+  await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  await page.waitForTimeout(200);
+  const yAt = (): Promise<number> => page.evaluate<number>('window.__GE__.scene.world.player.y');
+  const holdKey = async (k: string, ms: number): Promise<number> => {
+    const y0 = await yAt();
+    await page.keyboard.down(k);
+    await page.waitForTimeout(ms);
+    await page.keyboard.up(k);
+    await page.waitForTimeout(100);
+    return (await yAt()) - y0;
+  };
+  if ((await holdKey('i', 300)) > -8) throw new Error('La I no sube después de cambiarla');
+  if (Math.abs(await holdKey('w', 300)) > 0.5) throw new Error('La W sigue subiendo');
+  await page.waitForTimeout(800);
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(60);
+  if (await page.evaluate<boolean>('window.__GE__.scene.world.player.rollT >= 0')) throw new Error('El espacio sigue rodando');
+  await page.keyboard.press('k');
+  await page.waitForFunction('window.__GE__.scene.world.player.rollT >= 0', undefined, { timeout: 1000 });
+  const hint = await page.evaluate<string>('window.__GE__.scene.hintText');
+  if (!hint.startsWith('I') || !hint.includes('K RODAR')) throw new Error(`La ayuda de controles no dice las teclas nuevas: ${hint}`);
+  await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
+  console.log('Teclas: rodar a la K y subir a la I; la P (pausa) no se deja; la ayuda las nombra.');
 
   // M6: the inventory, in the pause menu, with a few items, an active one and a synergy.
   await page.goto(`${url}?semilla=e2e-inventario&sala=sala-pruebas`);

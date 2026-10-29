@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T16:29:00+01:00",
+  "actualizado": "2026-10-29T16:41:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,7 +56,7 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 9,
+      "hechas": 10,
       "total": 11
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 320,
-    "tests_ok": 320,
+    "tests": 326,
+    "tests_ok": 326,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11806
+    "lineas_codigo": 12083
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T16:41:00+01:00",
+      "hito": "M7",
+      "resumen": "Opciones › Cambiar teclas: cada acción del teclado a la tecla que se quiera. La ayuda de controles, los carteles y la pantalla de Controles dicen las teclas elegidas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T16:29:00+01:00",
       "hito": "M7",
@@ -445,6 +451,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/teclas.png",
+      "pie": "Opciones › Cambiar teclas: subir pasa a la I y rodar a la K. «Cambio de titularidad de las teclas. Sin coste adicional.»"
+    },
+    {
       "archivo": "capturas/texto-grande.png",
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     },
@@ -463,13 +473,9 @@
     {
       "archivo": "capturas/inventario.png",
       "pie": "El inventario de la pausa: el Secador con la Resistencia y la Pila hace 2 de daño pero el cargador baja de 14 a 10 (en rojo); a la derecha, los objetos y lo que hace el elegido"
-    },
-    {
-      "archivo": "capturas/portada.png",
-      "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: accesibilidad parte 3, remapeo de controles.",
+  "proximo": "M7: lista de errores conocidos vacía (la última tarea de M7).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -499,11 +505,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-10-29 14:43 UTC",
-      "tarea": "M7: accesibilidad parte 3, remapeo de controles",
-      "desde": "2026-10-29T15:30:00Z"
-    },
     {
       "sesion": "2026-10-29 15:41 UTC",
       "tarea": "M7: lista de errores conocidos (reunirla en docs/ERRORES_CONOCIDOS.md y arreglar los primeros)",

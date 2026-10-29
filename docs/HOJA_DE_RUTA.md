@@ -167,7 +167,7 @@ semillas distintas acaban con builds distintas.
 - [x] Accesibilidad, parte 2a: **Texto grande** (ventana de descripción, letreros, sinergias, nombre de sala y bocadillos de la caja a doble tamaño).
 - [x] Accesibilidad, parte 2b: texto grande en el parte de baja y en la planta superada.
 - [x] Accesibilidad, parte 2c: texto grande en el inventario (la ventana de descripción grande, como emergente sobre la parte de abajo; la lista a dos líneas).
-- [ ] Accesibilidad, parte 3: remapeo de controles.
+- [x] Accesibilidad, parte 3: remapeo de controles (teclado; el mando, con su soporte completo en M15).
 - [x] Animaciones completas de todos los enemigos (reposo con respiración y paso de 4 fotogramas por distancia; golpe y muerte ya eran comunes: destello blanco y despiece).
 - [ ] Lista de errores conocidos vacía.
 
