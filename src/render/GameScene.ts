@@ -22,6 +22,7 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { settings } from './settings.ts';
+import { stackAbove } from './layout.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 
 export const VIEW_W = 480;
@@ -102,6 +103,10 @@ interface FloatText {
   t: Phaser.GameObjects.BitmapText;
   vy: number;
   life: number;
+  /** A damage number: what it adds up to so far, and where the hits land (the next hit close by adds to it). */
+  num?: number;
+  ax?: number;
+  ay?: number;
 }
 
 export interface GameStateForTests {
@@ -187,6 +192,7 @@ export class GameScene extends Phaser.Scene {
   private couponIcon!: Phaser.GameObjects.Image;
   /** The passive items carried, in a row at the bottom left. */
   private itemIcons: Phaser.GameObjects.Image[] = [];
+  private hudPlate!: Phaser.GameObjects.Graphics;
   /** An item's description under the banner (which shows its name) when it is picked up. */
   private itemDesc!: Phaser.GameObjects.BitmapText;
   /** A synergy that has just switched on: «¡Sinergia!», its name and its line, under the item's. */
@@ -408,6 +414,8 @@ export class GameScene extends Phaser.Scene {
 
     // HUD, fixed to the screen.
     this.add.image(0, 0, 'vineta').setOrigin(0, 0).setScrollFactor(0).setDepth(90000);
+    // Dark plates under the HUD clusters, so they read over the busy shelves of the back wall.
+    this.hudPlate = this.hud(this.add.graphics()).setDepth(94500);
     this.gunIcon = this.hud(this.add.image(0, VIEW_H - 15, 'arma-secador').setOrigin(0, 0));
     this.syncHudSlots();
     this.couponIcon = this.hud(this.add.image(7, 19, 'cupon', 0).setOrigin(0, 0));
@@ -619,8 +627,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < (big ? 14 : 6); i++) this.spark(cx, cy - 12, this.fx.range(0, Math.PI * 2), this.fx.range(60, 160), this.fx.int(0, 3));
     if (big) {
       const stamp = DEATH_STAMPS[this.fx.int(0, DEATH_STAMPS.length - 1)]!;
-      const t = this.add.bitmapText(Math.round(cx), Math.round(cy - 30), FONT, fontText(stamp), 8).setOrigin(0.5, 1).setDepth(85000).setTint(0xe0453b);
-      this.floats.push({ t, vy: -18, life: 1.1 });
+      this.addFloat(cx, cy - 30, fontText(stamp), 0xe0453b, -18, 1.1);
     }
   }
 
@@ -1242,7 +1249,7 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('golpe', { detune: this.fx.range(-200, 200) });
           this.sound2.play('golpeRuido', { volume: 0.7 });
           for (let i = 0; i < 6; i++) this.spark(e.x, e.y, e.angle + Math.PI + this.fx.range(-1.1, 1.1), this.fx.range(50, 130), this.fx.int(0, 2));
-          this.floatText(e.x + this.fx.range(-4, 4), e.y - 6, String(e.damage), 0xf6c431);
+          this.addFloat(e.x, e.y - 6, '', 0xf6c431, -30, 0.6, e.damage);
           break;
         }
         case 'bulletWall': {
@@ -1302,8 +1309,7 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('turbo');
           this.shake(100, 0.004, true);
           for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 16, this.fx.range(0, Math.PI * 2), this.fx.range(40, 120), this.fx.int(0, 3));
-          const t = this.add.bitmapText(Math.round(e.x), Math.round(e.y - 38), FONT, fontText(TURBO_LINE), 8).setOrigin(0.5, 1).setDepth(85000).setTint(0xe0453b);
-          this.floats.push({ t, vy: -14, life: 1 });
+          this.addFloat(e.x, e.y - 38, fontText(TURBO_LINE), 0xe0453b, -14, 1);
           break;
         }
         case 'blinkOut':
@@ -1855,8 +1861,37 @@ export class GameScene extends Phaser.Scene {
   }
 
   private floatText(x: number, y: number, text: string, tint: number): void {
+    this.addFloat(x, y, text, tint, -30, 0.6);
+  }
+
+  /**
+   * A text that floats up and fades. It never covers another one: it goes on top of whatever is
+   * in its way (stackAbove). A damage number (`num`) near the last one adds to it instead, so a
+   * burst reads as one growing number and not a pile.
+   */
+  private addFloat(x: number, y: number, text: string, tint: number, vy: number, life: number, num?: number): void {
+    if (num !== undefined) {
+      const prev = this.floats.find((f) => f.num !== undefined && Math.abs((f.ax ?? 0) - x) < 18 && Math.abs((f.ay ?? 0) - y) < 18);
+      if (prev) {
+        prev.num! += num;
+        prev.t.setText(String(prev.num)).setScale(1.25);
+        this.tweens.add({ targets: prev.t, scale: 1, duration: 120 });
+        prev.life = life;
+        prev.vy = vy * 0.5;
+        return;
+      }
+      text = String(num);
+    }
     const t = this.add.bitmapText(Math.round(x), Math.round(y), FONT, text, 8).setOrigin(0.5, 1).setDepth(85000).setTint(tint);
-    this.floats.push({ t, vy: -30, life: 0.6 });
+    const placed = this.floats.map((f) => ({ x: f.t.x, y: f.t.y, w: f.t.width, h: 9 }));
+    t.setY(Math.round(stackAbove(placed, { x: t.x, y: t.y, w: t.width, h: 9 })));
+    const f: FloatText = { t, vy, life };
+    if (num !== undefined) {
+      f.num = num;
+      f.ax = x;
+      f.ay = y;
+    }
+    this.floats.push(f);
   }
 
   private syncView(dt: number): void {
@@ -2423,6 +2458,26 @@ export class GameScene extends Phaser.Scene {
       }
       this.gunIcon.setX(VIEW_W - 12 - Math.min(mag, perRow) * 4 - 20);
     }
+    this.drawHudPlates();
+  }
+
+  /**
+   * The plates under the HUD: top left (hearts, coupons, tickets and the active slot), bottom
+   * right (weapon, ammo) and bottom left (the items carried, when there are any).
+   */
+  private drawHudPlates(): void {
+    const g = this.hudPlate;
+    const p = this.world.player;
+    g.clear();
+    const plate = (x: number, y: number, w: number, h: number): void => {
+      g.fillStyle(0x0e0c16, 0.55).fillRect(x, y, w, h);
+      g.fillStyle(0x0e0c16, 0.35).fillRect(x + 1, y + h, w - 1, 1).fillRect(x + w, y + 1, 1, h);
+    };
+    plate(3, 4, Math.max(68, 8 + this.hearts.length * 10 + 2), 50);
+    const rows = Math.floor((p.weapon.def.magazine - 1) / 24);
+    const top = VIEW_H - 28 - rows * 8;
+    plate(Math.round(this.gunIcon.x) - 5, top, VIEW_W - 3 - (Math.round(this.gunIcon.x) - 5), VIEW_H - 3 - top);
+    if (this.itemIcons.length > 0) plate(4, VIEW_H - 40, 8 + this.itemIcons.length * 17, 21);
   }
 
   /**

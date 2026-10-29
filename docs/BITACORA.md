@@ -2,6 +2,14 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-29 12:35 — Hito M6 — Interfaz limpia
+
+- Hecho: repaso del HUD con las capturas de combate, de la jefa, del tesoro y de la build. (1) **Placas** oscuras semitransparentes (`drawHudPlates`, por debajo del HUD y por encima de la viñeta) bajo los tres grupos: arriba a la izquierda (corazones, cupones, tickets y la ranura del activo), abajo a la derecha (arma, munición) y abajo a la izquierda (objetos que se llevan, solo si hay); se ajustan al número de corazones, al cargador y a los objetos. Antes, los contadores se perdían sobre las estanterías de colores de la pared del fondo. (2) **Textos flotantes que no se amontonan**: todos pasan por `addFloat`, que coloca cada uno encima del que taparía (`stackAbove` en `src/render/layout.ts`, puro). (3) **Números de daño que se suman**: un golpe cerca del número anterior lo hace crecer (con un pequeño salto de tamaño) en vez de soltar otro. Test nuevo `tests/layout.test.ts`.
+- Decisiones: placas sutiles (55 % de opacidad) y no marcos con borde, para no tapar más sala de la necesaria. La ventana de descripción, el bocadillo de la tienda y la placa de sinergias ya se colocaban sin pisarse (sesiones anteriores); la línea de controles de la primera sala y la fila de objetos no se tocan (comprobado: quedan a 5 px).
+- Medidas: sin cambios de simulación. 285 tests en verde.
+- Problemas conocidos: la placa de arriba a la izquierda es algo alta para lo que hay a la derecha de la ranura del activo. El nombre de la sala no lleva placa (se lee bien casi siempre, y se va a los pocos segundos).
+- Siguiente paso: M6, el parte de baja y la pantalla de victoria.
+
 ## 2026-10-29 12:25 — Hito M6 — Inventario en la pausa
 
 - Hecho: «Inventario» es la segunda opción de la pausa. Pantalla a casi toda la pantalla: a la izquierda, **arma en mano** (daño, cadencia, cargador, recarga, alcance y dispersión) y **personaje** (corazones, velocidad y voltereta cada tantos segundos), cada número en verde si los objetos lo han mejorado, en rojo si lo han empeorado y blanco si sigue igual, con «antes X» al lado cuando ha cambiado; debajo, las **sinergias** encendidas. A la derecha, los objetos pasivos en el orden en que se cogieron (con su sprite), el activo («(Q)») y las sinergias, en una ventana de 6 líneas que se desplaza con el cursor; bajo la lista, el elegido entero: descripción y `modifierLines` (para el activo, qué hace, cuántas pilas pide y cuántas tiene). Cálculo puro en `src/data/describe.ts` (`weaponStatRows`, `characterStatRows`, con `delta` −1/0/1). Textos en `src/data/texts.ts` («Lo que llevas encima. Sin ticket regalo.», «Nada. Como la garantía.»). Test nuevo en `tests/descripcion.test.ts`; e2e nuevo con 7 objetos, un activo y dos sinergias (capturas `27a` y `27b`); el e2e de opciones se ajusta a la opción nueva.

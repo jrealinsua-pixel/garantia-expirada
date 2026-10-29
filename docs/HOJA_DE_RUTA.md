@@ -140,7 +140,7 @@ semillas distintas acaban con builds distintas.
 - [x] Inventario en la pausa (nota del humano): los objetos que llevas con su descripción, el
   objeto activo, las sinergias encendidas y las estadísticas actuales del personaje y del arma
   (daño, cadencia, alcance, velocidad), con lo que suma o resta cada objeto.
-- [ ] Interfaz limpia (nota del humano): revisar el HUD entero para que no se pise nada y se lea
+- [x] Interfaz limpia (nota del humano): revisar el HUD entero para que no se pise nada y se lea
   de un vistazo; los textos flotantes no se amontonan.
 - [ ] Parte de baja al morir (causa, vida útil, recomendación del fabricante).
 - [ ] Pantalla de victoria.

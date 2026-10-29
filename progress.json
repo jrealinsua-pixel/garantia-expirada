@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T12:25:00+01:00",
+  "actualizado": "2026-10-29T12:35:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -49,7 +49,7 @@
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 9
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 284,
-    "tests_ok": 284,
+    "tests": 285,
+    "tests_ok": 285,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 10440
+    "lineas_codigo": 10515
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T12:35:00+01:00",
+      "hito": "M6",
+      "resumen": "Interfaz más limpia (nota del humano): placas oscuras bajo los grupos del HUD (corazones y contadores, arma y munición, objetos) para que se lean sobre las estanterías; los textos flotantes ya no se montan unos encima de otros, se apilan; y los números de daño seguidos se suman en uno que crece en vez de soltar un montón.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T12:25:00+01:00",
       "hito": "M6",
@@ -379,7 +385,7 @@
       "pie": "Ventana de la Grapadora Táctica: sus números (daño 1, 9 disparos/s, cargador 24, recarga 1,6 s, alcance 240) para comparar armas de un vistazo"
     }
   ],
-  "proximo": "M6: interfaz limpia (repasar el HUD entero para que no se pise nada y los textos flotantes no se amontonen); después el parte de baja y la pantalla de victoria.",
+  "proximo": "M6: el parte de baja al morir (causa, vida útil, recomendación del fabricante; revisar el que ya existe) y la pantalla de victoria.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
