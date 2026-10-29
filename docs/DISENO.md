@@ -72,6 +72,10 @@ Pantalla de muerte: en vez de «Has muerto», un **parte de baja** del producto 
 | Batidora de Vaso | Por desbloquear | Rápida y frágil. Su esquiva es un giro de cuchillas. |
 | Plancha de Vapor | Por desbloquear | Lenta y dura. Deja un rastro que quema. |
 | Un humano: el Becario Eterno | Por desbloquear (no es un electrodoméstico) | El único humano atrapado en el vertedero. Lleva seis años en prácticas. Arma inicial: Grapadora Táctica. |
+| Móvil Reacondicionado | Por diseñar | Vendido «como nuevo» con la pantalla rajada y la batería al 1 %. Se apaga si se queda quieto demasiado tiempo. Nadie le actualiza el sistema desde hace dos versiones. |
+
+Son **cinco personajes jugables**, cada uno con su historia: por qué acabó en el vertedero, una
+escena al empezar la partida y su propio final (hito M13).
 
 ### Enemigos de la primera planta (Electrodomésticos)
 
@@ -110,7 +114,10 @@ Pantalla de muerte: en vez de «Has muerto», un **parte de baja** del producto 
 - En las salas de combate las puertas se cierran hasta acabar con los enemigos (persianas
   metálicas con piloto rojo).
 - Al vencer al jefe se sube a la siguiente planta. Primera versión: 1 planta. Objetivo a medio
-  plazo: 4 plantas y el final del Servicio Técnico.
+  plazo: **5 plantas** (Electrodomésticos, Informática, Juguetería, Oficinas y Atención al
+  Cliente) y un **piso final especial**, el Servicio Técnico, que solo se desbloquea cumpliendo
+  unos requisitos (vencer a los 5 jefes, ganar con varios personajes, reunir la historia).
+  Mucha variedad de enemigos, jefes, armas y objetos en cada planta.
 - **Muerte permanente.** Al morir se pierde la partida. Se conservan los desbloqueos.
 
 ### Economía

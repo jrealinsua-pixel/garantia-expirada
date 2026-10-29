@@ -139,15 +139,49 @@ semillas distintas acaban con builds distintas.
 
 ## M10 · Plantas 3 y 4
 
-- [ ] Juguetería y Oficinas, con enemigos, jefes y objetos propios.
-- [ ] Final verdadero.
+- [ ] Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda) y 10 objetos.
+- [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de Recursos Inhumanos) y 10 objetos.
 
-## M11 · Más contenido y rejugabilidad
+**Criterios de aceptación:** se puede jugar de la planta 1 a la 4 seguidas; cada planta se
+distingue a la primera en una captura; el bot llega a la planta 4 en alguna partida.
 
-- [ ] Hasta 30 armas y 80 objetos.
+## M11 · Planta 5: Atención al Cliente
+
+- [ ] Juego de casillas (centralita, cubículos, colas con cinta) y color propio.
+- [ ] 4 enemigos nuevos y un jefe propio (La Centralita: te pasa de un departamento a otro).
+- [ ] 10 objetos nuevos y 2 armas nuevas.
+
+**Criterios de aceptación:** una partida normal tiene 5 plantas y termina al vencer al jefe de
+la quinta; el bot completa la partida entera alguna vez.
+
+## M12 · El Servicio Técnico (piso final secreto)
+
+- [ ] Requisitos de desbloqueo guardados entre partidas (por ejemplo: vencer a los 5 jefes,
+  ganar con 3 personajes distintos y reunir las piezas de historia). Se ven en el centro.
+- [ ] Piso final especial, distinto de los demás: la trituradora del Servicio Técnico, con su
+  jefe final en varias fases.
+- [ ] Final verdadero (el jugador es el producto) y créditos.
+
+**Criterios de aceptación:** el piso final solo aparece si se cumplen los requisitos (test);
+sin ellos la partida acaba en la planta 5.
+
+## M13 · Cinco personajes jugables
+
+- [ ] 5 personajes: Tostadora Reacondicionada, Batidora de Vaso, Plancha de Vapor, el Becario
+  Eterno y el Móvil Reacondicionado, cada uno con estadísticas, arma inicial y una habilidad propias.
+- [ ] Una historia distinta por personaje: por qué está en el vertedero, una escena al empezar
+  y su propio final.
+- [ ] Desbloqueo de cada personaje con una condición propia.
+
+**Criterios de aceptación:** cada personaje tiene un test de su habilidad; el bot gana la
+planta 1 con todos; los cinco se distinguen a la primera en una captura.
+
+## M14 · Más contenido y rejugabilidad
+
+- [ ] Mucha variedad: hasta 30 armas, 80 objetos, 30 enemigos y 8 jefes en total.
 - [ ] Salas especiales raras, retos diarios con semilla fija.
 
-## M12 · Versión de escritorio
+## M15 · Versión de escritorio (lo último)
 
 - [ ] Empaquetado con Tauri (o Electron) para Windows, macOS y Linux.
 - [ ] Guardado en disco, pantalla completa, soporte de mando completo.

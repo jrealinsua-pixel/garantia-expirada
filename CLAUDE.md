@@ -70,7 +70,7 @@ cliente. Todo el diseño está en `docs/DISENO.md`.
   licencia CC0.
 - **Publicación:** GitHub Pages con el flujo `.github/workflows/publicar.yml`, que antes de
   publicar pasa `check`, `test` y `bot`. El juego queda en la raíz del sitio y el panel en `/panel/`.
-- **Escritorio (más adelante, hito M12):** Tauri, o Electron si Tauri da problemas.
+- **Escritorio (lo último de todo, hito M15):** Tauri, o Electron si Tauri da problemas.
 
 Comandos que el proyecto debe ofrecer desde el hito M0:
 

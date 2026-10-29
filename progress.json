@@ -82,14 +82,35 @@
     },
     {
       "id": "M11",
+      "nombre": "Planta 5: Atención al Cliente",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 3
+    },
+    {
+      "id": "M12",
+      "nombre": "El Servicio Técnico (piso final secreto)",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 3
+    },
+    {
+      "id": "M13",
+      "nombre": "Cinco personajes jugables",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 3
+    },
+    {
+      "id": "M14",
       "nombre": "Más contenido y rejugabilidad",
       "estado": "pendiente",
       "hechas": 0,
       "total": 2
     },
     {
-      "id": "M12",
-      "nombre": "Versión de escritorio",
+      "id": "M15",
+      "nombre": "Versión de escritorio (lo último)",
       "estado": "pendiente",
       "hechas": 0,
       "total": 3
