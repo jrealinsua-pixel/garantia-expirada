@@ -22,8 +22,8 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { settings } from './settings.ts';
-import { stackAbove } from './layout.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
+import { hudLayout, splitTitle, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 
 export const VIEW_W = 480;
 
@@ -103,10 +103,10 @@ interface FloatText {
   t: Phaser.GameObjects.BitmapText;
   vy: number;
   life: number;
-  /** A damage number: what it adds up to so far, and where the hits land (the next hit close by adds to it). */
-  num?: number;
-  ax?: number;
-  ay?: number;
+  /** Damage numbers on the same target add up in one number instead of piling up. */
+  key?: string;
+  sum?: number;
+  age?: number;
 }
 
 export interface GameStateForTests {
@@ -192,7 +192,6 @@ export class GameScene extends Phaser.Scene {
   private couponIcon!: Phaser.GameObjects.Image;
   /** The passive items carried, in a row at the bottom left. */
   private itemIcons: Phaser.GameObjects.Image[] = [];
-  private hudPlate!: Phaser.GameObjects.Graphics;
   /** An item's description under the banner (which shows its name) when it is picked up. */
   private itemDesc!: Phaser.GameObjects.BitmapText;
   /** A synergy that has just switched on: «¡Sinergia!», its name and its line, under the item's. */
@@ -249,8 +248,16 @@ export class GameScene extends Phaser.Scene {
   private warn!: Phaser.GameObjects.Graphics;
   private warnings = 0;
   private charges = 0;
-  private hint!: Phaser.GameObjects.BitmapText;
+  /** The controls hint (one or two lines, bottom left) for the first seconds of a run. */
+  private hint!: Phaser.GameObjects.BitmapText[];
+  private hintText = '';
   private hintT = 9;
+  /** The dark plates behind each corner of the HUD, so it reads over the busy shelves and floor. */
+  private hudPlates!: Phaser.GameObjects.Graphics;
+  /** The empty frame of the active item's slot (only once there is an active item). */
+  private activeSlot!: Phaser.GameObjects.Image;
+  private layout: HudLayout | null = null;
+  private mapSize = { w: 0, h: 0 };
   private camX = 0;
   private camY = 0;
   /** The world to keep playing in after a restart (walking into another room), or null for a new run. */
@@ -265,7 +272,7 @@ export class GameScene extends Phaser.Scene {
   private introBars: Phaser.GameObjects.Rectangle[] = [];
   /** Everything on the HUD (hidden during a boss's entrance), and the room's name. */
   private hudObjs: Array<Phaser.GameObjects.Components.Visible> = [];
-  private roomTitle: Phaser.GameObjects.BitmapText | null = null;
+  private roomTitle: Phaser.GameObjects.Container | null = null;
   /** The boss's life bar at the bottom of the screen (null without a boss in the room). */
   private bossBar: BossBarView | null = null;
   /** Full-screen white flash (a boss changing phase or falling). */
@@ -414,8 +421,7 @@ export class GameScene extends Phaser.Scene {
 
     // HUD, fixed to the screen.
     this.add.image(0, 0, 'vineta').setOrigin(0, 0).setScrollFactor(0).setDepth(90000);
-    // Dark plates under the HUD clusters, so they read over the busy shelves of the back wall.
-    this.hudPlate = this.hud(this.add.graphics()).setDepth(94500);
+    this.hudPlates = this.hud(this.add.graphics()).setDepth(94900);
     this.gunIcon = this.hud(this.add.image(0, VIEW_H - 15, 'arma-secador').setOrigin(0, 0));
     this.syncHudSlots();
     this.couponIcon = this.hud(this.add.image(7, 19, 'cupon', 0).setOrigin(0, 0));
@@ -424,7 +430,7 @@ export class GameScene extends Phaser.Scene {
     this.ticketIcon = this.hud(this.add.image(44, 18, 'ticket', 0).setOrigin(0, 0));
     this.ticketText = this.hud(this.add.bitmapText(56, 20, FONT, '0', 8));
     this.ticketText.setTint(0xf4f1e8);
-    this.hud(this.add.image(7, 31, 'ranura').setOrigin(0, 0)).setAlpha(0.85);
+    this.activeSlot = this.hud(this.add.image(7, 31, 'ranura').setOrigin(0, 0)).setAlpha(0.85).setVisible(false);
     this.activeIcon = this.hud(this.add.image(9, 33, 'objeto-caja').setOrigin(0, 0)).setVisible(false);
     this.activeMarks = this.hud(this.add.graphics());
     this.holdWash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x9fb4e0, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(88000).setAlpha(0);
@@ -448,12 +454,21 @@ export class GameScene extends Phaser.Scene {
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.weaponName = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 37, FONT, '', 8).setOrigin(1, 0)).setTint(0xf6c431).setAlpha(0);
     this.arsenalMarks = this.hud(this.add.graphics());
-    this.hint = this.hud(
-      this.add.bitmapText(8, VIEW_H - 16, FONT, fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar' + (room.kind === 'test' ? ' · 1-5 balas enemigas' : '')), 8),
-    );
-    this.hint.setTint(0xd6cdb2).setAlpha(this.hintT > 0 ? 1 : 0);
-    const title = this.hud(this.add.bitmapText(VIEW_W / 2, 30, FONT, fontText(room.name), 8).setOrigin(0.5, 0));
-    title.setTint(0xf6c431);
+    this.hintText = fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar' + (room.kind === 'test' ? ' · 1-5 balas enemigas' : ''));
+    this.hint = [0, 1].map(() => this.hud(this.add.bitmapText(8, VIEW_H - 16, FONT, '', 8)).setTint(0xd6cdb2).setAlpha(this.hintT > 0 ? 1 : 0));
+    this.mapSize = { w: 0, h: 0 };
+    if (this.world.floor) this.drawMinimap();
+    // The room's name, along the top on its own plate: what it is in gold, the joke in brackets quieter.
+    this.layout = this.computeLayout();
+    const { main, sub } = splitTitle(fontText(room.name));
+    const mainT = this.add.bitmapText(4, 3, FONT, main, 8).setTint(0xf6c431);
+    const subT = this.add.bitmapText(4 + textWidth(main) + 5, 3, FONT, sub, 8).setTint(0xb9b3a3);
+    const tw = textWidth(main) + (sub ? 5 + textWidth(sub) : 0) + 8;
+    const plate = this.add.graphics();
+    plate.fillStyle(0x0e0c16, 0.78).fillRect(0, 0, tw, 13);
+    plate.lineStyle(1, 0x3a3f5c, 1).strokeRect(0.5, 0.5, tw - 1, 12);
+    plate.fillStyle(0xf6c431, 1).fillRect(1, 12, tw - 2, 1);
+    const title = this.hud(this.add.container(titleX(tw, this.layout.titleSpan), TITLE_TOP, [plate, mainT, subT]));
     // A boss's entrance has its own name card: the room's name waits until it is over.
     this.roomTitle = title;
     if (this.world.intro) title.setAlpha(0);
@@ -467,9 +482,8 @@ export class GameScene extends Phaser.Scene {
       this.makeBossBar(boss);
       // The controls hint would run under the bar.
       this.hintT = 0;
-      this.hint.setAlpha(0);
+      for (const h of this.hint) h.setAlpha(0);
     }
-    if (this.world.floor) this.drawMinimap();
 
     const cam = this.cameras.main;
     cam.setBounds(0, 0, room.w, room.h);
@@ -627,7 +641,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < (big ? 14 : 6); i++) this.spark(cx, cy - 12, this.fx.range(0, Math.PI * 2), this.fx.range(60, 160), this.fx.int(0, 3));
     if (big) {
       const stamp = DEATH_STAMPS[this.fx.int(0, DEATH_STAMPS.length - 1)]!;
-      this.addFloat(cx, cy - 30, fontText(stamp), 0xe0453b, -18, 1.1);
+      this.floatText(cx, cy - 30, fontText(stamp), 0xe0453b, undefined, -18, 1.1);
     }
   }
 
@@ -1249,7 +1263,7 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('golpe', { detune: this.fx.range(-200, 200) });
           this.sound2.play('golpeRuido', { volume: 0.7 });
           for (let i = 0; i < 6; i++) this.spark(e.x, e.y, e.angle + Math.PI + this.fx.range(-1.1, 1.1), this.fx.range(50, 130), this.fx.int(0, 2));
-          this.addFloat(e.x, e.y - 6, '', 0xf6c431, -30, 0.6, e.damage);
+          this.damageText(e.target, e.x, e.y - 6, e.damage);
           break;
         }
         case 'bulletWall': {
@@ -1309,7 +1323,7 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('turbo');
           this.shake(100, 0.004, true);
           for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 16, this.fx.range(0, Math.PI * 2), this.fx.range(40, 120), this.fx.int(0, 3));
-          this.addFloat(e.x, e.y - 38, fontText(TURBO_LINE), 0xe0453b, -14, 1);
+          this.floatText(e.x, e.y - 38, fontText(TURBO_LINE), 0xe0453b, undefined, -14, 1);
           break;
         }
         case 'blinkOut':
@@ -1358,7 +1372,7 @@ export class GameScene extends Phaser.Scene {
             if (e.total > 1 && !this.swapHinted) {
               this.swapHinted = true;
               this.hintT = 0;
-              this.hint.setAlpha(0);
+              for (const h of this.hint) h.setAlpha(0);
               this.banner.setText(fontText(SWAP_HINT)).setTint(0xf4f1e8).setAlpha(1);
               this.tweens.killTweensOf(this.banner);
               this.tweens.add({ targets: this.banner, alpha: 0, delay: 3200, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
@@ -1666,6 +1680,7 @@ export class GameScene extends Phaser.Scene {
     const H = gh * MAP_STEP_Y - (MAP_STEP_Y - MAP_CELL_H) + pad * 2;
     const x0 = VIEW_W - 6 - W;
     const y0 = 6;
+    this.mapSize = { w: W, h: H };
     this.mapG?.destroy();
     const g = this.hud(this.add.graphics()).setDepth(94000);
     this.mapG = g;
@@ -1784,7 +1799,8 @@ export class GameScene extends Phaser.Scene {
     // Up top, unless the toaster is in the top half of the screen: then down below, out of its way.
     const p = this.world.player;
     const high = p.y - this.cameras.main.scrollY < VIEW_H / 2 + 10;
-    const y0 = high ? VIEW_H - 26 - h : 40;
+    const l = this.layout ?? this.computeLayout();
+    const y0 = high ? l.cardBottom - h : l.cardTop;
     c.name.setText(fontText(name)).setPosition(tx, y0 + 6);
     c.kind.setText(fontText(kind)).setPosition(tx, y0 + 16);
     c.desc.setPosition(tx, y0 + 28);
@@ -1860,38 +1876,38 @@ export class GameScene extends Phaser.Scene {
     this.till.setFrame(this.tillNoT > 0 ? 2 : talking ? 1 : 0);
   }
 
-  private floatText(x: number, y: number, text: string, tint: number): void {
-    this.addFloat(x, y, text, tint, -30, 0.6);
+  /** A line that pops up from (x, y) and fades; if another is still there, it goes up over it. */
+  private floatText(x: number, y: number, text: string, tint: number, key?: string, vy = -30, life = 0.6): FloatText {
+    const w = textWidth(text);
+    const box = { x: Math.round(x - w / 2), y: Math.round(y) - 8, w, h: 8 };
+    const placed = this.floats.map((f) => {
+      const b = f.t.getBounds();
+      return { x: b.x, y: b.y, w: b.width, h: b.height };
+    });
+    const top = stackFloat(placed, box);
+    const t = this.add.bitmapText(Math.round(x), top + 8, FONT, text, 8).setOrigin(0.5, 1).setDepth(85000).setTint(tint);
+    const f: FloatText = { t, vy, life, key, age: 0 };
+    this.floats.push(f);
+    return f;
   }
 
   /**
-   * A text that floats up and fades. It never covers another one: it goes on top of whatever is
-   * in its way (stackAbove). A damage number (`num`) near the last one adds to it instead, so a
-   * burst reads as one growing number and not a pile.
+   * A damage number over what was hit. Hits on the same target in quick succession add up in the
+   * same number (it jumps and turns brighter) instead of stacking a column of «1»s.
    */
-  private addFloat(x: number, y: number, text: string, tint: number, vy: number, life: number, num?: number): void {
-    if (num !== undefined) {
-      const prev = this.floats.find((f) => f.num !== undefined && Math.abs((f.ax ?? 0) - x) < 18 && Math.abs((f.ay ?? 0) - y) < 18);
-      if (prev) {
-        prev.num! += num;
-        prev.t.setText(String(prev.num)).setScale(1.25);
-        this.tweens.add({ targets: prev.t, scale: 1, duration: 120 });
-        prev.life = life;
-        prev.vy = vy * 0.5;
-        return;
-      }
-      text = String(num);
+  private damageText(target: number, x: number, y: number, damage: number): void {
+    const key = `hit:${target}`;
+    const f = this.floats.find((o) => o.key === key && (o.age ?? 0) < 0.35);
+    if (f) {
+      f.sum = (f.sum ?? 0) + damage;
+      f.t.setText(String(Math.round(f.sum * 10) / 10)).setTint(0xfff1a8);
+      f.life = 0.6;
+      f.vy = -34;
+      f.t.y -= 2;
+      return;
     }
-    const t = this.add.bitmapText(Math.round(x), Math.round(y), FONT, text, 8).setOrigin(0.5, 1).setDepth(85000).setTint(tint);
-    const placed = this.floats.map((f) => ({ x: f.t.x, y: f.t.y, w: f.t.width, h: 9 }));
-    t.setY(Math.round(stackAbove(placed, { x: t.x, y: t.y, w: t.width, h: 9 })));
-    const f: FloatText = { t, vy, life };
-    if (num !== undefined) {
-      f.num = num;
-      f.ax = x;
-      f.ay = y;
-    }
-    this.floats.push(f);
+    const n = this.floatText(x + this.fx.range(-3, 3), y, String(damage), 0xf6c431, key);
+    n.sum = damage;
   }
 
   private syncView(dt: number): void {
@@ -2415,6 +2431,7 @@ export class GameScene extends Phaser.Scene {
       }
       f.t.y += f.vy * dt;
       f.vy *= 0.92;
+      f.age = (f.age ?? 0) + dt;
       fk.push(f);
     }
     this.floats = fk;
@@ -2434,12 +2451,12 @@ export class GameScene extends Phaser.Scene {
     while (this.hearts.length > maxHearts) drop(this.hearts.pop()!);
     while (this.itemIcons.length < p.items.length) {
       const def = ITEMS[p.items[this.itemIcons.length]!];
-      const icon = this.hud(this.add.image(8 + this.itemIcons.length * 17, VIEW_H - 37, def?.sprite ?? 'objeto-caja').setOrigin(0, 0));
+      const icon = this.hud(this.add.image(8, VIEW_H - 37, def?.sprite ?? 'objeto-caja').setOrigin(0, 0));
       icon.setVisible(this.gunIcon.visible);
       this.itemIcons.push(icon);
     }
     while (this.hearts.length < maxHearts) {
-      const h = this.hud(this.add.image(8 + this.hearts.length * 10, 8, 'corazones', 0).setOrigin(0, 0));
+      const h = this.hud(this.add.image(8, 8, 'corazones', 0).setOrigin(0, 0));
       h.setVisible(this.gunIcon.visible);
       this.hearts.push(h);
     }
@@ -2447,37 +2464,57 @@ export class GameScene extends Phaser.Scene {
     if (this.ammoPips.length !== mag) {
       for (const s of this.ammoPips) drop(s);
       this.ammoPips = [];
-      // Long magazines go in two rows.
-      const perRow = 24;
-      for (let i = 0; i < mag; i++) {
-        const row = Math.floor(i / perRow);
-        const inRow = Math.min(perRow, mag - row * perRow);
-        const pip = this.hud(this.add.image(VIEW_W - 8 - (inRow - (i % perRow)) * 4, VIEW_H - 14 - row * 8, 'municion', 0).setOrigin(0, 0));
+      const l = this.computeLayout();
+      for (const at of l.pips) {
+        const pip = this.hud(this.add.image(at.x, at.y, 'municion', 0).setOrigin(0, 0));
         pip.setVisible(this.gunIcon.visible);
         this.ammoPips.push(pip);
       }
-      this.gunIcon.setX(VIEW_W - 12 - Math.min(mag, perRow) * 4 - 20);
+      this.gunIcon.setPosition(l.gun.x, l.gun.y);
     }
-    this.drawHudPlates();
   }
 
-  /**
-   * The plates under the HUD: top left (hearts, coupons, tickets and the active slot), bottom
-   * right (weapon, ammo) and bottom left (the items carried, when there are any).
-   */
-  private drawHudPlates(): void {
-    const g = this.hudPlate;
+  /** Where everything on the HUD goes right now (see src/render/hud.ts). */
+  private computeLayout(): HudLayout {
     const p = this.world.player;
+    return hudLayout({
+      hearts: Math.ceil(p.def.maxHp / 2),
+      coupons: p.coupons,
+      tickets: p.tickets,
+      hasActive: !!p.active,
+      items: p.items.length,
+      magazine: p.weapon.def.magazine,
+      mapW: this.mapSize.w,
+      mapH: this.mapSize.h,
+      hint: this.hintT > 0 ? this.hintText : null,
+    });
+  }
+
+  /** Puts every HUD piece where the layout says and draws the plates behind them. */
+  private placeHud(l: HudLayout): void {
+    this.itemIcons.forEach((icon, i) => {
+      const at = l.items[i];
+      if (at) icon.setPosition(at.x, at.y);
+    });
+    this.hearts.forEach((h, i) => h.setX(l.hearts[i]?.x ?? 8));
+    this.hint.forEach((t, i) => {
+      const line = l.hintLines[i];
+      t.setText(line?.text ?? '');
+      if (line) t.setPosition(line.x, line.y);
+    });
+    this.activeSlot.setVisible(!!l.active && this.gunIcon.visible);
+    const g = this.hudPlates;
     g.clear();
-    const plate = (x: number, y: number, w: number, h: number): void => {
-      g.fillStyle(0x0e0c16, 0.55).fillRect(x, y, w, h);
-      g.fillStyle(0x0e0c16, 0.35).fillRect(x + 1, y + h, w - 1, 1).fillRect(x + w, y + 1, 1, h);
+    if (!this.gunIcon.visible) return;
+    const plate = (b: Box | null, alpha = 1): void => {
+      if (!b || alpha <= 0) return;
+      g.fillStyle(0x0e0c16, 0.62 * alpha).fillRect(b.x, b.y, b.w, b.h);
+      g.lineStyle(1, 0x3a3f5c, 0.9 * alpha).strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
     };
-    plate(3, 4, Math.max(68, 8 + this.hearts.length * 10 + 2), 50);
-    const rows = Math.floor((p.weapon.def.magazine - 1) / 24);
-    const top = VIEW_H - 28 - rows * 8;
-    plate(Math.round(this.gunIcon.x) - 5, top, VIEW_W - 3 - (Math.round(this.gunIcon.x) - 5), VIEW_H - 3 - top);
-    if (this.itemIcons.length > 0) plate(4, VIEW_H - 40, 8 + this.itemIcons.length * 17, 21);
+    plate(l.status);
+    plate(l.weapon);
+    plate(l.itemsBox);
+    plate(l.hintBox, this.hint[0]!.alpha);
   }
 
   /**
@@ -2516,6 +2553,9 @@ export class GameScene extends Phaser.Scene {
   private updateHud(dt: number): void {
     const p = this.world.player;
     this.syncHudSlots();
+    const l = this.computeLayout();
+    this.layout = l;
+    this.placeHud(l);
     this.heartHitT = Math.max(0, this.heartHitT - dt);
     this.hearts.forEach((h, i) => {
       const hp = p.hp - i * 2;
@@ -2534,15 +2574,15 @@ export class GameScene extends Phaser.Scene {
     const cp = this.couponPop;
     this.couponPop = cp > 0 ? Math.max(0, cp - dt) : Math.min(0, cp + dt);
     const cshake = cp < 0 ? Math.round(Math.sin(this.time.now / 25) * 1.5) : 0;
-    this.couponIcon.setPosition(7 + cshake, cp > 0.12 ? 17 : 19);
-    this.couponText.setX(21 + cshake).setTint(cp < 0 ? 0xe0453b : cp > 0 ? 0xfff1a8 : 0xf6c431);
+    this.couponIcon.setPosition(l.coupon.x + cshake, l.coupon.y - (cp > 0.12 ? 2 : 0));
+    this.couponText.setX(l.couponText.x + cshake).setTint(cp < 0 ? 0xe0453b : cp > 0 ? 0xfff1a8 : 0xf6c431);
     // Tickets: the counter jumps when one comes in or goes, and shakes red at a locked chest.
     this.ticketText.setText(String(p.tickets));
     const tp = this.ticketPop;
     this.ticketPop = tp > 0 ? Math.max(0, tp - dt) : Math.min(0, tp + dt);
     const shake = tp < 0 ? Math.round(Math.sin(this.time.now / 25) * 1.5) : 0;
-    this.ticketIcon.setPosition(44 + shake, tp > 0.15 ? 16 : 18);
-    this.ticketText.setX(56 + shake).setTint(tp < 0 ? 0xe0453b : tp > 0 ? 0xfff1a8 : 0xf4f1e8);
+    this.ticketIcon.setPosition(l.ticket.x + shake, l.ticket.y - (tp > 0.15 ? 2 : 0));
+    this.ticketText.setX(l.ticketText.x + shake).setTint(tp < 0 ? 0xe0453b : tp > 0 ? 0xfff1a8 : 0xf4f1e8);
     const ws = p.weapon;
     if (this.gunIcon.texture.key !== ws.def.look.sprite) this.gunIcon.setTexture(ws.def.look.sprite);
     if (this.gun.texture.key !== ws.def.look.sprite) this.gun.setTexture(ws.def.look.sprite);
@@ -2558,7 +2598,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.ammoPips.forEach((s, i) => s.setFrame(i < ws.ammo ? 0 : 1));
     // Above the second row of pips when the magazine is long.
-    this.ammoText.setY(VIEW_H - 26 - Math.floor((ws.def.magazine - 1) / 24) * 8);
+    this.ammoText.setY(l.ammoText.y);
     this.ammoText.setText(ws.reload > 0 ? fontText('Recargando') : `${ws.ammo}/${ws.def.magazine}`);
     this.ammoText.setTint(ws.reload > 0 || ws.ammo === 0 ? 0xe0453b : 0xf4f1e8);
     this.reloadBar.clear();
@@ -2572,7 +2612,7 @@ export class GameScene extends Phaser.Scene {
     }
     if (this.hintT > 0) {
       this.hintT -= dt;
-      if (this.hintT < 1) this.hint.setAlpha(Math.max(0, this.hintT));
+      if (this.hintT < 1) for (const h of this.hint) h.setAlpha(Math.max(0, this.hintT));
     }
     const pointer = this.input.activePointer;
     if (this.controls.mode === 'mouse') this.crosshair.setPosition(Math.round(pointer.x), Math.round(pointer.y));

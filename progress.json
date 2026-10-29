@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T12:35:00+01:00",
+  "actualizado": "2026-10-29T12:50:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 285,
-    "tests_ok": 285,
+    "tests": 288,
+    "tests_ok": 288,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 10515
+    "lineas_codigo": 10720
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T12:50:00+01:00",
+      "hito": "M6",
+      "resumen": "Segunda pasada a la interfaz limpia (otra sesión hizo la primera a la vez): todo el HUD se coloca con una disposición pura y probada (cientos de combinaciones sin que nada se pise), el nombre de la sala sube a su franja de arriba con la broca entre paréntesis en otro color, la ayuda de controles tiene placa y pasa a dos líneas si no cabe, y la ventana de descripción ya no tapa el título ni el mapa.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T12:35:00+01:00",
       "hito": "M6",
@@ -361,6 +367,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/hud.png",
+      "pie": "El HUD repasado: placas oscuras en cada esquina para que se lea sobre las estanterías, los objetos encima de la ayuda de controles y el nombre de la sala en su franja de arriba"
+    },
+    {
       "archivo": "capturas/inventario.png",
       "pie": "El inventario de la pausa: el Secador con la Resistencia y la Pila hace 2 de daño pero el cargador baja de 14 a 10 (en rojo); a la derecha, los objetos y lo que hace el elegido"
     },
@@ -379,13 +389,9 @@
     {
       "archivo": "capturas/sinergia.png",
       "pie": "Ventana de descripción de la Broca del Ocho (en rojo lo que quita, en verde lo que da) y encima la sinergia que enciende con el Manual en Chino: «¡Sinergia! Bricolaje Avanzado»"
-    },
-    {
-      "archivo": "capturas/ventana-arma.png",
-      "pie": "Ventana de la Grapadora Táctica: sus números (daño 1, 9 disparos/s, cargador 24, recarga 1,6 s, alcance 240) para comparar armas de un vistazo"
     }
   ],
-  "proximo": "M6: el parte de baja al morir (causa, vida útil, recomendación del fabricante; revisar el que ya existe) y la pantalla de victoria.",
+  "proximo": "M6: parte de baja al morir (repasar el que ya hay: causa, vida útil, recomendación del fabricante) y la pantalla de victoria.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -413,5 +419,6 @@
       "con_margen": 189
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
-  }
+  },
+  "en_curso": []
 }

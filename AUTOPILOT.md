@@ -10,6 +10,12 @@ contestar preguntas: decide tú, deja constancia por escrito y sigue. Antes de n
 2. Lee `progress.json`, las tres últimas entradas de `docs/BITACORA.md` y el hito actual en
    `docs/HOJA_DE_RUTA.md`.
 3. Lee `docs/NOTAS_DEL_HUMANO.md`. Las notas sin marcar `[atendida]` tienen prioridad.
+4. **¿Hay otra sesión trabajando?** Las sesiones largas (paso 7) pueden seguir vivas cuando
+   arranca la siguiente. Mira `progress.json → en_curso`: si hay una entrada de otra sesión con
+   menos de 90 minutos, esa tarea está cogida; elige otra que no toque los mismos archivos (o, si
+   no la hay, cierra sin cambios). Al elegir tu tarea (paso 3), apúntala en `en_curso`
+   (`{ "sesion", "tarea", "desde" }`), haz commit y push **antes de empezar a programar**, y
+   bórrala en el commit que la termina. Antes de cada tarea nueva, `git pull` otra vez.
 
 ## 2. Comprueba la salud del proyecto
 
