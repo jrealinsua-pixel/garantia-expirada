@@ -2,6 +2,14 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-29 19:45 — Hito M8 — Entornos (3b): doce salas de combate en la planta 2
+
+- Hecho: seis plantillas de combate más para Informática, con su idea y sus grupos: **Mesa de Portátiles de Exposición** (16 × 11, una isla que a veces tiene paso por el medio), **Escaparate de Televisores** (20 × 13, bloques al tresbolillo: nunca hay una recta larga), **Zona de Autoimpresión** (16 × 16, una impresora enorme a la que se da vueltas y que a veces saca bandejas), **Almacén de Cables** (20 × 16, un anillo con dos enemigos dentro; las entradas de arriba y abajo se cierran o no), **Punto de Recogida de Pedidos** (26 × 13, una fila de taquillas con huecos que pueden estar cerrados) y **Oficina Diáfana** (26 × 16, islas de dos monitores y poca cobertura). Con esto la planta 2 tiene 12 salas de combate propias, como la 1 tiene 14. El test de la planta 2 pide ahora al menos 12.
+- Decisiones: todas pasaron a la primera los tests de plantillas (puertas, conectividad con todos los grupos en pie, rendijas con los grupos quitados, huecos lejos de las puertas, bot 25 s). La sala propia del jefe de la planta 2 la dejo para la tarea del Router: su forma depende de cómo pelee.
+- Medidas: la planta 1 no cambia (bot: 200 partidas sin fallos). 343 tests en verde. Hoja de las seis salas pintadas revisada.
+- Problemas conocidos: la planta 2 aún no se alcanza jugando.
+- Siguiente paso: M8, encadenar plantas: bajar en el montacargas tras la jefa lleva a la planta 2.
+
 ## 2026-10-29 19:30 — Hito M8 — Entornos (3a): las primeras salas de la planta 2
 
 - Hecho: **seis plantillas de combate propias de Informática**, una de cada tamaño, con su idea y sus grupos: el **Mostrador de Telefonía** (16 × 11, un mostrador de lado a lado con trampilla), el **Pasillo de Periféricos** (20 × 13, estanterías paralelas que se vuelven corchetes y hacen embudo), el **Taller de Reparación Exprés** (16 × 16, mesas con monitores y biombos), la **Sala de Servidores Sin Refrigeración** (20 × 16, racks en columnas que hacen carriles verticales), el **Aula de Formación en Ofimática** (26 × 13, pupitres en dos filas; las sillas paran el paso, no las balas) y el **Centro de Llamadas** (26 × 16, cuatro cubículos con biombo). Las plantillas llevan `level: 2`; `templatesOf(kind, level)` da las de esa planta y, si no tiene de un tipo, las de la planta 1 (así la entrada, la tienda, el tesoro, la secreta y la jefa siguen siendo las del almacén). `createWorld({ floor: true, level: 2 })` arma la planta con ellas; el mapa de la planta no cambia con el piso. Tests: los de siempre de plantillas (puertas, conectividad, rendijas, huecos, bot 25 s) cubren ya las de la planta 2; nuevos: la planta 2 tiene al menos 6 de combate propias y las especiales caen en las de la planta 1; una planta 2 generada solo usa salas de combate suyas.

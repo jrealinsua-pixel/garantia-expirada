@@ -208,7 +208,7 @@ test('variantes: una sala reflejada sigue teniendo las puertas en su sitio y des
 
 test('plantillas de la planta 2: las de combate son suyas, con nombre propio; las especiales caen en las de la planta 1', () => {
   const two = templatesOf('combat', 2);
-  assert.ok(two.length >= 6, `${two.length} salas de combate en la planta 2`);
+  assert.ok(two.length >= 12, `${two.length} salas de combate en la planta 2`);
   for (const t of two) assert.equal(t.level, 2, t.id);
   for (const t of templatesOf('combat')) assert.equal(t.level ?? 1, 1, t.id);
   for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 2), templatesOf(k), k);

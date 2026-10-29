@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T19:30:00+01:00",
+  "actualizado": "2026-10-29T19:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,7 +63,7 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 5,
       "total": 5
     },
     {
@@ -122,14 +122,20 @@
     "jefes": 1,
     "armas": 3,
     "objetos": 13,
-    "plantillas_sala": 26,
+    "plantillas_sala": 32,
     "tests": 343,
     "tests_ok": 343,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 12929
+    "lineas_codigo": 13068
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T19:45:00+01:00",
+      "hito": "M8",
+      "resumen": "Entornos (3b): seis salas de combate más en la planta 2 (doce en total): portátiles de exposición, escaparate de televisores, autoimpresión, almacén de cables, recogida de pedidos y oficina diáfana.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T19:30:00+01:00",
       "hito": "M8",
@@ -523,7 +529,7 @@
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     }
   ],
-  "proximo": "M8: entornos (3b): seis salas de combate más para la planta 2.",
+  "proximo": "M8: encadenar plantas (bajar en el montacargas tras la jefa lleva a la planta 2 con la misma tostadora).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
