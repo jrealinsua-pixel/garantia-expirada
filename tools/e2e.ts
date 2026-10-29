@@ -512,6 +512,44 @@ try {
   const carried = await page.evaluate<number>('window.__GE__.scene.world.player.items.length');
   if (carried !== 5) throw new Error(`La tostadora lleva ${carried} objetos en vez de 5`);
   console.log(`Objetos: recogido ${item} en el tesoro; build de prueba con ${carried} objetos.`);
+
+  // M5: active items. Pick one up in the treasure room, then in the test room put everything on
+  // hold with the Música de Espera and wipe a pattern with the Encuesta (Q).
+  await page.goto(`${url}?semilla=e2e-objetos&sala=tesoro`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.pickups.find((p) => p.kind === 'activo');
+    w.player.x = k.x - 36; w.player.y = k.y + 2; })()`);
+  await page.waitForTimeout(400);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.active !== null', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(300);
+  await shot('21a-activo-recogido.png');
+  await page.goto(`${url}?semilla=e2e-activos&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; g.scene.world.noDamage = true; g.giveActive('espera'); })()`);
+  await page.waitForTimeout(300);
+  await page.keyboard.press('3');
+  await page.waitForTimeout(500);
+  await page.keyboard.press('q');
+  await page.waitForTimeout(400);
+  await shot('21b-musica-de-espera.png');
+  if (!(await page.evaluate<boolean>('window.__GE__.scene.world.holdT > 0'))) throw new Error('La Música de Espera no pone la sala en espera');
+  await page.waitForFunction('window.__GE__.scene.world.holdT === 0', undefined, { timeout: 6000 });
+  await page.evaluate(`window.__GE__.giveActive('encuesta')`);
+  await page.waitForTimeout(400);
+  await page.keyboard.press('2');
+  await page.waitForTimeout(450);
+  const before2 = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'enemy').length");
+  await page.keyboard.press('q');
+  await page.waitForTimeout(150);
+  await shot('21c-encuesta.png');
+  const after2 = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'enemy').length");
+  if (before2 === 0 || after2 > 0) throw new Error(`La Encuesta no borra las balas: ${before2} → ${after2}`);
+  await page.keyboard.press('q');
+  await page.waitForTimeout(200);
+  await shot('21d-sin-bateria.png');
+  console.log(`Activos: en espera y encuesta (${before2} balas borradas).`);
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

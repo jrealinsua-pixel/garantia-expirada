@@ -1,4 +1,4 @@
-import type { PassiveItemDef } from './types.ts';
+import type { ActiveItemDef, PassiveItemDef } from './types.ts';
 
 /**
  * Passive items of floor 1. Each one is just a modifier (src/sim/mods.ts): stat changes and
@@ -90,3 +90,37 @@ export const ITEMS: Record<string, PassiveItemDef> = {
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */
 export const FINDABLE_ITEMS: readonly string[] = Object.keys(ITEMS);
+
+/**
+ * Active items (Q). Each one needs a number of batteries (one per combat room cleared); the
+ * more it does, the more it needs.
+ */
+export const ACTIVE_ITEMS: Record<string, ActiveItemDef> = {
+  encuesta: {
+    id: 'encuesta',
+    name: 'Encuesta de Satisfacción',
+    description: 'Su opinión es muy importante para nosotros. Por eso nadie la lee.',
+    sprite: 'objeto-encuesta',
+    charges: 2,
+    effect: { type: 'clearFire' },
+  },
+  espera: {
+    id: 'espera',
+    name: 'Música de Espera',
+    description: 'Todos nuestros enemigos están ocupados. Su ataque será atendido en breve.',
+    sprite: 'objeto-espera',
+    charges: 3,
+    effect: { type: 'hold', seconds: 3.5 },
+  },
+  pegamento: {
+    id: 'pegamento',
+    name: 'Pegamento Exprés',
+    description: 'Pega cualquier cosa a cualquier cosa. Sobre todo los dedos.',
+    sprite: 'objeto-pegamento',
+    charges: 2,
+    effect: { type: 'heal', amount: 2 },
+  },
+};
+
+/** Active items a floor can hand out (seeded shuffle). */
+export const FINDABLE_ACTIVES: readonly string[] = Object.keys(ACTIVE_ITEMS);

@@ -4,13 +4,14 @@ import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
 import { SWAP_HINT, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { WEAPONS } from '../data/weapons.ts';
-import { ITEMS } from '../data/items.ts';
+import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
+import { ACTIVE_LINES, activeHint, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
 import { activeWarnings, addModifier, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
-import { giveItem, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { giveActive, giveItem, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -158,6 +159,13 @@ export class GameScene extends Phaser.Scene {
   private itemIcons: Phaser.GameObjects.Image[] = [];
   /** An item's description under the banner (which shows its name) when it is picked up. */
   private itemDesc!: Phaser.GameObjects.BitmapText;
+  /** The active item in its slot (top left), its battery marks, and a shake when Q finds it flat. */
+  private activeIcon!: Phaser.GameObjects.Image;
+  private activeMarks!: Phaser.GameObjects.Graphics;
+  private activeShake = 0;
+  private activeFlash = 0;
+  /** A cold blue-grey wash over the room while it is on hold. */
+  private holdWash!: Phaser.GameObjects.Rectangle;
   private couponText!: Phaser.GameObjects.BitmapText;
   private couponPop = 0;
   private banner!: Phaser.GameObjects.BitmapText;
@@ -319,6 +327,9 @@ export class GameScene extends Phaser.Scene {
     this.couponText = this.hud(this.add.bitmapText(21, 20, FONT, '0', 8));
     this.couponText.setTint(0xf6c431);
     this.hud(this.add.image(7, 31, 'ranura').setOrigin(0, 0)).setAlpha(0.85);
+    this.activeIcon = this.hud(this.add.image(9, 33, 'objeto-caja').setOrigin(0, 0)).setVisible(false);
+    this.activeMarks = this.hud(this.add.graphics());
+    this.holdWash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x9fb4e0, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(88000).setAlpha(0);
     this.hurtFlash = this.hud(this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xe0453b, 1).setOrigin(0, 0)).setAlpha(0).setDepth(89000);
     this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
     this.banner.setTint(0xf6c431).setAlpha(0);
@@ -361,13 +372,15 @@ export class GameScene extends Phaser.Scene {
 
     if (this.world.intro) this.startBossIntro(this.world.intro.boss);
     this.syncView(0);
-    (window as unknown as { __GE__: { state: () => GameStateForTests; scene: GameScene; addModifier: (m: Modifier) => void; giveItem: (id: string) => void } }).__GE__ = {
+    type TestHooks = { state: () => GameStateForTests; scene: GameScene; addModifier: (m: Modifier) => void; giveItem: (id: string) => void; giveActive: (id: string) => void };
+    (window as unknown as { __GE__: TestHooks }).__GE__ = {
       scene: this,
       state: () => this.testState(),
       // Tests (and curious humans in the console) can hand the toaster any modifier.
       addModifier: (m: Modifier) => addModifier(this.world, m),
       // ...or any passive item (src/data/items.ts).
       giveItem: (id: string) => giveItem(this.world, id),
+      giveActive: (id: string) => giveActive(this.world, id),
     };
   }
 
@@ -1201,9 +1214,10 @@ export class GameScene extends Phaser.Scene {
             }
             break;
           }
-          if (e.kind === 'objeto') {
-            // A passive item: a fanfare (a little higher than a weapon's), gold sparks, and its name and description up top.
-            const def = ITEMS[e.item ?? ''];
+          if (e.kind === 'objeto' || e.kind === 'activo') {
+            // An item: a fanfare (a little higher than a weapon's), gold sparks, and its name and description up top.
+            const act = e.kind === 'activo' ? ACTIVE_ITEMS[e.item ?? ''] : undefined;
+            const def = act ? { name: act.name, description: `${act.description}\n${activeHint(act.charges)}` } : ITEMS[e.item ?? ''];
             this.sound2.play('arma', { detune: 500 });
             for (let i = 0; i < 14; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 1);
             if (def) {
@@ -1229,6 +1243,33 @@ export class GameScene extends Phaser.Scene {
         }
         case 'doors':
           if (!e.shut) this.openShutters();
+          break;
+        case 'active': {
+          // The active item goes off: a zap, a ring of sparks round the toaster and a line over it.
+          this.sound2.play('activar');
+          for (let i = 0; i < 16; i++) this.spark(e.x, e.y - 10, (i / 16) * Math.PI * 2, 90, 1);
+          this.floatText(e.x, e.y - 30, fontText(ACTIVE_LINES[e.effect] ?? ''), 0x69dbd8);
+          this.activeFlash = 0.4;
+          if (e.effect === 'hold') this.sound2.play('espera');
+          if (e.effect === 'heal') {
+            this.sound2.play('curar');
+            this.heartHit = Math.floor((this.world.player.hp - 1) / 2);
+            this.heartHitT = 0.5;
+          }
+          this.cameras.main.shake(120, 0.004);
+          break;
+        }
+        case 'activeEmpty':
+          this.sound2.play('sinCarga');
+          this.activeShake = 0.3;
+          if (e.item) this.floatText(this.world.player.x, this.world.player.y - 30, fontText(NO_CHARGE_LINE), 0x858ea8);
+          break;
+        case 'battery':
+          this.sound2.play('pila', { detune: e.charge * 200 });
+          this.activeFlash = e.charge >= e.needs ? 0.6 : 0.25;
+          break;
+        case 'holdEnd':
+          this.sound2.play('reponer', { detune: 400 });
           break;
         case 'restock':
           this.sound2.play('reponer');
@@ -1771,7 +1812,7 @@ export class GameScene extends Phaser.Scene {
       if (!v) {
         const heart = k.kind === 'corazon';
         const arm = k.kind === 'arma' ? WEAPONS[k.weapon ?? ''] : undefined;
-        const item = k.kind === 'objeto' ? ITEMS[k.item ?? ''] : undefined;
+        const item = k.kind === 'objeto' ? ITEMS[k.item ?? ''] : k.kind === 'activo' ? ACTIVE_ITEMS[k.item ?? ''] : undefined;
         const shown = arm ? { sprite: arm.look.sprite, name: arm.name } : item ? { sprite: item.sprite, name: item.name } : null;
         if (shown) {
           v = {
@@ -1782,7 +1823,7 @@ export class GameScene extends Phaser.Scene {
         } else v = { s: this.add.image(k.x, k.y, heart ? 'corazon-suelo' : 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
         this.pickupSprites.set(k.id, v);
       }
-      if (k.kind === 'arma' || k.kind === 'objeto') {
+      if (k.kind === 'arma' || k.kind === 'objeto' || k.kind === 'activo') {
         // A weapon (or an item) floats over its spot, turning a little and glinting; its name shows up close.
         const t = this.time.now / 1000 + k.id;
         const glintW = Math.floor(this.time.now / 80 + k.id * 5) % 24 === 0;
@@ -1792,7 +1833,7 @@ export class GameScene extends Phaser.Scene {
         v.shadow.setPosition(Math.round(k.x), Math.round(k.y)).setScale(1 - Math.sin(t * 2.4) * 0.12, 1);
         const p = this.world.player;
         const near = Math.hypot(p.x - k.x, p.y - k.y) < 56;
-        v.label?.setPosition(Math.round(k.x), Math.round(k.y - (k.kind === 'objeto' ? 26 : 22) - Math.sin(t * 2.4) * 2)).setAlpha(near ? 1 : 0);
+        v.label?.setPosition(Math.round(k.x), Math.round(k.y - (k.kind === 'arma' ? 22 : 26) - Math.sin(t * 2.4) * 2)).setAlpha(near ? 1 : 0);
         continue;
       }
       const hop = k.age < PICKUP_DELAY ? Math.sin((Math.PI * k.age) / PICKUP_DELAY) * 12 : Math.max(0, Math.sin(this.time.now / 260 + k.id)) * 1.5;
@@ -2017,6 +2058,39 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * The active item's slot: its sprite (dim until charged), one mark per battery it needs to
+   * the right (lit as they fill), a shake when Q finds it flat and a flash when it fills or goes off.
+   */
+  private updateActiveSlot(dt: number): void {
+    const a = this.world.player.active;
+    const def = a ? ACTIVE_ITEMS[a.id] : undefined;
+    const g = this.activeMarks;
+    g.clear();
+    this.activeShake = Math.max(0, this.activeShake - dt);
+    this.activeFlash = Math.max(0, this.activeFlash - dt);
+    this.holdWash.setAlpha(this.world.holdT > 0 ? 0.16 + Math.sin(this.time.now / 120) * 0.03 : 0);
+    if (!a || !def || !this.gunIcon.visible) {
+      this.activeIcon.setVisible(false);
+      return;
+    }
+    const ready = a.charge >= def.charges;
+    const shake = this.activeShake > 0 ? Math.round(Math.sin(this.activeShake * 60) * 2) : 0;
+    if (this.activeIcon.texture.key !== def.sprite) this.activeIcon.setTexture(def.sprite);
+    this.activeIcon.setVisible(true).setX(9 + shake).setAlpha(ready ? 1 : 0.55);
+    if (this.activeFlash > 0 && Math.floor(this.activeFlash * 20) % 2 === 0) this.activeIcon.setTintFill(0xffffff);
+    else this.activeIcon.clearTint();
+    // Battery marks: a column of segments right of the slot, filling from the bottom.
+    const h = Math.max(2, Math.floor(16 / def.charges) - 1);
+    for (let i = 0; i < def.charges; i++) {
+      const y = 49 - (i + 1) * (h + 1) + 1;
+      g.fillStyle(0x0e0c16, 1).fillRect(28, y - 1, 5, h + 2);
+      g.fillStyle(i < a.charge ? (ready ? 0x58b45a : 0xf6c431) : 0x3a3f5c, 1).fillRect(29, y, 3, h);
+    }
+    // Ready: a small «Q» blinks under the slot.
+    if (ready && Math.floor(this.time.now / 400) % 2 === 0) g.fillStyle(0x58b45a, 1).fillRect(12, 52, 10, 1);
+  }
+
   private updateHud(dt: number): void {
     const p = this.world.player;
     this.syncHudSlots();
@@ -2032,6 +2106,7 @@ export class GameScene extends Phaser.Scene {
       else h.clearTint();
     });
     this.hurtFlash.setAlpha(Math.max(0, this.hurtFlash.alpha - dt * 1.6));
+    this.updateActiveSlot(dt);
     this.couponText.setText(String(p.coupons));
     this.couponPop = Math.max(0, this.couponPop - dt);
     this.couponIcon.setY(this.couponPop > 0.12 ? 17 : 19);

@@ -18,6 +18,8 @@ export class Controls {
   private prevPadRoll = false;
   private prevPadSwap = false;
   private swapQueued = 0;
+  private useQueued = false;
+  private prevPadUse = false;
   private lastWheel = -1e9;
   private lastStickAim = { x: 1, y: 0 };
   /** 'mouse' or 'pad': whichever was used last decides the aim and the crosshair. */
@@ -36,6 +38,8 @@ export class Controls {
     kb.on('keydown-SPACE', () => (this.rollQueued = true));
     // Change weapon: E (next), the mouse wheel (one notch, one weapon; a fast spin counts once).
     kb.on('keydown-E', () => (this.swapQueued = 1));
+    // Use the active item: Q.
+    kb.on('keydown-Q', () => (this.useQueued = true));
     scene.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
       const now = scene.time.now;
       if (dy === 0 || now - this.lastWheel < 140) return;
@@ -78,6 +82,8 @@ export class Controls {
     this.rollQueued = false;
     let swap = this.swapQueued;
     this.swapQueued = 0;
+    let use = this.useQueued;
+    this.useQueued = false;
 
     const pad = this.pad();
     if (pad) {
@@ -108,6 +114,10 @@ export class Controls {
       const padSwap = btn(3);
       if (padSwap && !this.prevPadSwap) swap = 1;
       this.prevPadSwap = padSwap;
+      // B: active item.
+      const padUse = btn(1);
+      if (padUse && !this.prevPadUse) use = true;
+      this.prevPadUse = padUse;
       if (this.mode === 'pad') {
         aimX = src.bodyX + this.lastStickAim.x * 60;
         aimY = src.bodyY + this.lastStickAim.y * 60;
@@ -115,6 +125,7 @@ export class Controls {
     }
     const input: Input = { moveX: mx, moveY: my, aimX, aimY, fire, roll, reload };
     if (swap) input.swap = swap;
+    if (use) input.useItem = true;
     if (this.patternQueued) {
       input.debugPattern = this.patternQueued;
       this.patternQueued = undefined;
@@ -122,6 +133,7 @@ export class Controls {
     if (this.override) Object.assign(input, this.override);
     if (this.override?.roll) this.override.roll = false;
     if (this.override?.swap) this.override.swap = 0;
+    if (this.override?.useItem) this.override.useItem = false;
     return input;
   }
 }

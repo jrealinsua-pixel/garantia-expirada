@@ -2,7 +2,7 @@
 import { CHARACTERS } from '../data/characters.ts';
 import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
-import { FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
+import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
 import { moddedCharacter, moddedWeapon } from './mods.ts';
@@ -38,6 +38,8 @@ export interface Input {
   reload: boolean;
   /** Change weapon on this tick: +1 the next one, -1 the previous one (wheel or button). */
   swap?: number;
+  /** Use the active item on this tick (Q or a pad button). */
+  useItem?: boolean;
   /** Test room only: name of a pattern (src/data/patterns.ts) the first dummy fires at the player. */
   debugPattern?: string;
 }
@@ -84,13 +86,15 @@ export interface Player {
   coupons: number;
   /** Ids of the passive items it carries (src/data/items.ts), in the order they were picked up. */
   items: string[];
+  /** The active item it carries (one at most) and the batteries it has stored. */
+  active: { id: string; charge: number } | null;
 }
 
 /**
  * A discount coupon (currency), a spare heart (gives back `value` life; left alone at full
  * life), a weapon or a passive item (these two wait on a pedestal).
  */
-export type PickupKind = 'cupon' | 'corazon' | 'arma' | 'objeto';
+export type PickupKind = 'cupon' | 'corazon' | 'arma' | 'objeto' | 'activo';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -105,8 +109,12 @@ export interface Pickup {
   age: number;
   /** A weapon lying on the floor (kind 'arma'): its id in src/data/weapons.ts. */
   weapon?: string;
-  /** A passive item on its pedestal (kind 'objeto'): its id in src/data/items.ts. */
+  /** A passive or active item on its pedestal (kind 'objeto' or 'activo'): its id in src/data/items.ts. */
   item?: string;
+  /** An active item's stored batteries (one put down keeps them). */
+  charge?: number;
+  /** Put down just now under the toaster: it cannot be picked up until the toaster has stepped off it. */
+  stepOff?: boolean;
 }
 
 /** Seconds after changing weapon before the new one fires (it is being drawn). */
@@ -340,6 +348,14 @@ export type SimEvent =
   /** The toaster stepped on the lift: the floor is done (see World.won). */
   | { type: 'floorDone'; x: number; y: number; seconds: number; kills: number; coupons: number }
   | { type: 'restock' }
+  /** The active item was used (`effect` is its effect's type). */
+  | { type: 'active'; item: string; effect: string; x: number; y: number }
+  /** Q with an active item that cannot be used now (not charged, or nothing to heal). */
+  | { type: 'activeEmpty'; item: string | null; charge: number; needs: number }
+  /** A battery went into the active item (a combat room was cleared): `charge` of `needs`. */
+  | { type: 'battery'; item: string; charge: number; needs: number }
+  /** A hold (Música de Espera) ended: enemies and their bullets move again. */
+  | { type: 'holdEnd' }
   /** The shutters of the room come down (shut) or roll up. */
   | { type: 'doors'; shut: boolean }
   /** The player walked through a door into floor room `id` (coming in through its `via` wall). */
@@ -394,6 +410,8 @@ export interface World {
   lift: Lift | null;
   /** The toaster took the lift: the floor is done and the world stands still. */
   won: boolean;
+  /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
+  holdT: number;
 }
 
 export interface Lift {
@@ -448,6 +466,8 @@ export interface FloorRun {
   weapons: string[];
   /** Passive items still to be found on this floor, next one first (a seeded shuffle of FINDABLE_ITEMS). */
   items: string[];
+  /** Active items still to be found on this floor (a seeded shuffle of FINDABLE_ACTIVES). */
+  actives: string[];
 }
 
 /** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
@@ -519,6 +539,7 @@ export function createWorld(opts: WorldOptions): World {
       walked: 0,
       coupons: 0,
       items: [],
+      active: null,
     },
     bullets: [],
     dummies,
@@ -539,6 +560,7 @@ export function createWorld(opts: WorldOptions): World {
     intro: null,
     lift: null,
     won: false,
+    holdT: 0,
   };
   w.player.arsenal.push(w.player.weapon);
   if (floor) {
@@ -548,10 +570,10 @@ export function createWorld(opts: WorldOptions): World {
   }
   // The test room lays out every findable weapon on its pedestals, to try them all; a treasure
   // (or secret) room played on its own stocks its pedestals as on a floor.
-  if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], []);
+  if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], [], []);
   else if (room.kind === 'treasure' || room.kind === 'secret') {
     const decks = lootDecks(opts.seed);
-    stockPedestals(w, decks.weapons, decks.items);
+    stockPedestals(w, decks.weapons, decks.items, decks.actives);
   }
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   // Walking into a combat room brings its shutters down until the last enemy falls.
@@ -586,8 +608,12 @@ function planFloor(seed: string): FloorRun {
 }
 
 /** The weapons and passive items a floor hands out, each in its own seeded order. */
-function lootDecks(seed: string): { weapons: string[]; items: string[] } {
-  return { weapons: new Rng(`armas:${seed}`).shuffle([...FINDABLE_WEAPONS]), items: new Rng(`objetos:${seed}`).shuffle([...FINDABLE_ITEMS]) };
+function lootDecks(seed: string): { weapons: string[]; items: string[]; actives: string[] } {
+  return {
+    weapons: new Rng(`armas:${seed}`).shuffle([...FINDABLE_WEAPONS]),
+    items: new Rng(`objetos:${seed}`).shuffle([...FINDABLE_ITEMS]),
+    actives: new Rng(`activos:${seed}`).shuffle([...FINDABLE_ACTIVES]),
+  };
 }
 
 /** The built room of floor room `id` (built on first use), with openings for its normal doors. */
@@ -666,7 +692,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   if (w.enemies.length === 0) st.cleared = true;
   // Until there are chests, the treasure room (and the secret one) keep a weapon and items on their pedestals.
   const kind = f.layout.rooms[id]!.kind;
-  if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons, f.items);
+  if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons, f.items, f.actives);
   w.doorsShut = !st.cleared;
   setDoorTiles(w, !w.doorsShut);
   w.events.push({ type: 'room', id, via });
@@ -676,20 +702,65 @@ export function enterRoom(w: World, id: number, via: Dir): void {
 
 /**
  * Fills the room's pedestals from the decks (taking what it puts out of them): the first one
- * gets the next weapon, the others the next passive items; when one deck runs out the other
- * fills in.
+ * gets the next weapon, the second the next passive item, the third the next active item, and
+ * so on round; when a deck runs out the next one fills in.
  */
-function stockPedestals(w: World, weapons: string[], items: string[]): void {
-  let first = true;
+function stockPedestals(w: World, weapons: string[], items: string[], actives: string[]): void {
+  const decks = [weapons, items, actives];
+  let n = 0;
   for (const s of w.room.slots) {
     if (s.kind !== 'item') continue;
     const at = { x: s.x, y: s.y, vx: 0, vy: 0, age: PICKUP_DELAY, value: 1 };
-    const weapon = (first || items.length === 0) && weapons.length > 0;
-    first = false;
-    if (weapon) w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: weapons.shift()!, ...at });
-    else if (items.length > 0) w.pickups.push({ id: w.nextId++, kind: 'objeto', item: items.shift()!, ...at });
-    else return;
+    let d = -1;
+    for (let k = 0; k < 3 && d < 0; k++) if (decks[(n + k) % 3]!.length > 0) d = (n + k) % 3;
+    n++;
+    if (d < 0) return;
+    const id = decks[d]!.shift()!;
+    if (d === 0) w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: id, ...at });
+    else if (d === 1) w.pickups.push({ id: w.nextId++, kind: 'objeto', item: id, ...at });
+    else w.pickups.push({ id: w.nextId++, kind: 'activo', item: id, charge: ACTIVE_ITEMS[id]!.charges, ...at });
   }
+}
+
+/**
+ * The player picks up active item `id` with `charge` batteries (a new one comes full). The one
+ * it carried is put down where it stands, keeping its batteries.
+ */
+export function giveActive(w: World, id: string, charge?: number): void {
+  const def = ACTIVE_ITEMS[id];
+  if (!def) throw new Error(`Unknown active item ${id}`);
+  const p = w.player;
+  const old = p.active;
+  if (old) w.pickups.push({ id: w.nextId++, kind: 'activo', item: old.id, charge: old.charge, value: 1, x: p.x, y: p.y, vx: 0, vy: 0, age: PICKUP_DELAY, stepOff: true });
+  p.active = { id, charge: Math.min(def.charges, charge ?? def.charges) };
+}
+
+/** Uses the active item if it is charged (and has something to do): its effect, and the batteries are spent. */
+export function useActive(w: World): boolean {
+  const p = w.player;
+  const a = p.active;
+  const def = a ? ACTIVE_ITEMS[a.id] : undefined;
+  const effect = def?.effect;
+  const pointless = effect?.type === 'heal' && p.hp >= p.def.maxHp;
+  if (!a || !def || !effect || w.over || a.charge < def.charges || pointless) {
+    w.events.push({ type: 'activeEmpty', item: a?.id ?? null, charge: a?.charge ?? 0, needs: def?.charges ?? 0 });
+    return false;
+  }
+  a.charge = 0;
+  if (effect.type === 'clearFire') clearEnemyFire(w);
+  else if (effect.type === 'hold') w.holdT = Math.max(w.holdT, effect.seconds);
+  else p.hp = Math.min(p.def.maxHp, p.hp + effect.amount);
+  w.events.push({ type: 'active', item: a.id, effect: effect.type, x: p.x, y: p.y });
+  return true;
+}
+
+/** One battery into the active item (a combat room has been cleared). */
+function chargeActive(w: World): void {
+  const a = w.player.active;
+  const def = a ? ACTIVE_ITEMS[a.id] : undefined;
+  if (!a || !def || a.charge >= def.charges) return;
+  a.charge++;
+  w.events.push({ type: 'battery', item: a.id, charge: a.charge, needs: def.charges });
 }
 
 /** The player picks up passive item `id`: it carries it (and its modifier) for the rest of the run. */
@@ -1072,10 +1143,15 @@ function updateWeapon(w: World, input: Input): void {
   }
 }
 
-function updateBullets(w: World): void {
+function updateBullets(w: World, held = false): void {
   const keep: Bullet[] = [];
   for (const b of w.bullets) {
     if (b.cut) continue;
+    // On hold, enemy bullets hang in the air (and hurt nobody) until the music stops.
+    if (held && b.owner === 'enemy') {
+      keep.push(b);
+      continue;
+    }
     b.life -= DT;
     if (b.life <= 0) {
       w.events.push({ type: 'bulletFade', x: b.x, y: b.y });
@@ -1596,6 +1672,18 @@ function updatePickups(w: World): void {
       keep.push(k);
       continue;
     }
+    if (k.kind === 'activo') {
+      // And an active item, which swaps places with the one carried (that one waits until the toaster steps off it).
+      if (k.stepOff && d >= WEAPON_GRAB + 4) delete k.stepOff;
+      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.item && !k.stepOff) {
+        // (The one it was carrying is pushed onto w.pickups and visited later in this loop.)
+        giveActive(w, k.item, k.charge);
+        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.active?.charge ?? 0, item: k.item });
+        continue;
+      }
+      keep.push(k);
+      continue;
+    }
     const wanted = k.kind !== 'corazon' || p.hp < p.def.maxHp;
     if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
       if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);
@@ -1657,6 +1745,8 @@ function updateRestock(w: World): void {
     w.emptyT = 0;
     spawnRoomEnemies(w);
     w.events.push({ type: 'restock' });
+    // Emptying the test room counts as clearing a room.
+    chargeActive(w);
   }
 }
 
@@ -1665,6 +1755,7 @@ function updateDoors(w: World): void {
   if (w.doorsShut && fights(w.room) && w.enemies.length === 0) {
     w.doorsShut = false;
     w.events.push({ type: 'doors', shut: false });
+    chargeActive(w);
     if (w.floor) w.floor.rooms[w.floor.current]!.cleared = true;
     setDoorTiles(w, true);
   }
@@ -1684,6 +1775,13 @@ export function step(w: World, input: Input): void {
   }
   // Once down, the toaster lies there: the room goes on without it.
   updatePlayer(w, w.over ? { ...NO_INPUT, aimX: w.player.x + Math.cos(w.player.aim), aimY: w.player.y - HAND_HEIGHT + Math.sin(w.player.aim) } : input);
+  if (input.useItem && !w.over) useActive(w);
+  // On hold (Música de Espera) enemies, their bullets and their attacks stand still.
+  const held = w.holdT > 0;
+  if (held) {
+    w.holdT = Math.max(0, w.holdT - DT);
+    if (w.holdT === 0) w.events.push({ type: 'holdEnd' });
+  }
   if (input.debugPattern && !w.over) {
     const def = PATTERNS[input.debugPattern];
     const d = w.dummies[0];
@@ -1692,12 +1790,12 @@ export function step(w: World, input: Input): void {
       firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x), { telegraph: ENEMY_TELEGRAPH, source: d.id, by: 'maniqui', height: 20 });
     }
   }
-  updateEmitters(w);
-  updateBullets(w);
-  updateFrost(w);
+  if (!held) updateEmitters(w);
+  updateBullets(w, held);
+  if (!held) updateFrost(w);
   reapEnemies(w);
   updateDummies(w);
-  updateEnemies(w);
+  if (!held) updateEnemies(w);
   updatePickups(w);
   updateRestock(w);
   updateDoors(w);

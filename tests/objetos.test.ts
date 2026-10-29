@@ -112,7 +112,7 @@ test('un objeto se coge andando por encima (rodando no) y se lleva el resto de l
   assert.ok(!w3.pickups.includes(k3));
 });
 
-test('la sala del tesoro tiene un arma y un objeto; la secreta, otro; cada planta en su orden', () => {
+test('la sala del tesoro tiene un arma, un objeto y un activo; la secreta, otro; cada planta en su orden', () => {
   const seen = new Set<string>();
   const firsts = new Set<string>();
   for (let s = 0; s < 12; s++) {
@@ -122,7 +122,7 @@ test('la sala del tesoro tiene un arma y un objeto; la secreta, otro; cada plant
     const secret = f.layout.rooms.find((r) => r.kind === 'secret');
     enterRoom(w, treasure.id, 'S');
     const kinds = w.pickups.map((k) => k.kind).sort();
-    assert.deepEqual(kinds, ['arma', 'objeto'], `semilla ${s}: ${kinds}`);
+    assert.deepEqual(kinds, ['activo', 'arma', 'objeto'], `semilla ${s}: ${kinds}`);
     const it = w.pickups.find((k) => k.kind === 'objeto')!.item!;
     firsts.add(it);
     seen.add(it);
@@ -136,7 +136,7 @@ test('la sala del tesoro tiene un arma y un objeto; la secreta, otro; cada plant
     }
     // Stocked once: walking back in does not refill it.
     enterRoom(w, treasure.id, 'S');
-    assert.equal(w.pickups.length, 2);
+    assert.equal(w.pickups.length, 3);
   }
   assert.ok(firsts.size >= 5, `el tesoro reparte siempre lo mismo: ${[...firsts]}`);
   assert.ok(seen.size >= 6);

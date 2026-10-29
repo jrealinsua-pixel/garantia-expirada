@@ -1,6 +1,7 @@
 // A simple bot player that drives the simulation through the same Input as a human.
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
+import { ACTIVE_ITEMS } from '../data/items.ts';
 import { FROST_FLAT, HAND_HEIGHT, isRolling, PLAYER_HURT_Y, type Input, type World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
@@ -185,6 +186,19 @@ export class Bot {
     return steer(w, doorGoal(door), r, blocked);
   }
 
+  /**
+   * Whether to use the active item now (only when charged): the glue when hurt, the survey or
+   * the hold music when the air is thick with enemy bullets near it.
+   */
+  private wantsActive(w: World): boolean {
+    const p = w.player;
+    if (!p.active || w.tick % 10 !== 0 || p.active.charge < (ACTIVE_ITEMS[p.active.id]?.charges ?? Infinity)) return false;
+    if (p.active.id === 'pegamento') return p.hp <= p.def.maxHp - 2;
+    let near = 0;
+    for (const b of w.bullets) if (b.owner === 'enemy' && Math.hypot(b.x - p.x, b.y - p.y) < 90) near++;
+    return near >= 6;
+  }
+
   private wander: Point | null = null;
   private retargetSet = 0;
 
@@ -268,11 +282,13 @@ export class Bot {
         this.swapIn = 20;
       }
     }
+    const useItem = this.wantsActive(w);
     if (dg?.roll) {
       // The roll goes where the stick points.
-      return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false, swap };
+      return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false, swap, useItem };
     }
     return {
+      useItem,
       moveX: tx / l,
       moveY: ty / l,
       aimX,

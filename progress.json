@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T08:39:00+01:00",
+  "actualizado": "2026-10-29T09:05:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -42,7 +42,7 @@
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 7
     },
     {
@@ -100,15 +100,21 @@
     "enemigos": 6,
     "jefes": 1,
     "armas": 3,
-    "objetos": 10,
+    "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 239,
-    "tests_ok": 239,
+    "tests": 251,
+    "tests_ok": 251,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 8618
+    "lineas_codigo": 8883
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T09:05:00+01:00",
+      "hito": "M5",
+      "resumen": "Tres objetos activos que se usan con Q (o B en el mando) y se cargan con pilas, una por sala de combate limpia: la Encuesta de Satisfacción (2 pilas) borra todas las balas enemigas, la Música de Espera (3 pilas) deja a los enemigos y sus balas en espera 3,5 s mientras tú sigues disparando, y el Pegamento Exprés (2 pilas) devuelve un corazón. Se lleva uno en la ranura de arriba a la izquierda, con sus pilas al lado; al coger otro, el viejo se queda en el suelo. La sala del tesoro tiene ahora arma, objeto y activo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T08:39:00+01:00",
       "hito": "M5",
@@ -280,6 +286,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/musica-de-espera.png",
+      "pie": "La Música de Espera en la Sala de Pruebas: la sala se enfría, las balas se quedan colgadas en el aire y sobre la tostadora sale «Su ataque es muy importante para nosotros.»"
+    },
+    {
+      "archivo": "capturas/activo-recogido.png",
+      "pie": "El Pegamento Exprés recién recogido: ya está en la ranura de arriba a la izquierda con sus dos pilas, y debajo de su nombre «Q: usar · necesita 2 pilas (una por sala limpia)»"
+    },
+    {
       "archivo": "capturas/objeto-recogido.png",
       "pie": "La Pila Casi Agotada recién recogida en Objetos Perdidos: su nombre y «Dura lo que un contrato temporal. Después, nada.»; la Grapadora espera en el otro pedestal y la pila ya sale abajo a la izquierda"
     },
@@ -292,18 +306,10 @@
       "pie": "La Grapadora Táctica recién recogida en la Sala de Pruebas: su nombre sobre la munición, el aviso «E o rueda del ratón: cambiar de arma» y la Plancha de Vapor esperando en su pedestal"
     },
     {
-      "archivo": "capturas/grapadora.png",
-      "pie": "La Grapadora Táctica en acción: ráfaga de grapas al rojo, cargador de 24"
-    },
-    {
       "archivo": "capturas/planta-superada.png",
       "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
-    },
-    {
-      "archivo": "capturas/nevera-liquidada.png",
-      "pie": "Fin de la Nevera Suprema: se desmonta en piezas y cupones, y le cae el sello «Liquidación total» · «La Dirección ha cesado su actividad»"
     }
   ],
-  "proximo": "M5 · Los 3 objetos activos (Q) con pilas como cargas; luego sinergias, cofres y tienda, y la ventana de descripción.",
+  "proximo": "M5 · Al menos 4 sinergias con texto propio (Pila + Secador = «Sobrecarga»…); luego cofres y tienda, y la ventana de descripción.",
   "bloqueos": []
 }

@@ -151,4 +151,10 @@ export const SFX: Record<string, SfxParams> = {
   // A spare heart picked up: two quick rising notes.
   curar: { wave: 'square', freq: 660, freqEnd: 1320, attack: 0.005, sustain: 0.08, decay: 0.18, volume: 0.14, duty: 0.4, vibrato: 0.04, vibratoSpeed: 12 },
   tarjeta: { wave: 'square', freq: 1800, freqEnd: 2600, attack: 0.001, sustain: 0.015, decay: 0.05, volume: 0.12, duty: 0.25 },
+  // Active items: using one (a rising zap), one without batteries (a flat buzz), a battery in (a blip)
+  // and the hold music (a wobbly, cheap tone).
+  activar: { wave: 'square', freq: 300, freqEnd: 1500, attack: 0.002, sustain: 0.12, decay: 0.2, volume: 0.15, duty: 0.4, vibrato: 0.06, vibratoSpeed: 20 },
+  sinCarga: { wave: 'square', freq: 110, freqEnd: 100, attack: 0.002, sustain: 0.1, decay: 0.05, volume: 0.13, duty: 0.5, crush: 3 },
+  pila: { wave: 'square', freq: 900, freqEnd: 1400, attack: 0.001, sustain: 0.03, decay: 0.08, volume: 0.12, duty: 0.3 },
+  espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
 };

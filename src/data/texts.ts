@@ -172,3 +172,14 @@ export const WEAPON_FOUND_LINES: readonly string[] = [
   'Producto de exposición',
   'Devuelto sin usar (casi)',
 ];
+
+/** Active items: a line under its description when one is picked up (`n` batteries it needs). */
+export const activeHint = (n: number): string => `Q: usar · necesita ${n} pila${n === 1 ? '' : 's'} (una por sala limpia)`;
+/** Over the toaster when an active item is used, by effect. */
+export const ACTIVE_LINES: Record<string, string> = {
+  clearFire: 'Encuesta enviada. Gracias por su tiempo.',
+  hold: 'Su ataque es muy importante para nosotros.',
+  heal: 'Reparado. Sin garantía.',
+};
+/** Q without enough batteries. */
+export const NO_CHARGE_LINE = 'Sin batería';

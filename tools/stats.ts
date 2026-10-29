@@ -79,7 +79,7 @@ progress.metricas = {
   enemigos: Object.values(content.ENEMIES).filter((d) => !d.boss).length,
   jefes: Object.keys(content.BOSSES).length,
   armas: Object.keys(WEAPONS).length,
-  objetos: Object.keys(content.ITEMS).length,
+  objetos: Object.keys(content.ITEMS).length + Object.keys(content.ACTIVE_ITEMS).length,
   plantillas_sala: Object.keys(ROOMS).length,
   tests: t.tests,
   tests_ok: t.ok,

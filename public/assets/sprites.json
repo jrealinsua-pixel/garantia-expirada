@@ -328,5 +328,23 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-encuesta": {
+    "file": "objeto-encuesta.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-espera": {
+    "file": "objeto-espera.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-pegamento": {
+    "file": "objeto-pegamento.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

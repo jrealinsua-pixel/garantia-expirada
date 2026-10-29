@@ -104,6 +104,29 @@ export interface PassiveItemDef {
   mod: Modifier;
 }
 
+/** What using an active item does (src/sim/world.ts useActive). */
+export type ActiveEffect =
+  /** Every enemy bullet (and whatever is in the air) vanishes. */
+  | { type: 'clearFire' }
+  /** Enemies, their bullets and their attacks stand still for `seconds` (they still take damage). */
+  | { type: 'hold'; seconds: number }
+  /** Gives back `amount` life (not usable at full life). */
+  | { type: 'heal'; amount: number };
+
+/**
+ * An active item: the toaster carries one at a time and uses it with Q once it has `charges`
+ * batteries (one per combat room cleared). Picking up another one leaves the old one on the floor.
+ */
+export interface ActiveItemDef {
+  id: string;
+  name: string;
+  description: string;
+  sprite: string;
+  /** Batteries it needs to be used (and the most it holds). */
+  charges: number;
+  effect: ActiveEffect;
+}
+
 export interface CharacterDef {
   id: string;
   name: string;

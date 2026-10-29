@@ -140,9 +140,18 @@ Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quit
 | Cinta Americana | Lo arregla todo durante una semana. | Recarga ×0,6 |
 | Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,7, más retroceso |
 
-Hasta que haya cofres y tienda, la sala del tesoro tiene dos pedestales (un arma y un objeto) y
-la secreta uno (el arma que quede o un objeto). El Ticket de Compra y la Caja quedan para las
-llaves y los cofres.
+Objetos activos (tecla Q o botón B del mando). Se lleva uno; al coger otro, el viejo se queda en
+el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando está lleno:
+
+| Objeto | Descripción | Pilas | Efecto |
+| --- | --- | --- | --- |
+| Encuesta de Satisfacción | Su opinión es muy importante para nosotros. Por eso nadie la lee. | 2 | Borra todas las balas enemigas |
+| Música de Espera | Todos nuestros enemigos están ocupados. Su ataque será atendido en breve. | 3 | Enemigos, balas y ataques en espera 3,5 s (siguen recibiendo daño) |
+| Pegamento Exprés | Pega cualquier cosa a cualquier cosa. Sobre todo los dedos. | 2 | Devuelve un corazón (con la vida llena no se gasta) |
+
+Hasta que haya cofres y tienda, la sala del tesoro tiene tres pedestales (un arma, un objeto
+pasivo y uno activo) y la secreta uno (lo siguiente que quede). El Ticket de Compra y la Caja
+quedan para las llaves y los cofres.
 - **Sinergias:** ciertas combinaciones activan un efecto extra y un texto especial (ej.:
   Pila Casi Agotada + Secador = «Sobrecarga: el secador dispara llamas un momento y luego se
   apaga»).
