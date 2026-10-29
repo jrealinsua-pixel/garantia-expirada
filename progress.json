@@ -598,11 +598,6 @@
   },
   "en_curso": [
     {
-      "sesion": "2026-10-29 21:25 UTC",
-      "tarea": "M8: jefe (1): diseño del Router del Wifi en docs/DISENO.md y salas especiales propias de Informática (tesoro, tienda, secreta y sala del jefe) en src/data/rooms.ts. No toca los archivos de enemigos",
-      "desde": "2026-10-29T21:27Z"
-    },
-    {
       "sesion": "2026-10-29 20:25 UTC",
       "tarea": "M8: enemigos (3): el Ratón Inalámbrico sin Pilas (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts, src/sim/world.ts avisos, tools/sprites/enemies.ts, SLOT_ENEMIES_2)",
       "desde": "2026-10-29T21:45Z"
