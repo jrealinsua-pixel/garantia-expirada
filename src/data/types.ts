@@ -192,7 +192,7 @@ export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'bo
  * `Z` Mandos a Distancia (vienen en grupo: see EnemyDef.pack).
  * Slots, filled when a floor is built (src/sim/room.ts, fillTemplate): `e` an enemy (or nothing),
  * `o` an obstacle (or nothing), `*` an item pedestal, `$` the shopkeeper, `s` a shop shelf,
- * `J` the boss.
+ * `J` the boss. `1`–`9`: a group of shelving that stands or not with the seed (each digit on its own).
  * The top two rows are the back wall (shelves are painted on them).
  * Floor templates keep the four door openings (centre of each wall) and the two tiles in front
  * of them clear, so any template fits any set of doors.
@@ -205,6 +205,8 @@ export interface RoomTemplate {
   kind?: RoomKind;
   /** Seconds after the last enemy dies before the room's enemies come back (test room only). */
   restock?: number;
+  /** Combat rooms: the fight the layout is for, in a line (a design note, not shown in the game). */
+  idea?: string;
 }
 
 /** One enemy that can fill an `e` slot: its template letter, how much of the room's budget it takes and how often it comes up. */

@@ -84,7 +84,8 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
     [...line].forEach((ch, c) => {
       const cx = c * TILE + TILE / 2;
       const bottom = (r + 1) * TILE - 2;
-      if (ch === '#') tiles[r * cols + c] = 1;
+      // A digit is a group of shelving that the seed may take away (fillTemplate); unfilled, it stands.
+      if (ch === '#' || isGroup(ch)) tiles[r * cols + c] = 1;
       else if (ch === 'P') playerStart = { x: cx, y: r * TILE + TILE / 2 + 4 };
       else if (SLOT_CHARS[ch]) {
         slots.push({ kind: SLOT_CHARS[ch], x: cx, y: r * TILE + TILE / 2 + 4 });
@@ -227,7 +228,15 @@ export interface FillOptions {
   pool: readonly SlotEnemy[];
   /** Template letter of the floor's boss, which takes the `J` spot (src/data/rooms.ts FLOOR_BOSS_1). */
   boss?: string;
+  /** Rooms of a generated floor: a combat room may also come mirrored left to right. */
+  vary?: boolean;
 }
+
+/** Template digits `1`–`9`: groups of shelving that stand or not, each on its own, with the seed. */
+export const isGroup = (ch: string): boolean => ch >= '1' && ch <= '9';
+
+/** Chance that a group of shelving stands. */
+export const GROUP_STANDS = 0.5;
 
 /** Enemy budget of a combat room at a given depth (each enemy costs SlotEnemy.cost). */
 export function enemyBudget(depth: number): number {
@@ -264,6 +273,15 @@ export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): Room
     used.set(pick.ch, (used.get(pick.ch) ?? 0) + 1);
     placed++;
   }
+  // Drawn after the slots, so a template without groups fills exactly as before.
+  const groups = [...new Set(grid.flat().filter(isGroup))].sort();
+  const stands = new Map(groups.map((g) => [g, rng.chance(GROUP_STANDS)]));
+  for (const line of grid) line.forEach((ch, c) => {
+    if (isGroup(ch)) line[c] = stands.get(ch) ? '#' : '.';
+  });
+  // Floor templates are symmetric around the doors (the centre of each wall), so a mirrored
+  // room keeps them; the back wall stays at the top.
+  if (opts.vary && t.kind === 'combat' && rng.chance(0.5)) for (const line of grid) line.reverse();
   return { ...t, rows: grid.map((l) => l.join('')) };
 }
 

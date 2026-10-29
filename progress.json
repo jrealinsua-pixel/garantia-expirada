@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T18:37:00+01:00",
+  "actualizado": "2026-10-29T19:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,8 +63,8 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 1,
-      "total": 5
+      "hechas": 2,
+      "total": 8
     },
     {
       "id": "M9",
@@ -130,6 +130,12 @@
     "lineas_codigo": 12744
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T19:05:00+01:00",
+      "hito": "M8",
+      "resumen": "Entornos (1): grupos de estanterías que salen o no con la semilla en 10 salas, salas de combate reflejadas en las plantas generadas y la idea de combate de cada sala escrita en su plantilla.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T18:37:00+01:00",
       "hito": "M8",
@@ -505,7 +511,7 @@
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     }
   ],
-  "proximo": "M8: entornos bien diseñados (plantillas con variantes y una idea de combate por sala), repasando también las de la planta 1.",
+  "proximo": "M8: entornos (2): obstáculos y decorado propios de Informática y persianas a juego.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

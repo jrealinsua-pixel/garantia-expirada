@@ -643,7 +643,7 @@ function planFloor(seed: string): FloorRun {
     return deck.pop()!;
   };
   const rooms = layout.rooms.map((fr): FloorRoomState => {
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1, vary: true });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets, the next ones the chests).

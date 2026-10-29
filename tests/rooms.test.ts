@@ -141,8 +141,10 @@ test('plantillas: no hay rendijas por las que solo quepan los pies (cada hueco Â
   // body is drawn through both (the trolley and the box in cola-atencion, a crate against the back wall).
   const bad: string[] = [];
   for (const t of Object.values(ROOMS)) {
-    for (const ob of ['c', 'b', 'k']) {
-      const room = buildRoom({ ...t, rows: t.rows.map((r) => r.replaceAll('o', ob)) });
+    for (const ob of ['c', 'b', 'k', 'c.', 'b.', 'k.']) {
+      // The second three: with every group of shelving taken away.
+      const rows = t.rows.map((r) => r.replaceAll('o', ob[0]!).replace(/[1-9]/g, ob.length > 1 ? '.' : '#'));
+      const room = buildRoom({ ...t, rows });
       const solids = room.props.map((p) => ({ ...p.box, n: p.def.id }));
       for (let r = 0; r < room.rows; r++) for (let c = 0; c < room.cols; c++) if (room.tiles[r * room.cols + c]) solids.push({ x: c * 24, y: r * 24, w: 24, h: 24, n: '#' });
       for (const a of solids) for (const b of solids) {
@@ -154,4 +156,52 @@ test('plantillas: no hay rendijas por las que solo quepan los pies (cada hueco Â
     }
   }
   assert.deepEqual(bad, []);
+});
+
+test('plantillas: cada sala de combate tiene su idea de combate escrita', () => {
+  for (const t of templatesOf('combat')) assert.ok((t.idea ?? '').length > 20, `${t.id}: sin idea`);
+});
+
+test('variantes: los grupos de estanterÃ­as salen y no salen con la semilla, y la sala se puede reflejar', () => {
+  const withGroups = FLOOR.filter((t) => /[1-9]/.test(t.rows.join('')));
+  assert.ok(withGroups.length >= 8, `${withGroups.length} plantillas con grupos`);
+  for (const t of withGroups) {
+    const seen = new Set<string>();
+    for (let i = 0; i < 40; i++) {
+      const f = fillTemplate(t, new Rng(`g${i}`), { depth: 3, pool: SLOT_ENEMIES_1 });
+      assert.ok(!/[1-9]/.test(f.rows.join('')), `${t.id}: quedan grupos sin resolver`);
+      seen.add(f.rows.join('').split('#').length > t.rows.join('').split('#').length ? 'con' : 'sin');
+    }
+    assert.ok(seen.has('con') && seen.has('sin'), `${t.id}: los grupos salen siempre igual`);
+  }
+  // Mirrored only on a generated floor (vary), only combat rooms, and about half of the time.
+  let mirrored = 0;
+  for (let i = 0; i < 200; i++) {
+    const t = templatesOf('combat')[i % templatesOf('combat').length]!;
+    const plain = fillTemplate(t, new Rng(`m${i}`), { depth: 3, pool: SLOT_ENEMIES_1 });
+    const varied = fillTemplate(t, new Rng(`m${i}`), { depth: 3, pool: SLOT_ENEMIES_1, vary: true });
+    const flipped = plain.rows.map((r) => [...r].reverse().join(''));
+    if (varied.rows.join() !== plain.rows.join()) {
+      assert.deepEqual(varied.rows, flipped, `${t.id}: o igual o reflejada`);
+      mirrored++;
+    }
+  }
+  assert.ok(mirrored > 60 && mirrored < 140, `${mirrored} de 200 reflejadas`);
+  for (const t of templatesOf('boss')) {
+    const a = fillTemplate(t, new Rng('j'), { depth: 3, pool: SLOT_ENEMIES_1, boss: 'N' });
+    const b = fillTemplate(t, new Rng('j'), { depth: 3, pool: SLOT_ENEMIES_1, boss: 'N', vary: true });
+    assert.deepEqual(a.rows, b.rows, 'la sala de la jefa no se refleja');
+  }
+});
+
+test('variantes: una sala reflejada sigue teniendo las puertas en su sitio y despejadas', () => {
+  for (const t of templatesOf('combat')) {
+    const m: RoomTemplate = { ...t, rows: t.rows.map((r) => [...r].reverse().join('')) };
+    const cols = t.rows[0]!.length;
+    const rows = t.rows.length;
+    for (const d of DIRS) {
+      for (const c of doorCells(cols, rows, d)) assert.equal(at(m, c), '#', `${t.id} reflejada: puerta ${d}`);
+      for (const c of doorApron(cols, rows, d)) assert.equal(at(m, c), '.', `${t.id} reflejada: delante de la puerta ${d}`);
+    }
+  }
 });

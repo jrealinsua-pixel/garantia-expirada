@@ -177,9 +177,18 @@ semillas distintas acaban con builds distintas.
 ## M8 · Planta 2: Informática
 
 - [x] Juego de casillas y color propio. (`src/art/informatica.ts`; se ve con `?planta=2`.)
-- [ ] Entornos bien diseñados sin perder la generación procedural (nota del humano): plantillas
+- Entornos bien diseñados sin perder la generación procedural (nota del humano): plantillas
   hechas a mano con variantes (obstáculos, decorado y enemigos que cambian con la semilla),
-  cada sala con una idea de combate propia; repasar también las de la planta 1.
+  cada sala con una idea de combate propia; repasar también las de la planta 1. En tres partes:
+  - [x] (1) Variantes: grupos de estanterías (`1`–`9` en la plantilla) que salen o no con la
+    semilla, salas de combate reflejadas en las plantas generadas, y la idea de combate de cada
+    sala de la planta 1 escrita en su plantilla (`idea`).
+  - [ ] (2) Obstáculos y decorado propios de Informática (lo que sale en los huecos `o` y las cajas
+    de la planta 2) y persianas a juego.
+  - [ ] (3) Plantillas propias de la planta 2 (al menos 12 de combate y las especiales), cada una
+    con su idea y sus grupos.
+- [ ] Encadenar plantas: al bajar en el montacargas tras la jefa se sigue en la planta 2, con la
+  misma tostadora, sus armas y sus objetos.
 - [ ] 4 enemigos nuevos (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas…).
 - [ ] Jefe: El Router del Wifi.
 - [ ] 10 objetos nuevos.
