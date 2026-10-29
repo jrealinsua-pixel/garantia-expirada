@@ -521,6 +521,11 @@
       "sesion": "2026-10-29 15:41 UTC",
       "tarea": "M7: errores conocidos (3), las asperezas de docs/ERRORES_CONOCIDOS.md",
       "desde": "2026-10-29T16:24:00Z"
+    },
+    {
+      "sesion": "2026-10-29 16:26 UTC",
+      "tarea": "M7: errores conocidos, aspereza de animación (piernas del Mando y boquilla del Aspirador); solo tools/sprites y public/assets",
+      "desde": "2026-10-29T16:30:00Z"
     }
   ]
 }

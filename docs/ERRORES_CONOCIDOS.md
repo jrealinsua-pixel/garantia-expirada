@@ -28,7 +28,7 @@ Ninguno conocido.
 - [ ] Con **Destellos suaves**, los avisos amarillos siguen parpadeando (a unos 8 Hz al final).
 - [ ] Con **Texto grande**, la tarjeta de presentación de la jefa y los textos flotantes (daño,
   cupones) siguen a tamaño normal.
-- [ ] Animación: en los pasos elevados las dos piernas del Mando casi se tapan, y la boquilla
+- [ ] (En curso, sesión de las 16:26 UTC.) Animación: en los pasos elevados las dos piernas del Mando casi se tapan, y la boquilla
   del Aspirador sube con el cuerpo (parece que la balancea).
 
 ## No son errores (decidido, con su motivo)
