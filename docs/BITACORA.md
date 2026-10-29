@@ -2,7 +2,7 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
-## 2026-10-29 15:20 — Hito M7 — Accesibilidad (2a): texto grande
+## 2026-10-29 16:03 — Hito M7 — Accesibilidad (2a): texto grande
 
 - Hecho: opción nueva **Texto grande** en Opciones (`bigText` en `src/render/settings.ts`, apagada por defecto; `readScale` da 1 o 2). Con ella van a doble tamaño (fuente a 16, el doble exacto, sin píxeles desiguales): la **ventana de descripción** (440 px de ancho en vez de 292; los efectos se colocan seguidos en filas en vez de uno por línea, para que quepa), los **letreros** (puertas abiertas, cambio de arma, reposición, montacargas), la placa de **sinergia**, el **nombre de la sala** (partido en líneas si no cabe entre los corazones y el minimapa) y los **bocadillos de la caja** de la tienda. El HUD (números, munición, cupones) se queda igual. Todo lo que se coloca está ahora en funciones puras de `src/render/hud.ts` (`cardLayout`, `titleLines`) y `src/art/font.ts` (`wrapLines`, el partido de líneas de la fuente), y `GameScene` solo las dibuja. Test nuevo `tests/texto-grande.test.ts` (6): la ventana normal mide lo mismo que antes; la grande, con cada objeto, activo y arma, cabe entera, no se pisa por dentro y no tapa ni los corazones ni la munición en ningún estado del HUD; cada nombre de sala cabe a doble tamaño en dos líneas; letreros, sinergias y frases de la caja caben. El e2e activa la opción en Opciones y saca cuatro capturas nuevas (31a–d).
 - Arreglo de paso: el bocadillo de la caja salía debajo del nombre de la sala (en la captura 24a de antes se tapaban). Ahora, si encima de la caja no cabe sin meterse bajo el nombre o fuera de la vista, sale al lado, con la cola apuntando a la caja.
