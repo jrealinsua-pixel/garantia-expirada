@@ -193,7 +193,12 @@ semillas distintas acaban con builds distintas.
   misma tostadora, sus armas y sus objetos.
 - [ ] 4 enemigos nuevos (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas…).
 - [ ] Jefe: El Router del Wifi (con su sala propia en la planta 2).
-- [ ] 10 objetos nuevos.
+- 10 objetos nuevos, en dos partes:
+  - [x] (1) Cinco pasivos de Informática que solo salen desde la planta 2 (`level: 2`, mazo por
+    planta con `itemsUpTo`): Pendrive de 2 GB, Antivirus Gratuito, Cable HDMI Dorado, Ventilador
+    de Portátil y Actualización Obligatoria.
+  - [ ] (2) Cinco más con algún efecto nuevo (no solo cifras: algo que cambie cómo se juega) y
+    una o dos sinergias con los de la planta 2.
 
 ## M9 · El centro y la historia
 

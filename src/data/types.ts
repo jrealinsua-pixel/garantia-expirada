@@ -100,6 +100,8 @@ export interface PassiveItemDef {
   description: string;
   /** Texture key of its 16 x 16 sprite (tools/sprites/items.ts). */
   sprite: string;
+  /** The first floor that can hand it out (1 if missing): a floor deals its own and the lower floors' items. */
+  level?: number;
   /** What it does to the player; its id is the item's. */
   mod: Modifier;
 }

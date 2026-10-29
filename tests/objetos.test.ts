@@ -67,10 +67,11 @@ function reach(w: World): number {
 
 // ---------- The items as content ----------
 
-test('hay 10 objetos pasivos con nombre corto, descripción en el tono del juego y sprite', () => {
+test('hay 15 objetos pasivos (10 de la planta 1 y 5 de la 2) con nombre corto, descripción en el tono del juego y sprite', () => {
   const keys = new Set(Object.keys(JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as object));
   const defs = Object.values(ITEMS);
-  assert.equal(defs.length, 10);
+  assert.equal(defs.length, 15);
+  assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 5);
   assert.deepEqual([...FINDABLE_ITEMS].sort(), Object.keys(ITEMS).sort());
   const names = new Set<string>();
   for (const d of defs) {
@@ -287,7 +288,7 @@ test('Resistencia de Recambio: cada bala hace un punto más de daño, aunque dis
 test('los objetos se acumulan y la partida sigue siendo determinista', () => {
   const run = (): string => {
     const w = bare('todo', ...FINDABLE_ITEMS);
-    assert.equal(w.player.items.length, 10);
+    assert.equal(w.player.items.length, FINDABLE_ITEMS.length);
     for (let i = 0; i < ticks(3); i++) step(w, fireAt(400, 150));
     return worldHash(w);
   };
@@ -305,4 +306,37 @@ test('ningún objeto es obligatorio: ninguno multiplica el daño por segundo de 
     // And none is worse for every weapon (pellets aside, which paper cannot weigh against spread).
     assert.ok(Math.max(...gains) >= 0.99, `${it.id} empeora todas las armas`);
   }
+});
+
+test('los objetos de la planta 2 solo salen desde la planta 2; la planta 1 reparte los de siempre', async () => {
+  const { itemsUpTo } = await import('../src/data/items.ts');
+  const own = Object.values(ITEMS).filter((d) => d.level === 2).map((d) => d.id);
+  assert.equal(own.length, 5);
+  assert.deepEqual(itemsUpTo(1).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) === 1).map((d) => d.id).sort());
+  assert.deepEqual(itemsUpTo(2).sort(), Object.keys(ITEMS).sort());
+  for (let i = 0; i < 20; i++) {
+    const f1 = createWorld({ seed: `mazo-${i}`, floor: true }).floor!;
+    for (const id of own) assert.ok(!f1.items.includes(id), `${id} en la planta 1`);
+    const f2 = createWorld({ seed: `mazo-${i}`, floor: true, level: 2 }).floor!;
+    assert.deepEqual([...f2.items].sort(), itemsUpTo(2).sort());
+  }
+  // A treasure room played on its own deals from its floor's deck too.
+  const t2 = createWorld({ seed: 'mazo-tesoro', room: 'tesoro', level: 2 });
+  const t1 = createWorld({ seed: 'mazo-tesoro', room: 'tesoro' });
+  const objeto = (w: World): string[] => w.pickups.filter((k) => k.kind === 'objeto').map((k) => k.item!);
+  assert.ok(objeto(t1).every((id) => !own.includes(id)));
+  assert.equal(objeto(t2).length, objeto(t1).length);
+});
+
+test('cada objeto de la planta 2 hace lo que dice su ficha', () => {
+  const base = bare('p2');
+  const w = (id: string): World => bare('p2', id);
+  const wd = (x: World) => x.player.weapon.def;
+  assert.ok(wd(w('usb')).magazine > wd(base).magazine && wd(w('usb')).reloadTime > wd(base).reloadTime);
+  assert.equal(w('antivirus').player.def.maxHp, base.player.def.maxHp + 2);
+  assert.ok(w('antivirus').player.def.speed < base.player.def.speed && w('antivirus').player.def.rollCooldown > base.player.def.rollCooldown);
+  assert.ok(wd(w('hdmi')).bulletSpeed > wd(base).bulletSpeed && wd(w('hdmi')).spreadDeg <= wd(base).spreadDeg);
+  assert.ok(wd(w('ventilador')).fireRate > wd(base).fireRate && wd(w('ventilador')).bulletLife < wd(base).bulletLife);
+  assert.equal(wd(w('actualizacion')).damage, wd(base).damage + 1);
+  assert.ok(wd(w('actualizacion')).reloadTime > wd(base).reloadTime);
 });

@@ -389,6 +389,36 @@
     "frameH": 16,
     "frames": 1
   },
+  "objeto-usb": {
+    "file": "objeto-usb.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-antivirus": {
+    "file": "objeto-antivirus.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-hdmi": {
+    "file": "objeto-hdmi.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-ventilador": {
+    "file": "objeto-ventilador.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-actualizacion": {
+    "file": "objeto-actualizacion.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
   "objeto-encuesta": {
     "file": "objeto-encuesta.png",
     "frameW": 16,

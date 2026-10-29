@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T20:20:00+01:00",
+  "actualizado": "2026-10-29T21:15:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,8 +63,8 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 6,
-      "total": 5
+      "hechas": 2,
+      "total": 4
     },
     {
       "id": "M9",
@@ -121,15 +121,21 @@
     "enemigos": 6,
     "jefes": 1,
     "armas": 3,
-    "objetos": 13,
+    "objetos": 18,
     "plantillas_sala": 33,
-    "tests": 347,
-    "tests_ok": 347,
+    "tests": 349,
+    "tests_ok": 349,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 13188
+    "lineas_codigo": 13240
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T21:15:00+01:00",
+      "hito": "M8",
+      "resumen": "Objetos nuevos (1): cinco pasivos de Informática que solo salen desde la planta 2 (cada planta reparte los suyos y los de abajo). La planta 1 no cambia.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T20:20:00+01:00",
       "hito": "M8",
@@ -511,6 +517,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/objetos-planta2.png",
+      "pie": "Los cinco objetos pasivos de Informática en el inventario: Pendrive de 2 GB, Antivirus Gratuito, Cable HDMI Dorado, Ventilador de Portátil y Actualización Obligatoria. Solo salen desde la planta 2"
+    },
+    {
       "archivo": "capturas/cadena.png",
       "pie": "Plantas encadenadas: tras ganar la planta 1, «R» lleva a la planta 2 con la misma tostadora (aquí, con sus 37 cupones), al Rellano de Informática"
     },
@@ -529,13 +539,9 @@
     {
       "archivo": "capturas/jefa-encuadre.png",
       "pie": "La cámara encuadra a la Nevera Suprema entera desde el primer segundo del combate (antes salía cortada y con el nombre de la sala encima)"
-    },
-    {
-      "archivo": "capturas/montacargas.png",
-      "pie": "Los cupones de la jefa salen en corona y se quedan fuera del montacargas (antes lo tapaban)"
     }
   ],
-  "proximo": "M8: los 4 enemigos de Informática (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas).",
+  "proximo": "M8: los 4 enemigos de Informática (la Impresora la tiene cogida otra sesión desde las 18:28 UTC) y objetos nuevos (2): cinco con efectos nuevos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -569,11 +575,6 @@
       "sesion": "2026-10-29 16:3x UTC (rutina, la de las casillas)",
       "tarea": "M8: enemigos (1): la Impresora que se Atasca (src/data/enemies.ts, src/sim/enemies.ts, tools/sprites/enemies.ts)",
       "desde": "2026-10-29T18:28Z"
-    },
-    {
-      "sesion": "2026-10-29 20:25 UTC",
-      "tarea": "M8: objetos nuevos (1): cinco pasivos de Informática (src/data/items.ts, tools/sprites/items.ts, mazo por planta en src/sim/world.ts)",
-      "desde": "2026-10-29T20:30Z"
     }
   ]
 }

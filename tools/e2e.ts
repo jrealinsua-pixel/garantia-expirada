@@ -84,6 +84,12 @@ try {
     await page.mouse.move(p.x, p.y, { steps: 4 });
   };
   const shot = (name: string): Promise<unknown> => page.screenshot({ path: join(out, name) });
+  const tapKeys = async (...keys: string[]): Promise<void> => {
+    for (const k of keys) {
+      await page.keyboard.press(k);
+      await page.waitForTimeout(60);
+    }
+  };
 
   const s0 = await state();
   await shot('01-inicio.png');
@@ -319,6 +325,23 @@ try {
   await page.waitForTimeout(600);
   await shot('34b-cadena-planta2.png');
   console.log('Plantas encadenadas: tras la planta 1, la 2 con la misma tostadora.');
+
+  // M8: floor 2's own passive items, on a treasure pedestal and in the inventory.
+  await page.goto(`${url}?semilla=e2e-objetos2&sala=tesoro&planta=2`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  await page.waitForTimeout(1400);
+  await shot('35a-planta2-tesoro.png');
+  await page.evaluate(`(() => { const g = window.__GE__; for (const id of ['usb', 'antivirus', 'hdmi', 'ventilador', 'actualizacion']) g.giveItem(id); })()`);
+  const own2 = await page.evaluate<number>("window.__GE__.scene.world.player.items.filter((id) => ['usb', 'antivirus', 'hdmi', 'ventilador', 'actualizacion'].includes(id)).length");
+  if (own2 !== 5) throw new Error(`Faltan objetos de la planta 2 en la tostadora (${own2} de 5)`);
+  await page.waitForTimeout(300);
+  await tapKeys('Escape', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(200);
+  await shot('35b-planta2-inventario.png');
+  await tapKeys('Escape', 'Escape');
+  await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  console.log('Planta 2: sus cinco objetos pasivos, en el tesoro y en el inventario.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);
@@ -699,12 +722,6 @@ try {
   await page.waitForTimeout(400);
   if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) !== pausedAt) throw new Error('El juego sigue en pausa');
   await shot('25a-pausa.png');
-  const tapKeys = async (...keys: string[]): Promise<void> => {
-    for (const k of keys) {
-      await page.keyboard.press(k);
-      await page.waitForTimeout(60);
-    }
-  };
   await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25b-opciones.png');

@@ -170,6 +170,17 @@ Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quit
 | Cinta Americana | Lo arregla todo durante una semana. | Recarga ×0,6 |
 | Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,75, más retroceso |
 
+Objetos pasivos de la planta 2 (Informática, `level: 2`). Solo salen desde la planta 2: cada planta
+reparte los suyos y los de las plantas de abajo (`itemsUpTo` en `src/data/items.ts`).
+
+| Objeto | Descripción | Efecto |
+| --- | --- | --- |
+| Pendrive de 2 GB | Cabe todo lo que no necesitas. Copiarlo tarda una tarde. | Cargador ×1,6, recarga ×1,3 |
+| Antivirus Gratuito | Te protege de todo menos de sí mismo. Gasta la mitad del procesador. | +1 corazón, velocidad ×0,9, voltereta ×1,3 más tarde |
+| Cable HDMI Dorado | Mejora la imagen un 0 %. Lo pone en la caja, en letras doradas. | Balas ×1,2 más rápidas, la mitad de dispersión (solo bueno) |
+| Ventilador de Portátil | Suena como un avión y enfría como una vela. | Cadencia ×1,25, +5° de dispersión, alcance ×0,85 |
+| Actualización Obligatoria | Reinicie para aplicar los cambios. Sí, ahora. | +1 de daño, recarga ×1,6, cargador ×0,8 |
+
 Objetos activos (tecla Q o botón B del mando). Se lleva uno; al coger otro, el viejo se queda en
 el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando está lleno:
 

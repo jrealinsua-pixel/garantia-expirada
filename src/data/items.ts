@@ -1,7 +1,7 @@
 import type { ActiveItemDef, PassiveItemDef } from './types.ts';
 
 /**
- * Passive items of floor 1. Each one is just a modifier (src/sim/mods.ts): stat changes and
+ * Passive items (floor 1, then floor 2's, which carry `level: 2`). Each one is just a modifier (src/sim/mods.ts): stat changes and
  * bullet behaviours. Damage only ever changes by whole points, so damage numbers stay whole.
  * Almost every item gives something and takes something, so a build is a set of trade-offs.
  */
@@ -86,10 +86,61 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // One more point of damage and bigger bullets, but fires slower and kicks harder.
     mod: { id: 'resistencia', stats: [{ stat: 'damage', add: 1 }, { stat: 'bulletRadius', add: 1 }, { stat: 'fireRate', mul: 0.75 }, { stat: 'recoil', mul: 1.4 }] },
   },
+  // ---- Floor 2 (Informática): only found from floor 2 on ----
+  usb: {
+    id: 'usb',
+    name: 'Pendrive de 2 GB',
+    description: 'Cabe todo lo que no necesitas. Copiarlo tarda una tarde.',
+    sprite: 'objeto-usb',
+    level: 2,
+    // A much longer magazine, but a slower reload.
+    mod: { id: 'usb', stats: [{ stat: 'magazine', mul: 1.6 }, { stat: 'reloadTime', mul: 1.3 }] },
+  },
+  antivirus: {
+    id: 'antivirus',
+    name: 'Antivirus Gratuito',
+    description: 'Te protege de todo menos de sí mismo. Gasta la mitad del procesador.',
+    sprite: 'objeto-antivirus',
+    level: 2,
+    // One more heart, but everything else runs slower: walking and rolling again.
+    mod: { id: 'antivirus', stats: [{ stat: 'maxHp', add: 2 }, { stat: 'speed', mul: 0.9 }, { stat: 'rollCooldown', mul: 1.3 }] },
+  },
+  hdmi: {
+    id: 'hdmi',
+    name: 'Cable HDMI Dorado',
+    description: 'Mejora la imagen un 0 %. Lo pone en la caja, en letras doradas.',
+    sprite: 'objeto-hdmi',
+    level: 2,
+    // Only good: faster bullets and half the spread.
+    mod: { id: 'hdmi', stats: [{ stat: 'bulletSpeed', mul: 1.2 }, { stat: 'spreadDeg', mul: 0.5 }] },
+  },
+  ventilador: {
+    id: 'ventilador',
+    name: 'Ventilador de Portátil',
+    description: 'Suena como un avión y enfría como una vela.',
+    sprite: 'objeto-ventilador',
+    level: 2,
+    // Fires faster, but sprays wider and the bullets die sooner.
+    mod: { id: 'ventilador', stats: [{ stat: 'fireRate', mul: 1.25 }, { stat: 'spreadDeg', add: 5 }, { stat: 'bulletLife', mul: 0.85 }] },
+  },
+  actualizacion: {
+    id: 'actualizacion',
+    name: 'Actualización Obligatoria',
+    description: 'Reinicie para aplicar los cambios. Sí, ahora.',
+    sprite: 'objeto-actualizacion',
+    level: 2,
+    // One more point of damage, but every reload is a restart and the magazine shrinks.
+    mod: { id: 'actualizacion', stats: [{ stat: 'damage', add: 1 }, { stat: 'reloadTime', mul: 1.6 }, { stat: 'magazine', mul: 0.8 }] },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */
 export const FINDABLE_ITEMS: readonly string[] = Object.keys(ITEMS);
+
+/** The passive items floor `level` can hand out: its own and those of the floors below. */
+export function itemsUpTo(level: number): string[] {
+  return FINDABLE_ITEMS.filter((id) => (ITEMS[id]!.level ?? 1) <= level);
+}
 
 /**
  * Active items (Q). Each one needs a number of batteries (one per combat room cleared); the

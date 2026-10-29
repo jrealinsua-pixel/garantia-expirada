@@ -2,7 +2,7 @@
 import { CHARACTERS } from '../data/characters.ts';
 import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
-import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
+import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
@@ -500,7 +500,7 @@ export interface FloorRun {
   rooms: FloorRoomState[];
   /** Weapons still to be found on this floor, next one first (a seeded shuffle of FINDABLE_WEAPONS). */
   weapons: string[];
-  /** Passive items still to be found on this floor, next one first (a seeded shuffle of FINDABLE_ITEMS). */
+  /** Passive items still to be found on this floor, next one first (a seeded shuffle of itemsUpTo(level)). */
   items: string[];
   /** Active items still to be found on this floor (a seeded shuffle of FINDABLE_ACTIVES). */
   actives: string[];
@@ -614,7 +614,7 @@ export function createWorld(opts: WorldOptions): World {
   if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], [], []);
   else if (room.kind === 'shop') stockShop(w, decksOf(w));
   else if (room.kind === 'treasure' || room.kind === 'secret') {
-    const decks = lootDecks(opts.seed);
+    const decks = lootDecks(opts.seed, opts.level ?? 1);
     stockPedestals(w, decks.weapons, decks.items, decks.actives);
   }
   if (w.spawnsEnemies) spawnRoomEnemies(w);
@@ -675,14 +675,14 @@ function planFloor(seed: string, level: number): FloorRun {
     if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
     else if (i < FLOOR_TICKETS + FLOOR_CHESTS) rooms[id]!.reward = 'chest';
   });
-  return { layout, current: layout.start, rooms, ...lootDecks(seed) };
+  return { layout, current: layout.start, rooms, ...lootDecks(seed, level) };
 }
 
-/** The weapons and passive items a floor hands out, each in its own seeded order. */
-function lootDecks(seed: string): { weapons: string[]; items: string[]; actives: string[] } {
+/** The weapons and items floor `level` hands out, each in its own seeded order (items: see itemsUpTo). */
+function lootDecks(seed: string, level: number): { weapons: string[]; items: string[]; actives: string[] } {
   return {
     weapons: new Rng(`armas:${seed}`).shuffle([...FINDABLE_WEAPONS]),
-    items: new Rng(`objetos:${seed}`).shuffle([...FINDABLE_ITEMS]),
+    items: new Rng(`objetos:${seed}`).shuffle(itemsUpTo(level)),
     actives: new Rng(`activos:${seed}`).shuffle([...FINDABLE_ACTIVES]),
   };
 }
@@ -1994,7 +1994,7 @@ function grab(w: World, k: Pickup): void {
 /** The decks loot comes from: the floor's, or (a single room) the world's own. */
 function decksOf(w: World): { weapons: string[]; items: string[]; actives: string[] } {
   if (w.floor) return w.floor;
-  w.looseDecks ??= lootDecks(w.seed);
+  w.looseDecks ??= lootDecks(w.seed, w.level);
   return w.looseDecks;
 }
 
