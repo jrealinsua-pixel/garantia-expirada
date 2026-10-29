@@ -9,6 +9,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Medidas: sin cambios de simulación. 311 tests en verde.
 - Problemas conocidos: los avisos siguen parpadeando en amarillo (a unos 8 Hz al final); si hiciera falta, la opción podría dejarlos fijos.
 - Siguiente paso: M7, accesibilidad parte 2 (tamaño de texto).
+- Cierre de sesión: esta sesión (13:24 UTC) ha hecho las animaciones de los enemigos y los destellos suaves. Cierro aquí: el tamaño de texto toca la colocación de casi todo (la fuente es de mapa de bits y la pantalla, 480 × 270), así que mejor empezarlo con el contexto limpio. Idea para quien lo coja: «Texto grande» que dibuje a doble tamaño solo lo que se lee con calma (ventana de descripción, bocadillos, títulos de sala, inventario, parte de baja) y deje el HUD como está, con `tests/hud.test.ts` ampliado para el tamaño doble.
 
 ## 2026-10-29 14:55 — Hito M7 — Animaciones completas de los enemigos
 
