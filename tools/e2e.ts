@@ -638,7 +638,7 @@ try {
       await page.waitForTimeout(60);
     }
   };
-  await tapKeys('ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'Enter');
+  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25b-opciones.png');
   const saved = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')");
@@ -652,6 +652,23 @@ try {
   if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) === pausedAt) throw new Error('El juego no vuelve después de la pausa');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
   console.log('Pausa: congela el juego, guarda volumen 4 y sin temblor, enseña los controles y vuelve.');
+
+  // M6: the inventory, in the pause menu, with a few items, an active one and a synergy.
+  await page.goto(`${url}?semilla=e2e-inventario&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; g.scene.world.noDamage = true;
+    for (const id of ['pila', 'resistencia', 'garantia', 'etiqueta', 'manual', 'broca', 'cinta']) g.giveItem(id); g.giveActive('espera'); })()`);
+  await page.waitForTimeout(300);
+  await tapKeys('Escape', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(200);
+  await shot('27a-inventario.png');
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.player.synergies.length > 0"))) throw new Error('La prueba del inventario no tiene sinergia');
+  await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown');
+  await page.waitForTimeout(150);
+  await shot('27b-inventario-activo.png');
+  await tapKeys('Escape', 'Escape');
+  await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  console.log('Inventario: siete objetos, el activo y la sinergia, con las estadísticas antes y después.');
 
   // M6: the title screen. Credits, then a run; from the pause, back to the title.
   await page.goto(url);

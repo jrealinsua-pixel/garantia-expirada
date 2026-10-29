@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T12:15:00+01:00",
+  "actualizado": "2026-10-29T12:25:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -49,7 +49,7 @@
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 9
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 283,
-    "tests_ok": 283,
+    "tests": 284,
+    "tests_ok": 284,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 10255
+    "lineas_codigo": 10440
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T12:25:00+01:00",
+      "hito": "M6",
+      "resumen": "Inventario en la pausa (lo pidió el humano): a la izquierda, las estadísticas del arma en mano y de la tostadora, en verde lo que han mejorado los objetos y en rojo lo que han empeorado, con lo que valían antes; y las sinergias encendidas. A la derecha, los objetos con su dibujo y, debajo, el elegido entero: descripción y lo que suma o resta. También el activo con sus pilas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T12:15:00+01:00",
       "hito": "M6",
@@ -349,6 +355,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/inventario.png",
+      "pie": "El inventario de la pausa: el Secador con la Resistencia y la Pila hace 2 de daño pero el cargador baja de 14 a 10 (en rojo); a la derecha, los objetos y lo que hace el elegido"
+    },
+    {
       "archivo": "capturas/portada.png",
       "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
     },
@@ -361,10 +371,6 @@
       "pie": "Recién comprada la Etiqueta A+++ por 15 cupones: el escáner pita, la Caja de Autocobro sonríe («Objeto inesperado en la zona de embolsado.») y el precio del ticket se enciende en dorado porque ya llega"
     },
     {
-      "archivo": "capturas/tienda-sin-cupones.png",
-      "pie": "Sin cupones no hay trato: la pantalla de la caja se pone roja, el contador de cupones tiembla y los precios que no llegan salen en gris"
-    },
-    {
       "archivo": "capturas/sinergia.png",
       "pie": "Ventana de descripción de la Broca del Ocho (en rojo lo que quita, en verde lo que da) y encima la sinergia que enciende con el Manual en Chino: «¡Sinergia! Bricolaje Avanzado»"
     },
@@ -373,7 +379,7 @@
       "pie": "Ventana de la Grapadora Táctica: sus números (daño 1, 9 disparos/s, cargador 24, recarga 1,6 s, alcance 240) para comparar armas de un vistazo"
     }
   ],
-  "proximo": "M6: el inventario en la pausa (objetos con descripción y lo que suma o resta cada uno, objeto activo, sinergias y estadísticas del personaje y del arma).",
+  "proximo": "M6: interfaz limpia (repasar el HUD entero para que no se pise nada y los textos flotantes no se amontonen); después el parte de baja y la pantalla de victoria.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

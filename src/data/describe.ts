@@ -2,7 +2,7 @@
 // inventory). Each line says whether it is good or bad for the player, so the window can colour
 // it: almost every item gives something and takes something.
 import { activeHint } from './texts.ts';
-import type { ActiveItemDef, Modifier, StatKey, WeaponDef } from './types.ts';
+import type { ActiveItemDef, CharacterDef, Modifier, StatKey, WeaponDef } from './types.ts';
 
 export interface EffectLine {
   text: string;
@@ -73,5 +73,46 @@ export function weaponLines(w: WeaponDef): EffectLine[] {
   return [
     { text: `Daño ${w.damage}${shots} · ${round1(w.fireRate)} disparos/s`, good: true },
     { text: `Cargador ${w.magazine} · recarga ${round1(w.reloadTime)} s · alcance ${range}`, good: true },
+  ];
+}
+
+/** One line of the stats table: the value without items, the value now, and whether it got better. */
+export interface StatRow {
+  label: string;
+  base: string;
+  now: string;
+  /** 0 the same, 1 better than without items, -1 worse. */
+  delta: -1 | 0 | 1;
+}
+
+function row(label: string, base: number, now: number, show: (n: number) => string, more: boolean): StatRow {
+  const b = show(base);
+  const n = show(now);
+  const delta = b === n ? 0 : now > base === more ? 1 : -1;
+  return { label, base: b, now: n, delta };
+}
+
+const shots = (w: WeaponDef): number => w.damage * w.pellets;
+const reach = (w: WeaponDef): number => Math.round((w.bulletSpeed * w.bulletLife) / 10) * 10;
+
+/** The weapon in hand, untouched and as the items leave it. */
+export function weaponStatRows(base: WeaponDef, now: WeaponDef): StatRow[] {
+  const dmg = (w: WeaponDef): string => (w.pellets > 1 ? `${w.damage} × ${w.pellets}` : String(w.damage));
+  return [
+    { ...row('Daño', shots(base), shots(now), String, true), base: dmg(base), now: dmg(now) },
+    row('Cadencia', base.fireRate, now.fireRate, (n) => `${round1(n)}/s`, true),
+    row('Cargador', base.magazine, now.magazine, String, true),
+    row('Recarga', base.reloadTime, now.reloadTime, (n) => `${round1(n)} s`, false),
+    row('Alcance', reach(base), reach(now), String, true),
+    row('Dispersión', base.spreadDeg, now.spreadDeg, (n) => String(Math.round(n)), false),
+  ];
+}
+
+/** The character, untouched and as the items leave it. */
+export function characterStatRows(base: CharacterDef, now: CharacterDef): StatRow[] {
+  return [
+    row('Corazones', base.maxHp, now.maxHp, (n) => round1(n / 2), true),
+    row('Velocidad', base.speed, now.speed, (n) => String(Math.round(n)), true),
+    row('Voltereta cada', base.rollCooldown, now.rollCooldown, (n) => `${round1(n)} s`, false),
   ];
 }

@@ -54,3 +54,24 @@ test('las armas enseñan sus números, y son distintos entre sí', () => {
   assert.equal(seen.size, FINDABLE_WEAPONS.length);
   assert.ok(weaponLines(WEAPONS.plancha!)[0]!.text.includes('×'), 'la plancha dice que dispara varias nubes');
 });
+
+test('el inventario compara las estadísticas sin objetos y con ellos, y dice si han mejorado', async () => {
+  const { characterStatRows, weaponStatRows } = await import('../src/data/describe.ts');
+  const { moddedCharacter, moddedWeapon } = await import('../src/sim/mods.ts');
+  const { CHARACTERS } = await import('../src/data/characters.ts');
+  const base = WEAPONS.secador!;
+  const same = weaponStatRows(base, base);
+  assert.ok(same.every((r) => r.delta === 0 && r.base === r.now));
+  const mods = [ITEMS.resistencia!.mod, ITEMS.pila!.mod];
+  const rows = weaponStatRows(base, moddedWeapon(base, mods));
+  const by = (l: string) => rows.find((r) => r.label === l)!;
+  assert.deepEqual(by('Daño'), { label: 'Daño', base: '1', now: '2', delta: 1 });
+  assert.equal(by('Cadencia').delta, -1, 'la resistencia frena más de lo que la pila acelera');
+  assert.equal(by('Cargador').delta, -1);
+  const tost = CHARACTERS.tostadora!;
+  const c = characterStatRows(tost, moddedCharacter(tost, [ITEMS.garantia!.mod, ITEMS.etiqueta!.mod]));
+  assert.deepEqual(c.map((r) => r.delta), [1, 1, 1]);
+  assert.deepEqual([c[0]!.label, c[0]!.base, c[0]!.now], ['Corazones', '3', '4']);
+  for (const r of [...rows, ...c]) for (const t of [r.label, r.base, r.now]) drawable(t);
+  assert.equal(weaponStatRows(WEAPONS.plancha!, WEAPONS.plancha!)[0]!.now, '1 × 5');
+});

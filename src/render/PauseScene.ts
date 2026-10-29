@@ -15,6 +15,16 @@ import {
   CONTROLS_ROWS,
   CONTROLS_TITLE,
   CREDITS_LINES,
+  INVENTORY_BEFORE,
+  INVENTORY_EMPTY,
+  INVENTORY_ITEMS,
+  INVENTORY_MENU,
+  INVENTORY_NO_SYNERGY,
+  INVENTORY_SUB,
+  INVENTORY_SYNERGIES,
+  INVENTORY_TITLE,
+  INVENTORY_WEAPON,
+  inventoryBatteries,
   CREDITS_TITLE,
   MENU_HINT,
   OPTION_LABELS,
@@ -31,6 +41,9 @@ import {
   TITLE_MENU,
   TITLE_TAGLINE,
 } from '../data/texts.ts';
+import { activeLines, characterStatRows, modifierLines, weaponStatRows, type EffectLine, type StatRow } from '../data/describe.ts';
+import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
+import { SYNERGIES } from '../data/synergies.ts';
 import { Menu, type MenuItem, type MenuResult } from './menu.ts';
 import { saveSettings, settings } from './settings.ts';
 import { addCanvasTexture, FONT } from './textures.ts';
@@ -45,11 +58,12 @@ const GOLD = 0xf6c431;
 const CREAM = 0xd6cdb2;
 const GREY = 0x858ea8;
 
-type Screen = 'main' | 'options' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
+type Screen = 'main' | 'inventory' | 'options' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
 
 /** Where each first-screen action sits, so going back from a screen lands on what opened it. */
 const PAUSE_ITEMS: MenuItem[] = [
   { kind: 'action', id: 'resume', label: PAUSE_MENU.resume },
+  { kind: 'action', id: 'inventory', label: INVENTORY_MENU },
   { kind: 'action', id: 'options', label: PAUSE_MENU.options },
   { kind: 'action', id: 'controls', label: PAUSE_MENU.controls },
   { kind: 'action', id: 'newUnit', label: PAUSE_MENU.newUnit },
@@ -64,7 +78,7 @@ const TITLE_ITEMS: MenuItem[] = [
 ];
 /** The credits, with the engine (named here: data files may not mention it). */
 const CREDITS: readonly string[] = [...CREDITS_LINES.slice(0, 2), 'Motor: Phaser 3 (licencia MIT)', ...CREDITS_LINES.slice(2)];
-const OPENED_BY: Partial<Record<Screen, string>> = { options: 'options', controls: 'controls', credits: 'credits', confirmNew: 'newUnit', confirmQuit: 'quit' };
+const OPENED_BY: Partial<Record<Screen, string>> = { inventory: 'inventory', options: 'options', controls: 'controls', credits: 'credits', confirmNew: 'newUnit', confirmQuit: 'quit' };
 
 export class PauseScene extends Phaser.Scene {
   protected readonly mode: 'pause' | 'title';
@@ -177,10 +191,12 @@ export class PauseScene extends Phaser.Scene {
       return;
     }
     if (r.type !== 'action') return;
-    snd.play('recargar');
     const id = r.id;
+    // A line of the inventory: nothing to do but read it.
+    if (id.includes(':')) return;
+    snd.play('recargar');
     if (id === 'resume' || id === 'no' || id === 'back') this.back();
-    else if (id === 'options' || id === 'controls' || id === 'credits') this.show(id);
+    else if (id === 'options' || id === 'controls' || id === 'credits' || id === 'inventory') this.show(id);
     else if (id === 'newUnit') this.show('confirmNew');
     else if (id === 'quit') this.show('confirmQuit');
     else if (id === 'start' || id === 'practice') {
@@ -208,6 +224,14 @@ export class PauseScene extends Phaser.Scene {
         { kind: 'toggle', id: 'shake', label: OPTION_LABELS.shake, value: s.shake },
         { kind: 'action', id: 'back', label: PAUSE_MENU.back },
       ]);
+    } else if (screen === 'inventory') {
+      // One line per thing carried (passive items in the order found, the active one, the synergies on), then back.
+      const p = this.game_.world.player;
+      const lines: MenuItem[] = p.items.map((id) => ({ kind: 'action', id: `item:${id}`, label: ITEMS[id]?.name ?? id }));
+      if (p.active) lines.push({ kind: 'action', id: `active:${p.active.id}`, label: ACTIVE_ITEMS[p.active.id]?.name ?? p.active.id });
+      for (const id of p.synergies) lines.push({ kind: 'action', id: `syn:${id}`, label: SYNERGIES[id]?.name ?? id });
+      lines.push({ kind: 'action', id: 'back', label: PAUSE_MENU.back });
+      this.menu = new Menu(lines);
     } else if (screen === 'controls' || screen === 'credits') this.menu = new Menu([{ kind: 'action', id: 'back', label: PAUSE_MENU.back }]);
     else {
       const t = screen === 'confirmNew' ? CONFIRM_MENU : QUIT_MENU;
@@ -224,6 +248,10 @@ export class PauseScene extends Phaser.Scene {
   private paint(): void {
     for (const o of this.objs) o.destroy();
     this.objs = [];
+    if (this.screen === 'inventory') {
+      this.paintInventory();
+      return;
+    }
     const text = (x: number, y: number, s: string, tint: number, origin = 0.5): Phaser.GameObjects.BitmapText => {
       const t = this.add.bitmapText(x, y, FONT, fontText(s), 8).setOrigin(origin, 0).setTint(tint);
       this.objs.push(t);
@@ -233,6 +261,7 @@ export class PauseScene extends Phaser.Scene {
     const titleMain = this.mode === 'title' && this.screen === 'main';
     const titles: Record<Screen, string> = {
       main: PAUSE_TITLE,
+      inventory: INVENTORY_TITLE,
       options: OPTIONS_TITLE,
       controls: CONTROLS_TITLE,
       credits: CREDITS_TITLE,
@@ -315,6 +344,119 @@ export class PauseScene extends Phaser.Scene {
       const v = `v${__VERSION__}`;
       text(VIEW_W - 6 - textWidth(v), VIEW_H - 11, v, 0x5a627c, 0);
     } else text(cx, y0 + h - 14, MENU_HINT, GREY);
+  }
+
+  /**
+   * The inventory: on the left, the weapon in hand and the character with what the items have
+   * done to each number (green better, red worse, and what it was before), and the synergies on;
+   * on the right, what is carried (icon and name) and, under it, the chosen one in full.
+   */
+  private paintInventory(): void {
+    const p = this.game_.world.player;
+    const text = (x: number, y: number, s: string, tint: number, origin = 0): Phaser.GameObjects.BitmapText => {
+      const t = this.add.bitmapText(x, y, FONT, fontText(s), 8).setOrigin(origin, 0).setTint(tint);
+      this.objs.push(t);
+      return t;
+    };
+    const x0 = 10;
+    const y0 = 8;
+    const W = VIEW_W - 20;
+    const H = VIEW_H - 16;
+    const g = this.add.graphics();
+    this.objs.push(g);
+    g.fillStyle(0x0e0c16, 1).fillRect(x0 - 1, y0 - 1, W + 2, H + 2);
+    g.fillStyle(0x101420, 0.97).fillRect(x0, y0, W, H);
+    g.lineStyle(1, GOLD, 0.9).strokeRect(x0 + 0.5, y0 + 0.5, W - 1, H - 1);
+    for (let x = x0 + 1; x < x0 + W - 1; x++) g.fillStyle(Math.floor(x / 4) % 2 === 0 ? 0xb08a1c : 0x191622, 1).fillRect(x, y0 + 1, 1, 3);
+    text(VIEW_W / 2, y0 + 9, INVENTORY_TITLE, GOLD, 0.5);
+    text(VIEW_W / 2, y0 + 20, INVENTORY_SUB, GREY, 0.5);
+    // A divider between the two columns.
+    const rx = x0 + 232;
+    g.fillStyle(0x2c3048, 1).fillRect(rx - 8, y0 + 34, 1, H - 64);
+
+    // Left: the numbers.
+    const lx = x0 + 10;
+    let y = y0 + 36;
+    const rows = (list: StatRow[]): void => {
+      for (const r of list) {
+        text(lx, y, r.label, CREAM);
+        text(lx + 92, y, r.now, r.delta > 0 ? 0x7ef0a0 : r.delta < 0 ? 0xe0453b : 0xf4f1e8);
+        if (r.delta !== 0) text(lx + 150, y, `${INVENTORY_BEFORE} ${r.base}`, GREY);
+        y += 10;
+      }
+    };
+    text(lx, y, `${INVENTORY_WEAPON} · ${p.weapon.def.name}`, GOLD);
+    y += 12;
+    rows(weaponStatRows(p.weapon.base, p.weapon.def));
+    y += 6;
+    text(lx, y, p.def.name, GOLD);
+    y += 12;
+    rows(characterStatRows(p.base.def, p.def));
+    y += 6;
+    text(lx, y, INVENTORY_SYNERGIES, GOLD);
+    y += 12;
+    if (p.synergies.length === 0) text(lx, y, INVENTORY_NO_SYNERGY, GREY);
+    else text(lx, y, p.synergies.map((id) => SYNERGIES[id]?.name ?? id).join(' · '), 0x69dbd8).setMaxWidth(212);
+
+    // Right: what is carried, a window of 6 lines round the chosen one.
+    let ry = y0 + 36;
+    const things = this.menu.items.filter((it) => it.id !== 'back');
+    text(rx, ry, `${INVENTORY_ITEMS} (${p.items.length})`, GOLD);
+    ry += 13;
+    if (things.length === 0) text(rx, ry + 2, INVENTORY_EMPTY, GREY);
+    const VISIBLE = 6;
+    const first = Math.max(0, Math.min(things.length - VISIBLE, this.menu.index - 2));
+    things.slice(first, first + VISIBLE).forEach((it, k) => {
+      const i = first + k;
+      const on = i === this.menu.index;
+      const [kind, id] = it.id.split(':') as [string, string];
+      const sprite = kind === 'item' ? ITEMS[id]?.sprite : kind === 'active' ? ACTIVE_ITEMS[id]?.sprite : undefined;
+      if (on) g.fillStyle(0x2c3048, 1).fillRect(rx - 3, ry - 1, W - (rx - x0) - 8, 17);
+      if (sprite) this.objs.push(this.add.image(rx + 8, ry + 8, sprite).setOrigin(0.5, 0.5));
+      const t = text(rx + 20, ry + 4, it.label + (kind === 'active' ? ' (Q)' : ''), on ? GOLD : kind === 'syn' ? 0x69dbd8 : CREAM);
+      t.setInteractive({ useHandCursor: true }).on('pointerover', () => {
+        if (this.menu.index !== i) {
+          this.menu.index = i;
+          this.paint();
+        }
+      });
+      ry += 17;
+    });
+    if (first + VISIBLE < things.length) text(rx + 20, ry - 3, '...', GREY);
+
+    // Under the list: the chosen one in full.
+    const sel = this.menu.current;
+    const dy = y0 + 36 + 13 + VISIBLE * 17 + 6;
+    if (sel.id.includes(':')) {
+      const [kind, id] = sel.id.split(':') as [string, string];
+      let desc = '';
+      let lines: EffectLine[] = [];
+      if (kind === 'item' && ITEMS[id]) {
+        desc = ITEMS[id].description;
+        lines = modifierLines(ITEMS[id].mod);
+      } else if (kind === 'active' && ACTIVE_ITEMS[id]) {
+        const a = ACTIVE_ITEMS[id];
+        desc = a.description;
+        lines = [...activeLines(a), { text: inventoryBatteries(p.active?.charge ?? 0, a.charges), good: (p.active?.charge ?? 0) >= a.charges }];
+      } else if (kind === 'syn' && SYNERGIES[id]) {
+        desc = SYNERGIES[id].text;
+        lines = modifierLines(SYNERGIES[id].mod);
+      }
+      g.fillStyle(0x0e0c16, 0.8).fillRect(rx - 3, dy - 3, W - (rx - x0) - 8, H - (dy - y0) - 24);
+      const d = text(rx + 2, dy, desc, CREAM).setMaxWidth(W - (rx - x0) - 16);
+      let ly = dy + Math.ceil(d.getTextBounds(true).global.height) + 4;
+      for (const l of lines) {
+        text(rx + 2, ly, l.text, l.good ? 0x7ef0a0 : 0xe0453b);
+        ly += 10;
+      }
+    }
+
+    // Back, and how to use it.
+    const back = this.menu.items.length - 1;
+    const on = this.menu.index === back;
+    const b = text(VIEW_W / 2, y0 + H - 26, (on ? '» ' : '') + PAUSE_MENU.back + (on ? ' «' : ''), on ? GOLD : CREAM, 0.5);
+    b.setInteractive({ useHandCursor: true }).on('pointerdown', () => this.back());
+    text(VIEW_W / 2, y0 + H - 13, MENU_HINT, GREY, 0.5);
   }
 
   /** «Garantía Expirada» three times the size of the font, with a red stamp-like shadow, and the tagline. */

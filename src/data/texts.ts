@@ -267,3 +267,16 @@ export const CREDITS_LINES: readonly string[] = [
   'Todo lo demás se ha hecho a mano, en código, dentro del proyecto.',
   'Ningún electrodoméstico fue reparado durante el desarrollo.',
 ];
+
+/** The inventory, in the pause menu. */
+export const INVENTORY_MENU = 'Inventario';
+export const INVENTORY_TITLE = 'Inventario';
+export const INVENTORY_SUB = 'Lo que llevas encima. Sin ticket regalo.';
+export const INVENTORY_EMPTY = 'Nada. Como la garantía.';
+export const INVENTORY_WEAPON = 'Arma en mano';
+export const INVENTORY_ITEMS = 'Objetos';
+export const INVENTORY_SYNERGIES = 'Sinergias';
+export const INVENTORY_NO_SYNERGY = 'Ninguna encendida';
+/** Before the value an item changed: what it was without items. */
+export const INVENTORY_BEFORE = 'antes';
+export const inventoryBatteries = (charge: number, needs: number): string => `Pilas: ${charge} de ${needs}`;
