@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, SWAP_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
+import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, CONTROLS_HINT, RELOADING, SWAP_HINT, TEST_ROOM_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
 import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
@@ -196,7 +196,7 @@ export class GameScene extends Phaser.Scene {
   private itemIcons: Phaser.GameObjects.Image[] = [];
   /** An item's description under the banner (which shows its name) when it is picked up. */
   private itemDesc!: Phaser.GameObjects.BitmapText;
-  /** A synergy that has just switched on: «¡Sinergia!», its name and its line, under the item's. */
+  /** A synergy that has just switched on: «Sinergia corporativa:», its name and its line, under the item's. */
   private synergyText!: Phaser.GameObjects.BitmapText;
   /** The dark plate behind it, so it reads over the floor. */
   private synergyPlate!: Phaser.GameObjects.Rectangle;
@@ -470,7 +470,7 @@ export class GameScene extends Phaser.Scene {
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.weaponName = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 37, FONT, '', 8).setOrigin(1, 0)).setTint(0xf6c431).setAlpha(0);
     this.arsenalMarks = this.hud(this.add.graphics());
-    this.hintText = fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar' + (room.kind === 'test' ? ' · 1-5 balas enemigas' : ''));
+    this.hintText = fontText(CONTROLS_HINT + (room.kind === 'test' ? ` · ${TEST_ROOM_HINT}` : ''));
     this.hint = [0, 1].map(() => this.hud(this.add.bitmapText(8, VIEW_H - 16, FONT, '', 8)).setTint(0xd6cdb2).setAlpha(this.hintT > 0 ? 1 : 0));
     this.mapSize = { w: 0, h: 0 };
     if (this.world.floor) this.drawMinimap();
@@ -1658,7 +1658,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * A synergy switches on: a rising chord, a ring of sparks round the toaster, and «¡Sinergia!»,
+   * A synergy switches on: a rising chord, a ring of sparks round the toaster, and «Sinergia corporativa:»,
    * its name and its line on a dark plate under the item's description for a while.
    */
   private showSynergy(id: string): void {
@@ -2666,7 +2666,7 @@ export class GameScene extends Phaser.Scene {
     this.ammoPips.forEach((s, i) => s.setFrame(i < ws.ammo ? 0 : 1));
     // Above the second row of pips when the magazine is long.
     this.ammoText.setY(l.ammoText.y);
-    this.ammoText.setText(ws.reload > 0 ? fontText('Recargando') : `${ws.ammo}/${ws.def.magazine}`);
+    this.ammoText.setText(ws.reload > 0 ? fontText(RELOADING) : `${ws.ammo}/${ws.def.magazine}`);
     this.ammoText.setTint(ws.reload > 0 || ws.ammo === 0 ? 0xe0453b : 0xf4f1e8);
     this.reloadBar.clear();
     if (ws.reload > 0) {

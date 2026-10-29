@@ -55,7 +55,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
   bombilla: {
     id: 'bombilla',
     name: 'Bombilla de Bajo Consumo',
-    description: 'Mando intermedio. Tarda un rato en encenderse, pero cuando se enciende no hay quien la apague. Gasta poco y rinde menos.',
+    description: 'Mando intermedio. Tarda en encenderse y, cuando se enciende, gasta poco y rinde menos.',
     hp: 30,
     sprite: 'bombilla',
     anchor: { x: 16, y: 35 },
@@ -165,8 +165,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     id: 'nevera-suprema',
     name: 'La Nevera Suprema',
     description:
-      'Jefa de la planta del almacén. Clase energética A+++, dispensador de hielo y una pegatina de «Empleada del mes» ' +
-      'que se puso ella misma. Lleva veinte años sin descongelarse y sin dar una sola explicación.',
+      'Jefa de planta, clase A+++ y «Empleada del mes» con una pegatina que se puso ella misma. ' +
+      'Lleva veinte años sin descongelarse y sin dar una sola explicación.',
     hp: 200,
     sprite: 'nevera-suprema',
     anchor: { x: 34, y: 73 },

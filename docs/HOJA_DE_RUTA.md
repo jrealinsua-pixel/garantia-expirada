@@ -17,7 +17,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | Hito | Sesiones | Por qué |
 | --- | ---: | --- |
 | M5 · Armas, objetos y sinergias | hecho | Terminado el 29 a las 11:55 |
-| M6 · Partida completa | 10 | Menús, pantallas, guardado, dos pistas de música, inventario e interfaz limpia |
+| M6 · Partida completa | hecho | Terminado el 29 a las 13:55 (en 10 sesiones, lo estimado) |
 | M7 · Pulido | 13 | Equilibrio (dificultad media-alta), armas y objetos, y animaciones de todos los enemigos |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
@@ -27,7 +27,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
 | M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
 | M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
-| **Total** | **145** | **~189 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+| **Total** | **135** | **~176 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
 
 En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
 medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
@@ -132,7 +132,7 @@ distinguen claramente en las capturas.
 **Criterios de aceptación:** cada objeto tiene un test de su efecto; las partidas del bot con
 semillas distintas acaban con builds distintas.
 
-## M6 · Partida completa (primera versión jugable)
+## M6 · Partida completa (primera versión jugable) (hecho)
 
 - [x] Pausa (Esc, P o Start) con opciones (volumen de efectos, pantalla completa, temblor de
   cámara; se guardan en el navegador) y la lista de controles.
@@ -146,7 +146,7 @@ semillas distintas acaban con builds distintas.
 - [x] Pantalla de victoria (de momento, la de planta superada: «Incidencia resuelta»; la de la partida entera llegará con la última planta).
 - [x] Guardado local de desbloqueos y estadísticas (perfil con partidas, jefas, victorias por personaje y todo lo descubierto; «Historial» en la portada).
 - [x] Una pista de música chiptune para la planta y otra para el jefe.
-- [ ] Revisión completa de textos con la guía de humor.
+- [x] Revisión completa de textos con la guía de humor (y `tests/textos.test.ts`, que la vigila).
 
 **Criterios de aceptación:** se cumple el «contenido mínimo de la primera versión jugable» de
 `docs/DISENO.md`; el humano puede jugar una partida completa en el enlace publicado.

@@ -38,7 +38,7 @@ export const SHOPKEEPER = {
   thanks: [
     'Gracias por su compra. Su opinión no nos importa.',
     'Objeto inesperado en la zona de embolsado.',
-    '¿Quiere el tique? Da igual, no se lo voy a dar.',
+    '¿Quiere el ticket? Da igual, no se lo voy a dar.',
     'Compra registrada. Ha ganado cero puntos.',
   ],
   /** Not enough coupons. */

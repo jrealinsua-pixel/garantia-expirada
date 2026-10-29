@@ -8,7 +8,7 @@ export const DEATH_STAMPS: readonly string[] = [
   'No reembolsable',
   'Obsoleto',
   'Piezas sueltas',
-  'Daños por mal uso',
+  'Mal uso acreditado',
   'Descatalogado',
   'Sin piezas de recambio',
   'Reacondicionable',
@@ -29,15 +29,15 @@ export const BOSS_DOWN_LINE = 'La Dirección ha cesado su actividad. Nadie respo
 /** Shown when the test room brings its enemies back. */
 export const RESTOCK_LINE = 'Reposición de stock';
 
-/** Over the mixer when its slider jams on the red notch. */
 /** Shown when the last enemy of a combat room falls and the shutters roll up. */
 export const DOORS_OPEN_LINES: readonly string[] = [
-  'Incidencia resuelta · Valore nuestra atención',
+  'Trámite completado · Valore nuestra atención',
   'Puertas desbloqueadas · Gracias por su paciencia',
   'Su reclamación ha sido archivada',
   'Sala despejada · Encuesta de satisfacción enviada',
 ];
 
+/** Over the mixer when its slider jams on the red notch. */
 export const TURBO_LINE = 'Turbo';
 
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */
@@ -174,6 +174,12 @@ export function winReport(info: WinReportInfo, pick: (n: number) => number): { l
   ];
 }
 
+/** The line of controls under the first room (and the test room's extra keys). */
+export const CONTROLS_HINT = 'WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar';
+export const TEST_ROOM_HINT = '1-5 balas enemigas';
+/** Instead of the ammo count while reloading. */
+export const RELOADING = 'Recargando';
+
 /** How to change weapon, shown the first time the toaster carries more than one. */
 export const SWAP_HINT = 'E o rueda del ratón: cambiar de arma';
 /** Over a weapon just found (one at random). */
@@ -189,14 +195,14 @@ export const activeHint = (n: number): string => `Q: usar · necesita ${n} pila$
 /** Over the toaster when an active item is used, by effect. */
 export const ACTIVE_LINES: Record<string, string> = {
   clearFire: 'Encuesta enviada. Gracias por su tiempo.',
-  hold: 'Su ataque es muy importante para nosotros.',
+  hold: 'Sala en espera. Por orden de llegada.',
   heal: 'Reparado. Sin garantía.',
 };
 /** Q without enough batteries. */
 export const NO_CHARGE_LINE = 'Sin batería';
 
-/** Over the toaster, and as the heading of the synergy box, when a synergy switches on. */
-export const SYNERGY_LINE = '¡Sinergia!';
+/** Before the synergy's name, over the toaster and as the heading of the synergy box, when a synergy switches on. */
+export const SYNERGY_LINE = 'Sinergia corporativa:';
 
 /** Tickets and chests (M5). */
 export const TICKET_LINE = 'Ticket de compra · válido 14 días';
