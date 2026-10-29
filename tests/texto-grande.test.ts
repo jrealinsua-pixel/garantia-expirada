@@ -4,12 +4,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { FONT_LINE, textWidth, wrapLines } from '../src/art/font.ts';
 import { CARD_WIDTH, CARD_WIDTH_BIG, HUD_H, HUD_W, TITLE_TOP, cardLayout, hudLayout, inside, overlaps, splitTitle, titleLines, titleX, type Box, type HudState } from '../src/render/hud.ts';
+import { INVENTORY, inventoryCardAt, inventoryListBottom } from '../src/render/hud.ts';
 import { DEFAULT_SETTINGS, parseSettings, readScale } from '../src/render/settings.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../src/data/items.ts';
 import { WEAPONS } from '../src/data/weapons.ts';
 import { SYNERGIES } from '../src/data/synergies.ts';
 import { ROOMS } from '../src/data/rooms.ts';
 import { activeLines, modifierLines, weaponLines } from '../src/data/describe.ts';
+import { inventoryBatteries } from '../src/data/texts.ts';
 import { DOORS_OPEN_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, LIFT_LINE, RESTOCK_LINE, SWAP_HINT, SYNERGY_LINE } from '../src/data/texts.ts';
 import { SHOPKEEPER } from '../src/data/shop.ts';
 import { DOWN_ADVICE, DOWN_CAUSE_DEFAULT, DOWN_CAUSES, DOWN_COVERAGE, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport } from '../src/data/texts.ts';
@@ -209,4 +211,26 @@ test('los partes a doble tamaño caben enteros en la pantalla, sin salirse ni pi
   // Most of the time it finds a free spot; when not, it fades.
   assert.ok(fading / total < 0.5, `el sello tapa texto en ${fading} de ${total} partes grandes`);
   console.log(`sello sobre texto (se aparta): ${fading} de ${total}`);
+});
+
+test('en el inventario, la ventana grande cabe entre la lista y «Volver» con cualquier cosa elegida', () => {
+  const things = [
+    ...Object.values(ITEMS).map((i) => ({ name: i.name, kind: '', description: i.description, effects: modifierLines(i.mod).map((l) => l.text) })),
+    ...Object.values(ACTIVE_ITEMS).map((a) => {
+      const effects = [...activeLines(a).map((l) => l.text), inventoryBatteries(a.charges, a.charges)];
+      return { name: a.name, kind: '', description: a.description, effects };
+    }),
+    ...Object.values(SYNERGIES).map((s) => ({ name: s.name, kind: '', description: s.text, effects: modifierLines(s.mod).map((l) => l.text) })),
+  ];
+  const panel: Box = { x: INVENTORY.x, y: INVENTORY.y, w: INVENTORY.w, h: INVENTORY.h };
+  for (const t of things) {
+    // The list says what kind of thing it is: the window leaves that line out.
+    const L = cardLayout(t.name, '', t.description, t.effects, 2);
+    assert.ok(L.desc.y + L.desc.lines * 20 <= (L.effects[0]?.y ?? L.h) && L.desc.y >= L.name.y + 20, `${t.name}: el texto se pisa`);
+    assert.equal(L.effects.length, t.effects.length, `${t.name}: se pierde algún efecto`);
+    const at = inventoryCardAt(L.w, L.h);
+    assert.ok(inside({ ...at, w: L.w, h: L.h }, panel), `${t.name}: se sale del panel`);
+    assert.ok(at.y >= inventoryListBottom(INVENTORY.visibleBig) + 2, `${t.name}: tapa la lista (${L.h} px de alto)`);
+  }
+  assert.ok(inventoryListBottom(INVENTORY.visible) < INVENTORY.y + INVENTORY.h - 60, 'la lista normal deja sitio a su descripción');
 });

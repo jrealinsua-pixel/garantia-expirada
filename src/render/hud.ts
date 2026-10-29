@@ -219,7 +219,8 @@ export function cardLayout(name: string, kind: string, description: string, effe
   const lines = wrapLines(description, room, scale);
   const nameAt = { text: name, x: CARD_TEXT_X, y: 6 };
   const kindAt = { text: kind, x: CARD_TEXT_X, y: 6 + line };
-  const descAt = { text: lines.join('\n'), x: CARD_TEXT_X, y: kindAt.y + line + 2 * scale, lines: lines.length };
+  // With no kind (the inventory's list already says it), the description goes up a line.
+  const descAt = { text: lines.join('\n'), x: CARD_TEXT_X, y: (kind ? kindAt.y + line : nameAt.y + line) + 2 * scale, lines: lines.length };
   let y = descAt.y + lines.length * line + (scale > 1 ? 4 : 5);
   const placed: (PlacedText & { index: number })[] = [];
   const gap = 8 * scale;
@@ -299,4 +300,21 @@ export function stackFloat(placed: Box[], box: Box): number {
     y = hit.y - box.h - 1;
   }
   return y;
+}
+
+/**
+ * The pause menu's inventory panel. At the font's own size the chosen thing is described in a
+ * box under the list; with «Texto grande» the list shows two lines and the chosen thing comes up
+ * in the big description window, over the bottom of the panel (the numbers come back on «Volver»).
+ */
+export const INVENTORY = { x: 10, y: 8, w: HUD_W - 20, h: HUD_H - 16, listTop: 44, listHead: 13, rowH: 17, visible: 6, visibleBig: 2 } as const;
+
+/** Where the big description window goes in the inventory: centred, its bottom over «Volver». */
+export function inventoryCardAt(cardW: number, cardH: number): Point {
+  return { x: Math.round((HUD_W - cardW) / 2), y: INVENTORY.y + INVENTORY.h - 30 - cardH };
+}
+
+/** The bottom of the inventory's list of things with `visible` lines. */
+export function inventoryListBottom(visible: number): number {
+  return INVENTORY.y + 36 + INVENTORY.listHead + visible * INVENTORY.rowH;
 }

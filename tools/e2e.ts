@@ -718,8 +718,26 @@ try {
   await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 });
   await page.waitForTimeout(3200);
   await shot('31e-texto-grande-parte.png');
+  await page.goto(`${url}?semilla=e2e-inventario&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; g.scene.world.noDamage = true;
+    for (const id of ['pila', 'resistencia', 'garantia', 'etiqueta', 'manual', 'broca', 'cinta']) g.giveItem(id); g.giveActive('encuesta'); })()`);
+  await page.waitForTimeout(300);
+  await tapKeys('Escape', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(200);
+  await shot('31f-texto-grande-inventario.png');
+  await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown');
+  await page.waitForTimeout(150);
+  await shot('31g-texto-grande-inventario-activo.png');
+  // Seven items, the active one and two synergies: «Volver» is three lines down.
+  await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown');
+  await page.waitForTimeout(150);
+  if ((await page.evaluate<string>('window.__GE_PHASER__.scene.getScene("pause").menu.current.id')) !== 'back') throw new Error('El inventario no llega a «Volver»');
+  await shot('31h-texto-grande-inventario-volver.png');
+  await tapKeys('Escape', 'Escape');
+  await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
-  console.log('Texto grande: ventana de descripción, sinergia después, nombre de sala, bocadillo de la caja y parte de baja.');
+  console.log('Texto grande: ventana de descripción, sinergia después, nombre de sala, bocadillo de la caja, parte de baja e inventario.');
 
   // M6: the title screen. Credits, then a run; from the pause, back to the title.
   await page.goto(url);

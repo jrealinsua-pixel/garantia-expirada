@@ -50,6 +50,7 @@ import { profile } from './save.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { Menu, type MenuItem, type MenuResult } from './menu.ts';
 import { saveSettings, settings } from './settings.ts';
+import { cardLayout, INVENTORY, inventoryCardAt } from './hud.ts';
 import { addCanvasTexture, FONT } from './textures.ts';
 import type { GameScene } from './GameScene.ts';
 
@@ -392,10 +393,11 @@ export class PauseScene extends Phaser.Scene {
       this.objs.push(t);
       return t;
     };
-    const x0 = 10;
-    const y0 = 8;
-    const W = VIEW_W - 20;
-    const H = VIEW_H - 16;
+    const x0 = INVENTORY.x;
+    const y0 = INVENTORY.y;
+    const W = INVENTORY.w;
+    const H = INVENTORY.h;
+    const big = settings().bigText;
     const g = this.add.graphics();
     this.objs.push(g);
     g.fillStyle(0x0e0c16, 1).fillRect(x0 - 1, y0 - 1, W + 2, H + 2);
@@ -438,14 +440,14 @@ export class PauseScene extends Phaser.Scene {
     text(rx, ry, `${INVENTORY_ITEMS} (${p.items.length})`, GOLD);
     ry += 13;
     if (things.length === 0) text(rx, ry + 2, INVENTORY_EMPTY, GREY);
-    const VISIBLE = 6;
-    const first = Math.max(0, Math.min(things.length - VISIBLE, this.menu.index - 2));
+    const VISIBLE = big ? INVENTORY.visibleBig : INVENTORY.visible;
+    const first = Math.max(0, Math.min(things.length - VISIBLE, this.menu.index - (big ? 0 : 2)));
     things.slice(first, first + VISIBLE).forEach((it, k) => {
       const i = first + k;
       const on = i === this.menu.index;
       const [kind, id] = it.id.split(':') as [string, string];
       const sprite = kind === 'item' ? ITEMS[id]?.sprite : kind === 'active' ? ACTIVE_ITEMS[id]?.sprite : undefined;
-      if (on) g.fillStyle(0x2c3048, 1).fillRect(rx - 3, ry - 1, W - (rx - x0) - 8, 17);
+      if (on) g.fillStyle(0x2c3048, 1).fillRect(rx - 3, ry - 1, W - (rx - x0) - 8, INVENTORY.rowH);
       if (sprite) this.objs.push(this.add.image(rx + 8, ry + 8, sprite).setOrigin(0.5, 0.5));
       const t = text(rx + 20, ry + 4, it.label + (kind === 'active' ? ' (Q)' : ''), on ? GOLD : kind === 'syn' ? 0x69dbd8 : CREAM);
       t.setInteractive({ useHandCursor: true }).on('pointerover', () => {
@@ -454,34 +456,48 @@ export class PauseScene extends Phaser.Scene {
           this.paint();
         }
       });
-      ry += 17;
+      ry += INVENTORY.rowH;
     });
     if (first + VISIBLE < things.length) text(rx + 20, ry - 3, '...', GREY);
 
     // Under the list: the chosen one in full.
     const sel = this.menu.current;
-    const dy = y0 + 36 + 13 + VISIBLE * 17 + 6;
+    const dy = y0 + 36 + INVENTORY.listHead + VISIBLE * INVENTORY.rowH + 6;
     if (sel.id.includes(':')) {
       const [kind, id] = sel.id.split(':') as [string, string];
+      let name = '';
+      let sprite = '';
+      let edge = GOLD;
       let desc = '';
       let lines: EffectLine[] = [];
       if (kind === 'item' && ITEMS[id]) {
+        name = ITEMS[id].name;
+        sprite = ITEMS[id].sprite;
         desc = ITEMS[id].description;
         lines = modifierLines(ITEMS[id].mod);
       } else if (kind === 'active' && ACTIVE_ITEMS[id]) {
         const a = ACTIVE_ITEMS[id];
+        name = a.name;
+        sprite = a.sprite;
+        edge = 0x69dbd8;
         desc = a.description;
         lines = [...activeLines(a), { text: inventoryBatteries(p.active?.charge ?? 0, a.charges), good: (p.active?.charge ?? 0) >= a.charges }];
       } else if (kind === 'syn' && SYNERGIES[id]) {
+        name = SYNERGIES[id].name;
+        edge = 0x69dbd8;
         desc = SYNERGIES[id].text;
         lines = modifierLines(SYNERGIES[id].mod);
       }
-      g.fillStyle(0x0e0c16, 0.8).fillRect(rx - 3, dy - 3, W - (rx - x0) - 8, H - (dy - y0) - 24);
-      const d = text(rx + 2, dy, desc, CREAM).setMaxWidth(W - (rx - x0) - 16);
-      let ly = dy + Math.ceil(d.getTextBounds(true).global.height) + 4;
-      for (const l of lines) {
-        text(rx + 2, ly, l.text, l.good ? 0x7ef0a0 : 0xe0453b);
-        ly += 10;
+      // Big: the list already says what kind of thing it is, so the window leaves that line out.
+      if (big) this.paintBigCard(sprite, name, '', desc, lines, edge);
+      else {
+        g.fillStyle(0x0e0c16, 0.8).fillRect(rx - 3, dy - 3, W - (rx - x0) - 8, H - (dy - y0) - 24);
+        const d = text(rx + 2, dy, desc, CREAM).setMaxWidth(W - (rx - x0) - 16);
+        let ly = dy + Math.ceil(d.getTextBounds(true).global.height) + 4;
+        for (const l of lines) {
+          text(rx + 2, ly, l.text, l.good ? 0x7ef0a0 : 0xe0453b);
+          ly += 10;
+        }
       }
     }
 
@@ -491,6 +507,29 @@ export class PauseScene extends Phaser.Scene {
     const b = text(VIEW_W / 2, y0 + H - 26, (on ? '» ' : '') + PAUSE_MENU.back + (on ? ' «' : ''), on ? GOLD : CREAM, 0.5);
     b.setInteractive({ useHandCursor: true }).on('pointerdown', () => this.back());
     text(VIEW_W / 2, y0 + H - 13, MENU_HINT, GREY, 0.5);
+  }
+
+  /**
+   * The big description window (texto grande) for the thing chosen in the inventory, over the
+   * bottom of the panel: the same window that comes up when it is picked up.
+   */
+  private paintBigCard(sprite: string, name: string, kind: string, description: string, effects: EffectLine[], edge: number): void {
+    const L = cardLayout(fontText(name), fontText(kind), fontText(description), effects.map((e) => fontText(e.text)), 2);
+    const { x, y } = inventoryCardAt(L.w, L.h);
+    const g = this.add.graphics();
+    this.objs.push(g);
+    g.fillStyle(0x0e0c16, 1).fillRect(x - 1, y - 1, L.w + 2, L.h + 2);
+    g.fillStyle(0x101420, 1).fillRect(x, y, L.w, L.h);
+    g.lineStyle(1, edge, 0.9).strokeRect(x + 0.5, y + 0.5, L.w - 1, L.h - 1);
+    g.fillStyle(0x0e0c16, 0.8).fillRect(x + L.well.x, y + L.well.y, L.well.w, L.well.h);
+    if (sprite) this.objs.push(this.add.image(x + L.icon.x, y + L.icon.y, sprite).setOrigin(0.5, 0.5).setScale(2));
+    const put = (t: { text: string; x: number; y: number }, tint: number): void => {
+      this.objs.push(this.add.bitmapText(x + t.x, y + t.y, FONT, t.text, L.size).setTint(tint));
+    };
+    put(L.name, GOLD);
+    if (L.kind.text) put(L.kind, GREY);
+    put(L.desc, CREAM);
+    for (const e of L.effects) put(e, effects[e.index]!.good ? 0x7ef0a0 : 0xe0453b);
   }
 
   /** «Garantía Expirada» three times the size of the font, with a red stamp-like shadow, and the tagline. */
