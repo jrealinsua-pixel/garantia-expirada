@@ -228,6 +228,7 @@ export class GameScene extends Phaser.Scene {
   /** A line the till says once the one it is saying ends. */
   private tillNext: string | null = null;
   private banner!: Phaser.GameObjects.BitmapText;
+  private bannerPlate!: Phaser.GameObjects.Graphics;
   /** The description window that opens for a while when an item or a weapon is picked up. */
   private card!: ItemCard;
   private shutters: Array<{ img: Phaser.GameObjects.Image; h: number }> = [];
@@ -460,6 +461,9 @@ export class GameScene extends Phaser.Scene {
     this.holdWash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x9fb4e0, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(88000).setAlpha(0);
     this.hurtFlash = this.hud(this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xe0453b, 1).setOrigin(0, 0)).setAlpha(0).setDepth(89000);
     this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign());
+    // Its plate, like the HUD's, so it reads over the shelves (drawn each frame; see updateHud).
+    this.bannerPlate = this.hud(this.add.graphics());
+    this.bannerPlate.setDepth(this.banner.depth - 1);
     this.banner.setTint(0xf6c431).setAlpha(0);
     this.itemDesc = this.hud(this.add.bitmapText(VIEW_W / 2, 57, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0xd6cdb2).setAlpha(0);
     this.card = {
@@ -923,15 +927,21 @@ export class GameScene extends Phaser.Scene {
     where.setTint(0x858ea8).setAlpha(0);
     this.introParts.push(where);
     this.tweens.add({ targets: where, alpha: 1, delay: 300, duration: 200 });
+    // With big text the small lines go to double size (the name already is) and the motto may
+    // take two lines; the card grows upwards from the bottom bar.
     const x = 22;
-    const y = VIEW_H - BAR - 46;
-    const sub = this.hud(this.add.bitmapText(x, y, FONT, fontText(BOSS_CARD_SUBTITLE), 8)).setDepth(96001);
+    const small = 8 * scale;
+    const mottoText = wrapLines(fontText(`«${card.motto}»`), VIEW_W - 2 * x, scale).join('\n');
+    const mottoH = mottoText.split('\n').length * small;
+    const y = VIEW_H - BAR - 1 - mottoH - 29 - small;
+    const sub = this.hud(this.add.bitmapText(x, y, FONT, fontText(BOSS_CARD_SUBTITLE), small)).setDepth(96001);
     sub.setTint(0x858ea8).setAlpha(0);
-    const name = this.hud(this.add.bitmapText(x, y + 11, FONT, fontText(card.title), 16)).setDepth(96001);
+    const ny = y + small + 3;
+    const name = this.hud(this.add.bitmapText(x, ny, FONT, fontText(card.title), 16)).setDepth(96001);
     name.setTint(0xf6c431).setAlpha(0);
-    const line = this.hud(this.add.rectangle(x, y + 32, 1, 2, 0xe0453b, 1).setOrigin(0, 0)).setDepth(96001);
+    const line = this.hud(this.add.rectangle(x, ny + 21, 1, 2, 0xe0453b, 1).setOrigin(0, 0)).setDepth(96001);
     line.setAlpha(0);
-    const motto = this.hud(this.add.bitmapText(x, y + 37, FONT, fontText(`«${card.motto}»`), 8)).setDepth(96001);
+    const motto = this.hud(this.add.bitmapText(x, ny + 26, FONT, mottoText, small)).setDepth(96001);
     motto.setTint(0xd6cdb2).setAlpha(0);
     const skip = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 18, FONT, fontText(BOSS_CARD_SKIP), 8).setOrigin(1, 0)).setDepth(96001);
     skip.setTint(0x5a627c).setAlpha(0);
@@ -1065,6 +1075,17 @@ export class GameScene extends Phaser.Scene {
   private whiteOut(s: Phaser.GameObjects.Image): void {
     if (settings().flashes) s.setTintFill(0xffffff);
     else s.setTint(SOFT_FLASH_TINT);
+  }
+
+  /** Whether a warning shows this frame: blinking faster and faster, or steady with soft flashes. */
+  private warnOn(warnK: number): boolean {
+    return settings().flashes ? blinkOn(warnK) : true;
+  }
+
+  /** The warning on a sprite: solid yellow (white at the end); with soft flashes, a yellow tint. */
+  private warnFill(s: Phaser.GameObjects.Image, warnK: number): void {
+    if (settings().flashes) s.setTintFill(this.warnColor(warnK));
+    else s.setTint(this.warnColor(warnK));
   }
 
   /** Telegraph colour: yellow, turning white at the end (only yellow with soft flashes). */
@@ -2011,14 +2032,17 @@ export class GameScene extends Phaser.Scene {
 
   /** A line that pops up from (x, y) and fades; if another is still there, it goes up over it. */
   private floatText(x: number, y: number, text: string, tint: number, key?: string, vy = -30, life = 0.6): FloatText {
-    const w = textWidth(text);
-    const box = { x: Math.round(x - w / 2), y: Math.round(y) - 8, w, h: 8 };
+    // Double size with big text, like everything that is read.
+    const scale = readScale(settings());
+    const w = textWidth(text) * scale;
+    const h = 8 * scale;
+    const box = { x: Math.round(x - w / 2), y: Math.round(y) - h, w, h };
     const placed = this.floats.map((f) => {
       const b = f.t.getBounds();
       return { x: b.x, y: b.y, w: b.width, h: b.height };
     });
     const top = stackFloat(placed, box);
-    const t = this.add.bitmapText(Math.round(x), top + 8, FONT, text, 8).setOrigin(0.5, 1).setDepth(85000).setTint(tint);
+    const t = this.add.bitmapText(Math.round(x), top + h, FONT, text, h).setOrigin(0.5, 1).setDepth(85000).setTint(tint);
     const f: FloatText = { t, vy, life, key, age: 0 };
     this.floats.push(f);
     return f;
@@ -2162,7 +2186,7 @@ export class GameScene extends Phaser.Scene {
       s.setX(d.x + shiver);
       if (d.hitT > 0.07) this.whiteOut(s);
       else if (d.hitT > 0) s.setTint(0xffb0a0);
-      else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(this.warnColor(warnK));
+      else if (warnK >= 0 && this.warnOn(warnK)) this.warnFill(s, warnK);
       else s.clearTint();
     }
     // Enemies (the ones that come back after a restock get their sprites here).
@@ -2223,9 +2247,9 @@ export class GameScene extends Phaser.Scene {
       if (en.hitT > 0.07 || tv.white) this.whiteOut(s);
       else if (en.hitT > 0) s.setTint(0xffb0a0);
       // A boss only goes warm while it warns: a white fill would hide its open door.
-      else if (warnK >= 0 && blinkOn(warnK)) {
+      else if (warnK >= 0 && this.warnOn(warnK)) {
         if (en.def.boss) s.setTint(warnK > 0.75 ? 0xffe9a8 : 0xffc870);
-        else s.setTintFill(this.warnColor(warnK));
+        else this.warnFill(s, warnK);
       } else s.clearTint();
       if (en.state === 'roar') {
         // Between phases: it shudders and breathes out cold.
@@ -2642,11 +2666,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Puts every HUD piece where the layout says and draws the plates behind them. */
-  private placeHud(l: HudLayout): void {
+  private placeHud(layout: HudLayout): void {
+    let l = layout;
+    // The items glide to a new place 1 px a frame (when the controls hint goes, they move down a
+    // row), their plate with them; a new icon, or one far away, goes straight there.
+    let lag = 0;
     this.itemIcons.forEach((icon, i) => {
       const at = l.items[i];
-      if (at) icon.setPosition(at.x, at.y);
+      if (!at) return;
+      const dx = at.x - icon.x;
+      const dy = at.y - icon.y;
+      if (!icon.getData('placed') || Math.abs(dx) + Math.abs(dy) > 40) icon.setPosition(at.x, at.y).setData('placed', true);
+      else icon.setPosition(icon.x + Math.sign(dx), icon.y + Math.sign(dy));
+      if (i === 0) lag = icon.y - at.y;
     });
+    if (l.itemsBox && lag) l = { ...l, itemsBox: { ...l.itemsBox, y: l.itemsBox.y + lag } };
     this.hearts.forEach((h, i) => h.setX(l.hearts[i]?.x ?? 8));
     this.hint.forEach((t, i) => {
       const line = l.hintLines[i];
@@ -2703,6 +2737,18 @@ export class GameScene extends Phaser.Scene {
 
   private updateHud(dt: number): void {
     const p = this.world.player;
+    const bp = this.bannerPlate;
+    bp.clear();
+    const ba = this.banner.alpha;
+    if (ba > 0 && this.banner.visible && this.banner.text) {
+      const b = this.banner.getBounds();
+      const x = Math.round(b.x) - 4;
+      const y = Math.round(b.y) - 2;
+      const w = Math.round(b.width) + 8;
+      const h = Math.round(b.height) + 3;
+      bp.fillStyle(0x0e0c16, 0.62 * ba).fillRect(x, y, w, h);
+      bp.lineStyle(1, 0x3a3f5c, 0.9 * ba).strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+    }
     this.syncHudSlots();
     const l = this.computeLayout();
     this.layout = l;

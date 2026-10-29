@@ -158,9 +158,13 @@ export class PauseScene extends Phaser.Scene {
     this.show('main');
   }
 
-  /** The entrance of the warehouse, dimmed, with the toaster in front and a vignette. */
+  /**
+   * The customer-service queue of the warehouse (20 tiles: as wide as the screen), empty, dimmed,
+   * with the toaster in front and a vignette.
+   */
   private drawTitleBackground(): void {
-    const room = buildRoom(ROOMS.entrada!);
+    const t = ROOMS['cola-atencion']!;
+    const room = buildRoom({ ...t, rows: t.rows.map((r) => r.replace(/[eo]/g, '.')) });
     if (!this.textures.exists('portada-sala')) addCanvasTexture(this, 'portada-sala', paintRoom(room, 'portada').canvas);
     this.add.image(VIEW_W / 2, VIEW_H / 2 + 20, 'portada-sala').setOrigin(0.5, 0.5);
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x0e0c16, 0.6).setOrigin(0, 0);
@@ -380,8 +384,10 @@ export class PauseScene extends Phaser.Scene {
       w = 200;
       y0 = 112;
     }
-    const x0 = Math.round(cx - w / 2) + (titleMain ? 30 : 0);
+    // On the title, the other screens stand to the right, clear of the toaster.
+    const x0 = titleMain ? Math.round(cx - w / 2) + 30 : this.mode === 'title' ? Math.max(Math.round(cx - w / 2), VIEW_W - 8 - w) : Math.round(cx - w / 2);
     const mx = x0 + w / 2;
+    const tc = titleMain ? cx : mx;
     const g = this.add.graphics();
     this.objs.push(g);
     g.fillStyle(0x0e0c16, 1).fillRect(x0 - 1, y0 - 1, w + 2, h + 2);
@@ -391,10 +397,10 @@ export class PauseScene extends Phaser.Scene {
     for (let x = x0 + 1; x < x0 + w - 1; x++) g.fillStyle(Math.floor(x / 4) % 2 === 0 ? 0xb08a1c : 0x191622, 1).fillRect(x, y0 + 1, 1, 3);
     let y = y0 + 12;
     if (!titleMain) {
-      text(cx, y, titles[this.screen], GOLD);
+      text(tc, y, titles[this.screen], GOLD);
       y += 14;
       if (sub) {
-        text(cx, y, sub, GREY);
+        text(tc, y, sub, GREY);
         y += 12;
       }
       y += 4;
@@ -422,7 +428,7 @@ export class PauseScene extends Phaser.Scene {
       y += 8;
     } else if (this.screen === 'credits') {
       CREDITS.forEach((l, i) => {
-        text(cx, y, l, i === CREDITS.length - 1 ? GREY : CREAM);
+        text(tc, y, l, i === CREDITS.length - 1 ? GREY : CREAM);
         y += 11;
       });
       y += 8;
@@ -449,7 +455,7 @@ export class PauseScene extends Phaser.Scene {
       text(6, VIEW_H - 11, TITLE_FOOTER, 0x5a627c, 0);
       const v = `v${__VERSION__}`;
       text(VIEW_W - 6 - textWidth(v), VIEW_H - 11, v, 0x5a627c, 0);
-    } else text(cx, y0 + h - 14, MENU_HINT, GREY);
+    } else text(tc, y0 + h - 14, MENU_HINT, GREY);
   }
 
   /**
@@ -530,6 +536,16 @@ export class PauseScene extends Phaser.Scene {
       ry += INVENTORY.rowH;
     });
     if (first + VISIBLE < things.length) text(rx + 20, ry - 3, '...', GREY);
+    // More than fits: a scroll bar on the right edge says how much and where.
+    if (things.length > VISIBLE) {
+      const top = y0 + 36 + 13;
+      const track = VISIBLE * INVENTORY.rowH;
+      const thumb = Math.max(6, Math.round((track * VISIBLE) / things.length));
+      const at = top + Math.round(((track - thumb) * first) / (things.length - VISIBLE));
+      const bx = x0 + W - 7;
+      g.fillStyle(0x2c3048, 1).fillRect(bx, top, 2, track);
+      g.fillStyle(GOLD, 0.9).fillRect(bx, at, 2, thumb);
+    }
 
     // Under the list: the chosen one in full.
     const sel = this.menu.current;

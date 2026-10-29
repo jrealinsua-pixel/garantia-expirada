@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-29T17:34:00+01:00",
-  "version": "0.1.0",
-  "hito_actual": "M7",
+  "actualizado": "2026-10-29T17:40:00+01:00",
+  "version": "0.2.0",
+  "hito_actual": "M8",
   "hitos": [
     {
       "id": "M0",
@@ -55,14 +55,14 @@
     {
       "id": "M7",
       "nombre": "Pulido de la primera versión",
-      "estado": "en_curso",
-      "hechas": 10,
+      "estado": "hecho",
+      "hechas": 11,
       "total": 11
     },
     {
       "id": "M8",
       "nombre": "Planta 2: Informática",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 5
     },
@@ -127,9 +127,15 @@
     "tests_ok": 334,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 12254
+    "lineas_codigo": 12314
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T17:40:00+01:00",
+      "hito": "M7",
+      "resumen": "M7 terminado: lista de errores conocidos vacía. Portada sin bordes y con los paneles a la derecha, letreros con placa, barra en el inventario, avisos fijos con destellos suaves y la tarjeta de la jefa con texto grande. Versión 0.2.0.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T17:34:00+01:00",
       "hito": "M7",
@@ -469,6 +475,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/portada.png",
+      "pie": "La portada con los créditos a la derecha: ya no tapan a la tostadora, y el fondo llega de lado a lado"
+    },
+    {
+      "archivo": "capturas/inventario.png",
+      "pie": "El inventario con su barra de desplazamiento: siete objetos, un activo y dos sinergias no caben a la vez"
+    },
+    {
       "archivo": "capturas/jefa-encuadre.png",
       "pie": "La cámara encuadra a la Nevera Suprema entera desde el primer segundo del combate (antes salía cortada y con el nombre de la sala encima)"
     },
@@ -483,26 +497,18 @@
     {
       "archivo": "capturas/texto-grande.png",
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
-    },
-    {
-      "archivo": "capturas/parte-de-baja.png",
-      "pie": "Parte de baja con texto grande: casi a pantalla completa, el equipaje en su fila y el sello «Dado de baja» en un hueco libre para no tapar la recomendación"
-    },
-    {
-      "archivo": "capturas/inventario.png",
-      "pie": "El inventario de la pausa: el Secador con la Resistencia y la Pila hace 2 de daño pero el cargador baja de 14 a 10 (en rojo); a la derecha, los objetos y lo que hace el elegido"
     }
   ],
-  "proximo": "M7: errores conocidos (3): las asperezas de docs/ERRORES_CONOCIDOS.md.",
+  "proximo": "M8: juego de casillas y color propio de la planta 2 (Informática).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable.",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13).",
     "hitos": {
       "M5": 0,
       "M6": 0,
-      "M7": 13,
+      "M7": 0,
       "M8": 13,
       "M9": 10,
       "M10": 24,
@@ -517,16 +523,10 @@
       "sesiones": 0
     },
     "total": {
-      "sesiones": 135,
-      "con_margen": 176
+      "sesiones": 122,
+      "con_margen": 159
     },
-    "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
+    "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 15:41 UTC",
-      "tarea": "M7: errores conocidos (3), las asperezas de docs/ERRORES_CONOCIDOS.md",
-      "desde": "2026-10-29T16:24:00Z"
-    }
-  ]
+  "en_curso": []
 }

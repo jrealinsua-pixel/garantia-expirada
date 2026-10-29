@@ -4,8 +4,9 @@ La lista viva de lo que está mal o se ve mal. Sale de los «Problemas conocidos
 (repasados uno a uno el 2026-10-29, contra el código y las capturas) y se mantiene a mano: quien
 encuentre un error lo apunta aquí, y quien lo arregle lo pasa a «Arreglados» con la fecha.
 
-El hito M7 pide que las dos primeras secciones queden **vacías**. Las otras no cuentan: son
-decisiones tomadas o trabajo que ya tiene sitio en otro hito.
+El hito M7 pedía que las dos primeras secciones quedaran **vacías** (lo están desde el
+2026-10-29). Las otras no cuentan: son decisiones tomadas o trabajo que ya tiene sitio en otro
+hito. A partir de M8, un error nuevo se apunta aquí y se arregla antes de cerrar su hito.
 
 ## Errores (algo funciona mal)
 
@@ -13,21 +14,7 @@ Ninguno conocido.
 
 ## Asperezas (se ve o se nota feo, sin romper nada)
 
-- [ ] Portada: la sala del fondo es más estrecha que la pantalla y se ven bordes oscuros a los
-  lados.
-- [ ] Portada: los paneles de créditos, opciones, controles e historial tapan media tostadora.
-- [ ] Al cambiar una tecla en la pausa, los carteles que ya estaban en pantalla siguen nombrando
-  la tecla vieja hasta que se van.
-- [ ] El nombre de la sala del tesoro («Objetos perdidos (nadie los reclamó)») cae encima de la
-  puerta de arriba.
-- [ ] El nombre del objeto recogido sale mientras aún se ve el nombre de la sala (un segundo, en
-  líneas distintas).
-- [ ] La ayuda de controles: al apagarse, los objetos de abajo bajan una fila de golpe.
-- [ ] Los avisos de «cambia de arma» y «agotado» no llevan placa (los demás letreros sí).
-- [ ] Inventario: con más cosas de las que caben, solo «...» indica que hay más; no hay barra.
-- [ ] Con **Destellos suaves**, los avisos amarillos siguen parpadeando (a unos 8 Hz al final).
-- [ ] Con **Texto grande**, la tarjeta de presentación de la jefa y los textos flotantes (daño,
-  cupones) siguen a tamaño normal.
+Ninguna conocida.
 
 ## No son errores (decidido, con su motivo)
 
@@ -52,6 +39,13 @@ Ninguno conocido.
 - El bot llega a la tienda a menudo con pocos cupones y no vuelve: es el bot, no el juego.
 - Las cifras de `npm run rendimiento` dependen de la máquina, y las de `npm run objetos` tienen
   un ruido de ±8 puntos con 40 combates: se comparan antes y después, no en absoluto.
+- Todos los nombres de sala salen arriba en el centro, sobre la pared del fondo, que es donde
+  está la puerta norte; en salas estrechas (el tesoro) la placa pisa el marco de la puerta. Se lee
+  gracias a la placa y se va a los 3 s.
+- El nombre de un objeto recién recogido puede coincidir un segundo con el nombre de la sala: van
+  en líneas distintas y se leen los dos.
+- Al cambiar una tecla en la pausa, lo que ya estaba en pantalla (un letrero, la ventana de
+  descripción) se va en unos segundos con la tecla vieja; lo que sale después ya nombra la nueva.
 
 ## Para otro hito
 
@@ -63,6 +57,21 @@ Ninguno conocido.
 
 ## Arreglados
 
+- 2026-10-29 · **Portada**: el fondo es ahora la Cola de Atención al Cliente (20 casillas, tan
+  ancha como la pantalla: sin bordes oscuros), y créditos, opciones, controles e historial se
+  ponen a la derecha, sin tapar a la tostadora.
+- 2026-10-29 · **Objetos del HUD**: al irse la ayuda de controles bajan de 1 en 1 px, con su placa,
+  en vez de saltar una fila de golpe.
+- 2026-10-29 · **Letreros sin placa** (puertas abiertas, cambio de arma, reposición, montacargas):
+  llevan la misma placa oscura que el HUD.
+- 2026-10-29 · **Inventario**: con más cosas de las que caben, una barra a la derecha dice cuántas
+  hay y por dónde va la lista.
+- 2026-10-29 · **Destellos suaves**: los avisos ya no parpadean; el enemigo se tiñe de amarillo
+  fijo mientras avisa.
+- 2026-10-29 · **Texto grande**: también la tarjeta de la jefa (subtítulo y lema a doble tamaño, el
+  lema en dos líneas si hace falta) y los textos flotantes (cupones, corazones, sellos).
+- 2026-10-29 · **e2e**: la prueba de la bala que quita medio corazón fallaba a veces si la tostadora
+  tenía una caja a la izquierda (la bala nacía dentro); ahora llega por el lado libre.
 - 2026-10-29 · **Animación: las piernas del Mando se tapaban** en los pasos elevados y **la boquilla
   del Aspirador subía con el cuerpo**. Las piernas juntas (5 px o menos) ya no se cruzan por el
   centro: pasan a su distancia de reposo y la zapatilla que avanza se levanta 2 px

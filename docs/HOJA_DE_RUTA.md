@@ -18,7 +18,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | --- | ---: | --- |
 | M5 · Armas, objetos y sinergias | hecho | Terminado el 29 a las 11:55 |
 | M6 · Partida completa | hecho | Terminado el 29 a las 13:55 (en 10 sesiones, lo estimado) |
-| M7 · Pulido | 13 | Equilibrio (dificultad media-alta), armas y objetos, y animaciones de todos los enemigos |
+| M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
 | M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 |
@@ -27,7 +27,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
 | M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
 | M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
-| **Total** | **135** | **~176 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+| **Total** | **122** | **~159 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
 
 En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
 medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
@@ -151,7 +151,7 @@ semillas distintas acaban con builds distintas.
 **Criterios de aceptación:** se cumple el «contenido mínimo de la primera versión jugable» de
 `docs/DISENO.md`; el humano puede jugar una partida completa en el enlace publicado.
 
-## M7 · Pulido de la primera versión
+## M7 · Pulido de la primera versión (hecho)
 
 - [x] Equilibrio con datos del bot: tiempo por sala, daño recibido, tasa de victoria. Objetivo
   (nota del humano): dificultad media-alta; la planta 1 se gana con práctica, no a la primera.
@@ -169,10 +169,10 @@ semillas distintas acaban con builds distintas.
 - [x] Accesibilidad, parte 2c: texto grande en el inventario (la ventana de descripción grande, como emergente sobre la parte de abajo; la lista a dos líneas).
 - [x] Accesibilidad, parte 3: remapeo de controles (teclado; el mando, con su soporte completo en M15).
 - [x] Animaciones completas de todos los enemigos (reposo con respiración y paso de 4 fotogramas por distancia; golpe y muerte ya eran comunes: destello blanco y despiece).
-- [ ] Lista de errores conocidos vacía (`docs/ERRORES_CONOCIDOS.md`: las secciones «Errores» y «Asperezas» sin nada).
+- [x] Lista de errores conocidos vacía (`docs/ERRORES_CONOCIDOS.md`: las secciones «Errores» y «Asperezas» sin nada).
   - [x] Parte 1: reunir la lista (repasando cada «Problema conocido» de la bitácora) y arreglar las rendijas entre obstáculos, los enemigos que se amontonaban, los cupones de la jefa sobre el montacargas y el montacargas que volvía a subir.
   - [x] Parte 2: la sección «Errores» (la jefa cortada al empezar, trozos que cruzan paredes, parón del primer clic, e2e de la jefa desde la planta).
-  - [ ] Parte 3: las asperezas.
+  - [x] Parte 3: las asperezas (portada, letreros con placa, objetos del HUD que se deslizan, barra del inventario, avisos fijos con destellos suaves, tarjeta de la jefa y textos flotantes con texto grande); las que no eran errores, a su sección con el motivo.
 
 ## M8 · Planta 2: Informática
 

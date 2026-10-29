@@ -1,6 +1,6 @@
 {
   "name": "garantia-expirada",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Roguelike de disparos en pixel art protagonizado por electrodomésticos desechados.",
   "type": "module",

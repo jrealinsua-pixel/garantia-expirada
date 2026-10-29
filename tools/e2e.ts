@@ -241,9 +241,12 @@ try {
   if (s3.tick < 60 * seconds * 0.5) throw new Error(`La simulación va lenta: ${s3.tick} ticks en ${seconds} s`);
 
   // Damage: an enemy bullet at the toaster takes half a heart and leaves it blinking.
-  const bulletAt = (dx: number): string => `(() => { const w = window.__GE__.scene.world; const p = w.player;
-    w.bullets.push({ id: w.nextId++, owner: 'enemy', x: p.x - ${dx}, y: p.y - 9, vx: 140, vy: 0, r: 2.5, life: 3, damage: 1, knockback: 0,
-      color: 'red', age: 0, dir: 0, speed: 140, by: 'microondas' }); })()`;
+  // (From the left, or from the right if a box stands in the way on the left: it would stop it.)
+  const bulletAt = (dx: number): string => `(() => { const w = window.__GE__.scene.world; const p = w.player; const y = p.y - 9;
+    const blocked = (x0, x1) => w.room.props.some((pr) => pr.box.y <= y && y <= pr.box.y + pr.box.h && pr.box.x < Math.max(x0, x1) && pr.box.x + pr.box.w > Math.min(x0, x1));
+    const s = blocked(p.x - ${dx}, p.x) ? -1 : 1;
+    w.bullets.push({ id: w.nextId++, owner: 'enemy', x: p.x - s * ${dx}, y, vx: 140 * s, vy: 0, r: 2.5, life: 3, damage: 1, knockback: 0,
+      color: 'red', age: 0, dir: s > 0 ? 0 : Math.PI, speed: 140, by: 'microondas' }); })()`;
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.invulnerable = 0; w.player.rollT = -1; })()`);
   const hp0 = (await state()).hp;
   await page.evaluate(bulletAt(24));
@@ -809,8 +812,14 @@ try {
   await shot('31h-texto-grande-inventario-volver.png');
   await tapKeys('Escape', 'Escape');
   await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  // The boss card, with its motto at double size.
+  await page.goto(`${url}?semilla=e2e-jefe&sala=jefe`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  await page.waitForTimeout(2300);
+  await shot('31i-texto-grande-jefa.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
-  console.log('Texto grande: ventana de descripción, sinergia después, nombre de sala, bocadillo de la caja, parte de baja e inventario.');
+  console.log('Texto grande: ventana de descripción, sinergia después, nombre de sala, bocadillo de la caja, parte de baja, inventario y tarjeta de la jefa.');
 
   // M6: the title screen. Credits, then a run; from the pause, back to the title.
   await page.goto(url);
