@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T14:55:00+01:00",
+  "actualizado": "2026-10-29T15:05:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,8 +56,8 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 5,
-      "total": 7
+      "hechas": 6,
+      "total": 9
     },
     {
       "id": "M8",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 310,
-    "tests_ok": 310,
+    "tests": 311,
+    "tests_ok": 311,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11420
+    "lineas_codigo": 11444
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T15:05:00+01:00",
+      "hito": "M7",
+      "resumen": "Opción nueva «Destellos suaves»: sin siluetas blancas ni parpadeos rápidos, y el fogonazo de pantalla muy bajado. Para quien se cansa o se marea con los destellos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T14:55:00+01:00",
       "hito": "M7",
@@ -445,7 +451,7 @@
       "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: accesibilidad (remapeo de controles, reducir temblores y destellos, tamaño de texto).",
+  "proximo": "M7: accesibilidad parte 2, tamaño de texto.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -474,11 +480,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 13:24 UTC",
-      "tarea": "M7: accesibilidad (temblores, destellos, tamaño de texto, remapeo)",
-      "desde": "2026-10-29T13:58:00Z"
-    }
-  ]
+  "en_curso": []
 }

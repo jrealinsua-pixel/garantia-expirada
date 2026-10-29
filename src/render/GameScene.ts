@@ -22,7 +22,7 @@ import { ENEMIES } from '../data/enemies.ts';
 import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
-import { settings } from './settings.ts';
+import { screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { hudLayout, splitTitle, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
@@ -615,7 +615,8 @@ export class GameScene extends Phaser.Scene {
     if (v) {
       const s = v.s;
       // A white silhouette for a couple of frames where it was.
-      const ghost = this.add.image(s.x, s.y, s.texture.key, s.frame.name).setOrigin(s.originX, s.originY).setScale(s.scaleX, 1).setTintFill(0xffffff).setDepth(s.depth);
+      const ghost = this.add.image(s.x, s.y, s.texture.key, s.frame.name).setOrigin(s.originX, s.originY).setScale(s.scaleX, 1).setDepth(s.depth);
+      this.whiteOut(ghost);
       this.particles.push({ s: ghost, vx: 0, vy: 0, z: 0, vz: 0, life: 0.07, maxLife: 0.07, gravity: false, spin: 0, fade: false });
       const { tex, list } = this.piecesOf(s.texture.key, s.frame.name, { x: s.originX * s.width, y: s.originY * s.height });
       const flip = s.scaleX < 0 ? -1 : 1;
@@ -1052,10 +1053,21 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** A hit flash: solid white, or a light warm tint with «Destellos suaves» on. */
+  private whiteOut(s: Phaser.GameObjects.Image): void {
+    if (settings().flashes) s.setTintFill(0xffffff);
+    else s.setTint(SOFT_FLASH_TINT);
+  }
+
+  /** Telegraph colour: yellow, turning white at the end (only yellow with soft flashes). */
+  private warnColor(warnK: number): number {
+    return warnK > 0.75 && settings().flashes ? 0xffffff : 0xf6c431;
+  }
+
   /** The screen goes white and fades back (a boss changing phase or falling). */
   private flashWhite(alpha: number, ms: number): void {
     this.tweens.killTweensOf(this.whiteFlash);
-    this.whiteFlash.setAlpha(alpha);
+    this.whiteFlash.setAlpha(screenFlashAlpha(alpha, settings().flashes));
     this.tweens.add({ targets: this.whiteFlash, alpha: 0, duration: ms, ease: 'Quad.easeOut' });
   }
 
@@ -1099,7 +1111,8 @@ export class GameScene extends Phaser.Scene {
     s.setX(s.x + (Math.floor(this.time.now / 35) % 2 === 0 ? amp : -amp));
     s.setRotation(Math.sin(this.time.now / 45) * 0.03 * k);
     const period = 220 - 150 * k;
-    if (Math.floor(this.time.now / period) % 3 === 0) s.setTintFill(0xffffff);
+    // With soft flashes it glows steadily instead of strobing.
+    if (settings().flashes && Math.floor(this.time.now / period) % 3 === 0) s.setTintFill(0xffffff);
     else s.setTint(0xffc0b0);
     this.blastT -= dt;
     if (this.blastT > 0) return;
@@ -2070,7 +2083,7 @@ export class GameScene extends Phaser.Scene {
     this.heroShadow.setPosition(Math.round(p.x), Math.round(p.y));
     if (this.flashHero > 0) {
       this.flashHero -= dt;
-      this.hero.setTintFill(0xffffff);
+      this.whiteOut(this.hero);
     } else if (p.invulnerable > 0 && rolling) {
       this.hero.setTint(0xfff1c8);
     } else if (p.invulnerable > 0 && !w.over) {
@@ -2104,9 +2117,9 @@ export class GameScene extends Phaser.Scene {
       // Shiver in place during the last part of the warning.
       const shiver = warnK > 0.6 ? (Math.floor(this.time.now / 40) % 2 === 0 ? 1 : -1) : 0;
       s.setX(d.x + shiver);
-      if (d.hitT > 0.07) s.setTintFill(0xffffff);
+      if (d.hitT > 0.07) this.whiteOut(s);
       else if (d.hitT > 0) s.setTint(0xffb0a0);
-      else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
+      else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(this.warnColor(warnK));
       else s.clearTint();
     }
     // Enemies (the ones that come back after a restock get their sprites here).
@@ -2164,12 +2177,12 @@ export class GameScene extends Phaser.Scene {
         }
         v.blink.setDepth(en.y + 0.1);
       }
-      if (en.hitT > 0.07 || tv.white) s.setTintFill(0xffffff);
+      if (en.hitT > 0.07 || tv.white) this.whiteOut(s);
       else if (en.hitT > 0) s.setTint(0xffb0a0);
       // A boss only goes warm while it warns: a white fill would hide its open door.
       else if (warnK >= 0 && blinkOn(warnK)) {
         if (en.def.boss) s.setTint(warnK > 0.75 ? 0xffe9a8 : 0xffc870);
-        else s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
+        else s.setTintFill(this.warnColor(warnK));
       } else s.clearTint();
       if (en.state === 'roar') {
         // Between phases: it shudders and breathes out cold.
@@ -2317,7 +2330,7 @@ export class GameScene extends Phaser.Scene {
         const t = this.time.now / 1000 + k.id;
         const glintW = Math.floor(this.time.now / 80 + k.id * 5) % 24 === 0;
         v.s.setPosition(Math.round(k.x), Math.round(k.y - 7 - Math.sin(t * 2.4) * 2)).setDepth(k.y).setRotation(Math.sin(t * 1.3) * 0.12);
-        if (glintW) v.s.setTintFill(0xffffff);
+        if (glintW) this.whiteOut(v.s);
         else v.s.clearTint();
         v.shadow.setPosition(Math.round(k.x), Math.round(k.y)).setScale(1 - Math.sin(t * 2.4) * 0.12, 1);
         const p = this.world.player;
@@ -2610,7 +2623,7 @@ export class GameScene extends Phaser.Scene {
     const shake = this.activeShake > 0 ? Math.round(Math.sin(this.activeShake * 60) * 2) : 0;
     if (this.activeIcon.texture.key !== def.sprite) this.activeIcon.setTexture(def.sprite);
     this.activeIcon.setVisible(true).setX(9 + shake).setAlpha(ready ? 1 : 0.55);
-    if (this.activeFlash > 0 && Math.floor(this.activeFlash * 20) % 2 === 0) this.activeIcon.setTintFill(0xffffff);
+    if (this.activeFlash > 0 && Math.floor(this.activeFlash * 20) % 2 === 0) this.whiteOut(this.activeIcon);
     else this.activeIcon.clearTint();
     // Battery marks: a column of segments right of the slot, filling from the bottom.
     const h = Math.max(2, Math.floor(16 / def.charges) - 1);
@@ -2637,7 +2650,7 @@ export class GameScene extends Phaser.Scene {
       const hit = i === this.heartHit && this.heartHitT > 0;
       const beat = p.hp === 1 && i === 0 && Math.floor(this.time.now / 300) % 3 === 0;
       h.setY(8 - (hit && this.heartHitT > 0.35 ? 2 : 0) - (beat ? 1 : 0));
-      if (hit && Math.floor(this.heartHitT * 16) % 2 === 0) h.setTintFill(0xffffff);
+      if (hit && Math.floor(this.heartHitT * 16) % 2 === 0) this.whiteOut(h);
       else h.clearTint();
     });
     this.hurtFlash.setAlpha(Math.max(0, this.hurtFlash.alpha - dt * 1.6));

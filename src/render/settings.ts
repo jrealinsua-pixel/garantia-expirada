@@ -8,9 +8,21 @@ export interface Settings {
   music: number;
   /** Camera shake on shots, hits and blasts. */
   shake: boolean;
+  /** Full white flashes (hits, boss phases). Off: a light tint and a faint screen flash, no strobing. */
+  flashes: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { volume: 7, music: 6, shake: true };
+export const DEFAULT_SETTINGS: Settings = { volume: 7, music: 6, shake: true, flashes: true };
+
+/** Tint for a hit with soft flashes: warm, light, and never solid white. */
+export const SOFT_FLASH_TINT = 0xffd2c4;
+/** Strongest whole-screen flash with soft flashes on. */
+export const SOFT_SCREEN_FLASH = 0.12;
+
+/** How white the whole screen goes for a flash of `alpha`, with or without full flashes. */
+export function screenFlashAlpha(alpha: number, flashes: boolean): number {
+  return flashes ? alpha : Math.min(alpha * 0.25, SOFT_SCREEN_FLASH);
+}
 const KEY = 'garantia-expirada/opciones';
 
 /** Reads saved options, keeping only what makes sense (anything else stays at its default). */
@@ -22,6 +34,7 @@ export function parseSettings(raw: string | null): Settings {
     if (typeof o.volume === 'number' && Number.isFinite(o.volume)) s.volume = Math.max(0, Math.min(10, Math.round(o.volume)));
     if (typeof o.music === 'number' && Number.isFinite(o.music)) s.music = Math.max(0, Math.min(10, Math.round(o.music)));
     if (typeof o.shake === 'boolean') s.shake = o.shake;
+    if (typeof o.flashes === 'boolean') s.flashes = o.flashes;
   } catch {
     // A broken save is the same as none.
   }

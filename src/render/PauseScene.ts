@@ -197,6 +197,7 @@ export class PauseScene extends Phaser.Scene {
         saveSettings({ music: r.value as number });
         snd.setMusicVolume((r.value as number) / 10);
       } else if (r.id === 'shake') saveSettings({ shake: r.value as boolean });
+      else if (r.id === 'flashes') saveSettings({ flashes: !(r.value as boolean) });
       else if (r.id === 'fullscreen') {
         try {
           if (r.value) this.scale.startFullscreen();
@@ -243,6 +244,7 @@ export class PauseScene extends Phaser.Scene {
         { kind: 'range', id: 'music', label: OPTION_LABELS.music, min: 0, max: 10, value: s.music },
         { kind: 'toggle', id: 'fullscreen', label: OPTION_LABELS.fullscreen, value: this.scale.isFullscreen },
         { kind: 'toggle', id: 'shake', label: OPTION_LABELS.shake, value: s.shake },
+        { kind: 'toggle', id: 'flashes', label: OPTION_LABELS.flashes, value: !s.flashes },
         { kind: 'action', id: 'back', label: PAUSE_MENU.back },
       ]);
     } else if (screen === 'inventory') {

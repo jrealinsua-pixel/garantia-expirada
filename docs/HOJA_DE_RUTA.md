@@ -163,7 +163,9 @@ semillas distintas acaban con builds distintas.
 - [x] Repaso de los objetos pasivos (nota del humano): la mayoría da y quita (como ya hacen),
   algunos solo dan; ninguno es inútil ni obligatorio (`npm run objetos` lo mide).
 - [x] Rendimiento: 60 fps estables con 300 balas en pantalla (`npm run rendimiento`).
-- [ ] Accesibilidad: remapeo de controles, opción de reducir temblores y destellos, tamaño de texto.
+- [x] Accesibilidad, parte 1: opción de quitar el temblor (desde M6) y **Destellos suaves** (sin blancos sólidos ni parpadeos rápidos).
+- [ ] Accesibilidad, parte 2: tamaño de texto.
+- [ ] Accesibilidad, parte 3: remapeo de controles.
 - [x] Animaciones completas de todos los enemigos (reposo con respiración y paso de 4 fotogramas por distancia; golpe y muerte ya eran comunes: destello blanco y despiece).
 - [ ] Lista de errores conocidos vacía.
 

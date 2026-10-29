@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Menu } from '../src/render/menu.ts';
-import { DEFAULT_SETTINGS, parseSettings } from '../src/render/settings.ts';
+import { DEFAULT_SETTINGS, parseSettings, screenFlashAlpha, SOFT_SCREEN_FLASH } from '../src/render/settings.ts';
 import { CONFIRM_MENU, CONTROLS_ROWS, CREDITS_LINES, MENU_HINT, OPTION_LABELS, PAUSE_LINES, PAUSE_MENU, QUIT_MENU, QUIT_TEXT, TITLE, TITLE_MENU, TITLE_TAGLINE } from '../src/data/texts.ts';
 import { FONT_CHARS, fontText, textWidth } from '../src/art/font.ts';
 
@@ -34,8 +34,8 @@ test('el menú se recorre en círculo y cada tecla hace lo suyo', () => {
 test('las opciones guardadas se leen con cuidado: lo roto o raro vuelve al valor por defecto', () => {
   assert.deepEqual(parseSettings(null), DEFAULT_SETTINGS);
   assert.deepEqual(parseSettings('{roto'), DEFAULT_SETTINGS);
-  assert.deepEqual(parseSettings('{"volume":3,"shake":false}'), { volume: 3, music: 6, shake: false });
-  assert.deepEqual(parseSettings('{"volume":99,"music":2,"shake":"sí"}'), { volume: 10, music: 2, shake: true });
+  assert.deepEqual(parseSettings('{"volume":3,"shake":false}'), { ...DEFAULT_SETTINGS, volume: 3, shake: false });
+  assert.deepEqual(parseSettings('{"volume":99,"music":2,"shake":"sí"}'), { ...DEFAULT_SETTINGS, volume: 10, music: 2 });
   assert.deepEqual(parseSettings('{"music":"alta"}'), DEFAULT_SETTINGS);
   assert.deepEqual(parseSettings('{"volume":-4.6}'), { ...DEFAULT_SETTINGS, volume: 0 });
 });
@@ -52,4 +52,15 @@ test('los textos de la pausa se pueden escribir con la fuente y caben en pantall
   for (const t of CREDITS_LINES) assert.ok(textWidth(t) <= 330, `«${t}» no cabe en los créditos`);
   assert.ok(textWidth(TITLE) * 4 <= 470, 'el título, a cuatro veces su tamaño, cabe en la pantalla');
   for (const [a, k, p] of CONTROLS_ROWS) assert.ok(textWidth(a) < 104 && textWidth(k) < 114 && textWidth(p) < 100, `fila «${a}» no cabe en sus columnas`);
+});
+
+test('destellos suaves: se guardan y el fogonazo de pantalla no pasa del máximo', () => {
+  assert.equal(DEFAULT_SETTINGS.flashes, true);
+  assert.equal(parseSettings('{"flashes":false}').flashes, false);
+  assert.equal(parseSettings('{"flashes":"no"}').flashes, true);
+  for (const a of [0, 0.3, 0.6, 1]) {
+    assert.equal(screenFlashAlpha(a, true), a);
+    assert.ok(screenFlashAlpha(a, false) <= SOFT_SCREEN_FLASH);
+    assert.ok(screenFlashAlpha(a, false) <= a);
+  }
 });

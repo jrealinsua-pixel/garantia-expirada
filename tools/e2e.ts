@@ -642,11 +642,11 @@ try {
       await page.waitForTimeout(60);
     }
   };
-  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter');
+  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25b-opciones.png');
   const saved = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')");
-  if (saved !== JSON.stringify({ volume: 4, music: 6, shake: false })) throw new Error(`Opciones mal guardadas: ${saved}`);
+  if (saved !== JSON.stringify({ volume: 4, music: 6, shake: false, flashes: false })) throw new Error(`Opciones mal guardadas: ${saved}`);
   await tapKeys('Escape', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25c-controles.png');
@@ -655,7 +655,7 @@ try {
   await page.waitForTimeout(300);
   if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) === pausedAt) throw new Error('El juego no vuelve después de la pausa');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
-  console.log('Pausa: congela el juego, guarda volumen 4 y sin temblor, enseña los controles y vuelve.');
+  console.log('Pausa: congela el juego, guarda volumen 4, sin temblor y con destellos suaves, enseña los controles y vuelve.');
 
   // M6: the inventory, in the pause menu, with a few items, an active one and a synergy.
   await page.goto(`${url}?semilla=e2e-inventario&sala=sala-pruebas`);
