@@ -10,5 +10,4 @@ export { ENEMIES };
 export { DEATH_STAMPS, RESTOCK_LINE } from './texts.ts';
 /** Bosses: the enemies with an entrance card (EnemyDef.boss). */
 export const BOSSES: Record<string, EnemyDef> = Object.fromEntries(Object.entries(ENEMIES).filter(([, d]) => d.boss));
-/** Passive and active items (M5). */
-export const ITEMS: Record<string, unknown> = {};
+export { ITEMS, FINDABLE_ITEMS } from './items.ts';

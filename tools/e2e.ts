@@ -488,6 +488,30 @@ try {
   await shot('19e-cambio-de-arma.png');
   if (before === afterE || afterE === afterWheel) throw new Error(`El cambio de arma no funciona: ${before} → ${afterE} → ${afterWheel}`);
   console.log(`Armas: ${before} → E → ${afterE} → rueda → ${afterWheel}.`);
+
+  // M5: passive items. A treasure room played on its own has a weapon and an item on its
+  // pedestals: walk onto the item, read its name and description, then try a full build.
+  await page.goto(`${url}?semilla=e2e-objetos&sala=tesoro`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  const item = await page.evaluate<string>(`(() => { const w = window.__GE__.scene.world; const k = w.pickups.find((p) => p.kind === 'objeto');
+    w.player.x = k.x - 36; w.player.y = k.y + 2; return k.item; })()`);
+  await page.waitForTimeout(600);
+  await shot('20a-objeto-en-pedestal.png');
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.items.length === 1', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(300);
+  await shot('20b-objeto-recogido.png');
+  await page.goto(`${url}?semilla=e2e-build&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; g.scene.world.noDamage = true; for (const id of ['manual', 'regleta', 'tarjeta', 'resistencia', 'garantia']) g.giveItem(id); })()`);
+  await fireAtEnemy();
+  await page.waitForTimeout(700);
+  await shot('20c-build.png');
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  const carried = await page.evaluate<number>('window.__GE__.scene.world.player.items.length');
+  if (carried !== 5) throw new Error(`La tostadora lleva ${carried} objetos en vez de 5`);
+  console.log(`Objetos: recogido ${item} en el tesoro; build de prueba con ${carried} objetos.`);
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

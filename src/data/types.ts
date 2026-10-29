@@ -88,6 +88,22 @@ export interface Modifier {
   bullets?: BulletBehaviour;
 }
 
+/**
+ * A passive item: lying on a pedestal until the toaster walks onto it, then carried for the
+ * rest of the run. All it does is its modifier (src/sim/mods.ts).
+ */
+export interface PassiveItemDef {
+  id: string;
+  /** 2 to 4 words (docs/DISENO.md). */
+  name: string;
+  /** One sentence, two at most, in the game's tone. */
+  description: string;
+  /** Texture key of its 16 x 16 sprite (tools/sprites/items.ts). */
+  sprite: string;
+  /** What it does to the player; its id is the item's. */
+  mod: Modifier;
+}
+
 export interface CharacterDef {
   id: string;
   name: string;

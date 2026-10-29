@@ -51,6 +51,9 @@ export interface FloorReport {
   /** Weapons carried at the end (with damage on), and how many different arsenals the floors ended with. */
   armas: number;
   arsenalesDistintos: number;
+  /** Passive items carried at the end (with damage on), and how many different builds (weapons + items) the floors ended with. */
+  objetos: number;
+  buildsDistintas: number;
 }
 
 function arg(name: string, def: number): number {
@@ -119,6 +122,8 @@ interface FloorResult {
   explored: boolean;
   /** Weapon ids carried at the end, in the order found. */
   arsenal: string;
+  /** Passive item ids carried at the end, in the order found ('' for none). */
+  items: string;
   down: boolean;
   seconds: number;
   visited: number;
@@ -173,6 +178,7 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
     roomSeconds,
     hurts,
     arsenal: w.player.arsenal.map((ws) => ws.base.id).join('+'),
+    items: w.player.items.join('+'),
     hash: worldHash(w),
     errors,
   };
@@ -277,6 +283,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let hurts = 0;
   const rooms: number[] = [];
   const arsenals: string[] = [];
+  const builds: string[] = [];
+  let items = 0;
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
@@ -289,6 +297,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     hurts += b.hurts;
     rooms.push(...b.roomSeconds);
     arsenals.push(b.arsenal);
+    builds.push(`${b.arsenal}|${b.items}`);
+    items += b.items ? b.items.split('+').length : 0;
     for (const r of [a, b]) {
       if (r.errors.length) {
         failed++;
@@ -317,6 +327,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       heridasPorSala: rooms.length ? Math.round((hurts / Math.max(1, cleared)) * 100) / 100 : 0,
       armas: one(arsenals.reduce((s, a) => s + a.split('+').length, 0) / floors),
       arsenalesDistintos: new Set(arsenals).size,
+      objetos: one(items / floors),
+      buildsDistintas: new Set(builds).size,
     },
     errors,
     failed,
@@ -409,7 +421,8 @@ if (import.meta.main) {
     console.log(
       `${pl.plantas} plantas · sin daño la recorre entera el ${pl.recorridoSinDanio} % en ${pl.segundosRecorrido} s · ` +
         `con daño la recorre el ${pl.recorridoConDanio} %, cae el ${pl.caidas} % · ${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
-        `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate · acaba con ${pl.armas} armas, ${pl.arsenalesDistintos} arsenales distintos`,
+        `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate · ` +
+        `acaba con ${pl.armas} armas y ${pl.objetos} objetos, ${pl.arsenalesDistintos} arsenales y ${pl.buildsDistintas} builds distintas`,
     );
   }
   const j = report.jefe;

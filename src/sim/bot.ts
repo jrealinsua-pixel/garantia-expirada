@@ -174,8 +174,8 @@ export class Bot {
       }
       return this.wander ? steer(w, this.wander, r, blocked) : null;
     }
-    // A weapon on a pedestal: go and get it (unless it got stuck going for something).
-    const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => k.kind === 'arma');
+    // A weapon or an item on a pedestal: go and get it (unless it got stuck going for something).
+    const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => k.kind === 'arma' || k.kind === 'objeto');
     if (arm) return steer(w, { x: arm.x, y: arm.y }, r, blocked);
     // The boss has fallen: down the goods lift.
     if (w.lift) return steer(w, { x: w.lift.x, y: w.lift.y }, r, blocked);

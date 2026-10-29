@@ -94,7 +94,8 @@ distinguen claramente en las capturas.
 
 - [x] Sistema de modificadores de estadísticas y de comportamiento de balas.
 - [x] 3 armas (Secador Mágnum, Grapadora Táctica y una nueva).
-- [ ] 10 objetos pasivos y 3 activos, con nombre y descripción según la guía de humor.
+- [x] 10 objetos pasivos, con nombre y descripción según la guía de humor.
+- [ ] 3 objetos activos (tecla Q), con pilas como cargas, con nombre y descripción según la guía de humor.
 - [ ] Al menos 4 sinergias con texto propio.
 - [ ] Cofres (se abren con tickets), tienda con vendedor y precios en cupones.
 - [ ] Ventana de descripción al recoger un objeto.

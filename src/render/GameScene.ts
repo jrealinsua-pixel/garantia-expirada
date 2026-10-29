@@ -4,12 +4,13 @@ import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
 import { SWAP_HINT, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { WEAPONS } from '../data/weapons.ts';
+import { ITEMS } from '../data/items.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
 import { activeWarnings, addModifier, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
-import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
+import { giveItem, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -153,6 +154,10 @@ export class GameScene extends Phaser.Scene {
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
   private pieces = new Map<string, SpritePiece[]>();
   private couponIcon!: Phaser.GameObjects.Image;
+  /** The passive items carried, in a row at the bottom left. */
+  private itemIcons: Phaser.GameObjects.Image[] = [];
+  /** An item's description under the banner (which shows its name) when it is picked up. */
+  private itemDesc!: Phaser.GameObjects.BitmapText;
   private couponText!: Phaser.GameObjects.BitmapText;
   private couponPop = 0;
   private banner!: Phaser.GameObjects.BitmapText;
@@ -317,6 +322,8 @@ export class GameScene extends Phaser.Scene {
     this.hurtFlash = this.hud(this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xe0453b, 1).setOrigin(0, 0)).setAlpha(0).setDepth(89000);
     this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
     this.banner.setTint(0xf6c431).setAlpha(0);
+    this.itemDesc = this.hud(this.add.bitmapText(VIEW_W / 2, 57, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0xd6cdb2).setAlpha(0);
+    this.itemIcons = [];
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.weaponName = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 37, FONT, '', 8).setOrigin(1, 0)).setTint(0xf6c431).setAlpha(0);
     this.arsenalMarks = this.hud(this.add.graphics());
@@ -354,11 +361,13 @@ export class GameScene extends Phaser.Scene {
 
     if (this.world.intro) this.startBossIntro(this.world.intro.boss);
     this.syncView(0);
-    (window as unknown as { __GE__: { state: () => GameStateForTests; scene: GameScene; addModifier: (m: Modifier) => void } }).__GE__ = {
+    (window as unknown as { __GE__: { state: () => GameStateForTests; scene: GameScene; addModifier: (m: Modifier) => void; giveItem: (id: string) => void } }).__GE__ = {
       scene: this,
       state: () => this.testState(),
       // Tests (and curious humans in the console) can hand the toaster any modifier.
       addModifier: (m: Modifier) => addModifier(this.world, m),
+      // ...or any passive item (src/data/items.ts).
+      giveItem: (id: string) => giveItem(this.world, id),
     };
   }
 
@@ -1192,6 +1201,20 @@ export class GameScene extends Phaser.Scene {
             }
             break;
           }
+          if (e.kind === 'objeto') {
+            // A passive item: a fanfare (a little higher than a weapon's), gold sparks, and its name and description up top.
+            const def = ITEMS[e.item ?? ''];
+            this.sound2.play('arma', { detune: 500 });
+            for (let i = 0; i < 14; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 1);
+            if (def) {
+              this.tweens.killTweensOf(this.banner);
+              this.tweens.killTweensOf(this.itemDesc);
+              this.banner.setText(fontText(def.name)).setTint(0xf6c431).setAlpha(1);
+              this.itemDesc.setText(fontText(def.description)).setAlpha(1);
+              this.tweens.add({ targets: [this.banner, this.itemDesc], alpha: 0, delay: 3400, duration: 600 });
+            }
+            break;
+          }
           this.couponPop = 0.25;
           this.sound2.play('cupon', { detune: Math.min(600, (e.total % 8) * 80) });
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 3, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1);
@@ -1748,17 +1771,19 @@ export class GameScene extends Phaser.Scene {
       if (!v) {
         const heart = k.kind === 'corazon';
         const arm = k.kind === 'arma' ? WEAPONS[k.weapon ?? ''] : undefined;
-        if (arm) {
+        const item = k.kind === 'objeto' ? ITEMS[k.item ?? ''] : undefined;
+        const shown = arm ? { sprite: arm.look.sprite, name: arm.name } : item ? { sprite: item.sprite, name: item.name } : null;
+        if (shown) {
           v = {
-            s: this.add.image(k.x, k.y, arm.look.sprite).setOrigin(0.5, 1),
+            s: this.add.image(k.x, k.y, shown.sprite).setOrigin(0.5, 1),
             shadow: this.add.image(k.x, k.y, shadowTexture(this, 8, 3)).setDepth(-50000),
-            label: this.add.bitmapText(k.x, k.y - 26, FONT, fontText(arm.name), 8).setOrigin(0.5, 1).setTint(0xf6c431).setDepth(84000).setAlpha(0),
+            label: this.add.bitmapText(k.x, k.y - 26, FONT, fontText(shown.name), 8).setOrigin(0.5, 1).setTint(0xf6c431).setDepth(84000).setAlpha(0),
           };
         } else v = { s: this.add.image(k.x, k.y, heart ? 'corazon-suelo' : 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
         this.pickupSprites.set(k.id, v);
       }
-      if (k.kind === 'arma') {
-        // A weapon floats over its spot, turning a little and glinting; its name shows up close.
+      if (k.kind === 'arma' || k.kind === 'objeto') {
+        // A weapon (or an item) floats over its spot, turning a little and glinting; its name shows up close.
         const t = this.time.now / 1000 + k.id;
         const glintW = Math.floor(this.time.now / 80 + k.id * 5) % 24 === 0;
         v.s.setPosition(Math.round(k.x), Math.round(k.y - 7 - Math.sin(t * 2.4) * 2)).setDepth(k.y).setRotation(Math.sin(t * 1.3) * 0.12);
@@ -1767,7 +1792,7 @@ export class GameScene extends Phaser.Scene {
         v.shadow.setPosition(Math.round(k.x), Math.round(k.y)).setScale(1 - Math.sin(t * 2.4) * 0.12, 1);
         const p = this.world.player;
         const near = Math.hypot(p.x - k.x, p.y - k.y) < 56;
-        v.label?.setPosition(Math.round(k.x), Math.round(k.y - 22 - Math.sin(t * 2.4) * 2)).setAlpha(near ? 1 : 0);
+        v.label?.setPosition(Math.round(k.x), Math.round(k.y - (k.kind === 'objeto' ? 26 : 22) - Math.sin(t * 2.4) * 2)).setAlpha(near ? 1 : 0);
         continue;
       }
       const hop = k.age < PICKUP_DELAY ? Math.sin((Math.PI * k.age) / PICKUP_DELAY) * 12 : Math.max(0, Math.sin(this.time.now / 260 + k.id)) * 1.5;
@@ -1964,6 +1989,12 @@ export class GameScene extends Phaser.Scene {
       o.destroy();
     };
     while (this.hearts.length > maxHearts) drop(this.hearts.pop()!);
+    while (this.itemIcons.length < p.items.length) {
+      const def = ITEMS[p.items[this.itemIcons.length]!];
+      const icon = this.hud(this.add.image(8 + this.itemIcons.length * 17, VIEW_H - 37, def?.sprite ?? 'objeto-caja').setOrigin(0, 0));
+      icon.setVisible(this.gunIcon.visible);
+      this.itemIcons.push(icon);
+    }
     while (this.hearts.length < maxHearts) {
       const h = this.hud(this.add.image(8 + this.hearts.length * 10, 8, 'corazones', 0).setOrigin(0, 0));
       h.setVisible(this.gunIcon.visible);

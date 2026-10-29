@@ -286,5 +286,47 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-regleta": {
+    "file": "objeto-regleta.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-tarjeta": {
+    "file": "objeto-tarjeta.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-etiqueta": {
+    "file": "objeto-etiqueta.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-alargador": {
+    "file": "objeto-alargador.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-broca": {
+    "file": "objeto-broca.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-cinta": {
+    "file": "objeto-cinta.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-resistencia": {
+    "file": "objeto-resistencia.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

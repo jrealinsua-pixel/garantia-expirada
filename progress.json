@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T07:45:25+01:00",
+  "actualizado": "2026-10-29T08:39:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -42,8 +42,8 @@
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
       "estado": "en_curso",
-      "hechas": 2,
-      "total": 6
+      "hechas": 3,
+      "total": 7
     },
     {
       "id": "M6",
@@ -100,15 +100,21 @@
     "enemigos": 6,
     "jefes": 1,
     "armas": 3,
-    "objetos": 0,
+    "objetos": 10,
     "plantillas_sala": 20,
-    "tests": 225,
-    "tests_ok": 225,
+    "tests": 239,
+    "tests_ok": 239,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 8439
+    "lineas_codigo": 8618
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T08:39:00+01:00",
+      "hito": "M5",
+      "resumen": "Diez objetos pasivos, cada uno con su efecto y su chiste: Pila Casi Agotada (dispara más deprisa, cargador más corto), Manual en Chino (las balas rebotan dos veces), Garantía Extendida (un corazón más), Regleta Sin Tierra (una bala más por disparo), Tarjeta de Socio (las balas persiguen), Etiqueta A+++ (anda y rueda más), Alargador de Tres Metros (más alcance), Broca del Ocho (las balas atraviesan), Cinta Americana (recarga en nada) y Resistencia de Recambio (más daño, menos cadencia). La sala del tesoro tiene ahora un arma y un objeto; la secreta, otro. Al cogerlo sale su nombre y su descripción, y los objetos que llevas se ven abajo a la izquierda.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T07:45:25+01:00",
       "hito": "M5",
@@ -274,6 +280,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/objeto-recogido.png",
+      "pie": "La Pila Casi Agotada recién recogida en Objetos Perdidos: su nombre y «Dura lo que un contrato temporal. Después, nada.»; la Grapadora espera en el otro pedestal y la pila ya sale abajo a la izquierda"
+    },
+    {
+      "archivo": "capturas/build.png",
+      "pie": "Una build de prueba con cinco objetos (Garantía, Regleta, Tarjeta, Resistencia y Manual): cuatro corazones, balas gordas que rebotan y persiguen, y la fila de objetos abajo a la izquierda"
+    },
+    {
       "archivo": "capturas/armas.png",
       "pie": "La Grapadora Táctica recién recogida en la Sala de Pruebas: su nombre sobre la munición, el aviso «E o rueda del ratón: cambiar de arma» y la Plancha de Vapor esperando en su pedestal"
     },
@@ -286,18 +300,10 @@
       "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
     },
     {
-      "archivo": "capturas/montacargas.png",
-      "pie": "La recompensa: cupones, un corazón de recambio y el montacargas a la planta 2 («Carga máxima: una tostadora»), con su flecha cuando está listo"
-    },
-    {
-      "archivo": "capturas/modificadores.png",
-      "pie": "Prueba del sistema de modificadores: tres balas por disparo, más grandes y que rebotan dos veces en las paredes, y un cargador de 30"
-    },
-    {
       "archivo": "capturas/nevera-liquidada.png",
       "pie": "Fin de la Nevera Suprema: se desmonta en piezas y cupones, y le cae el sello «Liquidación total» · «La Dirección ha cesado su actividad»"
     }
   ],
-  "proximo": "M5 · Los 10 objetos pasivos y 3 activos con los modificadores (un test por objeto); luego sinergias, cofres y tienda.",
+  "proximo": "M5 · Los 3 objetos activos (Q) con pilas como cargas; luego sinergias, cofres y tienda, y la ventana de descripción.",
   "bloqueos": []
 }

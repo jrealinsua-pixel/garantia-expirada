@@ -2,6 +2,7 @@
 import { CHARACTERS } from '../data/characters.ts';
 import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
+import { FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
 import { moddedCharacter, moddedWeapon } from './mods.ts';
@@ -81,10 +82,15 @@ export interface Player {
   walked: number;
   /** Discount coupons picked up (the currency). */
   coupons: number;
+  /** Ids of the passive items it carries (src/data/items.ts), in the order they were picked up. */
+  items: string[];
 }
 
-/** A discount coupon (currency), or a spare heart (gives back `value` life; left alone at full life). */
-export type PickupKind = 'cupon' | 'corazon' | 'arma';
+/**
+ * A discount coupon (currency), a spare heart (gives back `value` life; left alone at full
+ * life), a weapon or a passive item (these two wait on a pedestal).
+ */
+export type PickupKind = 'cupon' | 'corazon' | 'arma' | 'objeto';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -99,6 +105,8 @@ export interface Pickup {
   age: number;
   /** A weapon lying on the floor (kind 'arma'): its id in src/data/weapons.ts. */
   weapon?: string;
+  /** A passive item on its pedestal (kind 'objeto'): its id in src/data/items.ts. */
+  item?: string;
 }
 
 /** Seconds after changing weapon before the new one fires (it is being drawn). */
@@ -323,7 +331,7 @@ export type SimEvent =
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   /** Picked something up; `total` is the coupons after it, or the life for a heart. */
-  | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number; weapon?: string }
+  | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number; weapon?: string; item?: string }
   /** The player took weapon `weapon` in hand (`slot` of `count` it carries); `found` when it was just picked up. */
   | { type: 'swap'; weapon: string; slot: number; count: number; found: boolean }
   /** The goods lift came up where the boss fell (it can be used once it is `ready`). */
@@ -438,6 +446,8 @@ export interface FloorRun {
   rooms: FloorRoomState[];
   /** Weapons still to be found on this floor, next one first (a seeded shuffle of FINDABLE_WEAPONS). */
   weapons: string[];
+  /** Passive items still to be found on this floor, next one first (a seeded shuffle of FINDABLE_ITEMS). */
+  items: string[];
 }
 
 /** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
@@ -508,6 +518,7 @@ export function createWorld(opts: WorldOptions): World {
       slot: 0,
       walked: 0,
       coupons: 0,
+      items: [],
     },
     bullets: [],
     dummies,
@@ -535,8 +546,13 @@ export function createWorld(opts: WorldOptions): World {
     setDoorTiles(w, true);
     return w;
   }
-  // The test room lays out every findable weapon on its pedestals, to try them all.
-  if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS]);
+  // The test room lays out every findable weapon on its pedestals, to try them all; a treasure
+  // (or secret) room played on its own stocks its pedestals as on a floor.
+  if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], []);
+  else if (room.kind === 'treasure' || room.kind === 'secret') {
+    const decks = lootDecks(opts.seed);
+    stockPedestals(w, decks.weapons, decks.items);
+  }
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   // Walking into a combat room brings its shutters down until the last enemy falls.
   if (fights(room) && w.enemies.length > 0) w.doorsShut = true;
@@ -566,8 +582,12 @@ function planFloor(seed: string): FloorRun {
     const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat', pickups: [] };
   });
-  const weapons = new Rng(`armas:${seed}`).shuffle([...FINDABLE_WEAPONS]);
-  return { layout, current: layout.start, rooms, weapons };
+  return { layout, current: layout.start, rooms, ...lootDecks(seed) };
+}
+
+/** The weapons and passive items a floor hands out, each in its own seeded order. */
+function lootDecks(seed: string): { weapons: string[]; items: string[] } {
+  return { weapons: new Rng(`armas:${seed}`).shuffle([...FINDABLE_WEAPONS]), items: new Rng(`objetos:${seed}`).shuffle([...FINDABLE_ITEMS]) };
 }
 
 /** The built room of floor room `id` (built on first use), with openings for its normal doors. */
@@ -644,9 +664,9 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   p.vy *= 0.5;
   if (!st.cleared && w.spawnsEnemies) spawnRoomEnemies(w);
   if (w.enemies.length === 0) st.cleared = true;
-  // Until there are chests, the treasure room (and the secret one) keep a weapon on their pedestal.
+  // Until there are chests, the treasure room (and the secret one) keep a weapon and items on their pedestals.
   const kind = f.layout.rooms[id]!.kind;
-  if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons);
+  if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons, f.items);
   w.doorsShut = !st.cleared;
   setDoorTiles(w, !w.doorsShut);
   w.events.push({ type: 'room', id, via });
@@ -654,14 +674,30 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   startIntro(w);
 }
 
-/** Puts the next weapons of `deck` (taken out of it) on the room's item pedestals, one each. */
-function stockPedestals(w: World, deck: string[]): void {
+/**
+ * Fills the room's pedestals from the decks (taking what it puts out of them): the first one
+ * gets the next weapon, the others the next passive items; when one deck runs out the other
+ * fills in.
+ */
+function stockPedestals(w: World, weapons: string[], items: string[]): void {
+  let first = true;
   for (const s of w.room.slots) {
     if (s.kind !== 'item') continue;
-    const id = deck.shift();
-    if (!id) return;
-    w.pickups.push({ id: w.nextId++, kind: 'arma', value: 1, weapon: id, x: s.x, y: s.y, vx: 0, vy: 0, age: PICKUP_DELAY });
+    const at = { x: s.x, y: s.y, vx: 0, vy: 0, age: PICKUP_DELAY, value: 1 };
+    const weapon = (first || items.length === 0) && weapons.length > 0;
+    first = false;
+    if (weapon) w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: weapons.shift()!, ...at });
+    else if (items.length > 0) w.pickups.push({ id: w.nextId++, kind: 'objeto', item: items.shift()!, ...at });
+    else return;
   }
+}
+
+/** The player picks up passive item `id`: it carries it (and its modifier) for the rest of the run. */
+export function giveItem(w: World, id: string): void {
+  const def = ITEMS[id];
+  if (!def) throw new Error(`Unknown item ${id}`);
+  w.player.items.push(id);
+  addModifier(w, def.mod);
 }
 
 /** A fresh weapon state: full magazine, ready to fire. */
@@ -1545,6 +1581,16 @@ function updatePickups(w: World): void {
       if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.weapon) {
         giveWeapon(w, k.weapon);
         w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.arsenal.length, weapon: k.weapon });
+        continue;
+      }
+      keep.push(k);
+      continue;
+    }
+    if (k.kind === 'objeto') {
+      // So does a passive item.
+      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.item) {
+        giveItem(w, k.item);
+        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.items.length, item: k.item });
         continue;
       }
       keep.push(k);
