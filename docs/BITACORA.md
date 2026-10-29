@@ -9,6 +9,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Medidas: sin cambios de simulación (bot igual: 0 fallos). 334 tests en verde (con los de la otra sesión). Capturas 15b, 26a, 26b, 27a y 31i revisadas.
 - Problemas conocidos: ninguno en la lista. La canción más larga cuesta ~0,1 s de golpe al prepararse en la portada.
 - Siguiente paso: M8, planta 2 (Informática): primero su juego de casillas y color propio.
+- Cierre de sesión: esta sesión (15:41 UTC) ha reunido la lista de errores conocidos y la ha dejado vacía en tres tareas, con lo que M7 queda terminado. Cierro aquí: M8 empieza con arte nuevo (casillas y color de la planta 2) y pide mirar las capturas con calma y el contexto limpio.
 
 ## 2026-10-29 17:34 — Hito M7 — Errores conocidos (3a): piernas del Mando y boquilla del Aspirador
 
