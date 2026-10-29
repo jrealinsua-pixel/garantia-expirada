@@ -202,3 +202,8 @@ export const CHEST_OPEN_LINES: readonly string[] = [
   'Abierto por el cliente: no admite cambios',
   'Ticket sellado y archivado',
 ];
+
+/** Second line of the description window: what kind of thing was picked up. */
+export const ITEM_KIND_PASSIVE = 'Objeto pasivo · se queda contigo';
+export const ITEM_KIND_ACTIVE = 'Objeto activo · se usa con Q';
+export const ITEM_KIND_WEAPON = 'Arma · E o rueda para cambiar';

@@ -5,9 +5,10 @@ import { fontText, textWidth } from '../art/font.ts';
 import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, SWAP_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
+import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
-import { ACTIVE_LINES, activeHint, NO_CHARGE_LINE } from '../data/texts.ts';
+import { ACTIVE_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
@@ -23,6 +24,23 @@ import { Controls } from './input.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 
 export const VIEW_W = 480;
+
+/** The pieces of the description window (all HUD objects). */
+interface ItemCard {
+  plate: Phaser.GameObjects.Graphics;
+  icon: Phaser.GameObjects.Image;
+  name: Phaser.GameObjects.BitmapText;
+  kind: Phaser.GameObjects.BitmapText;
+  desc: Phaser.GameObjects.BitmapText;
+  lines: Phaser.GameObjects.BitmapText[];
+  /** Top and bottom of the window on screen while it is up (0 when it is not): the synergy plate goes next to it. */
+  top: number;
+  bottom: number;
+}
+
+/** Width of the description window, and the gap of its text column. */
+const CARD_W = 292;
+const CARD_TEXT_X = 50;
 
 /** How a pickup is drawn: its sprite and shadow, its name, and its price when it is for sale. */
 interface PickupView {
@@ -196,6 +214,8 @@ export class GameScene extends Phaser.Scene {
   /** A line the till says once the one it is saying ends. */
   private tillNext: string | null = null;
   private banner!: Phaser.GameObjects.BitmapText;
+  /** The description window that opens for a while when an item or a weapon is picked up. */
+  private card!: ItemCard;
   private shutters: Array<{ img: Phaser.GameObjects.Image; h: number }> = [];
   /** Red flash over the whole screen when hurt, and the heart that just broke. */
   private hurtFlash!: Phaser.GameObjects.Rectangle;
@@ -387,6 +407,16 @@ export class GameScene extends Phaser.Scene {
     this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
     this.banner.setTint(0xf6c431).setAlpha(0);
     this.itemDesc = this.hud(this.add.bitmapText(VIEW_W / 2, 57, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0xd6cdb2).setAlpha(0);
+    this.card = {
+      plate: this.hud(this.add.graphics()).setAlpha(0),
+      icon: this.hud(this.add.image(0, 0, 'objeto-pila').setOrigin(0.5, 0.5).setScale(2)).setAlpha(0),
+      name: this.hud(this.add.bitmapText(0, 0, FONT, '', 8)).setTint(0xf6c431).setAlpha(0),
+      kind: this.hud(this.add.bitmapText(0, 0, FONT, '', 8)).setTint(0x858ea8).setAlpha(0),
+      desc: this.hud(this.add.bitmapText(0, 0, FONT, '', 8).setMaxWidth(CARD_W - CARD_TEXT_X - 8)).setTint(0xd6cdb2).setAlpha(0),
+      lines: Array.from({ length: 5 }, () => this.hud(this.add.bitmapText(0, 0, FONT, '', 8)).setAlpha(0)),
+      top: 0,
+      bottom: 0,
+    };
     this.synergyPlate = this.hud(this.add.rectangle(VIEW_W / 2, 80, 10, 10, 0x101420, 0.82).setOrigin(0.5, 0).setStrokeStyle(1, 0x69dbd8, 0.9)).setAlpha(0);
     this.synergyText = this.hud(this.add.bitmapText(VIEW_W / 2, 84, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0x69dbd8).setAlpha(0);
     this.itemIcons = [];
@@ -1284,6 +1314,8 @@ export class GameScene extends Phaser.Scene {
             this.sound2.play('arma');
             for (let i = 0; i < 12; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), this.fx.int(0, 2));
             this.floatText(e.x, e.y - 22, fontText(this.fx.pick(WEAPON_FOUND_LINES)), 0xd6cdb2);
+            const wd = WEAPONS[e.weapon ?? ''];
+            if (wd) this.showCard(wd.look.sprite, wd.name, ITEM_KIND_WEAPON, wd.description, weaponLines(wd), 0xd6cdb2);
             if (e.total > 1 && !this.swapHinted) {
               this.swapHinted = true;
               this.hintT = 0;
@@ -1297,16 +1329,11 @@ export class GameScene extends Phaser.Scene {
           if (e.kind === 'objeto' || e.kind === 'activo') {
             // An item: a fanfare (a little higher than a weapon's), gold sparks, and its name and description up top.
             const act = e.kind === 'activo' ? ACTIVE_ITEMS[e.item ?? ''] : undefined;
-            const def = act ? { name: act.name, description: `${act.description}\n${activeHint(act.charges)}` } : ITEMS[e.item ?? ''];
+            const pas = e.kind === 'objeto' ? ITEMS[e.item ?? ''] : undefined;
             this.sound2.play('arma', { detune: 500 });
             for (let i = 0; i < 14; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 1);
-            if (def) {
-              this.tweens.killTweensOf(this.banner);
-              this.tweens.killTweensOf(this.itemDesc);
-              this.banner.setText(fontText(def.name)).setTint(0xf6c431).setAlpha(1);
-              this.itemDesc.setText(fontText(def.description)).setAlpha(1);
-              this.tweens.add({ targets: [this.banner, this.itemDesc], alpha: 0, delay: 3400, duration: 600 });
-            }
+            if (act) this.showCard(act.sprite, act.name, ITEM_KIND_ACTIVE, act.description, activeLines(act), 0x69dbd8);
+            else if (pas) this.showCard(pas.sprite, pas.name, ITEM_KIND_PASSIVE, pas.description, modifierLines(pas.mod), 0xf6c431);
             break;
           }
           this.couponPop = 0.25;
@@ -1528,6 +1555,13 @@ export class GameScene extends Phaser.Scene {
     this.tweens.killTweensOf([this.synergyText, this.synergyPlate]);
     this.synergyText.setText(fontText(`${SYNERGY_LINE} ${def.name}\n${def.text}`)).setAlpha(1);
     const b = this.synergyText.getTextBounds(true).global;
+    // Next to the description window if it is up (it usually is: the synergy came with an item):
+    // under it when it is up top, over it when it is down below.
+    const c = this.card;
+    const ph = Math.ceil(b.height) + 8;
+    const sy = c.bottom === 0 ? 80 : c.top <= 40 ? c.bottom + 4 : c.top - 4 - ph;
+    this.synergyPlate.setY(sy);
+    this.synergyText.setY(sy + 4);
     this.synergyPlate.setSize(Math.ceil(b.width) + 12, Math.ceil(b.height) + 8).setOrigin(0.5, 0).setAlpha(1);
     this.tweens.add({ targets: [this.synergyText, this.synergyPlate], alpha: 0, delay: 4600, duration: 700 });
   }
@@ -1687,6 +1721,55 @@ export class GameScene extends Phaser.Scene {
       fade: false,
       anim: { key: 'polvo', frames: 4, fps: 4 / life },
     });
+  }
+
+  /**
+   * Opens the description window: the sprite at double size on the left; the name, what kind of
+   * thing it is, its description and what it does (green what it gives, red what it takes) on
+   * the right, on a dark plate edged in `edge`. It stays up a few seconds (longer with more to
+   * read) and fades; a new one replaces it.
+   */
+  private showCard(sprite: string, name: string, kind: string, description: string, effects: EffectLine[], edge: number): void {
+    const c = this.card;
+    const parts = [c.plate, c.icon, c.name, c.kind, c.desc, ...c.lines];
+    this.tweens.killTweensOf(parts);
+    // The old banner would say the same thing on top of it.
+    this.tweens.killTweensOf([this.banner, this.itemDesc]);
+    this.banner.setAlpha(0);
+    this.itemDesc.setAlpha(0);
+    const x0 = Math.round((VIEW_W - CARD_W) / 2);
+    const tx = x0 + CARD_TEXT_X;
+    c.desc.setText(fontText(description));
+    const descH = Math.ceil(c.desc.getTextBounds(true).global.height);
+    const h = Math.max(48, 28 + descH + 5 + effects.length * 10 + 3);
+    // Up top, unless the toaster is in the top half of the screen: then down below, out of its way.
+    const p = this.world.player;
+    const high = p.y - this.cameras.main.scrollY < VIEW_H / 2 + 10;
+    const y0 = high ? VIEW_H - 26 - h : 40;
+    c.name.setText(fontText(name)).setPosition(tx, y0 + 6);
+    c.kind.setText(fontText(kind)).setPosition(tx, y0 + 16);
+    c.desc.setPosition(tx, y0 + 28);
+    let y = y0 + 28 + descH + 5;
+    c.lines.forEach((t, i) => {
+      const l = effects[i];
+      t.setText(l ? fontText(l.text) : '').setPosition(tx, y).setTint(l?.good ? 0x7ef0a0 : 0xe0453b);
+      if (l) y += 10;
+    });
+    c.icon.setTexture(sprite).setPosition(x0 + 24, y0 + Math.min(h, 52) / 2 + 1);
+    c.plate.clear();
+    c.plate.fillStyle(0x0e0c16, 1).fillRect(x0 - 1, y0 - 1, CARD_W + 2, h + 2);
+    c.plate.fillStyle(0x101420, 0.92).fillRect(x0, y0, CARD_W, h);
+    c.plate.lineStyle(1, edge, 0.9).strokeRect(x0 + 0.5, y0 + 0.5, CARD_W - 1, h - 1);
+    // The icon sits in a darker well.
+    c.plate.fillStyle(0x0e0c16, 0.8).fillRect(x0 + 5, y0 + 5, 38, Math.min(h, 52) - 10);
+    c.top = y0;
+    c.bottom = y0 + h;
+    for (const o of parts) o.setAlpha(1);
+    const words = description.split(' ').length + effects.length * 3;
+    this.tweens.add({ targets: parts, alpha: 0, delay: Math.min(6500, 2600 + words * 110), duration: 600, onComplete: () => {
+      c.top = 0;
+      c.bottom = 0;
+    } });
   }
 
   /**

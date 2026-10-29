@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-29T11:40:00+01:00",
+  "actualizado": "2026-10-29T12:10:00+01:00",
   "version": "0.1.0",
-  "hito_actual": "M5",
+  "hito_actual": "M6",
   "hitos": [
     {
       "id": "M0",
@@ -41,14 +41,14 @@
     {
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
-      "estado": "en_curso",
-      "hechas": 7,
+      "estado": "hecho",
+      "hechas": 8,
       "total": 8
     },
     {
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 8
     },
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 277,
-    "tests_ok": 277,
+    "tests": 280,
+    "tests_ok": 280,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 9551
+    "lineas_codigo": 9705
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T12:10:00+01:00",
+      "hito": "M5",
+      "resumen": "M5 terminado. Al coger un objeto o un arma se abre una ventana con su dibujo a doble tamaño, el nombre, qué es, la descripción y lo que hace de verdad: en verde lo que da y en rojo lo que quita («Cadencia +30 %», «Cargador -30 %»); las armas enseñan sus números (daño, disparos por segundo, cargador, recarga y alcance). Si la tostadora está arriba, la ventana sale abajo para no taparla. Además, atendida la nota de hacer sesiones más largas: el protocolo ahora encadena tareas mientras quede contexto.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T11:40:00+01:00",
       "hito": "M5",
@@ -348,21 +354,21 @@
     },
     {
       "archivo": "capturas/sinergia.png",
-      "pie": "«¡Sinergia! Bricolaje Avanzado» al coger la Broca del Ocho llevando el Manual en Chino: «Nadie ha leído las instrucciones, así que las balas improvisan.»"
+      "pie": "Ventana de descripción de la Broca del Ocho (en rojo lo que quita, en verde lo que da) y encima la sinergia que enciende con el Manual en Chino: «¡Sinergia! Bricolaje Avanzado»"
     },
     {
-      "archivo": "capturas/objeto-recogido.png",
-      "pie": "La Pila Casi Agotada recién recogida en Objetos Perdidos: su nombre y «Dura lo que un contrato temporal. Después, nada.»; la Grapadora espera en el otro pedestal y la pila ya sale abajo a la izquierda"
+      "archivo": "capturas/ventana-arma.png",
+      "pie": "Ventana de la Grapadora Táctica: sus números (daño 1, 9 disparos/s, cargador 24, recarga 1,6 s, alcance 240) para comparar armas de un vistazo"
     }
   ],
-  "proximo": "M5: la ventana de descripción al recoger un objeto (y con ella M5 terminado); después, M6.",
+  "proximo": "M6: menú principal, pausa y opciones (dividir: primero pausa y opciones, después el menú principal); después el inventario en la pausa.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos.",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 12:10: M5 terminado (la tienda y la ventana de descripción, en una sola sesión).",
     "hitos": {
-      "M5": 2,
+      "M5": 0,
       "M6": 10,
       "M7": 13,
       "M8": 13,
@@ -376,11 +382,11 @@
     },
     "primera_version": {
       "hasta": "M6",
-      "sesiones": 12
+      "sesiones": 10
     },
     "total": {
-      "sesiones": 147,
-      "con_margen": 191
+      "sesiones": 145,
+      "con_margen": 189
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   }

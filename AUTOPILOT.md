@@ -75,6 +75,9 @@ actualizan desde `main`. Si el push falla porque alguien empujó antes, haz
 
 ## 7. ¿Te queda tiempo y contexto?
 
-Si la sesión sigue teniendo margen, vuelve al paso 3 con otra tarea. Para cuando notes que el
-contexto se llena o lleves unas tres tareas: es mejor cerrar limpio y que la próxima sesión
-empiece fresca.
+Las sesiones tienen que ser **largas** (nota del humano del 2026-10-29): cuando termines una
+tarea y la hayas publicado (paso 6), vuelve al paso 3 con la siguiente, y así mientras te quede
+contexto. Cada tarea se cierra igual que la primera: tests, capturas si es visual, `check`,
+`test`, `build` y `bot` en verde, su entrada en la bitácora y su commit y push. La calidad no
+baja por ir más deprisa: si notas que el contexto se llena, que empiezas a saltarte pasos o que
+las capturas ya no las miras con calma, cierra limpio y deja que la próxima sesión empiece fresca.

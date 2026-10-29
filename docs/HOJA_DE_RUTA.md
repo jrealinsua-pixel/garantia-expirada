@@ -6,7 +6,7 @@ ampliar. Cuando se acabe la lista, Claude escribe hitos nuevos al final.
 
 Estados: `- [ ]` pendiente · `- [x]` hecha.
 
-## Estimación de tiempo (revisada el 2026-10-29, 10:45)
+## Estimación de tiempo (revisada el 2026-10-29, 12:10)
 
 Cuento en **sesiones de trabajo** (cada una cierra una tarea, a veces dos). Ritmo medido: entre
 el 28 y el 29 de octubre se cerraron 47 tareas (M0–M4 y medio M5) en unas 33 sesiones. Las
@@ -16,7 +16,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 
 | Hito | Sesiones | Por qué |
 | --- | ---: | --- |
-| M5 · Armas, objetos y sinergias (lo que queda) | 2 | La tienda y la ventana de descripción |
+| M5 · Armas, objetos y sinergias | hecho | Terminado el 29 a las 12:10 |
 | M6 · Partida completa | 10 | Menús, pantallas, guardado, dos pistas de música, inventario e interfaz limpia |
 | M7 · Pulido | 13 | Equilibrio (dificultad media-alta), armas y objetos, y animaciones de todos los enemigos |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
@@ -27,7 +27,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
 | M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
 | M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
-| **Total** | **147** | **~191 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+| **Total** | **145** | **~189 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
 
 En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
 medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
@@ -118,7 +118,7 @@ prueba aparte) sin atascarse.*
 **Criterios de aceptación:** el combate dura entre 60 y 120 s para el bot; las dos fases se
 distinguen claramente en las capturas.
 
-## M5 · Armas, objetos y sinergias
+## M5 · Armas, objetos y sinergias (hecho)
 
 - [x] Sistema de modificadores de estadísticas y de comportamiento de balas.
 - [x] 3 armas (Secador Mágnum, Grapadora Táctica y una nueva).
@@ -127,7 +127,7 @@ distinguen claramente en las capturas.
 - [x] Al menos 4 sinergias con texto propio.
 - [x] Cofres que se abren con tickets (la Caja Fuerte de Devoluciones; los tickets salen al limpiar salas).
 - [x] Tienda con vendedor y precios en cupones (también vende tickets).
-- [ ] Ventana de descripción al recoger un objeto.
+- [x] Ventana de descripción al recoger un objeto.
 
 **Criterios de aceptación:** cada objeto tiene un test de su efecto; las partidas del bot con
 semillas distintas acaban con builds distintas.
