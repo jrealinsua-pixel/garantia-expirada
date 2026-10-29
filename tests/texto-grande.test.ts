@@ -12,6 +12,9 @@ import { ROOMS } from '../src/data/rooms.ts';
 import { activeLines, modifierLines, weaponLines } from '../src/data/describe.ts';
 import { DOORS_OPEN_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, LIFT_LINE, RESTOCK_LINE, SWAP_HINT, SYNERGY_LINE } from '../src/data/texts.ts';
 import { SHOPKEEPER } from '../src/data/shop.ts';
+import { DOWN_ADVICE, DOWN_CAUSE_DEFAULT, DOWN_CAUSES, DOWN_COVERAGE, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport } from '../src/data/texts.ts';
+import { REPORT_MENU_HINT, WIN_HINT, WIN_NEXT, WIN_NOTES, WIN_STAMP, WIN_TITLE, winReport } from '../src/data/texts.ts';
+import { formContentBottom, formLayout, stampBox } from '../src/render/form.ts';
 
 /** Everything that opens a description window: name, kind, description and effect lines. */
 function cards(): { name: string; kind: string; description: string; effects: string[] }[] {
@@ -128,4 +131,82 @@ test('letreros, sinergias y bocadillos de la caja, a doble tamaño, caben en la 
     const lines = wrapLines(t, 300, 2);
     assert.ok(lines.length <= 4, `la caja dice «${t}» en ${lines.length} líneas`);
   }
+});
+
+/** Every report there can be: each cause, excuse and advice, the longest room names, both forms. */
+function reports(): { lines: { label: string; text: string }[]; title: string; hint: string; stamp: string }[] {
+  const rooms = Object.values(ROOMS).map((r) => r.name).sort((a, b) => textWidth(b) - textWidth(a)).slice(0, 3);
+  const causes = [...new Set([...Object.values(DOWN_CAUSES).flatMap((c) => [c.bullet, c.contact]).filter((c): c is string => !!c), DOWN_CAUSE_DEFAULT])];
+  const out: { lines: { label: string; text: string }[]; title: string; hint: string; stamp: string }[] = [];
+  const hintDown = `${DOWN_HINT} · ${REPORT_MENU_HINT}`;
+  const hintWin = `${WIN_HINT} · ${REPORT_MENU_HINT}`;
+  for (const room of rooms) {
+    for (let i = 0; i < Math.max(DOWN_COVERAGE.length, DOWN_ADVICE.length); i++) {
+      for (const cause of causes) {
+        const lines = downReport({ by: 'x', how: 'bullet', room, seconds: 5999, kills: 999, coupons: 999 }, (n) => i % n);
+        lines[1] = { label: lines[1]!.label, text: cause };
+        out.push({ lines, title: DOWN_TITLE, hint: hintDown, stamp: DOWN_STAMP });
+      }
+    }
+    for (let i = 0; i < Math.max(WIN_NEXT.length, WIN_NOTES.length); i++) {
+      out.push({ lines: winReport({ room, seconds: 5999, kills: 999, coupons: 999 }, (n) => i % n), title: WIN_TITLE, hint: hintWin, stamp: WIN_STAMP });
+    }
+  }
+  return out;
+}
+
+test('el parte normal se coloca como siempre', () => {
+  const r = reports()[0]!;
+  const f = formLayout(r.lines, r.title, 'Exp. 1234', r.hint, 1);
+  assert.equal(formLayout(r.lines.map((l) => ({ label: l.label.toUpperCase(), text: l.text })), r.title, 'Exp. 1234', r.hint, 1).gear.base, f.gear.base, 'da igual mayúsculas o minúsculas');
+  assert.deepEqual([f.w, f.h, f.size, f.barH], [296, 186, 8, 15]);
+  const x0 = Math.round(HUD_W / 2 - 148);
+  const y0 = Math.round(HUD_H / 2 - 93);
+  const first = f.texts.find((t) => t.role === 'label')!;
+  assert.deepEqual([first.x, first.y], [x0 + 10, y0 + 22]);
+  assert.equal(f.texts.find((t) => t.role === 'value')!.x, x0 + 76);
+  assert.equal(f.rule, y0 + 186 - 22);
+  assert.equal(f.texts.find((t) => t.role === 'hint')!.y, y0 + 186 - 15);
+  assert.deepEqual(f.stamp, { x: x0 + 296 - 66, y: y0 + 186 - 45 });
+});
+
+test('los partes a doble tamaño caben enteros en la pantalla, sin salirse ni pisar la línea de abajo', () => {
+  let fading = 0;
+  let total = 0;
+  for (const scale of [1, 2]) {
+    for (const r of reports()) {
+      const f = formLayout(r.lines, r.title, 'Exp. 9999', r.hint, scale, r.stamp);
+      const what = `${r.title} (${r.lines.map((l) => l.text).join(' | ')}) a ×${scale}`;
+      assert.ok(inside({ x: f.x, y: f.y, w: f.w, h: f.h }, { x: 0, y: 0, w: HUD_W, h: HUD_H }), `se sale de la pantalla: ${what}`);
+      for (const t of f.texts) {
+        assert.ok(t.x >= f.x + 4 && t.x + textWidth(t.text) * scale <= f.x + f.w - 4, `«${t.text}» se sale por un lado: ${what}`);
+      }
+      assert.ok(formContentBottom(f) <= f.rule - 2, `el texto pisa la línea de abajo: ${what}`);
+      assert.ok(f.gear.right - f.gear.x >= 8 * 17, `no caben ocho cosas en el equipaje: ${what}`);
+      if (scale > 1) {
+        const sb = stampBox(r.stamp, f.stamp);
+        assert.ok(inside(sb, { x: f.x, y: f.y, w: f.w, h: f.h }), `el sello se sale del parte: ${what}`);
+        const covers = f.texts.some((t) => overlaps(sb, { x: t.x, y: t.y, w: textWidth(t.text) * scale, h: FONT_LINE * scale }));
+        assert.equal(f.stampFades, covers, `el sello tapa texto y no se aparta: ${what}`);
+        if (covers) fading++;
+        total++;
+      }
+      const lastFact = Math.max(...f.texts.filter((t) => t.role === 'value' || t.role === 'aside').map((t) => t.y));
+      const adviceLabel = f.texts.find((t) => t.role === 'adviceLabel');
+      assert.ok(adviceLabel, `no encuentra la recomendación: ${what}`);
+      assert.ok(f.gear.base - 16 >= lastFact + FONT_LINE * scale - 2 && f.gear.base <= adviceLabel.y, `el equipaje no va entre los datos y la recomendación: ${what}`);
+      const facts = f.texts.filter((t) => t.role !== 'hint' && t.role !== 'title' && t.role !== 'ref');
+      for (let i = 0; i < facts.length; i++) {
+        for (let j = i + 1; j < facts.length; j++) {
+          const a = facts[i]!;
+          const b = facts[j]!;
+          const box = (t: typeof a): Box => ({ x: t.x, y: t.y, w: textWidth(t.text) * scale, h: FONT_LINE * scale - 1 });
+          assert.ok(!overlaps(box(a), box(b)), `«${a.text}» pisa «${b.text}»: ${what}`);
+        }
+      }
+    }
+  }
+  // Most of the time it finds a free spot; when not, it fades.
+  assert.ok(fading / total < 0.5, `el sello tapa texto en ${fading} de ${total} partes grandes`);
+  console.log(`sello sobre texto (se aparta): ${fading} de ${total}`);
 });

@@ -710,8 +710,16 @@ try {
     w.player.x = k.x; w.player.y = k.y + 46; })()`);
   await page.waitForTimeout(1100);
   await shot('31d-texto-grande-tienda.png');
+  await page.goto(`${url}?semilla=e2e-inventario&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; for (const id of ['pila', 'resistencia', 'garantia', 'etiqueta', 'manual', 'broca', 'cinta']) g.giveItem(id);
+    const w = g.scene.world; w.player.hp = 1; w.player.invulnerable = 0; })()`);
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 });
+  await page.waitForTimeout(3200);
+  await shot('31e-texto-grande-parte.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
-  console.log('Texto grande: ventana de descripción, sinergia después, nombre de sala y bocadillo de la caja.');
+  console.log('Texto grande: ventana de descripción, sinergia después, nombre de sala, bocadillo de la caja y parte de baja.');
 
   // M6: the title screen. Credits, then a run; from the pause, back to the title.
   await page.goto(url);

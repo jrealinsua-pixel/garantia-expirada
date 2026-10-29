@@ -8,7 +8,7 @@ import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
 import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
-import { REPORT_GEAR, REPORT_MENU_HINT } from '../data/texts.ts';
+import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
@@ -25,6 +25,7 @@ import { Controls } from './input.ts';
 import { readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
+import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
 import { cardLayout, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 import { bulbLit, enemyFrame } from './enemyAnim.ts';
 
@@ -710,69 +711,51 @@ export class GameScene extends Phaser.Scene {
   /** A report form that drops in, with its lines, a reference number, a hint and a stamp slammed on it. */
   private showForm(lines: { label: string; text: string }[], look: { title: string; color: number; light: number; stamp: string; hint: string }): void {
     const w = this.world;
-    const BW = 296;
-    const BH = 186;
-    const x0 = Math.round(VIEW_W / 2 - BW / 2);
-    const y0 = Math.round(VIEW_H / 2 - BH / 2);
+    const ref = `Exp. ${String(1000 + ((w.tick * 7919) % 9000)).padStart(4, '0')}`;
+    const hintText = `${look.hint} · ${REPORT_MENU_HINT}`;
+    const F = formLayout(lines, look.title, ref, hintText, readScale(settings()), look.stamp);
     const parts: Array<Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor> = [];
     const add = <T extends Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor>(o: T): T => {
       this.hud(o).setDepth(96000 + parts.length);
       parts.push(o);
       return o;
     };
-    const text = (x: number, y: number, t: string, tint: number): Phaser.GameObjects.BitmapText => add(this.add.bitmapText(x, y, FONT, fontText(t), 8)).setTint(tint);
-    add(this.add.rectangle(x0, y0, BW, BH, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, look.color);
+    add(this.add.rectangle(F.x, F.y, F.w, F.h, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, look.color);
     // A form: title bar, ruled lines, perforated edge.
-    add(this.add.rectangle(x0 + 1, y0 + 1, BW - 2, 15, look.color, 1).setOrigin(0, 0));
-    text(x0 + 8, y0 + 4, look.title, 0xf4f1e8);
-    const ref = `Exp. ${String(1000 + ((w.tick * 7919) % 9000)).padStart(4, '0')}`;
-    text(x0 + BW - 8 - textWidth(ref), y0 + 4, ref, 0x0e0c16).setTint(look.light);
-    const g = add(this.add.graphics());
-    for (let x = x0 + 4; x < x0 + BW - 4; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, y0 + BH - 22, 2, 1);
-    const drawGear = (y: number): void => {
-      // What it was carrying: weapons, then items, then the active one (as many as fit; the rest, «+N»).
-      const p = w.player;
-      const gear = [...p.arsenal.map((ws) => ws.base.look.sprite), ...p.items.map((id) => ITEMS[id]?.sprite ?? 'objeto-caja')];
-      if (p.active) gear.push(ACTIVE_ITEMS[p.active.id]?.sprite ?? 'objeto-caja');
-      text(x0 + 10, y + 4, `${REPORT_GEAR}:`, 0x858ea8);
-      let gx = x0 + 76;
-      const room = x0 + BW - 24;
-      for (const [i, key] of gear.entries()) {
-        if (gx + 16 > room) {
-          text(gx, y + 4, `+${gear.length - i}`, 0x858ea8);
-          break;
-        }
-        const img = add(this.add.image(gx, y + 15, key).setOrigin(0, 1));
-        gx += Math.max(17, img.width + 2);
-      }
+    add(this.add.rectangle(F.x + 1, F.y + 1, F.w - 2, F.barH, look.color, 1).setOrigin(0, 0));
+    const tints: Record<FormRole, number> = {
+      title: 0xf4f1e8,
+      ref: look.light,
+      label: 0x858ea8,
+      value: 0xd6cdb2,
+      aside: 0x858ea8,
+      gearLabel: 0x858ea8,
+      adviceLabel: 0xf6c431,
+      advice: 0xf4f1e8,
+      hint: 0xf6c431,
     };
-    let y = y0 + 22;
-    this.report = [];
-    for (const ln of lines) {
-      const advice = ln.label.startsWith('Recomendación') || ln.label.startsWith('Nota');
-      if (advice) {
-        // What it was carrying goes between the facts and the advice.
-        drawGear(y + 1);
-        y += 20;
-      }
-      if (advice) y += 5;
-      if (ln.label && !advice) {
-        text(x0 + 10, y, `${ln.label}:`, 0x858ea8);
-        text(x0 + 76, y, ln.text, 0xd6cdb2);
-        y += 11;
-      } else if (advice) {
-        text(x0 + 10, y, `${ln.label}:`, 0xf6c431);
-        text(x0 + 10, y + 11, ln.text, 0xf4f1e8);
-        y += 22;
-      } else {
-        text(x0 + 76, y, ln.text, 0x858ea8);
-        y += 11;
-      }
-      this.report.push(ln.label ? `${ln.label}: ${ln.text}` : ln.text);
+    let hint: Phaser.GameObjects.BitmapText | null = null;
+    for (const t of F.texts) {
+      const o = add(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), F.size)).setTint(tints[t.role]);
+      if (t.role === 'hint') hint = o;
     }
-    const hintText = `${look.hint} · ${REPORT_MENU_HINT}`;
-    const hint = text(VIEW_W / 2 - Math.round(textWidth(hintText) / 2), y0 + BH - 15, hintText, 0xf6c431);
-    this.tweens.add({ targets: hint, alpha: 0.35, yoyo: true, repeat: -1, duration: 450, delay: 900 });
+    const g = add(this.add.graphics());
+    for (let x = F.x + 4; x < F.x + F.w - 4; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, F.rule, 2, 1);
+    // What it was carrying: weapons, then items, then the active one (as many as fit; the rest, «+N»).
+    const p = w.player;
+    const gear = [...p.arsenal.map((ws) => ws.base.look.sprite), ...p.items.map((id) => ITEMS[id]?.sprite ?? 'objeto-caja')];
+    if (p.active) gear.push(ACTIVE_ITEMS[p.active.id]?.sprite ?? 'objeto-caja');
+    let gx = F.gear.x;
+    for (const [i, key] of gear.entries()) {
+      if (gx + 16 > F.gear.right) {
+        add(this.add.bitmapText(gx, F.gear.base - 11, FONT, `+${gear.length - i}`, 8)).setTint(0x858ea8);
+        break;
+      }
+      const img = add(this.add.image(gx, F.gear.base, key).setOrigin(0, 1));
+      gx += Math.max(17, img.width + 2);
+    }
+    this.report = lines.map((ln) => (ln.label ? `${ln.label}: ${ln.text}` : ln.text));
+    if (hint) this.tweens.add({ targets: hint, alpha: 0.35, yoyo: true, repeat: -1, duration: 450, delay: 900 });
     // The whole form drops in from above.
     for (const o of parts) {
       const ty = o.y;
@@ -781,18 +764,20 @@ export class GameScene extends Phaser.Scene {
     }
     // The stamp slams down a moment later.
     const stampColor = look.color === 0xe0453b ? 0xe0453b : 0x69dbd8;
-    const stamp = add(this.add.bitmapText(x0 + BW - 66, y0 + BH - 45, FONT, fontText(look.stamp), 8).setOrigin(0.5, 0.5)).setTint(stampColor);
+    const stamp = add(this.add.bitmapText(F.stamp.x, F.stamp.y, FONT, fontText(look.stamp), 8).setOrigin(0.5, 0.5)).setTint(stampColor);
     const frame = add(this.add.rectangle(stamp.x, stamp.y, textWidth(look.stamp) + 8, 13).setStrokeStyle(1, stampColor));
     for (const o of [stamp, frame]) {
       o.setRotation(-0.22).setScale(5).setAlpha(0);
       this.tweens.add({
         targets: o,
-        scale: 2,
+        scale: STAMP_SCALE,
         alpha: 0.9,
         delay: 520,
         duration: 130,
         ease: 'Quad.easeIn',
         onComplete: () => {
+          // With big text it may land on a line: it has its moment, then steps back.
+          if (F.stampFades) this.tweens.add({ targets: o, alpha: 0.3, delay: 1400, duration: 500 });
           if (o !== stamp) return;
           this.sound2.play('sello');
           this.shake(120, 0.006, true);

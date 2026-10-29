@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T16:03:00+01:00",
+  "actualizado": "2026-10-29T16:18:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,8 +56,8 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 7,
-      "total": 10
+      "hechas": 8,
+      "total": 11
     },
     {
       "id": "M8",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 317,
-    "tests_ok": 317,
+    "tests": 319,
+    "tests_ok": 319,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11620
+    "lineas_codigo": 11753
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T16:18:00+01:00",
+      "hito": "M7",
+      "resumen": "Texto grande también en el parte de baja y en el de planta superada: casi a pantalla completa, con el sello buscando un hueco libre para no tapar lo que se lee.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T16:03:00+01:00",
       "hito": "M7",
@@ -446,7 +452,7 @@
     },
     {
       "archivo": "capturas/parte-de-baja.png",
-      "pie": "Parte de baja con el equipaje: el Secador y los siete objetos que llevaba. «Compre el modelo nuevo. Es igual, pero cuesta más.»"
+      "pie": "Parte de baja con texto grande: casi a pantalla completa, el equipaje en su fila y el sello «Dado de baja» en un hueco libre para no tapar la recomendación"
     },
     {
       "archivo": "capturas/inventario.png",
@@ -457,7 +463,7 @@
       "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: accesibilidad parte 2b, texto grande en el parte de baja, la planta superada y el inventario.",
+  "proximo": "M7: accesibilidad parte 2c (inventario con texto grande) y parte 3 (remapeo de controles).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -485,12 +491,5 @@
       "con_margen": 176
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
-  },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 14:43 UTC",
-      "tarea": "M7: accesibilidad parte 2b, texto grande en partes e inventario",
-      "desde": "2026-10-29T15:04:00Z"
-    }
-  ]
+  }
 }

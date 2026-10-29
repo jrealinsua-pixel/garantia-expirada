@@ -165,7 +165,8 @@ semillas distintas acaban con builds distintas.
 - [x] Rendimiento: 60 fps estables con 300 balas en pantalla (`npm run rendimiento`).
 - [x] Accesibilidad, parte 1: opción de quitar el temblor (desde M6) y **Destellos suaves** (sin blancos sólidos ni parpadeos rápidos).
 - [x] Accesibilidad, parte 2a: **Texto grande** (ventana de descripción, letreros, sinergias, nombre de sala y bocadillos de la caja a doble tamaño).
-- [ ] Accesibilidad, parte 2b: texto grande en el parte de baja, la planta superada y la descripción del inventario.
+- [x] Accesibilidad, parte 2b: texto grande en el parte de baja y en la planta superada.
+- [ ] Accesibilidad, parte 2c: texto grande en el inventario (a doble tamaño no cabe en su columna de 212 px: necesita otro diseño, por ejemplo la ventana de descripción grande como emergente sobre la parte de abajo, con la lista reducida a tres líneas).
 - [ ] Accesibilidad, parte 3: remapeo de controles.
 - [x] Animaciones completas de todos los enemigos (reposo con respiración y paso de 4 fotogramas por distancia; golpe y muerte ya eran comunes: destello blanco y despiece).
 - [ ] Lista de errores conocidos vacía.
