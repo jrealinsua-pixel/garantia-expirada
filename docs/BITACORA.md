@@ -9,6 +9,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Medidas: sin cambios de simulación (bot igual). 326 tests en verde.
 - Problemas conocidos: el texto de la ayuda de controles se recalcula al volver de la pausa; los carteles que ya estaban en pantalla se quedan con las teclas viejas hasta que se van.
 - Siguiente paso: M7, lista de errores conocidos vacía (la última tarea de M7).
+- Cierre de sesión: esta sesión (14:43 UTC) ha hecho el texto grande (ventana, letreros, sinergias, nombre de sala, caja, partes e inventario) y el cambio de teclas. Cierro aquí: la última tarea de M7 (errores conocidos) ya la ha cogido la sesión de las 15:41 UTC, y M8 no conviene empezarlo con M7 abierto ni tocando los mismos archivos a la vez.
 
 ## 2026-10-29 16:29 — Hito M7 — Accesibilidad (2c): texto grande en el inventario
 
