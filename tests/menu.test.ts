@@ -34,8 +34,9 @@ test('el menú se recorre en círculo y cada tecla hace lo suyo', () => {
 test('las opciones guardadas se leen con cuidado: lo roto o raro vuelve al valor por defecto', () => {
   assert.deepEqual(parseSettings(null), DEFAULT_SETTINGS);
   assert.deepEqual(parseSettings('{roto'), DEFAULT_SETTINGS);
-  assert.deepEqual(parseSettings('{"volume":3,"shake":false}'), { volume: 3, shake: false });
-  assert.deepEqual(parseSettings('{"volume":99,"shake":"sí"}'), { volume: 10, shake: true });
+  assert.deepEqual(parseSettings('{"volume":3,"shake":false}'), { volume: 3, music: 6, shake: false });
+  assert.deepEqual(parseSettings('{"volume":99,"music":2,"shake":"sí"}'), { volume: 10, music: 2, shake: true });
+  assert.deepEqual(parseSettings('{"music":"alta"}'), DEFAULT_SETTINGS);
   assert.deepEqual(parseSettings('{"volume":-4.6}'), { ...DEFAULT_SETTINGS, volume: 0 });
 });
 

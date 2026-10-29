@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T13:00:00+01:00",
+  "actualizado": "2026-10-29T13:10:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -49,7 +49,7 @@
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
       "estado": "en_curso",
-      "hechas": 7,
+      "hechas": 8,
       "total": 9
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 292,
-    "tests_ok": 292,
+    "tests": 295,
+    "tests_ok": 295,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11015
+    "lineas_codigo": 11291
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T13:10:00+01:00",
+      "hito": "M6",
+      "resumen": "Ya hay música, hecha en código como los efectos: en la portada y en las plantas, un hilo musical de centro comercial en la menor que lleva veinte años en bucle y se ha agriado un poco; con la jefa, otra más rápida en re menor con el bajo corriendo. Baja de volumen en la pausa, se apaga al caer y al liquidar a la jefa, y tiene su propio volumen en Opciones.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T13:00:00+01:00",
       "hito": "M6",
@@ -403,7 +409,7 @@
       "pie": "«Historial de reclamaciones» en la portada: «Guardado en este navegador. No en la nube: no nos fiamos.»"
     }
   ],
-  "proximo": "M6: una pista de música chiptune para la planta y otra para la jefa; después, la revisión de textos con la guía de humor.",
+  "proximo": "M6: la revisión completa de textos con la guía de humor (la última tarea de M6); después, comprobar los criterios de aceptación de M6 y pasar a M7.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -432,11 +438,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "session_01LyCe1SFVh7Qnvzw655R3w9",
-      "tarea": "M6: música chiptune de planta y de jefa (src/audio/music.ts, src/render/audio.ts, opción de volumen de música)",
-      "desde": "2026-10-29T13:02:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

@@ -351,6 +351,9 @@ try {
   await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
   await page.waitForTimeout(900);
   await shot('17d-jefe-combate.png');
+  // The boss's song is on (the click above unlocked the sound).
+  const song = await page.evaluate<string | null>('window.__GE__.scene.sound2.playing?.name ?? null');
+  if (song !== 'jefa') throw new Error(`En la sala de la jefa suena «${song}» en vez de «jefa»`);
   if (!(await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut'))) throw new Error('La sala del jefe no cierra las persianas');
   // Phase 1: ice cubes from the dispenser, then frost lobbed at the toaster that slows it down.
   await page.waitForFunction(
@@ -638,11 +641,11 @@ try {
       await page.waitForTimeout(60);
     }
   };
-  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'Enter');
+  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25b-opciones.png');
   const saved = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')");
-  if (saved !== JSON.stringify({ volume: 4, shake: false })) throw new Error(`Opciones mal guardadas: ${saved}`);
+  if (saved !== JSON.stringify({ volume: 4, music: 6, shake: false })) throw new Error(`Opciones mal guardadas: ${saved}`);
   await tapKeys('Escape', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25c-controles.png');

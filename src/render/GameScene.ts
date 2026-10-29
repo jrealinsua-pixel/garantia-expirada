@@ -385,6 +385,10 @@ export class GameScene extends Phaser.Scene {
     this.game.events.on(Phaser.Core.Events.HIDDEN, onHidden);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.game.events.off(Phaser.Core.Events.HIDDEN, onHidden));
     this.sound2.setVolume(settings().volume / 10);
+    this.sound2.setMusicVolume(settings().music / 10);
+    // The warehouse muzak, or the boss's song while the boss is there (it carries on between rooms).
+    const w0 = this.world;
+    this.sound2.playMusic(w0.over || w0.won ? null : w0.room.kind === 'boss' && w0.enemies.length > 0 ? 'jefa' : 'planta');
     this.input.on('pointerdown', () => this.newUnit());
 
     const room = this.world.room;
@@ -1557,6 +1561,7 @@ export class GameScene extends Phaser.Scene {
           this.downT = 0;
           this.downCause = e.cause;
           this.recordRun('down');
+          this.sound2.playMusic(null, 1.2);
           this.hitstop = 0.3;
           this.shake(400, 0.016, true);
           this.sound2.play('baja');
@@ -1636,6 +1641,7 @@ export class GameScene extends Phaser.Scene {
         }
         case 'bossDying': {
           this.runBosses.push(e.enemy);
+          this.sound2.playMusic(null, 1.5);
           // Her life runs out: a long freeze, a flash, and the camera goes to her while she comes apart.
           this.hitstop = 0.35;
           this.shake(500, 0.018, true);

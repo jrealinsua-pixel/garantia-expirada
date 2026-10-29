@@ -4,11 +4,13 @@
 export interface Settings {
   /** Effects volume, 0 to 10. */
   volume: number;
+  /** Music volume, 0 to 10. */
+  music: number;
   /** Camera shake on shots, hits and blasts. */
   shake: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { volume: 7, shake: true };
+export const DEFAULT_SETTINGS: Settings = { volume: 7, music: 6, shake: true };
 const KEY = 'garantia-expirada/opciones';
 
 /** Reads saved options, keeping only what makes sense (anything else stays at its default). */
@@ -18,6 +20,7 @@ export function parseSettings(raw: string | null): Settings {
   try {
     const o = JSON.parse(raw) as Partial<Record<keyof Settings, unknown>>;
     if (typeof o.volume === 'number' && Number.isFinite(o.volume)) s.volume = Math.max(0, Math.min(10, Math.round(o.volume)));
+    if (typeof o.music === 'number' && Number.isFinite(o.music)) s.music = Math.max(0, Math.min(10, Math.round(o.music)));
     if (typeof o.shake === 'boolean') s.shake = o.shake;
   } catch {
     // A broken save is the same as none.

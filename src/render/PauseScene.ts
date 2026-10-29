@@ -130,12 +130,16 @@ export class PauseScene extends Phaser.Scene {
       this.drawTitleBackground();
       // Browsers only let sound start after the first key or click.
       snd.setVolume(settings().volume / 10);
+      snd.setMusicVolume(settings().music / 10);
+      snd.playMusic('planta');
       const unlock = (): void => snd.unlock();
       this.input.on('pointerdown', unlock);
       this.input.keyboard?.on('keydown', unlock);
     } else {
       this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x0e0c16, 0.72).setOrigin(0, 0);
       snd.play('cambiar', { detune: -300 });
+      snd.duckMusic(true);
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => snd.duckMusic(false));
     }
     this.input.keyboard!.on('keydown', (e: KeyboardEvent) => this.key(e.code));
     this.show('main');
@@ -189,6 +193,9 @@ export class PauseScene extends Phaser.Scene {
       if (r.id === 'volume') {
         saveSettings({ volume: r.value as number });
         snd.setVolume((r.value as number) / 10);
+      } else if (r.id === 'music') {
+        saveSettings({ music: r.value as number });
+        snd.setMusicVolume((r.value as number) / 10);
       } else if (r.id === 'shake') saveSettings({ shake: r.value as boolean });
       else if (r.id === 'fullscreen') {
         try {
@@ -233,6 +240,7 @@ export class PauseScene extends Phaser.Scene {
       const s = settings();
       this.menu = new Menu([
         { kind: 'range', id: 'volume', label: OPTION_LABELS.volume, min: 0, max: 10, value: s.volume },
+        { kind: 'range', id: 'music', label: OPTION_LABELS.music, min: 0, max: 10, value: s.music },
         { kind: 'toggle', id: 'fullscreen', label: OPTION_LABELS.fullscreen, value: this.scale.isFullscreen },
         { kind: 'toggle', id: 'shake', label: OPTION_LABELS.shake, value: s.shake },
         { kind: 'action', id: 'back', label: PAUSE_MENU.back },
