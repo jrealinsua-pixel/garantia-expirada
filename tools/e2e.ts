@@ -329,6 +329,10 @@ try {
   await page.keyboard.up(bkey);
   await page.waitForTimeout(500);
   await shot('16d-planta-vuelta.png');
+  // The minimap with the whole floor known (as if every room had been visited): icons and corridors.
+  await page.evaluate('(() => { const s = window.__GE__.scene; s.world.floor.rooms.forEach((r) => { r.visited = true; }); s.drawMinimap(); })()');
+  await page.waitForTimeout(100);
+  await shot('16e-minimapa.png');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

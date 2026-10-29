@@ -4,6 +4,7 @@ import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
 import { BOSS_AWAY_LINE, DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
+import { minimap } from '../sim/minimap.ts';
 import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
@@ -88,6 +89,22 @@ export interface GameStateForTests {
 
 /** Pixels of a rolled-up shutter still showing under the lintel (with its pilot light). */
 const SHUTTER_ROLLED = 9;
+/** Minimap: size of a room and distance between rooms (px on the 480 x 270 screen). */
+const MAP_CELL_W = 9;
+const MAP_CELL_H = 7;
+const MAP_STEP_X = 11;
+const MAP_STEP_Y = 9;
+/** Minimap icons (5 px wide at most), drawn in the middle of the room. */
+const MAP_ICONS: Partial<Record<string, { rows: string[]; color: number }>> = {
+  // A skull: the boss.
+  boss: { rows: ['.###.', '#.#.#', '#####', '.#.#.'], color: 0xe0453b },
+  // A shopping trolley: the shop.
+  shop: { rows: ['#....', '.####', '.###.', '.#.#.'], color: 0xf6c431 },
+  // A gift box with its bow: the treasure.
+  treasure: { rows: ['.#.#.', '#####', '#.#.#', '#####'], color: 0x5cc2c0 },
+  // A question mark: the secret room (only once found).
+  secret: { rows: ['##.', '..#', '.#.', '...', '.#.'], color: 0xd3849a },
+};
 /** Milliseconds of the fade between rooms. */
 const ROOM_FADE_OUT = 110;
 const ROOM_FADE_IN = 170;
@@ -153,6 +170,7 @@ export class GameScene extends Phaser.Scene {
   private carry: World | null = null;
   /** Fading out towards the next room. */
   private leaving = false;
+  private mapG: Phaser.GameObjects.Graphics | null = null;
 
   constructor() {
     super('game');
@@ -184,6 +202,7 @@ export class GameScene extends Phaser.Scene {
     this.bulletSprites = new Map();
     this.pickupSprites = new Map();
     this.particles = [];
+    this.mapG = null;
     this.floats = [];
     this.hearts = [];
     this.ammoPips = [];
@@ -270,6 +289,7 @@ export class GameScene extends Phaser.Scene {
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
+    if (this.world.floor) this.drawMinimap();
 
     const cam = this.cameras.main;
     cam.setBounds(0, 0, room.w, room.h);
@@ -802,6 +822,61 @@ export class GameScene extends Phaser.Scene {
    * One shutter sprite per door. Walking into a combat room brings them down with a slam; in any
    * other room they are already up (rolled into the lintel, green light).
    */
+  /**
+   * The floor plan in the top right corner: rooms visited (grey), the one the toaster is in
+   * (white), and the ones seen through their doors (dark outline), with icons for the boss, the
+   * shop and the treasure. Drawn once per room (the scene rebuilds on every door).
+   */
+  private drawMinimap(): void {
+    const cells = minimap(this.world);
+    if (cells.length === 0) return;
+    const gx0 = Math.min(...cells.map((c) => c.gx));
+    const gy0 = Math.min(...cells.map((c) => c.gy));
+    const gw = Math.max(...cells.map((c) => c.gx)) - gx0 + 1;
+    const gh = Math.max(...cells.map((c) => c.gy)) - gy0 + 1;
+    const pad = 3;
+    const W = gw * MAP_STEP_X - (MAP_STEP_X - MAP_CELL_W) + pad * 2;
+    const H = gh * MAP_STEP_Y - (MAP_STEP_Y - MAP_CELL_H) + pad * 2;
+    const x0 = VIEW_W - 6 - W;
+    const y0 = 6;
+    this.mapG?.destroy();
+    const g = this.hud(this.add.graphics()).setDepth(94000);
+    this.mapG = g;
+    // Dark enough to read over the colourful back-wall shelves.
+    g.fillStyle(0x0e0c16, 0.85).fillRect(x0, y0, W, H);
+    g.lineStyle(1, 0x3a3f5c, 1).strokeRect(x0 + 0.5, y0 + 0.5, W - 1, H - 1);
+    const at = (c: { gx: number; gy: number }): { x: number; y: number } => ({ x: x0 + pad + (c.gx - gx0) * MAP_STEP_X, y: y0 + pad + (c.gy - gy0) * MAP_STEP_Y });
+    // Corridors first, so the rooms sit on top of them.
+    g.fillStyle(0x6b7090, 1);
+    for (const c of cells) {
+      const p = at(c);
+      for (const d of c.links) {
+        if (d === 'E') g.fillRect(p.x + MAP_CELL_W, p.y + (MAP_CELL_H >> 1) - 1, MAP_STEP_X - MAP_CELL_W, 2);
+        else if (d === 'S') g.fillRect(p.x + (MAP_CELL_W >> 1) - 1, p.y + MAP_CELL_H, 2, MAP_STEP_Y - MAP_CELL_H);
+      }
+    }
+    for (const c of cells) {
+      const p = at(c);
+      if (c.state === 'seen') {
+        g.fillStyle(0x1b1d2e, 1).fillRect(p.x, p.y, MAP_CELL_W, MAP_CELL_H);
+        g.lineStyle(1, 0x4a4f6e, 1).strokeRect(p.x + 0.5, p.y + 0.5, MAP_CELL_W - 1, MAP_CELL_H - 1);
+      } else {
+        g.fillStyle(c.state === 'here' ? 0xf4f1e8 : 0x6b7090, 1).fillRect(p.x, p.y, MAP_CELL_W, MAP_CELL_H);
+        // Shade along the bottom, like the room tiles.
+        g.fillStyle(c.state === 'here' ? 0xb9b3a3 : 0x4a4f6e, 1).fillRect(p.x, p.y + MAP_CELL_H - 1, MAP_CELL_W, 1);
+      }
+      const icon = MAP_ICONS[c.kind];
+      if (icon) {
+        const ix = p.x + Math.floor((MAP_CELL_W - icon.rows[0]!.length) / 2);
+        const iy = p.y + Math.floor((MAP_CELL_H - icon.rows.length) / 2);
+        g.fillStyle(c.state === 'here' ? 0x0e0c16 : icon.color, 1);
+        icon.rows.forEach((row, j) => [...row].forEach((ch, i) => {
+          if (ch === '#') g.fillRect(ix + i, iy + j, 1, 1);
+        }));
+      }
+    }
+  }
+
   private makeShutters(doors: ReadonlyArray<{ dir: string; x: number; y: number; w: number; h: number }>): void {
     this.shutters = [];
     const slam = this.world.doorsShut && this.world.room.kind === 'combat';

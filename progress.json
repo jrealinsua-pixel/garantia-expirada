@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T03:30:00+01:00",
+  "actualizado": "2026-10-29T04:05:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M3",
   "hitos": [
@@ -28,7 +28,7 @@
       "id": "M3",
       "nombre": "Salas y planta",
       "estado": "en_curso",
-      "hechas": 4,
+      "hechas": 5,
       "total": 6
     },
     {
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 153,
-    "tests_ok": 153,
+    "tests": 157,
+    "tests_ok": 157,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 5840
+    "lineas_codigo": 5961
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T04:05:00+01:00",
+      "hito": "M3",
+      "resumen": "Minimapa arriba a la derecha: salas visitadas, la actual y las vecinas vistas, con iconos para jefe, tienda, tesoro y sala secreta.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T03:30:00+01:00",
       "hito": "M3",
@@ -224,8 +230,8 @@
       "pie": "Recién llegada a la sala vecina por la puerta oeste: las persianas bajan detrás y el primer enemigo ya espera"
     },
     {
-      "archivo": "capturas/planta-entrada.png",
-      "pie": "Muelle de Entrada de Devoluciones, la primera sala de cada planta: cuatro puertas abiertas a otras salas"
+      "archivo": "capturas/minimapa.png",
+      "pie": "El minimapa con la planta entera conocida: calavera del jefe, carrito de la tienda y caja de regalo del tesoro (ampliado)"
     },
     {
       "archivo": "capturas/sala-garantias.png",
@@ -244,6 +250,6 @@
       "pie": "Parte de baja: causa, vida útil, recomendación del fabricante y el sello rojo"
     }
   ],
-  "proximo": "M3: minimapa (salas visitadas, vecinas vistas, iconos de tienda, tesoro y jefe); después las casillas de la planta 1 con variaciones y decoración.",
+  "proximo": "M3: casillas de la planta 1 (almacén) con variaciones y decoración; después comprobar criterios y cerrar M3. Pendiente de equilibrio: sin curación el bot cae en el 55 % de las plantas (llegarán corazones con M5).",
   "bloqueos": []
 }
