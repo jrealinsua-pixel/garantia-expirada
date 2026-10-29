@@ -288,3 +288,29 @@ test('polilla: sin bombilla, ronda a la tostadora', () => {
   for (let i = 0; i < 300; i++) step(w, NO_INPUT);
   assert.ok(Math.hypot(w.player.x - moth.x, w.player.y - moth.y) < mothBrain.orbitRadius * 3.5);
 });
+
+test('los enemigos que andan no se meten unos dentro de otros (la polilla vuela por encima)', () => {
+  // The three remotes, the blender and the vacuum, all piled on one spot; the toaster far away
+  // and untouchable, so they only walk.
+  const w = createWorld({ seed: 'apelotonados' });
+  w.noDamage = true;
+  w.player.x = 40;
+  w.player.y = ROW3;
+  const pile = w.enemies.filter((e) => ['mando', 'batidora', 'aspirador'].includes(e.def.id));
+  assert.equal(pile.length, 5);
+  for (const en of pile) {
+    en.x = 260;
+    en.y = 5 * 24 + 12;
+  }
+  for (let i = 0; i < 90; i++) step(w, NO_INPUT);
+  let closest = Infinity;
+  for (const a of pile) for (const b of pile) if (a !== b) closest = Math.min(closest, Math.hypot(a.x - b.x, a.y - b.y));
+  assert.ok(closest > 6, `dos siguen uno encima del otro (${closest.toFixed(1)} px)`);
+  // And with time, each one keeps most of its room.
+  for (let i = 0; i < 180; i++) step(w, NO_INPUT);
+  const live = pile.filter((e) => w.enemies.includes(e));
+  for (const a of live) for (const b of live) {
+    if (a === b) continue;
+    assert.ok(Math.hypot(a.x - b.x, a.y - b.y) > (a.def.hurt.w + b.def.hurt.w) * 0.25, `${a.def.id} y ${b.def.id} se pisan`);
+  }
+});

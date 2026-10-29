@@ -169,7 +169,8 @@ semillas distintas acaban con builds distintas.
 - [x] Accesibilidad, parte 2c: texto grande en el inventario (la ventana de descripción grande, como emergente sobre la parte de abajo; la lista a dos líneas).
 - [x] Accesibilidad, parte 3: remapeo de controles (teclado; el mando, con su soporte completo en M15).
 - [x] Animaciones completas de todos los enemigos (reposo con respiración y paso de 4 fotogramas por distancia; golpe y muerte ya eran comunes: destello blanco y despiece).
-- [ ] Lista de errores conocidos vacía.
+- [ ] Lista de errores conocidos vacía (`docs/ERRORES_CONOCIDOS.md`: las secciones «Errores» y «Asperezas» sin nada).
+  - [x] Parte 1: reunir la lista (repasando cada «Problema conocido» de la bitácora) y arreglar las rendijas entre obstáculos, los enemigos que se amontonaban, los cupones de la jefa sobre el montacargas y el montacargas que volvía a subir.
 
 ## M8 · Planta 2: Informática
 

@@ -552,7 +552,7 @@ export class GameScene extends Phaser.Scene {
     // Back in the boss room after walking out: the lift is still there, waiting.
     const lift = this.world.lift;
     if (lift) {
-      this.raiseLift(lift.x, lift.y);
+      this.raiseLift(lift.x, lift.y, true);
       if (lift.t >= LIFT_READY) this.liftView!.s.setFrame(1);
     }
   }
@@ -1007,15 +1007,19 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** The goods lift rises out of the floor where the boss fell, with dust and a rumble. */
-  private raiseLift(x: number, y: number): void {
+  /**
+   * The goods lift rises out of the floor where the boss fell, with dust and a rumble; `already`
+   * (back in the room after walking out) puts it there, up and silent.
+   */
+  private raiseLift(x: number, y: number, already = false): void {
     this.liftView?.s.destroy();
     this.liftView?.hole.destroy();
     this.liftView?.arrow.destroy();
     const hole = this.add.rectangle(Math.round(x) - 20, Math.round(y) - 10, 40, 23, 0x0e0c16, 1).setOrigin(0, 0).setDepth(-60001).setAlpha(0);
     const s = this.add.image(Math.round(x), Math.round(y), 'montacargas', 0).setOrigin(0.5, 20 / 34).setDepth(-60000);
     const arrow = this.add.graphics().setDepth(85000);
-    this.liftView = { s, hole, arrow, upT: 0 };
+    this.liftView = { s, hole, arrow, upT: already ? 1 : 0 };
+    if (already) return;
     this.sound2.play('ascensor', { detune: 300 });
     this.time.delayedCall(300, () => this.sound2.play('persiana', { volume: 0.6 }));
     for (let i = 0; i < 12; i++) this.puff(x + this.fx.range(-24, 24), y + this.fx.range(-10, 12), this.fx.range(0.5, 0.8));

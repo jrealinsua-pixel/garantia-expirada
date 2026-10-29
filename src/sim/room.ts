@@ -105,6 +105,7 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
   for (let c = 0; c < cols; c++) {
     if (!tiles[c] || !tiles[(rows - 1) * cols + c]) throw new Error(`Room ${t.id}: the border must be wall`);
   }
+  sealSlits(props, tiles, cols);
   // Floor rooms are entered through a door: without a P the player starts in front of the south one.
   if (!playerStart) {
     if (!t.kind) throw new Error(`Room ${t.id}: no player start (P)`);
@@ -139,6 +140,43 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
     doors: roomDoors,
     slots,
   };
+}
+
+/**
+ * Below this, a gap between a solid and the prop under it is a slit: the toaster's feet would
+ * squeeze in (they are 4 px tall), but its body would be drawn through both things.
+ */
+export const SLIT = 14;
+
+/**
+ * Closes the slits over props: a prop whose top is less than SLIT px under a wall or another
+ * prop (overlapping sideways) grows upwards until it touches it. Behind a crate against the back
+ * wall, or between a trolley and the box under it, there is no way through, instead of one only
+ * the feet fit.
+ */
+function sealSlits(props: PropInstance[], tiles: Uint8Array, cols: number): void {
+  const above = (b: Rect): number => {
+    let edge = -Infinity;
+    const c0 = Math.floor(b.x / TILE);
+    const c1 = Math.floor((b.x + b.w - 0.001) / TILE);
+    for (let r = Math.floor(b.y / TILE); r >= 0; r--) {
+      if ((r + 1) * TILE > b.y) continue;
+      for (let c = c0; c <= c1; c++) if (tiles[r * cols + c]) edge = Math.max(edge, (r + 1) * TILE);
+      if (edge > -Infinity) break;
+    }
+    for (const o of props) {
+      const ob = o.box;
+      const bottom = ob.y + ob.h;
+      if (ob === b || bottom > b.y || ob.x >= b.x + b.w || ob.x + ob.w <= b.x) continue;
+      edge = Math.max(edge, bottom);
+    }
+    return edge;
+  };
+  // Top to bottom, so a prop that grew counts as it is now for the one under it.
+  for (const pr of [...props].sort((a, b) => a.box.y - b.box.y)) {
+    const gap = pr.box.y - above(pr.box);
+    if (gap > 0 && gap < SLIT) pr.box = { x: pr.box.x, y: pr.box.y - gap, w: pr.box.w, h: pr.box.h + gap };
+  }
 }
 
 export interface Cell {

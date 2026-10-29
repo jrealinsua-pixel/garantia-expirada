@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T16:41:00+01:00",
+  "actualizado": "2026-10-29T17:02:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 326,
-    "tests_ok": 326,
+    "tests": 329,
+    "tests_ok": 329,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 12083
+    "lineas_codigo": 12172
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T17:02:00+01:00",
+      "hito": "M7",
+      "resumen": "Lista de errores conocidos reunida en docs/ERRORES_CONOCIDOS.md (repasando toda la bitácora) y cuatro arreglados: rendijas entre obstáculos, enemigos que se amontonaban, cupones de la jefa sobre el montacargas y el montacargas que volvía a subir.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T16:41:00+01:00",
       "hito": "M7",
@@ -455,12 +461,12 @@
       "pie": "Opciones › Cambiar teclas: subir pasa a la I y rodar a la K. «Cambio de titularidad de las teclas. Sin coste adicional.»"
     },
     {
-      "archivo": "capturas/texto-grande.png",
-      "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
+      "archivo": "capturas/montacargas.png",
+      "pie": "Los cupones de la jefa salen en corona y se quedan fuera del montacargas (antes lo tapaban)"
     },
     {
-      "archivo": "capturas/sinergia.png",
-      "pie": "Textos revisados: «Sinergia corporativa: Bricolaje Avanzado», sin exclamaciones, como pide la guía de humor"
+      "archivo": "capturas/texto-grande.png",
+      "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     },
     {
       "archivo": "capturas/hud.png",
@@ -475,7 +481,7 @@
       "pie": "El inventario de la pausa: el Secador con la Resistencia y la Pila hace 2 de daño pero el cargador baja de 14 a 10 (en rojo); a la derecha, los objetos y lo que hace el elegido"
     }
   ],
-  "proximo": "M7: lista de errores conocidos vacía (la última tarea de M7).",
+  "proximo": "M7: errores conocidos (2): los cuatro de la sección «Errores» de docs/ERRORES_CONOCIDOS.md, y después sus asperezas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -504,11 +510,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 15:41 UTC",
-      "tarea": "M7: lista de errores conocidos (reunirla en docs/ERRORES_CONOCIDOS.md y arreglar los primeros)",
-      "desde": "2026-10-29T15:44:00Z"
-    }
-  ]
+  "en_curso": []
 }

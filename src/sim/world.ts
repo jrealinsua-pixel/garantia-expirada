@@ -1669,7 +1669,18 @@ function reapEnemies(w: World): void {
     // Loot starts on clear floor: right under the enemy, or the nearest free spot if it flew
     // over a box or stood with its feet against a wall.
     const spot = n > 0 ? freeSpot(w, en.x, en.y, PICKUP_RADIUS) : { x: en.x, y: en.y };
-    for (let i = 0; i < n; i++) {
+    // A boss leaves the way down: the goods lift comes up where it stood, and its pile of
+    // coupons bursts out all round, landing off the plate (not on top of the lift).
+    if (en.def.boss && w.lift === null) {
+      openLift(w, en.x, en.y);
+      const l = w.lift!;
+      for (let i = 0; i < n; i++) {
+        const a = ((i + w.rng.range(0.2, 0.8)) / n) * Math.PI * 2;
+        const far = w.rng.range(LIFT_HALF.x + 14, LIFT_HALF.x + 32);
+        const sp = Math.sqrt(2 * PICKUP_FRICTION * far);
+        w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: l.x, y: l.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+      }
+    } else for (let i = 0; i < n; i++) {
       // Scattered around, a bit more in the direction of the killing shot.
       const a = en.lastHit + w.rng.range(-1.6, 1.6);
       const sp = w.rng.range(50, 110);
@@ -1682,8 +1693,6 @@ function reapEnemies(w: World): void {
       const at = freeSpot(w, en.x, en.y, PICKUP_RADIUS);
       w.pickups.push({ id: w.nextId++, kind: 'corazon', value: 2, x: at.x, y: at.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
     }
-    // A boss leaves the way down: the goods lift comes up where it stood.
-    if (en.def.boss && w.lift === null) openLift(w, en.x, en.y);
   }
   w.enemies = keep;
 }

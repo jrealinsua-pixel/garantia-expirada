@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { fontText, textWidth } from '../src/art/font.ts';
 import { winReport, WIN_NEXT, WIN_NOTES } from '../src/data/texts.ts';
 import { Bot } from '../src/sim/bot.ts';
-import { BOSS_DEATH, checkInvariants, createWorld, DT, isClear, LIFT_HALF, LIFT_READY, NO_INPUT, step, worldHash, type Enemy, type Input, type SimEvent, type World } from '../src/sim/world.ts';
+import { BOSS_DEATH, checkInvariants, createWorld, DT, isClear, LIFT_HALF, LIFT_READY, NO_INPUT, onLift, step, worldHash } from '../src/sim/world.ts';
+import type { Enemy, Input, SimEvent, World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
 
@@ -39,6 +40,20 @@ test('la jefa suelta un corazón y el montacargas sube en suelo libre donde cay�
   const l = w.lift!;
   assert.ok(l, 'no hay montacargas');
   assert.ok(isClear(w, l.x, l.y, Math.max(LIFT_HALF.x, LIFT_HALF.y)), 'el montacargas pisa algo');
+});
+
+test('los cupones de la jefa salen despedidos y no se quedan encima del montacargas', () => {
+  for (const seed of ['cupones-1', 'cupones-2', 'cupones-3', 'cupones-4', 'cupones-5']) {
+    const { w } = afterBoss(seed);
+    for (let i = 0; i < ticks(1.5); i++) step(w, NO_INPUT);
+    const l = w.lift!;
+    const coupons = w.pickups.filter((k) => k.kind === 'cupon');
+    assert.ok(coupons.length + w.player.coupons >= 10, seed);
+    // Off the plate with room to spare: not even the edge of a coupon (4 px) on it.
+    const on = coupons.filter((k) => Math.abs(k.x - l.x) < LIFT_HALF.x + 4 && Math.abs(k.y - l.y) < LIFT_HALF.y + 4);
+    assert.deepEqual(on.map((k) => `${k.x.toFixed(0)},${k.y.toFixed(0)}`), [], `${seed}: cupones sobre el montacargas en ${l.x.toFixed(0)},${l.y.toFixed(0)}`);
+    assert.ok(!coupons.some((k) => onLift(l, k.x, k.y)));
+  }
 });
 
 test('el corazón cura medio corazón por mitad y se queda en el suelo con la vida llena', () => {

@@ -5,7 +5,7 @@ import type { RoomTemplate } from '../src/data/types.ts';
 import { Bot } from '../src/sim/bot.ts';
 import type { Dir } from '../src/sim/floor.ts';
 import { Rng } from '../src/sim/rng.ts';
-import { buildRoom, doorApron, doorCells, enemyBudget, fillTemplate, type Cell } from '../src/sim/room.ts';
+import { buildRoom, doorApron, doorCells, enemyBudget, fillTemplate, SLIT, type Cell } from '../src/sim/room.ts';
 import { checkInvariants, createWorld, DT, step } from '../src/sim/world.ts';
 
 const DIRS: Dir[] = ['N', 'S', 'E', 'W'];
@@ -134,4 +134,24 @@ test('plantillas: el bot juega 25 s en cada sala de combate rellena sin romper n
       }
     }
   }
+});
+
+test('plantillas: no hay rendijas por las que solo quepan los pies (cada hueco «o» con cada obstáculo)', () => {
+  // A gap of 5–13 px between a wall or prop and the prop under it: the feet (4 px tall) fit, the
+  // body is drawn through both (the trolley and the box in cola-atencion, a crate against the back wall).
+  const bad: string[] = [];
+  for (const t of Object.values(ROOMS)) {
+    for (const ob of ['c', 'b', 'k']) {
+      const room = buildRoom({ ...t, rows: t.rows.map((r) => r.replaceAll('o', ob)) });
+      const solids = room.props.map((p) => ({ ...p.box, n: p.def.id }));
+      for (let r = 0; r < room.rows; r++) for (let c = 0; c < room.cols; c++) if (room.tiles[r * room.cols + c]) solids.push({ x: c * 24, y: r * 24, w: 24, h: 24, n: '#' });
+      for (const a of solids) for (const b of solids) {
+        if (a === b || b.n === '#') continue;
+        const side = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const gap = b.y - (a.y + a.h);
+        if (side > 0 && gap > 4 && gap < SLIT) bad.push(`${t.id} (o=${ob}): ${a.n} sobre ${b.n}, ${gap} px`);
+      }
+    }
+  }
+  assert.deepEqual(bad, []);
 });

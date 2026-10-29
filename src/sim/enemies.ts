@@ -44,6 +44,48 @@ export function updateEnemies(w: World): void {
     }
     contact(w, en);
   }
+  separate(w);
+}
+
+/** Room each walking enemy keeps round itself, as a share of its body width. */
+const PERSONAL_SPACE = 0.4;
+/** Share of the overlap two enemies undo each tick (each one half of it): soft, no jolts. */
+const SEPARATION = 0.25;
+
+/**
+ * Walking enemies do not stand inside each other: two that overlap are nudged apart along the
+ * line between them, sliding along walls and props. Flyers, bosses and the dying are left alone.
+ */
+function separate(w: World): void {
+  const walkers = w.enemies.filter((en) => en.state !== 'dying' && en.def.brain.kind !== 'moth' && en.def.brain.kind !== 'boss');
+  for (let i = 0; i < walkers.length; i++) {
+    const a = walkers[i]!;
+    for (let j = i + 1; j < walkers.length; j++) {
+      const b = walkers[j]!;
+      const min = (a.def.hurt.w + b.def.hurt.w) * PERSONAL_SPACE;
+      let dx = b.x - a.x;
+      let dy = b.y - a.y;
+      let d = Math.hypot(dx, dy);
+      if (d >= min) continue;
+      if (d < 0.001) {
+        // Right on top of each other: apart sideways (which way, by id; no randomness).
+        dx = a.id < b.id ? 1 : -1;
+        dy = 0;
+        d = 1;
+      }
+      const push = ((min - Math.min(d, min)) * SEPARATION) / 2;
+      const ux = dx / d;
+      const uy = dy / d;
+      const ka = { x: a.x, y: a.y, vx: 0, vy: 0 };
+      const kb = { x: b.x, y: b.y, vx: 0, vy: 0 };
+      slide(w, ka, a.def.footRadius, -ux * push, -uy * push);
+      slide(w, kb, b.def.footRadius, ux * push, uy * push);
+      a.x = ka.x;
+      a.y = ka.y;
+      b.x = kb.x;
+      b.y = kb.y;
+    }
+  }
 }
 
 function enter(en: Enemy, state: Enemy['state'], until: number): void {
