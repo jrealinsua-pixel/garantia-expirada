@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T12:45:00+01:00",
+  "actualizado": "2026-10-29T12:05:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -131,13 +131,13 @@
   },
   "sesiones": [
     {
-      "fecha": "2026-10-29T12:45:00+01:00",
+      "fecha": "2026-10-29T12:05:00+01:00",
       "hito": "M6",
       "resumen": "Empieza M6 con la pausa: Esc, P o Start congelan el juego y abren un menú (Continuar, Opciones, Controles y Pedir otra unidad, que pregunta antes de mandar la tostadora al punto limpio). En opciones: volumen de efectos, pantalla completa y temblor de cámara, que se guardan en el navegador. Controles con teclado, ratón y mando. Si cambias de pestaña, el juego se pausa solo.",
       "commit": ""
     },
     {
-      "fecha": "2026-10-29T12:10:00+01:00",
+      "fecha": "2026-10-29T11:55:00+01:00",
       "hito": "M5",
       "resumen": "M5 terminado. Al coger un objeto o un arma se abre una ventana con su dibujo a doble tamaño, el nombre, qué es, la descripción y lo que hace de verdad: en verde lo que da y en rojo lo que quita («Cadencia +30 %», «Cargador -30 %»); las armas enseñan sus números (daño, disparos por segundo, cargador, recarga y alcance). Si la tostadora está arriba, la ventana sale abajo para no taparla. Además, atendida la nota de hacer sesiones más largas: el protocolo ahora encadena tareas mientras quede contexto.",
       "commit": ""
@@ -372,7 +372,7 @@
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 12:10: M5 terminado (la tienda y la ventana de descripción, en una sola sesión).",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión).",
     "hitos": {
       "M5": 0,
       "M6": 10,

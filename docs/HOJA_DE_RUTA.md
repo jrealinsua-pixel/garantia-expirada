@@ -6,7 +6,7 @@ ampliar. Cuando se acabe la lista, Claude escribe hitos nuevos al final.
 
 Estados: `- [ ]` pendiente · `- [x]` hecha.
 
-## Estimación de tiempo (revisada el 2026-10-29, 12:10)
+## Estimación de tiempo (revisada el 2026-10-29, 11:55)
 
 Cuento en **sesiones de trabajo** (cada una cierra una tarea, a veces dos). Ritmo medido: entre
 el 28 y el 29 de octubre se cerraron 47 tareas (M0–M4 y medio M5) en unas 33 sesiones. Las
@@ -16,7 +16,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 
 | Hito | Sesiones | Por qué |
 | --- | ---: | --- |
-| M5 · Armas, objetos y sinergias | hecho | Terminado el 29 a las 12:10 |
+| M5 · Armas, objetos y sinergias | hecho | Terminado el 29 a las 11:55 |
 | M6 · Partida completa | 10 | Menús, pantallas, guardado, dos pistas de música, inventario e interfaz limpia |
 | M7 · Pulido | 13 | Equilibrio (dificultad media-alta), armas y objetos, y animaciones de todos los enemigos |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
