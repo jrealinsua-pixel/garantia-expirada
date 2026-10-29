@@ -67,6 +67,14 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.2, pattern: { kind: 'ring', count: 8, speed: 64, offsetDeg: 22.5, color: 'red' } },
     ],
   },
+  // Webcam Siempre Encendida: the photo it takes once it has shared its screen, a tight aimed fan.
+  'webcam-flash': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 40, speed: 130, color: 'red' } },
+      { at: 0.15, pattern: { kind: 'fan', count: 4, spreadDeg: 30, speed: 105, color: 'red' } },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

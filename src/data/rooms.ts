@@ -849,8 +849,14 @@ export const SLOT_ENEMIES_1: readonly SlotEnemy[] = [
   { ch: 'L', cost: 5, weight: 2, max: 1 },
 ];
 
-/** Floor 2 (Informática): floor 1's and its own (I: the printer; F: a pair of fake chargers; R: the wireless mouse). */
-export const SLOT_ENEMIES_2: readonly SlotEnemy[] = [...SLOT_ENEMIES_1, { ch: 'I', cost: 3, weight: 4, max: 2 }, { ch: 'F', cost: 3, weight: 3, max: 1 }, { ch: 'R', cost: 3, weight: 3, max: 2 }];
+/** Floor 2 (Informática): floor 1's and its own (I: the printer; F: a pair of fake chargers; R: the wireless mouse; W: the webcam, at most one: it only helps the others). */
+export const SLOT_ENEMIES_2: readonly SlotEnemy[] = [
+  ...SLOT_ENEMIES_1,
+  { ch: 'I', cost: 3, weight: 4, max: 2 },
+  { ch: 'F', cost: 3, weight: 3, max: 1 },
+  { ch: 'R', cost: 3, weight: 3, max: 2 },
+  { ch: 'W', cost: 3, weight: 3, max: 1 },
+];
 
 /** What can fill an `e` slot on floor `level`. */
 export function slotEnemiesOf(level: number): readonly SlotEnemy[] {

@@ -254,6 +254,36 @@ export const ENEMIES: Record<string, EnemyDef> = {
       recover: 0.55,
     },
   },
+  webcam: {
+    id: 'webcam',
+    name: 'Webcam Siempre Encendida',
+    description: 'La lucecita dice que no está grabando; la lucecita lleva años sin funcionar. Comparte pantalla con quien no debe.',
+    hp: 12,
+    sprite: 'webcam',
+    anchor: { x: 13, y: 30 },
+    hurt: { x: -9, y: -25, w: 18, h: 22 },
+    footRadius: 6,
+    contactPush: 120,
+    contactDamage: 1,
+    knockbackScale: 0.8,
+    loot: { coupons: [1, 2] },
+    // 0-1 looking about (the lens refocuses), 2-5 tiptoeing on its clip, 6 recording (REC on).
+    anim: { idle: [0, 1], idleMs: 520, walk: [2, 3, 4, 5], stepPx: 4, warn: 6 },
+    brain: {
+      kind: 'watcher',
+      walkSpeed: 40,
+      keep: 150,
+      range: 260,
+      cooldown: [1.6, 2.6],
+      // Long enough to break the line of sight behind something, or to shoot it first.
+      focus: 1.2,
+      pattern: 'webcam-flash',
+      muzzleY: 17,
+      recover: 0.7,
+      // Everyone it told attacks sooner for a while: being watched live, nobody slacks off.
+      rush: { time: 4, scale: 1.6 },
+    },
+  },
   'nevera-suprema': {
     id: 'nevera-suprema',
     name: 'La Nevera Suprema',

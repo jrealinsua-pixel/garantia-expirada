@@ -11,7 +11,23 @@ import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
-import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, JAM_LINE, REVEAL_LINE, REVIVE_LINE, TURBO_LINE } from '../data/texts.ts';
+import {
+  DEATH_STAMPS,
+  DOORS_OPEN_LINES,
+  DOWN_HINT,
+  DOWN_STAMP,
+  DOWN_TITLE,
+  downReport,
+  RESTOCK_LINE,
+  CRIT_LINE,
+  JAM_LINE,
+  REVEAL_LINE,
+  REC_LINE,
+  REC_LOST_LINE,
+  ALERT_LINE,
+  REVIVE_LINE,
+  TURBO_LINE,
+} from '../data/texts.ts';
 import { doorCells, isWallAt } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
@@ -1486,6 +1502,27 @@ export class GameScene extends Phaser.Scene {
           // A pair found out at once says it once.
           if (!this.floats.some((f) => f.key === 'reveal' && (f.age ?? 0) < 0.6)) this.floatText(e.x, e.y - 14, fontText(REVEAL_LINE), 0x69dbd8, 'reveal', -16, 0.9);
           break;
+        case 'recStart':
+          // A webcam starts recording: a beep and its red line over it.
+          this.sound2.play('grabar');
+          this.floatText(e.x, e.y - 10, fontText(REC_LINE), 0xe0453b, `rec:${e.source}`, -12, 0.9);
+          break;
+        case 'recLost':
+          this.sound2.play('apagar', { volume: 0.7 });
+          this.floatText(e.x, e.y - 10, fontText(REC_LOST_LINE), 0xb7bed0, `rec:${e.source}`, -12, 0.9);
+          break;
+        case 'alert':
+          // It shares its screen: the photo's flash and shutter, and everyone in the room attacks at once.
+          this.sound2.play('obturador');
+          if (e.told.length > 0) this.sound2.play('aviso', { detune: 500, volume: 0.8 });
+          // A spark over each enemy it told: they are live now.
+          for (const id of e.told) {
+            const o = this.world.enemies.find((x) => x.id === id);
+            if (o) for (let i = 0; i < 3; i++) this.spark(o.x, o.y - 20, this.fx.range(-Math.PI, 0), this.fx.range(30, 60), 0);
+          }
+          for (let i = 0; i < 8; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(40, 90), 0);
+          this.floatText(e.x, e.y - 10, fontText(ALERT_LINE), 0xf6c431, `rec:${e.source}`, -14, 1.1);
+          break;
         case 'jam':
           // A printer jams: grinding, a couple of scraps of paper and its line over it.
           this.sound2.play('atasco', { detune: this.fx.range(-150, 150) });
@@ -2608,7 +2645,7 @@ export class GameScene extends Phaser.Scene {
       }
       // Aimed attacks: dots show where they will go (a charge shows its whole path).
       if (wn.aimed) {
-        const len = wn.bullets ? 10 + 26 * k : 30 + 110 * k;
+        const len = wn.reach ?? (wn.bullets ? 10 + 26 * k : 30 + 110 * k);
         const off = (this.time.now / 60) % 5;
         for (let d = 8 + off; d < 8 + len; d += 5) {
           const px = Math.round(x + Math.cos(wn.aim) * d);

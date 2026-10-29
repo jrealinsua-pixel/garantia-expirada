@@ -275,6 +275,8 @@ export interface Enemy {
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
+  /** Being watched live (a webcam shared its screen): for `t` more s its waits run `scale` times faster. */
+  rush?: { t: number; scale: number };
   /** Turrets that jam: volleys left before the next jam. */
   volleys?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
@@ -331,6 +333,10 @@ export type SimEvent =
   | { type: 'jam'; x: number; y: number; source: number }
   | { type: 'reveal'; x: number; y: number; source: number }
   | { type: 'lagJump'; x: number; y: number; tx: number; ty: number; source: number }
+  /** A webcam starts recording, loses the player, or shares its screen (`told` enemies attack now). */
+  | { type: 'recStart'; x: number; y: number; source: number }
+  | { type: 'recLost'; x: number; y: number; source: number }
+  | { type: 'alert'; x: number; y: number; told: number[]; source: number }
   | { type: 'bulletFade'; x: number; y: number }
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
@@ -1526,6 +1532,8 @@ export interface Warning {
   /** Bullets will come out of (x, y): draw the closing ring. A charge has no ring but a long path. */
   bullets: boolean;
   source?: number;
+  /** Length of the aimed line, when it reaches a point (a webcam's line of sight to the player). */
+  reach?: number;
 }
 
 export function activeWarnings(w: World): Warning[] {
@@ -1544,6 +1552,14 @@ export function activeWarnings(w: World): Warning[] {
       const a = b.phases[en.bossPhase ?? 0]?.attacks[en.attack ?? 0];
       const at = a ? bossWarnSpot(en, b, a) : { x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y };
       out.push({ x: at.x, y: at.y, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: a?.kind === 'spit' ? 'red' : 'ice', bullets: true, source: en.id });
+      continue;
+    }
+    if (b.kind === 'watcher') {
+      // Recording: the flash will come from the lens, and its line of sight follows the player.
+      const lx = en.x;
+      const ly = en.y - b.muzzleY;
+      const reach = Math.max(0, Math.hypot(w.player.x - lx, w.player.y - HAND_HEIGHT - ly) - 8);
+      out.push({ x: lx, y: ly, k: Math.min(1, en.t / en.until), aim: Math.atan2(w.player.y - HAND_HEIGHT - ly, w.player.x - lx), aimed: true, color: 'red', bullets: true, source: en.id, reach });
       continue;
     }
     if (b.kind === 'lagger' && en.dest) {

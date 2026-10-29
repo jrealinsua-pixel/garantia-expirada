@@ -48,6 +48,11 @@ export const JAM_LINE = 'Atasco de papel';
 /** Over a fake charger when it jumps up. */
 export const REVEAL_LINE = 'No homologado';
 
+/** Over a webcam when it starts recording, when it loses you, and when it tells the others. */
+export const REC_LINE = 'Grabando';
+export const REC_LOST_LINE = 'Conexión perdida';
+export const ALERT_LINE = 'Compartiendo pantalla';
+
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */
 export const DOWN_TITLE = 'Parte de baja';
 export const DOWN_HINT = 'R o clic: pedir otra unidad';
@@ -69,6 +74,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   impresora: { bullet: 'Factura impagada', contact: 'Atasco de papel con daños personales' },
   cargador: { bullet: 'Calambre de un cargador no homologado', contact: 'Cargador no homologado' },
   'raton-inalambrico': { bullet: 'Doble clic accidental', contact: 'Ratón que apareció de repente' },
+  webcam: { bullet: 'Foto subida sin consentimiento', contact: 'Videollamada sorpresa' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };

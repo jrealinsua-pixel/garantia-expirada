@@ -18,6 +18,7 @@
     "stats": "node tools/stats.ts",
     "armas": "node tools/armas.ts",
     "objetos": "node tools/objetos.ts",
+    "enemigos": "node tools/enemigos.ts",
     "rendimiento": "node tools/rendimiento.ts"
   }
 }

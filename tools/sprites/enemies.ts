@@ -2,7 +2,7 @@
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
-import { BURNT, CREAM, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
+import { BLUE, BURNT, CREAM, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, hand, outline, pad, ramp } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
 
@@ -444,4 +444,86 @@ export const MOUSE_LEGS = [9, 15] as const;
 export function makeRatonFrames(): Canvas[] {
   const cyc = poseCycle(MOUSE_LEGS[0], MOUSE_LEGS[1]);
   return [...cyc.map((f, k) => makeRaton(f.pose, k === 1 || k === 3 || k === 5)), makeRaton(undefined, false, true)];
+}
+
+/** Webcam plastic: charcoal, with a lighter top so it reads on the dark floor. */
+const CAM = ramp('#8a8fa6', '#5b6078', '#41455a', '#2a2d3e');
+const CAM_SIDE = ramp('#4c5066', '#3b3f52', '#2d3042', '#1d1f2e');
+const CAM_TOP = ramp('#b9bdcd', '#8a8fa6', '#5b6078', '#41455a');
+
+export const WEBCAM_LEGS = [9, 14] as const;
+
+/**
+ * Webcam Siempre Encendida: a webcam bar on its monitor clip, its one big lens for an eye under the
+ * privacy shutter, slid half down like a suspicious eyelid. Jokes: the «not recording» light, dead
+ * and cracked; the piece of tape someone stuck over it, peeled off and hanging from its side; and a
+ * USB tail ending in a plug. `look` (0-1) shifts the iris (the lens refocusing); `rec` is the
+ * recording frame: shutter up, lens wide open and red inside (the light stays off: that's the joke).
+ * 26x30.
+ */
+export function makeWebcam(pose: Pose = { xb: WEBCAM_LEGS[0], xf: WEBCAM_LEGS[1], bob: 0 }, look = 0, rec = false): Canvas {
+  const legs = new Canvas(26, 28);
+  const cv = new Canvas(26, 28);
+  poseFeet(legs, pose, 22, { L: 3, leg: PANTL, shoe: OFFICE });
+  // The monitor clip it stands on: a hinged neck down to the legs.
+  box(cv, 10, 17, 6, 6, CAM_SIDE);
+  cv.rect(10, 19, 6, 1, CAM_SIDE[3]!);
+  cv.set(15, 18, DSTEEL[0]!);
+  hand(cv, 2, 16, CAM);
+  cube(cv, 3, 2, 21, 16, 5, 3, CAM, CAM_SIDE, CAM_TOP);
+  // Rounded ends, like a real webcam bar.
+  clear(cv, [[23, 5], [23, 17], [22, 17], [3, 16], [3, 6]]);
+  // Lens: a silver bezel, dark glass and the iris (blue, or red while recording).
+  const cx = 16;
+  const cy = 11;
+  ellipse(cv, cx, cy, 5.4, 5, STEEL[1]!);
+  ellipse(cv, cx + 0.6, cy + 0.6, 4.6, 4.2, STEEL[2]!);
+  ellipse(cv, cx, cy, 4.1, 3.8, K);
+  if (rec) {
+    ellipse(cv, cx, cy, 3, 2.8, RED[2]!);
+    ellipse(cv, cx, cy, 2, 1.9, RED[1]!);
+    cv.rect(cx - 1, cy - 1, 2, 2, RED[0]!);
+    cv.set(cx, cy, K);
+    cv.set(cx - 2, cy - 2, WHITE);
+    cv.set(cx - 1, cy - 2, WHITE);
+  } else {
+    ellipse(cv, cx, cy, 2.6, 2.4, BLUE[3]!);
+    const ix = cx + look;
+    cv.rect(ix - 1, cy - 1, 3, 3, BLUE[1]!);
+    cv.set(ix, cy, K);
+    cv.set(ix + 1, cy, K);
+    cv.set(ix - 1, cy - 1, WHITE);
+    // The privacy shutter, slid half down over the lens: a heavy lid, lower towards the front.
+    for (let x = cx - 5; x <= cx + 5; x++) {
+      const rows = x < cx - 1 ? 3 : 4;
+      cv.rect(x, cy - 5, 1, rows, CAM_TOP[1]!);
+      cv.set(x, cy - 5 + rows - 1, CAM[3]!);
+      cv.set(x, cy - 5, CAM_TOP[0]!);
+    }
+  }
+  // Microphone holes under the lens.
+  for (const x of [10, 12, 20, 22]) cv.set(x, 15, CAM[3]!);
+  // The «not recording» light: dead and cracked, recording or not.
+  cv.rect(21, 4, 2, 1, DSTEEL[1]!);
+  cv.set(22, 4, K);
+  // Its side: the tape someone stuck over the lens, peeled off and hanging.
+  cv.rect(5, 6, 3, 2, CREAM[0]!);
+  cv.set(7, 7, CREAM[1]!);
+  cv.rect(5, 8, 2, 4, CREAM[1]!);
+  cv.set(5, 11, CREAM[2]!);
+  hand(cv, 21, 17, CAM);
+  const o = outline(joinPose(legs, cv, pose));
+  // USB tail: out of the back, down to the floor, ending in the plug.
+  const tail: Pt[] = [[2, 13], [1, 14], [1, 15], [1, 16], [0, 17], [0, 18], [0, 19]];
+  for (const [x, y] of tail) o.set(x, y + pose.bob, K);
+  o.set(0, 20 + pose.bob, STEEL[1]!);
+  o.set(1, 20 + pose.bob, STEEL[2]!);
+  o.set(0, 21 + pose.bob, STEEL[2]!);
+  return pad(o, 2);
+}
+
+/** The webcam's frames: 0-1 looking about, 2-5 tiptoeing on its clip, 6 recording. */
+export function makeWebcamFrames(): Canvas[] {
+  const cyc = narrowPoseCycle(WEBCAM_LEGS[0], WEBCAM_LEGS[1]);
+  return [...cyc.map((f, k) => makeWebcam(f.pose, k === 1 || k === 4 ? -1 : 0)), makeWebcam(undefined, 0, true)];
 }

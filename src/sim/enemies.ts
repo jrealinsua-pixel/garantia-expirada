@@ -1,6 +1,6 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain } from '../data/types.ts';
+import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
@@ -47,6 +47,15 @@ export function updateEnemies(w: World): void {
       case 'lagger':
         updateLagger(w, en, en.def.brain);
         break;
+      case 'watcher':
+        updateWatcher(w, en, en.def.brain);
+        break;
+    }
+    // Watched live: the time it waits between attacks runs faster.
+    if (en.rush) {
+      if ((en.state === 'walk' || en.state === 'idle') && en.t < en.until) en.t += DT * (en.rush.scale - 1);
+      en.rush.t -= DT;
+      if (en.rush.t <= 0) delete en.rush;
     }
     contact(w, en);
   }
@@ -315,6 +324,103 @@ function updateLagger(w: World, en: Enemy, b: LaggerBrain): void {
     const oy = en.y;
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+}
+
+/** Whether a webcam has the player in view: close enough and nothing (wall or prop) in between. */
+export function watcherSees(w: World, en: Enemy, b: WatcherBrain): boolean {
+  const p = w.player;
+  const d = Math.hypot(p.x - en.x, p.y - en.y);
+  if (d > b.range || w.over) return false;
+  const n = Math.max(1, Math.ceil(d / 6));
+  // The last few px are the player's own feet: they never block the view.
+  for (let i = 1; i < n; i++) {
+    const k = i / n;
+    if (!isClear(w, en.x + (p.x - en.x) * k, en.y + (p.y - en.y) * k, 1)) return false;
+  }
+  return true;
+}
+
+/**
+ * «Compartiendo pantalla»: every other enemy in the room stops waiting and attacks as soon as it
+ * can (its wait ends now), and for a while its waits run faster. Webcams do not set each other
+ * off, and bait still lying in wait stays bait. Returns the ids of those it told.
+ */
+function shareScreen(w: World, en: Enemy, b: WatcherBrain): number[] {
+  const told: number[] = [];
+  for (const o of w.enemies) {
+    if (o === en || o.state === 'dying' || o.state === 'lurk') continue;
+    const k = o.def.brain.kind;
+    if (k === 'watcher' || k === 'boss') continue;
+    if ((o.state === 'walk' || o.state === 'idle') && Number.isFinite(o.until) && o.t < o.until) o.t = o.until;
+    o.rush = { t: b.rush.time, scale: b.rush.scale };
+    told.push(o.id);
+  }
+  return told;
+}
+
+function updateWatcher(w: World, en: Enemy, b: WatcherBrain): void {
+  const p = w.player;
+  const toX = p.x - en.x;
+  const toY = p.y - en.y;
+  en.t += DT;
+  if (Math.abs(toX) > 2) en.facing = toX > 0 ? 1 : -1;
+  let walkX = 0;
+  let walkY = 0;
+  switch (en.state) {
+    case 'walk': {
+      // Keeps its distance, sidestepping when it backs off (like the walking turrets).
+      const d = Math.hypot(toX, toY) || 1;
+      const sign = d > b.keep + 24 ? 1 : d < b.keep - 24 ? -1 : 0;
+      const side = sign < 0 ? (en.phase >= 0 ? 0.8 : -0.8) : 0;
+      const mx = (toX / d) * sign - (toY / d) * side;
+      const my = (toY / d) * sign + (toX / d) * side;
+      const ml = Math.hypot(mx, my) || 1;
+      if (sign !== 0) {
+        walkX = (mx / ml) * b.walkSpeed;
+        walkY = (my / ml) * b.walkSpeed;
+      }
+      if (en.t >= en.until && watcherSees(w, en, b)) {
+        // Recording: the red light comes on and the line of sight follows you.
+        enter(en, 'warn', b.focus);
+        en.dirX = toX / d;
+        en.dirY = toY / d;
+        w.events.push({ type: 'recStart', x: en.x, y: en.y - b.muzzleY, source: en.id });
+      }
+      break;
+    }
+    case 'warn': {
+      const d = Math.hypot(toX, toY) || 1;
+      en.dirX = toX / d;
+      en.dirY = toY / d;
+      if (!watcherSees(w, en, b)) {
+        // Hidden behind something: the recording is lost, and it has to start again later.
+        w.events.push({ type: 'recLost', x: en.x, y: en.y - b.muzzleY, source: en.id });
+        enter(en, 'walk', b.cooldown[0] * 0.5);
+      } else if (en.t >= en.until) {
+        const told = shareScreen(w, en, b);
+        w.events.push({ type: 'alert', x: en.x, y: en.y - b.muzzleY, told, source: en.id });
+        const def = PATTERNS[b.pattern];
+        if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), toX), { telegraph: 0, source: en.id, by: en.def.id, height: mh });
+        enter(en, 'brake', b.recover);
+      }
+      break;
+    }
+    case 'brake':
+      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]));
+      break;
+    default:
+      enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]));
+  }
+  approach(en, walkX, walkY, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+    if ((hit.hitX || hit.hitY) && Math.hypot(en.x - ox, en.y - oy) < b.walkSpeed * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
   }
 }
 

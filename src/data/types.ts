@@ -467,7 +467,28 @@ export interface LaggerBrain {
   recover: number;
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain;
+/**
+ * Watches and tells on you: keeps about `keep` px from the player (walking at `walkSpeed`) and,
+ * every `cooldown` s, if it sees the player (clear line, closer than `range`), records for `focus`
+ * s (its `pattern` is the warning). If the player hides behind something meanwhile, the recording
+ * is lost. If not, it «shares its screen»: every other enemy in the room ends its wait and attacks
+ * now, and for `rush.time` s its waits run `rush.scale` times faster; the webcam fires its
+ * `pattern` (the flash). Then `recover` s standing.
+ */
+export interface WatcherBrain {
+  kind: 'watcher';
+  walkSpeed: number;
+  keep: number;
+  range: number;
+  cooldown: [number, number];
+  focus: number;
+  pattern: string;
+  muzzleY: number;
+  recover: number;
+  rush: { time: number; scale: number };
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
   id: string;

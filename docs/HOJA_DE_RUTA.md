@@ -195,8 +195,8 @@ semillas distintas acaban con builds distintas.
   - [x] (1) Impresora que se Atasca (torreta que se atasca: una ventana para atacarla y un estallido al soltarse).
   - [x] (2) Cargador Falso (espera tirado como cebo, salta al acercarte y da un calambre en corro).
   - [x] (3) Ratón Inalámbrico sin Pilas (se congela sin señal, marca dónde va a aparecer, aparece y hace clic).
-  - [ ] (4) Uno más por decidir (el «router» de la lista original es el jefe, el Router del Wifi;
-    ideas: Webcam que te sigue con la mirada y avisa a los demás, Disco Duro que se cuelga).
+  - [x] (4) Webcam Siempre Encendida (te graba si te ve; si no te escondes, comparte pantalla y
+    los demás atacan a la vez y con prisa).
 - Jefe: El Router del Wifi (con su sala propia en la planta 2). En partes:
   - [x] (1) Su diseño en `docs/DISENO.md` y las salas especiales propias de Informática: tesoro,
     tienda, secreta y la sala del jefe (Sala de Redes). Hasta que llegue el Router, la Nevera

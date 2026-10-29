@@ -372,7 +372,7 @@ try {
 
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
-  await page.goto(`${url}?semilla=e2e-impresora-3&sala=taller-expres&planta=2`);
+  await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
   await page.evaluate("(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = w.enemies.filter((e) => e.def.id === 'impresora'); })()");
   if (!(await page.evaluate<boolean>('window.__GE__.scene.world.enemies.length > 0'))) throw new Error('No hay impresora en la sala de la prueba');
@@ -412,6 +412,20 @@ try {
   await page.waitForTimeout(150);
   await shot('35k-raton-clic.png');
   console.log('Ratón Inalámbrico: se congela, aparece donde marcaba y hace clic.');
+
+  // M8: the webcam: recording you with its line of sight, then sharing its screen with the microwave.
+  await page.goto(`${url}?semilla=e2e-webcam-17&sala=taller-expres&planta=2`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.room.props = [];
+    w.enemies = w.enemies.filter((e) => e.def.id === 'webcam' || e.def.id === 'microondas');
+    if (!w.enemies.some((e) => e.def.id === 'webcam')) throw new Error('No hay webcam en la sala de la prueba');
+    const c = w.enemies.find((e) => e.def.id === 'webcam'); w.player.x = c.x - 120; w.player.y = c.y + 20; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'webcam' && e.state === 'warn' && e.t > 0.6)", undefined, { timeout: 8000 });
+  await shot('35l-webcam-grabando.png');
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'webcam' && e.state === 'brake')", undefined, { timeout: 3000 });
+  await page.waitForTimeout(160);
+  await shot('35m-webcam-comparte.png');
+  console.log('Webcam: graba con la línea de mira y comparte pantalla.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

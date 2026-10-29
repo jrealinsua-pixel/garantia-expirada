@@ -10,7 +10,7 @@ import {
   ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
 } from './characters.ts';
 import { narrowPoseCycle, poseCycle } from './pose.ts';
-import { makeBatidoraFrames, makeCargadorFrames, makeImpresoraFrames, makeMandoFrames, makeRatonFrames } from './enemies.ts';
+import { makeBatidoraFrames, makeCargadorFrames, makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeWebcamFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
@@ -49,6 +49,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     impresora: { canvas: strip(makeImpresoraFrames()), frameW: 34, frameH: 32 },
     cargador: { canvas: strip(makeCargadorFrames()), frameW: 22, frameH: 26 },
     'raton-inalambrico': { canvas: strip(makeRatonFrames()), frameW: 26, frameH: 26 },
+    webcam: { canvas: strip(makeWebcamFrames()), frameW: 26, frameH: 30 },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
     'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
     // Floor 2's boss: 0-5 awake (rest, breathing, walking), 6-11 rebooting with 0 to 5 LEDs lit.
