@@ -325,6 +325,7 @@ export type SimEvent =
   | { type: 'synergy'; id: string; added: boolean }
   /** A player bullet broke an enemy bullet that can be shot (a loyalty card). */
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
+  | { type: 'revive'; item: string; x: number; y: number; hp: number }
   | { type: 'bulletFade'; x: number; y: number }
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
@@ -517,6 +518,10 @@ export interface DownCause {
 
 /** Seconds the player cannot be hurt again after a hit (it blinks meanwhile). */
 export const HURT_IFRAMES = 1.1;
+/** Seconds the toaster cannot be hurt after a backup brings it back. */
+export const REVIVE_IFRAMES = 2.5;
+/** Px beyond its body at which a rolling toaster in flight mode cuts enemy bullets. */
+export const ROLL_CUT_REACH = 4;
 /** Enemy bullets this close to the player vanish when it is hurt, so one mistake costs one hit. */
 export const HURT_CLEAR_RADIUS = 56;
 /** The player's hit box for enemy bullets: a small circle on the body, smaller than the sprite. */
@@ -1188,6 +1193,20 @@ export function playerPerks(p: Player): Required<Perks> {
   return perksOf([...p.mods, ...p.synergies.map((id) => SYNERGIES[id]!).filter((s) => !s.weapon).map((s) => s.mod)]);
 }
 
+/** Flight mode: while rolling, the enemy bullets the toaster touches are cut. */
+function rollCut(w: World): void {
+  const p = w.player;
+  if (!playerPerks(p).rollClear) return;
+  for (const b of w.bullets) {
+    if (b.owner !== 'enemy' || b.cut) continue;
+    const rr = b.r + PLAYER_HURT_RADIUS + ROLL_CUT_REACH;
+    if ((b.x - p.x) ** 2 + (b.y - (p.y - PLAYER_HURT_Y)) ** 2 < rr * rr) {
+      b.cut = true;
+      w.events.push({ type: 'bulletCut', x: b.x, y: b.y, color: b.color });
+    }
+  }
+}
+
 /** Gives the player a modifier (picking up an item). */
 export function addModifier(w: World, m: Modifier): void {
   w.player.mods.push(m);
@@ -1648,6 +1667,18 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
     else keep.push(b);
   }
   w.bullets = keep;
+  // A backup: once, instead of going down, the toaster is restored (and the backup is used up).
+  const backup = p.hp <= 0 ? p.mods.find((m) => (m.perks?.revive ?? 0) > 0) : undefined;
+  if (backup) {
+    const at = p.items.lastIndexOf(backup.id);
+    if (at >= 0) p.items.splice(at, 1);
+    removeModifier(w, backup.id);
+    p.hp = Math.min(p.def.maxHp, backup.perks!.revive!);
+    p.invulnerable = REVIVE_IFRAMES;
+    clearEnemyFire(w);
+    w.events.push({ type: 'revive', item: backup.id, x: p.x, y: p.y - PLAYER_HURT_Y, hp: p.hp });
+    return true;
+  }
   if (p.hp <= 0) {
     w.over = true;
     p.rollT = -1;
@@ -2090,6 +2121,7 @@ export function step(w: World, input: Input): void {
     }
   }
   if (!held) updateEmitters(w);
+  if (isRolling(w.player) && !w.over) rollCut(w);
   updateBullets(w, held);
   if (!held) updateFrost(w);
   reapEnemies(w);

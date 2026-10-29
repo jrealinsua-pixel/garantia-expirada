@@ -41,6 +41,8 @@ export const DOORS_OPEN_LINES: readonly string[] = [
 export const TURBO_LINE = 'Turbo';
 /** Over a critical hit (the gaming mouse). */
 export const CRIT_LINE = 'Doble clic';
+/** When the backup brings the toaster back. */
+export const REVIVE_LINE = 'Restaurando copia del martes';
 
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */
 export const DOWN_TITLE = 'Parte de baja';

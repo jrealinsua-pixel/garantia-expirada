@@ -11,7 +11,7 @@ import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
-import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, TURBO_LINE } from '../data/texts.ts';
+import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, REVIVE_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells, isWallAt } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
@@ -1690,6 +1690,14 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 3; i++) this.puff(e.x + this.fx.range(-e.r * 0.6, e.r * 0.6), e.y + this.fx.range(-4, 4), 0.5);
           break;
         }
+        case 'revive':
+          // The backup: the toaster comes back with a flash, a jingle and its line.
+          this.flashHero = 0.4;
+          this.shake(220, 0.01, true);
+          this.sound2.play('reponer', { detune: 600 });
+          for (let i = 0; i < 14; i++) this.spark(e.x, e.y, (i / 14) * Math.PI * 2, this.fx.range(60, 120), i % 3);
+          this.floatText(e.x, e.y - 24, fontText(REVIVE_LINE), 0x69dbd8, 'revive', -12, 1.6);
+          break;
         case 'bulletCut':
           // A loyalty card shot down: a snip and a few red and white bits.
           this.sound2.play('tarjeta', { detune: this.fx.range(-200, 200) });
@@ -2681,6 +2689,12 @@ export class GameScene extends Phaser.Scene {
       icon.setVisible(this.gunIcon.visible);
       this.itemIcons.push(icon);
     }
+    // An item can also go (the backup, used up): fewer icons, each showing what is left in its place.
+    while (this.itemIcons.length > p.items.length) drop(this.itemIcons.pop()!);
+    this.itemIcons.forEach((icon, i) => {
+      const key = ITEMS[p.items[i]!]?.sprite ?? 'objeto-caja';
+      if (icon.texture.key !== key) icon.setTexture(key);
+    });
     while (this.hearts.length < maxHearts) {
       const h = this.hud(this.add.image(8, 8, 'corazones', 0).setOrigin(0, 0));
       h.setVisible(this.gunIcon.visible);

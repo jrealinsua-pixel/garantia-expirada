@@ -437,6 +437,18 @@
     "frameH": 16,
     "frames": 1
   },
+  "objeto-avion": {
+    "file": "objeto-avion.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-copia": {
+    "file": "objeto-copia.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
   "objeto-encuesta": {
     "file": "objeto-encuesta.png",
     "frameW": 16,

@@ -52,6 +52,8 @@ export function modifierLines(m: Modifier): EffectLine[] {
   const k = m.perks;
   if (k?.charge) out.push({ text: `+${k.charge} ${k.charge === 1 ? 'pila' : 'pilas'} por sala limpia`, good: true });
   if (k?.coupons) out.push({ text: `${Math.round(k.coupons * 100)} % de bajas con un cupón más`, good: true });
+  if (k?.rollClear) out.push({ text: 'La voltereta corta balas', good: true });
+  if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }
 

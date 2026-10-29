@@ -64,6 +64,10 @@ export interface Perks {
   charge?: number;
   /** Chance (0–1) that each enemy killed (bosses aside) drops one more coupon. */
   coupons?: number;
+  /** While rolling, the enemy bullets the toaster touches are cut. */
+  rollClear?: boolean;
+  /** Once, instead of going down, the toaster gets this much life back; the item that gives it is used up. */
+  revive?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

@@ -48,4 +48,20 @@ export const SYNERGIES: Record<string, SynergyDef> = {
     // The card's homing gets much keener: it turns harder, for longer, from further away.
     mod: { id: 'preferente', bullets: { homing: { turnDeg: 400, time: 1, range: 150 } } },
   },
+  gamer: {
+    id: 'gamer',
+    name: 'Setup Gamer',
+    text: 'Luces, ruido y el ventilador al máximo. Los fotogramas no suben, pero se nota.',
+    items: ['raton', 'ventilador'],
+    // More critical hits.
+    mod: { id: 'gamer', bullets: { crit: { chance: 0.15, mul: 2 } } },
+  },
+  conflicto: {
+    id: 'conflicto',
+    name: 'Conflicto de Software',
+    text: 'El antivirus bloquea la actualización. Por una vez, se agradece.',
+    items: ['antivirus', 'actualizacion'],
+    // The update's slow reload is cancelled out (1.6 × 0.625 = 1).
+    mod: { id: 'conflicto', stats: [{ stat: 'reloadTime', mul: 0.625 }] },
+  },
 };

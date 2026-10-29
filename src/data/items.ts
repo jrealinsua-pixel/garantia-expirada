@@ -159,6 +159,24 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // Half the enemies killed drop one more coupon. Only good (for you).
     mod: { id: 'cookies', perks: { coupons: 0.5 } },
   },
+  avion: {
+    id: 'avion',
+    name: 'Modo Avión',
+    description: 'Corta todas las conexiones. También las que vienen hacia ti.',
+    sprite: 'objeto-avion',
+    level: 2,
+    // Rolling cuts the enemy bullets it touches, but the roll takes longer to come back.
+    mod: { id: 'avion', stats: [{ stat: 'rollCooldown', mul: 1.25 }], perks: { rollClear: true } },
+  },
+  copia: {
+    id: 'copia',
+    name: 'Copia de Seguridad',
+    description: 'Restaura el sistema tal y como estaba el martes. Funciona una vez, como todo.',
+    sprite: 'objeto-copia',
+    level: 2,
+    // Once, instead of going down, the toaster gets a heart back; then the backup is gone.
+    mod: { id: 'copia', perks: { revive: 2 } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

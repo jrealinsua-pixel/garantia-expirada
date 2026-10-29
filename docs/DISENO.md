@@ -183,9 +183,12 @@ reparte los suyos y los de las plantas de abajo (`itemsUpTo` en `src/data/items.
 | Ratón Gaming RGB | Dieciséis millones de colores y un clic que a veces cuenta doble. | 20 % de balas con daño ×2 («Doble clic» sobre el blanco) |
 | Batería Externa | Carga cualquier cosa menos el móvil. Pesa como un ladrillo. | +1 pila por sala limpia, velocidad ×0,92 |
 | Cookies de Terceros | Aceptaste todas. Ahora cada enemigo te deja un regalito, y a ellos tus datos. | El 50 % de las bajas (jefes aparte) suelta un cupón más |
+| Modo Avión | Corta todas las conexiones. También las que vienen hacia ti. | La voltereta corta las balas enemigas que toca; voltereta ×1,25 más tarde |
+| Copia de Seguridad | Restaura el sistema tal y como estaba el martes. Funciona una vez, como todo. | Una vez, en vez de la baja, vuelve con 1 corazón («Restaurando copia del martes»), limpia las balas y se gasta |
 
 Los tres últimos no son solo cifras: un modificador puede llevar, además de `stats` y `bullets`,
-golpes críticos (`bullets.crit`) y `perks` (pilas de más por sala, cupones de más por baja).
+golpes críticos (`bullets.crit`) y `perks` (pilas de más por sala, cupones de más por baja,
+voltereta que corta balas y vuelta de la baja).
 
 Objetos activos (tecla Q o botón B del mando). Se lleva uno; al coger otro, el viejo se queda en
 el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando está lleno:
@@ -211,6 +214,8 @@ repite objeto.
 | Bricolaje Avanzado | Manual en Chino + Broca del Ocho | Nadie ha leído las instrucciones, así que las balas improvisan. | +1 rebote y +1 enemigo atravesado |
 | Instalación Casera | Regleta Sin Tierra + Alargador | Todo enchufado a todo. El seguro del hogar ha dejado de coger el teléfono. | +1 bala por disparo, 3° menos de dispersión |
 | Cliente Preferente | Tarjeta de Socio + Etiqueta A+++ | Puntos dobles en cada disparo. Caducan mañana. | Persecución más fuerte: gira 400°/s durante 1 s, desde 150 px |
+| Setup Gamer | Ratón Gaming RGB + Ventilador de Portátil | Luces, ruido y el ventilador al máximo. Los fotogramas no suben, pero se nota. | +15 % de críticos (35 % en total) |
+| Conflicto de Software | Antivirus Gratuito + Actualización Obligatoria | El antivirus bloquea la actualización. Por una vez, se agradece. | Recarga ×0,625: anula la recarga lenta de la actualización y deja su daño |
 
 ### Balas enemigas
 

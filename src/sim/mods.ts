@@ -76,10 +76,12 @@ export function bulletBehaviour(mods: readonly Modifier[]): BulletBehaviour | nu
 
 /** All the modifiers' perks added up (chances to 1 at most). */
 export function perksOf(mods: readonly Modifier[]): Required<Perks> {
-  const out = { charge: 0, coupons: 0 };
+  const out = { charge: 0, coupons: 0, rollClear: false, revive: 0 };
   for (const m of mods) {
     out.charge += m.perks?.charge ?? 0;
     out.coupons += m.perks?.coupons ?? 0;
+    out.rollClear ||= !!m.perks?.rollClear;
+    out.revive = Math.max(out.revive, m.perks?.revive ?? 0);
   }
   out.coupons = Math.min(1, out.coupons);
   return out;

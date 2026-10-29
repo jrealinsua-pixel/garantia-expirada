@@ -345,7 +345,7 @@ try {
   await page.goto(`${url}?semilla=e2e-critico&sala=sala-pruebas&planta=2`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
   await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.enemies = [];
-    for (const id of ['raton', 'bateria', 'cookies']) g.giveItem(id); w.player.weapon.def.bullets = { crit: { chance: 1, mul: 2 } };
+    for (const id of ['raton', 'bateria', 'cookies', 'avion', 'copia']) g.giveItem(id); w.player.weapon.def.bullets = { crit: { chance: 1, mul: 2 } };
     const d = w.dummies[0]; w.player.x = d.x - 80; w.player.y = d.y; })()`);
   await page.waitForTimeout(500);
   const dc = await dummy(0);
@@ -357,7 +357,15 @@ try {
   await page.mouse.up();
   const crit = await page.evaluate<number>('window.__GE__.scene.world.dummies[0].damageTaken');
   if (crit < 4) throw new Error(`El Ratón Gaming no hace críticos (${crit} de daño)`);
-  console.log('Planta 2: sus objetos pasivos, en el tesoro y en el inventario; el doble clic del ratón.');
+  // The backup: half a heart left and a bullet in the face; it comes back instead of going down.
+  await page.waitForTimeout(700);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.hp = 1; w.player.invulnerable = 0; })()`);
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction("window.__GE__.scene.world.player.hp === 2 && !window.__GE__.scene.world.player.items.includes('copia')", undefined, { timeout: 3000 });
+  await page.waitForTimeout(350);
+  await shot('35d-copia.png');
+  if (await page.evaluate<boolean>('window.__GE__.state().over')) throw new Error('La Copia de Seguridad no ha evitado la baja');
+  console.log('Planta 2: sus objetos pasivos, en el tesoro y en el inventario; el doble clic del ratón y la copia de seguridad.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

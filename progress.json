@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T21:55:00+01:00",
+  "actualizado": "2026-10-29T22:25:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,8 +63,8 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 2,
-      "total": 4
+      "hechas": 3,
+      "total": 5
     },
     {
       "id": "M9",
@@ -121,15 +121,21 @@
     "enemigos": 6,
     "jefes": 1,
     "armas": 3,
-    "objetos": 21,
+    "objetos": 23,
     "plantillas_sala": 33,
-    "tests": 353,
-    "tests_ok": 353,
+    "tests": 356,
+    "tests_ok": 356,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 13318
+    "lineas_codigo": 13407
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T22:25:00+01:00",
+      "hito": "M8",
+      "resumen": "Objetos nuevos (2b): Modo Avión (la voltereta corta balas), Copia de Seguridad (vuelve una vez de la baja) y dos sinergias de la planta 2. Con esto, los 10 objetos de Informática están hechos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T21:55:00+01:00",
       "hito": "M8",
@@ -523,6 +529,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/copia.png",
+      "pie": "La Copia de Seguridad: a medio corazón y con una bala encima, la tostadora vuelve con un corazón («Restaurando copia del martes») y la copia desaparece del HUD"
+    },
+    {
       "archivo": "capturas/critico.png",
       "pie": "El Ratón Gaming RGB de la planta 2: una bala de cada cinco hace el doble, con su «Doble clic» sobre el blanco"
     },
@@ -539,15 +549,11 @@
       "pie": "La planta 2, Informática: suelo técnico verde pantalla, monitores de tubo como trincheras, fuentes de agua y persianas a juego. Se ve con ?planta=2 mientras no se llegue jugando"
     },
     {
-      "archivo": "capturas/portada.png",
-      "pie": "La portada con los créditos a la derecha: ya no tapan a la tostadora, y el fondo llega de lado a lado"
-    },
-    {
       "archivo": "capturas/inventario.png",
       "pie": "El inventario con su barra de desplazamiento: siete objetos, un activo y dos sinergias no caben a la vez"
     }
   ],
-  "proximo": "M8: los 4 enemigos de Informática (empezando por la Impresora) y objetos nuevos (2b): Modo Avión, Copia de Seguridad y sinergias de la planta 2.",
+  "proximo": "M8: los 4 enemigos de Informática (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas) y después el jefe, el Router del Wifi.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -581,11 +587,6 @@
       "sesion": "2026-10-29 16:3x UTC (rutina, la de las casillas)",
       "tarea": "M8: enemigos (1): la Impresora que se Atasca (src/data/enemies.ts, src/sim/enemies.ts, tools/sprites/enemies.ts)",
       "desde": "2026-10-29T18:28Z"
-    },
-    {
-      "sesion": "2026-10-29 20:25 UTC",
-      "tarea": "M8: objetos nuevos (2b): Modo Avión, Copia de Seguridad y sinergias de la planta 2 (src/data/items.ts, src/data/synergies.ts, src/sim/world.ts: voltereta y baja)",
-      "desde": "2026-10-29T21:00Z"
     }
   ]
 }
