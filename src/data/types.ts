@@ -24,6 +24,21 @@ export interface WeaponDef {
   pellets: number;
   /** What its bullets do besides flying straight (from items; see src/sim/mods.ts). */
   bullets?: BulletBehaviour;
+  /** How it looks and sounds (render only): held sprite, bullet sprite, shot sound. */
+  look: WeaponLook;
+}
+
+export interface WeaponLook {
+  /** Texture of the weapon in the hand (about 18 x 11, barrel to the right); also lies on the floor. */
+  sprite: string;
+  /** Texture of its bullets, drawn for its base bulletRadius. */
+  bullet: string;
+  /** The bullet sprite turns to face where it flies (staples). */
+  turn?: boolean;
+  /** Sound of a shot (src/audio/synth.ts). */
+  sound: string;
+  /** Screen shake per shot (fraction of the view). */
+  shake: number;
 }
 
 /**

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T06:57:00+01:00",
+  "actualizado": "2026-10-29T07:45:25+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -42,7 +42,7 @@
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 6
     },
     {
@@ -99,16 +99,22 @@
     "personajes": 1,
     "enemigos": 6,
     "jefes": 1,
-    "armas": 1,
+    "armas": 3,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 212,
-    "tests_ok": 212,
+    "tests": 225,
+    "tests_ok": 225,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 8157
+    "lineas_codigo": 8439
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T07:45:25+01:00",
+      "hito": "M5",
+      "resumen": "Tres armas y cambio de arma. Además del Secador, la Grapadora Táctica (rápida, cargador de 24, poco alcance, grapas al rojo) y una nueva, la Plancha de Vapor Turbo (escopeta de cinco nubes de vapor que solo llega de cerca y empuja mucho). Se cambia con E, la rueda del ratón o el botón Y del mando; cada arma guarda su munición. Las armas esperan flotando en la sala del tesoro y en la secreta (y las dos en la Sala de Pruebas) y se cogen andando por encima.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T06:57:00+01:00",
       "hito": "M5",
@@ -268,6 +274,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/armas.png",
+      "pie": "La Grapadora Táctica recién recogida en la Sala de Pruebas: su nombre sobre la munición, el aviso «E o rueda del ratón: cambiar de arma» y la Plancha de Vapor esperando en su pedestal"
+    },
+    {
+      "archivo": "capturas/grapadora.png",
+      "pie": "La Grapadora Táctica en acción: ráfaga de grapas al rojo, cargador de 24"
+    },
+    {
       "archivo": "capturas/planta-superada.png",
       "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
     },
@@ -282,16 +296,8 @@
     {
       "archivo": "capturas/nevera-liquidada.png",
       "pie": "Fin de la Nevera Suprema: se desmonta en piezas y cupones, y le cae el sello «Liquidación total» · «La Dirección ha cesado su actividad»"
-    },
-    {
-      "archivo": "capturas/nevera-cambio-fase.png",
-      "pie": "Cambio de fase: la nevera se para y abre la puerta, las balas desaparecen y sale el cartel «Oferta irrechazable» sobre su barra de vida"
-    },
-    {
-      "archivo": "capturas/nevera-caducados.png",
-      "pie": "Fase 2, «Oferta irrechazable»: la nevera abre la puerta y escupe yogures hinchados, bricks y latas abolladas; un anillo rojo marca dónde caerán y revientan en balas"
     }
   ],
-  "proximo": "M5 · Las 3 armas (Secador Mágnum, Grapadora Táctica y una nueva), con cambio de arma; después, los objetos pasivos usando los modificadores.",
+  "proximo": "M5 · Los 10 objetos pasivos y 3 activos con los modificadores (un test por objeto); luego sinergias, cofres y tienda.",
   "bloqueos": []
 }

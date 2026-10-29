@@ -48,6 +48,9 @@ export interface FloorReport {
   /** Mean seconds a combat room takes to clear (from walking in to the shutters rolling up). */
   segundosPorSala: number;
   heridasPorSala: number;
+  /** Weapons carried at the end (with damage on), and how many different arsenals the floors ended with. */
+  armas: number;
+  arsenalesDistintos: number;
 }
 
 function arg(name: string, def: number): number {
@@ -58,6 +61,8 @@ function arg(name: string, def: number): number {
 interface GameResult {
   hash: string;
   shots: number;
+  /** Bullets fired (the iron fires several per shot): what the accuracy is measured on. */
+  bullets: number;
   hits: number;
   contacts: number;
   stuck: number;
@@ -73,6 +78,7 @@ function playOne(seed: string, seconds: number): GameResult {
   const w = createWorld({ seed });
   const bot = new Bot(seed);
   let shots = 0;
+  let bullets = 0;
   let hits = 0;
   let contacts = 0;
   let clearT = seconds;
@@ -83,8 +89,10 @@ function playOne(seed: string, seconds: number): GameResult {
     for (let i = 0; i < ticks; i++) {
       step(w, bot.think(w));
       for (const e of w.events) {
-        if (e.type === 'shot') shots++;
-        else if (e.type === 'hit') hits++;
+        if (e.type === 'shot') {
+          shots++;
+          bullets += w.player.weapon.def.pellets;
+        } else if (e.type === 'hit') hits++;
         else if (e.type === 'contact') contacts++;
         else if (e.type === 'hurt') hurts++;
       }
@@ -104,11 +112,13 @@ function playOne(seed: string, seconds: number): GameResult {
   // Stuck for most of the game counts as a hang.
   const alive = w.over ? w.tick * DT : seconds;
   if (bot.stuck > (alive / 3) * 0.5 && alive > 9) errors.push(`${seed}: el bot se ha quedado atascado ${bot.stuck} veces`);
-  return { hash: worldHash(w), shots, hits, contacts, stuck: bot.stuck, kills: w.kills, coupons: w.player.coupons, clearT, alive, hurts, errors };
+  return { hash: worldHash(w), shots, bullets, hits, contacts, stuck: bot.stuck, kills: w.kills, coupons: w.player.coupons, clearT, alive, hurts, errors };
 }
 
 interface FloorResult {
   explored: boolean;
+  /** Weapon ids carried at the end, in the order found. */
+  arsenal: string;
   down: boolean;
   seconds: number;
   visited: number;
@@ -162,6 +172,7 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
     cleared: f.layout.rooms.filter((r) => r.kind === 'combat' && f.rooms[r.id]!.cleared).length,
     roomSeconds,
     hurts,
+    arsenal: w.player.arsenal.map((ws) => ws.base.id).join('+'),
     hash: worldHash(w),
     errors,
   };
@@ -265,6 +276,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let cleared = 0;
   let hurts = 0;
   const rooms: number[] = [];
+  const arsenals: string[] = [];
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
@@ -276,6 +288,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     cleared += b.cleared;
     hurts += b.hurts;
     rooms.push(...b.roomSeconds);
+    arsenals.push(b.arsenal);
     for (const r of [a, b]) {
       if (r.errors.length) {
         failed++;
@@ -302,6 +315,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       salasLimpias: one(cleared / floors),
       segundosPorSala: rooms.length ? one(rooms.reduce((s, v) => s + v, 0) / rooms.length) : 0,
       heridasPorSala: rooms.length ? Math.round((hurts / Math.max(1, cleared)) * 100) / 100 : 0,
+      armas: one(arsenals.reduce((s, a) => s + a.split('+').length, 0) / floors),
+      arsenalesDistintos: new Set(arsenals).size,
     },
     errors,
     failed,
@@ -312,6 +327,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const t0 = performance.now();
   const errors: string[] = [];
   let shots = 0;
+  let bullets = 0;
   let hits = 0;
   let stuck = 0;
   let contacts = 0;
@@ -326,6 +342,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   for (let i = 0; i < games; i++) {
     const r = playOne(`bot-${i}`, seconds);
     shots += r.shots;
+    bullets += r.bullets;
     hits += r.hits;
     stuck += r.stuck;
     contacts += r.contacts;
@@ -360,7 +377,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     fallos: failed,
     segundosPorPartida: seconds,
     disparosMedios: Math.round(shots / games),
-    precision: shots ? Math.round((hits / shots) * 1000) / 10 : 0,
+    precision: bullets ? Math.round((hits / bullets) * 1000) / 10 : 0,
     atascos: stuck,
     golpesPorMinuto: Math.round((contacts / games / (seconds / 60)) * 10) / 10,
     bajasPorMinuto: Math.round((kills / games / (seconds / 60)) * 10) / 10,
@@ -392,7 +409,7 @@ if (import.meta.main) {
     console.log(
       `${pl.plantas} plantas · sin daño la recorre entera el ${pl.recorridoSinDanio} % en ${pl.segundosRecorrido} s · ` +
         `con daño la recorre el ${pl.recorridoConDanio} %, cae el ${pl.caidas} % · ${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
-        `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate`,
+        `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate · acaba con ${pl.armas} armas, ${pl.arsenalesDistintos} arsenales distintos`,
     );
   }
   const j = report.jefe;

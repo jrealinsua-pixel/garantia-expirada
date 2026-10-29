@@ -56,6 +56,7 @@ Ejemplos aprobados (sirven de patrón):
 | Garantía Extendida | Cubre todo excepto lo que te pase. La letra pequeña no se puede leer: forma parte del servicio. |
 | Secador Mágnum 2200 W | Dispara aire caliente a presión. Despeina, quema y no cubre daños por mal uso. |
 | Grapadora Táctica | Munición: grapas de la empresa. Ya se descontarán de tu nómina. |
+| Plancha de Vapor Turbo | Vapor a tres bares. Quita las arrugas, la pintura y las ganas de reclamar. No planchar la ropa puesta. |
 
 Pantalla de muerte: en vez de «Has muerto», un **parte de baja** del producto con causa
 («Daños por mal uso: no cubiertos»), tiempo de vida útil, sala, y una línea de

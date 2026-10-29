@@ -1,7 +1,7 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
 import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.ts';
-import { WEAPONS } from '../data/weapons.ts';
+import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
 import { moddedCharacter, moddedWeapon } from './mods.ts';
@@ -35,6 +35,8 @@ export interface Input {
   /** True only on the tick the button is pressed. */
   roll: boolean;
   reload: boolean;
+  /** Change weapon on this tick: +1 the next one, -1 the previous one (wheel or button). */
+  swap?: number;
   /** Test room only: name of a pattern (src/data/patterns.ts) the first dummy fires at the player. */
   debugPattern?: string;
 }
@@ -42,7 +44,9 @@ export interface Input {
 export const NO_INPUT: Input = { moveX: 0, moveY: 0, aimX: 0, aimY: 0, fire: false, roll: false, reload: false };
 
 export interface WeaponState {
+  /** The weapon as the player's modifiers leave it (see refreshPlayer); `base` is the untouched one. */
   def: WeaponDef;
+  base: WeaponDef;
   ammo: number;
   cooldown: number;
   /** Seconds left of reload, 0 when not reloading. */
@@ -52,7 +56,7 @@ export interface WeaponState {
 export interface Player {
   /** The character as its modifiers leave it (see refreshPlayer); `base` is the untouched one. */
   def: CharacterDef;
-  base: { def: CharacterDef; weapon: WeaponDef };
+  base: { def: CharacterDef };
   /** What items (and later synergies) do to it, in the order they were picked up. */
   mods: Modifier[];
   x: number;
@@ -68,7 +72,11 @@ export interface Player {
   rollDirY: number;
   rollCooldown: number;
   invulnerable: number;
+  /** The weapon in hand: always one of `arsenal`, the one at `slot`. */
   weapon: WeaponState;
+  /** Every weapon it carries, in the order they were found; each keeps its own ammo. */
+  arsenal: WeaponState[];
+  slot: number;
   /** Distance walked, for the walk animation. */
   walked: number;
   /** Discount coupons picked up (the currency). */
@@ -76,7 +84,7 @@ export interface Player {
 }
 
 /** A discount coupon (currency), or a spare heart (gives back `value` life; left alone at full life). */
-export type PickupKind = 'cupon' | 'corazon';
+export type PickupKind = 'cupon' | 'corazon' | 'arma';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -89,7 +97,14 @@ export interface Pickup {
   vy: number;
   /** Seconds since it dropped: it can only be picked up (or pulled in) after PICKUP_DELAY. */
   age: number;
+  /** A weapon lying on the floor (kind 'arma'): its id in src/data/weapons.ts. */
+  weapon?: string;
 }
+
+/** Seconds after changing weapon before the new one fires (it is being drawn). */
+export const SWAP_TIME = 0.22;
+/** A weapon on the floor is picked up this close (px); it never flies to the player. */
+const WEAPON_GRAB = 12;
 
 /** Seconds a fresh pickup scatters before it can be collected. */
 export const PICKUP_DELAY = 0.45;
@@ -130,6 +145,8 @@ export interface Bullet {
   seek?: NonNullable<BulletBehaviour['homing']>;
   /** Shot down this tick: it is gone. */
   cut?: boolean;
+  /** Player bullets: id of the weapon that fired it (how it is drawn). */
+  weapon?: string;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
   /**
@@ -306,7 +323,9 @@ export type SimEvent =
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   /** Picked something up; `total` is the coupons after it, or the life for a heart. */
-  | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
+  | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number; weapon?: string }
+  /** The player took weapon `weapon` in hand (`slot` of `count` it carries); `found` when it was just picked up. */
+  | { type: 'swap'; weapon: string; slot: number; count: number; found: boolean }
   /** The goods lift came up where the boss fell (it can be used once it is `ready`). */
   | { type: 'lift'; x: number; y: number }
   | { type: 'liftReady'; x: number; y: number }
@@ -417,6 +436,8 @@ export interface FloorRun {
   current: number;
   /** Indexed by room id. */
   rooms: FloorRoomState[];
+  /** Weapons still to be found on this floor, next one first (a seeded shuffle of FINDABLE_WEAPONS). */
+  weapons: string[];
 }
 
 /** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
@@ -468,7 +489,7 @@ export function createWorld(opts: WorldOptions): World {
     room,
     player: {
       def,
-      base: { def, weapon: wdef },
+      base: { def },
       mods: [],
       x: room.playerStart.x,
       y: room.playerStart.y,
@@ -482,7 +503,9 @@ export function createWorld(opts: WorldOptions): World {
       rollDirY: 0,
       rollCooldown: 0,
       invulnerable: 0,
-      weapon: { def: wdef, ammo: wdef.magazine, cooldown: 0, reload: 0 },
+      weapon: newWeapon(wdef),
+      arsenal: [],
+      slot: 0,
       walked: 0,
       coupons: 0,
     },
@@ -506,11 +529,14 @@ export function createWorld(opts: WorldOptions): World {
     lift: null,
     won: false,
   };
+  w.player.arsenal.push(w.player.weapon);
   if (floor) {
     floor.rooms[floor.current]!.visited = true;
     setDoorTiles(w, true);
     return w;
   }
+  // The test room lays out every findable weapon on its pedestals, to try them all.
+  if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS]);
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   // Walking into a combat room brings its shutters down until the last enemy falls.
   if (fights(room) && w.enemies.length > 0) w.doorsShut = true;
@@ -540,7 +566,8 @@ function planFloor(seed: string): FloorRun {
     const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat', pickups: [] };
   });
-  return { layout, current: layout.start, rooms };
+  const weapons = new Rng(`armas:${seed}`).shuffle([...FINDABLE_WEAPONS]);
+  return { layout, current: layout.start, rooms, weapons };
 }
 
 /** The built room of floor room `id` (built on first use), with openings for its normal doors. */
@@ -593,6 +620,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   f.rooms[f.current]!.pickups = w.pickups;
   f.current = id;
   const st = f.rooms[id]!;
+  const first = !st.visited;
   st.visited = true;
   w.room = floorRoomOf(f, id);
   w.bullets = [];
@@ -616,11 +644,66 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   p.vy *= 0.5;
   if (!st.cleared && w.spawnsEnemies) spawnRoomEnemies(w);
   if (w.enemies.length === 0) st.cleared = true;
+  // Until there are chests, the treasure room (and the secret one) keep a weapon on their pedestal.
+  const kind = f.layout.rooms[id]!.kind;
+  if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons);
   w.doorsShut = !st.cleared;
   setDoorTiles(w, !w.doorsShut);
   w.events.push({ type: 'room', id, via });
   if (w.doorsShut) w.events.push({ type: 'doors', shut: true });
   startIntro(w);
+}
+
+/** Puts the next weapons of `deck` (taken out of it) on the room's item pedestals, one each. */
+function stockPedestals(w: World, deck: string[]): void {
+  for (const s of w.room.slots) {
+    if (s.kind !== 'item') continue;
+    const id = deck.shift();
+    if (!id) return;
+    w.pickups.push({ id: w.nextId++, kind: 'arma', value: 1, weapon: id, x: s.x, y: s.y, vx: 0, vy: 0, age: PICKUP_DELAY });
+  }
+}
+
+/** A fresh weapon state: full magazine, ready to fire. */
+export function newWeapon(def: WeaponDef): WeaponState {
+  return { def, base: def, ammo: def.magazine, cooldown: 0, reload: 0 };
+}
+
+/**
+ * The player picks up weapon `id` and takes it in hand (with the modifiers it carries). A
+ * weapon it already has just fills that one's magazine.
+ */
+export function giveWeapon(w: World, id: string): void {
+  const def = WEAPONS[id];
+  if (!def) throw new Error(`Unknown weapon ${id}`);
+  const p = w.player;
+  let i = p.arsenal.findIndex((ws) => ws.base.id === id);
+  if (i < 0) {
+    const ws = newWeapon(def);
+    ws.def = moddedWeapon(def, p.mods);
+    ws.ammo = ws.def.magazine;
+    p.arsenal.push(ws);
+    i = p.arsenal.length - 1;
+  } else {
+    const ws = p.arsenal[i]!;
+    ws.ammo = ws.def.magazine;
+    ws.reload = 0;
+  }
+  selectWeapon(w, i, true);
+}
+
+/** Takes weapon `slot` of the arsenal in hand. Whatever reload the old one was doing is lost. */
+export function selectWeapon(w: World, slot: number, found = false): void {
+  const p = w.player;
+  const n = p.arsenal.length;
+  const i = ((slot % n) + n) % n;
+  if (i === p.slot && !found) return;
+  p.weapon.reload = 0;
+  p.slot = i;
+  p.weapon = p.arsenal[i]!;
+  p.weapon.reload = 0;
+  p.weapon.cooldown = Math.max(p.weapon.cooldown, SWAP_TIME);
+  w.events.push({ type: 'swap', weapon: p.weapon.base.id, slot: i, count: n, found });
 }
 
 /** Rooms that lock their shutters until their enemies are gone. */
@@ -862,12 +945,14 @@ function shotBehaviour(b: BulletBehaviour | undefined): Partial<Bullet> {
  */
 export function refreshPlayer(p: Player): void {
   const oldMax = p.def.maxHp;
-  const oldMag = p.weapon.def.magazine;
   p.def = moddedCharacter(p.base.def, p.mods);
-  p.weapon.def = moddedWeapon(p.base.weapon, p.mods);
   // A bigger magazine comes loaded (the extra rounds); a smaller one drops what no longer fits.
-  if (p.weapon.def.magazine > oldMag) p.weapon.ammo += p.weapon.def.magazine - oldMag;
-  p.weapon.ammo = Math.min(p.weapon.ammo, p.weapon.def.magazine);
+  for (const ws of p.arsenal.includes(p.weapon) ? p.arsenal : [...p.arsenal, p.weapon]) {
+    const oldMag = ws.def.magazine;
+    ws.def = moddedWeapon(ws.base, p.mods);
+    if (ws.def.magazine > oldMag) ws.ammo += ws.def.magazine - oldMag;
+    ws.ammo = Math.min(ws.ammo, ws.def.magazine);
+  }
   if (p.def.maxHp > oldMax) p.hp += p.def.maxHp - oldMax;
   p.hp = Math.max(Math.min(p.hp, p.def.maxHp), p.hp > 0 ? 1 : 0);
 }
@@ -891,6 +976,7 @@ export function removeModifier(w: World, id: string): boolean {
 
 function updateWeapon(w: World, input: Input): void {
   const p = w.player;
+  if (input.swap && p.arsenal.length > 1) selectWeapon(w, p.slot + Math.sign(input.swap));
   const ws = p.weapon;
   const def = ws.def;
   ws.cooldown = Math.max(0, ws.cooldown - DT);
@@ -937,6 +1023,7 @@ function updateWeapon(w: World, input: Input): void {
       dir: a,
       speed: def.bulletSpeed,
       h: HAND_HEIGHT,
+      weapon: def.id,
       ...shotBehaviour(def.bullets),
     });
   }
@@ -1453,6 +1540,16 @@ function updatePickups(w: World): void {
     const dy = p.y - 2 - k.y;
     const d = Math.hypot(dx, dy);
     // A spare heart stays where it is while the toaster has all its life.
+    if (k.kind === 'arma') {
+      // A weapon waits on its pedestal until the toaster walks onto it (rolling over it does not count).
+      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.weapon) {
+        giveWeapon(w, k.weapon);
+        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.arsenal.length, weapon: k.weapon });
+        continue;
+      }
+      keep.push(k);
+      continue;
+    }
     const wanted = k.kind !== 'corazon' || p.hp < p.def.maxHp;
     if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
       if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);

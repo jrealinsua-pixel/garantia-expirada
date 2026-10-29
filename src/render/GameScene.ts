@@ -2,6 +2,8 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
+import { SWAP_HINT, WEAPON_FOUND_LINES } from '../data/texts.ts';
+import { WEAPONS } from '../data/weapons.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
@@ -139,7 +141,13 @@ export class GameScene extends Phaser.Scene {
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
   private enemySprites = new Map<number, EnemyView>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
-  private pickupSprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image }>();
+  private pickupSprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; label?: Phaser.GameObjects.BitmapText }>();
+  /** Name of the weapon in hand, over the ammo, for a moment after changing. */
+  private weaponName!: Phaser.GameObjects.BitmapText;
+  private weaponNameT = 0;
+  /** One mark per weapon carried under the gun icon; the one in hand lit. */
+  private arsenalMarks!: Phaser.GameObjects.Graphics;
+  private swapHinted = false;
   /** Frost thrown by a boss: the ball and its shadow while it flies, then the patch on the floor. */
   private frostViews = new Map<number, { ball: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; patch: Phaser.GameObjects.Sprite | null }>();
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
@@ -310,6 +318,8 @@ export class GameScene extends Phaser.Scene {
     this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
     this.banner.setTint(0xf6c431).setAlpha(0);
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
+    this.weaponName = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 37, FONT, '', 8).setOrigin(1, 0)).setTint(0xf6c431).setAlpha(0);
+    this.arsenalMarks = this.hud(this.add.graphics());
     this.hint = this.hud(
       this.add.bitmapText(8, VIEW_H - 16, FONT, fontText('WASD mover · ratón apuntar · clic disparar · espacio rodar · R recargar' + (room.kind === 'test' ? ' · 1-5 balas enemigas' : '')), 8),
     );
@@ -1052,10 +1062,16 @@ export class GameScene extends Phaser.Scene {
           this.gunKick = 3;
           this.muzzleT = 0.05;
           this.muzzle.setFrame(this.fx.int(0, 1));
-          this.cameras.main.shake(50, 0.0025, true);
-          this.sound2.play('disparo', { detune: this.fx.range(-150, 150) });
-          this.sound2.play('disparoTono', { detune: this.fx.range(-100, 100) });
-          this.ejectCasing(e.angle);
+          const look = WEAPONS[e.weapon]?.look;
+          this.cameras.main.shake(50, look?.shake ?? 0.0025, true);
+          this.sound2.play(look?.sound ?? 'disparo', { detune: this.fx.range(-150, 150) });
+          if (e.weapon === 'secador') this.sound2.play('disparoTono', { detune: this.fx.range(-100, 100) });
+          if (e.weapon === 'plancha') {
+            // A cloud of steam at the soleplate and a heavier kick.
+            this.sound2.play('vaporGolpe');
+            this.gunKick = 5;
+            for (let i = 0; i < 3; i++) this.puff(e.x + Math.cos(e.angle) * 4, e.y + Math.sin(e.angle) * 4, 0.4);
+          } else this.ejectCasing(e.angle);
           break;
         }
         case 'hit': {
@@ -1161,10 +1177,33 @@ export class GameScene extends Phaser.Scene {
             this.heartHitT = 0.5;
             break;
           }
+          if (e.kind === 'arma') {
+            // A weapon found: a fanfare, a burst of sparks and a line over it (the swap event names it).
+            this.sound2.play('arma');
+            for (let i = 0; i < 12; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), this.fx.int(0, 2));
+            this.floatText(e.x, e.y - 22, fontText(this.fx.pick(WEAPON_FOUND_LINES)), 0xd6cdb2);
+            if (e.total > 1 && !this.swapHinted) {
+              this.swapHinted = true;
+              this.hintT = 0;
+              this.hint.setAlpha(0);
+              this.banner.setText(fontText(SWAP_HINT)).setTint(0xf4f1e8).setAlpha(1);
+              this.tweens.killTweensOf(this.banner);
+              this.tweens.add({ targets: this.banner, alpha: 0, delay: 3200, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
+            }
+            break;
+          }
           this.couponPop = 0.25;
           this.sound2.play('cupon', { detune: Math.min(600, (e.total % 8) * 80) });
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 3, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1);
           break;
+        case 'swap': {
+          const def = WEAPONS[e.weapon];
+          if (!e.found) this.sound2.play('cambiar');
+          this.gunKick = -3;
+          if (def) this.weaponName.setText(fontText(def.name)).setAlpha(1);
+          this.weaponNameT = e.found ? 2.4 : 1.2;
+          break;
+        }
         case 'doors':
           if (!e.shut) this.openShutters();
           break;
@@ -1667,12 +1706,22 @@ export class GameScene extends Phaser.Scene {
       alive.add(b.id);
       let s = this.bulletSprites.get(b.id);
       if (!s) {
-        s = this.add.image(b.x, b.y, b.owner === 'player' ? 'bala-jugador' : BULLET_TEXTURES[b.color]);
+        const look = b.owner === 'player' ? WEAPONS[b.weapon ?? '']?.look : undefined;
+        s = this.add.image(b.x, b.y, b.owner === 'player' ? look?.bullet ?? 'bala-jugador' : BULLET_TEXTURES[b.color]);
+        if (look?.turn) s.setRotation(b.dir);
         this.bulletSprites.set(b.id, s);
       }
-      // Bigger (or smaller) player bullets from items: the sprite is drawn for the base radius.
-      const size = b.owner === 'player' ? b.r / PLAYER_BULLET_R : 1;
+      // Bigger (or smaller) player bullets from items: the sprite is drawn for the weapon's own radius.
+      const wdef = b.owner === 'player' ? WEAPONS[b.weapon ?? ''] : undefined;
+      let size = b.owner === 'player' ? b.r / (wdef?.bulletRadius ?? PLAYER_BULLET_R) : 1;
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);
+      if (wdef?.look.turn) s.setRotation(Math.atan2(b.vy, b.vx));
+      if (wdef?.id === 'plancha') {
+        // Steam swells and thins out as it goes.
+        const k = b.age / (b.age + b.life);
+        size *= 0.75 + 0.6 * k;
+        s.setAlpha(1 - 0.45 * k);
+      }
       // Loyalty cards spin as they fly.
       if (b.color === 'card' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 70 + b.id) % 4);
       const sc = (b.life < 0.15 ? 0.6 : 1) * size;
@@ -1698,8 +1747,28 @@ export class GameScene extends Phaser.Scene {
       let v = this.pickupSprites.get(k.id);
       if (!v) {
         const heart = k.kind === 'corazon';
-        v = { s: this.add.image(k.x, k.y, heart ? 'corazon-suelo' : 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
+        const arm = k.kind === 'arma' ? WEAPONS[k.weapon ?? ''] : undefined;
+        if (arm) {
+          v = {
+            s: this.add.image(k.x, k.y, arm.look.sprite).setOrigin(0.5, 1),
+            shadow: this.add.image(k.x, k.y, shadowTexture(this, 8, 3)).setDepth(-50000),
+            label: this.add.bitmapText(k.x, k.y - 26, FONT, fontText(arm.name), 8).setOrigin(0.5, 1).setTint(0xf6c431).setDepth(84000).setAlpha(0),
+          };
+        } else v = { s: this.add.image(k.x, k.y, heart ? 'corazon-suelo' : 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
         this.pickupSprites.set(k.id, v);
+      }
+      if (k.kind === 'arma') {
+        // A weapon floats over its spot, turning a little and glinting; its name shows up close.
+        const t = this.time.now / 1000 + k.id;
+        const glintW = Math.floor(this.time.now / 80 + k.id * 5) % 24 === 0;
+        v.s.setPosition(Math.round(k.x), Math.round(k.y - 7 - Math.sin(t * 2.4) * 2)).setDepth(k.y).setRotation(Math.sin(t * 1.3) * 0.12);
+        if (glintW) v.s.setTintFill(0xffffff);
+        else v.s.clearTint();
+        v.shadow.setPosition(Math.round(k.x), Math.round(k.y)).setScale(1 - Math.sin(t * 2.4) * 0.12, 1);
+        const p = this.world.player;
+        const near = Math.hypot(p.x - k.x, p.y - k.y) < 56;
+        v.label?.setPosition(Math.round(k.x), Math.round(k.y - 22 - Math.sin(t * 2.4) * 2)).setAlpha(near ? 1 : 0);
+        continue;
       }
       const hop = k.age < PICKUP_DELAY ? Math.sin((Math.PI * k.age) / PICKUP_DELAY) * 12 : Math.max(0, Math.sin(this.time.now / 260 + k.id)) * 1.5;
       // Hearts glint more often, so they are noticed on the floor.
@@ -1711,6 +1780,7 @@ export class GameScene extends Phaser.Scene {
       if (alive.has(id)) continue;
       v.s.destroy();
       v.shadow.destroy();
+      v.label?.destroy();
       this.pickupSprites.delete(id);
     }
   }
@@ -1936,6 +2006,18 @@ export class GameScene extends Phaser.Scene {
     this.couponIcon.setY(this.couponPop > 0.12 ? 17 : 19);
     this.couponText.setTint(this.couponPop > 0 ? 0xfff1a8 : 0xf6c431);
     const ws = p.weapon;
+    if (this.gunIcon.texture.key !== ws.def.look.sprite) this.gunIcon.setTexture(ws.def.look.sprite);
+    if (this.gun.texture.key !== ws.def.look.sprite) this.gun.setTexture(ws.def.look.sprite);
+    this.weaponNameT = Math.max(0, this.weaponNameT - dt);
+    this.weaponName.setY(this.ammoText.y - 11).setAlpha(Math.min(1, this.weaponNameT * 3));
+    this.arsenalMarks.clear();
+    if (p.arsenal.length > 1 && this.gunIcon.visible) {
+      p.arsenal.forEach((_, i) => {
+        const x = Math.round(this.gunIcon.x) + 9 - p.arsenal.length * 3 + i * 6;
+        this.arsenalMarks.fillStyle(0x0e0c16, 1).fillRect(x - 1, VIEW_H - 4, 6, 3);
+        this.arsenalMarks.fillStyle(i === p.slot ? 0xf6c431 : 0x5a627c, 1).fillRect(x, VIEW_H - 3, 4, 1);
+      });
+    }
     this.ammoPips.forEach((s, i) => s.setFrame(i < ws.ammo ? 0 : 1));
     // Above the second row of pips when the magazine is long.
     this.ammoText.setY(VIEW_H - 26 - Math.floor((ws.def.magazine - 1) / 24) * 8);

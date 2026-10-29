@@ -93,7 +93,7 @@ distinguen claramente en las capturas.
 ## M5 · Armas, objetos y sinergias
 
 - [x] Sistema de modificadores de estadísticas y de comportamiento de balas.
-- [ ] 3 armas (Secador Mágnum, Grapadora Táctica y una nueva).
+- [x] 3 armas (Secador Mágnum, Grapadora Táctica y una nueva).
 - [ ] 10 objetos pasivos y 3 activos, con nombre y descripción según la guía de humor.
 - [ ] Al menos 4 sinergias con texto propio.
 - [ ] Cofres (se abren con tickets), tienda con vendedor y precios en cupones.

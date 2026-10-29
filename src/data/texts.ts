@@ -162,3 +162,13 @@ export function winReport(info: WinReportInfo, pick: (n: number) => number): { l
     { label: 'Nota de la empresa', text: WIN_NOTES[pick(WIN_NOTES.length)]! },
   ];
 }
+
+/** How to change weapon, shown the first time the toaster carries more than one. */
+export const SWAP_HINT = 'E o rueda del ratón: cambiar de arma';
+/** Over a weapon just found (one at random). */
+export const WEAPON_FOUND_LINES: readonly string[] = [
+  'Sin ticket, sin garantía, sin preguntas',
+  'Encontrado en Objetos Perdidos',
+  'Producto de exposición',
+  'Devuelto sin usar (casi)',
+];

@@ -44,6 +44,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
     'arma-grapadora': one(miniStapler()),
+    'arma-plancha': one(P.makeMiniIron()),
+    'bala-grapa': one(P.makeStaple()),
+    'bala-vapor': one(P.makeSteam()),
     mano: one(P.makeHand()),
     caja: one(P.makeCaja()),
     barril: one(P.makeBarril()),
@@ -102,7 +105,8 @@ function main(): void {
   }
   x = 4;
   const row = ['caja', 'barril', 'carrito', 'bala-jugador', 'bala-roja', 'bala-cubito', 'bola-escarcha', 'escarcha', 'fogonazo'];
-  for (const k of [...row, 'pelusa', 'polvo', 'mira', 'corazones', 'municion', 'mano', 'arma-secador', 'cupon', 'chatarra', 'despiece', 'montacargas', 'corazon-suelo']) {
+  const row2 = ['pelusa', 'polvo', 'mira', 'corazones', 'municion', 'mano', 'arma-secador', 'arma-grapadora', 'arma-plancha', 'bala-grapa', 'bala-vapor'];
+  for (const k of [...row, ...row2, 'cupon', 'chatarra', 'despiece', 'montacargas', 'corazon-suelo']) {
     const c = sheets[k]!.canvas;
     sheet.blit(c, x, 4);
     x += c.w + 3;

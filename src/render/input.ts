@@ -16,6 +16,9 @@ export class Controls {
   private rollQueued = false;
   private patternQueued: string | undefined;
   private prevPadRoll = false;
+  private prevPadSwap = false;
+  private swapQueued = 0;
+  private lastWheel = -1e9;
   private lastStickAim = { x: 1, y: 0 };
   /** 'mouse' or 'pad': whichever was used last decides the aim and the crosshair. */
   mode: 'mouse' | 'pad' = 'mouse';
@@ -31,6 +34,14 @@ export class Controls {
       SPACE: K.SPACE, SHIFT: K.SHIFT, R: K.R,
     }) as Record<string, Phaser.Input.Keyboard.Key>;
     kb.on('keydown-SPACE', () => (this.rollQueued = true));
+    // Change weapon: E (next), the mouse wheel (one notch, one weapon; a fast spin counts once).
+    kb.on('keydown-E', () => (this.swapQueued = 1));
+    scene.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
+      const now = scene.time.now;
+      if (dy === 0 || now - this.lastWheel < 140) return;
+      this.lastWheel = now;
+      this.swapQueued = Math.sign(dy);
+    });
     kb.on('keydown-SHIFT', () => (this.rollQueued = true));
     // Test room: number keys fire the enemy bullet patterns from the first dummy.
     const names = Object.keys(PATTERNS);
@@ -65,6 +76,8 @@ export class Controls {
     let reload = k.R!.isDown;
     let roll = this.rollQueued;
     this.rollQueued = false;
+    let swap = this.swapQueued;
+    this.swapQueued = 0;
 
     const pad = this.pad();
     if (pad) {
@@ -91,18 +104,24 @@ export class Controls {
       if (padRoll && !this.prevPadRoll) roll = true;
       this.prevPadRoll = padRoll;
       if (btn(2)) reload = true;
+      // Y: next weapon.
+      const padSwap = btn(3);
+      if (padSwap && !this.prevPadSwap) swap = 1;
+      this.prevPadSwap = padSwap;
       if (this.mode === 'pad') {
         aimX = src.bodyX + this.lastStickAim.x * 60;
         aimY = src.bodyY + this.lastStickAim.y * 60;
       }
     }
     const input: Input = { moveX: mx, moveY: my, aimX, aimY, fire, roll, reload };
+    if (swap) input.swap = swap;
     if (this.patternQueued) {
       input.debugPattern = this.patternQueued;
       this.patternQueued = undefined;
     }
     if (this.override) Object.assign(input, this.override);
     if (this.override?.roll) this.override.roll = false;
+    if (this.override?.swap) this.override.swap = 0;
     return input;
   }
 }

@@ -9,6 +9,8 @@ const ROW3 = 3 * 24 + 12;
 function microwaveArena(seed = 'botin'): World {
   const w = createWorld({ seed });
   w.enemies = w.enemies.filter((e) => e.def.id === 'microondas');
+  // Leave the weapons on their pedestals out: only the coupons it drops.
+  w.pickups = [];
   const en = w.enemies[0]!;
   en.x = 300;
   en.y = ROW3;

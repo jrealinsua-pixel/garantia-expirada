@@ -135,6 +135,8 @@ export class Bot {
   stuck = 0;
   /** Ticks to leave the coupons alone (after getting stuck going for one). */
   private ignorePickups = 0;
+  /** Ticks before it may change weapon again. */
+  private swapIn = 0;
 
   /** Whether it tries to dodge (off, it is the old bot that only walks around and shoots). */
   readonly dodges: boolean;
@@ -172,6 +174,9 @@ export class Bot {
       }
       return this.wander ? steer(w, this.wander, r, blocked) : null;
     }
+    // A weapon on a pedestal: go and get it (unless it got stuck going for something).
+    const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => k.kind === 'arma');
+    if (arm) return steer(w, { x: arm.x, y: arm.y }, r, blocked);
     // The boss has fallen: down the goods lift.
     if (w.lift) return steer(w, { x: w.lift.x, y: w.lift.y }, r, blocked);
     const dir = nextDoor(w, w.floor?.layout.boss);
@@ -252,9 +257,20 @@ export class Bot {
     // On a floor it only shoots when there is someone to shoot at.
     const fire = this.burst > 0 && (!w.floor || targets.length > 0);
     this.burst--;
+    // The right tool for the distance: the iron up close, the stapler at mid range, else the dryer.
+    let swap = 0;
+    this.swapIn--;
+    if (p.arsenal.length > 1 && this.swapIn <= 0 && targets.length > 0) {
+      const has = (id: string): boolean => p.arsenal.some((ws) => ws.base.id === id);
+      const want = has('plancha') && best < 80 ? 'plancha' : has('grapadora') && best < 170 ? 'grapadora' : 'secador';
+      if (p.weapon.base.id !== want && has(want)) {
+        swap = 1;
+        this.swapIn = 20;
+      }
+    }
     if (dg?.roll) {
       // The roll goes where the stick points.
-      return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false };
+      return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false, swap };
     }
     return {
       moveX: tx / l,
@@ -264,6 +280,7 @@ export class Bot {
       fire,
       roll: dg ? dg.roll : this.rng.chance(0.01),
       reload: this.rng.chance(0.002),
+      swap,
     };
   }
 }

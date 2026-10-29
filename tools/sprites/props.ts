@@ -1,6 +1,6 @@
 // Props, bullets, effects and HUD pieces. Props and bullets are ports of tools/referencia/build2.py.
 import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
-import { BLUE, BROWN, BURNT, CARD, CREAM, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, STEEL, TOASTC, WHITE, YEL, box, ellipse, hand, outline, ramp, type Ramp } from '../../src/art/lib.ts';
+import { BLUE, BROWN, BURNT, CARD, CREAM, DSTEEL, FRT, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, STEEL, TOASTC, WHITE, YEL, box, ellipse, hand, outline, ramp, type Ramp } from '../../src/art/lib.ts';
 
 export function makeCaja(): Canvas {
   const cv = new Canvas(24, 24);
@@ -588,4 +588,57 @@ export function makeSpareHeart(): Canvas {
     out.blit(outline(cv), k * 13, 0);
   }
   return out;
+}
+
+// ---------- Weapons found on the floor (M5) ----------
+
+/** Plancha de Vapor Turbo in the hand: white body, blue water window, hot steel soleplate, taped grip. */
+export function makeMiniIron(): Canvas {
+  const cv = new Canvas(18, 11);
+  const body: Array<[number, number, number]> = [[1, 3, 9], [2, 2, 11], [3, 2, 13], [4, 2, 14], [5, 2, 15]];
+  for (const [y, x0, x1] of body) cv.rect(x0, y, x1 - x0 + 1, 1, FRT[1]!);
+  cv.rect(3, 1, 7, 1, FRT[0]!);
+  cv.rect(2, 2, 1, 4, FRT[0]!);
+  cv.rect(3, 5, 13, 1, FRT[2]!);
+  for (const [y, , x1] of body) cv.set(x1, y, FRT[2]!);
+  cv.set(15, 5, FRT[3]!);
+  // Water window and the thermostat dial, stuck on "lino".
+  cv.rect(4, 3, 3, 2, BLUE[1]!);
+  cv.set(4, 3, BLUE[0]!);
+  cv.set(6, 4, BLUE[2]!);
+  cv.set(10, 2, RED[1]!);
+  cv.set(10, 3, RED[2]!);
+  // Soleplate, hot at the tip, with its steam holes.
+  cv.rect(1, 6, 16, 1, STEEL[0]!);
+  cv.rect(2, 7, 14, 1, STEEL[2]!);
+  for (const x of [5, 8, 11]) cv.set(x, 7, STEEL[3]!);
+  cv.set(14, 7, GLOW2);
+  cv.set(15, 7, GLOW);
+  cv.set(16, 6, GLOW);
+  // Pistol grip taped on underneath (it never had one).
+  box(cv, 5, 8, 3, 3, FRT);
+  cv.rect(4, 8, 5, 1, DSTEEL[1]!);
+  cv.set(4, 8, DSTEEL[0]!);
+  // Frayed cable out of the back.
+  cv.set(1, 4, DSTEEL[1]!);
+  cv.set(0, 5, DSTEEL[2]!);
+  return outline(cv);
+}
+
+/** A red-hot staple (player bullet, flies to the right; the game turns it to face its way). */
+export function makeStaple(): Canvas {
+  const cv = new Canvas(6, 7);
+  const pat = ['11111.', '122331', '...231', '...231', '...231', '122331', '11111.'];
+  const cols: Record<string, RGBA> = { '1': GLOW2, '2': GLOW, '3': YEL[0]! };
+  pat.forEach((row, j) => [...row].forEach((ch, i) => ch !== '.' && cv.set(i, j, cols[ch]!)));
+  return cv;
+}
+
+/** A puff of scalding steam (player bullet of the iron): pale yellow with an orange rim. */
+export function makeSteam(): Canvas {
+  const cv = new Canvas(9, 9);
+  const pat = ['..11.11..', '.1221221.', '122333221', '123333321', '123333321', '122333221', '.1223221.', '..12221..', '...111...'];
+  const cols: Record<string, RGBA> = { '1': GLOW, '2': YEL[0]!, '3': WHITE };
+  pat.forEach((row, j) => [...row].forEach((ch, i) => ch !== '.' && cv.set(i, j, cols[ch]!)));
+  return cv;
 }

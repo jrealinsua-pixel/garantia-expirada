@@ -77,6 +77,13 @@ export const SFX: Record<string, SfxParams> = {
   // Hair dryer shot: a puff of noise with a falling whine.
   disparo: { wave: 'noise', freq: 2400, freqEnd: 500, attack: 0.002, sustain: 0.02, decay: 0.09, volume: 0.32, lowpass: 0.35 },
   disparoTono: { wave: 'square', freq: 520, freqEnd: 180, attack: 0.001, sustain: 0.01, decay: 0.07, volume: 0.12, duty: 0.3 },
+  // The stapler: a dry metal clack; the iron: a hiss of steam with a thump.
+  grapa: { wave: 'square', freq: 1900, freqEnd: 700, attack: 0.001, sustain: 0.008, decay: 0.035, volume: 0.15, duty: 0.2, crush: 2 },
+  vapor: { wave: 'noise', freq: 3600, freqEnd: 900, attack: 0.004, sustain: 0.09, decay: 0.22, volume: 0.3, lowpass: 0.55 },
+  vaporGolpe: { wave: 'square', freq: 150, freqEnd: 50, attack: 0.001, sustain: 0.03, decay: 0.1, volume: 0.24, duty: 0.5 },
+  // Changing weapon (a holster click) and finding one (a little fanfare).
+  cambiar: { wave: 'square', freq: 700, freqEnd: 420, attack: 0.001, sustain: 0.02, decay: 0.05, volume: 0.13, duty: 0.3, crush: 2 },
+  arma: { wave: 'square', freq: 440, freqEnd: 1320, attack: 0.005, sustain: 0.16, decay: 0.25, volume: 0.15, duty: 0.35, vibrato: 0.05, vibratoSpeed: 14 },
   golpe: { wave: 'square', freq: 180, freqEnd: 60, attack: 0.001, sustain: 0.02, decay: 0.08, volume: 0.3, duty: 0.5, crush: 2 },
   golpeRuido: { wave: 'noise', freq: 900, freqEnd: 300, attack: 0.001, sustain: 0.01, decay: 0.06, volume: 0.25 },
   pared: { wave: 'noise', freq: 3000, freqEnd: 1500, attack: 0.001, sustain: 0.005, decay: 0.04, volume: 0.12, lowpass: 0.5 },

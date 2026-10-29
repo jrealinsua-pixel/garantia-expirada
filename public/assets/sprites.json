@@ -65,6 +65,24 @@
     "frameH": 11,
     "frames": 1
   },
+  "arma-plancha": {
+    "file": "arma-plancha.png",
+    "frameW": 18,
+    "frameH": 11,
+    "frames": 1
+  },
+  "bala-grapa": {
+    "file": "bala-grapa.png",
+    "frameW": 6,
+    "frameH": 7,
+    "frames": 1
+  },
+  "bala-vapor": {
+    "file": "bala-vapor.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 1
+  },
   "mano": {
     "file": "mano.png",
     "frameW": 5,

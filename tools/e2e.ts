@@ -35,7 +35,7 @@ interface Page {
   evaluate<T>(fn: string): Promise<T>;
   screenshot(o: { path: string }): Promise<unknown>;
   keyboard: { down(k: string): Promise<void>; up(k: string): Promise<void>; press(k: string): Promise<void> };
-  mouse: { move(x: number, y: number, o?: { steps: number }): Promise<void>; down(): Promise<void>; up(): Promise<void> };
+  mouse: { move(x: number, y: number, o?: { steps: number }): Promise<void>; down(): Promise<void>; up(): Promise<void>; wheel(dx: number, dy: number): Promise<void> };
   waitForTimeout(ms: number): Promise<void>;
   on(ev: string, cb: (x: { message?: string; type?: () => string; text?: () => string }) => void): void;
 }
@@ -440,6 +440,54 @@ try {
   await page.mouse.up();
   const bounced = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player' && b.bounce < 2).length");
   console.log(`Modificadores: cargador ${mag}, ${bounced} balas ya rebotadas en pantalla.`);
+
+  // M5: weapons. The test room has the Grapadora and the Plancha on their pedestals: walk onto
+  // them, fire each at the enemies, and change weapon with E and the mouse wheel.
+  await page.goto(`${url}?semilla=e2e-armas&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  const goTo = (id: string, dx: number): Promise<unknown> =>
+    page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const k = w.pickups.find((p) => p.weapon === '${id}'); w.player.x = k.x + ${dx}; w.player.y = k.y + 2; })()`);
+  await goTo('grapadora', -40);
+  await page.waitForTimeout(500);
+  await shot('19a-arma-en-pedestal.png');
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 2', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(250);
+  await shot('19b-arma-recogida.png');
+  const fireAtEnemy = (): Promise<unknown> =>
+    page.evaluate(`(() => { const s = window.__GE__.scene; const w = s.world; const p = w.player;
+      const e = w.enemies.filter((x) => x.state !== 'gone').sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+      s.controls.override = e ? { aimX: e.x, aimY: e.y - 14, fire: true } : { aimX: p.x + 80, aimY: p.y - 10, fire: true }; })()`);
+  await fireAtEnemy();
+  await page.waitForTimeout(450);
+  await shot('19c-grapadora.png');
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  await goTo('plancha', -40);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 3', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  // Up close to an enemy for the steam.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world;
+    const e = w.enemies.find((x) => x.state !== 'gone' && x.def.id !== 'bombilla'); if (e) { w.player.x = e.x - 90; w.player.y = e.y; } })()`);
+  // Let the camera catch up after the jump.
+  await page.waitForTimeout(800);
+  await fireAtEnemy();
+  await page.waitForFunction("window.__GE__.scene.world.player.weapon.ammo < window.__GE__.scene.world.player.weapon.def.magazine", undefined, { timeout: 3000 });
+  await page.waitForTimeout(10);
+  await shot('19d-plancha.png');
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  const slotOf = (): Promise<string> => page.evaluate<string>('window.__GE__.scene.world.player.weapon.base.id');
+  const before = await slotOf();
+  await page.keyboard.press('e');
+  await page.waitForTimeout(120);
+  const afterE = await slotOf();
+  await page.mouse.wheel(0, 100);
+  await page.waitForTimeout(160);
+  const afterWheel = await slotOf();
+  await shot('19e-cambio-de-arma.png');
+  if (before === afterE || afterE === afterWheel) throw new Error(`El cambio de arma no funciona: ${before} → ${afterE} → ${afterWheel}`);
+  console.log(`Armas: ${before} → E → ${afterE} → rueda → ${afterWheel}.`);
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);
