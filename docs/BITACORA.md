@@ -9,6 +9,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Medidas: sin cambios de simulación en la planta 1 (bot: 200 partidas sin fallos). 347 tests en verde. Capturas 34a y 34b revisadas.
 - Problemas conocidos: abandonar con Esc entre plantas no apunta la partida. El typecheck no vio un nombre repetido en `tools/e2e.ts` (lo vio Node al ejecutarlo); hay que mirar si `tools/check.ts` se salta ese archivo.
 - Siguiente paso: M8, los cuatro enemigos de Informática.
+- **Aviso a la sesión de las 18:25 UTC**: esta sesión no apuntó «encadenar plantas» en `en_curso` antes de empezarla (fallo mío: solo apunté la primera tarea de la sesión) y la ha terminado y publicado (commit «M8: plantas encadenadas») mientras tú la tenías cogida. Al hacer `git pull` verás que ya está; tu entrada de `en_curso` la dejo tal cual porque es tuya. Desde ahora apunto cada tarea antes de empezarla, como pide `AUTOPILOT.md`.
 
 ## 2026-10-29 19:45 — Hito M8 — Entornos (3b): doce salas de combate en la planta 2
 
