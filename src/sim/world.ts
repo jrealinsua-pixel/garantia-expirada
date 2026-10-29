@@ -539,7 +539,7 @@ export interface WorldOptions {
 }
 
 export function createWorld(opts: WorldOptions): World {
-  const floor = opts.floor ? planFloor(opts.seed) : null;
+  const floor = opts.floor ? planFloor(opts.seed, opts.level ?? 1) : null;
   let tpl = floor ? floor.rooms[floor.current]!.template : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
   if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
@@ -629,14 +629,14 @@ export function createWorld(opts: WorldOptions): World {
  * are dealt from a shuffled deck, so a floor repeats one only when it runs out) with its slots
  * filled for the room's depth. Seeded by the world's seed.
  */
-function planFloor(seed: string): FloorRun {
+function planFloor(seed: string, level: number): FloorRun {
   const layout = generateFloor(seed);
   const rng = new Rng(`salas:${seed}`);
   const decks = new Map<string, RoomTemplate[]>();
   const deal = (kind: NonNullable<RoomTemplate['kind']>): RoomTemplate => {
     let deck = decks.get(kind);
     if (!deck || deck.length === 0) {
-      deck = rng.shuffle([...templatesOf(kind)]);
+      deck = rng.shuffle([...templatesOf(kind, level)]);
       if (deck.length === 0) throw new Error(`No templates for ${kind} rooms`);
       decks.set(kind, deck);
     }

@@ -185,8 +185,10 @@ semillas distintas acaban con builds distintas.
     sala de la planta 1 escrita en su plantilla (`idea`).
   - [x] (2) Obstáculos y decorado propios de Informática (lo que sale en los huecos `o` y las cajas
     de la planta 2) y persianas a juego.
-  - [ ] (3) Plantillas propias de la planta 2 (al menos 12 de combate y las especiales), cada una
-    con su idea y sus grupos.
+  - [x] (3a) Plantillas propias de la planta 2: las seis primeras de combate (una de cada tamaño),
+    cada una con su idea y sus grupos; la planta 2 se arma con ellas (`templatesOf(kind, 2)`).
+  - [ ] (3b) Seis plantillas de combate más para la planta 2 (para llegar a 12) y sus salas
+    especiales propias si hacen falta (la del jefe, con el Router).
 - [ ] Encadenar plantas: al bajar en el montacargas tras la jefa se sigue en la planta 2, con la
   misma tostadora, sus armas y sus objetos.
 - [ ] 4 enemigos nuevos (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas…).

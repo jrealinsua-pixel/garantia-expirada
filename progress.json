@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T19:06:00+01:00",
+  "actualizado": "2026-10-29T19:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,7 +63,7 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 1,
       "total": 5
     },
     {
@@ -122,14 +122,20 @@
     "jefes": 1,
     "armas": 3,
     "objetos": 13,
-    "plantillas_sala": 20,
-    "tests": 342,
-    "tests_ok": 342,
+    "plantillas_sala": 26,
+    "tests": 343,
+    "tests_ok": 343,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 12782
+    "lineas_codigo": 12929
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T19:30:00+01:00",
+      "hito": "M8",
+      "resumen": "Entornos (3a): seis salas de combate propias de la planta 2 (mostrador, pasillo de periféricos, taller, servidores, aula de ofimática y centro de llamadas), cada una con su idea y sus grupos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T19:06:00+01:00",
       "hito": "M8",
@@ -517,7 +523,7 @@
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     }
   ],
-  "proximo": "M8: entornos (3): plantillas propias de la planta 2, cada una con su idea y sus grupos.",
+  "proximo": "M8: entornos (3b): seis salas de combate más para la planta 2.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

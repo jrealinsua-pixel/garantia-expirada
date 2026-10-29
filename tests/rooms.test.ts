@@ -122,7 +122,7 @@ test('rellenar: el presupuesto crece con la profundidad y respeta los máximos',
 });
 
 test('plantillas: el bot juega 25 s en cada sala de combate rellena sin romper nada', () => {
-  for (const t of templatesOf('combat')) {
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2)]) {
     for (const depth of [1, 6]) {
       const seed = `bot:${t.id}:${depth}`;
       const tpl = fillTemplate(t, new Rng(seed), { depth, pool: SLOT_ENEMIES_1 });
@@ -159,7 +159,7 @@ test('plantillas: no hay rendijas por las que solo quepan los pies (cada hueco �
 });
 
 test('plantillas: cada sala de combate tiene su idea de combate escrita', () => {
-  for (const t of templatesOf('combat')) assert.ok((t.idea ?? '').length > 20, `${t.id}: sin idea`);
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2)]) assert.ok((t.idea ?? '').length > 20, `${t.id}: sin idea`);
 });
 
 test('variantes: los grupos de estanterías salen y no salen con la semilla, y la sala se puede reflejar', () => {
@@ -195,7 +195,7 @@ test('variantes: los grupos de estanterías salen y no salen con la semilla, y l
 });
 
 test('variantes: una sala reflejada sigue teniendo las puertas en su sitio y despejadas', () => {
-  for (const t of templatesOf('combat')) {
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2)]) {
     const m: RoomTemplate = { ...t, rows: t.rows.map((r) => [...r].reverse().join('')) };
     const cols = t.rows[0]!.length;
     const rows = t.rows.length;
@@ -204,4 +204,12 @@ test('variantes: una sala reflejada sigue teniendo las puertas en su sitio y des
       for (const c of doorApron(cols, rows, d)) assert.equal(at(m, c), '.', `${t.id} reflejada: delante de la puerta ${d}`);
     }
   }
+});
+
+test('plantillas de la planta 2: las de combate son suyas, con nombre propio; las especiales caen en las de la planta 1', () => {
+  const two = templatesOf('combat', 2);
+  assert.ok(two.length >= 6, `${two.length} salas de combate en la planta 2`);
+  for (const t of two) assert.equal(t.level, 2, t.id);
+  for (const t of templatesOf('combat')) assert.equal(t.level ?? 1, 1, t.id);
+  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 2), templatesOf(k), k);
 });

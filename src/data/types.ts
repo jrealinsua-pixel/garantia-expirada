@@ -205,6 +205,8 @@ export interface RoomTemplate {
   kind?: RoomKind;
   /** Seconds after the last enemy dies before the room's enemies come back (test room only). */
   restock?: number;
+  /** Which floor of the store it belongs to (default 1). */
+  level?: number;
   /** Combat rooms: the fight the layout is for, in a line (a design note, not shown in the game). */
   idea?: string;
 }

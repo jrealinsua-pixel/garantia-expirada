@@ -147,12 +147,21 @@ test('la simulación es determinista', () => {
   assert.equal(play('a'), play('a'));
 });
 
-test('la planta (level) por ahora solo cambia el aspecto: misma partida en la planta 1 y en la 2', () => {
-  const a = createWorld({ seed: 'nivel', floor: true });
-  const b = createWorld({ seed: 'nivel', floor: true, level: 2 });
-  assert.equal(a.level, 1);
-  assert.equal(b.level, 2);
-  run(a, 3, aimRight);
-  run(b, 3, aimRight);
-  assert.equal(worldHash(a), worldHash(b));
+test('la planta 2 se arma con sus salas de combate; las especiales, de la planta 1 mientras no tenga', () => {
+  for (const seed of ['nivel-a', 'nivel-b', 'nivel-c']) {
+    const a = createWorld({ seed, floor: true });
+    const b = createWorld({ seed, floor: true, level: 2 });
+    assert.equal(a.level, 1);
+    assert.equal(b.level, 2);
+    // Same layout (the map does not depend on the floor), different rooms.
+    assert.deepEqual(a.floor!.layout, b.floor!.layout);
+    for (const [i, st] of b.floor!.rooms.entries()) {
+      const t = ROOMS[st.template.id]!;
+      if (t.kind === 'combat') assert.equal(t.level, 2, `${seed}: sala ${i} (${t.id}) de la planta 1`);
+      else assert.equal(t.id, a.floor!.rooms[i]!.template.id);
+      if (t.kind === 'combat') assert.equal(ROOMS[a.floor!.rooms[i]!.template.id]!.level ?? 1, 1);
+    }
+    run(b, 3, aimRight);
+    assert.deepEqual(checkInvariants(b), []);
+  }
 });

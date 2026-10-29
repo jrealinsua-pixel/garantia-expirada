@@ -416,6 +416,150 @@ const FLOOR_1: RoomTemplate[] = [
   },
 ];
 
+// Floor 2 (Informática) combat templates: same rules as floor 1's. Its start, treasure, shop,
+// secret and boss rooms are floor 1's until it has its own (templatesOf falls back to them).
+const FLOOR_2: RoomTemplate[] = [
+  {
+    id: 'mostrador-telefonia',
+    kind: 'combat',
+    level: 2,
+    name: 'Mostrador de Telefonía (Su Llamada Es Importante)',
+    idea: 'Un mostrador de lado a lado parte la sala: a los de detrás se llega rodeándolo por los extremos o por la trampilla del centro, que a veces está cerrada.',
+    rows: [
+      '################',
+      '################',
+      '#..e........e..#',
+      '#..............#',
+      '#..####11####..#',
+      '#..............#',
+      '#.....o..o.....#',
+      '#...e......e...#',
+      '#..b.........k.#',
+      '#..............#',
+      '################',
+    ],
+  },
+  {
+    id: 'pasillo-perifericos',
+    kind: 'combat',
+    level: 2,
+    name: 'Pasillo de Periféricos (Ratones Sin Pilas)',
+    idea: 'Dos pares de estanterías en paralelo forman un pasillo central; con los grupos puestos se vuelven corchetes y el centro es un embudo.',
+    rows: [
+      '####################',
+      '####################',
+      '#e................e#',
+      '#..................#',
+      '#...####....####...#',
+      '#......1....1......#',
+      '#..o............o..#',
+      '#.......e..e.......#',
+      '#......2....2......#',
+      '#...####....####...#',
+      '#..................#',
+      '#b................k#',
+      '####################',
+    ],
+  },
+  {
+    id: 'taller-expres',
+    kind: 'combat',
+    level: 2,
+    name: 'Taller de Reparación Exprés (Plazo: de 6 a 8 Semanas)',
+    idea: 'Mesas de taller con monitores en dos filas y dos biombos que están o no: se pelea a media distancia, saltando de mesa en mesa.',
+    rows: [
+      '################',
+      '################',
+      '#..e........e..#',
+      '#..............#',
+      '#..cc..o....cc.#',
+      '#..............#',
+      '#...1......1...#',
+      '#...1.e..e.1...#',
+      '#...1......1...#',
+      '#..............#',
+      '#..cc....o..cc.#',
+      '#..............#',
+      '#..e........e..#',
+      '#..............#',
+      '#b............b#',
+      '################',
+    ],
+  },
+  {
+    id: 'servidores',
+    kind: 'combat',
+    level: 2,
+    name: 'Sala de Servidores Sin Refrigeración',
+    idea: 'Racks en columnas hacen carriles verticales por los que corren las balas; los dos del centro se cierran o no por el medio.',
+    rows: [
+      '####################',
+      '####################',
+      '#..................#',
+      '#.e..............e.#',
+      '#..#..#......#..#..#',
+      '#..#..#......#..#..#',
+      '#..#..#..e...#..#..#',
+      '#.....1......1.....#',
+      '#.....1......1.....#',
+      '#..#..#......#..#..#',
+      '#..#..#...e..#..#..#',
+      '#..#..#......#..#..#',
+      '#.o..............o.#',
+      '#.e..............e.#',
+      '#b................b#',
+      '####################',
+    ],
+  },
+  {
+    id: 'aula-ofimatica',
+    kind: 'combat',
+    level: 2,
+    name: 'Aula de Formación en Ofimática (Nivel Usuario)',
+    idea: 'Dos filas de pupitres con monitores parten la sala a lo ancho: se dispara por los huecos entre pupitres; las sillas paran el paso, no las balas.',
+    rows: [
+      '##########################',
+      '##########################',
+      '#e......................e#',
+      '#........................#',
+      '#...ccc.ccc....ccc.ccc...#',
+      '#........................#',
+      '#.....e.....11......e....#',
+      '#...........11...........#',
+      '#...ccc.ccc....ccc.ccc...#',
+      '#..o......k......k.....o.#',
+      '#........................#',
+      '#e......................e#',
+      '##########################',
+    ],
+  },
+  {
+    id: 'centro-llamadas',
+    kind: 'combat',
+    level: 2,
+    name: 'Centro de Llamadas (Agentes Ocupados)',
+    idea: 'Cuatro cubículos con un teleoperador dentro: con el biombo puesto solo se les dispara de frente; sin él, también de lado.',
+    rows: [
+      '##########################',
+      '##########################',
+      '#........................#',
+      '#...####..........####...#',
+      '#...#e.1..........1.e#...#',
+      '#...#..1..........1..#...#',
+      '#........................#',
+      '#.........o....o.........#',
+      '#...........e............#',
+      '#........................#',
+      '#...#..2..........2..#...#',
+      '#...#e.2..........2.e#...#',
+      '#...####..........####...#',
+      '#........................#',
+      '#b......................b#',
+      '##########################',
+    ],
+  },
+];
+
 export const ROOMS: Record<string, RoomTemplate> = {
   // 26 x 16 tiles of 24 px: a bit bigger than the screen, so the camera has to move.
   'sala-pruebas': {
@@ -443,6 +587,7 @@ export const ROOMS: Record<string, RoomTemplate> = {
     ],
   },
   ...Object.fromEntries(FLOOR_1.map((t) => [t.id, t])),
+  ...Object.fromEntries(FLOOR_2.map((t) => [t.id, t])),
 };
 
 /**
@@ -460,7 +605,8 @@ export const SLOT_ENEMIES_1: readonly SlotEnemy[] = [
   { ch: 'L', cost: 5, weight: 2, max: 1 },
 ];
 
-/** Floor templates of one kind. */
-export function templatesOf(kind: NonNullable<RoomTemplate['kind']>): RoomTemplate[] {
-  return FLOOR_1.filter((t) => t.kind === kind);
+/** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses floor 1's. */
+export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1): RoomTemplate[] {
+  const own = (level === 2 ? FLOOR_2 : FLOOR_1).filter((t) => t.kind === kind);
+  return own.length > 0 ? own : FLOOR_1.filter((t) => t.kind === kind);
 }
