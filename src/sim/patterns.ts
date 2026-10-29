@@ -3,7 +3,8 @@
 // «fire pattern X at the player»; the timing and geometry live here.
 import type { Rng } from './rng.ts';
 
-export type BulletColor = 'red' | 'cyan';
+/** `ice` are the boss's ice cubes: cyan too, but square, so they read as cubes. */
+export type BulletColor = 'red' | 'cyan' | 'ice';
 
 interface Common {
   speed: number;
@@ -12,6 +13,8 @@ interface Common {
   wave?: { amp: number; freq: number };
   /** Speed change in px/s² (negative slows down). */
   accel?: number;
+  /** With `accel`: it stops speeding up at this speed (px/s). */
+  maxSpeed?: number;
 }
 
 /** `count` bullets evenly around a full circle. `offsetDeg` rotates the ring. */
@@ -64,6 +67,7 @@ export interface ShotSpec {
   color: BulletColor;
   wave?: { amp: number; freq: number };
   accel?: number;
+  maxSpeed?: number;
 }
 
 const DEG = Math.PI / 180;
@@ -72,6 +76,7 @@ function shot(def: Common, delay: number, angle: number): ShotSpec {
   const s: ShotSpec = { delay, angle, speed: def.speed, color: def.color ?? 'red' };
   if (def.wave) s.wave = def.wave;
   if (def.accel) s.accel = def.accel;
+  if (def.maxSpeed) s.maxSpeed = def.maxSpeed;
   return s;
 }
 

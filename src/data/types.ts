@@ -209,12 +209,60 @@ export interface BlinkerBrain {
   hitBlinkCooldown: number;
 }
 
+/** One attack of a boss: a bullet pattern from its muzzle. */
+export interface BossPatternAttack {
+  kind: 'pattern';
+  /** Name in src/data/patterns.ts. */
+  pattern: string;
+  telegraph: number;
+  /** How often it is picked, relative to the phase's other attacks. */
+  weight: number;
+}
+
 /**
- * A floor boss. For now it stands its ground and turns to face the player; its attacks arrive
- * with its phases (M4).
+ * Lobs `count` balls of frost: one at the player and the rest `spread` px around it. Each flies
+ * `flight` s (its landing spot is marked on the floor meanwhile), lands as a patch of frost of
+ * radius `radius` that lasts `life` s and makes the player walk at `slow` of its speed, and
+ * shatters into `shatter` (a pattern) if given.
+ */
+export interface BossFrostAttack {
+  kind: 'frost';
+  count: number;
+  spread: number;
+  flight: number;
+  radius: number;
+  life: number;
+  slow: number;
+  shatter?: string;
+  telegraph: number;
+  weight: number;
+}
+
+export type BossAttack = BossPatternAttack | BossFrostAttack;
+
+/** A stage of a boss fight, with its own attacks. */
+export interface BossPhase {
+  /** Name shown when it starts (in the game's tone). */
+  name: string;
+  /** It starts when the boss has this fraction of its life left or less (1 for the first). */
+  from: number;
+  /** Between attacks, farther than `keep` px from the player, it shuffles closer. */
+  walkSpeed: number;
+  keep: number;
+  /** Seconds of rest between attacks (random in this range). */
+  rest: [number, number];
+  attacks: BossAttack[];
+}
+
+/**
+ * A floor boss: between attacks it shuffles closer if the player keeps away; then it picks one of its current
+ * phase's attacks (weighted, never the same twice in a row), warns and fires it from `muzzle`
+ * (px from its feet, facing right).
  */
 export interface BossBrain {
   kind: 'boss';
+  muzzle: { x: number; y: number };
+  phases: BossPhase[];
 }
 
 export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain;

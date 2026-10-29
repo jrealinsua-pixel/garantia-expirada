@@ -1,11 +1,11 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { BlinkerBrain, ChargerBrain, ChaserBrain, MothBrain, TurretBrain } from '../data/types.ts';
+import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, MothBrain, TurretBrain } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { isWallAt, wallRectsNear } from './room.ts';
-import { DT, firePattern, HAND_HEIGHT, hurtPlayer, isClear, isRolling, playerFeetBox, slide, type Enemy, type World } from './world.ts';
+import { DT, firePattern, freeSpot, HAND_HEIGHT, hurtPlayer, isClear, isRolling, playerFeetBox, slide, throwFrost, type Enemy, type World } from './world.ts';
 
 /** Bullets push enemies; this friction brings them back to their own speed. */
 const KNOCK_FRICTION = 900;
@@ -31,8 +31,7 @@ export function updateEnemies(w: World): void {
         updateBlinker(w, en, en.def.brain);
         break;
       case 'boss':
-        // Its attacks come with its phases (M4); for now it only keeps an eye on you.
-        en.facing = w.player.x >= en.x ? 1 : -1;
+        updateBoss(w, en, en.def.brain);
         break;
     }
     contact(w, en);
@@ -337,6 +336,112 @@ function updateBlinker(w: World, en: Enemy, b: BlinkerBrain): void {
   const oy = en.y;
   slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
   en.moved += Math.hypot(en.x - ox, en.y - oy);
+}
+
+/** Index of the phase a boss should be in for the life it has left (the last one it qualifies for). */
+export function bossPhaseFor(en: Enemy, b: BossBrain): number {
+  const left = 1 - en.damageTaken / en.def.hp;
+  let k = 0;
+  b.phases.forEach((ph, i) => {
+    if (left <= ph.from) k = i;
+  });
+  return k;
+}
+
+/** Picks the boss's next attack: weighted, and never the one it just did (if it has others). */
+function pickAttack(w: World, attacks: readonly BossAttack[], last: number | undefined): number {
+  let total = 0;
+  for (let i = 0; i < attacks.length; i++) if (i !== last || attacks.length === 1) total += attacks[i]!.weight;
+  let r = w.rng.range(0, total);
+  for (let i = 0; i < attacks.length; i++) {
+    if (i === last && attacks.length > 1) continue;
+    r -= attacks[i]!.weight;
+    if (r < 0) return i;
+  }
+  return attacks.length - 1;
+}
+
+/**
+ * A boss: shuffles closer if you keep away, then picks an attack of its phase, warns and does it. A
+ * pattern comes out of its muzzle; frost is lobbed at the player and around it at the end of the
+ * warning. Moving into a new phase is announced (event `bossPhase`).
+ */
+function updateBoss(w: World, en: Enemy, b: BossBrain): void {
+  const p = w.player;
+  en.t += DT;
+  const phaseIdx = bossPhaseFor(en, b);
+  if (en.bossPhase === undefined || phaseIdx > en.bossPhase) {
+    if (en.bossPhase !== undefined || phaseIdx > 0) w.events.push({ type: 'bossPhase', boss: en.id, phase: phaseIdx, name: b.phases[phaseIdx]!.name });
+    en.bossPhase = phaseIdx;
+    delete en.attack;
+  }
+  const phase = b.phases[en.bossPhase]!;
+  const toX = p.x - en.x;
+  if (Math.abs(toX) > 4 && en.state !== 'fire') en.facing = toX > 0 ? 1 : -1;
+  const mx = en.x + b.muzzle.x * en.facing;
+  const mh = muzzleHeight(w, en, b.muzzle.y);
+  let walkX = 0;
+  let walkY = 0;
+  switch (en.state) {
+    case 'idle': {
+      // Comes closer when you keep away, slowly (it is a fridge); it never backs off: the
+      // Management does not give ground (and backed against the wall it would leave the picture).
+      const d = Math.hypot(p.x - en.x, p.y - en.y) || 1;
+      const sign = d > phase.keep + 30 ? 1 : 0;
+      walkX = ((p.x - en.x) / d) * sign * phase.walkSpeed;
+      walkY = ((p.y - en.y) / d) * sign * phase.walkSpeed;
+      if (en.t >= en.until && !w.over) {
+        const i = pickAttack(w, phase.attacks, en.attack);
+        en.attack = i;
+        const a = phase.attacks[i]!;
+        const aim = Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - mx);
+        if (a.kind === 'pattern') {
+          const def = PATTERNS[a.pattern];
+          if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
+          firePattern(w, def, mx, en.y - mh, aim, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: mh });
+          enter(en, 'fire', a.telegraph + patternDuration(def) + 0.25);
+        } else {
+          // The frost warns by itself (see activeWarnings): the ring closes on the dispenser.
+          enter(en, 'warn', a.telegraph);
+          w.events.push({ type: 'telegraph', x: mx, y: en.y - mh, time: a.telegraph, aim, aimed: false, color: 'ice', source: en.id });
+        }
+      }
+      break;
+    }
+    case 'warn': {
+      // End of the frost warning: lob the balls.
+      if (en.t >= en.until) {
+        const a = phase.attacks[en.attack ?? 0]!;
+        if (a.kind === 'frost') {
+          for (let k = 0; k < a.count; k++) {
+            // The first one lands where the player is; the others around it, where it would dodge to.
+            const ang = k === 0 ? 0 : w.rng.range(0, Math.PI * 2);
+            const dist = k === 0 ? 0 : a.spread * w.rng.range(0.8, 1.2);
+            let tx = p.x + p.vx * 0.25 * (k === 0 ? 1 : 0) + Math.cos(ang) * dist;
+            let ty = p.y + p.vy * 0.25 * (k === 0 ? 1 : 0) + Math.sin(ang) * dist * 0.75;
+            if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
+            const opts = { r: a.radius, life: a.life, slow: a.slow, flight: a.flight * w.rng.range(0.9, 1.1), source: en.id, by: en.def.id };
+            throwFrost(w, mx, en.y, mh, tx, ty, a.shatter ? { ...opts, shatter: a.shatter } : opts);
+          }
+        }
+        enter(en, 'fire', 0.5);
+      }
+      break;
+    }
+    case 'fire':
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
+      break;
+    default:
+      // First tick after its entrance: a short breath, then the first attack.
+      enter(en, 'idle', 0.6);
+  }
+  approach(en, walkX, walkY, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
 }
 
 /** Height its bullets come out at: `muzzleY` above the feet, lower if a wall is right above it. */

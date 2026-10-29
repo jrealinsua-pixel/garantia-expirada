@@ -112,6 +112,7 @@ export interface Bullet {
   speed: number;
   wave?: { amp: number; freq: number };
   accel?: number;
+  maxSpeed?: number;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
   /**
@@ -207,7 +208,40 @@ export interface Enemy {
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
+  /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
+  bossPhase?: number;
+  attack?: number;
 }
+
+/**
+ * A ball of frost thrown by a boss, then the patch it leaves. While `t` < 0 it is in the air,
+ * flying from (fromX, fromY) to (x, y); at 0 it lands and the patch slows the player down
+ * (to `slow` of its speed) inside an ellipse of `r` by `r` × FROST_FLAT until `t` reaches `life`.
+ */
+export interface Frost {
+  id: number;
+  x: number;
+  y: number;
+  r: number;
+  t: number;
+  life: number;
+  slow: number;
+  fromX: number;
+  fromY: number;
+  /** Height it is thrown from (px above the floor). */
+  fromH: number;
+  flight: number;
+  /** Pattern it shatters into when it lands. */
+  shatter?: string;
+  /** Who threw it (enemy id, and its kind for the sick-leave report). */
+  source: number;
+  by: string;
+}
+
+/** Frost patches are flattened ellipses, as seen in three-quarter view. */
+export const FROST_FLAT = 0.6;
+/** No more patches than this at once: the oldest melts. */
+export const MAX_FROST = 8;
 
 export type SimEvent =
   | { type: 'shot'; x: number; y: number; angle: number; weapon: string }
@@ -230,6 +264,11 @@ export type SimEvent =
   /** A blinker (the remote) switches off at (x, y) to reappear at (tx, ty); then switches on there. */
   | { type: 'blinkOut'; x: number; y: number; tx: number; ty: number; source: number }
   | { type: 'blinkIn'; x: number; y: number; source: number }
+  /** A boss throws a ball of frost from (x, y) to land at (tx, ty) in `flight` s; then it lands. */
+  | { type: 'frostThrow'; x: number; y: number; tx: number; ty: number; flight: number; source: number }
+  | { type: 'frostLand'; x: number; y: number; r: number }
+  /** A boss starts a new phase of its fight. */
+  | { type: 'bossPhase'; boss: number; phase: number; name: string }
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
@@ -259,6 +298,8 @@ export interface World {
   enemies: Enemy[];
   emitters: Emitter[];
   pickups: Pickup[];
+  /** Frost thrown by a boss: in the air or lying on the floor. */
+  frost: Frost[];
   events: SimEvent[];
   nextId: number;
   /** Enemies taken apart so far. */
@@ -388,6 +429,7 @@ export function createWorld(opts: WorldOptions): World {
     enemies: [],
     emitters: [],
     pickups: [],
+    frost: [],
     events: [],
     nextId,
     kills: 0,
@@ -491,6 +533,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.room = floorRoomOf(f, id);
   w.bullets = [];
   w.emitters = [];
+  w.frost = [];
   w.enemies = [];
   w.dummies = [];
   w.pickups = st.pickups;
@@ -713,8 +756,10 @@ function updatePlayer(w: World, input: Input): void {
       p.vy *= 0.6;
     }
   } else {
-    const tx = mx * d.speed;
-    const ty = my * d.speed;
+    // Frost on the floor slows walking down (rolling is how you get out of it).
+    const k = frostSlow(w, p.x, p.y);
+    const tx = mx * d.speed * k;
+    const ty = my * d.speed * k;
     const dvx = tx - p.vx;
     const dvy = ty - p.vy;
     const dl = Math.hypot(dvx, dvy);
@@ -804,7 +849,7 @@ function updateBullets(w: World): void {
       continue;
     }
     b.age += DT;
-    if (b.accel) b.speed = Math.max(10, b.speed + b.accel * DT);
+    if (b.accel) b.speed = Math.min(b.maxSpeed ?? Infinity, Math.max(10, b.speed + b.accel * DT));
     if (b.wave || b.accel) {
       const side = b.wave ? b.wave.amp * 2 * Math.PI * b.wave.freq * Math.cos(2 * Math.PI * b.wave.freq * b.age) : 0;
       b.vx = Math.cos(b.dir) * b.speed - Math.sin(b.dir) * side;
@@ -935,6 +980,11 @@ export function activeWarnings(w: World): Warning[] {
   }
   for (const en of w.enemies) {
     if (!warnsByItself(en)) continue;
+    const b = en.def.brain;
+    if (b.kind === 'boss') {
+      out.push({ x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: 'ice', bullets: true, source: en.id });
+      continue;
+    }
     out.push({ x: en.x, y: en.y - 2 - enemyAltitude(en), k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'red', bullets: false, source: en.id });
   }
   return out;
@@ -967,6 +1017,7 @@ function updateEmitters(w: World): void {
       };
       if (s.wave) b.wave = s.wave;
       if (s.accel) b.accel = s.accel;
+      if (s.maxSpeed) b.maxSpeed = s.maxSpeed;
       if (e.by) b.by = e.by;
       w.bullets.push(b);
     }
@@ -985,6 +1036,60 @@ function updateDummies(w: World): void {
     d.lean += d.leanV * DT;
     d.lean = Math.max(-0.5, Math.min(0.5, d.lean));
   }
+}
+
+/** Throws a ball of frost (see Frost) from (x, y) at `h` px above the floor, to land at (tx, ty). */
+export interface FrostOptions {
+  r: number;
+  life: number;
+  slow: number;
+  flight: number;
+  shatter?: string;
+  source: number;
+  by: string;
+}
+
+export function throwFrost(w: World, x: number, y: number, h: number, tx: number, ty: number, opts: FrostOptions): Frost {
+  const f: Frost = { id: w.nextId++, x: tx, y: ty, r: opts.r, t: -opts.flight, life: opts.life, slow: opts.slow, fromX: x, fromY: y, fromH: h, flight: opts.flight, source: opts.source, by: opts.by };
+  if (opts.shatter) f.shatter = opts.shatter;
+  w.frost.push(f);
+  w.events.push({ type: 'frostThrow', x, y: y - h, tx, ty, flight: opts.flight, source: opts.source });
+  return f;
+}
+
+/** Whether (x, y) is inside a landed frost patch. */
+export function inFrost(f: Frost, x: number, y: number): boolean {
+  if (f.t < 0) return false;
+  const dx = (x - f.x) / f.r;
+  const dy = (y - f.y) / (f.r * FROST_FLAT);
+  return dx * dx + dy * dy <= 1;
+}
+
+/** How fast the player can walk at (x, y): 1 normally, less on frost (the strongest patch counts). */
+export function frostSlow(w: World, x: number, y: number): number {
+  let k = 1;
+  for (const f of w.frost) if (inFrost(f, x, y)) k = Math.min(k, f.slow);
+  return k;
+}
+
+function updateFrost(w: World): void {
+  const keep: Frost[] = [];
+  for (const f of w.frost) {
+    const was = f.t;
+    f.t += DT;
+    if (was < 0 && f.t >= 0) {
+      w.events.push({ type: 'frostLand', x: f.x, y: f.y, r: f.r });
+      // It shatters into splinters, unless whoever threw it is gone already.
+      const def = f.shatter ? PATTERNS[f.shatter] : undefined;
+      if (def && !w.over && w.enemies.some((en) => en.id === f.source)) {
+        firePattern(w, def, f.x, f.y - 3, Math.atan2(w.player.y - f.y, w.player.x - f.x), { by: f.by, height: 3 });
+      }
+    }
+    if (f.t < f.life) keep.push(f);
+  }
+  // Too much frost: the oldest patches on the floor melt first.
+  while (keep.filter((f) => f.t >= 0).length > MAX_FROST) keep.splice(keep.findIndex((f) => f.t >= 0), 1);
+  w.frost = keep;
 }
 
 /** Rolling (its i-frames) and the blink after a hit protect the player. */
@@ -1147,6 +1252,7 @@ export function step(w: World, input: Input): void {
   }
   updateEmitters(w);
   updateBullets(w);
+  updateFrost(w);
   reapEnemies(w);
   updateDummies(w);
   updateEnemies(w);
@@ -1194,5 +1300,6 @@ export function worldHash(w: World): string {
   const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, w.pickups.length, p.hp];
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
+  for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));
   return parts.join('|');
 }

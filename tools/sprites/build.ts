@@ -50,6 +50,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-jugador': one(P.makeShot()),
     'bala-roja': one(P.enemyBulletRed()),
     'bala-cian': one(P.enemyBulletCyan()),
+    'bala-cubito': one(P.makeIceCube()),
+    'bola-escarcha': one(P.makeFrostBall()),
+    escarcha: { canvas: P.makeFrostPatch(), frameW: 46, frameH: 28 },
     fogonazo: { canvas: P.makeMuzzle(), frameW: 12, frameH: 10 },
     pelusa: { canvas: P.makePelusa(), frameW: 4, frameH: 4 },
     chispas: { canvas: P.makeSparks(), frameW: 2, frameH: 2 },
@@ -93,7 +96,8 @@ function main(): void {
     x += c.w + 4;
   }
   x = 4;
-  for (const k of ['caja', 'barril', 'carrito', 'bala-jugador', 'bala-roja', 'fogonazo', 'pelusa', 'polvo', 'mira', 'corazones', 'municion', 'mano', 'arma-secador', 'cupon', 'chatarra', 'despiece']) {
+  const row = ['caja', 'barril', 'carrito', 'bala-jugador', 'bala-roja', 'bala-cubito', 'bola-escarcha', 'escarcha', 'fogonazo'];
+  for (const k of [...row, 'pelusa', 'polvo', 'mira', 'corazones', 'municion', 'mano', 'arma-secador', 'cupon', 'chatarra', 'despiece']) {
     const c = sheets[k]!.canvas;
     sheet.blit(c, x, 4);
     x += c.w + 3;

@@ -176,7 +176,26 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [10, 14] },
-    brain: { kind: 'boss' },
+    brain: {
+      kind: 'boss',
+      // The ice dispenser on its door, facing right.
+      muzzle: { x: 5, y: 34 },
+      phases: [
+        {
+          name: 'Congelación de precios',
+          from: 1,
+          walkSpeed: 16,
+          keep: 130,
+          rest: [0.9, 1.5],
+          attacks: [
+            { kind: 'pattern', pattern: 'nevera-cubitos', telegraph: 0.7, weight: 3 },
+            { kind: 'pattern', pattern: 'nevera-granizo', telegraph: 0.9, weight: 2 },
+            // «Escarcha»: frost on the floor that slows you down where you were going to dodge.
+            { kind: 'frost', count: 3, spread: 56, flight: 0.9, radius: 22, life: 7, slow: 0.5, shatter: 'escarcha-esquirlas', telegraph: 0.6, weight: 2 },
+          ],
+        },
+      ],
+    },
     boss: { title: 'La Nevera Suprema', motto: 'Congelamos los precios. Y las reclamaciones.' },
   },
 };

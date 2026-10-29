@@ -5,9 +5,10 @@ import { fontText, textWidth } from '../art/font.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
-import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
+import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
+import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
@@ -131,6 +132,8 @@ export class GameScene extends Phaser.Scene {
   private enemySprites = new Map<number, EnemyView>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
   private pickupSprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image }>();
+  /** Frost thrown by a boss: the ball and its shadow while it flies, then the patch on the floor. */
+  private frostViews = new Map<number, { ball: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; patch: Phaser.GameObjects.Sprite | null }>();
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
   private pieces = new Map<string, SpritePiece[]>();
   private couponIcon!: Phaser.GameObjects.Image;
@@ -213,6 +216,7 @@ export class GameScene extends Phaser.Scene {
     this.enemySprites = new Map();
     this.bulletSprites = new Map();
     this.pickupSprites = new Map();
+    this.frostViews = new Map();
     this.particles = [];
     this.mapG = null;
     this.floats = [];
@@ -880,8 +884,29 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'telegraph':
           this.warnings++;
-          this.sound2.play('aviso', { detune: e.color === 'cyan' ? 300 : 0 });
+          this.sound2.play('aviso', { detune: e.color === 'red' ? 0 : e.color === 'cyan' ? 300 : -250 });
+          // The fridge's dispenser rattles as it loads the cubes.
+          if (e.color === 'ice') this.sound2.play('cubitos', { detune: this.fx.range(-150, 150) });
           break;
+        case 'frostThrow':
+          this.sound2.play('lanzar', { detune: this.fx.range(-200, 200) });
+          break;
+        case 'frostLand': {
+          this.sound2.play('escarcha', { detune: this.fx.range(-200, 200) });
+          this.cameras.main.shake(80, 0.004, true);
+          for (let i = 0; i < 7; i++) this.iceShard(e.x + this.fx.range(-4, 4), e.y);
+          for (let i = 0; i < 3; i++) this.puff(e.x + this.fx.range(-e.r * 0.6, e.r * 0.6), e.y + this.fx.range(-4, 4), 0.5);
+          break;
+        }
+        case 'bossPhase': {
+          // A new phase: its name, big and cold, and a shudder.
+          this.sound2.play('jefe', { volume: 0.7 });
+          this.cameras.main.shake(260, 0.012, true);
+          this.banner.setText(fontText(e.name)).setTint(0x69dbd8).setAlpha(1);
+          this.tweens.killTweensOf(this.banner);
+          this.tweens.add({ targets: this.banner, alpha: 0, delay: 1800, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
+          break;
+        }
       }
     }
   }
@@ -903,6 +928,14 @@ export class GameScene extends Phaser.Scene {
       spin: this.fx.range(-8, 8),
       fade: true,
     });
+  }
+
+  /** A splinter of ice that jumps out and bounces on the floor. */
+  private iceShard(x: number, y: number): void {
+    const s = this.add.image(x, y, 'chispas', 0).setTint(this.fx.pick([0xf4f1e8, 0xb6f1f0, 0x69dbd8]));
+    const a = this.fx.range(0, Math.PI * 2);
+    const sp = this.fx.range(25, 70);
+    this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.6, z: 2, vz: this.fx.range(50, 110), life: 0.7, maxLife: 0.7, gravity: true, spin: 0, fade: true, hw: 1, hh: 1 });
   }
 
   private spark(x: number, y: number, a: number, speed: number, frame: number): void {
@@ -1210,6 +1243,7 @@ export class GameScene extends Phaser.Scene {
 
     this.drawWarnings();
     this.drawStatic();
+    this.drawFrost(dt);
     this.drawPickups();
 
     // Bullets.
@@ -1218,7 +1252,7 @@ export class GameScene extends Phaser.Scene {
       alive.add(b.id);
       let s = this.bulletSprites.get(b.id);
       if (!s) {
-        s = this.add.image(b.x, b.y, b.owner === 'player' ? 'bala-jugador' : b.color === 'cyan' ? 'bala-cian' : 'bala-roja');
+        s = this.add.image(b.x, b.y, b.owner === 'player' ? 'bala-jugador' : BULLET_TEXTURES[b.color]);
         this.bulletSprites.set(b.id, s);
       }
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);
@@ -1260,6 +1294,61 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Frost: a ball flies in an arc while a ring closes on where it will land (and its shadow
+   * slides there); then the patch lies on the floor, sparkling, and blinks before it melts.
+   * The toaster walking on it is tinted cold and kicks up rime.
+   */
+  private drawFrost(dt: number): void {
+    const g = this.warn;
+    const alive = new Set<number>();
+    for (const f of this.world.frost) {
+      alive.add(f.id);
+      let v = this.frostViews.get(f.id);
+      if (!v) {
+        v = { ball: this.add.image(f.fromX, f.fromY, 'bola-escarcha'), shadow: this.add.image(f.fromX, f.fromY, shadowTexture(this, 4, 2)).setDepth(-50000), patch: null };
+        this.frostViews.set(f.id, v);
+      }
+      if (f.t < 0) {
+        const k = 1 + f.t / f.flight;
+        const x = f.fromX + (f.x - f.fromX) * k;
+        const y = f.fromY + (f.y - f.fromY) * k;
+        const h = f.fromH * (1 - k) + Math.sin(Math.PI * k) * 46;
+        v.ball.setPosition(Math.round(x), Math.round(y - h)).setDepth(y + 30).setRotation(k * 6);
+        v.shadow.setPosition(Math.round(x), Math.round(y));
+        // Where it will land: a cold ring that closes in, over a dark ellipse.
+        const rx = Math.round(f.r * (1.35 - 0.35 * k));
+        const ry = Math.round(rx * FROST_FLAT);
+        g.fillStyle(0x0e0c16, 0.18 + 0.2 * k).fillEllipse(Math.round(f.x), Math.round(f.y), f.r * 2, f.r * 2 * FROST_FLAT);
+        pixelEllipse(g, Math.round(f.x), Math.round(f.y) + 1, rx, ry, 0x0e0c16);
+        if (k < 0.85 || Math.floor(this.time.now / 60) % 2 === 0) pixelEllipse(g, Math.round(f.x), Math.round(f.y), rx, ry, 0x69dbd8);
+        continue;
+      }
+      if (v.ball.visible) {
+        v.ball.setVisible(false);
+        v.shadow.setVisible(false);
+      }
+      if (!v.patch) v.patch = this.add.sprite(Math.round(f.x), Math.round(f.y), 'escarcha', 0).setDepth(-60000);
+      const left = f.life - f.t;
+      const pop = Math.min(1, f.t / 0.12);
+      v.patch.setScale(0.5 + 0.5 * pop).setFrame(Math.floor(this.time.now / 420 + f.id) % 2);
+      // Melting: it blinks for its last second.
+      v.patch.setAlpha(left < 1 ? (Math.floor(this.time.now / 90) % 2 === 0 ? 0.35 : 0.85) : 1);
+    }
+    for (const [id, v] of this.frostViews) {
+      if (alive.has(id)) continue;
+      v.ball.destroy();
+      v.shadow.destroy();
+      v.patch?.destroy();
+      this.frostViews.delete(id);
+    }
+    const p = this.world.player;
+    if (!this.world.over && frostSlow(this.world, p.x, p.y) < 1) {
+      if (this.flashHero <= 0 && !(p.invulnerable > 0 && !isRolling(p))) this.hero.setTint(0xbfeff0);
+      if (Math.hypot(p.vx, p.vy) > 10 && this.fx.chance(dt * 14)) this.iceShard(p.x + this.fx.range(-4, 4), p.y);
+    }
+  }
+
   /** Where a remote is about to switch back on, the floor crackles with TV static. */
   private drawStatic(): void {
     const g = this.warn;
@@ -1291,7 +1380,7 @@ export class GameScene extends Phaser.Scene {
     g.clear();
     for (const wn of activeWarnings(this.world)) {
       const k = wn.k;
-      const col = wn.color === 'cyan' ? 0x69dbd8 : 0xe0453b;
+      const col = wn.color === 'red' ? 0xe0453b : 0x69dbd8;
       const x = Math.round(wn.x);
       const y = Math.round(wn.y);
       // Bullets: a ring closes in on the muzzle; when it reaches it, they come out.
@@ -1427,6 +1516,13 @@ export class GameScene extends Phaser.Scene {
       lx = Math.cos(p.aim) * 30;
       ly = Math.sin(p.aim) * 30;
     }
+    // Fighting a boss, the camera leans towards it too, so it stays in the picture (but never so
+    // much that the toaster leaves it).
+    const boss = this.camFocus ? undefined : this.world.enemies.find((en) => en.def.boss);
+    if (boss) {
+      lx += Math.max(-(VIEW_W / 2 - 70), Math.min(VIEW_W / 2 - 70, (boss.x - p.x) * 0.4));
+      ly += Math.max(-(VIEW_H / 2 - 50), Math.min(VIEW_H / 2 - 50, (boss.y - 36 - p.y) * 0.4));
+    }
     const tx = this.camFocus ? this.camFocus.x - VIEW_W / 2 : p.x + lx - VIEW_W / 2;
     const ty = this.camFocus ? this.camFocus.y - VIEW_H / 2 : p.y - BODY_HEIGHT + ly - VIEW_H / 2;
     const k = 1 - Math.pow(this.camFocus ? 0.02 : 0.0005, dt);
@@ -1438,6 +1534,9 @@ export class GameScene extends Phaser.Scene {
     cam.setScroll(Math.round(this.camX), Math.round(this.camY));
   }
 }
+
+/** Enemy bullet sprites by colour: the boss's ice is a cube. */
+const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito' };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
 const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number }> = {
@@ -1500,6 +1599,16 @@ function blinkOn(k: number): boolean {
 }
 
 /** A 1-px circle with no anti-aliasing (midpoint algorithm), to match the pixel art. */
+/** A 1-px ellipse outline, plotted point by point so it stays crisp. */
+function pixelEllipse(g: Phaser.GameObjects.Graphics, cx: number, cy: number, rx: number, ry: number, color: number): void {
+  g.fillStyle(color, 1);
+  const n = Math.max(16, Math.round((rx + ry) * 3));
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    g.fillRect(Math.round(cx + Math.cos(a) * rx), Math.round(cy + Math.sin(a) * ry), 1, 1);
+  }
+}
+
 function pixelRing(g: Phaser.GameObjects.Graphics, cx: number, cy: number, r: number, color: number): void {
   g.fillStyle(color, 1);
   let x = r;

@@ -82,7 +82,7 @@ prueba aparte) sin atascarse.*
 ## M4 · La Nevera Suprema
 
 - [x] Sala del jefe con presentación (nombre y lema en pantalla).
-- [ ] Fase 1: ráfagas de cubitos, escarcha que ralentiza.
+- [x] Fase 1: ráfagas de cubitos, escarcha que ralentiza.
 - [ ] Fase 2: tarjetas de fidelización que persiguen; la nevera se abre y escupe productos caducados.
 - [ ] Barra de vida del jefe, transición de fase, muerte espectacular.
 - [ ] Recompensa y subida a la siguiente planta (de momento, pantalla de victoria).

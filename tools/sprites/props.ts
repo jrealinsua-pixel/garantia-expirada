@@ -375,3 +375,77 @@ export function makeToasterBits(): Canvas {
   sheet.blit(outline(kn), 24, 0);
   return sheet;
 }
+
+/**
+ * La Nevera Suprema's ice cube: 6x6, a cube in three-quarter view (white top, cyan front, dark
+ * left side) with the saturated cyan rim of the enemy bullets, so it reads as one.
+ */
+export function makeIceCube(): Canvas {
+  const cv = new Canvas(6, 6);
+  // Square corners (a cube, not a ball): white top face, pale front, cyan side on the left.
+  const pat = ['111111', '133331', '142221', '142221', '142221', '111111'];
+  const cols: Record<string, RGBA> = { '1': ICE[2]!, '2': ICE[1]!, '3': WHITE, '4': ICE[2]! };
+  pat.forEach((row, j) => [...row].forEach((ch, i) => cv.set(i, j, cols[ch]!)));
+  cv.set(3, 2, WHITE);
+  return cv;
+}
+
+/** A ball of frost flying through the air: 8x8 snowball with an icy rim and a black outline. */
+export function makeFrostBall(): Canvas {
+  const cv = new Canvas(9, 9);
+  ellipse(cv, 4, 4, 3.2, 3.2, ICE[1]!);
+  ellipse(cv, 3.6, 3.6, 2.4, 2.4, WHITE);
+  cv.set(3, 2, ICE[0]!);
+  cv.set(5, 6, ICE[2]!);
+  cv.set(6, 5, ICE[2]!);
+  cv.set(6, 6, ICE[3]!);
+  return outline(cv);
+}
+
+/**
+ * A patch of frost on the floor (radius 22, flattened to 0.6 for the three-quarter view): a
+ * see-through icy sheet with a brighter, broken rim, cracks and a few crystals standing up.
+ * Two frames: the second has the glints in other places, so it sparkles.
+ */
+export function makeFrostPatch(): Canvas {
+  const W = 46;
+  const H = 28;
+  const sheet = new Canvas(W * 2, H);
+  const cx = 23;
+  const cy = 14;
+  const rx = 22;
+  const ry = 13.2;
+  for (let f = 0; f < 2; f++) {
+    const ox = f * W;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const dx = (x + 0.5 - cx) / rx;
+        const dy = (y + 0.5 - cy) / ry;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        // A wobbly edge, the same in both frames.
+        const wob = 0.06 * Math.sin(Math.atan2(dy, dx) * 7 + 1.3) + 0.04 * Math.sin(Math.atan2(dy, dx) * 13);
+        if (d > 0.98 + wob) continue;
+        const edge = d > 0.84 + wob;
+        // put(), not set(): blending onto a transparent pixel would darken it.
+        sheet.put(ox + x, y, edge ? hx('#e4fbfa', 215) : hx('#b6f1f0', d < 0.55 ? 95 : 130));
+      }
+    }
+    // Cracks in the ice.
+    const cracks: Array<[number, number, number, number]> = [[-12, -2, 7, 1], [-4, 4, 9, -1], [5, -5, 6, 2], [-15, 5, 5, -1], [9, 3, 7, 1]];
+    for (const [x0, y0, len, slope] of cracks) for (let i = 0; i < len; i++) sheet.put(ox + cx + x0 + i, cy + y0 + Math.round((i * slope) / 3), hx('#f4f1e8', 190));
+    // Little crystals standing up (with the dark side on the left, as everything else).
+    for (const [x, y] of [[-16, -3], [12, -6], [3, 6], [-6, -8], [16, 4]] as const) {
+      sheet.set(ox + cx + x, cy + y - 1, WHITE);
+      sheet.set(ox + cx + x, cy + y, ICE[1]!);
+      sheet.set(ox + cx + x - 1, cy + y, ICE[3]!);
+    }
+    // Glints that move from one frame to the other.
+    const glints = f === 0 ? [[-9, -5], [7, 1], [-2, 8]] : [[-13, 2], [10, -3], [1, -2]];
+    for (const [x, y] of glints) {
+      sheet.set(ox + cx + x!, cy + y!, WHITE);
+      sheet.put(ox + cx + x! + 1, cy + y!, hx('#f4f1e8', 200));
+      sheet.put(ox + cx + x!, cy + y! - 1, hx('#f4f1e8', 200));
+    }
+  }
+  return sheet;
+}

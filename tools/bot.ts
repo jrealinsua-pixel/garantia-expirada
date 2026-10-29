@@ -3,7 +3,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Bot } from '../src/sim/bot.ts';
-import { checkInvariants, createWorld, DT, step, worldHash } from '../src/sim/world.ts';
+import { checkInvariants, createWorld, DT, frostSlow, step, worldHash } from '../src/sim/world.ts';
 import { ROOT } from './lib/deps.ts';
 
 export interface BotReport {
@@ -27,6 +27,8 @@ export interface BotReport {
   segundosVivo: number;
   heridasPorMinuto: number;
   msPorPartida: number;
+  /** The boss fight (M4 criterion): see BossReport. */
+  jefe?: BossReport;
   /** Whole floors (M3 criterion): see FloorReport. */
   plantas: FloorReport;
   errores: string[];
@@ -165,6 +167,65 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
   };
 }
 
+export interface BossReport {
+  combates: number;
+  /** Fights the bot wins (%), and the mean, shortest and longest of those fights (s). */
+  gana: number;
+  segundos: number;
+  minimo: number;
+  maximo: number;
+  /** Hits taken per fight, and seconds per fight walking on frost. */
+  heridas: number;
+  segundosEnEscarcha: number;
+}
+
+/** The bot fights the floor boss in its room (entrance skipped), with damage, up to `maxSeconds`. */
+export function runBoss(fights: number, maxSeconds = 240): { report: BossReport; errors: string[] } {
+  const errors: string[] = [];
+  const won: number[] = [];
+  let hurts = 0;
+  let frostT = 0;
+  for (let i = 0; i < fights; i++) {
+    const seed = `jefe-${i}`;
+    const w = createWorld({ seed, room: 'jefe' });
+    w.intro = null;
+    const bot = new Bot(seed);
+    try {
+      for (let t = 0; t < maxSeconds / DT && !w.over; t++) {
+        step(w, bot.think(w));
+        for (const e of w.events) if (e.type === 'hurt') hurts++;
+        if (frostSlow(w, w.player.x, w.player.y) < 1) frostT += DT;
+        if (w.enemies.length === 0) {
+          won.push(t * DT);
+          break;
+        }
+        if (t % 30 === 0) {
+          const errs = checkInvariants(w);
+          if (errs.length) {
+            errors.push(`jefe ${seed} tick ${w.tick}: ${errs.join('; ')}`);
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      errors.push(`jefe ${seed}: excepción ${(e as Error).stack ?? e}`);
+    }
+  }
+  const one = (n: number): number => Math.round(n * 10) / 10;
+  return {
+    report: {
+      combates: fights,
+      gana: one((won.length / fights) * 100),
+      segundos: won.length ? one(won.reduce((a, b) => a + b, 0) / won.length) : 0,
+      minimo: won.length ? one(Math.min(...won)) : 0,
+      maximo: won.length ? one(Math.max(...won)) : 0,
+      heridas: Math.round((hurts / fights) * 100) / 100,
+      segundosEnEscarcha: one(frostT / fights),
+    },
+    errors,
+  };
+}
+
 export function runFloors(floors: number, maxSeconds = 600): { report: FloorReport; errors: string[]; failed: number } {
   const errors: string[] = [];
   let failed = 0;
@@ -219,7 +280,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   };
 }
 
-export function runBots(games: number, seconds: number, floors = 0): BotReport {
+export function runBots(games: number, seconds: number, floors = 0, bosses = 0): BotReport {
   const t0 = performance.now();
   const errors: string[] = [];
   let shots = 0;
@@ -263,6 +324,9 @@ export function runBots(games: number, seconds: number, floors = 0): BotReport {
   const fl = runFloors(floors);
   failed += fl.failed;
   errors.push(...fl.errors);
+  const boss = runBoss(bosses);
+  failed += boss.errors.length;
+  errors.push(...boss.errors);
   return {
     partidas: games,
     fallos: failed,
@@ -280,12 +344,13 @@ export function runBots(games: number, seconds: number, floors = 0): BotReport {
     heridasPorMinuto: alive ? Math.round((hurts / (alive / 60)) * 10) / 10 : 0,
     msPorPartida: Math.round((ms / (games + 2)) * 10) / 10,
     plantas: fl.report,
+    jefe: boss.report,
     errores: errors.slice(0, 20),
   };
 }
 
 if (import.meta.main) {
-  const report = runBots(arg('partidas', 200), arg('segundos', 60), arg('plantas', 20));
+  const report = runBots(arg('partidas', 200), arg('segundos', 60), arg('plantas', 20), arg('jefes', 30));
   mkdirSync(join(ROOT, 'logs'), { recursive: true });
   writeFileSync(join(ROOT, 'logs/bot.json'), JSON.stringify(report, null, 2));
   console.log(
@@ -300,6 +365,13 @@ if (import.meta.main) {
       `${pl.plantas} plantas · sin daño la recorre entera el ${pl.recorridoSinDanio} % en ${pl.segundosRecorrido} s · ` +
         `con daño la recorre el ${pl.recorridoConDanio} %, cae el ${pl.caidas} % · ${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
         `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate`,
+    );
+  }
+  const j = report.jefe;
+  if (j?.combates) {
+    console.log(
+      `${j.combates} combates contra la jefa · gana el ${j.gana} % en ${j.segundos} s (${j.minimo}–${j.maximo} s) · ` +
+        `${j.heridas} heridas por combate · ${j.segundosEnEscarcha} s en la escarcha`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

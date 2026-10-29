@@ -14,6 +14,26 @@ export const PATTERNS: Record<string, PatternDef> = {
   'bombilla-espiral': { kind: 'spiral', arms: 3, steps: 14, stepDeg: 13, interval: 0.09, speed: 65, color: 'cyan' },
   // Mando a Distancia: a short aimed burst of «infrared» (it is red, so you can see it).
   'mando-zapeo': { kind: 'burst', count: 3, interval: 0.1, jitterDeg: 3, speed: 115, color: 'red' },
+  // La Nevera Suprema, phase 1. The ice dispenser: three fans of cubes, the middle one aimed and
+  // the others turned a little, so there is always a gap to step into.
+  'nevera-cubitos': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 44, speed: 105, color: 'ice' }, turnDeg: -9 },
+      { at: 0.3, pattern: { kind: 'fan', count: 5, spreadDeg: 44, speed: 105, color: 'ice' } },
+      { at: 0.6, pattern: { kind: 'fan', count: 5, spreadDeg: 44, speed: 105, color: 'ice' }, turnDeg: 9 },
+    ],
+  },
+  // «Granizo»: two slow rings of cubes that speed up, the second offset to close the gaps.
+  'nevera-granizo': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 16, speed: 38, accel: 55, maxSpeed: 95, color: 'ice' } },
+      { at: 0.45, pattern: { kind: 'ring', count: 16, speed: 38, accel: 55, maxSpeed: 95, offsetDeg: 11.25, color: 'ice' } },
+    ],
+  },
+  // A frost ball shatters where it lands: a few slow splinters.
+  'escarcha-esquirlas': { kind: 'ring', count: 6, speed: 52, offsetDeg: 30, color: 'ice' },
   // Generic aimed fan, for the weaker enemies.
   'abanico-3': { kind: 'fan', count: 3, spreadDeg: 30, speed: 90, color: 'red' },
   // Aimed burst with a little spread.

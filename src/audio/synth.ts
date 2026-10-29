@@ -123,4 +123,9 @@ export const SFX: Record<string, SfxParams> = {
   jefe: { wave: 'saw', freq: 120, freqEnd: 48, attack: 0.01, sustain: 0.45, decay: 0.8, volume: 0.26, vibrato: 0.12, vibratoSpeed: 7, lowpass: 0.28, crush: 2 },
   // Its motto: the fridge's hum as the door seals.
   zumbido: { wave: 'square', freq: 60, freqEnd: 62, attack: 0.05, sustain: 0.5, decay: 0.4, volume: 0.1, duty: 0.3, lowpass: 0.2, vibrato: 0.05, vibratoSpeed: 50 },
+  // La Nevera Suprema's dispenser loading ice (a rattle), a ball of frost thrown (a whoosh) and
+  // landing (a crack of ice).
+  cubitos: { wave: 'noise', freq: 3200, freqEnd: 2200, attack: 0.002, sustain: 0.18, decay: 0.12, volume: 0.13, crush: 3, vibrato: 0.6, vibratoSpeed: 28 },
+  lanzar: { wave: 'noise', freq: 700, freqEnd: 2000, attack: 0.03, sustain: 0.06, decay: 0.12, volume: 0.12, lowpass: 0.55 },
+  escarcha: { wave: 'square', freq: 2400, freqEnd: 600, attack: 0.001, sustain: 0.02, decay: 0.16, volume: 0.15, duty: 0.2, crush: 3 },
 };

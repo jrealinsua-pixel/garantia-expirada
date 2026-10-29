@@ -352,6 +352,25 @@ try {
   await page.waitForTimeout(900);
   await shot('17d-jefe-combate.png');
   if (!(await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut'))) throw new Error('La sala del jefe no cierra las persianas');
+  // Phase 1: ice cubes from the dispenser, then frost lobbed at the toaster that slows it down.
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'ice' && b.age > 0.4 && v.contains(b.x, b.y)).length >= 10; })()`,
+    undefined,
+    { timeout: 15000 },
+  );
+  await shot('17e-nevera-cubitos.png');
+  await page.waitForFunction('window.__GE__.scene.world.frost.some((f) => f.t < 0 && f.t > -0.5)', undefined, { timeout: 20000 });
+  await shot('17f-nevera-escarcha-aire.png');
+  await page.waitForFunction('window.__GE__.scene.world.frost.some((f) => f.t > 0.3)', undefined, { timeout: 5000 });
+  await page.evaluate(`(() => {
+    const w = window.__GE__.scene.world; const f = w.frost.find((x) => x.t > 0.3); w.player.x = f.x; w.player.y = f.y;
+  })()`);
+  await page.keyboard.down('d');
+  await page.waitForTimeout(300);
+  await shot('17g-nevera-escarcha.png');
+  await page.keyboard.up('d');
+  if ((await state()).fps < 30) throw new Error(`Va lento contra la jefa: ${(await state()).fps} fps`);
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

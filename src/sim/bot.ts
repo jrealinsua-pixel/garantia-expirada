@@ -1,7 +1,7 @@
 // A simple bot player that drives the simulation through the same Input as a human.
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
-import { HAND_HEIGHT, isRolling, PLAYER_HURT_Y, type Input, type World } from './world.ts';
+import { FROST_FLAT, HAND_HEIGHT, isRolling, PLAYER_HURT_Y, type Input, type World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
 
@@ -94,6 +94,18 @@ export function dodge(w: World): Dodge {
       out.x += (dx / d) * (1 - d / 46) * 0.8;
       out.y += (dy / d) * (1 - d / 46) * 0.8;
     }
+  }
+  // Frost: walk out of a patch, and away from where a ball is about to land (once it has seen it).
+  for (const f of w.frost) {
+    if (f.t < 0 && f.t + f.flight < BOT_REACTION) continue;
+    const dx = p.x - f.x;
+    const dy = (p.y - f.y) / FROST_FLAT;
+    const d = Math.hypot(dx, dy) || 1;
+    const reach = f.r + 8;
+    if (d > reach) continue;
+    const k = (1 - d / reach) * (f.t < 0 ? 0.9 : 0.5);
+    out.x += (dx / d) * k;
+    out.y += (dy / d) * k;
   }
   // Do not dodge into a wall.
   const ahead = 18;

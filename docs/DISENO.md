@@ -87,7 +87,7 @@ Pantalla de muerte: en vez de «Has muerto», un **parte de baja** del producto 
 
 | Jefe | Estado | Idea |
 | --- | --- | --- |
-| **La Nevera Suprema** | Aprobada | Jefa de la planta 1. Fase 1: ráfagas de cubitos y escarcha que ralentiza. Fase 2: «Oferta irrechazable»: dispara tarjetas de fidelización que te persiguen. Entra con cartel: «Jefa de planta · Almacén de devoluciones» y el lema «Congelamos los precios. Y las reclamaciones.» |
+| **La Nevera Suprema** | Aprobada | Jefa de la planta 1. Fase 1, «Congelación de precios»: ráfagas de cubitos, anillos de granizo y bolas de escarcha que dejan charcos que frenan al andar (no al rodar). Fase 2: «Oferta irrechazable»: dispara tarjetas de fidelización que te persiguen. Entra con cartel: «Jefa de planta · Almacén de devoluciones» y el lema «Congelamos los precios. Y las reclamaciones.» |
 | El Router del Wifi | Por diseñar | Planta 2 (Informática). Se reinicia a mitad de combate. |
 | El Muñeco de Moda | Por diseñar | Planta 3 (Juguetería). Juguete de la temporada pasada, olvidado y rencoroso. |
 | El Director de Recursos Inhumanos | Por diseñar | Jefe humano de la planta de oficinas. |

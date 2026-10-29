@@ -107,6 +107,24 @@
     "frameH": 5,
     "frames": 1
   },
+  "bala-cubito": {
+    "file": "bala-cubito.png",
+    "frameW": 6,
+    "frameH": 6,
+    "frames": 1
+  },
+  "bola-escarcha": {
+    "file": "bola-escarcha.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 1
+  },
+  "escarcha": {
+    "file": "escarcha.png",
+    "frameW": 46,
+    "frameH": 28,
+    "frames": 2
+  },
   "fogonazo": {
     "file": "fogonazo.png",
     "frameW": 12,
