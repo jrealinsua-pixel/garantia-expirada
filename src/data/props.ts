@@ -6,6 +6,8 @@ export const PROPS: Record<string, PropDef> = {
   caja: { id: 'caja', name: 'Caja de devolución', box: { x: -11, y: -17, w: 22, h: 16 }, blocksBullets: true },
   barril: { id: 'barril', name: 'Bidón de aceite usado', box: { x: -6, y: -14, w: 12, h: 13 }, blocksBullets: true },
   carrito: { id: 'carrito', name: 'Carro sin moneda', box: { x: -12, y: -12, w: 24, h: 10 }, blocksBullets: false },
+  // Not placed by templates: it appears in some combat rooms when they are cleared (world.ts).
+  cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 
 export const DUMMIES: Record<string, DummyDef> = {

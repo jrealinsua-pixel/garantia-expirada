@@ -2,7 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { SWAP_HINT, SYNERGY_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
+import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, SWAP_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
@@ -12,7 +12,7 @@ import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, down
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
 import { activeWarnings, addModifier, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
-import { giveActive, giveItem, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { dropTicket, giveActive, giveItem, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -172,6 +172,11 @@ export class GameScene extends Phaser.Scene {
   /** A cold blue-grey wash over the room while it is on hold. */
   private holdWash!: Phaser.GameObjects.Rectangle;
   private couponText!: Phaser.GameObjects.BitmapText;
+  private ticketIcon!: Phaser.GameObjects.Image;
+  private ticketText!: Phaser.GameObjects.BitmapText;
+  private ticketPop = 0;
+  private chestDrop = false;
+  private chestSprites = new Map<number, { s: Phaser.GameObjects.Image; open: boolean; pop: number }>();
   private couponPop = 0;
   private banner!: Phaser.GameObjects.BitmapText;
   private shutters: Array<{ img: Phaser.GameObjects.Image; h: number }> = [];
@@ -265,6 +270,8 @@ export class GameScene extends Phaser.Scene {
     this.enemySprites = new Map();
     this.bulletSprites = new Map();
     this.pickupSprites = new Map();
+    this.chestSprites = new Map();
+    this.ticketPop = 0;
     this.frostViews = new Map();
     this.particles = [];
     this.mapG = null;
@@ -307,6 +314,11 @@ export class GameScene extends Phaser.Scene {
 
     for (const pr of room.props) {
       const key = pr.def.id;
+      // Chests change (they open), so drawChests keeps them; here only their shadow.
+      if (pr.chest) {
+        this.add.image(pr.x, pr.y + 1, shadowTexture(this, 10, 3)).setDepth(-50000);
+        continue;
+      }
       const tex = this.textures.get(key).getSourceImage();
       this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
       this.add.image(pr.x, pr.y, key).setOrigin(0.5, 1).setDepth(pr.y);
@@ -331,6 +343,9 @@ export class GameScene extends Phaser.Scene {
     this.couponIcon = this.hud(this.add.image(7, 19, 'cupon', 0).setOrigin(0, 0));
     this.couponText = this.hud(this.add.bitmapText(21, 20, FONT, '0', 8));
     this.couponText.setTint(0xf6c431);
+    this.ticketIcon = this.hud(this.add.image(44, 18, 'ticket', 0).setOrigin(0, 0));
+    this.ticketText = this.hud(this.add.bitmapText(56, 20, FONT, '0', 8));
+    this.ticketText.setTint(0xf4f1e8);
     this.hud(this.add.image(7, 31, 'ranura').setOrigin(0, 0)).setAlpha(0.85);
     this.activeIcon = this.hud(this.add.image(9, 33, 'objeto-caja').setOrigin(0, 0)).setVisible(false);
     this.activeMarks = this.hud(this.add.graphics());
@@ -379,7 +394,15 @@ export class GameScene extends Phaser.Scene {
 
     if (this.world.intro) this.startBossIntro(this.world.intro.boss);
     this.syncView(0);
-    type TestHooks = { state: () => GameStateForTests; scene: GameScene; addModifier: (m: Modifier) => void; giveItem: (id: string) => void; giveActive: (id: string) => void };
+    type TestHooks = {
+      state: () => GameStateForTests;
+      scene: GameScene;
+      addModifier: (m: Modifier) => void;
+      giveItem: (id: string) => void;
+      giveActive: (id: string) => void;
+      placeChest: (x: number, y: number) => void;
+      dropTicket: (x: number, y: number) => void;
+    };
     (window as unknown as { __GE__: TestHooks }).__GE__ = {
       scene: this,
       state: () => this.testState(),
@@ -388,6 +411,9 @@ export class GameScene extends Phaser.Scene {
       // ...or any passive item (src/data/items.ts).
       giveItem: (id: string) => giveItem(this.world, id),
       giveActive: (id: string) => giveActive(this.world, id),
+      // ...or a chest, or a ticket, wherever.
+      placeChest: (x: number, y: number) => void placeChest(this.world, x, y),
+      dropTicket: (x: number, y: number) => dropTicket(this.world, x, y),
     };
   }
 
@@ -1202,6 +1228,15 @@ export class GameScene extends Phaser.Scene {
           if (ENEMIES[e.enemy]?.boss) this.bossDown(e);
           break;
         case 'pickup':
+          if (e.kind === 'ticket') {
+            // A ticket: a paper rustle and a stamp, its line over it and the counter in the HUD jumps.
+            this.sound2.play('cupon', { detune: -500 });
+            this.sound2.play('sello', { volume: 0.5 });
+            for (let i = 0; i < 6; i++) this.spark(e.x, e.y - 4, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 0);
+            this.floatText(e.x, e.y - 14, fontText(TICKET_LINE), 0xf4f1e8);
+            this.ticketPop = 0.3;
+            break;
+          }
           if (e.kind === 'corazon') {
             // A spare heart: a warm chime, red sparks and the heart in the HUD pumps.
             this.sound2.play('curar');
@@ -1255,6 +1290,33 @@ export class GameScene extends Phaser.Scene {
         }
         case 'doors':
           if (!e.shut) this.openShutters();
+          break;
+        case 'reward':
+          if (e.reward === 'chest') {
+            // The chest drops in with a thud and a cloud of dust.
+            this.chestDrop = true;
+            this.sound2.play('choque', { volume: 0.6 });
+            for (let i = 0; i < 6; i++) this.puff(e.x + this.fx.range(-12, 12), e.y - this.fx.range(0, 6), this.fx.range(0.5, 0.8));
+            this.floatText(e.x, e.y - 28, fontText(CHEST_NAME), 0xd6cdb2);
+            this.cameras.main.shake(90, 0.004, true);
+          } else this.sound2.play('desbloquear', { volume: 0.6 });
+          break;
+        case 'chest':
+          if (e.opened) {
+            // Opened: the slot swallows the ticket, the lid jumps up, gold sparks and a line over it.
+            this.sound2.play('sello');
+            this.sound2.play('desbloquear');
+            for (let i = 0; i < 16; i++) this.spark(e.x + this.fx.range(-8, 8), e.y - 14, -Math.PI / 2 + this.fx.range(-1.2, 1.2), this.fx.range(50, 130), 1);
+            this.floatText(e.x, e.y - 30, fontText(this.fx.pick(CHEST_OPEN_LINES)), 0xf6c431);
+            this.cameras.main.shake(80, 0.004, true);
+            this.ticketPop = 0.3;
+          } else {
+            // Locked: a flat buzz, the light blinks and the ticket counter shakes.
+            this.sound2.play('vacio');
+            this.sound2.play('apagar', { volume: 0.5 });
+            this.floatText(e.x, e.y - 30, fontText(this.fx.pick(CHEST_LOCKED_LINES)), 0xe0453b);
+            this.ticketPop = -0.4;
+          }
           break;
         case 'active': {
           // The active item goes off: a zap, a ring of sparks round the toaster and a line over it.
@@ -1797,6 +1859,7 @@ export class GameScene extends Phaser.Scene {
     this.drawWarnings();
     this.drawStatic();
     this.drawFrost(dt);
+    this.drawChests(dt);
     this.drawPickups();
 
     // Bullets.
@@ -1838,6 +1901,42 @@ export class GameScene extends Phaser.Scene {
     this.updateCamera(dt);
   }
 
+  /**
+   * Chests: shut (the light blinks red now and then) or open; they drop in from above when they
+   * turn up and the lid jumps when they open.
+   */
+  private drawChests(dt: number): void {
+    const alive = new Set<number>();
+    for (const pr of this.world.room.props) {
+      const c = pr.chest;
+      if (!c) continue;
+      alive.add(c.id);
+      let v = this.chestSprites.get(c.id);
+      if (!v) {
+        // Only one that just turned up drops in (one already there when the room was built does not).
+        v = { s: this.add.image(pr.x, pr.y, 'cofre', c.open ? 1 : 0).setOrigin(0.5, 1).setDepth(pr.y), open: c.open, pop: this.chestDrop ? 0.35 : 0 };
+        this.chestDrop = false;
+        this.chestSprites.set(c.id, v);
+      }
+      if (c.open && !v.open) {
+        v.open = true;
+        v.pop = 0.2;
+      }
+      v.pop = Math.max(0, v.pop - dt);
+      // Turning up it falls from 30 px; opening, it hops 2 px.
+      const lift = !v.open ? Math.round(v.pop * v.pop * 240) : Math.round(Math.sin((v.pop / 0.2) * Math.PI) * 2);
+      v.s.setFrame(c.open ? 1 : 0).setPosition(pr.x, pr.y - lift);
+      const blink = !c.open && Math.floor(this.time.now / 120 + c.id) % 14 === 0;
+      if (blink) v.s.setTint(0xffd0c8);
+      else v.s.clearTint();
+    }
+    for (const [id, v] of this.chestSprites) {
+      if (alive.has(id)) continue;
+      v.s.destroy();
+      this.chestSprites.delete(id);
+    }
+  }
+
   /** Coupons hop out when they drop, then lie there glinting now and then. */
   private drawPickups(): void {
     const alive = new Set<number>();
@@ -1855,7 +1954,10 @@ export class GameScene extends Phaser.Scene {
             shadow: this.add.image(k.x, k.y, shadowTexture(this, 8, 3)).setDepth(-50000),
             label: this.add.bitmapText(k.x, k.y - 26, FONT, fontText(shown.name), 8).setOrigin(0.5, 1).setTint(0xf6c431).setDepth(84000).setAlpha(0),
           };
-        } else v = { s: this.add.image(k.x, k.y, heart ? 'corazon-suelo' : 'cupon', 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
+        } else {
+          const key = heart ? 'corazon-suelo' : k.kind === 'ticket' ? 'ticket' : 'cupon';
+          v = { s: this.add.image(k.x, k.y, key, 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
+        }
         this.pickupSprites.set(k.id, v);
       }
       if (k.kind === 'arma' || k.kind === 'objeto' || k.kind === 'activo') {
@@ -1873,7 +1975,7 @@ export class GameScene extends Phaser.Scene {
       }
       const hop = k.age < PICKUP_DELAY ? Math.sin((Math.PI * k.age) / PICKUP_DELAY) * 12 : Math.max(0, Math.sin(this.time.now / 260 + k.id)) * 1.5;
       // Hearts glint more often, so they are noticed on the floor.
-      const glint = Math.floor(this.time.now / 90 + k.id * 7) % (k.kind === 'corazon' ? 6 : 16) === 0;
+      const glint = Math.floor(this.time.now / 90 + k.id * 7) % (k.kind === 'cupon' ? 16 : 6) === 0;
       v.s.setPosition(Math.round(k.x), Math.round(k.y - hop)).setFrame(glint ? 1 : 0).setDepth(k.y);
       v.shadow.setPosition(Math.round(k.x), Math.round(k.y));
     }
@@ -2146,6 +2248,13 @@ export class GameScene extends Phaser.Scene {
     this.couponPop = Math.max(0, this.couponPop - dt);
     this.couponIcon.setY(this.couponPop > 0.12 ? 17 : 19);
     this.couponText.setTint(this.couponPop > 0 ? 0xfff1a8 : 0xf6c431);
+    // Tickets: the counter jumps when one comes in or goes, and shakes red at a locked chest.
+    this.ticketText.setText(String(p.tickets));
+    const tp = this.ticketPop;
+    this.ticketPop = tp > 0 ? Math.max(0, tp - dt) : Math.min(0, tp + dt);
+    const shake = tp < 0 ? Math.round(Math.sin(this.time.now / 25) * 1.5) : 0;
+    this.ticketIcon.setPosition(44 + shake, tp > 0.15 ? 16 : 18);
+    this.ticketText.setX(56 + shake).setTint(tp < 0 ? 0xe0453b : tp > 0 ? 0xfff1a8 : 0xf4f1e8);
     const ws = p.weapon;
     if (this.gunIcon.texture.key !== ws.def.look.sprite) this.gunIcon.setTexture(ws.def.look.sprite);
     if (this.gun.texture.key !== ws.def.look.sprite) this.gun.setTexture(ws.def.look.sprite);

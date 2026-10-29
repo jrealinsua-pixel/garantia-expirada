@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T09:55:00+01:00",
+  "actualizado": "2026-10-29T10:50:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -42,29 +42,29 @@
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
       "estado": "en_curso",
-      "hechas": 5,
-      "total": 7
+      "hechas": 6,
+      "total": 8
     },
     {
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
       "estado": "pendiente",
       "hechas": 0,
-      "total": 6
+      "total": 8
     },
     {
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "pendiente",
       "hechas": 0,
-      "total": 5
+      "total": 7
     },
     {
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "pendiente",
       "hechas": 0,
-      "total": 4
+      "total": 5
     },
     {
       "id": "M9",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 259,
-    "tests_ok": 259,
+    "tests": 268,
+    "tests_ok": 268,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 9008
+    "lineas_codigo": 9279
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T10:50:00+01:00",
+      "hito": "M5",
+      "resumen": "Cofres y tickets: cada planta tiene dos salas de combate que sueltan un Ticket de Compra al limpiarlas y otras dos donde cae una Caja Fuerte de Devoluciones. Se abre andando contra ella con un ticket (se lo traga y suelta un objeto y cupones); sin ticket se queja: «Sin ticket no hay devolución». Contador de tickets en el HUD. Además, la nota del humano con pautas generales queda repartida en la hoja de ruta (inventario, interfaz limpia, dificultad media-alta, armas distintas, entornos).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T09:55:00+01:00",
       "hito": "M5",
@@ -319,6 +325,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/cofre-abierto.png",
+      "pie": "La Caja Fuerte de Devoluciones recién abierta con un ticket: la tapa arriba, el piloto en verde y la Pila Casi Agotada esperando delante; el contador de tickets (arriba a la izquierda) vuelve a 0"
+    },
+    {
+      "archivo": "capturas/ticket.png",
+      "pie": "Ticket recogido: «Ticket de compra · válido 14 días». Antes, contra el cofre cerrado y sin ticket: «Presente el ticket de compra»"
+    },
+    {
       "archivo": "capturas/sinergia.png",
       "pie": "«¡Sinergia! Bricolaje Avanzado» al coger la Broca del Ocho llevando el Manual en Chino: «Nadie ha leído las instrucciones, así que las balas improvisan.»"
     },
@@ -327,33 +341,25 @@
       "pie": "La Música de Espera en la Sala de Pruebas: la sala se enfría, las balas se quedan colgadas en el aire y sobre la tostadora sale «Su ataque es muy importante para nosotros.»"
     },
     {
-      "archivo": "capturas/activo-recogido.png",
-      "pie": "El Pegamento Exprés recién recogido: ya está en la ranura de arriba a la izquierda con sus dos pilas, y debajo de su nombre «Q: usar · necesita 2 pilas (una por sala limpia)»"
-    },
-    {
       "archivo": "capturas/objeto-recogido.png",
       "pie": "La Pila Casi Agotada recién recogida en Objetos Perdidos: su nombre y «Dura lo que un contrato temporal. Después, nada.»; la Grapadora espera en el otro pedestal y la pila ya sale abajo a la izquierda"
-    },
-    {
-      "archivo": "capturas/build.png",
-      "pie": "Una build de prueba con cinco objetos (Garantía, Regleta, Tarjeta, Resistencia y Manual): cuatro corazones, balas gordas que rebotan y persiguen, y la fila de objetos abajo a la izquierda"
     },
     {
       "archivo": "capturas/planta-superada.png",
       "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
     }
   ],
-  "proximo": "M5: cofres que se abren con tickets (y después la tienda con vendedor y precios en cupones).",
+  "proximo": "M5: la tienda con vendedor y precios en cupones (que venda también tickets); después, la ventana de descripción al recoger un objeto.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito.",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos.",
     "hitos": {
-      "M5": 3,
-      "M6": 8,
-      "M7": 10,
-      "M8": 12,
+      "M5": 2,
+      "M6": 10,
+      "M7": 13,
+      "M8": 13,
       "M9": 10,
       "M10": 24,
       "M11": 13,
@@ -367,8 +373,8 @@
       "sesiones": 12
     },
     "total": {
-      "sesiones": 143,
-      "con_margen": 185
+      "sesiones": 147,
+      "con_margen": 191
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   }

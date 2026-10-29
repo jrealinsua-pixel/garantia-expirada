@@ -178,6 +178,9 @@ export class Bot {
     // A weapon or an item on a pedestal: go and get it (unless it got stuck going for something).
     const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => k.kind === 'arma' || k.kind === 'objeto');
     if (arm) return steer(w, { x: arm.x, y: arm.y }, r, blocked);
+    // A shut chest and a ticket to open it: walk into its front.
+    const chest = p.tickets > 0 && this.ignorePickups <= 0 ? w.room.props.find((pr) => pr.chest && !pr.chest.open) : undefined;
+    if (chest) return steer(w, { x: chest.x, y: chest.y + 4 }, r, blocked);
     // The boss has fallen: down the goods lift.
     if (w.lift) return steer(w, { x: w.lift.x, y: w.lift.y }, r, blocked);
     const dir = nextDoor(w, w.floor?.layout.boss);

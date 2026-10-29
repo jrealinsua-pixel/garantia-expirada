@@ -11,7 +11,8 @@ import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
-import { buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type Room, type RoomDoor } from './room.ts';
+import { BACK_WALL_ROWS, buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type PropInstance, type Room, type RoomDoor } from './room.ts';
+import { PROPS } from '../data/props.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
 export const DT = 1 / 60;
@@ -86,6 +87,8 @@ export interface Player {
   walked: number;
   /** Discount coupons picked up (the currency). */
   coupons: number;
+  /** Purchase tickets picked up (the keys): each opens one chest. */
+  tickets: number;
   /** Ids of the passive items it carries (src/data/items.ts), in the order they were picked up. */
   items: string[];
   /** The active item it carries (one at most) and the batteries it has stored. */
@@ -96,7 +99,7 @@ export interface Player {
  * A discount coupon (currency), a spare heart (gives back `value` life; left alone at full
  * life), a weapon or a passive item (these two wait on a pedestal).
  */
-export type PickupKind = 'cupon' | 'corazon' | 'arma' | 'objeto' | 'activo';
+export type PickupKind = 'cupon' | 'corazon' | 'ticket' | 'arma' | 'objeto' | 'activo';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -342,7 +345,7 @@ export type SimEvent =
   | { type: 'bossDying'; boss: number; x: number; y: number; duration: number; enemy: string }
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
-  /** Picked something up; `total` is the coupons after it, or the life for a heart. */
+  /** Picked something up; `total` is the coupons after it, the life for a heart, the tickets for a ticket. */
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number; weapon?: string; item?: string }
   /** The player took weapon `weapon` in hand (`slot` of `count` it carries); `found` when it was just picked up. */
   | { type: 'swap'; weapon: string; slot: number; count: number; found: boolean }
@@ -352,6 +355,10 @@ export type SimEvent =
   /** The toaster stepped on the lift: the floor is done (see World.won). */
   | { type: 'floorDone'; x: number; y: number; seconds: number; kills: number; coupons: number }
   | { type: 'restock' }
+  /** A cleared room left its reward: a ticket popped out, or a chest turned up. */
+  | { type: 'reward'; reward: RoomReward; x: number; y: number }
+  /** Walked into a shut chest: opened with a ticket (`item` is what came out), or locked (no ticket). */
+  | { type: 'chest'; x: number; y: number; opened: boolean; tickets: number; item?: string }
   /** The active item was used (`effect` is its effect's type). */
   | { type: 'active'; item: string; effect: string; x: number; y: number }
   /** Q with an active item that cannot be used now (not charged, or nothing to heal). */
@@ -385,6 +392,8 @@ export interface World {
   enemies: Enemy[];
   emitters: Emitter[];
   pickups: Pickup[];
+  /** Loot decks of a world without a floor (made the first time a chest opens). */
+  looseDecks?: { weapons: string[]; items: string[]; actives: string[] };
   /** Frost thrown by a boss: in the air or lying on the floor. */
   frost: Frost[];
   events: SimEvent[];
@@ -458,7 +467,19 @@ export interface FloorRoomState {
   cleared: boolean;
   /** Coupons left lying on its floor when the player walked out. */
   pickups: Pickup[];
+  /** What a combat room leaves when it is cleared, besides its coupons (decided with the floor). */
+  reward?: RoomReward;
 }
+
+/** A ticket (a key) or a chest that a ticket opens. */
+export type RoomReward = 'ticket' | 'chest';
+/** Combat rooms of each floor that leave a ticket, and a chest, when cleared. */
+export const FLOOR_TICKETS = 2;
+export const FLOOR_CHESTS = 2;
+/** Coupons that spill out of a chest with its item. */
+export const CHEST_COUPONS = 3;
+/** How close the toaster's feet have to get to a chest to open it (px). */
+const CHEST_REACH = 3;
 
 export interface FloorRun {
   layout: Floor;
@@ -543,6 +564,7 @@ export function createWorld(opts: WorldOptions): World {
       slot: 0,
       walked: 0,
       coupons: 0,
+      tickets: 0,
       items: [],
       active: null,
     },
@@ -608,6 +630,12 @@ function planFloor(seed: string): FloorRun {
   const rooms = layout.rooms.map((fr): FloorRoomState => {
     const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat', pickups: [] };
+  });
+  // Rewards: a seeded pick of combat rooms (the first ones get the tickets, the next ones the chests).
+  const combat = new Rng(`premios:${seed}`).shuffle(layout.rooms.filter((fr) => fr.kind === 'combat').map((fr) => fr.id));
+  combat.forEach((id, i) => {
+    if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
+    else if (i < FLOOR_TICKETS + FLOOR_CHESTS) rooms[id]!.reward = 'chest';
   });
   return { layout, current: layout.start, rooms, ...lootDecks(seed) };
 }
@@ -1705,8 +1733,9 @@ function updatePickups(w: World): void {
     const wanted = k.kind !== 'corazon' || p.hp < p.def.maxHp;
     if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
       if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);
+      else if (k.kind === 'ticket') p.tickets += k.value;
       else p.coupons += k.value;
-      w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: k.kind === 'corazon' ? p.hp : p.coupons });
+      w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: k.kind === 'corazon' ? p.hp : k.kind === 'ticket' ? p.tickets : p.coupons });
       continue;
     }
     if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
@@ -1774,8 +1803,118 @@ function updateDoors(w: World): void {
     w.doorsShut = false;
     w.events.push({ type: 'doors', shut: false });
     chargeActive(w);
-    if (w.floor) w.floor.rooms[w.floor.current]!.cleared = true;
+    if (w.floor) {
+      const st = w.floor.rooms[w.floor.current]!;
+      st.cleared = true;
+      if (st.reward === 'ticket') dropTicket(w, ...roomMiddle(w));
+      else if (st.reward === 'chest') placeChest(w, ...roomMiddle(w));
+    }
     setDoorTiles(w, true);
+  }
+}
+
+/** The middle of the room's floor (below the back wall), where rewards turn up. */
+function roomMiddle(w: World): [number, number] {
+  const r = w.room;
+  return [r.w / 2, (r.h + BACK_WALL_ROWS * TILE) / 2];
+}
+
+/** A purchase ticket pops out at (x, y) (or the nearest free floor). */
+export function dropTicket(w: World, x: number, y: number): void {
+  const at = freeSpot(w, x, y, PICKUP_RADIUS);
+  const a = w.rng.range(0, Math.PI * 2);
+  w.pickups.push({ id: w.nextId++, kind: 'ticket', value: 1, x: at.x, y: at.y, vx: Math.cos(a) * 40, vy: Math.sin(a) * 40, age: 0 });
+  w.events.push({ type: 'reward', reward: 'ticket', x: at.x, y: at.y });
+}
+
+/**
+ * A shut chest turns up as close to (x, y) as it fits: on clear floor, off the toaster and off
+ * anything lying on the floor. Returns its prop.
+ */
+export function placeChest(w: World, x: number, y: number): PropInstance {
+  const def = PROPS.cofre!;
+  const p = w.player;
+  const fits = (cx: number, cy: number): boolean => {
+    const box = { x: cx + def.box.x, y: cy + def.box.y, w: def.box.w, h: def.box.h };
+    const pad = { x: box.x - 6, y: box.y - 6, w: box.w + 12, h: box.h + 12 };
+    if (overlaps(pad, playerFeetBox(p, p.def.footRadius + 4))) return false;
+    if (w.pickups.some((k) => pointInRect(k.x, k.y, pad))) return false;
+    return !solidsNear(w, pad).some((s) => overlaps(pad, s));
+  };
+  // Snapped to a tile, like the props of the templates (the bot's paths go round whole tiles).
+  const c0 = Math.floor(x / TILE);
+  const r0 = Math.floor(y / TILE);
+  let at = { x: c0 * TILE + TILE / 2, y: (r0 + 1) * TILE - 2 };
+  search: for (let d = 0; d <= 5; d++) {
+    for (let dr = -d; dr <= d; dr++) {
+      for (let dc = -d; dc <= d; dc++) {
+        if (Math.max(Math.abs(dr), Math.abs(dc)) !== d) continue;
+        const cx = (c0 + dc) * TILE + TILE / 2;
+        const cy = (r0 + dr + 1) * TILE - 2;
+        if (fits(cx, cy)) {
+          at = { x: cx, y: cy };
+          break search;
+        }
+      }
+    }
+  }
+  const prop: PropInstance = { def, x: at.x, y: at.y, box: { x: at.x + def.box.x, y: at.y + def.box.y, w: def.box.w, h: def.box.h }, chest: { id: w.nextId++, open: false, nag: 0 } };
+  w.room.props.push(prop);
+  w.events.push({ type: 'reward', reward: 'chest', x: at.x, y: at.y });
+  return prop;
+}
+
+/** The decks loot comes from: the floor's, or (a single room) the world's own. */
+function decksOf(w: World): { weapons: string[]; items: string[]; actives: string[] } {
+  if (w.floor) return w.floor;
+  w.looseDecks ??= lootDecks(w.seed);
+  return w.looseDecks;
+}
+
+/**
+ * Walking into a shut chest with a ticket opens it: the ticket is spent, the next passive item
+ * (else the next active item, else the next weapon) comes out in front of it with a few
+ * coupons. Without a ticket it only complains (now and then).
+ */
+function updateChests(w: World): void {
+  const p = w.player;
+  for (const pr of w.room.props) {
+    const c = pr.chest;
+    if (!c || c.open) continue;
+    c.nag = Math.max(0, c.nag - DT);
+    const reach = { x: pr.box.x - CHEST_REACH, y: pr.box.y - CHEST_REACH, w: pr.box.w + CHEST_REACH * 2, h: pr.box.h + CHEST_REACH * 2 };
+    if (w.over || isRolling(p) || !overlaps(reach, playerFeetBox(p, p.def.footRadius))) continue;
+    if (p.tickets <= 0) {
+      if (c.nag === 0) {
+        w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: false, tickets: 0 });
+        c.nag = 2;
+      }
+      continue;
+    }
+    p.tickets--;
+    c.open = true;
+    const decks = decksOf(w);
+    // Out in front (below) of the chest, or wherever there is room.
+    const spot = freeSpot(w, pr.x, pr.y + 32, 8);
+    const base = { x: spot.x, y: spot.y, vx: 0, vy: 0, age: 0, value: 1 };
+    let item: string | undefined;
+    if (decks.items.length > 0) {
+      item = decks.items.shift()!;
+      w.pickups.push({ id: w.nextId++, kind: 'objeto', item, ...base });
+    } else if (decks.actives.length > 0) {
+      item = decks.actives.shift()!;
+      w.pickups.push({ id: w.nextId++, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges, ...base });
+    } else if (decks.weapons.length > 0) {
+      item = decks.weapons.shift()!;
+      w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: item, ...base });
+    }
+    const out = freeSpot(w, pr.x, pr.y + 6, PICKUP_RADIUS);
+    for (let i = 0; i < CHEST_COUPONS + (item ? 0 : 3); i++) {
+      const a = Math.PI / 2 + w.rng.range(-1.2, 1.2);
+      const sp = w.rng.range(50, 100);
+      w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: out.x, y: out.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+    }
+    w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: true, tickets: p.tickets, item });
   }
 }
 
@@ -1815,6 +1954,7 @@ export function step(w: World, input: Input): void {
   updateDummies(w);
   if (!held) updateEnemies(w);
   updatePickups(w);
+  updateChests(w);
   updateRestock(w);
   updateDoors(w);
   updateLift(w);
@@ -1857,7 +1997,7 @@ export function checkInvariants(w: World): string[] {
 /** Compact fingerprint of the state, to check determinism. */
 export function worldHash(w: World): string {
   const p = w.player;
-  const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, w.pickups.length, p.hp];
+  const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, p.tickets, w.pickups.length, p.hp];
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));

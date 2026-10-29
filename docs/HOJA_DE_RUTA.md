@@ -6,7 +6,7 @@ ampliar. Cuando se acabe la lista, Claude escribe hitos nuevos al final.
 
 Estados: `- [ ]` pendiente · `- [x]` hecha.
 
-## Estimación de tiempo (revisada el 2026-10-29)
+## Estimación de tiempo (revisada el 2026-10-29, 10:45)
 
 Cuento en **sesiones de trabajo** (cada una cierra una tarea, a veces dos). Ritmo medido: entre
 el 28 y el 29 de octubre se cerraron 47 tareas (M0–M4 y medio M5) en unas 33 sesiones. Las
@@ -16,10 +16,10 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 
 | Hito | Sesiones | Por qué |
 | --- | ---: | --- |
-| M5 · Armas, objetos y sinergias (lo que queda) | 4 | Sinergias, ventana de descripción; la tienda y los cofres son dos tareas |
-| M6 · Partida completa | 8 | Menús, pantallas, guardado y dos pistas de música |
-| M7 · Pulido | 10 | Equilibrio y animaciones de todos los enemigos llevan varias vueltas |
-| M8 · Planta 2: Informática | 12 | Casillas 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
+| M5 · Armas, objetos y sinergias (lo que queda) | 2 | La tienda y la ventana de descripción |
+| M6 · Partida completa | 10 | Menús, pantallas, guardado, dos pistas de música, inventario e interfaz limpia |
+| M7 · Pulido | 13 | Equilibrio (dificultad media-alta), armas y objetos, y animaciones de todos los enemigos |
+| M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
 | M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
@@ -27,7 +27,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
 | M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
 | M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
-| **Total** | **143** | **~185 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+| **Total** | **147** | **~191 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
 
 En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
 medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
@@ -125,7 +125,8 @@ distinguen claramente en las capturas.
 - [x] 10 objetos pasivos, con nombre y descripción según la guía de humor.
 - [x] 3 objetos activos (tecla Q), con pilas como cargas, con nombre y descripción según la guía de humor.
 - [x] Al menos 4 sinergias con texto propio.
-- [ ] Cofres (se abren con tickets), tienda con vendedor y precios en cupones.
+- [x] Cofres que se abren con tickets (la Caja Fuerte de Devoluciones; los tickets salen al limpiar salas).
+- [ ] Tienda con vendedor y precios en cupones (también vende tickets).
 - [ ] Ventana de descripción al recoger un objeto.
 
 **Criterios de aceptación:** cada objeto tiene un test de su efecto; las partidas del bot con
@@ -134,6 +135,11 @@ semillas distintas acaban con builds distintas.
 ## M6 · Partida completa (primera versión jugable)
 
 - [ ] Menú principal, pausa, opciones (volumen, pantalla completa, controles).
+- [ ] Inventario en la pausa (nota del humano): los objetos que llevas con su descripción, el
+  objeto activo, las sinergias encendidas y las estadísticas actuales del personaje y del arma
+  (daño, cadencia, alcance, velocidad), con lo que suma o resta cada objeto.
+- [ ] Interfaz limpia (nota del humano): revisar el HUD entero para que no se pise nada y se lea
+  de un vistazo; los textos flotantes no se amontonan.
 - [ ] Parte de baja al morir (causa, vida útil, recomendación del fabricante).
 - [ ] Pantalla de victoria.
 - [ ] Guardado local de desbloqueos y estadísticas.
@@ -145,7 +151,12 @@ semillas distintas acaban con builds distintas.
 
 ## M7 · Pulido de la primera versión
 
-- [ ] Equilibrio con datos del bot: tiempo por sala, daño recibido, tasa de victoria.
+- [ ] Equilibrio con datos del bot: tiempo por sala, daño recibido, tasa de victoria. Objetivo
+  (nota del humano): dificultad media-alta; la planta 1 se gana con práctica, no a la primera.
+- [ ] Armas con diferencias reales (nota del humano): tabla de daño por segundo, alcance y
+  cadencia medida por el bot; cada arma gana claramente en algo y pierde en otra cosa.
+- [ ] Repaso de los objetos pasivos (nota del humano): la mayoría da y quita (como ya hacen),
+  algunos solo dan; ninguno es inútil ni obligatorio.
 - [ ] Rendimiento: 60 fps estables con 300 balas en pantalla.
 - [ ] Accesibilidad: remapeo de controles, opción de reducir temblores y destellos, tamaño de texto.
 - [ ] Animaciones completas de todos los enemigos.
@@ -154,6 +165,9 @@ semillas distintas acaban con builds distintas.
 ## M8 · Planta 2: Informática
 
 - [ ] Juego de casillas y color propio.
+- [ ] Entornos bien diseñados sin perder la generación procedural (nota del humano): plantillas
+  hechas a mano con variantes (obstáculos, decorado y enemigos que cambian con la semilla),
+  cada sala con una idea de combate propia; repasar también las de la planta 1.
 - [ ] 4 enemigos nuevos (impresora que se atasca, router, cargador falso, ratón inalámbrico sin pilas…).
 - [ ] Jefe: El Router del Wifi.
 - [ ] 10 objetos nuevos.
@@ -171,7 +185,9 @@ semillas distintas acaban con builds distintas.
 - [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de Recursos Inhumanos) y 10 objetos.
 
 **Criterios de aceptación:** se puede jugar de la planta 1 a la 4 seguidas; cada planta se
-distingue a la primera en una captura; el bot llega a la planta 4 en alguna partida.
+distingue a la primera en una captura; el bot llega a la planta 4 en alguna partida. Pasar de la
+planta 3 tiene que ser difícil de verdad (nota del humano): el bot con daño la supera menos de
+una vez de cada cuatro, y la planta 3 es donde más partidas acaban.
 
 ## M11 · Planta 5: Atención al Cliente
 

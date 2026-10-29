@@ -1,6 +1,7 @@
 // Props, bullets, effects and HUD pieces. Props and bullets are ports of tools/referencia/build2.py.
 import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
-import { BLUE, BROWN, BURNT, CARD, CREAM, DSTEEL, FRT, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, STEEL, TOASTC, WHITE, YEL, box, ellipse, hand, outline, ramp, type Ramp } from '../../src/art/lib.ts';
+import { BLUE, BROWN, BURNT, CARD, CREAM, DSTEEL, FRT, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, RUSTR, STEEL, TOASTC, WHITE, YEL } from '../../src/art/lib.ts';
+import { box, cube, ellipse, hand, outline, ramp, type Ramp } from '../../src/art/lib.ts';
 
 export function makeCaja(): Canvas {
   const cv = new Canvas(24, 24);
@@ -641,4 +642,71 @@ export function makeSteam(): Canvas {
   const cols: Record<string, RGBA> = { '1': GLOW, '2': YEL[0]!, '3': WHITE };
   pat.forEach((row, j) => [...row].forEach((ch, i) => ch !== '.' && cv.set(i, j, cols[ch]!)));
   return cv;
+}
+
+// ---------- Chests and tickets (M5) ----------
+
+/**
+ * Caja Fuerte de Devoluciones, 2 frames of 26x24: shut (a ticket slot with a red light, the
+ * "returns" label and a hazard strip) and open (the lid up, gold light inside, the light green).
+ */
+export function makeChest(): Canvas {
+  const sheet = new Canvas(52, 24);
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(26, 24);
+    const open = k === 1;
+    if (open) {
+      // The lid stands up at the back.
+      box(cv, 6, 0, 18, 6, DSTEEL);
+      cv.rect(7, 2, 16, 1, DSTEEL[2]!);
+    }
+    cube(cv, 1, 6, 24, 17, 4, 4, DSTEEL, GLOVE, STEEL);
+    if (open) {
+      // Inside: dark, with the gold of what is waiting in it.
+      for (let j = 0; j < 4; j++) {
+        const off = Math.floor((4 - j) / 2);
+        cv.rect(1 + off + 1, 6 + j, 22 - off, 1, j < 2 ? GLOVE[3]! : GLOVE[2]!);
+      }
+      for (const [x, y] of [[12, 8], [13, 8], [14, 9], [16, 7], [10, 9], [18, 9]] as const) cv.set(x, y, YEL[k === 1 ? 1 : 0]!);
+      cv.set(13, 7, YEL[0]!);
+    }
+    // Ticket slot with a stub of paper and the light beside it.
+    cv.rect(9, 12, 8, 2, K);
+    cv.rect(10, 12, 6, 1, DSTEEL[3]!);
+    cv.set(19, 12, open ? GREEN : RED[1]!);
+    cv.set(19, 13, open ? GREEN : RED[2]!);
+    cv.set(20, 12, open ? WHITE : RED[0]!);
+    // The "returns" label: cream with two lines of small print and a red stripe.
+    cv.rect(8, 15, 10, 4, CREAM[0]!);
+    cv.rect(9, 16, 6, 1, CREAM[2]!);
+    cv.rect(9, 17, 8, 1, RED[1]!);
+    // Hazard strip along the foot.
+    for (let x = 5; x < 24; x++) cv.set(x, 20, (x >> 1) % 2 === 0 ? YEL[1]! : K);
+    // Rivets and a dent.
+    for (const [x, y] of [[6, 11], [23, 11], [6, 18]] as const) cv.set(x, y, STEEL[1]!);
+    cv.set(21, 16, DSTEEL[2]!);
+    cv.set(2, 14, RUSTR[1]!);
+    sheet.blit(outline(cv), k * 26, 0);
+  }
+  return sheet;
+}
+
+/** A purchase ticket lying on the floor, 2 frames of 9x11 (the second glints). Also the HUD icon. */
+export function makeTicket(): Canvas {
+  const sheet = new Canvas(18, 11);
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(9, 11);
+    cv.rect(1, 1, 7, 9, WHITE);
+    cv.rect(1, 1, 1, 9, CREAM[1]!);
+    cv.rect(2, 2, 5, 1, K);
+    cv.rect(2, 4, 4, 1, DSTEEL[0]!);
+    cv.rect(2, 6, 5, 1, DSTEEL[0]!);
+    cv.rect(2, 8, 5, 1, RED[1]!);
+    // Torn zigzag foot.
+    cv.put(2, 9, [0, 0, 0, 0]);
+    cv.put(5, 9, [0, 0, 0, 0]);
+    if (k === 1) for (const [x, y] of [[6, 1], [7, 2], [7, 3]] as const) cv.set(x, y, YEL[0]!);
+    sheet.blit(outline(cv), k * 9, 0);
+  }
+  return sheet;
 }

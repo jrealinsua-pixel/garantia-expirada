@@ -186,3 +186,19 @@ export const NO_CHARGE_LINE = 'Sin batería';
 
 /** Over the toaster, and as the heading of the synergy box, when a synergy switches on. */
 export const SYNERGY_LINE = '¡Sinergia!';
+
+/** Tickets and chests (M5). */
+export const TICKET_LINE = 'Ticket de compra · válido 14 días';
+export const CHEST_NAME = 'Caja Fuerte de Devoluciones';
+export const CHEST_LOCKED_LINES: readonly string[] = [
+  'Sin ticket no hay devolución',
+  'Presente el ticket de compra',
+  'Sin justificante no consta la compra',
+  'Vuelva con el ticket. Y con paciencia',
+];
+export const CHEST_OPEN_LINES: readonly string[] = [
+  'Devolución aceptada',
+  'Reembolso en especie',
+  'Abierto por el cliente: no admite cambios',
+  'Ticket sellado y archivado',
+];

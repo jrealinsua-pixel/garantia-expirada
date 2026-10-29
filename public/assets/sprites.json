@@ -257,6 +257,18 @@
     "frameH": 12,
     "frames": 2
   },
+  "cofre": {
+    "file": "cofre.png",
+    "frameW": 26,
+    "frameH": 24,
+    "frames": 2
+  },
+  "ticket": {
+    "file": "ticket.png",
+    "frameW": 9,
+    "frameH": 11,
+    "frames": 2
+  },
   "objeto-pila": {
     "file": "objeto-pila.png",
     "frameW": 16,

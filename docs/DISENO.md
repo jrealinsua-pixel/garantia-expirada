@@ -123,7 +123,11 @@ escena al empezar la partida y su propio final (hito M13).
 ### Economía
 
 - **Cupones descuento** como moneda: caen de los enemigos y se gastan en la tienda.
-- **Tickets** como llaves: abren cofres y puertas cerradas.
+- **Tickets** como llaves: abren cofres y puertas cerradas. Cada planta tiene 2 salas de
+  combate que sueltan un ticket al limpiarlas y otras 2 donde cae una **Caja Fuerte de
+  Devoluciones** (el cofre). Se abre andando contra ella con un ticket: se lo traga y suelta el
+  siguiente objeto pasivo (o activo, o arma) y unos cupones. Sin ticket, se queja («Sin ticket
+  no hay devolución»). La tienda venderá más tickets.
 - **Pilas** como cargas del objeto activo.
 
 ### Armas y objetos
@@ -156,9 +160,9 @@ el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando
 | Música de Espera | Todos nuestros enemigos están ocupados. Su ataque será atendido en breve. | 3 | Enemigos, balas y ataques en espera 3,5 s (siguen recibiendo daño) |
 | Pegamento Exprés | Pega cualquier cosa a cualquier cosa. Sobre todo los dedos. | 2 | Devuelve un corazón (con la vida llena no se gasta) |
 
-Hasta que haya cofres y tienda, la sala del tesoro tiene tres pedestales (un arma, un objeto
-pasivo y uno activo) y la secreta uno (lo siguiente que quede). El Ticket de Compra y la Caja
-quedan para las llaves y los cofres.
+La sala del tesoro tiene tres pedestales (un arma, un objeto pasivo y uno activo) y la secreta
+uno (lo siguiente que quede). Los cofres sacan de las mismas barajas, así que una planta no
+repite objeto.
 - **Sinergias:** ciertas combinaciones activan un efecto extra y un texto especial, en
   `src/data/synergies.ts`. Las que piden un arma solo cambian esa arma, y cuentan mientras esté
   en el arsenal (no hace falta llevarla en la mano). Al activarse sale «¡Sinergia!», su nombre y
@@ -184,6 +188,17 @@ quedan para las llaves y los cofres.
   conjunto de botín y salas raras.
 - Un pequeño **centro**: el mostrador de Devoluciones del vertedero, con PNJs (el Servicio
   Técnico al teléfono, un vendedor ambulante de piezas) que cambian con el progreso.
+
+## Pautas del humano (2026-10-29)
+
+- Objetos pasivos que dan y quitan (más daño y más cadencia pero menos velocidad, por ejemplo);
+  no todos: algunos pueden ser solo buenos.
+- Un menú para ver los objetos que llevas y tus estadísticas. Interfaz más o menos limpia.
+- Juego equilibrado, con armas que se diferencian de verdad en daño y velocidad.
+- Dificultad media-alta: pasar de la planta 3 tiene que ser difícil de verdad.
+- Entornos bien diseñados, manteniendo la generación procedural.
+
+Están repartidas como tareas en `docs/HOJA_DE_RUTA.md` (M6, M7, M8 y M10).
 
 ## Contenido mínimo de la primera versión jugable (fin del hito M6)
 

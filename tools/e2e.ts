@@ -564,6 +564,40 @@ try {
   await page.waitForTimeout(350);
   await shot('22-sinergia.png');
   console.log('Sinergias: Bricolaje Avanzado al juntar Manual y Broca.');
+
+  // M5: chests. One drops in the test room; without a ticket it complains; with the ticket that
+  // pops out next to it, it opens and leaves an item and coupons.
+  await page.goto(`${url}?semilla=e2e-cofres&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = [];
+    g.placeChest(w.player.x + 70, w.player.y - 30); })()`);
+  await page.waitForTimeout(150);
+  await shot('23a-cofre-cayendo.png');
+  await page.waitForTimeout(600);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.props.find((p) => p.chest); w.player.x = c.x; w.player.y = c.y + 30;
+    window.__GE__.dropTicket(c.x + 40, c.y + 10); })()`);
+  await page.keyboard.down('w');
+  await page.waitForTimeout(450);
+  await page.keyboard.up('w');
+  await shot('23b-cofre-sin-ticket.png');
+  if (await page.evaluate<boolean>('window.__GE__.scene.world.room.props.find((p) => p.chest).chest.open')) throw new Error('El cofre se abre sin ticket');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.pickups.find((p) => p.kind === 'ticket'); w.player.x = k.x - 20; w.player.y = k.y; })()`);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.tickets === 1', undefined, { timeout: 3000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(200);
+  await shot('23c-ticket-recogido.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.props.find((p) => p.chest); w.player.x = c.x; w.player.y = c.y + 22; })()`);
+  await page.keyboard.down('w');
+  await page.waitForFunction('window.__GE__.scene.world.room.props.find((p) => p.chest).chest.open', undefined, { timeout: 3000 });
+  await page.keyboard.up('w');
+  await page.keyboard.down('a');
+  await page.waitForTimeout(250);
+  await page.keyboard.up('a');
+  await page.waitForTimeout(300);
+  await shot('23d-cofre-abierto.png');
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.pickups.some((k) => k.kind === 'objeto')"))) throw new Error('El cofre no suelta ningún objeto');
+  console.log('Cofres: cerrado sin ticket, abierto con ticket y con su objeto.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);
