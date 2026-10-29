@@ -257,7 +257,7 @@ export interface BossReport {
 }
 
 /** The bot fights the floor boss in its room (entrance skipped), with damage, up to `maxSeconds`. */
-export function runBoss(fights: number, maxSeconds = 240): { report: BossReport; errors: string[] } {
+export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level = 1): { report: BossReport; errors: string[] } {
   const errors: string[] = [];
   const won: number[] = [];
   let hurts = 0;
@@ -268,7 +268,7 @@ export function runBoss(fights: number, maxSeconds = 240): { report: BossReport;
   for (let i = 0; i < fights; i++) {
     const seed = `jefe-${i}`;
     let phase = 0;
-    const w = createWorld({ seed, room: 'jefe' });
+    const w = createWorld({ seed, room, level });
     w.intro = null;
     const bot = new Bot(seed);
     try {

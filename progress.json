@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T22:41:00+01:00",
+  "actualizado": "2026-10-29T22:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -64,7 +64,7 @@
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
       "hechas": 3,
-      "total": 4
+      "total": 3
     },
     {
       "id": "M9",
@@ -122,14 +122,20 @@
     "jefes": 1,
     "armas": 3,
     "objetos": 23,
-    "plantillas_sala": 33,
-    "tests": 367,
-    "tests_ok": 367,
+    "plantillas_sala": 37,
+    "tests": 368,
+    "tests_ok": 368,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 13618
+    "lineas_codigo": 13704
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T22:45:00+01:00",
+      "hito": "M8",
+      "resumen": "Jefe (1): el Router del Wifi diseñado (fases, repetidores y reinicio) y las salas especiales propias de Informática: tesoro, tienda, secreta y la Sala de Redes del jefe.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T22:41:00+01:00",
       "hito": "M8",
@@ -545,6 +551,10 @@
       "pie": "El Cargador Falso: dos cargadores tirados por el taller, hasta que te acercas"
     },
     {
+      "archivo": "capturas/tienda-informatica.png",
+      "pie": "La tienda de la planta 2, «Accesorios Oficiales (Funda No Incluida)»: la planta 2 ya tiene tesoro, tienda, sala secreta y sala del jefe propios"
+    },
+    {
       "archivo": "capturas/impresora.png",
       "pie": "La Impresora que se Atasca en la planta 2: cada pocas ráfagas de facturas se queda atascada y temblando («Atasco de papel»)"
     },
@@ -553,15 +563,11 @@
       "pie": "La Copia de Seguridad: a medio corazón y con una bala encima, la tostadora vuelve con un corazón («Restaurando copia del martes») y la copia desaparece del HUD"
     },
     {
-      "archivo": "capturas/critico.png",
-      "pie": "El Ratón Gaming RGB de la planta 2: una bala de cada cinco hace el doble, con su «Doble clic» sobre el blanco"
-    },
-    {
       "archivo": "capturas/cadena.png",
       "pie": "Plantas encadenadas: tras ganar la planta 1, «R» lleva a la planta 2 con la misma tostadora (aquí, con sus 37 cupones), al Rellano de Informática"
     }
   ],
-  "proximo": "M8: enemigos (3): el Ratón Inalámbrico sin Pilas; luego el cuarto enemigo y el jefe (el Router del Wifi, que tiene cogido otra sesión).",
+  "proximo": "M8: enemigos (3): el Ratón Inalámbrico sin Pilas; luego el cuarto enemigo y el jefe (2): el Router del Wifi, que ya tiene diseño en docs/DISENO.md y sala propia (jefe-informatica).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

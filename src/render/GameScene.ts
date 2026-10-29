@@ -384,7 +384,7 @@ export class GameScene extends Phaser.Scene {
       this.runRecorded = false;
       this.runBefore = { seconds: 0, kills: 0 };
     }
-    // ?planta=2: the same rooms with the look of floor 2 (Informática) while it has no rooms of its own.
+    // ?planta=2: floor 2 (Informática): its look, its rooms and its loot.
     const level = Math.max(1, Math.min(2, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
     if (carried) {
       // Walked through a door: same run, next room. The controls hint was read already.

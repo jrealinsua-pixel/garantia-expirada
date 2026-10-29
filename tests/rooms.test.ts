@@ -206,11 +206,32 @@ test('variantes: una sala reflejada sigue teniendo las puertas en su sitio y des
   }
 });
 
-test('plantillas de la planta 2: las de combate son suyas, con nombre propio; las especiales caen en las de la planta 1', () => {
+test('plantillas de la planta 2: todas son suyas, con nombre propio, y la planta 1 no las usa', () => {
   const two = templatesOf('combat', 2);
   assert.ok(two.length >= 12, `${two.length} salas de combate en la planta 2`);
-  for (const t of two) assert.equal(t.level, 2, t.id);
-  for (const t of templatesOf('combat')) assert.equal(t.level ?? 1, 1, t.id);
-  for (const k of ['treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 2), templatesOf(k), k);
-  assert.ok(templatesOf('start', 2).every((t) => t.level === 2), 'la planta 2 tiene su propia entrada');
+  for (const k of ['start', 'combat', 'treasure', 'shop', 'secret', 'boss'] as const) {
+    assert.ok(templatesOf(k, 2).length >= 1, k);
+    for (const t of templatesOf(k, 2)) assert.equal(t.level, 2, `${k}: ${t.id}`);
+    for (const t of templatesOf(k)) assert.equal(t.level ?? 1, 1, `${k}: ${t.id}`);
+  }
+});
+
+test('salas especiales de la planta 2: lo mismo que las del almacén donde importa', () => {
+  // Same pedestals, shelves, shopkeeper and boss as floor 1's (the shop, treasure and boss code
+  // count on them), the same size of room and nothing to fight in them.
+  const count = (t: RoomTemplate, ch: string): number => [...t.rows.join('')].filter((x) => x === ch).length;
+  for (const k of ['treasure', 'shop', 'secret', 'boss'] as const) {
+    const [one] = templatesOf(k);
+    for (const t of templatesOf(k, 2)) {
+      for (const ch of ['*', 's', '$', 'J', 'e', 'P']) assert.equal(count(t, ch), count(one!, ch), `${t.id}: «${ch}»`);
+      assert.deepEqual([t.rows[0]!.length, t.rows.length], [one!.rows[0]!.length, one!.rows.length], `${t.id}: tamaño`);
+    }
+  }
+  // A generated floor 2 only uses its own rooms; floor 1 only the warehouse's.
+  for (const [level, own] of [[1, 1], [2, 2]] as const) {
+    for (let i = 0; i < 10; i++) {
+      const w = createWorld({ seed: `especiales-${level}-${i}`, floor: true, level });
+      for (const r of w.floor!.rooms) assert.equal(r.template.level ?? 1, own, `planta ${level}: ${r.template.id}`);
+    }
+  }
 });

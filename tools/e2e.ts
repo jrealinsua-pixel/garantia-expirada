@@ -299,14 +299,15 @@ try {
   await shot('15b-persianas-abiertas.png');
   if (await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut')) throw new Error('Las persianas no se abren al vaciar la sala');
 
-  // M8: floor 2 (Informática) has its own tiles and colour; ?planta=2 paints the same rooms with them.
-  for (const [i, q] of ['sala=carga-descarga&profundidad=5', 'semilla=e2e-planta', 'sala=jefe'].entries()) {
+  // M8: floor 2 (Informática) has its own tiles, colour and rooms (its special rooms too).
+  const p2 = ['sala=carga-descarga&profundidad=5', 'semilla=e2e-planta', 'sala=jefe-informatica', 'sala=tesoro-informatica', 'sala=tienda-informatica', 'sala=secreta-informatica'];
+  for (const [i, q] of p2.entries()) {
     await page.goto(`${url}?semilla=e2e-p2-${i}&${q}&planta=2`);
     await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
     await page.evaluate('window.__GE__.scene.world.noDamage = true');
     if ((await page.evaluate<number>('window.__GE__.scene.world.level')) !== 2) throw new Error(`?planta=2 no pone la planta 2 (${q})`);
     await page.waitForTimeout(i === 2 ? 4200 : 1600);
-    await shot(`33${'abc'[i]}-planta2-${['sala', 'entrada', 'jefe'][i]}.png`);
+    await shot(`33${'abcdef'[i]}-planta2-${['sala', 'entrada', 'jefe', 'tesoro', 'tienda', 'secreta'][i]}.png`);
   }
 
   // M8: floors in a row. A floor won (here, a lift under the toaster's feet at the entrance) and

@@ -197,7 +197,11 @@ semillas distintas acaban con builds distintas.
   - [ ] (3) Ratón Inalámbrico sin Pilas (ideas: se mueve a tirones, se queda quieto sin pila y luego corre).
   - [ ] (4) Uno más por decidir (el «router» de la lista original es el jefe, el Router del Wifi;
     ideas: Webcam que te sigue con la mirada y avisa a los demás, Disco Duro que se cuelga).
-- [ ] Jefe: El Router del Wifi (con su sala propia en la planta 2).
+- Jefe: El Router del Wifi (con su sala propia en la planta 2). En partes:
+  - [x] (1) Su diseño en `docs/DISENO.md` y las salas especiales propias de Informática: tesoro,
+    tienda, secreta y la sala del jefe (Sala de Redes). Hasta que llegue el Router, la Nevera
+    pelea en ella.
+  - [ ] (2) El Router: sprite, fases, repetidores y reinicio, en la planta 2 en lugar de la Nevera.
 - [x] 10 objetos nuevos, en partes:
   - [x] (1) Cinco pasivos de Informática que solo salen desde la planta 2 (`level: 2`, mazo por
     planta con `itemsUpTo`): Pendrive de 2 GB, Antivirus Gratuito, Cable HDMI Dorado, Ventilador

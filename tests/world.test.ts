@@ -147,7 +147,7 @@ test('la simulación es determinista', () => {
   assert.equal(play('a'), play('a'));
 });
 
-test('la planta 2 se arma con sus salas de combate; las especiales, de la planta 1 mientras no tenga', () => {
+test('la planta 2 se arma con sus salas, las especiales también, sobre el mismo mapa', () => {
   for (const seed of ['nivel-a', 'nivel-b', 'nivel-c']) {
     const a = createWorld({ seed, floor: true });
     const b = createWorld({ seed, floor: true, level: 2 });
@@ -157,10 +157,10 @@ test('la planta 2 se arma con sus salas de combate; las especiales, de la planta
     assert.deepEqual(a.floor!.layout, b.floor!.layout);
     for (const [i, st] of b.floor!.rooms.entries()) {
       const t = ROOMS[st.template.id]!;
-      if (t.kind === 'combat') assert.equal(t.level, 2, `${seed}: sala ${i} (${t.id}) de la planta 1`);
-      else if (t.kind === 'start') assert.equal(t.level, 2);
-      else assert.equal(t.id, a.floor!.rooms[i]!.template.id);
-      if (t.kind === 'combat') assert.equal(ROOMS[a.floor!.rooms[i]!.template.id]!.level ?? 1, 1);
+      const one = ROOMS[a.floor!.rooms[i]!.template.id]!;
+      assert.equal(t.level, 2, `${seed}: sala ${i} (${t.id}) de la planta 1`);
+      assert.equal(one.level ?? 1, 1, `${seed}: sala ${i} (${one.id}) de la planta 2 en la 1`);
+      assert.equal(t.kind, one.kind, `${seed}: sala ${i}, mismo tipo en las dos plantas`);
     }
     run(b, 3, aimRight);
     assert.deepEqual(checkInvariants(b), []);
