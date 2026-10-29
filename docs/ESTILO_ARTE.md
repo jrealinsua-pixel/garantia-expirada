@@ -115,5 +115,9 @@ Color dominante: **verde pantalla** (suelo `#304541` / `#2c403d`, juntas `#1c2a2
 - Salas: entrada con felpudo «CONECTANDO» y cartel «PLANTA 2 · INFORMÁTICA»; tienda con alfombra
   azul; tesoro «COPIAS DE SEGURIDAD»; secreta «PAPELERA DE RECICLAJE»; jefe «SALA DE SERVIDORES»
   con interferencias (nieve verde y píxeles muertos) en lugar de escarcha.
-- Pendiente para «Entornos» (M8): obstáculos propios (las cajas, barriles y carritos siguen siendo
-  los del almacén) y persianas a juego.
+- Obstáculos: arriba, la caja es un **monitor de tubo** beis con un pósit, el bidón es una **fuente
+  de agua** con la garrafa casi vacía y el carrito es una **silla de oficina** con ruedas (las
+  balas pasan por encima, como con el carrito). Miden y chocan igual que los del almacén (sprites
+  `caja-2`, `barril-2`, `carrito-2`). Las persianas, gris verdoso con la tira de goma del rodapié
+  en vez de la cinta amarilla y negra (`persiana-*-2`). Regla: una versión de planta de un sprite
+  se llama `<id>-<planta>` y mide lo mismo que el original.

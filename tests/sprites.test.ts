@@ -57,3 +57,17 @@ test('cada hoja de sprites se divide en fotogramas enteros', async () => {
     assert.equal(s.canvas.h, s.frameH, `${key}: alto ${s.canvas.h} ≠ ${s.frameH}`);
   }
 });
+
+test('las versiones de la planta 2 (<id>-2) miden lo mismo que las del almacén, fotograma a fotograma', async () => {
+  const { allSheets } = await import('../tools/sprites/build.ts');
+  const sheets = allSheets();
+  const upstairs = Object.keys(sheets).filter((k) => k.endsWith('-2'));
+  for (const want of ['caja-2', 'barril-2', 'carrito-2', 'persiana-n-2', 'persiana-s-2', 'persiana-v-2']) assert.ok(upstairs.includes(want), `falta ${want}`);
+  for (const k of upstairs) {
+    const base = sheets[k.slice(0, -2)];
+    assert.ok(base, `${k} sin su versión del almacén`);
+    const s = sheets[k]!;
+    // Same footprint: the collision boxes in src/data/props.ts are shared by both floors.
+    assert.deepEqual([s.canvas.w, s.canvas.h, s.frameW, s.frameH], [base.canvas.w, base.canvas.h, base.frameW, base.frameH], k);
+  }
+});

@@ -107,6 +107,24 @@
     "frameH": 24,
     "frames": 1
   },
+  "caja-2": {
+    "file": "caja-2.png",
+    "frameW": 24,
+    "frameH": 24,
+    "frames": 1
+  },
+  "barril-2": {
+    "file": "barril-2.png",
+    "frameW": 16,
+    "frameH": 24,
+    "frames": 1
+  },
+  "carrito-2": {
+    "file": "carrito-2.png",
+    "frameW": 28,
+    "frameH": 24,
+    "frames": 1
+  },
   "bala-jugador": {
     "file": "bala-jugador.png",
     "frameW": 8,
@@ -241,6 +259,24 @@
   },
   "persiana-v": {
     "file": "persiana-v.png",
+    "frameW": 24,
+    "frameH": 48,
+    "frames": 2
+  },
+  "persiana-n-2": {
+    "file": "persiana-n-2.png",
+    "frameW": 48,
+    "frameH": 33,
+    "frames": 2
+  },
+  "persiana-s-2": {
+    "file": "persiana-s-2.png",
+    "frameW": 48,
+    "frameH": 24,
+    "frames": 2
+  },
+  "persiana-v-2": {
+    "file": "persiana-v-2.png",
     "frameW": 24,
     "frameH": 48,
     "frames": 2

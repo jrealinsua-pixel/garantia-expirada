@@ -1,7 +1,7 @@
 // Props, bullets, effects and HUD pieces. Props and bullets are ports of tools/referencia/build2.py.
 import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
 import { BLUE, BROWN, BURNT, CARD, CREAM, DSTEEL, FRT, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, RUSTR, STEEL, TOASTC, WHITE, YEL } from '../../src/art/lib.ts';
-import { box, cube, ellipse, hand, outline, ramp, type Ramp } from '../../src/art/lib.ts';
+import { box, cube, ellipse, hand, OFFICE, outline, ramp, type Ramp } from '../../src/art/lib.ts';
 
 export function makeCaja(): Canvas {
   const cv = new Canvas(24, 24);
@@ -40,6 +40,76 @@ export function makeCarrito(): Canvas {
   }
   cv.rect(8, 15, 1, 2, STEEL[3]!);
   cv.rect(21, 15, 1, 2, STEEL[3]!);
+  return outline(cv);
+}
+
+// Floor 2 (Informática) versions of the three obstacles: same footprint and collision box as the
+// warehouse's (src/data/props.ts), so the simulation does not change; only the look.
+
+const BEIGE = ramp('#efe6c8', '#d4c79f', '#a99b74', '#766b4e');
+
+/** «Caja» upstairs: a dead CRT monitor, beige, with a sticky note nobody read. */
+export function makeMonitorCrt(): Canvas {
+  const cv = new Canvas(24, 24);
+  cube(cv, 1, 3, 22, 19, 7, 4, BEIGE, BEIGE, BEIGE);
+  // The side is the darkest ramp (it faces away from the light).
+  cv.rect(1, 7, 7, 14, BEIGE[2]!);
+  cv.rect(1, 7, 1, 14, BEIGE[3]!);
+  for (let y = 9; y < 19; y += 2) cv.rect(3, y, 3, 1, BEIGE[3]!);
+  // Screen: dark glass, a glint top left, a crack.
+  cv.rect(9, 8, 12, 10, hx('#1a2a26'));
+  cv.rect(9, 8, 12, 1, hx('#2c4440'));
+  cv.set(10, 9, WHITE);
+  cv.set(11, 9, hx('#6f8f88'));
+  for (const [x, y] of [[17, 10], [16, 11], [16, 12], [15, 13], [17, 12], [18, 13]] as const) cv.set(x, y, hx('#6f8f88'));
+  // Power LED (off) and the sticky note.
+  cv.set(20, 19, hx('#4a4538'));
+  cv.rect(18, 15, 4, 4, YEL[1]!);
+  cv.rect(18, 15, 4, 1, YEL[0]!);
+  cv.rect(19, 17, 2, 1, YEL[3]!);
+  return outline(cv);
+}
+
+/** «Barril» upstairs: a water cooler with the bottle upside down (and almost empty). */
+export function makeWaterCooler(): Canvas {
+  const cv = new Canvas(16, 24);
+  // Bottle.
+  ellipse(cv, 8, 6, 5, 4, BLUE[0]!);
+  cv.rect(3, 6, 11, 4, BLUE[0]!);
+  cv.rect(4, 5, 2, 4, WHITE);
+  cv.rect(3, 9, 11, 1, BLUE[1]!);
+  cv.rect(6, 2, 4, 1, BLUE[2]!);
+  // Body.
+  box(cv, 3, 10, 11, 12, ramp('#f4f1e8', '#d3d8e4', '#aab1c4', '#7d8499'));
+  cv.rect(11, 11, 2, 10, hx('#aab1c4'));
+  // Two taps: cold and hot.
+  cv.rect(5, 13, 2, 2, BLUE[1]!);
+  cv.rect(8, 13, 2, 2, RED[1]!);
+  cv.rect(4, 17, 7, 1, hx('#7d8499'));
+  return outline(cv);
+}
+
+/** «Carrito» upstairs: an office chair on wheels, the backrest behind (it rolls; bullets go over it). */
+export function makeOfficeChair(): Canvas {
+  const cv = new Canvas(28, 24);
+  // Backrest (on the left: the chair faces right, like everything else).
+  box(cv, 5, 1, 7, 12, OFFICE);
+  cv.rect(6, 2, 1, 9, hx('#7a7f9a'));
+  // Seat.
+  box(cv, 7, 11, 16, 4, OFFICE);
+  cv.rect(8, 11, 14, 1, hx('#7a7f9a'));
+  // Armrest.
+  cv.rect(12, 8, 8, 1, OFFICE[1]!);
+  cv.rect(18, 9, 1, 2, OFFICE[1]!);
+  // Gas lift and the star base with wheels.
+  cv.rect(14, 15, 2, 4, STEEL[2]!);
+  cv.rect(14, 15, 1, 4, STEEL[1]!);
+  cv.rect(5, 19, 20, 1, OFFICE[1]!);
+  cv.rect(9, 18, 12, 1, OFFICE[1]!);
+  for (const x of [5, 15, 24]) {
+    ellipse(cv, x, 21, 1.6, 1.6, GLOVE[2]!);
+    cv.set(x, 21, GLOVE[0]!);
+  }
   return outline(cv);
 }
 
@@ -228,10 +298,10 @@ export function makeManiqui(): Canvas {
 }
 
 /** Roll-up shutter door with a red pilot light (build2.shutter), as a standalone sprite. */
-export function makeShutter(w: number, h: number, light: 'red' | 'green' = 'red'): Canvas {
+export function makeShutter(w: number, h: number, light: 'red' | 'green' = 'red', slat = '#3a4058', groove = '#2b3048'): Canvas {
   const cv = new Canvas(w, h);
-  cv.rect(0, 0, w, h, hx('#3a4058'));
-  for (let j = 2; j < h; j += 3) cv.rect(0, j, w, 1, hx('#2b3048'));
+  cv.rect(0, 0, w, h, hx(slat));
+  for (let j = 2; j < h; j += 3) cv.rect(0, j, w, 1, hx(groove));
   cv.rect(0, 0, w, 1, K);
   cv.rect(0, 0, 1, h, K);
   cv.rect(w - 1, 0, 1, h, K);
@@ -245,13 +315,16 @@ export function makeShutter(w: number, h: number, light: 'red' | 'green' = 'red'
  * The shutters of a room's doors, two frames each (pilot light red: shut; green: open). Bottom
  * edge: a black lip and a worn yellow-and-black kick strip, so it reads as the moving part.
  */
-export function makeShutterFrames(w: number, h: number): Canvas {
+export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
   const out = new Canvas(w * 2, h);
+  // Upstairs (Informática) the shutter is green-grey and its kick strip a grey rubber with
+  // ribs, like the skirting duct; downstairs, blue steel with hazard stripes.
+  const [slat, groove, a, b] = level === 2 ? ['#3a4a47', '#28332f', '#7e8a87', '#2a3231'] : ['#3a4058', '#2b3048', '#b08a1c', '#191622'];
   (['red', 'green'] as const).forEach((light, i) => {
-    const f = makeShutter(w, h, light);
+    const f = makeShutter(w, h, light, slat, groove);
     for (let x = 1; x < w - 1; x++) {
-      f.set(x, h - 4, Math.floor(x / 3) % 2 === 0 ? hx('#b08a1c') : hx('#191622'));
-      f.set(x, h - 3, Math.floor((x + 1) / 3) % 2 === 0 ? hx('#b08a1c') : hx('#191622'));
+      f.set(x, h - 4, Math.floor(x / 3) % 2 === 0 ? hx(a) : hx(b));
+      f.set(x, h - 3, Math.floor((x + 1) / 3) % 2 === 0 ? hx(a) : hx(b));
     }
     f.rect(0, h - 2, w, 2, K);
     out.blit(f, i * w, 0);

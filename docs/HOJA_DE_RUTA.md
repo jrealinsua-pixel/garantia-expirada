@@ -183,7 +183,7 @@ semillas distintas acaban con builds distintas.
   - [x] (1) Variantes: grupos de estanterías (`1`–`9` en la plantilla) que salen o no con la
     semilla, salas de combate reflejadas en las plantas generadas, y la idea de combate de cada
     sala de la planta 1 escrita en su plantilla (`idea`).
-  - [ ] (2) Obstáculos y decorado propios de Informática (lo que sale en los huecos `o` y las cajas
+  - [x] (2) Obstáculos y decorado propios de Informática (lo que sale en los huecos `o` y las cajas
     de la planta 2) y persianas a juego.
   - [ ] (3) Plantillas propias de la planta 2 (al menos 12 de combate y las especiales), cada una
     con su idea y sus grupos.

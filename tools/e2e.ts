@@ -186,8 +186,9 @@ try {
     // The loot roll can give nothing only for enemies whose range starts at 0: the microwave always drops some.
     throw new Error('El microondas no ha soltado cupones');
   }
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const k of w.pickups) { k.x = w.player.x + 20; k.y = w.player.y; } })()`);
-  await page.waitForTimeout(600);
+  // Put them next to the toaster, still (they may be sliding from the drop) and ready to be picked up.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const k of w.pickups) { k.x = w.player.x + 12; k.y = w.player.y; k.vx = 0; k.vy = 0; k.age = Math.max(k.age, 1); } })()`);
+  await page.waitForFunction('window.__GE__.state().coupons > 0', undefined, { timeout: 2500 }).catch(() => undefined);
   if ((await state()).coupons === 0) throw new Error('La tostadora no ha recogido los cupones');
 
   // Free play for the rest of the time: strafe around shooting at both dummies.

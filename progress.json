@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T19:05:00+01:00",
+  "actualizado": "2026-10-29T19:06:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,8 +63,8 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 2,
-      "total": 8
+      "hechas": 3,
+      "total": 5
     },
     {
       "id": "M9",
@@ -123,17 +123,23 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 338,
-    "tests_ok": 338,
+    "tests": 342,
+    "tests_ok": 342,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 12744
+    "lineas_codigo": 12782
   },
   "sesiones": [
     {
+      "fecha": "2026-10-29T19:06:00+01:00",
+      "hito": "M8",
+      "resumen": "Entornos (2): en la planta 2 las cajas son monitores de tubo, los bidones fuentes de agua y los carritos sillas de oficina; persianas gris verdoso. Mismas medidas y choques que en el almacén.",
+      "commit": ""
+    },
+    {
       "fecha": "2026-10-29T19:05:00+01:00",
       "hito": "M8",
-      "resumen": "Entornos (1): grupos de estanterías que salen o no con la semilla en 10 salas, salas de combate reflejadas en las plantas generadas y la idea de combate de cada sala escrita en su plantilla.",
+      "resumen": "Entornos (1): grupos de estanterías que salen o no con la semilla en 9 salas, salas de combate reflejadas en las plantas generadas y la idea de combate de cada sala escrita en su plantilla.",
       "commit": ""
     },
     {
@@ -488,7 +494,7 @@
   "capturas": [
     {
       "archivo": "capturas/planta2.png",
-      "pie": "La planta 2, Informática: suelo técnico verde pantalla, racks de servidores, una pared de monitores encendidos y cubrecables. Se ve con ?planta=2 mientras no tenga salas propias"
+      "pie": "La planta 2, Informática: suelo técnico verde pantalla, monitores de tubo como trincheras, fuentes de agua y persianas a juego. Se ve con ?planta=2 mientras no se llegue jugando"
     },
     {
       "archivo": "capturas/portada.png",
@@ -511,7 +517,7 @@
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     }
   ],
-  "proximo": "M8: entornos (2): obstáculos y decorado propios de Informática y persianas a juego.",
+  "proximo": "M8: entornos (3): plantillas propias de la planta 2, cada una con su idea y sus grupos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

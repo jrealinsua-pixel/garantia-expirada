@@ -424,9 +424,10 @@ export class GameScene extends Phaser.Scene {
         this.till = this.add.image(pr.x, pr.y, key, 0).setOrigin(0.5, 1).setDepth(pr.y);
         continue;
       }
-      const tex = this.textures.get(key).getSourceImage();
+      const look = this.levelKey(key);
+      const tex = this.textures.get(look).getSourceImage();
       this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
-      this.add.image(pr.x, pr.y, key).setOrigin(0.5, 1).setDepth(pr.y);
+      this.add.image(pr.x, pr.y, look).setOrigin(0.5, 1).setDepth(pr.y);
     }
     if (room.kind === 'shop') {
       // A display stand under every shelf, and the till says hello.
@@ -1849,11 +1850,17 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** The texture of this floor for a sprite that changes from floor to floor (`<key>-2` upstairs), or the plain one. */
+  private levelKey(key: string): string {
+    const own = `${key}-${this.world.level}`;
+    return this.world.level > 1 && this.textures.exists(own) ? own : key;
+  }
+
   private makeShutters(doors: ReadonlyArray<{ dir: string; x: number; y: number; w: number; h: number }>): void {
     this.shutters = [];
     const slam = this.world.doorsShut && this.world.room.kind === 'combat';
     for (const d of doors) {
-      const key = d.dir === 'N' ? 'persiana-n' : d.dir === 'S' ? 'persiana-s' : 'persiana-v';
+      const key = this.levelKey(d.dir === 'N' ? 'persiana-n' : d.dir === 'S' ? 'persiana-s' : 'persiana-v');
       const img = this.add.image(d.x, d.y, key, this.world.doorsShut ? 0 : 1).setOrigin(0, 0).setDepth(-99000);
       const sh = { img, h: d.h };
       this.shutters.push(sh);
