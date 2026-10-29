@@ -669,6 +669,15 @@ try {
   await tapKeys('Escape', 'Escape');
   await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
   console.log('Inventario: siete objetos, el activo y la sinergia, con las estadísticas antes y después.');
+  // The sick-leave report lists what it was carrying; Esc goes from it to the title.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.hp = 1; w.player.invulnerable = 0; })()`);
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 });
+  await page.waitForTimeout(3200);
+  await shot('28-parte-con-equipaje.png');
+  await page.keyboard.press('Escape');
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 4000 });
+  console.log('Parte de baja: con su equipaje, y Esc lleva a la portada.');
 
   // M6: the title screen. Credits, then a run; from the pause, back to the title.
   await page.goto(url);

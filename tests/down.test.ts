@@ -78,7 +78,7 @@ test('el parte de baja trae unidad, causa, sala, vida útil y recomendación, y 
   const flat = lines.map((l) => (l.label ? `${l.label}: ${l.text}` : l.text));
   assert.deepEqual(flat.slice(0, 2), ['Unidad: Tostadora Reacondicionada', 'Causa: Ataque de polilla leal a la empresa']);
   assert.ok(flat.includes('Sala: Sala de Pruebas'));
-  assert.ok(flat.some((l) => l.startsWith('Vida útil: 42 s') && l.includes('Bajas: 3') && l.includes('Cupones: 9')));
+  assert.ok(flat.some((l) => l.startsWith('Vida útil: 0:42') && l.includes('Bajas: 3') && l.includes('Cupones: 9')));
   assert.equal(lines.at(-1)!.text, T.DOWN_ADVICE[0]);
   // The form is 296 px wide; values start 76 px in, the advice 10 px in.
   for (const t of [...T.DOWN_COVERAGE, ...Object.values(T.DOWN_CAUSES).flatMap((c) => [c.bullet, c.contact]).filter((x): x is string => !!x)]) {
@@ -95,6 +95,13 @@ test('todos los textos del juego se pueden escribir con la Letra Pequeña', () =
     else if (Array.isArray(v)) all.push(...v.filter((x): x is string => typeof x === 'string'));
     else if (v && typeof v === 'object') for (const c of Object.values(v as Record<string, Record<string, string>>)) all.push(...Object.values(c));
   }
-  all.push('Exp. 1234', 'Vida útil: 12 s · Bajas: 3 · Cupones: 4');
+  all.push('Exp. 1234', 'Vida útil: 0:12 · Bajas: 3 · Cupones: 4');
   for (const s of all) for (const ch of s.toLocaleUpperCase('es-ES')) assert.ok(chars.has(ch), `falta «${ch}» en la fuente («${s}»)`);
+});
+
+test('la vida útil se lee como un reloj', async () => {
+  const { clock } = await import('../src/data/texts.ts');
+  assert.equal(clock(0), '0:00');
+  assert.equal(clock(44), '0:44');
+  assert.equal(clock(125.4), '2:05');
 });

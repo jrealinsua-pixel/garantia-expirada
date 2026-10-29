@@ -142,8 +142,8 @@ semillas distintas acaban con builds distintas.
   (daño, cadencia, alcance, velocidad), con lo que suma o resta cada objeto.
 - [x] Interfaz limpia (nota del humano): revisar el HUD entero para que no se pise nada y se lea
   de un vistazo; los textos flotantes no se amontonan.
-- [ ] Parte de baja al morir (causa, vida útil, recomendación del fabricante).
-- [ ] Pantalla de victoria.
+- [x] Parte de baja al morir (causa, vida útil, recomendación del fabricante, equipaje; Esc a la portada).
+- [x] Pantalla de victoria (de momento, la de planta superada: «Incidencia resuelta»; la de la partida entera llegará con la última planta).
 - [ ] Guardado local de desbloqueos y estadísticas.
 - [ ] Una pista de música chiptune para la planta y otra para el jefe.
 - [ ] Revisión completa de textos con la guía de humor.

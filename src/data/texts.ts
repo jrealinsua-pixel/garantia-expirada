@@ -86,6 +86,17 @@ export const DOWN_ADVICE: readonly string[] = [
   'Su unidad será sustituida por otra idéntica de peor calidad.',
 ];
 
+/** Seconds as a clock: 44 → «0:44», 125 → «2:05». */
+export function clock(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+/** Label of the row of icons (weapons and items) at the foot of the reports. */
+export const REPORT_GEAR = 'Equipaje';
+/** Under the reports, next to the main hint. */
+export const REPORT_MENU_HINT = 'Esc: menú principal';
+
 /** The cause line for a report, from what took the player down. */
 export function downCause(by: string, how: 'bullet' | 'contact'): string {
   return DOWN_CAUSES[by]?.[how] ?? DOWN_CAUSE_DEFAULT;
@@ -110,7 +121,7 @@ export function downReport(info: DownReportInfo, pick: (n: number) => number): {
     { label: 'Causa', text: downCause(info.by, info.how) },
     { label: '', text: DOWN_COVERAGE[pick(DOWN_COVERAGE.length)]! },
     { label: 'Sala', text: info.room },
-    { label: 'Vida útil', text: `${info.seconds} s · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
+    { label: 'Vida útil', text: `${clock(info.seconds)} · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
     { label: 'Recomendación del fabricante', text: DOWN_ADVICE[pick(DOWN_ADVICE.length)]! },
   ];
 }
@@ -157,7 +168,7 @@ export function winReport(info: WinReportInfo, pick: (n: number) => number): { l
     { label: 'Unidad', text: DOWN_UNIT },
     { label: 'Resultado', text: WIN_RESULT },
     { label: 'Sala', text: info.room },
-    { label: 'Jornada', text: `${info.seconds} s · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
+    { label: 'Jornada', text: `${clock(info.seconds)} · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
     { label: 'Siguiente', text: WIN_NEXT[pick(WIN_NEXT.length)]! },
     { label: 'Nota de la empresa', text: WIN_NOTES[pick(WIN_NOTES.length)]! },
   ];

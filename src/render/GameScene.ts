@@ -8,6 +8,7 @@ import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
 import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
+import { REPORT_GEAR, REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
@@ -367,7 +368,8 @@ export class GameScene extends Phaser.Scene {
     // reload button is polled in syncView).
     this.input.keyboard?.on('keydown-R', () => this.newUnit());
     // Pause: Esc or P (Start on the pad, see update); also when the tab is hidden.
-    this.input.keyboard?.on('keydown-ESC', () => this.openPause());
+    // With the report on screen, Esc goes back to the title instead.
+    this.input.keyboard?.on('keydown-ESC', () => (this.canAskNewUnit() ? this.scene.start('title') : this.openPause()));
     this.input.keyboard?.on('keydown-P', () => this.openPause());
     const onHidden = (): void => this.openPause();
     this.game.events.on(Phaser.Core.Events.HIDDEN, onHidden);
@@ -673,7 +675,7 @@ export class GameScene extends Phaser.Scene {
   private showForm(lines: { label: string; text: string }[], look: { title: string; color: number; light: number; stamp: string; hint: string }): void {
     const w = this.world;
     const BW = 296;
-    const BH = 164;
+    const BH = 186;
     const x0 = Math.round(VIEW_W / 2 - BW / 2);
     const y0 = Math.round(VIEW_H / 2 - BH / 2);
     const parts: Array<Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor> = [];
@@ -691,10 +693,32 @@ export class GameScene extends Phaser.Scene {
     text(x0 + BW - 8 - textWidth(ref), y0 + 4, ref, 0x0e0c16).setTint(look.light);
     const g = add(this.add.graphics());
     for (let x = x0 + 4; x < x0 + BW - 4; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, y0 + BH - 22, 2, 1);
+    const drawGear = (y: number): void => {
+      // What it was carrying: weapons, then items, then the active one (as many as fit; the rest, «+N»).
+      const p = w.player;
+      const gear = [...p.arsenal.map((ws) => ws.base.look.sprite), ...p.items.map((id) => ITEMS[id]?.sprite ?? 'objeto-caja')];
+      if (p.active) gear.push(ACTIVE_ITEMS[p.active.id]?.sprite ?? 'objeto-caja');
+      text(x0 + 10, y + 4, `${REPORT_GEAR}:`, 0x858ea8);
+      let gx = x0 + 76;
+      const room = x0 + BW - 24;
+      for (const [i, key] of gear.entries()) {
+        if (gx + 16 > room) {
+          text(gx, y + 4, `+${gear.length - i}`, 0x858ea8);
+          break;
+        }
+        const img = add(this.add.image(gx, y + 15, key).setOrigin(0, 1));
+        gx += Math.max(17, img.width + 2);
+      }
+    };
     let y = y0 + 22;
     this.report = [];
     for (const ln of lines) {
       const advice = ln.label.startsWith('Recomendación') || ln.label.startsWith('Nota');
+      if (advice) {
+        // What it was carrying goes between the facts and the advice.
+        drawGear(y + 1);
+        y += 20;
+      }
       if (advice) y += 5;
       if (ln.label && !advice) {
         text(x0 + 10, y, `${ln.label}:`, 0x858ea8);
@@ -710,7 +734,8 @@ export class GameScene extends Phaser.Scene {
       }
       this.report.push(ln.label ? `${ln.label}: ${ln.text}` : ln.text);
     }
-    const hint = text(VIEW_W / 2 - Math.round(textWidth(look.hint) / 2), y0 + BH - 15, look.hint, 0xf6c431);
+    const hintText = `${look.hint} · ${REPORT_MENU_HINT}`;
+    const hint = text(VIEW_W / 2 - Math.round(textWidth(hintText) / 2), y0 + BH - 15, hintText, 0xf6c431);
     this.tweens.add({ targets: hint, alpha: 0.35, yoyo: true, repeat: -1, duration: 450, delay: 900 });
     // The whole form drops in from above.
     for (const o of parts) {
@@ -720,7 +745,7 @@ export class GameScene extends Phaser.Scene {
     }
     // The stamp slams down a moment later.
     const stampColor = look.color === 0xe0453b ? 0xe0453b : 0x69dbd8;
-    const stamp = add(this.add.bitmapText(x0 + BW - 64, y0 + BH - 38, FONT, fontText(look.stamp), 8).setOrigin(0.5, 0.5)).setTint(stampColor);
+    const stamp = add(this.add.bitmapText(x0 + BW - 66, y0 + BH - 45, FONT, fontText(look.stamp), 8).setOrigin(0.5, 0.5)).setTint(stampColor);
     const frame = add(this.add.rectangle(stamp.x, stamp.y, textWidth(look.stamp) + 8, 13).setStrokeStyle(1, stampColor));
     for (const o of [stamp, frame]) {
       o.setRotation(-0.22).setScale(5).setAlpha(0);
