@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T15:05:00+01:00",
+  "actualizado": "2026-10-29T15:20:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,8 +56,8 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 6,
-      "total": 9
+      "hechas": 7,
+      "total": 10
     },
     {
       "id": "M8",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 311,
-    "tests_ok": 311,
+    "tests": 317,
+    "tests_ok": 317,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11444
+    "lineas_codigo": 11620
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T15:20:00+01:00",
+      "hito": "M7",
+      "resumen": "Opción nueva «Texto grande»: la ventana de descripción, los letreros, las sinergias, el nombre de la sala y lo que dice la caja de la tienda, a doble tamaño. El bocadillo de la caja ya no se esconde bajo el nombre de la sala.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T15:05:00+01:00",
       "hito": "M7",
@@ -427,8 +433,8 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/grapadora.png",
-      "pie": "La Grapadora con sus números nuevos: 1 de daño, 11 disparos por segundo, cargador de 33. Cada arma gana en algo y pierde en otra cosa"
+      "archivo": "capturas/texto-grande.png",
+      "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     },
     {
       "archivo": "capturas/sinergia.png",
@@ -451,7 +457,7 @@
       "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: accesibilidad parte 2, tamaño de texto.",
+  "proximo": "M7: accesibilidad parte 2b, texto grande en el parte de baja, la planta superada y el inventario.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -479,12 +485,5 @@
       "con_margen": 176
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
-  },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 14:43 UTC",
-      "tarea": "M7: accesibilidad parte 2, tamaño de texto",
-      "desde": "2026-10-29T14:45:00Z"
-    }
-  ]
+  }
 }

@@ -156,3 +156,23 @@ export function buildFontAtlas(fill: RGBA = WHITE, line: RGBA = K): { canvas: Ca
   }
   return { canvas: out, cells };
 }
+
+/**
+ * Word wrap for this font: `s` in lines no wider than `maxW` px when drawn `scale` times its
+ * size (a single word wider than that gets a line to itself). `\n` always breaks.
+ */
+export function wrapLines(s: string, maxW: number, scale = 1): string[] {
+  const out: string[] = [];
+  for (const para of s.split('\n')) {
+    let line = '';
+    for (const word of para.split(' ').filter((w) => w !== '')) {
+      const next = line ? `${line} ${word}` : word;
+      if (line && textWidth(next) * scale > maxW) {
+        out.push(line);
+        line = word;
+      } else line = next;
+    }
+    out.push(line);
+  }
+  return out;
+}

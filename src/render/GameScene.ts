@@ -1,7 +1,7 @@
 // Draws the simulation and plays its events. Phaser only draws and reads input: all the rules
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
-import { fontText, textWidth } from '../art/font.ts';
+import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
 import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, CONTROLS_HINT, RELOADING, SWAP_HINT, TEST_ROOM_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
@@ -22,10 +22,10 @@ import { ENEMIES } from '../data/enemies.ts';
 import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
-import { screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
+import { readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
-import { hudLayout, splitTitle, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
+import { cardLayout, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 import { bulbLit, enemyFrame } from './enemyAnim.ts';
 
 export const VIEW_W = 480;
@@ -44,8 +44,6 @@ interface ItemCard {
 }
 
 /** Width of the description window, and the gap of its text column. */
-const CARD_W = 292;
-const CARD_TEXT_X = 50;
 
 /** How a pickup is drawn: its sprite and shadow, its name, and its price when it is for sale. */
 interface PickupView {
@@ -203,6 +201,8 @@ export class GameScene extends Phaser.Scene {
   private synergyText!: Phaser.GameObjects.BitmapText;
   /** The dark plate behind it, so it reads over the floor. */
   private synergyPlate!: Phaser.GameObjects.Rectangle;
+  /** Synergies switched on while the big description window was up: their plate comes after it. */
+  private pendingSynergies: string[] = [];
   /** The active item in its slot (top left), its battery marks, and a shake when Q finds it flat. */
   private activeIcon!: Phaser.GameObjects.Image;
   private activeMarks!: Phaser.GameObjects.Graphics;
@@ -328,6 +328,7 @@ export class GameScene extends Phaser.Scene {
     this.camFocus = null;
     this.introParts = [];
     this.introBars = [];
+    this.pendingSynergies = [];
     this.hudObjs = [];
     this.bossBar = null;
     this.blastT = 0;
@@ -455,7 +456,7 @@ export class GameScene extends Phaser.Scene {
     this.activeMarks = this.hud(this.add.graphics());
     this.holdWash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x9fb4e0, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(88000).setAlpha(0);
     this.hurtFlash = this.hud(this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xe0453b, 1).setOrigin(0, 0)).setAlpha(0).setDepth(89000);
-    this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
+    this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign());
     this.banner.setTint(0xf6c431).setAlpha(0);
     this.itemDesc = this.hud(this.add.bitmapText(VIEW_W / 2, 57, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0xd6cdb2).setAlpha(0);
     this.card = {
@@ -463,13 +464,13 @@ export class GameScene extends Phaser.Scene {
       icon: this.hud(this.add.image(0, 0, 'objeto-pila').setOrigin(0.5, 0.5).setScale(2)).setAlpha(0),
       name: this.hud(this.add.bitmapText(0, 0, FONT, '', 8)).setTint(0xf6c431).setAlpha(0),
       kind: this.hud(this.add.bitmapText(0, 0, FONT, '', 8)).setTint(0x858ea8).setAlpha(0),
-      desc: this.hud(this.add.bitmapText(0, 0, FONT, '', 8).setMaxWidth(CARD_W - CARD_TEXT_X - 8)).setTint(0xd6cdb2).setAlpha(0),
+      desc: this.hud(this.add.bitmapText(0, 0, FONT, '', 8)).setTint(0xd6cdb2).setAlpha(0),
       lines: Array.from({ length: 5 }, () => this.hud(this.add.bitmapText(0, 0, FONT, '', 8)).setAlpha(0)),
       top: 0,
       bottom: 0,
     };
     this.synergyPlate = this.hud(this.add.rectangle(VIEW_W / 2, 80, 10, 10, 0x101420, 0.82).setOrigin(0.5, 0).setStrokeStyle(1, 0x69dbd8, 0.9)).setAlpha(0);
-    this.synergyText = this.hud(this.add.bitmapText(VIEW_W / 2, 84, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0x69dbd8).setAlpha(0);
+    this.synergyText = this.hud(this.add.bitmapText(VIEW_W / 2, 84, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign()).setTint(0x69dbd8).setAlpha(0);
     this.itemIcons = [];
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.weaponName = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 37, FONT, '', 8).setOrigin(1, 0)).setTint(0xf6c431).setAlpha(0);
@@ -481,14 +482,24 @@ export class GameScene extends Phaser.Scene {
     // The room's name, along the top on its own plate: what it is in gold, the joke in brackets quieter.
     this.layout = this.computeLayout();
     const { main, sub } = splitTitle(fontText(room.name));
-    const mainT = this.add.bitmapText(4, 3, FONT, main, 8).setTint(0xf6c431);
-    const subT = this.add.bitmapText(4 + textWidth(main) + 5, 3, FONT, sub, 8).setTint(0xb9b3a3);
-    const tw = textWidth(main) + (sub ? 5 + textWidth(sub) : 0) + 8;
+    const scale = readScale(settings());
+    const span = this.layout.titleSpan;
+    const tLines = titleLines(main, sub, span.right - span.left - 8, scale);
+    const lineH = FONT_LINE * scale;
+    const parts: Phaser.GameObjects.GameObject[] = [];
+    const tw = Math.max(...tLines.map((t) => t.w)) + 8;
+    const th = tLines.length * lineH + 3;
     const plate = this.add.graphics();
-    plate.fillStyle(0x0e0c16, 0.78).fillRect(0, 0, tw, 13);
-    plate.lineStyle(1, 0x3a3f5c, 1).strokeRect(0.5, 0.5, tw - 1, 12);
-    plate.fillStyle(0xf6c431, 1).fillRect(1, 12, tw - 2, 1);
-    const title = this.hud(this.add.container(titleX(tw, this.layout.titleSpan), TITLE_TOP, [plate, mainT, subT]));
+    plate.fillStyle(0x0e0c16, 0.78).fillRect(0, 0, tw, th);
+    plate.lineStyle(1, 0x3a3f5c, 1).strokeRect(0.5, 0.5, tw - 1, th - 1);
+    plate.fillStyle(0xf6c431, 1).fillRect(1, th - 1, tw - 2, 1);
+    parts.push(plate);
+    tLines.forEach((t, i) => {
+      const y = 3 + i * lineH;
+      if (t.main) parts.push(this.add.bitmapText(4, y, FONT, t.main, 8 * scale).setTint(0xf6c431));
+      if (t.sub) parts.push(this.add.bitmapText(4 + (t.main ? (textWidth(t.main) + 5) * scale : 0), y, FONT, t.sub, 8 * scale).setTint(0xb9b3a3));
+    });
+    const title = this.hud(this.add.container(titleX(tw, span), TITLE_TOP, parts));
     // A boss's entrance has its own name card: the room's name waits until it is over.
     this.roomTitle = title;
     if (this.world.intro) title.setAlpha(0);
@@ -1458,7 +1469,7 @@ export class GameScene extends Phaser.Scene {
               this.swapHinted = true;
               this.hintT = 0;
               for (const h of this.hint) h.setAlpha(0);
-              this.banner.setText(fontText(SWAP_HINT)).setTint(0xf4f1e8).setAlpha(1);
+              this.setBanner(SWAP_HINT).setTint(0xf4f1e8).setAlpha(1);
               this.tweens.killTweensOf(this.banner);
               this.tweens.add({ targets: this.banner, alpha: 0, delay: 3200, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
             }
@@ -1561,7 +1572,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'restock':
           this.sound2.play('reponer');
-          this.banner.setText(fontText(RESTOCK_LINE)).setAlpha(1);
+          this.setBanner(RESTOCK_LINE).setAlpha(1);
           this.tweens.killTweensOf(this.banner);
           this.tweens.add({ targets: this.banner, alpha: 0, delay: 1400, duration: 600 });
           for (const en of this.world.enemies) for (let i = 0; i < 4; i++) this.puff(en.x + this.fx.range(-8, 8), en.y - enemyAltitude(en) - this.fx.range(0, 16), 0.5);
@@ -1642,7 +1653,7 @@ export class GameScene extends Phaser.Scene {
         case 'liftReady':
           this.sound2.play('desbloquear');
           if (this.liftView) this.liftView.s.setFrame(1);
-          this.banner.setText(fontText(LIFT_LINE)).setTint(0x69dbd8).setAlpha(1);
+          this.setBanner(LIFT_LINE).setTint(0x69dbd8).setAlpha(1);
           this.tweens.killTweensOf(this.banner);
           this.tweens.add({ targets: this.banner, alpha: 0, delay: 3200, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
           break;
@@ -1695,14 +1706,27 @@ export class GameScene extends Phaser.Scene {
       this.spark(p.x + Math.cos(a) * 6, p.y - 10 + Math.sin(a) * 4, a, this.fx.range(60, 100), 0);
     }
     this.flashHero = 0.12;
+    // With big text the description window fills the middle of the screen: the synergy's plate
+    // waits for it to go.
+    if (settings().bigText && this.card.bottom > 0) this.pendingSynergies.push(id);
+    else this.showSynergyPlate(id);
+  }
+
+  /** «Sinergia corporativa:», the synergy's name and its line, on a dark plate for a while. */
+  private showSynergyPlate(id: string): void {
+    const def = SYNERGIES[id];
+    if (!def) return;
+    const scale = readScale(settings());
+    const lines = [`${SYNERGY_LINE} ${def.name}`, def.text].flatMap((t) => wrapLines(fontText(t), scale > 1 ? 440 : 300, scale));
     this.tweens.killTweensOf([this.synergyText, this.synergyPlate]);
-    this.synergyText.setText(fontText(`${SYNERGY_LINE} ${def.name}\n${def.text}`)).setAlpha(1);
+    this.synergyText.setFontSize(8 * scale).setText(lines.join('\n')).setAlpha(1);
     const b = this.synergyText.getTextBounds(true).global;
     // Next to the description window if it is up (it usually is: the synergy came with an item):
     // under it when it is up top, over it when it is down below.
     const c = this.card;
     const ph = Math.ceil(b.height) + 8;
-    const sy = c.bottom === 0 ? 80 : c.top <= 40 ? c.bottom + 4 : c.top - 4 - ph;
+    const want = c.bottom === 0 ? 80 : c.top <= 40 ? c.bottom + 4 : c.top - 4 - ph;
+    const sy = Math.max(2, Math.min(VIEW_H - 2 - ph, want));
     this.synergyPlate.setY(sy);
     this.synergyText.setY(sy + 4);
     this.synergyPlate.setSize(Math.ceil(b.width) + 12, Math.ceil(b.height) + 8).setOrigin(0.5, 0).setAlpha(1);
@@ -1845,7 +1869,7 @@ export class GameScene extends Phaser.Scene {
     }
     // After a boss the stamp says it all.
     if (this.bossBar) return;
-    this.banner.setText(fontText(this.fx.pick(DOORS_OPEN_LINES))).setAlpha(1);
+    this.setBanner(this.fx.pick(DOORS_OPEN_LINES)).setAlpha(1);
     this.tweens.killTweensOf(this.banner);
     this.tweens.add({ targets: this.banner, alpha: 0, delay: 1800, duration: 600 });
   }
@@ -1867,6 +1891,12 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /** Puts `text` on the banner under the room's name: double size and in lines with big text. */
+  private setBanner(text: string): Phaser.GameObjects.BitmapText {
+    const scale = readScale(settings());
+    return this.banner.setFontSize(8 * scale).setText(wrapLines(fontText(text), VIEW_W - 40, scale).join('\n'));
+  }
+
   /**
    * Opens the description window: the sprite at double size on the left; the name, what kind of
    * thing it is, its description and what it does (green what it gives, red what it takes) on
@@ -1881,32 +1911,30 @@ export class GameScene extends Phaser.Scene {
     this.tweens.killTweensOf([this.banner, this.itemDesc]);
     this.banner.setAlpha(0);
     this.itemDesc.setAlpha(0);
-    const x0 = Math.round((VIEW_W - CARD_W) / 2);
-    const tx = x0 + CARD_TEXT_X;
-    c.desc.setText(fontText(description));
-    const descH = Math.ceil(c.desc.getTextBounds(true).global.height);
-    const h = Math.max(48, 28 + descH + 5 + effects.length * 10 + 3);
+    const big = settings().bigText;
+    const L = cardLayout(fontText(name), fontText(kind), fontText(description), effects.slice(0, c.lines.length).map((e) => fontText(e.text)), readScale(settings()));
+    const h = L.h;
+    const x0 = Math.round((VIEW_W - L.w) / 2);
     // Up top, unless the toaster is in the top half of the screen: then down below, out of its way.
     const p = this.world.player;
     const high = p.y - this.cameras.main.scrollY < VIEW_H / 2 + 10;
     const l = this.layout ?? this.computeLayout();
     const y0 = high ? l.cardBottom - h : l.cardTop;
-    c.name.setText(fontText(name)).setPosition(tx, y0 + 6);
-    c.kind.setText(fontText(kind)).setPosition(tx, y0 + 16);
-    c.desc.setPosition(tx, y0 + 28);
-    let y = y0 + 28 + descH + 5;
+    c.name.setFontSize(L.size).setText(L.name.text).setPosition(x0 + L.name.x, y0 + L.name.y);
+    c.kind.setFontSize(L.size).setText(L.kind.text).setPosition(x0 + L.kind.x, y0 + L.kind.y);
+    c.desc.setFontSize(L.size).setText(L.desc.text).setPosition(x0 + L.desc.x, y0 + L.desc.y);
     c.lines.forEach((t, i) => {
-      const l = effects[i];
-      t.setText(l ? fontText(l.text) : '').setPosition(tx, y).setTint(l?.good ? 0x7ef0a0 : 0xe0453b);
-      if (l) y += 10;
+      const at = L.effects[i];
+      t.setFontSize(L.size).setText(at?.text ?? '');
+      if (at) t.setPosition(x0 + at.x, y0 + at.y).setTint(effects[at.index]!.good ? 0x7ef0a0 : 0xe0453b);
     });
-    c.icon.setTexture(sprite).setPosition(x0 + 24, y0 + Math.min(h, 52) / 2 + 1);
+    c.icon.setTexture(sprite).setPosition(x0 + L.icon.x, y0 + L.icon.y);
     c.plate.clear();
-    c.plate.fillStyle(0x0e0c16, 1).fillRect(x0 - 1, y0 - 1, CARD_W + 2, h + 2);
-    c.plate.fillStyle(0x101420, 0.92).fillRect(x0, y0, CARD_W, h);
-    c.plate.lineStyle(1, edge, 0.9).strokeRect(x0 + 0.5, y0 + 0.5, CARD_W - 1, h - 1);
+    c.plate.fillStyle(0x0e0c16, 1).fillRect(x0 - 1, y0 - 1, L.w + 2, h + 2);
+    c.plate.fillStyle(0x101420, big ? 0.96 : 0.92).fillRect(x0, y0, L.w, h);
+    c.plate.lineStyle(1, edge, 0.9).strokeRect(x0 + 0.5, y0 + 0.5, L.w - 1, h - 1);
     // The icon sits in a darker well.
-    c.plate.fillStyle(0x0e0c16, 0.8).fillRect(x0 + 5, y0 + 5, 38, Math.min(h, 52) - 10);
+    c.plate.fillStyle(0x0e0c16, 0.8).fillRect(x0 + L.well.x, y0 + L.well.y, L.well.w, L.well.h);
     c.top = y0;
     c.bottom = y0 + h;
     for (const o of parts) o.setAlpha(1);
@@ -1914,6 +1942,7 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: parts, alpha: 0, delay: Math.min(6500, 2600 + words * 110), duration: 600, onComplete: () => {
       c.top = 0;
       c.bottom = 0;
+      for (const id of this.pendingSynergies.splice(0)) this.showSynergyPlate(id);
     } });
   }
 
@@ -1926,21 +1955,42 @@ export class GameScene extends Phaser.Scene {
     this.bubble?.g.destroy();
     this.bubble?.t.destroy();
     const room = this.world.room;
-    const t = this.add.bitmapText(0, 0, FONT, fontText(text), 8).setOrigin(0.5, 1).setCenterAlign().setMaxWidth(150).setTint(0xf4f1e8).setDepth(86001);
+    const scale = readScale(settings());
+    const t = this.add.bitmapText(0, 0, FONT, wrapLines(fontText(text), 150 * scale, scale).join('\n'), 8 * scale).setOrigin(0.5, 1).setCenterAlign().setTint(0xf4f1e8).setDepth(86001);
     const w = Math.ceil(t.width) + 10;
     const h = Math.ceil(t.height) + 7;
-    const x = Math.round(Math.min(room.w - 4 - w / 2, Math.max(4 + w / 2, this.till.x)));
-    const y = Math.round(this.till.y - 39);
-    t.setPosition(x, y - 3);
+    const till = this.till;
+    // Over the till, with the tail pointing down at its screen; if that would go off the top of
+    // the view or under the room's name (big text, a till against the back wall), beside it, with
+    // the tail pointing at it.
+    // While the room's name is up, its plate counts as the top.
+    const nameUp = this.roomTitle && this.roomTitle.alpha > 0 ? this.roomTitle.getBounds().bottom + 2 : 2;
+    const viewTop = this.cameras.main.scrollY + nameUp;
+    const above = till.y - 39 - h >= viewTop;
+    const left = till.x > room.w / 2;
+    const bx = above
+      ? Math.round(Math.min(room.w - 4 - w, Math.max(4, till.x - w / 2)))
+      : Math.round(left ? Math.max(4, till.x - 16 - w) : Math.min(room.w - 4 - w, till.x + 16));
+    const by = above ? Math.round(till.y - 39 - h) : Math.round(Math.max(viewTop, till.y - 30 - h / 2));
+    t.setPosition(bx + Math.round(w / 2), by + h - 3);
     // A dark plate with a light border (light text reads; dark text on light blurs this font).
     const g = this.add.graphics().setDepth(86000);
-    const x0 = Math.round(x - w / 2);
-    g.fillStyle(0xd6cdb2, 1).fillRect(x0 - 1, y - h - 1, w + 2, h + 2);
-    g.fillStyle(0x0e0c16, 0.94).fillRect(x0, y - h, w, h);
-    // The tail points down at the till's screen.
-    const tx = Math.round(this.till.x);
-    g.fillStyle(0xd6cdb2, 1).fillRect(tx - 3, y + 1, 7, 1).fillRect(tx - 2, y + 2, 5, 1).fillRect(tx - 1, y + 3, 3, 1);
-    g.fillStyle(0x0e0c16, 1).fillRect(tx - 2, y, 5, 1).fillRect(tx - 1, y + 1, 3, 1).fillRect(tx, y + 2, 1, 1);
+    g.fillStyle(0xd6cdb2, 1).fillRect(bx - 1, by - 1, w + 2, h + 2);
+    g.fillStyle(0x0e0c16, 0.94).fillRect(bx, by, w, h);
+    if (above) {
+      // The tail points down at the till's screen.
+      const tx = Math.round(till.x);
+      const y = by + h;
+      g.fillStyle(0xd6cdb2, 1).fillRect(tx - 3, y + 1, 7, 1).fillRect(tx - 2, y + 2, 5, 1).fillRect(tx - 1, y + 3, 3, 1);
+      g.fillStyle(0x0e0c16, 1).fillRect(tx - 2, y, 5, 1).fillRect(tx - 1, y + 1, 3, 1).fillRect(tx, y + 2, 1, 1);
+    } else {
+      // The tail points sideways at it, level with its screen (or as near as the plate allows).
+      const ty = Math.round(Math.min(by + h - 5, Math.max(by + 4, till.y - 30)));
+      const d = left ? 1 : -1;
+      const x = left ? bx + w : bx - 1;
+      g.fillStyle(0xd6cdb2, 1).fillRect(x + d, ty - 3, 1, 7).fillRect(x + 2 * d, ty - 2, 1, 5).fillRect(x + 3 * d, ty - 1, 1, 3);
+      g.fillStyle(0x0e0c16, 1).fillRect(x, ty - 2, 1, 5).fillRect(x + d, ty - 1, 1, 3).fillRect(x + 2 * d, ty, 1, 1);
+    }
     this.bubble = { g, t };
     this.bubbleT = 1.4 + text.length * 0.045;
     this.tillNext = then;
@@ -2573,6 +2623,7 @@ export class GameScene extends Phaser.Scene {
       mapW: this.mapSize.w,
       mapH: this.mapSize.h,
       hint: this.hintT > 0 ? this.hintText : null,
+      bigText: settings().bigText,
     });
   }
 

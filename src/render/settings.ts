@@ -10,9 +10,19 @@ export interface Settings {
   shake: boolean;
   /** Full white flashes (hits, boss phases). Off: a light tint and a faint screen flash, no strobing. */
   flashes: boolean;
+  /**
+   * «Texto grande»: what is read calmly (the description window, the banners, the shop's bubbles,
+   * the room's name) at double size. The HUD's numbers stay as they are.
+   */
+  bigText: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { volume: 7, music: 6, shake: true, flashes: true };
+export const DEFAULT_SETTINGS: Settings = { volume: 7, music: 6, shake: true, flashes: true, bigText: false };
+
+/** How many times its own size the reading text is drawn (1, or 2 with «Texto grande»). */
+export function readScale(s: Pick<Settings, 'bigText'>): number {
+  return s.bigText ? 2 : 1;
+}
 
 /** Tint for a hit with soft flashes: warm, light, and never solid white. */
 export const SOFT_FLASH_TINT = 0xffd2c4;
@@ -35,6 +45,7 @@ export function parseSettings(raw: string | null): Settings {
     if (typeof o.music === 'number' && Number.isFinite(o.music)) s.music = Math.max(0, Math.min(10, Math.round(o.music)));
     if (typeof o.shake === 'boolean') s.shake = o.shake;
     if (typeof o.flashes === 'boolean') s.flashes = o.flashes;
+    if (typeof o.bigText === 'boolean') s.bigText = o.bigText;
   } catch {
     // A broken save is the same as none.
   }

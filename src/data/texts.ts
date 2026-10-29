@@ -242,7 +242,14 @@ export const PAUSE_MENU = {
   back: 'Volver',
 } as const;
 export const OPTIONS_TITLE = 'Opciones';
-export const OPTION_LABELS = { volume: 'Volumen de efectos', music: 'Volumen de música', fullscreen: 'Pantalla completa', shake: 'Temblor de cámara', flashes: 'Destellos suaves' } as const;
+export const OPTION_LABELS = {
+  volume: 'Volumen de efectos',
+  music: 'Volumen de música',
+  fullscreen: 'Pantalla completa',
+  shake: 'Temblor de cámara',
+  flashes: 'Destellos suaves',
+  bigText: 'Texto grande',
+} as const;
 export const CONFIRM_TITLE = '¿Pedir otra unidad?';
 export const CONFIRM_TEXT = 'La unidad actual irá al punto limpio. Lo que lleva, también.';
 export const CONFIRM_MENU = { yes: 'Sí, al punto limpio', no: 'No, que aguante' } as const;

@@ -642,11 +642,11 @@ try {
       await page.waitForTimeout(60);
     }
   };
-  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter');
+  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25b-opciones.png');
   const saved = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')");
-  if (saved !== JSON.stringify({ volume: 4, music: 6, shake: false, flashes: false })) throw new Error(`Opciones mal guardadas: ${saved}`);
+  if (saved !== JSON.stringify({ volume: 4, music: 6, shake: false, flashes: false, bigText: true })) throw new Error(`Opciones mal guardadas: ${saved}`);
   await tapKeys('Escape', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25c-controles.png');
@@ -655,7 +655,7 @@ try {
   await page.waitForTimeout(300);
   if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) === pausedAt) throw new Error('El juego no vuelve después de la pausa');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
-  console.log('Pausa: congela el juego, guarda volumen 4, sin temblor y con destellos suaves, enseña los controles y vuelve.');
+  console.log('Pausa: congela el juego, guarda volumen 4, sin temblor, con destellos suaves y texto grande, enseña los controles y vuelve.');
 
   // M6: the inventory, in the pause menu, with a few items, an active one and a synergy.
   await page.goto(`${url}?semilla=e2e-inventario&sala=sala-pruebas`);
@@ -682,6 +682,36 @@ try {
   await page.keyboard.press('Escape');
   await page.waitForFunction("window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 4000 });
   console.log('Parte de baja: con su equipaje, y Esc lleva a la portada.');
+
+  // M7: «Texto grande». The description window, the synergy's plate (after the window goes),
+  // the room's name and the till's bubble, all at double size.
+  await page.goto(`${url}?semilla=e2e-objetos&sala=tesoro`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`localStorage.setItem('garantia-expirada/opciones', JSON.stringify({ bigText: true }))`);
+  await page.goto(`${url}?semilla=e2e-objetos&sala=tesoro`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.waitForTimeout(500);
+  await shot('31a-texto-grande-sala.png');
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; g.giveItem('manual'); const k = w.pickups.find((p) => p.kind === 'objeto');
+    k.item = 'broca'; w.player.x = k.x - 36; w.player.y = k.y + 2; })()`);
+  await page.waitForTimeout(400);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.synergies.includes("bricolaje")', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(350);
+  await shot('31b-texto-grande-objeto.png');
+  if (await page.evaluate<boolean>('window.__GE__.scene.synergyText.alpha > 0')) throw new Error('Con texto grande, la sinergia sale encima de la ventana');
+  await page.waitForFunction('window.__GE__.scene.synergyText.alpha === 1', undefined, { timeout: 9000 });
+  await page.waitForTimeout(200);
+  await shot('31c-texto-grande-sinergia.png');
+  await page.goto(`${url}?semilla=e2e-tienda&sala=tienda`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const k = w.pickups.find((p) => p.kind === 'objeto');
+    w.player.x = k.x; w.player.y = k.y + 46; })()`);
+  await page.waitForTimeout(1100);
+  await shot('31d-texto-grande-tienda.png');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
+  console.log('Texto grande: ventana de descripción, sinergia después, nombre de sala y bocadillo de la caja.');
 
   // M6: the title screen. Credits, then a run; from the pause, back to the title.
   await page.goto(url);

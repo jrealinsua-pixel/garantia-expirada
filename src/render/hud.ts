@@ -1,6 +1,6 @@
 // Where every piece of the HUD goes. Pure (no Phaser): the scene asks for a layout and draws it,
 // and tests/hud.test.ts checks that nothing steps on anything else.
-import { textWidth } from '../art/font.ts';
+import { FONT_LINE, textWidth, wrapLines } from '../art/font.ts';
 
 export const HUD_W = 480;
 export const HUD_H = 270;
@@ -41,6 +41,8 @@ export interface HudState {
   mapH: number;
   /** The controls hint, while it is up. */
   hint: string | null;
+  /** «Texto grande»: the description window is the big one (see `cardLayout`). */
+  bigText?: boolean;
 }
 
 export interface HudLayout {
@@ -155,9 +157,14 @@ export function hudLayout(s: HudState): HudLayout {
 
   // The description window: below the room's name, clear of the status corner and the minimap if
   // they reach that far in; or above whatever sits along the bottom.
-  const cardX = Math.round((HUD_W - CARD_WIDTH) / 2);
-  const cardTop = Math.max(TITLE_BOTTOM + MARGIN, ...[status, map].filter((b): b is Box => overlapsX(b, cardX)).map((b) => b.y + b.h + MARGIN));
-  const bottoms = [weapon, itemsBox, hintBox].filter((b): b is Box => overlapsX(b, cardX)).map((b) => b.y);
+  // The big one (texto grande) is nearly as wide as the screen: it keeps clear of the hearts and
+  // the ammo, and may cover the minimap, the items and the hint for the few seconds it is up.
+  const cw = s.bigText ? CARD_WIDTH_BIG : CARD_WIDTH;
+  const cardX = Math.round((HUD_W - cw) / 2);
+  const tops = s.bigText ? [status] : [status, map];
+  const lows = s.bigText ? [weapon] : [weapon, itemsBox, hintBox];
+  const cardTop = Math.max(TITLE_BOTTOM + MARGIN, ...tops.filter((b): b is Box => overlapsX(b, cardX, cw)).map((b) => b.y + b.h + MARGIN));
+  const bottoms = lows.filter((b): b is Box => overlapsX(b, cardX, cw)).map((b) => b.y);
   const cardBottom = Math.min(HUD_H - PAD, ...bottoms) - MARGIN;
 
   return { status, hearts, coupon, couponText, ticket, ticketText, active, weapon, gun, ammoText, pips, itemsBox, items, hintBox, hintLines: hintPos, map, titleSpan, cardTop, cardBottom };
@@ -165,12 +172,72 @@ export function hudLayout(s: HudState): HudLayout {
 
 /** Width of the description window (its x is centred). */
 export const CARD_WIDTH = 292;
+/** Width of the description window with «Texto grande». */
+export const CARD_WIDTH_BIG = 440;
 /** The room's name sits in a strip along the top, down to here. */
 export const TITLE_TOP = 4;
 export const TITLE_BOTTOM = 20;
 
-function overlapsX(b: Box | null, cardX: number): boolean {
-  return !!b && b.x < cardX + CARD_WIDTH && cardX < b.x + b.w;
+function overlapsX(b: Box | null, cardX: number, w: number): boolean {
+  return !!b && b.x < cardX + w && cardX < b.x + b.w;
+}
+
+/** A line of text placed somewhere: its top left, relative to whatever holds it. */
+export interface PlacedText {
+  text: string;
+  x: number;
+  y: number;
+}
+
+/** Where everything in the description window goes, relative to its top left corner. */
+export interface CardLayout {
+  w: number;
+  h: number;
+  /** Font size to draw it all at (8 is the font's own; 16 is «Texto grande»). */
+  size: number;
+  name: PlacedText;
+  kind: PlacedText;
+  /** The description, already broken into lines. */
+  desc: PlacedText & { lines: number };
+  effects: (PlacedText & { index: number })[];
+  /** The darker well behind the icon, and the icon's centre. */
+  well: Box;
+  icon: Point;
+}
+
+const CARD_TEXT_X = 50;
+
+/**
+ * Lays out the description window for a thing called `name` of `kind`, with its description and
+ * its effect lines, at `scale` (1, or 2 for «Texto grande»). At 1 the effects go one per line; at
+ * 2 they flow along rows, so the window stays short enough to fit between the hearts and the ammo.
+ */
+export function cardLayout(name: string, kind: string, description: string, effects: string[], scale = 1): CardLayout {
+  const w = scale > 1 ? CARD_WIDTH_BIG : CARD_WIDTH;
+  const line = FONT_LINE * scale;
+  const room = w - CARD_TEXT_X - 8;
+  const lines = wrapLines(description, room, scale);
+  const nameAt = { text: name, x: CARD_TEXT_X, y: 6 };
+  const kindAt = { text: kind, x: CARD_TEXT_X, y: 6 + line };
+  const descAt = { text: lines.join('\n'), x: CARD_TEXT_X, y: kindAt.y + line + 2 * scale, lines: lines.length };
+  let y = descAt.y + lines.length * line + (scale > 1 ? 4 : 5);
+  const placed: (PlacedText & { index: number })[] = [];
+  const gap = 8 * scale;
+  let x = CARD_TEXT_X;
+  effects.forEach((text, index) => {
+    const tw = textWidth(text) * scale;
+    if (scale > 1 && x > CARD_TEXT_X && x + tw > CARD_TEXT_X + room) {
+      x = CARD_TEXT_X;
+      y += line;
+    }
+    placed.push({ text, x, y, index });
+    if (scale > 1) x += tw + gap;
+    else y += line;
+  });
+  if (scale > 1 && effects.length) y += line;
+  const h = Math.max(48, y + 3);
+  const wellH = Math.min(h, 52) - 10;
+  return { w, h, size: 8 * scale, name: nameAt, kind: kindAt, desc: descAt, effects: placed, well: { x: 5, y: 5, w: 38, h: wellH }, icon: { x: 24, y: Math.min(h, 52) / 2 + 1 } };
 }
 
 /**
@@ -180,6 +247,34 @@ function overlapsX(b: Box | null, cardX: number): boolean {
 export function splitTitle(name: string): { main: string; sub: string } {
   const i = name.indexOf(' (');
   return i < 0 ? { main: name, sub: '' } : { main: name.slice(0, i), sub: name.slice(i + 1) };
+}
+
+/** One line of a room's name: some of what it is (gold) and/or some of the joke (quieter). */
+export interface TitleLine {
+  main: string;
+  sub: string;
+  /** Its width in px at the scale it was laid out for. */
+  w: number;
+}
+
+/**
+ * A room's name in lines no wider than `maxW` px at `scale`: what it is first, and the joke on the
+ * same line if it fits after it, otherwise on lines of its own. At the font's own size every name
+ * fits on one line (tests/hud.test.ts); with «Texto grande» the long ones take two or three.
+ */
+export function titleLines(main: string, sub: string, maxW: number, scale = 1): TitleLine[] {
+  const gap = 5;
+  const width = (m: string, s: string): number => (textWidth(m) + (m && s ? gap : 0) + textWidth(s)) * scale;
+  const lines: TitleLine[] = wrapLines(main, maxW, scale).map((m) => ({ main: m, sub: '', w: width(m, '') }));
+  if (!sub) return lines;
+  const last = lines[lines.length - 1]!;
+  if (width(last.main, sub) <= maxW) {
+    last.sub = sub;
+    last.w = width(last.main, sub);
+    return lines;
+  }
+  for (const s of wrapLines(sub, maxW, scale)) lines.push({ main: '', sub: s, w: width('', s) });
+  return lines;
 }
 
 /**
