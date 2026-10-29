@@ -9,6 +9,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Medidas (dos iguales por sala de la planta 2, bot con el Secador, 60 salas): Ratón 0,53 heridas (0,13 de choques) y 12 s por sala; Cargador 0,50 y 21 s; Impresora 0,47 y 45 s; Microondas 0,47 y 42 s. Planta 1 igual (bot: 200 partidas sin fallos, la planta la gana el 45 %, la jefa el 66,7 %). 371 tests en verde. Capturas 35j y 35k revisadas: el «!» amarillo sobre el ratón congelado y el anillo rojo en el suelo se leen a la vez.
 - Problemas conocidos: ninguno nuevo. La planta 2 entera sigue sin medir con el bot.
 - Siguiente paso: M8, enemigos (4): el cuarto de Informática.
+- Cierre de sesión: esta sesión (20:25 UTC) ha hecho los diez objetos de Informática (en tres tareas) y tres de sus cuatro enemigos. Cierro aquí para dejar libres los archivos de enemigos (`src/data/enemies.ts`, `src/sim/enemies.ts`, `tools/sprites/enemies.ts`): la sesión del Router los espera para meter al jefe en la simulación, y el cuarto enemigo puede ir después o en paralelo sin tocar al jefe.
 
 ## 2026-10-29 22:52 — Hito M8 — Jefe (2a): sprites del Router del Wifi y del repetidor
 
