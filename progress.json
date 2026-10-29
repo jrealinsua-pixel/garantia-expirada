@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T14:40:00+01:00",
+  "actualizado": "2026-10-29T14:55:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,7 +56,7 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 7
     },
     {
@@ -127,9 +127,15 @@
     "tests_ok": 304,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11354
+    "lineas_codigo": 11358
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T14:55:00+01:00",
+      "hito": "M7",
+      "resumen": "Rendimiento medido en el juego de verdad: con 300 balas enemigas en pantalla va a 59 fps, igual que vacío, y aguanta hasta unas 600 antes de bajar. Las balas ahora reutilizan sus sprites en vez de crearlos y tirarlos cientos de veces por segundo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T14:40:00+01:00",
       "hito": "M7",
@@ -433,7 +439,7 @@
       "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: rendimiento (60 fps estables con 300 balas en pantalla).",
+  "proximo": "M7: accesibilidad (remapeo de controles, reducir temblores y destellos, tamaño de texto).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -462,16 +468,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 12:44 UTC",
-      "tarea": "M7: rendimiento con 300 balas",
-      "desde": "2026-10-29T13:42:00Z"
-    },
-    {
-      "sesion": "2026-10-29 13:24 UTC",
-      "tarea": "M7: animaciones completas de todos los enemigos",
-      "desde": "2026-10-29T13:44:00Z"
-    }
-  ]
+  "en_curso": []
 }

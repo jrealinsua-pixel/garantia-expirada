@@ -162,7 +162,7 @@ semillas distintas acaban con builds distintas.
   (tabla en `docs/DISENO.md`; `npm run armas` la mide).
 - [x] Repaso de los objetos pasivos (nota del humano): la mayoría da y quita (como ya hacen),
   algunos solo dan; ninguno es inútil ni obligatorio (`npm run objetos` lo mide).
-- [ ] Rendimiento: 60 fps estables con 300 balas en pantalla.
+- [x] Rendimiento: 60 fps estables con 300 balas en pantalla (`npm run rendimiento`).
 - [ ] Accesibilidad: remapeo de controles, opción de reducir temblores y destellos, tamaño de texto.
 - [ ] Animaciones completas de todos los enemigos.
 - [ ] Lista de errores conocidos vacía.

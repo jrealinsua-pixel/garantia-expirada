@@ -2,6 +2,15 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-29 14:55 — Hito M7 — Rendimiento con 300 balas
+
+- Hecho: `tools/rendimiento.ts` (`npm run rendimiento`, opciones `--balas` y `--segundos`): abre el juego de verdad en Chromium sin interfaz, mantiene N balas enemigas en la Sala de pruebas y mide los fotogramas por segundo, el p95 y el peor fotograma, frente a la sala casi vacía; además cronometra la simulación sola con las mismas balas y guarda una captura (`capturas/30-300-balas.png`). Los sprites de las balas se **reutilizan** (`bulletPool` en `GameScene`): antes se creaba y destruía una imagen por bala, cientos por segundo.
+- Medidas (Chromium con SwiftShader, que dibuja con la CPU: un ordenador con tarjeta gráfica va mejor): **300 balas: 59,1–59,5 fps, p95 16,8 ms** (igual que sin balas). Margen: 600 balas, 54 fps; 900 balas, 41 → 46 fps con la reutilización; 1500, 32 fps. Simulación sola: 0,17 ms por paso con 300 balas (el presupuesto es 16,7 ms). Criterio cumplido.
+- Decisiones: no toco nada más: con 300 balas el juego va a 60 fps sin despeinarse. Los picos sueltos de 33–83 ms salen también sin balas (recolector de basura o SwiftShader), no por las balas.
+- Problemas conocidos: los números absolutos dependen de la máquina; lo que vale es comparar la misma medida antes y después de un cambio.
+- Siguiente paso: M7, accesibilidad (remapeo de controles, reducir temblores y destellos, tamaño de texto).
+- Cierre de sesión: esta sesión (12:44 UTC) ha hecho la revisión de textos (M6 terminado), ha encontrado y arreglado que la jefa no salía en la planta, y ha cerrado equilibrio, armas, objetos y rendimiento de M7. Cierro aquí para que la sesión de las 14:24 UTC empiece con el contexto limpio.
+
 ## 2026-10-29 14:40 — Hito M7 — Repaso de los objetos pasivos
 
 - Hecho: `tools/objetos.ts` (`npm run objetos`): para cada objeto pasivo y cada arma, el bot con ese objeto solo contra la jefa (40 combates) y en 60 salas de combate, frente a la misma arma sin nada; tabla en `logs/objetos.json`. Con eso, tres cambios: **Regleta Sin Tierra** cadencia ×0,85 → ×0,7 (con el Secador o la Grapadora una bala más por disparo duplicaba el daño: era obligatoria; ahora da +40 % y a la Plancha la empeora); **Resistencia de Recambio** cadencia ×0,8 → ×0,75 (era el mejor objeto con las tres armas); **Manual en Chino** además alarga la vida de las balas ×1,3 (los rebotes casi nunca llegaban a servir: era inútil). Test nuevo en `tests/objetos.test.ts`: ningún objeto multiplica el daño por segundo de todas las armas por más de 1,6, y ninguno las empeora todas. Tabla de `docs/DISENO.md` al día.

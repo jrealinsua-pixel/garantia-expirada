@@ -180,6 +180,8 @@ export class GameScene extends Phaser.Scene {
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
   private enemySprites = new Map<number, EnemyView>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
+  /** Bullet sprites put away to be used again (hundreds of bullets come and go every second). */
+  private bulletPool: Phaser.GameObjects.Image[] = [];
   private pickupSprites = new Map<number, PickupView>();
   /** Name of the weapon in hand, over the ammo, for a moment after changing. */
   private weaponName!: Phaser.GameObjects.BitmapText;
@@ -333,6 +335,7 @@ export class GameScene extends Phaser.Scene {
     this.dummySprites = new Map();
     this.enemySprites = new Map();
     this.bulletSprites = new Map();
+    this.bulletPool = [];
     this.pickupSprites = new Map();
     this.chestSprites = new Map();
     this.ticketPop = 0;
@@ -2208,7 +2211,8 @@ export class GameScene extends Phaser.Scene {
       let s = this.bulletSprites.get(b.id);
       if (!s) {
         const look = b.owner === 'player' ? WEAPONS[b.weapon ?? '']?.look : undefined;
-        s = this.add.image(b.x, b.y, b.owner === 'player' ? look?.bullet ?? 'bala-jugador' : BULLET_TEXTURES[b.color]);
+        const tex = b.owner === 'player' ? look?.bullet ?? 'bala-jugador' : BULLET_TEXTURES[b.color];
+        s = this.bulletPool.pop()?.setTexture(tex).setVisible(true).setAlpha(1).setRotation(0) ?? this.add.image(b.x, b.y, tex);
         if (look?.turn) s.setRotation(b.dir);
         this.bulletSprites.set(b.id, s);
       }
@@ -2230,7 +2234,7 @@ export class GameScene extends Phaser.Scene {
     }
     for (const [id, s] of this.bulletSprites) {
       if (!alive.has(id)) {
-        s.destroy();
+        this.bulletPool.push(s.setVisible(false));
         this.bulletSprites.delete(id);
       }
     }

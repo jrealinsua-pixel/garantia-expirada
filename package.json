@@ -17,6 +17,7 @@
     "sprites": "node tools/sprites/build.ts",
     "stats": "node tools/stats.ts",
     "armas": "node tools/armas.ts",
-    "objetos": "node tools/objetos.ts"
+    "objetos": "node tools/objetos.ts",
+    "rendimiento": "node tools/rendimiento.ts"
   }
 }
