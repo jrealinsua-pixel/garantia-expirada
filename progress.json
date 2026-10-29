@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T14:25:00+01:00",
+  "actualizado": "2026-10-29T14:55:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,7 +56,7 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 7
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 302,
-    "tests_ok": 302,
+    "tests": 303,
+    "tests_ok": 303,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11317
+    "lineas_codigo": 11354
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T14:55:00+01:00",
+      "hito": "M7",
+      "resumen": "Las tres armas ya son distintas de verdad: el Secador pega 2 por bala y llega lejos pero dispara despacio, la Grapadora escupe 11 grapas por segundo de 1 de daño y la Plancha hace 10 de golpe pero solo de cerca. Hay una herramienta que lo mide (npm run armas) y un test que vigila que cada una gane en algo y pierda en otra cosa. El bot sigue ganando la mitad de las plantas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T14:25:00+01:00",
       "hito": "M7",
@@ -397,6 +403,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/grapadora.png",
+      "pie": "La Grapadora con sus números nuevos: 1 de daño, 11 disparos por segundo, cargador de 33. Cada arma gana en algo y pierde en otra cosa"
+    },
+    {
       "archivo": "capturas/sinergia.png",
       "pie": "Textos revisados: «Sinergia corporativa: Bricolaje Avanzado», sin exclamaciones, como pide la guía de humor"
     },
@@ -415,13 +425,9 @@
     {
       "archivo": "capturas/portada.png",
       "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
-    },
-    {
-      "archivo": "capturas/pausa.png",
-      "pie": "La pausa: «Pausa de cinco minutos. Le quedan cuatro.» El juego se queda congelado detrás; se maneja con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: armas con diferencias reales (tabla de daño por segundo, alcance y cadencia medida por el bot).",
+  "proximo": "M7: repaso de los objetos pasivos (que ninguno sea inútil ni obligatorio) con las armas nuevas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -450,11 +456,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 12:44 UTC",
-      "tarea": "M7: armas con diferencias reales",
-      "desde": "2026-10-29T13:30:00Z"
-    }
-  ]
+  "en_curso": []
 }

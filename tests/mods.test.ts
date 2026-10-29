@@ -40,9 +40,10 @@ test('modificadores: primero se suman, luego se multiplican, y hay límites', ()
   assert.equal(modStat('fireRate', 6.5, [{ id: 'c', stats: [{ stat: 'fireRate', mul: 0 }] }]), 0.5);
   assert.equal(modStat('pellets', 1, [{ id: 'c', stats: [{ stat: 'pellets', add: 40 }] }]), 12);
   // The data is not touched.
+  const before = secador.damage;
   const m = moddedWeapon(secador, mods);
-  assert.equal(m.damage, 4);
-  assert.equal(secador.damage, 1);
+  assert.equal(m.damage, (before + 1) * 2);
+  assert.equal(secador.damage, before);
   assert.equal(moddedWeapon(secador, []).damage, secador.damage);
 });
 
@@ -120,9 +121,10 @@ test('las balas que atraviesan dan a varios maniquíes en fila, una vez a cada u
     for (let i = 0; i < ticks(1); i++) step(w, NO_INPUT);
     return w.dummies.map((d) => d.damageTaken);
   };
-  assert.deepEqual(run(0), [1, 0]);
-  assert.deepEqual(run(1), [1, 1]);
-  assert.deepEqual(run(3), [1, 1]);
+  const d = WEAPONS.secador!.damage;
+  assert.deepEqual(run(0), [d, 0]);
+  assert.deepEqual(run(1), [d, d]);
+  assert.deepEqual(run(3), [d, d]);
 });
 
 test('las balas que rebotan vuelven de la pared', () => {

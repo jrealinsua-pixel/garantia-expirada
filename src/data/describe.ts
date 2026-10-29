@@ -66,6 +66,32 @@ export function activeLines(a: ActiveItemDef): EffectLine[] {
 
 const round1 = (n: number): string => String(Math.round(n * 10) / 10).replace('.', ',');
 
+/** A weapon on paper: what it does in a second of trigger held (with its reloads), in one burst, in one pull, and how far it reaches. */
+export interface WeaponProfile {
+  /** Damage per second over many magazines (reloads included), if every bullet hits. */
+  dps: number;
+  /** Damage per second while the magazine lasts. */
+  burst: number;
+  /** Damage of one pull of the trigger (every pellet). */
+  alpha: number;
+  /** How far a bullet flies (px). */
+  range: number;
+  /** Seconds of fire a magazine gives. */
+  magazineSeconds: number;
+}
+
+export function weaponProfile(w: WeaponDef): WeaponProfile {
+  const alpha = w.damage * w.pellets;
+  const magazineSeconds = w.magazine / w.fireRate;
+  return {
+    dps: (alpha * w.magazine) / (magazineSeconds + w.reloadTime),
+    burst: alpha * w.fireRate,
+    alpha,
+    range: w.bulletSpeed * w.bulletLife,
+    magazineSeconds,
+  };
+}
+
 /** A weapon's numbers, so the differences between weapons can be read. */
 export function weaponLines(w: WeaponDef): EffectLine[] {
   const shots = w.pellets > 1 ? ` × ${w.pellets}` : '';

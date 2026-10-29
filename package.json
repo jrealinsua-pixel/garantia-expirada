@@ -15,6 +15,7 @@
     "bot": "node tools/bot.ts",
     "e2e": "node tools/e2e.ts",
     "sprites": "node tools/sprites/build.ts",
-    "stats": "node tools/stats.ts"
+    "stats": "node tools/stats.ts",
+    "armas": "node tools/armas.ts"
   }
 }

@@ -1,3 +1,4 @@
+import { WEAPONS } from '../src/data/weapons.ts';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -240,8 +241,9 @@ test('Broca del Ocho: una bala atraviesa a dos maniquíes en fila', () => {
     for (let i = 0; i < ticks(1); i++) step(w, NO_INPUT);
     return w.dummies.map((d) => d.damageTaken);
   };
-  assert.deepEqual(run([]), [1, 0]);
-  assert.deepEqual(run(['broca']), [1, 1]);
+  const d = WEAPONS.secador!.damage;
+  assert.deepEqual(run([]), [d, 0]);
+  assert.deepEqual(run(['broca']), [d, d]);
 });
 
 test('Cinta Americana: recarga mucho antes', () => {
@@ -266,7 +268,7 @@ test('Resistencia de Recambio: cada bala hace un punto más de daño, aunque dis
   const w = bare('resistencia', 'resistencia');
   assert.equal(w.player.weapon.def.damage, base.player.weapon.def.damage + 1);
   assert.ok(w.player.weapon.def.fireRate < base.player.weapon.def.fireRate);
-  // One shot at the dummy: twice the damage.
+  // One shot at the dummy: a point more.
   const one = (x: World): number => {
     const d = x.dummies[0]!;
     d.x = x.player.x + 120;
@@ -276,8 +278,8 @@ test('Resistencia de Recambio: cada bala hace un punto más de daño, aunque dis
     for (let i = 0; i < ticks(1); i++) step(x, NO_INPUT);
     return d.damageTaken;
   };
-  assert.equal(one(base), 1);
-  assert.equal(one(w), 2);
+  assert.equal(one(base), WEAPONS.secador!.damage);
+  assert.equal(one(w), WEAPONS.secador!.damage + 1);
   // And over a while it still deals more.
   assert.ok(dummyDamage(bare('resistencia', 'resistencia'), 2) > dummyDamage(bare('resistencia'), 2));
 });

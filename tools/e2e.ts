@@ -435,7 +435,8 @@ try {
     });
   })()`);
   const mag = await page.evaluate<number>('window.__GE__.scene.world.player.weapon.def.magazine');
-  if (mag !== 30) throw new Error(`El modificador no cambia el cargador: ${mag}`);
+  const baseMag = await page.evaluate<number>('window.__GE__.scene.world.player.weapon.base.magazine');
+  if (mag !== baseMag + 16) throw new Error(`El modificador no cambia el cargador: ${mag}`);
   await page.mouse.move(60, 150);
   await page.mouse.down();
   await page.waitForTimeout(700);

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { FINDABLE_WEAPONS, WEAPONS } from '../src/data/weapons.ts';
+import { weaponProfile } from '../src/data/describe.ts';
 import { createWorld, DT, enterRoom, giveWeapon, NO_INPUT, SWAP_TIME, step, addModifier, type Input, type World } from '../src/sim/world.ts';
 
 const aimRight = (w: World): Input => ({ ...NO_INPUT, aimX: w.player.x + 100, aimY: w.player.y - 10 });
@@ -155,7 +156,8 @@ test('los modificadores valen para todas las armas que lleva', () => {
   giveWeapon(w, 'plancha');
   assert.equal(w.player.weapon.def.damage, WEAPONS.plancha!.damage + 1);
   assert.equal(w.player.weapon.ammo, WEAPONS.plancha!.magazine + 4);
-  assert.equal(WEAPONS.plancha!.damage, 1, 'los datos no se tocan');
+  assert.equal(w.player.weapon.base.damage, WEAPONS.plancha!.damage, 'los datos no se tocan');
+  assert.equal(w.player.weapon.base, WEAPONS.plancha, 'la base es la de los datos');
 });
 
 test('en la planta, la sala del tesoro guarda un arma y cambia con la semilla', () => {
@@ -176,4 +178,34 @@ test('en la planta, la sala del tesoro guarda un arma y cambia con la semilla', 
     assert.equal(w.pickups.filter((k) => k.kind === 'arma').length, 1);
   }
   assert.deepEqual([...found].sort(), [...FINDABLE_WEAPONS].sort());
+});
+
+test('cada arma gana claramente en algo y pierde en otra cosa (nota del humano)', () => {
+  const ids = Object.keys(WEAPONS);
+  // What each one is good at, bigger is better (a tight spread is accuracy).
+  const traits: Record<string, (id: string) => number> = {
+    'daño por segundo': (id) => weaponProfile(WEAPONS[id]!).dps,
+    'daño por disparo': (id) => weaponProfile(WEAPONS[id]!).alpha,
+    alcance: (id) => weaponProfile(WEAPONS[id]!).range,
+    'segundos de cargador': (id) => weaponProfile(WEAPONS[id]!).magazineSeconds,
+    puntería: (id) => -WEAPONS[id]!.spreadDeg,
+    cadencia: (id) => WEAPONS[id]!.fireRate,
+  };
+  for (const id of ids) {
+    const wins: string[] = [];
+    const loses: string[] = [];
+    for (const [name, f] of Object.entries(traits)) {
+      const others = ids.filter((o) => o !== id).map(f);
+      // «Clearly»: at least 20 % better than the best of the rest, or worse than the worst.
+      if (f(id) > Math.max(...others) * 1.2 || (f(id) < 0 && f(id) > Math.max(...others) * 0.8)) wins.push(name);
+      if (f(id) < Math.min(...others)) loses.push(name);
+    }
+    assert.ok(wins.length > 0, `${id} no destaca en nada`);
+    assert.ok(loses.length > 0, `${id} no pierde en nada`);
+  }
+  // Real differences of damage, not only of rate.
+  assert.ok(new Set(ids.map((id) => WEAPONS[id]!.damage)).size > 1, 'todas hacen el mismo daño por bala');
+  // The starting weapon is the weakest per second: whatever turns up is an upgrade in something.
+  const start = weaponProfile(WEAPONS.secador!).dps;
+  for (const id of FINDABLE_WEAPONS) assert.ok(weaponProfile(WEAPONS[id]!).dps > start, id);
 });

@@ -142,6 +142,14 @@ escena al empezar la partida y su propio final (hito M13).
 - Las armas tienen cargador, cadencia, dispersión, velocidad de bala, daño y retroceso. Todas
   son objetos cotidianos convertidos en arma.
 - Objetos pasivos que modifican estadísticas o comportamiento de las balas.
+- Cada arma gana claramente en algo y pierde en otra cosa (nota del humano; lo comprueba
+  `tests/armas.test.ts` y lo mide `npm run armas`). Armas de la planta 1:
+
+| Arma | Daño | Disparos/s | Cargador | Recarga | Alcance | Daño/s (con recargas) | Gana en | Pierde en |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| Secador Mágnum 2200 W | 2 | 2,6 | 10 | 1,2 s | 350 | 4,0 | Alcance, puntería, golpe por bala | Daño por segundo |
+| Grapadora Táctica | 1 | 11 | 33 | 2,2 s | 220 | 6,3 | Cadencia, cargador | Daño por bala, recarga larga |
+| Plancha de Vapor Turbo | 2 × 5 | 1,3 | 4 | 1,7 s | 100 | 8,4 de cerca | Golpe por disparo (10) | Alcance, cargador, puntería |
 
 Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quitan algo:
 
@@ -156,7 +164,7 @@ Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quit
 | Alargador de Tres Metros | Llega a todas partes. Sobre todo a los tobillos. | Alcance ×1,35, balas más rápidas |
 | Broca del Ocho | Para colgar un cuadro. Ya puestos, para todo lo demás. | Las balas atraviesan 2 enemigos; menos empuje |
 | Cinta Americana | Lo arregla todo durante una semana. | Recarga ×0,6 |
-| Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,7, más retroceso |
+| Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,8, más retroceso |
 
 Objetos activos (tecla Q o botón B del mando). Se lleva uno; al coger otro, el viejo se queda en
 el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando está lleno:
@@ -172,7 +180,7 @@ uno (lo siguiente que quede). Los cofres sacan de las mismas barajas, así que u
 repite objeto.
 - **Sinergias:** ciertas combinaciones activan un efecto extra y un texto especial, en
   `src/data/synergies.ts`. Las que piden un arma solo cambian esa arma, y cuentan mientras esté
-  en el arsenal (no hace falta llevarla en la mano). Al activarse sale «¡Sinergia!», su nombre y
+  en el arsenal (no hace falta llevarla en la mano). Al activarse sale «Sinergia corporativa:», su nombre y
   su frase en un recuadro bajo la descripción del objeto.
 
 | Sinergia | Piezas | Frase | Efecto |

@@ -107,14 +107,15 @@ test('aspirador: rodando se le esquiva sin empujón', () => {
 
 test('las balas de la tostadora dan al aspirador', () => {
   const w = arena(300, 150);
-  w.enemies[0]!.until = 99;
+  const en = w.enemies[0]!;
+  en.until = 99;
   let hits = 0;
-  for (let i = 0; i < 60; i++) {
-    step(w, { ...NO_INPUT, fire: true, aimX: w.enemies[0]!.x, aimY: w.enemies[0]!.y - 14 });
-    hits += w.events.filter((e) => e.type === 'hit' && e.target === w.enemies[0]!.id).length;
+  for (let i = 0; i < 150 && w.enemies.includes(en); i++) {
+    step(w, { ...NO_INPUT, fire: true, aimX: en.x, aimY: en.y - 14 });
+    hits += w.events.filter((e) => e.type === 'hit' && e.target === en.id).length;
   }
   assert.ok(hits > 3, `impactos ${hits}`);
-  assert.ok(w.enemies[0]!.damageTaken > 0);
+  assert.ok(en.damageTaken > 0);
 });
 
 /** Test room with only the microwave, at (ex, ey), and the toaster at (px, py). */
@@ -173,11 +174,11 @@ test('microondas: las balas no lo mueven', () => {
   en.until = 99;
   const x0 = en.x;
   let hits = 0;
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 150; i++) {
     step(w, { ...NO_INPUT, fire: true, aimX: en.x, aimY: en.y - 14 });
     hits += w.events.filter((e) => e.type === 'hit' && e.target === en.id).length;
   }
-  assert.ok(hits > 3);
+  assert.ok(hits > 3, `impactos ${hits}`);
   assert.equal(en.x, x0);
 });
 

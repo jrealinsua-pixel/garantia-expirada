@@ -84,7 +84,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     description: 'Pieza no original. Calienta más de lo que pone en la caja.',
     sprite: 'objeto-resistencia',
     // One more point of damage and bigger bullets, but fires slower and kicks harder.
-    mod: { id: 'resistencia', stats: [{ stat: 'damage', add: 1 }, { stat: 'bulletRadius', add: 1 }, { stat: 'fireRate', mul: 0.7 }, { stat: 'recoil', mul: 1.4 }] },
+    mod: { id: 'resistencia', stats: [{ stat: 'damage', add: 1 }, { stat: 'bulletRadius', add: 1 }, { stat: 'fireRate', mul: 0.8 }, { stat: 'recoil', mul: 1.4 }] },
   },
 };
 

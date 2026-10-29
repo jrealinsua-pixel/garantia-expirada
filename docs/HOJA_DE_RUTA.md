@@ -157,8 +157,9 @@ semillas distintas acaban con builds distintas.
   (nota del humano): dificultad media-alta; la planta 1 se gana con práctica, no a la primera.
   Medido con partidas enteras (jefa y montacargas): el bot gana el 45 % de las plantas; banda
   buscada, 35–55 % (el bot ve todas las balas y apunta casi perfecto: una persona, menos).
-- [ ] Armas con diferencias reales (nota del humano): tabla de daño por segundo, alcance y
-  cadencia medida por el bot; cada arma gana claramente en algo y pierde en otra cosa.
+- [x] Armas con diferencias reales (nota del humano): tabla de daño por segundo, alcance y
+  cadencia medida por el bot; cada arma gana claramente en algo y pierde en otra cosa
+  (tabla en `docs/DISENO.md`; `npm run armas` la mide).
 - [ ] Repaso de los objetos pasivos (nota del humano): la mayoría da y quita (como ya hacen),
   algunos solo dan; ninguno es inútil ni obligatorio.
 - [ ] Rendimiento: 60 fps estables con 300 balas en pantalla.

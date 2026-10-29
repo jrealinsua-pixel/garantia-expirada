@@ -29,7 +29,7 @@ test('cada objeto pasivo dice lo que hace, y lo que da y lo que quita va con su 
   assert.deepEqual(modifierLines(ITEMS.manual!.mod), [{ text: 'Rebota 2 veces', good: true }]);
   const res = modifierLines(ITEMS.resistencia!.mod);
   assert.ok(res.some((l) => l.text === 'Daño +1' && l.good));
-  assert.ok(res.some((l) => l.text === 'Cadencia -30 %' && !l.good));
+  assert.ok(res.some((l) => l.text === 'Cadencia -20 %' && !l.good));
   assert.ok(res.some((l) => l.text === 'Retroceso +40 %' && !l.good), 'más retroceso es peor');
   assert.ok(modifierLines(ITEMS.etiqueta!.mod).every((l) => l.good), 'algunos objetos solo son buenos');
 });
@@ -65,13 +65,13 @@ test('el inventario compara las estadísticas sin objetos y con ellos, y dice si
   const mods = [ITEMS.resistencia!.mod, ITEMS.pila!.mod];
   const rows = weaponStatRows(base, moddedWeapon(base, mods));
   const by = (l: string) => rows.find((r) => r.label === l)!;
-  assert.deepEqual(by('Daño'), { label: 'Daño', base: '1', now: '2', delta: 1 });
-  assert.equal(by('Cadencia').delta, -1, 'la resistencia frena más de lo que la pila acelera');
+  assert.deepEqual(by('Daño'), { label: 'Daño', base: String(WEAPONS.secador!.damage), now: String(WEAPONS.secador!.damage + 1), delta: 1 });
+  assert.equal(by('Cadencia').delta, 1, 'la pila acelera más de lo que la resistencia frena');
   assert.equal(by('Cargador').delta, -1);
   const tost = CHARACTERS.tostadora!;
   const c = characterStatRows(tost, moddedCharacter(tost, [ITEMS.garantia!.mod, ITEMS.etiqueta!.mod]));
   assert.deepEqual(c.map((r) => r.delta), [1, 1, 1]);
   assert.deepEqual([c[0]!.label, c[0]!.base, c[0]!.now], ['Corazones', '3', '4']);
   for (const r of [...rows, ...c]) for (const t of [r.label, r.base, r.now]) drawable(t);
-  assert.equal(weaponStatRows(WEAPONS.plancha!, WEAPONS.plancha!)[0]!.now, '1 × 5');
+  assert.equal(weaponStatRows(WEAPONS.plancha!, WEAPONS.plancha!)[0]!.now, `${WEAPONS.plancha!.damage} × 5`);
 });

@@ -138,6 +138,9 @@ export class Bot {
   private ignorePickups = 0;
   /** Ticks before it may change weapon again. */
   private swapIn = 0;
+  /** Ticks left walking `unstickDir` to get out of a squeeze (between a trolley and a box, say). */
+  private unstick = 0;
+  private unstickDir = { x: 0, y: 0 };
 
   /** Whether it tries to dodge (off, it is the old bot that only walks around and shoots). */
   readonly dodges: boolean;
@@ -241,6 +244,10 @@ export class Bot {
         this.stuck++;
         this.target = null;
         this.ignorePickups = 240;
+        // The path keeps pointing into the same wall: walk off somewhere else for a moment.
+        const a = this.rng.range(0, Math.PI * 2);
+        this.unstick = 45;
+        this.unstickDir = { x: Math.cos(a), y: Math.sin(a) };
       }
       this.lastPos = { x: p.x, y: p.y, t: w.tick };
     }
@@ -266,8 +273,13 @@ export class Bot {
         goal = { x: k.x, y: k.y };
       }
     }
-    const gx = (goal?.x ?? p.x) - p.x;
-    const gy = (goal?.y ?? p.y) - p.y;
+    let gx = (goal?.x ?? p.x) - p.x;
+    let gy = (goal?.y ?? p.y) - p.y;
+    if (this.unstick > 0) {
+      this.unstick--;
+      gx = this.unstickDir.x;
+      gy = this.unstickDir.y;
+    }
     const gl = Math.hypot(gx, gy) || 1;
     // Mix where it wants to go with getting out of the way; danger wins.
     const dg = this.dodges ? dodge(w) : null;
