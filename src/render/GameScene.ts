@@ -2,7 +2,8 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { SWAP_HINT, WEAPON_FOUND_LINES } from '../data/texts.ts';
+import { SWAP_HINT, SYNERGY_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
+import { SYNERGIES } from '../data/synergies.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { ACTIVE_LINES, activeHint, NO_CHARGE_LINE } from '../data/texts.ts';
@@ -159,6 +160,10 @@ export class GameScene extends Phaser.Scene {
   private itemIcons: Phaser.GameObjects.Image[] = [];
   /** An item's description under the banner (which shows its name) when it is picked up. */
   private itemDesc!: Phaser.GameObjects.BitmapText;
+  /** A synergy that has just switched on: «¡Sinergia!», its name and its line, under the item's. */
+  private synergyText!: Phaser.GameObjects.BitmapText;
+  /** The dark plate behind it, so it reads over the floor. */
+  private synergyPlate!: Phaser.GameObjects.Rectangle;
   /** The active item in its slot (top left), its battery marks, and a shake when Q finds it flat. */
   private activeIcon!: Phaser.GameObjects.Image;
   private activeMarks!: Phaser.GameObjects.Graphics;
@@ -334,6 +339,8 @@ export class GameScene extends Phaser.Scene {
     this.banner = this.hud(this.add.bitmapText(VIEW_W / 2, 44, FONT, '', 8).setOrigin(0.5, 0));
     this.banner.setTint(0xf6c431).setAlpha(0);
     this.itemDesc = this.hud(this.add.bitmapText(VIEW_W / 2, 57, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0xd6cdb2).setAlpha(0);
+    this.synergyPlate = this.hud(this.add.rectangle(VIEW_W / 2, 80, 10, 10, 0x101420, 0.82).setOrigin(0.5, 0).setStrokeStyle(1, 0x69dbd8, 0.9)).setAlpha(0);
+    this.synergyText = this.hud(this.add.bitmapText(VIEW_W / 2, 84, FONT, '', 8).setOrigin(0.5, 0).setCenterAlign().setMaxWidth(300)).setTint(0x69dbd8).setAlpha(0);
     this.itemIcons = [];
     this.ammoText = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 26, FONT, '', 8).setOrigin(1, 0));
     this.weaponName = this.hud(this.add.bitmapText(VIEW_W - 8, VIEW_H - 37, FONT, '', 8).setOrigin(1, 0)).setTint(0xf6c431).setAlpha(0);
@@ -1074,8 +1081,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleEvents(events: SimEvent[]): void {
+    const synergies: string[] = [];
     for (const e of events) {
       switch (e.type) {
+        case 'synergy':
+          // Shown after the rest of this step's events, so the item's own banner comes first.
+          if (e.added) synergies.push(e.id);
+          break;
         case 'bossIntroEnd':
           this.endBossIntro();
           break;
@@ -1384,6 +1396,29 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
+    for (const id of synergies) this.showSynergy(id);
+  }
+
+  /**
+   * A synergy switches on: a rising chord, a ring of sparks round the toaster, and «¡Sinergia!»,
+   * its name and its line on a dark plate under the item's description for a while.
+   */
+  private showSynergy(id: string): void {
+    const def = SYNERGIES[id];
+    if (!def) return;
+    const p = this.world.player;
+    this.sound2.play('arma', { detune: 900 });
+    this.time.delayedCall(140, () => this.sound2.play('arma', { detune: 1400 }));
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2;
+      this.spark(p.x + Math.cos(a) * 6, p.y - 10 + Math.sin(a) * 4, a, this.fx.range(60, 100), 0);
+    }
+    this.flashHero = 0.12;
+    this.tweens.killTweensOf([this.synergyText, this.synergyPlate]);
+    this.synergyText.setText(fontText(`${SYNERGY_LINE} ${def.name}\n${def.text}`)).setAlpha(1);
+    const b = this.synergyText.getTextBounds(true).global;
+    this.synergyPlate.setSize(Math.ceil(b.width) + 12, Math.ceil(b.height) + 8).setOrigin(0.5, 0).setAlpha(1);
+    this.tweens.add({ targets: [this.synergyText, this.synergyPlate], alpha: 0, delay: 4600, duration: 700 });
   }
 
   private ejectCasing(angle: number): void {

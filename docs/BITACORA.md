@@ -2,6 +2,14 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-29 09:55 — Hito M5 — Cinco sinergias
+
+- Hecho: sinergias como datos (`src/data/synergies.ts`, tipo `SynergyDef`): piezas (objetos y, si acaso, un arma) y un modificador de más. `activeSynergies` en `src/sim/mods.ts`; `refreshPlayer` las calcula cada vez que cambian los objetos o el arsenal, las guarda en `player.synergies` y emite `synergy` al encenderse o apagarse. Cinco: Sobrecarga (Pila + Secador), Papeleo Exprés (Cinta + Grapadora), Bricolaje Avanzado (Manual + Broca), Instalación Casera (Regleta + Alargador) y Cliente Preferente (Tarjeta + Etiqueta); tabla en `docs/DISENO.md`. En pantalla: acorde, anillo de chispas y un recuadro oscuro con borde cian («¡Sinergia! Nombre» y su frase) bajo la descripción del objeto, 4,6 s. El bot cuenta el % de plantas que acaban con alguna sinergia. Test nuevo `tests/sinergias.test.ts` (8 tests: datos, encendido y apagado de cada una, el efecto de cada una y que la del arma sigue al arsenal). e2e: captura `22-sinergia.png`.
+- Decisiones: una sinergia con arma solo cambia esa arma (si no, la Sobrecarga aceleraría también la Grapadora) y cuenta con el arma en el arsenal, no en la mano, para que cambiar de arma no encienda y apague banners. Los eventos de sinergia se pintan después de los demás del mismo paso, para que el nombre del objeto salga primero. Primero probé el texto a pelo sobre el suelo y no se leía (chocaba con «¡Sinergia!» flotando sobre la tostadora): ahora va sobre una placa oscura y sin texto flotante. La Sobrecarga sale con la Pila y el Secador inicial, como el ejemplo del diseño; me parece bien que la primera sinergia sea fácil de ver.
+- Medidas: bot igual que antes (las sinergias no cambian la simulación sin objetos) y el 0 % de las plantas acaba con sinergia: el bot solo coge 0,5 objetos por planta. Subirá con cofres y tienda.
+- Problemas conocidos: el título largo de la sala del tesoro («Objetos perdidos (nadie los reclamó)») pisa el marco de la puerta de arriba; es anterior a esta sesión.
+- Siguiente paso: M5, cofres con tickets y tienda (dividir en dos sesiones: cofres y tickets primero).
+
 ## 2026-10-29 09:31 — Sesión duplicada — Dos sesiones a la vez
 
 - Hecho: nada de juego. Esta sesión empezó a la vez que la de las 09:30, eligió la misma tarea (la nota de la estimación), la terminó y al hacer push se encontró la otra ya publicada. He descartado mi versión y me quedo con la publicada.

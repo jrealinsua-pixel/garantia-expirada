@@ -1,7 +1,8 @@
-// Modifiers: items (and later synergies) change the player's stats and what its bullets do.
+// Modifiers: items and synergies change the player's stats and what its bullets do.
 // The player keeps its base character and weapon; its `def` and `weapon.def` are recomputed
 // from them and every modifier it carries, so the rest of the simulation just reads them.
-import type { BulletBehaviour, CharacterDef, Modifier, StatKey, WeaponDef } from '../data/types.ts';
+import { SYNERGIES } from '../data/synergies.ts';
+import type { BulletBehaviour, CharacterDef, Modifier, StatKey, SynergyDef, WeaponDef } from '../data/types.ts';
 
 /** Each stat's floor (and whether it is a whole number), so no combination breaks the game. */
 const LIMITS: Record<StatKey, { min: number; max?: number; int?: boolean }> = {
@@ -69,4 +70,10 @@ export function bulletBehaviour(mods: readonly Modifier[]): BulletBehaviour | nu
     if (b.homing && (!out.homing || b.homing.turnDeg > out.homing.turnDeg)) out.homing = { ...b.homing };
   }
   return Object.keys(out).length ? out : null;
+}
+
+/** The synergies that `mods` (by id: an item's modifier has the item's id) and `weapons` (ids) switch on, in table order. */
+export function activeSynergies(mods: readonly Modifier[], weapons: readonly string[]): SynergyDef[] {
+  const have = new Set(mods.map((m) => m.id));
+  return Object.values(SYNERGIES).filter((s) => s.items.every((i) => have.has(i)) && (!s.weapon || weapons.includes(s.weapon)));
 }

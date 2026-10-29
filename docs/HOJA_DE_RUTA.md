@@ -124,7 +124,7 @@ distinguen claramente en las capturas.
 - [x] 3 armas (Secador Mágnum, Grapadora Táctica y una nueva).
 - [x] 10 objetos pasivos, con nombre y descripción según la guía de humor.
 - [x] 3 objetos activos (tecla Q), con pilas como cargas, con nombre y descripción según la guía de humor.
-- [ ] Al menos 4 sinergias con texto propio.
+- [x] Al menos 4 sinergias con texto propio.
 - [ ] Cofres (se abren con tickets), tienda con vendedor y precios en cupones.
 - [ ] Ventana de descripción al recoger un objeto.
 

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T09:31:00+01:00",
+  "actualizado": "2026-10-29T09:55:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -42,7 +42,7 @@
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
       "estado": "en_curso",
-      "hechas": 4,
+      "hechas": 5,
       "total": 7
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 251,
-    "tests_ok": 251,
+    "tests": 259,
+    "tests_ok": 259,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 8883
+    "lineas_codigo": 9008
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T09:55:00+01:00",
+      "hito": "M5",
+      "resumen": "Cinco sinergias: si juntas ciertas piezas, sale «¡Sinergia!» con su nombre y su frase. Sobrecarga (Pila + Secador: el secador sopla como nunca hasta que salta el diferencial), Papeleo Exprés (Cinta + Grapadora), Bricolaje Avanzado (Manual + Broca: rebota y atraviesa más), Instalación Casera (Regleta + Alargador: una bala más) y Cliente Preferente (Tarjeta + Etiqueta: las balas persiguen con ganas).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T09:30:00+01:00",
       "hito": "Nota",
@@ -313,6 +319,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sinergia.png",
+      "pie": "«¡Sinergia! Bricolaje Avanzado» al coger la Broca del Ocho llevando el Manual en Chino: «Nadie ha leído las instrucciones, así que las balas improvisan.»"
+    },
+    {
       "archivo": "capturas/musica-de-espera.png",
       "pie": "La Música de Espera en la Sala de Pruebas: la sala se enfría, las balas se quedan colgadas en el aire y sobre la tostadora sale «Su ataque es muy importante para nosotros.»"
     },
@@ -329,22 +339,18 @@
       "pie": "Una build de prueba con cinco objetos (Garantía, Regleta, Tarjeta, Resistencia y Manual): cuatro corazones, balas gordas que rebotan y persiguen, y la fila de objetos abajo a la izquierda"
     },
     {
-      "archivo": "capturas/armas.png",
-      "pie": "La Grapadora Táctica recién recogida en la Sala de Pruebas: su nombre sobre la munición, el aviso «E o rueda del ratón: cambiar de arma» y la Plancha de Vapor esperando en su pedestal"
-    },
-    {
       "archivo": "capturas/planta-superada.png",
       "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
     }
   ],
-  "proximo": "M5: al menos 4 sinergias con texto propio.",
+  "proximo": "M5: cofres que se abren con tickets (y después la tienda con vendedor y precios en cupones).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
     "unidad": "sesiones",
     "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito.",
     "hitos": {
-      "M5": 4,
+      "M5": 3,
       "M6": 8,
       "M7": 10,
       "M8": 12,

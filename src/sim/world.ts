@@ -5,7 +5,7 @@ import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
-import { moddedCharacter, moddedWeapon } from './mods.ts';
+import { activeSynergies, moddedCharacter, moddedWeapon } from './mods.ts';
 import { bossWarnSpot, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
@@ -60,8 +60,10 @@ export interface Player {
   /** The character as its modifiers leave it (see refreshPlayer); `base` is the untouched one. */
   def: CharacterDef;
   base: { def: CharacterDef };
-  /** What items (and later synergies) do to it, in the order they were picked up. */
+  /** What items do to it, in the order they were picked up (synergies come on top, see refreshPlayer). */
   mods: Modifier[];
+  /** Ids of the synergies switched on (src/data/synergies.ts), in table order. */
+  synergies: string[];
   x: number;
   y: number;
   vx: number;
@@ -308,6 +310,8 @@ export type SimEvent =
   | { type: 'bulletWall'; x: number; y: number; angle: number; bounced?: boolean }
   /** The player's modifiers changed (an item picked up or lost): its stats are recomputed. */
   | { type: 'mods'; id: string; added: boolean }
+  /** A synergy switched on (or off: a piece of it was lost). */
+  | { type: 'synergy'; id: string; added: boolean }
   /** A player bullet broke an enemy bullet that can be shot (a loyalty card). */
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
   | { type: 'bulletFade'; x: number; y: number }
@@ -521,6 +525,7 @@ export function createWorld(opts: WorldOptions): World {
       def,
       base: { def },
       mods: [],
+      synergies: [],
       x: room.playerStart.x,
       y: room.playerStart.y,
       vx: 0,
@@ -787,9 +792,9 @@ export function giveWeapon(w: World, id: string): void {
   let i = p.arsenal.findIndex((ws) => ws.base.id === id);
   if (i < 0) {
     const ws = newWeapon(def);
-    ws.def = moddedWeapon(def, p.mods);
-    ws.ammo = ws.def.magazine;
     p.arsenal.push(ws);
+    refreshSynergies(w);
+    ws.ammo = ws.def.magazine;
     i = p.arsenal.length - 1;
   } else {
     const ws = p.arsenal[i]!;
@@ -1052,11 +1057,15 @@ function shotBehaviour(b: BulletBehaviour | undefined): Partial<Bullet> {
  */
 export function refreshPlayer(p: Player): void {
   const oldMax = p.def.maxHp;
-  p.def = moddedCharacter(p.base.def, p.mods);
+  const weapons = p.arsenal.includes(p.weapon) ? p.arsenal : [...p.arsenal, p.weapon];
+  const syn = activeSynergies(p.mods, weapons.map((ws) => ws.base.id));
+  p.synergies = syn.map((s) => s.id);
+  const mods = [...p.mods, ...syn.filter((s) => !s.weapon).map((s) => s.mod)];
+  p.def = moddedCharacter(p.base.def, mods);
   // A bigger magazine comes loaded (the extra rounds); a smaller one drops what no longer fits.
-  for (const ws of p.arsenal.includes(p.weapon) ? p.arsenal : [...p.arsenal, p.weapon]) {
+  for (const ws of weapons) {
     const oldMag = ws.def.magazine;
-    ws.def = moddedWeapon(ws.base, p.mods);
+    ws.def = moddedWeapon(ws.base, [...mods, ...syn.filter((s) => s.weapon === ws.base.id).map((s) => s.mod)]);
     if (ws.def.magazine > oldMag) ws.ammo += ws.def.magazine - oldMag;
     ws.ammo = Math.min(ws.ammo, ws.def.magazine);
   }
@@ -1064,11 +1073,20 @@ export function refreshPlayer(p: Player): void {
   p.hp = Math.max(Math.min(p.hp, p.def.maxHp), p.hp > 0 ? 1 : 0);
 }
 
+/** refreshPlayer, plus an event for every synergy that has just switched on or off. */
+function refreshSynergies(w: World): void {
+  const before = w.player.synergies;
+  refreshPlayer(w.player);
+  const now = w.player.synergies;
+  for (const id of before) if (!now.includes(id)) w.events.push({ type: 'synergy', id, added: false });
+  for (const id of now) if (!before.includes(id)) w.events.push({ type: 'synergy', id, added: true });
+}
+
 /** Gives the player a modifier (picking up an item). */
 export function addModifier(w: World, m: Modifier): void {
   w.player.mods.push(m);
-  refreshPlayer(w.player);
   w.events.push({ type: 'mods', id: m.id, added: true });
+  refreshSynergies(w);
 }
 
 /** Takes away the player's last modifier with this id, if it has one. */
@@ -1076,8 +1094,8 @@ export function removeModifier(w: World, id: string): boolean {
   const i = w.player.mods.map((m) => m.id).lastIndexOf(id);
   if (i < 0) return false;
   w.player.mods.splice(i, 1);
-  refreshPlayer(w.player);
   w.events.push({ type: 'mods', id, added: false });
+  refreshSynergies(w);
   return true;
 }
 

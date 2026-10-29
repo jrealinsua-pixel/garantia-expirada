@@ -104,6 +104,22 @@ export interface PassiveItemDef {
   mod: Modifier;
 }
 
+/**
+ * A synergy (src/data/synergies.ts): while the player carries every item in `items` (and has
+ * `weapon` in its arsenal, if it names one), it gets `mod` too. With a weapon, `mod` only
+ * changes that weapon's stats and bullets.
+ */
+export interface SynergyDef {
+  id: string;
+  /** 1 to 3 words, shown in the banner. */
+  name: string;
+  /** One sentence in the game's tone, under the name. */
+  text: string;
+  items: string[];
+  weapon?: string;
+  mod: Modifier;
+}
+
 /** What using an active item does (src/sim/world.ts useActive). */
 export type ActiveEffect =
   /** Every enemy bullet (and whatever is in the air) vanishes. */

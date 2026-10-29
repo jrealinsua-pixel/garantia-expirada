@@ -159,9 +159,18 @@ el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando
 Hasta que haya cofres y tienda, la sala del tesoro tiene tres pedestales (un arma, un objeto
 pasivo y uno activo) y la secreta uno (lo siguiente que quede). El Ticket de Compra y la Caja
 quedan para las llaves y los cofres.
-- **Sinergias:** ciertas combinaciones activan un efecto extra y un texto especial (ej.:
-  Pila Casi Agotada + Secador = «Sobrecarga: el secador dispara llamas un momento y luego se
-  apaga»).
+- **Sinergias:** ciertas combinaciones activan un efecto extra y un texto especial, en
+  `src/data/synergies.ts`. Las que piden un arma solo cambian esa arma, y cuentan mientras esté
+  en el arsenal (no hace falta llevarla en la mano). Al activarse sale «¡Sinergia!», su nombre y
+  su frase en un recuadro bajo la descripción del objeto.
+
+| Sinergia | Piezas | Frase | Efecto |
+| --- | --- | --- | --- |
+| Sobrecarga | Pila Casi Agotada + Secador | El secador sopla como nunca hasta que salta el diferencial. | Secador: cadencia ×1,25, balas +1 de radio, recarga ×1,4 |
+| Papeleo Exprés | Cinta Americana + Grapadora | Grapa, cinta y archivado. Así se cierran los expedientes sin leerlos. | Grapadora: cargador ×1,5, recarga ×0,8 |
+| Bricolaje Avanzado | Manual en Chino + Broca del Ocho | Nadie ha leído las instrucciones, así que las balas improvisan. | +1 rebote y +1 enemigo atravesado |
+| Instalación Casera | Regleta Sin Tierra + Alargador | Todo enchufado a todo. El seguro del hogar ha dejado de coger el teléfono. | +1 bala por disparo, 3° menos de dispersión |
+| Cliente Preferente | Tarjeta de Socio + Etiqueta A+++ | Puntos dobles en cada disparo. Caducan mañana. | Persecución más fuerte: gira 400°/s durante 1 s, desde 150 px |
 
 ### Balas enemigas
 

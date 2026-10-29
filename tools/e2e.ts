@@ -550,6 +550,20 @@ try {
   await page.waitForTimeout(200);
   await shot('21d-sin-bateria.png');
   console.log(`Activos: en espera y encuesta (${before2} balas borradas).`);
+
+  // M5: synergies. With the Manual en Chino already carried, pick up the Broca del Ocho in the
+  // treasure room: Bricolaje Avanzado switches on, with its banner under the item's.
+  await page.goto(`${url}?semilla=e2e-objetos&sala=tesoro`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; g.giveItem('manual'); const k = w.pickups.find((p) => p.kind === 'objeto');
+    k.item = 'broca'; w.player.x = k.x - 36; w.player.y = k.y + 2; })()`);
+  await page.waitForTimeout(400);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.synergies.includes("bricolaje")', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(350);
+  await shot('22-sinergia.png');
+  console.log('Sinergias: Bricolaje Avanzado al juntar Manual y Broca.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

@@ -57,6 +57,8 @@ export interface FloorReport {
   /** Floors (with damage on) that ended with an active item, and how many times it was used per floor. */
   conActivo: number;
   usosActivo: number;
+  /** Floors (with damage on) that ended with at least one synergy on. */
+  conSinergia: number;
 }
 
 function arg(name: string, def: number): number {
@@ -130,6 +132,8 @@ interface FloorResult {
   /** The active item carried at the end ('' for none) and how many times one was used. */
   active: string;
   uses: number;
+  /** Synergies switched on at the end. */
+  synergies: number;
   down: boolean;
   seconds: number;
   visited: number;
@@ -188,6 +192,7 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
     arsenal: w.player.arsenal.map((ws) => ws.base.id).join('+'),
     items: w.player.items.join('+'),
     active: w.player.active?.id ?? '',
+    synergies: w.player.synergies.length,
     uses,
     hash: worldHash(w),
     errors,
@@ -297,6 +302,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let items = 0;
   let withActive = 0;
   let uses = 0;
+  let withSynergy = 0;
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
@@ -312,6 +318,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     builds.push(`${b.arsenal}|${b.items}|${b.active}`);
     if (b.active) withActive++;
     uses += b.uses;
+    if (b.synergies) withSynergy++;
     items += b.items ? b.items.split('+').length : 0;
     for (const r of [a, b]) {
       if (r.errors.length) {
@@ -345,6 +352,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       buildsDistintas: new Set(builds).size,
       conActivo: pct(withActive),
       usosActivo: one(uses / floors),
+      conSinergia: pct(withSynergy),
     },
     errors,
     failed,
@@ -439,7 +447,7 @@ if (import.meta.main) {
         `con daño la recorre el ${pl.recorridoConDanio} %, cae el ${pl.caidas} % · ${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
         `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate · ` +
         `acaba con ${pl.armas} armas y ${pl.objetos} objetos, ${pl.arsenalesDistintos} arsenales y ${pl.buildsDistintas} builds distintas · ` +
-        `el ${pl.conActivo} % con objeto activo, ${pl.usosActivo} usos por planta`,
+        `el ${pl.conActivo} % con objeto activo, ${pl.usosActivo} usos por planta · el ${pl.conSinergia} % con alguna sinergia`,
     );
   }
   const j = report.jefe;

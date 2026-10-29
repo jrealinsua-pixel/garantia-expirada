@@ -183,3 +183,6 @@ export const ACTIVE_LINES: Record<string, string> = {
 };
 /** Q without enough batteries. */
 export const NO_CHARGE_LINE = 'Sin batería';
+
+/** Over the toaster, and as the heading of the synergy box, when a synergy switches on. */
+export const SYNERGY_LINE = '¡Sinergia!';
