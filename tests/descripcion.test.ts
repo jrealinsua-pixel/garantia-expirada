@@ -26,10 +26,13 @@ test('cada objeto pasivo dice lo que hace, y lo que da y lo que quita va con su 
   ]);
   assert.deepEqual(modifierLines(ITEMS.garantia!.mod), [{ text: '+1 corazón', good: true }]);
   assert.deepEqual(modifierLines(ITEMS.cinta!.mod), [{ text: 'Tiempo de recarga -40 %', good: true }]);
-  assert.deepEqual(modifierLines(ITEMS.manual!.mod), [{ text: 'Rebota 2 veces', good: true }]);
+  assert.deepEqual(modifierLines(ITEMS.manual!.mod), [
+    { text: 'Alcance +30 %', good: true },
+    { text: 'Rebota 2 veces', good: true },
+  ]);
   const res = modifierLines(ITEMS.resistencia!.mod);
   assert.ok(res.some((l) => l.text === 'Daño +1' && l.good));
-  assert.ok(res.some((l) => l.text === 'Cadencia -20 %' && !l.good));
+  assert.ok(res.some((l) => l.text === 'Cadencia -25 %' && !l.good));
   assert.ok(res.some((l) => l.text === 'Retroceso +40 %' && !l.good), 'más retroceso es peor');
   assert.ok(modifierLines(ITEMS.etiqueta!.mod).every((l) => l.good), 'algunos objetos solo son buenos');
 });
@@ -66,7 +69,7 @@ test('el inventario compara las estadísticas sin objetos y con ellos, y dice si
   const rows = weaponStatRows(base, moddedWeapon(base, mods));
   const by = (l: string) => rows.find((r) => r.label === l)!;
   assert.deepEqual(by('Daño'), { label: 'Daño', base: String(WEAPONS.secador!.damage), now: String(WEAPONS.secador!.damage + 1), delta: 1 });
-  assert.equal(by('Cadencia').delta, 1, 'la pila acelera más de lo que la resistencia frena');
+  assert.equal(by('Cadencia').delta, -1, 'la resistencia frena más de lo que la pila acelera');
   assert.equal(by('Cargador').delta, -1);
   const tost = CHARACTERS.tostadora!;
   const c = characterStatRows(tost, moddedCharacter(tost, [ITEMS.garantia!.mod, ITEMS.etiqueta!.mod]));

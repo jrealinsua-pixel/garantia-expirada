@@ -20,7 +20,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     description: 'Nadie sabe por qué funciona. Tampoco el fabricante.',
     sprite: 'objeto-manual',
     // Bullets bounce off walls twice.
-    mod: { id: 'manual', bullets: { bounce: 2 } },
+    mod: { id: 'manual', stats: [{ stat: 'bulletLife', mul: 1.3 }], bullets: { bounce: 2 } },
   },
   garantia: {
     id: 'garantia',
@@ -36,7 +36,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     description: 'Seis enchufes y un solo contrato de luz. Lo que salte después no está cubierto.',
     sprite: 'objeto-regleta',
     // One more bullet per shot, more spread, a little slower.
-    mod: { id: 'regleta', stats: [{ stat: 'pellets', add: 1 }, { stat: 'spreadDeg', add: 6 }, { stat: 'fireRate', mul: 0.85 }] },
+    mod: { id: 'regleta', stats: [{ stat: 'pellets', add: 1 }, { stat: 'spreadDeg', add: 6 }, { stat: 'fireRate', mul: 0.7 }] },
   },
   tarjeta: {
     id: 'tarjeta',
@@ -84,7 +84,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     description: 'Pieza no original. Calienta más de lo que pone en la caja.',
     sprite: 'objeto-resistencia',
     // One more point of damage and bigger bullets, but fires slower and kicks harder.
-    mod: { id: 'resistencia', stats: [{ stat: 'damage', add: 1 }, { stat: 'bulletRadius', add: 1 }, { stat: 'fireRate', mul: 0.8 }, { stat: 'recoil', mul: 1.4 }] },
+    mod: { id: 'resistencia', stats: [{ stat: 'damage', add: 1 }, { stat: 'bulletRadius', add: 1 }, { stat: 'fireRate', mul: 0.75 }, { stat: 'recoil', mul: 1.4 }] },
   },
 };
 

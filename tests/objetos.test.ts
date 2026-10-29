@@ -295,3 +295,14 @@ test('los objetos se acumulan y la partida sigue siendo determinista', () => {
   // The data is never changed by playing with it.
   assert.deepEqual(ITEMS.pila!.mod.stats, [{ stat: 'fireRate', mul: 1.3 }, { stat: 'magazine', mul: 0.7 }]);
 });
+
+test('ningún objeto es obligatorio: ninguno multiplica el daño por segundo de todas las armas por más de 1,6', async () => {
+  const { weaponProfile } = await import('../src/data/describe.ts');
+  const { moddedWeapon } = await import('../src/sim/mods.ts');
+  for (const it of Object.values(ITEMS)) {
+    const gains = Object.values(WEAPONS).map((wd) => weaponProfile(moddedWeapon(wd, [it.mod])).dps / weaponProfile(wd).dps);
+    assert.ok(Math.min(...gains) <= 1.6, `${it.id}: ×${gains.map((g) => g.toFixed(2)).join(' ×')}`);
+    // And none is worse for every weapon (pellets aside, which paper cannot weigh against spread).
+    assert.ok(Math.max(...gains) >= 0.99, `${it.id} empeora todas las armas`);
+  }
+});

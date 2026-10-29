@@ -7,7 +7,7 @@ import { templatesOf } from '../src/data/rooms.ts';
 import { WEAPONS } from '../src/data/weapons.ts';
 import { weaponProfile } from '../src/data/describe.ts';
 import { Bot } from '../src/sim/bot.ts';
-import { createWorld, DT, newWeapon, step, type World } from '../src/sim/world.ts';
+import { createWorld, DT, giveItem, newWeapon, step, type World } from '../src/sim/world.ts';
 
 const ROOT = join(import.meta.dirname, '..');
 
@@ -24,7 +24,7 @@ function armed(w: World, id: string): void {
   p.weapon = p.arsenal[0]!;
 }
 
-interface Fight {
+export interface Fight {
   won: boolean;
   seconds: number;
   hurts: number;
@@ -33,10 +33,12 @@ interface Fight {
   hits: number;
 }
 
-function fight(seed: string, room: string, weapon: string, maxSeconds: number, boss: boolean): Fight {
+/** The bot alone in `room` with `weapon` (and `items`) until the room is empty or the boss falls. */
+export function fight(seed: string, room: string, weapon: string, maxSeconds: number, boss: boolean, items: string[] = []): Fight {
   const w = createWorld({ seed, room, depth: 3 });
   if (boss) w.intro = null;
   armed(w, weapon);
+  for (const id of items) giveItem(w, id);
   const bot = new Bot(seed);
   const out: Fight = { won: false, seconds: maxSeconds, hurts: 0, damage: 0, pellets: 0, hits: 0 };
   for (let t = 0; t < maxSeconds / DT && !w.over; t++) {

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T14:55:00+01:00",
+  "actualizado": "2026-10-29T15:20:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,7 +56,7 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 7
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 303,
-    "tests_ok": 303,
+    "tests": 304,
+    "tests_ok": 304,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 11354
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T15:20:00+01:00",
+      "hito": "M7",
+      "resumen": "Repaso de los objetos con el bot: la Regleta era obligatoria (duplicaba el daño) y ahora da y quita; el Manual en Chino era inútil y ahora sus balas duran más para aprovechar los rebotes; la Resistencia, un poco más lenta. Un test vigila que ningún objeto sea obligatorio.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T14:55:00+01:00",
       "hito": "M7",
@@ -427,7 +433,7 @@
       "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: repaso de los objetos pasivos (que ninguno sea inútil ni obligatorio) con las armas nuevas.",
+  "proximo": "M7: rendimiento (60 fps estables con 300 balas en pantalla).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -456,11 +462,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 12:44 UTC",
-      "tarea": "M7: repaso de los objetos pasivos",
-      "desde": "2026-10-29T13:32:00Z"
-    }
-  ]
+  "en_curso": []
 }

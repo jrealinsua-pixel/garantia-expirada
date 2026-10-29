@@ -156,15 +156,15 @@ Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quit
 | Objeto | Descripción | Efecto |
 | --- | --- | --- |
 | Pila Casi Agotada | Dura lo que un contrato temporal. Después, nada. | Cadencia ×1,3, cargador ×0,7 |
-| Manual en Chino | Nadie sabe por qué funciona. Tampoco el fabricante. | Las balas rebotan 2 veces |
+| Manual en Chino | Nadie sabe por qué funciona. Tampoco el fabricante. | Las balas rebotan 2 veces y duran ×1,3 |
 | Garantía Extendida | Cubre todo excepto lo que te pase. La letra pequeña no se puede leer: forma parte del servicio. | +1 corazón |
-| Regleta Sin Tierra | Seis enchufes y un solo contrato de luz. Lo que salte después no está cubierto. | +1 bala por disparo, +6° de dispersión, cadencia ×0,85 |
+| Regleta Sin Tierra | Seis enchufes y un solo contrato de luz. Lo que salte después no está cubierto. | +1 bala por disparo, +6° de dispersión, cadencia ×0,7 |
 | Tarjeta de Socio | Te sigue a todas partes. Como los correos de la tienda. | Las balas persiguen un momento; un poco más lentas |
 | Etiqueta A+++ | Eficiencia energética certificada por el propio fabricante. | Velocidad ×1,15, voltereta antes |
 | Alargador de Tres Metros | Llega a todas partes. Sobre todo a los tobillos. | Alcance ×1,35, balas más rápidas |
 | Broca del Ocho | Para colgar un cuadro. Ya puestos, para todo lo demás. | Las balas atraviesan 2 enemigos; menos empuje |
 | Cinta Americana | Lo arregla todo durante una semana. | Recarga ×0,6 |
-| Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,8, más retroceso |
+| Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,75, más retroceso |
 
 Objetos activos (tecla Q o botón B del mando). Se lleva uno; al coger otro, el viejo se queda en
 el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando está lleno:

@@ -160,8 +160,8 @@ semillas distintas acaban con builds distintas.
 - [x] Armas con diferencias reales (nota del humano): tabla de daño por segundo, alcance y
   cadencia medida por el bot; cada arma gana claramente en algo y pierde en otra cosa
   (tabla en `docs/DISENO.md`; `npm run armas` la mide).
-- [ ] Repaso de los objetos pasivos (nota del humano): la mayoría da y quita (como ya hacen),
-  algunos solo dan; ninguno es inútil ni obligatorio.
+- [x] Repaso de los objetos pasivos (nota del humano): la mayoría da y quita (como ya hacen),
+  algunos solo dan; ninguno es inútil ni obligatorio (`npm run objetos` lo mide).
 - [ ] Rendimiento: 60 fps estables con 300 balas en pantalla.
 - [ ] Accesibilidad: remapeo de controles, opción de reducir temblores y destellos, tamaño de texto.
 - [ ] Animaciones completas de todos los enemigos.
