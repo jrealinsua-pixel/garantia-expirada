@@ -10,6 +10,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Decisiones: subir el número de enemigos y no su vida: se nota más (más balas en pantalla) y no toca a la planta 1. El Router se queda en 200 de vida: aislado y con el arma inicial lo gana el bot la mitad de las veces, y en partida (con lo de la planta 1) mata a pocos; está bien que el jefe no sea donde más se cae de la planta. La planta 3 tiene que ser el muro (nota del humano); la 2 ya es más dura que la 1 por sala, aunque se llegue mejor equipado.
 - Problemas conocidos: la muestra de la planta 2 en `npm run bot` es pequeña (las partidas que ganan la 1, unas 9). Para afinar, `runFloors(60)` desde un script tarda minuto y medio.
 - **M8 terminado**: todas sus tareas hechas; la planta 2 tiene juego de casillas, plantillas propias, cuatro enemigos, diez objetos, salas especiales y jefe, y se juega encadenada a la 1.
+- Error de protocolo mío: empecé esta tarea sin apuntarla en `en_curso` y sin `git pull`; mientras, otra sesión (la de las 23:25 UTC) la cogió. Al subir ya estaba hecha: esa sesión debería dejarla y quitar su entrada de `en_curso` (no la borro yo, es suya). Desde ahora: apuntar siempre la tarea antes de tocar código, también al encadenar tareas en la misma sesión.
 - Siguiente paso: M9, el centro y la historia. Primero partirlo en tareas pequeñas en la hoja de ruta (el Mostrador de Devoluciones como escena, guardado de progreso entre partidas, los PNJs...).
 
 ## 2026-10-30 00:05 — Hito M8 — Jefe (2b): el Router del Wifi pelea
