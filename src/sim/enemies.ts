@@ -1,6 +1,6 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, MimicBrain, MothBrain, TurretBrain } from '../data/types.ts';
+import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
@@ -43,6 +43,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'mimic':
         updateMimic(w, en, en.def.brain);
+        break;
+      case 'lagger':
+        updateLagger(w, en, en.def.brain);
         break;
     }
     contact(w, en);
@@ -236,6 +239,83 @@ function updateChaser(w: World, en: Enemy, b: ChaserBrain): void {
   const oy = en.y;
   slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
   en.moved += Math.hypot(en.x - ox, en.y - oy);
+}
+
+/** Where a lagging mouse will appear: towards the player, at most `jump` px, never closer than `keep`, on clear floor. */
+export function lagSpot(w: World, en: Enemy, b: LaggerBrain): { x: number; y: number } {
+  const p = w.player;
+  const d = Math.hypot(p.x - en.x, p.y - en.y) || 1;
+  const ux = (p.x - en.x) / d;
+  const uy = (p.y - en.y) / d;
+  let step = Math.min(b.jump, d - b.keep);
+  // Already too close: it skips sideways instead.
+  let sx = ux;
+  let sy = uy;
+  if (step < 16) {
+    step = b.jump * 0.6;
+    const side = en.id % 2 === 0 ? 1 : -1;
+    sx = -uy * side;
+    sy = ux * side;
+  }
+  const spot = freeSpot(w, en.x + sx * step, en.y + sy * step, en.def.footRadius + 2);
+  // Never on top of the player.
+  if (Math.hypot(spot.x - p.x, spot.y - p.y) < b.keep * 0.75) return { x: en.x, y: en.y };
+  return spot;
+}
+
+function updateLagger(w: World, en: Enemy, b: LaggerBrain): void {
+  const p = w.player;
+  const toX = p.x - en.x;
+  const toY = p.y - en.y;
+  en.t += DT;
+  switch (en.state) {
+    case 'walk': {
+      // After the player, weaving; within `keep` it circles instead of walking into it.
+      const close = Math.hypot(toX, toY) < b.keep;
+      const weave = close ? (en.id % 2 === 0 ? 4 : -4) : Math.sin(w.tick / 11 + en.id) * 0.4;
+      const dir = normalize(toX - toY * weave, toY + toX * weave);
+      approach(en, dir.x * b.walkSpeed, dir.y * b.walkSpeed, KNOCK_FRICTION);
+      if (Math.abs(toX) > 2) en.facing = toX > 0 ? 1 : -1;
+      if (en.t >= en.until && !w.over) {
+        // No signal: it freezes, and the spot where it will turn up is marked.
+        en.dest = lagSpot(w, en, b);
+        enter(en, 'warn', b.freeze);
+        w.events.push({ type: 'telegraph', x: en.dest.x, y: en.dest.y - b.muzzleY, time: b.freeze, aim: 0, aimed: false, color: 'red', source: en.id });
+      }
+      break;
+    }
+    case 'warn':
+      approach(en, 0, 0, KNOCK_FRICTION * 2);
+      if (en.t >= en.until) {
+        // The signal comes back: it is suddenly where the cursor was, and clicks.
+        const to = en.dest ?? { x: en.x, y: en.y };
+        w.events.push({ type: 'lagJump', x: en.x, y: en.y, tx: to.x, ty: to.y, source: en.id });
+        en.x = to.x;
+        en.y = to.y;
+        en.vx = 0;
+        en.vy = 0;
+        delete en.dest;
+        if (Math.abs(p.x - en.x) > 2) en.facing = p.x > en.x ? 1 : -1;
+        const def = PATTERNS[b.pattern];
+        if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - en.y, p.x - en.x), { telegraph: 0, source: en.id, by: en.def.id, height: mh });
+        enter(en, 'brake', b.recover);
+      }
+      break;
+    case 'brake':
+      approach(en, 0, 0, KNOCK_FRICTION);
+      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.walkTime[0], b.walkTime[1]));
+      break;
+    default:
+      enter(en, 'walk', w.rng.range(b.walkTime[0], b.walkTime[1]));
+  }
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
 }
 
 function updateMimic(w: World, en: Enemy, b: MimicBrain): void {

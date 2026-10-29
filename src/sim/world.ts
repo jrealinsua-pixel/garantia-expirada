@@ -330,6 +330,7 @@ export type SimEvent =
   | { type: 'revive'; item: string; x: number; y: number; hp: number }
   | { type: 'jam'; x: number; y: number; source: number }
   | { type: 'reveal'; x: number; y: number; source: number }
+  | { type: 'lagJump'; x: number; y: number; tx: number; ty: number; source: number }
   | { type: 'bulletFade'; x: number; y: number }
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
@@ -1543,6 +1544,11 @@ export function activeWarnings(w: World): Warning[] {
       const a = b.phases[en.bossPhase ?? 0]?.attacks[en.attack ?? 0];
       const at = a ? bossWarnSpot(en, b, a) : { x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y };
       out.push({ x: at.x, y: at.y, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: a?.kind === 'spit' ? 'red' : 'ice', bullets: true, source: en.id });
+      continue;
+    }
+    if (b.kind === 'lagger' && en.dest) {
+      // Where the frozen mouse will appear and click: a ring closing in on that spot.
+      out.push({ x: en.dest.x, y: en.dest.y - b.muzzleY, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: 'red', bullets: true, source: en.id });
       continue;
     }
     out.push({ x: en.x, y: en.y - 2 - enemyAltitude(en), k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'red', bullets: false, source: en.id });

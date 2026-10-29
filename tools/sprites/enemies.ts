@@ -2,7 +2,7 @@
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
-import { BURNT, CREAM, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
+import { BURNT, CREAM, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
 
@@ -380,4 +380,68 @@ export function makeCargadorFrames(): Canvas[] {
     makeCargadorBait(),
     makeCargador({ xb: CHARGER_LEGS[0], xf: CHARGER_LEGS[1], bob: -2 }, 2),
   ];
+}
+
+/** Office mouse plastic: grey, with a darker underside. */
+const MOUSE = ramp('#cfd3de', '#a3a9b9', '#7a8094', '#565b6d');
+const MOUSE_SIDE = ramp('#6f7488', '#5a5f72', '#45495a', '#303342');
+const MOUSE_TOP = ramp('#eef0f5', '#cfd3de', '#a3a9b9', '#7a8094');
+
+/**
+ * Ratón Inalámbrico sin Pilas: an office mouse on its glide pads, two buttons and a scroll wheel on
+ * top, fed-up eyes on its front. Jokes: the low-battery light blinking red, the battery cover
+ * gone and a cobweb in the empty slot, and its cable cut off with scissors to make it «wireless». `led` lights the red light; `frozen` is the no-signal frame: grey, the light
+ * off and a loading spinner for eyes. 26x26.
+ */
+export function makeRaton(pose: Pose = { xb: MOUSE_LEGS[0], xf: MOUSE_LEGS[1], bob: 0 }, led = false, frozen = false): Canvas {
+  const legs = new Canvas(26, 24);
+  const cv = new Canvas(26, 24);
+  poseFeet(legs, pose, 18, { L: 3, leg: PANTL, shoe: OFFICE });
+  hand(cv, 1, 12, MOUSE);
+  cube(cv, 4, 5, 18, 13, 5, 4, MOUSE, MOUSE_SIDE, MOUSE_TOP);
+  // Rounded front-top corner.
+  clear(cv, [[21, 5], [21, 6], [20, 5]]);
+  // Buttons: two lighter pads on top, split down the middle, and the scroll wheel sticking up.
+  cv.rect(10, 5, 10, 1, MOUSE_TOP[0]!);
+  cv.rect(14, 4, 1, 5, MOUSE[3]!);
+  cv.rect(13, 3, 3, 3, K);
+  cv.rect(14, 3, 1, 2, DSTEEL[0]!);
+  // Low-battery light on top.
+  cv.set(18, 6, frozen ? MOUSE_SIDE[2]! : led ? RED[0]! : RED[3]!);
+  if (frozen) {
+    // No signal: a loading spinner where the eyes were.
+    const ring: Pt[] = [[14, 10], [15, 10], [16, 11], [16, 12], [15, 13], [14, 13], [13, 12], [13, 11]];
+    ring.forEach(([x, y], i) => cv.set(x, y, i < 3 ? WHITE : K));
+  } else {
+    // Fed-up eyes under brows pulled down to the middle, a flat mouth pulled to one side.
+    cv.rect(11, 10, 2, 3, K);
+    cv.set(12, 11, WHITE);
+    cv.rect(16, 10, 3, 3, K);
+    cv.set(18, 11, WHITE);
+    const brows: Pt[] = [[10, 8], [11, 8], [12, 9], [16, 9], [17, 8], [18, 8], [19, 8]];
+    for (const [x, y] of brows) cv.set(x, y, K);
+    cv.rect(13, 15, 5, 1, K);
+    cv.set(18, 14, K);
+  }
+  // Back: no battery cover, an empty slot with a cobweb.
+  cv.rect(5, 10, 3, 6, MOUSE_SIDE[3]!);
+  cv.set(5, 10, WHITE);
+  cv.set(6, 11, MOUSE[1]!);
+  cv.set(7, 12, WHITE);
+  hand(cv, 21, 13, MOUSE);
+  const o = outline(joinPose(legs, cv, pose));
+  // Its tail: the cable, cut off with scissors to make it «wireless», copper showing at the end.
+  const tail: Pt[] = [[3, 9], [2, 10], [1, 11], [1, 12], [0, 13]];
+  for (const [x, y] of tail) o.set(x, y + pose.bob, K);
+  o.set(0, 14 + pose.bob, RUSTR[0]!);
+  o.set(1, 14 + pose.bob, YEL[2]!);
+  return pad(o, 2);
+}
+
+export const MOUSE_LEGS = [9, 15] as const;
+
+/** The mouse's frames: 0-1 breathing (the light blinks), 2-5 gliding, 6 frozen without signal. */
+export function makeRatonFrames(): Canvas[] {
+  const cyc = poseCycle(MOUSE_LEGS[0], MOUSE_LEGS[1]);
+  return [...cyc.map((f, k) => makeRaton(f.pose, k === 1 || k === 3 || k === 5)), makeRaton(undefined, false, true)];
 }

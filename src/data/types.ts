@@ -449,7 +449,25 @@ export interface MimicBrain {
   cooldown: [number, number];
 }
 
-export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain;
+/**
+ * Lags: walks after the player for `walkTime` s, then freezes for `freeze` s (no signal) while
+ * the spot it will jump to is marked, then appears there at once, up to `jump` px closer but never
+ * nearer than `keep` px to the player, and clicks: `pattern` fired round itself. Then `recover` s
+ * standing.
+ */
+export interface LaggerBrain {
+  kind: 'lagger';
+  walkSpeed: number;
+  walkTime: [number, number];
+  freeze: number;
+  jump: number;
+  keep: number;
+  pattern: string;
+  muzzleY: number;
+  recover: number;
+}
+
+export type EnemyBrain = ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain;
 
 export interface EnemyDef {
   id: string;
@@ -495,6 +513,8 @@ export interface EnemyAnim {
   off?: number;
   /** Second boss phase: the same layout from this frame on (`idle`/`walk` + `phaseShift`). */
   phaseShift?: number;
+  /** Frame shown while it warns (the wireless mouse frozen without signal). */
+  warn?: number;
   /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */
   lurk?: number;
   reveal?: number;

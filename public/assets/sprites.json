@@ -53,6 +53,12 @@
     "frameH": 26,
     "frames": 8
   },
+  "raton-inalambrico": {
+    "file": "raton-inalambrico.png",
+    "frameW": 26,
+    "frameH": 26,
+    "frames": 7
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,

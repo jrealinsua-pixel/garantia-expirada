@@ -194,7 +194,7 @@ semillas distintas acaban con builds distintas.
 - 4 enemigos nuevos, uno por tarea:
   - [x] (1) Impresora que se Atasca (torreta que se atasca: una ventana para atacarla y un estallido al soltarse).
   - [x] (2) Cargador Falso (espera tirado como cebo, salta al acercarte y da un calambre en corro).
-  - [ ] (3) Ratón Inalámbrico sin Pilas (ideas: se mueve a tirones, se queda quieto sin pila y luego corre).
+  - [x] (3) Ratón Inalámbrico sin Pilas (se congela sin señal, marca dónde va a aparecer, aparece y hace clic).
   - [ ] (4) Uno más por decidir (el «router» de la lista original es el jefe, el Router del Wifi;
     ideas: Webcam que te sigue con la mirada y avisa a los demás, Disco Duro que se cuelga).
 - Jefe: El Router del Wifi (con su sala propia en la planta 2). En partes:

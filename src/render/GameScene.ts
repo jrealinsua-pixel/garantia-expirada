@@ -1472,6 +1472,13 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('empujon');
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y, Math.atan2(e.dirY, e.dirX) + this.fx.range(-1, 1), this.fx.range(40, 90), this.fx.int(0, 2));
           break;
+        case 'lagJump':
+          // The wireless mouse turns up somewhere else: a puff where it was and a click where it is.
+          this.puff(e.x, e.y, 0.3);
+          this.puff(e.tx, e.ty, 0.3);
+          this.sound2.play('recargado', { detune: -600 });
+          for (let i = 0; i < 4; i++) this.spark(e.tx, e.ty - 6, this.fx.range(0, Math.PI * 2), this.fx.range(30, 60), 0);
+          break;
         case 'reveal':
           // A fake charger found out: it jumps up with a spark and its line.
           this.sound2.play('saltar', { detune: 300 });

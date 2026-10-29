@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T22:52:00+01:00",
+  "actualizado": "2026-10-29T22:53:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -118,18 +118,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 8,
+    "enemigos": 9,
     "jefes": 1,
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 368,
-    "tests_ok": 368,
+    "tests": 374,
+    "tests_ok": 374,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 13704
+    "lineas_codigo": 13852
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T22:53:00+01:00",
+      "hito": "M8",
+      "resumen": "Enemigos (3): el Ratón Inalámbrico sin Pilas, que se queda sin señal, marca dónde va a aparecer, aparece allí de golpe y hace clic.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T22:52:00+01:00",
       "hito": "M8",
@@ -557,6 +563,10 @@
       "pie": "El Router del Wifi, jefe de la planta 2 (aún no pelea), al lado de la tostadora, su repetidor, la Impresora y el Cargador Falso"
     },
     {
+      "archivo": "capturas/raton.png",
+      "pie": "El Ratón Inalámbrico sin Pilas: congelado sin señal, mientras los anillos rojos marcan dónde va a aparecer"
+    },
+    {
       "archivo": "capturas/cargador.png",
       "pie": "El Cargador Falso: dos cargadores tirados por el taller, hasta que te acercas"
     },
@@ -571,13 +581,9 @@
     {
       "archivo": "capturas/copia.png",
       "pie": "La Copia de Seguridad: a medio corazón y con una bala encima, la tostadora vuelve con un corazón («Restaurando copia del martes») y la copia desaparece del HUD"
-    },
-    {
-      "archivo": "capturas/cadena.png",
-      "pie": "Plantas encadenadas: tras ganar la planta 1, «R» lleva a la planta 2 con la misma tostadora (aquí, con sus 37 cupones), al Rellano de Informática"
     }
   ],
-  "proximo": "M8: enemigos (3) y (4) de Informática y el jefe (2b): el Router del Wifi en la simulación (diseño en docs/DISENO.md, sala jefe-informatica y sprites router-wifi y repetidor ya hechos).",
+  "proximo": "M8: enemigos (4), el cuarto de Informática (por decidir: Webcam, Disco Duro...), y el jefe (2b): el Router del Wifi en la simulación (diseño en docs/DISENO.md, sala jefe-informatica y sprites router-wifi y repetidor ya hechos).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -606,11 +612,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 20:25 UTC",
-      "tarea": "M8: enemigos (3): el Ratón Inalámbrico sin Pilas (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts, src/sim/world.ts avisos, tools/sprites/enemies.ts, SLOT_ENEMIES_2)",
-      "desde": "2026-10-29T21:45Z"
-    }
-  ]
+  "en_curso": []
 }

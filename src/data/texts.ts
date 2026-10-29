@@ -68,6 +68,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   mando: { bullet: 'Zapeo a quemarropa', contact: 'Cambio de canal no solicitado' },
   impresora: { bullet: 'Factura impagada', contact: 'Atasco de papel con daños personales' },
   cargador: { bullet: 'Calambre de un cargador no homologado', contact: 'Cargador no homologado' },
+  'raton-inalambrico': { bullet: 'Doble clic accidental', contact: 'Ratón que apareció de repente' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },
 };

@@ -59,6 +59,14 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.12, pattern: { kind: 'ring', count: 10, speed: 110, life: 0.45, offsetDeg: 18, color: 'cyan' } },
     ],
   },
+  // Ratón Inalámbrico sin Pilas: where it turns up, a click all round (a ring with a gap-free twin).
+  'raton-clic': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 8, speed: 82, color: 'red' } },
+      { at: 0.2, pattern: { kind: 'ring', count: 8, speed: 64, offsetDeg: 22.5, color: 'red' } },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

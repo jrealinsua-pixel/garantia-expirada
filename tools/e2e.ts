@@ -371,9 +371,11 @@ try {
   console.log('Planta 2: sus objetos pasivos, en el tesoro y en el inventario; el doble clic del ratón y la copia de seguridad.');
 
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
-  await page.goto(`${url}?semilla=e2e-impresora-6&sala=taller-expres&planta=2`);
+  // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
+  await page.goto(`${url}?semilla=e2e-impresora-3&sala=taller-expres&planta=2`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
-  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  await page.evaluate("(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = w.enemies.filter((e) => e.def.id === 'impresora'); })()");
+  if (!(await page.evaluate<boolean>('window.__GE__.scene.world.enemies.length > 0'))) throw new Error('No hay impresora en la sala de la prueba');
   await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.color === 'invoice')", undefined, { timeout: 12000 });
   await page.waitForTimeout(250);
   await shot('35e-impresora.png');
@@ -382,7 +384,7 @@ try {
   console.log('Impresora: facturas al vuelo y un atasco de papel.');
 
   // M8: the fake chargers: lying as bait, then jumping up and giving a shock.
-  await page.goto(`${url}?semilla=e2e-cargador-1&sala=taller-expres&planta=2`);
+  await page.goto(`${url}?semilla=e2e-cargador-2&sala=taller-expres&planta=2`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
   // Only the chargers, and the toaster near them (but not near enough to wake them), so the camera shows them.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = w.enemies.filter((e) => e.def.id === 'cargador');
@@ -398,6 +400,18 @@ try {
   await page.waitForTimeout(120);
   await shot('35i-cargador-calambre.png');
   console.log('Cargador Falso: de cebo en el suelo a calambre.');
+
+  // M8: the wireless mouse: frozen without signal, the spot where it will turn up marked.
+  await page.goto(`${url}?semilla=e2e-raton-6&sala=taller-expres&planta=2`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = w.enemies.filter((e) => e.def.id === 'raton-inalambrico');
+    const r = w.enemies[0]; w.player.x = r.x - 60; w.player.y = r.y + 70; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.state === 'warn' && e.t > 0.45)", undefined, { timeout: 8000 });
+  await shot('35j-raton-congelado.png');
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.state === 'brake')", undefined, { timeout: 3000 });
+  await page.waitForTimeout(150);
+  await shot('35k-raton-clic.png');
+  console.log('Ratón Inalámbrico: se congela, aparece donde marcaba y hace clic.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);
