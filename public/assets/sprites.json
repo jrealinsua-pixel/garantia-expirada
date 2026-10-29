@@ -45,7 +45,7 @@
     "file": "nevera-suprema.png",
     "frameW": 72,
     "frameH": 76,
-    "frames": 1
+    "frames": 2
   },
   "maniqui": {
     "file": "maniqui.png",
@@ -118,6 +118,18 @@
     "frameW": 9,
     "frameH": 9,
     "frames": 1
+  },
+  "bala-tarjeta": {
+    "file": "bala-tarjeta.png",
+    "frameW": 10,
+    "frameH": 8,
+    "frames": 4
+  },
+  "producto-caducado": {
+    "file": "producto-caducado.png",
+    "frameW": 12,
+    "frameH": 14,
+    "frames": 3
   },
   "escarcha": {
     "file": "escarcha.png",

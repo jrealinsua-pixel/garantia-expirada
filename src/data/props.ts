@@ -17,3 +17,6 @@ export const DUMMIES: Record<string, DummyDef> = {
     box: { x: -5, y: -4, w: 10, h: 4 },
   },
 };
+
+/** What La Nevera Suprema spits in its second phase: one frame each in the `producto-caducado` sheet. */
+export const EXPIRED_PRODUCTS = ['Yogur', 'Brick de leche', 'Lata abollada'] as const;

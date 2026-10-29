@@ -308,7 +308,11 @@ export function makeBombilla(): Canvas {
   return o;
 }
 
-export function makeNevera(): Canvas {
+/**
+ * La Nevera Suprema (the approved sprite). With `open`, its second phase: the fridge door swung
+ * open on its hinge (seen edge-on, on the right) and the lit inside full of expired food.
+ */
+export function makeNevera(open = false): Canvas {
   const cv = new Canvas(72, 76);
   {
     const x = 4;
@@ -371,6 +375,7 @@ export function makeNevera(): Canvas {
   for (const [x, y] of rust) cv.set(x, y, RUSTR[1]!);
   const frost: Pt[] = [[20, 12], [21, 11], [55, 12], [54, 11]];
   for (const [x, y] of frost) cv.set(x, y, ICE[1]!);
+  if (open) neveraOpen(cv);
   box(cv, 56, 38, 13, 9, YEL);
   cv.rect(56, 41, 13, 2, K);
   cv.rect(58, 44, 4, 1, YEL[3]!);
@@ -382,6 +387,64 @@ export function makeNevera(): Canvas {
   const cold: Pt[] = [[8, 8], [9, 7], [62, 10]];
   for (const [x, y] of cold) o.set(x, y, [225, 240, 250, 140]);
   return o;
+}
+
+/** The open fridge: lit inside with two shelves of expired food, and the door swung out on the right. */
+function neveraOpen(cv: Canvas): void {
+  const BACK = ramp('#3d4a66', '#2c3550', '#1f263c');
+  const MOLD = ramp('#b5d36a', '#7fa83f', '#4f6e2a');
+  const LIGHT = hx('#fff4c2');
+  // The dark frame of the opening, then the inside: lighter at the top where the bulb is.
+  cv.rect(19, 27, 37, 36, K);
+  for (let y = 28; y < 62; y++) cv.rect(20, y, 35, 1, y < 33 ? BACK[0]! : y < 48 ? BACK[1]! : BACK[2]!);
+  cv.rect(34, 28, 7, 1, LIGHT);
+  cv.rect(35, 29, 5, 1, hx('#d9cf9c'));
+  // Two wire shelves.
+  for (const y of [42, 53]) {
+    cv.rect(20, y, 35, 1, STEEL[1]!);
+    cv.rect(20, y + 1, 35, 1, STEEL[3]!);
+  }
+  // Top shelf: a swollen yogurt, a milk carton, a can.
+  cv.rect(23, 37, 5, 5, CREAM[1]!);
+  cv.rect(22, 35, 7, 2, MOLD[1]!);
+  cv.rect(23, 34, 5, 1, MOLD[0]!);
+  cv.rect(23, 39, 5, 2, RED[1]!);
+  cv.rect(31, 33, 6, 9, WHITE);
+  cv.rect(32, 32, 4, 1, WHITE);
+  cv.rect(31, 36, 6, 2, BLUE[1]!);
+  cv.rect(35, 39, 2, 2, MOLD[2]!);
+  cv.rect(40, 36, 5, 6, RED[1]!);
+  cv.rect(40, 35, 5, 1, STEEL[1]!);
+  cv.rect(41, 37, 2, 1, WHITE);
+  cv.set(44, 39, K);
+  cv.rect(47, 38, 6, 4, MOLD[2]!);
+  cv.rect(48, 37, 4, 1, MOLD[1]!);
+  // Bottom shelf: a mouldy lump, a tin of fish, a tub with a green cloud.
+  cv.rect(22, 49, 8, 4, MOLD[1]!);
+  cv.rect(23, 48, 5, 1, MOLD[0]!);
+  cv.set(25, 50, MOLD[2]!);
+  cv.rect(32, 50, 9, 3, STEEL[2]!);
+  cv.rect(32, 50, 9, 1, STEEL[0]!);
+  cv.rect(43, 47, 7, 6, CREAM[1]!);
+  cv.rect(43, 47, 7, 1, CREAM[0]!);
+  cv.rect(44, 45, 5, 2, MOLD[0]!);
+  // Drips and a puddle at the bottom.
+  for (const [x, y] of [[29, 54], [29, 55], [46, 54]] as const) cv.set(x, y, MOLD[1]!);
+  cv.rect(24, 59, 12, 1, MOLD[2]!);
+  // The door, open towards us: seen edge-on as a slanted panel hinged on the right edge.
+  for (let y = 27; y < 63; y++) {
+    const sl = Math.floor((y - 27) / 12);
+    cv.rect(56 + sl, y, 7 - sl, 1, FRT[2]!);
+    cv.set(56 + sl, y, FRT[0]!);
+    cv.set(62, y, FRT[3]!);
+  }
+  // Its inner side: two door bins with bottles.
+  for (const y of [34, 48]) {
+    cv.rect(57, y, 6, 3, FRT[1]!);
+    cv.rect(57, y + 2, 6, 1, FRT[3]!);
+    cv.rect(58, y - 3, 1, 3, GREEN);
+    cv.rect(60, y - 2, 2, 2, RED[1]!);
+  }
 }
 
 /** Pixels of the moth (and its trail) drawn next to the approved bulb: in the game the moth flies on its own. */

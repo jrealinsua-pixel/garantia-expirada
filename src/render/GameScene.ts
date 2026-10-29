@@ -892,17 +892,36 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('lanzar', { detune: this.fx.range(-200, 200) });
           break;
         case 'frostLand': {
+          if (e.product !== undefined) {
+            // An expired product bursts: a wet splat and green bits flying.
+            this.sound2.play('chof', { detune: this.fx.range(-300, 300) });
+            this.cameras.main.shake(70, 0.003, true);
+            for (let i = 0; i < 8; i++) this.goo(e.x + this.fx.range(-3, 3), e.y);
+            this.puff(e.x, e.y - 2, 0.45);
+            break;
+          }
           this.sound2.play('escarcha', { detune: this.fx.range(-200, 200) });
           this.cameras.main.shake(80, 0.004, true);
           for (let i = 0; i < 7; i++) this.iceShard(e.x + this.fx.range(-4, 4), e.y);
           for (let i = 0; i < 3; i++) this.puff(e.x + this.fx.range(-e.r * 0.6, e.r * 0.6), e.y + this.fx.range(-4, 4), 0.5);
           break;
         }
+        case 'bulletCut':
+          // A loyalty card shot down: a snip and a few red and white bits.
+          this.sound2.play('tarjeta', { detune: this.fx.range(-200, 200) });
+          for (let i = 0; i < 4; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(25, 60), i % 2);
+          break;
         case 'bossPhase': {
-          // A new phase: its name, big and cold, and a shudder.
+          // A new phase: its name, big, and a shudder. The second one, «Oferta irrechazable», swings
+          // the door open (a creak and a cold breath) and comes in offer red.
           this.sound2.play('jefe', { volume: 0.7 });
           this.cameras.main.shake(260, 0.012, true);
-          this.banner.setText(fontText(e.name)).setTint(0x69dbd8).setAlpha(1);
+          const boss = this.world.enemies.find((en) => en.id === e.boss);
+          if (e.phase >= 1 && boss) {
+            this.sound2.play('portazo');
+            for (let i = 0; i < 6; i++) this.puff(boss.x + this.fx.range(-14, 22) * boss.facing, boss.y - this.fx.range(8, 36), this.fx.range(0.6, 1));
+          }
+          this.banner.setText(fontText(e.name)).setTint(e.phase >= 1 ? 0xe0453b : 0x69dbd8).setAlpha(1);
           this.tweens.killTweensOf(this.banner);
           this.tweens.add({ targets: this.banner, alpha: 0, delay: 1800, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
           break;
@@ -928,6 +947,14 @@ export class GameScene extends Phaser.Scene {
       spin: this.fx.range(-8, 8),
       fade: true,
     });
+  }
+
+  /** A bit of rotten food that flies out of a burst product and lands. */
+  private goo(x: number, y: number): void {
+    const s = this.add.image(x, y, 'chispas', 0).setTint(this.fx.pick([0xb5d36a, 0x7fa83f, 0x4f6e2a, 0xd6cdb2]));
+    const a = this.fx.range(0, Math.PI * 2);
+    const sp = this.fx.range(20, 60);
+    this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.6, z: 2, vz: this.fx.range(40, 90), life: 0.9, maxLife: 0.9, gravity: true, spin: 0, fade: true, hw: 1, hh: 1 });
   }
 
   /** A splinter of ice that jumps out and bounces on the floor. */
@@ -1178,6 +1205,8 @@ export class GameScene extends Phaser.Scene {
       if (en.def.brain.kind === 'moth') s.setFrame(Math.floor(this.time.now / (en.state === 'charge' ? 35 : 70)) % 2);
       else if (en.def.brain.kind === 'turret' && en.def.brain.startup) s.setFrame(bulbLit(en, this.time.now) ? 0 : 1);
       else if (en.def.brain.kind === 'blinker') s.setFrame(Math.floor(this.time.now / 380 + en.id * 0.5) % 2);
+      // La Nevera Suprema opens her door for her second phase.
+      else if (en.def.brain.kind === 'boss') s.setFrame((en.bossPhase ?? 0) >= 1 ? 1 : 0);
       else if (en.def.brain.kind === 'chaser') {
         // Beaters turn all the time; flat out while winding up, lunging or in TURBO.
         const fast = en.state === 'warn' || en.state === 'charge' || en.turbo;
@@ -1256,6 +1285,8 @@ export class GameScene extends Phaser.Scene {
         this.bulletSprites.set(b.id, s);
       }
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);
+      // Loyalty cards spin as they fly.
+      if (b.color === 'card' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 70 + b.id) % 4);
       const sc = b.life < 0.15 ? 0.6 : 1;
       s.setScale(sc);
     }
@@ -1306,7 +1337,8 @@ export class GameScene extends Phaser.Scene {
       alive.add(f.id);
       let v = this.frostViews.get(f.id);
       if (!v) {
-        v = { ball: this.add.image(f.fromX, f.fromY, 'bola-escarcha'), shadow: this.add.image(f.fromX, f.fromY, shadowTexture(this, 4, 2)).setDepth(-50000), patch: null };
+        const ball = f.product !== undefined ? this.add.image(f.fromX, f.fromY, 'producto-caducado', f.product) : this.add.image(f.fromX, f.fromY, 'bola-escarcha');
+        v = { ball, shadow: this.add.image(f.fromX, f.fromY, shadowTexture(this, 4, 2)).setDepth(-50000), patch: null };
         this.frostViews.set(f.id, v);
       }
       if (f.t < 0) {
@@ -1314,14 +1346,15 @@ export class GameScene extends Phaser.Scene {
         const x = f.fromX + (f.x - f.fromX) * k;
         const y = f.fromY + (f.y - f.fromY) * k;
         const h = f.fromH * (1 - k) + Math.sin(Math.PI * k) * 46;
-        v.ball.setPosition(Math.round(x), Math.round(y - h)).setDepth(y + 30).setRotation(k * 6);
+        v.ball.setPosition(Math.round(x), Math.round(y - h)).setDepth(y + 30).setRotation(k * (f.product !== undefined ? 4 : 6));
         v.shadow.setPosition(Math.round(x), Math.round(y));
         // Where it will land: a cold ring that closes in, over a dark ellipse.
         const rx = Math.round(f.r * (1.35 - 0.35 * k));
         const ry = Math.round(rx * FROST_FLAT);
         g.fillStyle(0x0e0c16, 0.18 + 0.2 * k).fillEllipse(Math.round(f.x), Math.round(f.y), f.r * 2, f.r * 2 * FROST_FLAT);
         pixelEllipse(g, Math.round(f.x), Math.round(f.y) + 1, rx, ry, 0x0e0c16);
-        if (k < 0.85 || Math.floor(this.time.now / 60) % 2 === 0) pixelEllipse(g, Math.round(f.x), Math.round(f.y), rx, ry, 0x69dbd8);
+        // Frost marks its spot in cyan; expired products, in red.
+        if (k < 0.85 || Math.floor(this.time.now / 60) % 2 === 0) pixelEllipse(g, Math.round(f.x), Math.round(f.y), rx, ry, f.product !== undefined ? 0xe0453b : 0x69dbd8);
         continue;
       }
       if (v.ball.visible) {
@@ -1536,7 +1569,7 @@ export class GameScene extends Phaser.Scene {
 }
 
 /** Enemy bullet sprites by colour: the boss's ice is a cube. */
-const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito' };
+const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta' };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
 const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number }> = {

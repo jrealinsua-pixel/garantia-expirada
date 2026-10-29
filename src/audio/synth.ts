@@ -128,4 +128,9 @@ export const SFX: Record<string, SfxParams> = {
   cubitos: { wave: 'noise', freq: 3200, freqEnd: 2200, attack: 0.002, sustain: 0.18, decay: 0.12, volume: 0.13, crush: 3, vibrato: 0.6, vibratoSpeed: 28 },
   lanzar: { wave: 'noise', freq: 700, freqEnd: 2000, attack: 0.03, sustain: 0.06, decay: 0.12, volume: 0.12, lowpass: 0.55 },
   escarcha: { wave: 'square', freq: 2400, freqEnd: 600, attack: 0.001, sustain: 0.02, decay: 0.16, volume: 0.15, duty: 0.2, crush: 3 },
+  // Its second phase: the door swinging open (a long rusty creak), an expired product landing (a
+  // wet splat) and a loyalty card shot down (a snip).
+  portazo: { wave: 'saw', freq: 180, freqEnd: 310, attack: 0.04, sustain: 0.35, decay: 0.25, volume: 0.16, vibrato: 0.3, vibratoSpeed: 19, lowpass: 0.4, crush: 2 },
+  chof: { wave: 'noise', freq: 420, freqEnd: 90, attack: 0.002, sustain: 0.04, decay: 0.18, volume: 0.22, lowpass: 0.3 },
+  tarjeta: { wave: 'square', freq: 1800, freqEnd: 2600, attack: 0.001, sustain: 0.015, decay: 0.05, volume: 0.12, duty: 0.25 },
 };

@@ -167,7 +167,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description:
       'Jefa de la planta del almacén. Clase energética A+++, dispensador de hielo y una pegatina de «Empleada del mes» ' +
       'que se puso ella misma. Lleva veinte años sin descongelarse y sin dar una sola explicación.',
-    hp: 260,
+    hp: 200,
     sprite: 'nevera-suprema',
     anchor: { x: 34, y: 73 },
     hurt: { x: -25, y: -70, w: 48, h: 62 },
@@ -192,6 +192,20 @@ export const ENEMIES: Record<string, EnemyDef> = {
             { kind: 'pattern', pattern: 'nevera-granizo', telegraph: 0.9, weight: 2 },
             // «Escarcha»: frost on the floor that slows you down where you were going to dodge.
             { kind: 'frost', count: 3, spread: 56, flight: 0.9, radius: 22, life: 7, slow: 0.5, shatter: 'escarcha-esquirlas', telegraph: 0.6, weight: 2 },
+          ],
+        },
+        {
+          // Half its life gone: the door swings open and the offers start.
+          name: 'Oferta irrechazable',
+          from: 0.5,
+          walkSpeed: 20,
+          keep: 120,
+          rest: [0.8, 1.3],
+          attacks: [
+            { kind: 'pattern', pattern: 'nevera-tarjetas', telegraph: 0.7, weight: 3 },
+            // «Productos caducados»: a spray of expired food from the open fridge, each bursting where it lands.
+            { kind: 'spit', count: 5, spread: 72, flight: 0.85, from: { x: 3, y: 30 }, burst: 'caducado-reventon', telegraph: 0.8, weight: 3 },
+            { kind: 'pattern', pattern: 'nevera-cubitos', telegraph: 0.6, weight: 2 },
           ],
         },
       ],

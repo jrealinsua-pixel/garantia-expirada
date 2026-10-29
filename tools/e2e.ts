@@ -371,6 +371,19 @@ try {
   await shot('17g-nevera-escarcha.png');
   await page.keyboard.up('d');
   if ((await state()).fps < 30) throw new Error(`Va lento contra la jefa: ${(await state()).fps} fps`);
+  // Phase 2 («Oferta irrechazable»): half her life gone, the door opens; loyalty cards that chase
+  // and expired products spat from the fridge.
+  await page.evaluate(`(() => { const b = window.__GE__.scene.world.enemies[0]; b.damageTaken = Math.ceil(b.def.hp / 2) + 1; })()`);
+  await page.waitForFunction('window.__GE__.scene.world.enemies[0].bossPhase === 1', undefined, { timeout: 3000 });
+  await page.waitForTimeout(300);
+  // Between attacks, so the open door is not hidden by the warning blink.
+  await page.waitForFunction("window.__GE__.scene.world.enemies[0].state === 'idle'", undefined, { timeout: 8000 });
+  await shot('17h-nevera-fase2.png');
+  await page.waitForFunction(`window.__GE__.scene.world.bullets.filter((b) => b.color === 'card' && b.age > 0.6).length >= 3`, undefined, { timeout: 20000 });
+  await shot('17i-nevera-tarjetas.png');
+  await page.waitForFunction('window.__GE__.scene.world.frost.some((f) => f.product !== undefined && f.t > -0.45)', undefined, { timeout: 20000 });
+  await shot('17j-nevera-caducados.png');
+  if ((await state()).fps < 30) throw new Error(`Va lento en la fase 2: ${(await state()).fps} fps`);
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

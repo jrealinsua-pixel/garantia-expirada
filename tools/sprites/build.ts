@@ -39,7 +39,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     polilla: { canvas: strip(makePolilla()), frameW: 11, frameH: 9 },
     batidora: { canvas: strip(makeBatidoraFrames()), frameW: 32, frameH: 38 },
     mando: { canvas: strip(makeMandoFrames()), frameW: 22, frameH: 32 },
-    'nevera-suprema': one(makeNevera()),
+    // Frame 0 is the approved sprite; frame 1, the second phase (door open).
+    'nevera-suprema': { canvas: strip([makeNevera(), makeNevera(true)]), frameW: 72, frameH: 76 },
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
     'arma-grapadora': one(miniStapler()),
@@ -52,6 +53,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-cian': one(P.enemyBulletCyan()),
     'bala-cubito': one(P.makeIceCube()),
     'bola-escarcha': one(P.makeFrostBall()),
+    'bala-tarjeta': { canvas: P.makeLoyaltyCard(), frameW: 10, frameH: 8 },
+    'producto-caducado': { canvas: P.makeExpiredProducts(), frameW: 12, frameH: 14 },
     escarcha: { canvas: P.makeFrostPatch(), frameW: 46, frameH: 28 },
     fogonazo: { canvas: P.makeMuzzle(), frameW: 12, frameH: 10 },
     pelusa: { canvas: P.makePelusa(), frameW: 4, frameH: 4 },

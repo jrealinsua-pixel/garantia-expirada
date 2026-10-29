@@ -177,6 +177,11 @@ export interface BossReport {
   /** Hits taken per fight, and seconds per fight walking on frost. */
   heridas: number;
   segundosEnEscarcha: number;
+  /** Fights that reach the second phase (%), when it starts (mean s), and hits taken in each phase per fight. */
+  llegaFase2: number;
+  segundoFase2: number;
+  heridasFase1: number;
+  heridasFase2: number;
 }
 
 /** The bot fights the floor boss in its room (entrance skipped), with damage, up to `maxSeconds`. */
@@ -185,15 +190,27 @@ export function runBoss(fights: number, maxSeconds = 240): { report: BossReport;
   const won: number[] = [];
   let hurts = 0;
   let frostT = 0;
+  const phase2At: number[] = [];
+  const phaseHurts = [0, 0];
   for (let i = 0; i < fights; i++) {
     const seed = `jefe-${i}`;
+    let phase = 0;
     const w = createWorld({ seed, room: 'jefe' });
     w.intro = null;
     const bot = new Bot(seed);
     try {
       for (let t = 0; t < maxSeconds / DT && !w.over; t++) {
         step(w, bot.think(w));
-        for (const e of w.events) if (e.type === 'hurt') hurts++;
+        for (const e of w.events) {
+          if (e.type === 'hurt') {
+            hurts++;
+            phaseHurts[Math.min(1, phase)]!++;
+          }
+          if (e.type === 'bossPhase' && e.phase >= 1 && phase === 0) {
+            phase = 1;
+            phase2At.push(t * DT);
+          }
+        }
         if (frostSlow(w, w.player.x, w.player.y) < 1) frostT += DT;
         if (w.enemies.length === 0) {
           won.push(t * DT);
@@ -221,6 +238,10 @@ export function runBoss(fights: number, maxSeconds = 240): { report: BossReport;
       maximo: won.length ? one(Math.max(...won)) : 0,
       heridas: Math.round((hurts / fights) * 100) / 100,
       segundosEnEscarcha: one(frostT / fights),
+      llegaFase2: one((phase2At.length / fights) * 100),
+      segundoFase2: phase2At.length ? one(phase2At.reduce((a, b) => a + b, 0) / phase2At.length) : 0,
+      heridasFase1: Math.round((phaseHurts[0]! / fights) * 100) / 100,
+      heridasFase2: Math.round((phaseHurts[1]! / fights) * 100) / 100,
     },
     errors,
   };
@@ -371,7 +392,8 @@ if (import.meta.main) {
   if (j?.combates) {
     console.log(
       `${j.combates} combates contra la jefa · gana el ${j.gana} % en ${j.segundos} s (${j.minimo}–${j.maximo} s) · ` +
-        `${j.heridas} heridas por combate · ${j.segundosEnEscarcha} s en la escarcha`,
+        `${j.heridas} heridas por combate (${j.heridasFase1} en la fase 1, ${j.heridasFase2} en la 2) · ${j.segundosEnEscarcha} s en la escarcha · ` +
+        `llega a la fase 2 el ${j.llegaFase2} %, a los ${j.segundoFase2} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

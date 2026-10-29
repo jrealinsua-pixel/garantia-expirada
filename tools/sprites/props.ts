@@ -1,6 +1,6 @@
 // Props, bullets, effects and HUD pieces. Props and bullets are ports of tools/referencia/build2.py.
 import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
-import { BLUE, BROWN, BURNT, CARD, CREAM, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, STEEL, TOASTC, WHITE, YEL, box, ellipse, hand, outline, type Ramp } from '../../src/art/lib.ts';
+import { BLUE, BROWN, BURNT, CARD, CREAM, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, STEEL, TOASTC, WHITE, YEL, box, ellipse, hand, outline, ramp, type Ramp } from '../../src/art/lib.ts';
 
 export function makeCaja(): Canvas {
   const cv = new Canvas(24, 24);
@@ -447,5 +447,65 @@ export function makeFrostPatch(): Canvas {
       sheet.put(ox + cx + x!, cy + y! - 1, hx('#f4f1e8', 200));
     }
   }
+  return sheet;
+}
+
+/** Paints a grid of characters onto `cv` at (ox, oy); '.' is left transparent. */
+function paintGrid(cv: Canvas, ox: number, oy: number, rows: readonly string[], cols: Record<string, RGBA>): void {
+  rows.forEach((row, j) => [...row].forEach((ch, i) => {
+    const c = cols[ch];
+    if (c) cv.set(ox + i, oy + j, c);
+  }));
+}
+
+/**
+ * La Nevera Suprema's loyalty card («Tarjeta Club Suprema»), spinning as it flies: 4 frames of
+ * 10x8. Red with a white band (the saturated colour and white core of the enemy bullets), a little
+ * gold chip on the front and the black magnetic stripe on the back.
+ */
+export function makeLoyaltyCard(): Canvas {
+  const W = 10;
+  const H = 8;
+  const frames: Array<readonly string[]> = [
+    ['aaaaaaaa', 'wwwwwwww', 'byybbbbb', 'bbbbbbwb', 'cccccccc'],
+    ['aaaaa', 'wwwww', 'bybbb', 'bbbwb', 'ccccc'],
+    ['aw', 'ww', 'bw', 'bw', 'cw'],
+    ['aaaaa', 'kkkkk', 'bbbbb', 'bwwwb', 'ccccc'],
+  ];
+  const cols: Record<string, RGBA> = { a: RED[0]!, b: RED[1]!, c: RED[2]!, w: WHITE, y: YEL[1]!, k: K };
+  const sheet = new Canvas(W * frames.length, H);
+  frames.forEach((rows, f) => {
+    const cv = new Canvas(W, H);
+    paintGrid(cv, Math.floor((W - rows[0]!.length) / 2), 1, rows, cols);
+    sheet.blit(outline(cv), f * W, 0);
+  });
+  return sheet;
+}
+
+/**
+ * What the fridge spits in its second phase (see EXPIRED_PRODUCTS): 3 frames of 12x14.
+ * A yogurt with its lid swollen and green, a milk carton with a mouldy stain and a dented can.
+ */
+export function makeExpiredProducts(): Canvas {
+  const W = 12;
+  const H = 14;
+  const MOLD = ramp('#b5d36a', '#7fa83f', '#4f6e2a');
+  const frames: Array<readonly string[]> = [
+    // Yogur: swollen foil lid (green), cream cup, red label with a white cross-out.
+    ['...gggg...', '..gGGGGg..', '.gGGgGGGg.', '.ssssssss.', '.cwwwwwwc.', '.cwmwwwwc.', '..rrrrrr..', '..rwrrwr..', '..rrwwrr..', '..rwrrwr..', '..cwwwwc..', '...cccc...'],
+    // Brick de leche: gabled top, blue band, a green stain and the date stamped.
+    ['....ww....', '...wwww...', '..wwwwww..', '..ssssss..', '..wwwwwm..', '..bbbbbb..', '..bwbbwb..', '..wwwwww..', '..wkwkww..', '..wwmmww..', '..wwwmww..', '..ssssss..'],
+    // Lata abollada: grey rims, red label with a dent, a bulge at the top.
+    ['...hhhh...', '..hHHHHh..', '..hhhhhh..', '..rrrrrr..', '..rwwrrr..', '..rr.rrr..', '..rrrrrr..', '..rrwrrr..', '..rrrrrr..', '..hhhhhh..', '...hhhh...'],
+  ];
+  const cols: Record<string, RGBA> = {
+    g: MOLD[1]!, G: MOLD[0]!, m: MOLD[2]!, s: STEEL[2]!, c: CREAM[1]!, w: WHITE, r: RED[1]!, b: BLUE[1]!, k: K, h: STEEL[2]!, H: STEEL[0]!,
+  };
+  const sheet = new Canvas(W * frames.length, H);
+  frames.forEach((rows, f) => {
+    const cv = new Canvas(W, H);
+    paintGrid(cv, 1, H - 1 - rows.length, rows, cols);
+    sheet.blit(outline(cv), f * W, 0);
+  });
   return sheet;
 }

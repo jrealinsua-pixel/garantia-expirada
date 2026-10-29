@@ -2,6 +2,7 @@
 // come from the enemy's data.
 import type { BlinkerBrain, BossAttack, BossBrain, ChargerBrain, ChaserBrain, MothBrain, TurretBrain } from '../data/types.ts';
 import { PATTERNS } from '../data/patterns.ts';
+import { EXPIRED_PRODUCTS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { isWallAt, wallRectsNear } from './room.ts';
@@ -401,9 +402,11 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           firePattern(w, def, mx, en.y - mh, aim, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: mh });
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.25);
         } else {
-          // The frost warns by itself (see activeWarnings): the ring closes on the dispenser.
+          // Frost and spit warn by themselves (see activeWarnings): the ring closes on the dispenser
+          // (or on the open door).
           enter(en, 'warn', a.telegraph);
-          w.events.push({ type: 'telegraph', x: mx, y: en.y - mh, time: a.telegraph, aim, aimed: false, color: 'ice', source: en.id });
+          const at = bossWarnSpot(en, b, a);
+          w.events.push({ type: 'telegraph', x: at.x, y: at.y, time: a.telegraph, aim, aimed: false, color: a.kind === 'spit' ? 'red' : 'ice', source: en.id });
         }
       }
       break;
@@ -422,6 +425,19 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
             const opts = { r: a.radius, life: a.life, slow: a.slow, flight: a.flight * w.rng.range(0.9, 1.1), source: en.id, by: en.def.id };
             throwFrost(w, mx, en.y, mh, tx, ty, a.shatter ? { ...opts, shatter: a.shatter } : opts);
+          }
+        } else if (a.kind === 'spit') {
+          // A spray of expired products over where the player is and around it.
+          const sx = en.x + a.from.x * en.facing;
+          const sh = muzzleHeight(w, en, a.from.y);
+          for (let k = 0; k < a.count; k++) {
+            const ang = w.rng.range(0, Math.PI * 2);
+            const dist = k === 0 ? 0 : a.spread * Math.sqrt(w.rng.next());
+            let tx = p.x + Math.cos(ang) * dist;
+            let ty = p.y + Math.sin(ang) * dist * 0.75;
+            if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
+            const product = w.rng.int(0, EXPIRED_PRODUCTS.length - 1);
+            throwFrost(w, sx, en.y, sh, tx, ty, { r: 12, life: 0, slow: 1, flight: a.flight * w.rng.range(0.75, 1.25), shatter: a.burst, product, source: en.id, by: en.def.id });
           }
         }
         enter(en, 'fire', 0.5);
@@ -442,6 +458,12 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
+}
+
+/** Where a boss attack that warns by itself shows its warning: the dispenser, or the open door. */
+export function bossWarnSpot(en: Enemy, b: BossBrain, a: BossAttack): { x: number; y: number } {
+  const at = a.kind === 'spit' ? a.from : b.muzzle;
+  return { x: en.x + at.x * en.facing, y: en.y - at.y };
 }
 
 /** Height its bullets come out at: `muzzleY` above the feet, lower if a wall is right above it. */

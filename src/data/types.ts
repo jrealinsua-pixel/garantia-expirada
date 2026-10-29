@@ -238,7 +238,23 @@ export interface BossFrostAttack {
   weight: number;
 }
 
-export type BossAttack = BossPatternAttack | BossFrostAttack;
+/**
+ * Opens up and spits `count` expired products from `from` (px from its feet, facing right): they
+ * fly `flight` s (give or take 25 %) to random spots up to `spread` px around the player (the
+ * spots are marked meanwhile) and burst into `burst` (a pattern) where they land.
+ */
+export interface BossSpitAttack {
+  kind: 'spit';
+  count: number;
+  spread: number;
+  flight: number;
+  from: { x: number; y: number };
+  burst: string;
+  telegraph: number;
+  weight: number;
+}
+
+export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack;
 
 /** A stage of a boss fight, with its own attacks. */
 export interface BossPhase {

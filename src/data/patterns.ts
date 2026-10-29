@@ -32,6 +32,17 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.45, pattern: { kind: 'ring', count: 16, speed: 38, accel: 55, maxSpeed: 95, offsetDeg: 11.25, color: 'ice' } },
     ],
   },
+  // Phase 2, «Oferta irrechazable»: loyalty cards that follow you for a while (slower than you, and
+  // they turn wide, so a sidestep or a roll shakes them off) and can be shot down.
+  'nevera-tarjetas': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 3, spreadDeg: 110, speed: 72, homing: { turnDeg: 75, time: 2.2 }, shootable: true, life: 4.5, color: 'card' } },
+      { at: 0.55, pattern: { kind: 'fan', count: 2, spreadDeg: 150, speed: 72, homing: { turnDeg: 75, time: 2.2 }, shootable: true, life: 4.5, color: 'card' } },
+    ],
+  },
+  // An expired product bursts where it lands.
+  'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.
   'escarcha-esquirlas': { kind: 'ring', count: 6, speed: 52, offsetDeg: 30, color: 'ice' },
   // Generic aimed fan, for the weaker enemies.

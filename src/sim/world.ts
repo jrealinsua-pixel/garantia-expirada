@@ -4,10 +4,10 @@ import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.
 import { WEAPONS } from '../data/weapons.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { CharacterDef, DummyDef, EnemyDef, RoomTemplate, WeaponDef } from '../data/types.ts';
-import { updateEnemies } from './enemies.ts';
+import { bossWarnSpot, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
-import { expandPattern, isAimed, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
+import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
 import { buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type Room, type RoomDoor } from './room.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
@@ -113,6 +113,11 @@ export interface Bullet {
   wave?: { amp: number; freq: number };
   accel?: number;
   maxSpeed?: number;
+  homing?: Homing;
+  /** The player's bullets break it (the boss's loyalty cards). */
+  shootable?: boolean;
+  /** Shot down this tick: it is gone. */
+  cut?: boolean;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
   /**
@@ -233,6 +238,11 @@ export interface Frost {
   flight: number;
   /** Pattern it shatters into when it lands. */
   shatter?: string;
+  /**
+   * Not frost but an expired product the boss spits (its frame in the `producto-caducado` sheet):
+   * it bursts where it lands and leaves no patch (`life` is 0).
+   */
+  product?: number;
   /** Who threw it (enemy id, and its kind for the sick-leave report). */
   source: number;
   by: string;
@@ -247,6 +257,8 @@ export type SimEvent =
   | { type: 'shot'; x: number; y: number; angle: number; weapon: string }
   | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number }
   | { type: 'bulletWall'; x: number; y: number; angle: number }
+  /** A player bullet broke an enemy bullet that can be shot (a loyalty card). */
+  | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
   | { type: 'bulletFade'; x: number; y: number }
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
@@ -266,7 +278,7 @@ export type SimEvent =
   | { type: 'blinkIn'; x: number; y: number; source: number }
   /** A boss throws a ball of frost from (x, y) to land at (tx, ty) in `flight` s; then it lands. */
   | { type: 'frostThrow'; x: number; y: number; tx: number; ty: number; flight: number; source: number }
-  | { type: 'frostLand'; x: number; y: number; r: number }
+  | { type: 'frostLand'; x: number; y: number; r: number; product?: number }
   /** A boss starts a new phase of its fight. */
   | { type: 'bossPhase'; boss: number; phase: number; name: string }
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
@@ -843,6 +855,7 @@ function updateWeapon(w: World, input: Input): void {
 function updateBullets(w: World): void {
   const keep: Bullet[] = [];
   for (const b of w.bullets) {
+    if (b.cut) continue;
     b.life -= DT;
     if (b.life <= 0) {
       w.events.push({ type: 'bulletFade', x: b.x, y: b.y });
@@ -850,7 +863,17 @@ function updateBullets(w: World): void {
     }
     b.age += DT;
     if (b.accel) b.speed = Math.min(b.maxSpeed ?? Infinity, Math.max(10, b.speed + b.accel * DT));
-    if (b.wave || b.accel) {
+    // Homing: it turns towards the player (towards its body, not its feet) for a while.
+    const homing = b.homing && b.age < b.homing.time && !w.over;
+    if (homing) {
+      const want = Math.atan2(w.player.y - PLAYER_HURT_Y - b.y, w.player.x - b.x);
+      let d = want - b.dir;
+      while (d > Math.PI) d -= 2 * Math.PI;
+      while (d < -Math.PI) d += 2 * Math.PI;
+      const max = (b.homing!.turnDeg * Math.PI * DT) / 180;
+      b.dir += Math.max(-max, Math.min(max, d));
+    }
+    if (b.wave || b.accel || homing) {
       const side = b.wave ? b.wave.amp * 2 * Math.PI * b.wave.freq * Math.cos(2 * Math.PI * b.wave.freq * b.age) : 0;
       b.vx = Math.cos(b.dir) * b.speed - Math.sin(b.dir) * side;
       b.vy = Math.sin(b.dir) * b.speed + Math.cos(b.dir) * side;
@@ -896,6 +919,20 @@ function updateBullets(w: World): void {
           }
         }
         if (!alive) break;
+        // Loyalty cards can be shot down: both bullets are lost.
+        for (const o of w.bullets) {
+          if (o.owner !== 'enemy' || !o.shootable || o.cut) continue;
+          const dx = o.x - b.x;
+          const dy = o.y - b.y;
+          const rr = o.r + b.r + 1;
+          if (dx * dx + dy * dy < rr * rr) {
+            o.cut = true;
+            w.events.push({ type: 'bulletCut', x: o.x, y: o.y, color: o.color });
+            alive = false;
+            break;
+          }
+        }
+        if (!alive) break;
         for (const d of w.dummies) {
           const hb = dummyHurtBox(d);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
@@ -911,7 +948,7 @@ function updateBullets(w: World): void {
     }
     if (alive) keep.push(b);
   }
-  w.bullets = keep;
+  w.bullets = keep.filter((b) => !b.cut);
 }
 
 /** Starts firing a pattern from (x, y). `aim` is the angle towards the target. */
@@ -982,7 +1019,9 @@ export function activeWarnings(w: World): Warning[] {
     if (!warnsByItself(en)) continue;
     const b = en.def.brain;
     if (b.kind === 'boss') {
-      out.push({ x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: 'ice', bullets: true, source: en.id });
+      const a = b.phases[en.bossPhase ?? 0]?.attacks[en.attack ?? 0];
+      const at = a ? bossWarnSpot(en, b, a) : { x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y };
+      out.push({ x: at.x, y: at.y, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: a?.kind === 'spit' ? 'red' : 'ice', bullets: true, source: en.id });
       continue;
     }
     out.push({ x: en.x, y: en.y - 2 - enemyAltitude(en), k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'red', bullets: false, source: en.id });
@@ -1006,7 +1045,7 @@ function updateEmitters(w: World): void {
         vx: Math.cos(s.angle) * s.speed,
         vy: Math.sin(s.angle) * s.speed,
         r: ENEMY_BULLET_RADIUS,
-        life: ENEMY_BULLET_LIFE,
+        life: s.life ?? ENEMY_BULLET_LIFE,
         damage: 1,
         knockback: 0,
         color: s.color,
@@ -1018,6 +1057,8 @@ function updateEmitters(w: World): void {
       if (s.wave) b.wave = s.wave;
       if (s.accel) b.accel = s.accel;
       if (s.maxSpeed) b.maxSpeed = s.maxSpeed;
+      if (s.homing) b.homing = s.homing;
+      if (s.shootable) b.shootable = true;
       if (e.by) b.by = e.by;
       w.bullets.push(b);
     }
@@ -1045,6 +1086,7 @@ export interface FrostOptions {
   slow: number;
   flight: number;
   shatter?: string;
+  product?: number;
   source: number;
   by: string;
 }
@@ -1052,6 +1094,7 @@ export interface FrostOptions {
 export function throwFrost(w: World, x: number, y: number, h: number, tx: number, ty: number, opts: FrostOptions): Frost {
   const f: Frost = { id: w.nextId++, x: tx, y: ty, r: opts.r, t: -opts.flight, life: opts.life, slow: opts.slow, fromX: x, fromY: y, fromH: h, flight: opts.flight, source: opts.source, by: opts.by };
   if (opts.shatter) f.shatter = opts.shatter;
+  if (opts.product !== undefined) f.product = opts.product;
   w.frost.push(f);
   w.events.push({ type: 'frostThrow', x, y: y - h, tx, ty, flight: opts.flight, source: opts.source });
   return f;
@@ -1078,7 +1121,7 @@ function updateFrost(w: World): void {
     const was = f.t;
     f.t += DT;
     if (was < 0 && f.t >= 0) {
-      w.events.push({ type: 'frostLand', x: f.x, y: f.y, r: f.r });
+      w.events.push(f.product !== undefined ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, product: f.product } : { type: 'frostLand', x: f.x, y: f.y, r: f.r });
       // It shatters into splinters, unless whoever threw it is gone already.
       const def = f.shatter ? PATTERNS[f.shatter] : undefined;
       if (def && !w.over && w.enemies.some((en) => en.id === f.source)) {

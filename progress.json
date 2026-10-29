@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T04:40:00+01:00",
+  "actualizado": "2026-10-29T05:40:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M4",
   "hitos": [
@@ -35,7 +35,7 @@
       "id": "M4",
       "nombre": "La Nevera Suprema",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 3,
       "total": 5
     },
     {
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 178,
-    "tests_ok": 178,
+    "tests": 188,
+    "tests_ok": 188,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 7122
+    "lineas_codigo": 7285
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T05:40:00+01:00",
+      "hito": "M4",
+      "resumen": "Fase 2 de la Nevera Suprema, «Oferta irrechazable»: a mitad de vida abre la puerta (se ve el interior lleno de comida caducada), dispara tarjetas de fidelización que te persiguen un rato (más lentas que tú, y se rompen a tiros) y escupe productos caducados que caen donde marca un anillo rojo y revientan en balas. Vida ajustada a 200: el bot tarda 95 s de media (82–111 s) y gana el 67 %.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T04:40:00+01:00",
       "hito": "M4",
@@ -244,6 +250,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/nevera-caducados.png",
+      "pie": "Fase 2, «Oferta irrechazable»: la nevera abre la puerta y escupe yogures hinchados, bricks y latas abolladas; un anillo rojo marca dónde caerán y revientan en balas"
+    },
+    {
+      "archivo": "capturas/nevera-tarjetas.png",
+      "pie": "Tarjetas de fidelización que giran en el aire y persiguen a la tostadora un rato; se pueden romper a tiros"
+    },
+    {
       "archivo": "capturas/nevera-escarcha.png",
       "pie": "Fase 1 de la Nevera Suprema: charcos de escarcha que ralentizan a la tostadora (se tiñe de frío) y las esquirlas que sueltan al caer"
     },
@@ -258,16 +272,8 @@
     {
       "archivo": "capturas/planta-entrada.png",
       "pie": "La entrada de la planta: cartel de Entrada de Personal, pantalla de turnos, felpudo de bienvenida y «Sin devolución» pintado en el suelo"
-    },
-    {
-      "archivo": "capturas/minimapa.png",
-      "pie": "El minimapa con la planta entera conocida: calavera del jefe, carrito de la tienda y caja de regalo del tesoro (ampliado)"
-    },
-    {
-      "archivo": "capturas/baja.png",
-      "pie": "Parte de baja: causa, vida útil, recomendación del fabricante y el sello rojo"
     }
   ],
-  "proximo": "M4 · Fase 2 de la Nevera Suprema (tarjetas de fidelización que persiguen; se abre y escupe productos caducados) a mitad de vida, y ajustar la vida para que el combate entero dure 60–120 s al bot. Después, barra de vida y muerte espectacular.",
+  "proximo": "M4 · Barra de vida de la jefa, transición de fase con su propio cartel (ahora el nombre de la fase sale pequeño y encima de la nevera) y muerte espectacular. Después, recompensa y pantalla de victoria.",
   "bloqueos": []
 }

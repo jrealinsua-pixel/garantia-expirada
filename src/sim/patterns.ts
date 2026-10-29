@@ -3,8 +3,17 @@
 // «fire pattern X at the player»; the timing and geometry live here.
 import type { Rng } from './rng.ts';
 
-/** `ice` are the boss's ice cubes: cyan too, but square, so they read as cubes. */
-export type BulletColor = 'red' | 'cyan' | 'ice';
+/**
+ * `ice` are the boss's ice cubes: cyan too, but square, so they read as cubes. `card` are its
+ * loyalty cards: red, with a white band, spinning.
+ */
+export type BulletColor = 'red' | 'cyan' | 'ice' | 'card';
+
+/** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
+export interface Homing {
+  turnDeg: number;
+  time: number;
+}
 
 interface Common {
   speed: number;
@@ -15,6 +24,12 @@ interface Common {
   accel?: number;
   /** With `accel`: it stops speeding up at this speed (px/s). */
   maxSpeed?: number;
+  /** It chases the player for a while (see Homing). */
+  homing?: Homing;
+  /** The player's bullets can break it (both are lost). */
+  shootable?: boolean;
+  /** Seconds it lives, if not the usual. */
+  life?: number;
 }
 
 /** `count` bullets evenly around a full circle. `offsetDeg` rotates the ring. */
@@ -68,6 +83,9 @@ export interface ShotSpec {
   wave?: { amp: number; freq: number };
   accel?: number;
   maxSpeed?: number;
+  homing?: Homing;
+  shootable?: boolean;
+  life?: number;
 }
 
 const DEG = Math.PI / 180;
@@ -77,6 +95,9 @@ function shot(def: Common, delay: number, angle: number): ShotSpec {
   if (def.wave) s.wave = def.wave;
   if (def.accel) s.accel = def.accel;
   if (def.maxSpeed) s.maxSpeed = def.maxSpeed;
+  if (def.homing) s.homing = def.homing;
+  if (def.shootable) s.shootable = true;
+  if (def.life) s.life = def.life;
   return s;
 }
 
