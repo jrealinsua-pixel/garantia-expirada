@@ -275,6 +275,13 @@ export class GameScene extends Phaser.Scene {
     super('game');
   }
 
+  /** Started from the title screen's practice option: that room instead of a floor (kept on restart). */
+  private startSala: string | null = null;
+
+  init(data: { sala?: string } | undefined): void {
+    this.startSala = data?.sala ?? null;
+  }
+
   create(): void {
     // create() runs again on restart, on the same object: start from a clean slate.
     this.acc = 0;
@@ -328,6 +335,8 @@ export class GameScene extends Phaser.Scene {
       // Walked through a door: same run, next room. The controls hint was read already.
       this.world = carried;
       this.hintT = 0;
+    } else if (this.startSala && !params.get('sala')) {
+      this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala });
     } else if (params.get('sala')) {
       // ?sala=<id>&profundidad=<n>: one room template, its slots filled for that depth (the test
       // room is ?sala=sala-pruebas).

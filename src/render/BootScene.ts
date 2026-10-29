@@ -26,6 +26,8 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     registerFont(this);
-    this.scene.start('game');
+    // Links with a room or a seed (tests, the panel's previews) go straight into the game.
+    const params = new URLSearchParams(location.search);
+    this.scene.start(params.has('sala') || params.has('semilla') ? 'game' : 'title');
   }
 }

@@ -652,6 +652,26 @@ try {
   if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) === pausedAt) throw new Error('El juego no vuelve después de la pausa');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
   console.log('Pausa: congela el juego, guarda volumen 4 y sin temblor, enseña los controles y vuelve.');
+
+  // M6: the title screen. Credits, then a run; from the pause, back to the title.
+  await page.goto(url);
+  await page.waitForFunction("window.__GE_PHASER__ && window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 20000 });
+  await page.waitForTimeout(500);
+  await shot('26a-portada.png');
+  await tapKeys('ArrowUp', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('26b-creditos.png');
+  await tapKeys('Escape', 'ArrowDown', 'Enter');
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('game') && window.__GE__ && window.__GE__.state().ready", undefined, { timeout: 20000 });
+  if (!(await page.evaluate<boolean>('!!window.__GE__.scene.world.floor'))) throw new Error('«Presentar reclamación» no empieza una planta');
+  await page.waitForTimeout(600);
+  await shot('26c-partida-desde-portada.png');
+  await tapKeys('Escape', 'ArrowUp', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('26d-salir-al-menu.png');
+  await tapKeys('ArrowDown', 'Enter');
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('title') && !window.__GE_PHASER__.scene.isActive('game')", undefined, { timeout: 5000 });
+  console.log('Portada: créditos, partida nueva y vuelta a la portada desde la pausa.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

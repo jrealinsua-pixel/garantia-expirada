@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T12:05:00+01:00",
+  "actualizado": "2026-10-29T12:15:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -49,7 +49,7 @@
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 9
     },
     {
@@ -127,9 +127,15 @@
     "tests_ok": 283,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 10115
+    "lineas_codigo": 10255
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T12:15:00+01:00",
+      "hito": "M6",
+      "resumen": "El juego tiene portada: «Garantía Expirada» en grande, la tostadora delante del muelle de entrada y el menú: Presentar reclamación (una planta nueva), Sala de pruebas, Opciones, Controles y Créditos. Desde la pausa se puede volver a la portada (pregunta antes: «Esta partida se perderá. Como su garantía.»).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T12:05:00+01:00",
       "hito": "M6",
@@ -343,6 +349,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/portada.png",
+      "pie": "La portada: «Te vendieron una tostadora «para toda la vida». Duró hasta el martes.» Se elige con teclado, ratón o mando"
+    },
+    {
       "archivo": "capturas/pausa.png",
       "pie": "La pausa: «Pausa de cinco minutos. Le quedan cuatro.» El juego se queda congelado detrás; se maneja con teclado, ratón o mando"
     },
@@ -355,10 +365,6 @@
       "pie": "Sin cupones no hay trato: la pantalla de la caja se pone roja, el contador de cupones tiembla y los precios que no llegan salen en gris"
     },
     {
-      "archivo": "capturas/cofre-abierto.png",
-      "pie": "La Caja Fuerte de Devoluciones recién abierta con un ticket: la tapa arriba, el piloto en verde y la Pila Casi Agotada esperando delante; el contador de tickets (arriba a la izquierda) vuelve a 0"
-    },
-    {
       "archivo": "capturas/sinergia.png",
       "pie": "Ventana de descripción de la Broca del Ocho (en rojo lo que quita, en verde lo que da) y encima la sinergia que enciende con el Manual en Chino: «¡Sinergia! Bricolaje Avanzado»"
     },
@@ -367,7 +373,7 @@
       "pie": "Ventana de la Grapadora Táctica: sus números (daño 1, 9 disparos/s, cargador 24, recarga 1,6 s, alcance 240) para comparar armas de un vistazo"
     }
   ],
-  "proximo": "M6: el menú principal (empezar, opciones, controles, créditos) con la maquinaria de la pausa; después el inventario en la pausa.",
+  "proximo": "M6: el inventario en la pausa (objetos con descripción y lo que suma o resta cada uno, objeto activo, sinergias y estadísticas del personaje y del arma).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

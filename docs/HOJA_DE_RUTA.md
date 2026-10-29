@@ -136,7 +136,7 @@ semillas distintas acaban con builds distintas.
 
 - [x] Pausa (Esc, P o Start) con opciones (volumen de efectos, pantalla completa, temblor de
   cámara; se guardan en el navegador) y la lista de controles.
-- [ ] Menú principal (empezar, opciones, controles, créditos), con la misma maquinaria de la pausa.
+- [x] Menú principal (empezar, opciones, controles, créditos), con la misma maquinaria de la pausa.
 - [ ] Inventario en la pausa (nota del humano): los objetos que llevas con su descripción, el
   objeto activo, las sinergias encendidas y las estadísticas actuales del personaje y del arma
   (daño, cadencia, alcance, velocidad), con lo que suma o resta cada objeto.

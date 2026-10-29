@@ -243,3 +243,27 @@ export const CONTROLS_ROWS: readonly (readonly [string, string, string])[] = [
   ['Pausa', 'Esc o P', 'Start'],
 ];
 export const MENU_HINT = 'Flechas o WASD: elegir · Intro o espacio: aceptar · Esc: volver';
+export const QUIT_TITLE = '¿Salir al menú principal?';
+export const QUIT_TEXT = 'Esta partida se perderá. Como su garantía.';
+export const QUIT_MENU = { yes: 'Sí, salir', no: 'No, sigo' } as const;
+export const PAUSE_QUIT = 'Salir al menú principal';
+
+/** The title screen. */
+export const TITLE = 'Garantía Expirada';
+export const TITLE_TAGLINE = 'Te vendieron una tostadora «para toda la vida». Duró hasta el martes.';
+export const TITLE_MENU = {
+  start: 'Presentar reclamación',
+  practice: 'Sala de pruebas',
+  options: 'Opciones',
+  controls: 'Controles',
+  credits: 'Créditos',
+} as const;
+export const TITLE_FOOTER = 'Megamarket Outlet · Almacén de devoluciones';
+export const CREDITS_TITLE = 'Créditos';
+/** Who made it (the engine's line is added by the title screen: data files may not name it). Every outside resource is listed in CREDITOS.md. */
+export const CREDITS_LINES: readonly string[] = [
+  'Programación, arte, sonido y textos: Claude (Anthropic)',
+  'Idea, partidas de prueba y notas al margen: j',
+  'Todo lo demás se ha hecho a mano, en código, dentro del proyecto.',
+  'Ningún electrodoméstico fue reparado durante el desarrollo.',
+];
