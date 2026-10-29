@@ -23,6 +23,7 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { settings } from './settings.ts';
+import { saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { hudLayout, splitTitle, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 
@@ -289,6 +290,10 @@ export class GameScene extends Phaser.Scene {
     super('game');
   }
 
+  /** Bosses taken down in this run, and whether its end is already in the record (src/render/save.ts). */
+  private runBosses: string[] = [];
+  private runRecorded = false;
+
   /** Started from the title screen's practice option: that room instead of a floor (kept on restart). */
   private startSala: string | null = null;
 
@@ -345,6 +350,11 @@ export class GameScene extends Phaser.Scene {
     const params = new URLSearchParams(location.search);
     const carried = this.carry;
     this.carry = null;
+    if (!carried) {
+      // A new run: nothing beaten yet, nothing written in the record.
+      this.runBosses = [];
+      this.runRecorded = false;
+    }
     if (carried) {
       // Walked through a door: same run, next room. The controls hint was read already.
       this.world = carried;
@@ -830,6 +840,29 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.carry = this.world;
       this.scene.restart();
+    });
+  }
+
+  /**
+   * The run is over: it goes into the player's record (only runs on a floor; the practice room
+   * and the single rooms of the tests do not count).
+   */
+  private recordRun(outcome: 'down' | 'floor'): void {
+    const w = this.world;
+    if (this.runRecorded || !w.floor) return;
+    this.runRecorded = true;
+    const p = w.player;
+    saveRun({
+      character: p.base.def.id,
+      outcome,
+      seconds: w.tick * DT,
+      kills: w.kills,
+      coupons: p.coupons,
+      bosses: this.runBosses,
+      ...(outcome === 'down' && this.downCause ? { cause: this.downCause } : {}),
+      items: p.items,
+      ...(p.active ? { active: p.active.id } : {}),
+      weapons: p.arsenal.map((ws) => ws.base.id),
     });
   }
 
@@ -1523,6 +1556,7 @@ export class GameScene extends Phaser.Scene {
         case 'down':
           this.downT = 0;
           this.downCause = e.cause;
+          this.recordRun('down');
           this.hitstop = 0.3;
           this.shake(400, 0.016, true);
           this.sound2.play('baja');
@@ -1586,6 +1620,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'floorDone':
           this.winT = 0;
+          this.recordRun('floor');
           this.sound2.play('ascensor');
           this.shake(200, 0.006, true);
           for (let i = 0; i < 8; i++) this.puff(e.x + this.fx.range(-20, 20), e.y + this.fx.range(-8, 8), 0.6);
@@ -1600,6 +1635,7 @@ export class GameScene extends Phaser.Scene {
           break;
         }
         case 'bossDying': {
+          this.runBosses.push(e.enemy);
           // Her life runs out: a long freeze, a flash, and the camera goes to her while she comes apart.
           this.hitstop = 0.35;
           this.shake(500, 0.018, true);

@@ -291,3 +291,42 @@ export const INVENTORY_NO_SYNERGY = 'Ninguna encendida';
 /** Before the value an item changed: what it was without items. */
 export const INVENTORY_BEFORE = 'antes';
 export const inventoryBatteries = (charge: number, needs: number): string => `Pilas: ${charge} de ${needs}`;
+
+/** The title screen's record of past runs (src/sim/profile.ts). */
+export const HISTORY_MENU = 'Historial';
+export const HISTORY_TITLE = 'Historial de reclamaciones';
+export const HISTORY_SUB = 'Guardado en este navegador. No en la nube: no nos fiamos.';
+export const HISTORY_EMPTY = 'Sin reclamaciones. Todavía.';
+
+export interface HistoryInfo {
+  runs: number;
+  downs: number;
+  floorsCleared: number;
+  bestFloorSeconds: number | null;
+  bossesBeaten: number;
+  kills: number;
+  coupons: number;
+  longestRun: number;
+  found: number;
+  findable: number;
+  weapons: number;
+  findableWeapons: number;
+  /** The cause line of the most frequent breakdown (downCause) and how many times, if any. */
+  cause: { text: string; times: number } | null;
+}
+
+/** The lines of the record, top to bottom. */
+export function historyLines(h: HistoryInfo): { label: string; text: string }[] {
+  return [
+    { label: 'Reclamaciones presentadas', text: String(h.runs) },
+    { label: 'Unidades dadas de baja', text: String(h.downs) },
+    { label: 'Plantas superadas', text: h.bestFloorSeconds === null ? String(h.floorsCleared) : `${h.floorsCleared} · la más rápida en ${clock(h.bestFloorSeconds)}` },
+    { label: 'Jefas de planta liquidadas', text: String(h.bossesBeaten) },
+    { label: 'Electrodomésticos desmontados', text: String(h.kills) },
+    { label: 'Cupones reunidos', text: String(h.coupons) },
+    { label: 'Vida útil más larga', text: clock(h.longestRun) },
+    { label: 'Objetos descubiertos', text: `${h.found} de ${h.findable}` },
+    { label: 'Armas descubiertas', text: `${h.weapons} de ${h.findableWeapons}` },
+    { label: 'Causa de baja más habitual', text: h.cause ? `${h.cause.text} (${h.cause.times})` : 'Ninguna (aún)' },
+  ];
+}

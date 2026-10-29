@@ -698,6 +698,25 @@ try {
   await tapKeys('ArrowDown', 'Enter');
   await page.waitForFunction("window.__GE_PHASER__.scene.isActive('title') && !window.__GE_PHASER__.scene.isActive('game')", undefined, { timeout: 5000 });
   console.log('Portada: créditos, partida nueva y vuelta a la portada desde la pausa.');
+
+  // M6: the record. A run on a floor ends with the toaster down; the title's history shows it.
+  await tapKeys('Enter');
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('game') && window.__GE__ && window.__GE__.state().ready", undefined, { timeout: 20000 });
+  await page.waitForTimeout(400);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.hp = 1; w.player.invulnerable = 0; w.player.rollT = -1; })()`);
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 });
+  await page.waitForTimeout(3200);
+  await page.keyboard.press('Escape');
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 4000 });
+  const savedProfile = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/perfil')");
+  const prof = JSON.parse(savedProfile ?? '{}') as { runs?: number; downs?: number; causes?: Record<string, number> };
+  if (prof.runs !== 1 || prof.downs !== 1 || !prof.causes?.['microondas:bullet']) throw new Error(`El historial no apunta la partida: ${savedProfile}`);
+  await tapKeys('ArrowUp', 'ArrowUp', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('29-historial.png');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
+  console.log('Historial: una reclamación, una baja por microondas.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

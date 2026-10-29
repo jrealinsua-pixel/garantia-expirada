@@ -144,7 +144,7 @@ semillas distintas acaban con builds distintas.
   de un vistazo; los textos flotantes no se amontonan.
 - [x] Parte de baja al morir (causa, vida útil, recomendación del fabricante, equipaje; Esc a la portada).
 - [x] Pantalla de victoria (de momento, la de planta superada: «Incidencia resuelta»; la de la partida entera llegará con la última planta).
-- [ ] Guardado local de desbloqueos y estadísticas.
+- [x] Guardado local de desbloqueos y estadísticas (perfil con partidas, jefas, victorias por personaje y todo lo descubierto; «Historial» en la portada).
 - [ ] Una pista de música chiptune para la planta y otra para el jefe.
 - [ ] Revisión completa de textos con la guía de humor.
 

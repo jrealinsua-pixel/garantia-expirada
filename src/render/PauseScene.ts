@@ -42,7 +42,11 @@ import {
   TITLE_TAGLINE,
 } from '../data/texts.ts';
 import { activeLines, characterStatRows, modifierLines, weaponStatRows, type EffectLine, type StatRow } from '../data/describe.ts';
-import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
+import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
+import { FINDABLE_WEAPONS } from '../data/weapons.ts';
+import { downCause, HISTORY_EMPTY, HISTORY_MENU, HISTORY_SUB, HISTORY_TITLE, historyLines } from '../data/texts.ts';
+import { topCause } from '../sim/profile.ts';
+import { profile } from './save.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { Menu, type MenuItem, type MenuResult } from './menu.ts';
 import { saveSettings, settings } from './settings.ts';
@@ -58,7 +62,7 @@ const GOLD = 0xf6c431;
 const CREAM = 0xd6cdb2;
 const GREY = 0x858ea8;
 
-type Screen = 'main' | 'inventory' | 'options' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
+type Screen = 'main' | 'history' | 'inventory' | 'options' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
 
 /** Where each first-screen action sits, so going back from a screen lands on what opened it. */
 const PAUSE_ITEMS: MenuItem[] = [
@@ -74,11 +78,20 @@ const TITLE_ITEMS: MenuItem[] = [
   { kind: 'action', id: 'practice', label: TITLE_MENU.practice },
   { kind: 'action', id: 'options', label: TITLE_MENU.options },
   { kind: 'action', id: 'controls', label: TITLE_MENU.controls },
+  { kind: 'action', id: 'history', label: HISTORY_MENU },
   { kind: 'action', id: 'credits', label: TITLE_MENU.credits },
 ];
 /** The credits, with the engine (named here: data files may not mention it). */
 const CREDITS: readonly string[] = [...CREDITS_LINES.slice(0, 2), 'Motor: Phaser 3 (licencia MIT)', ...CREDITS_LINES.slice(2)];
-const OPENED_BY: Partial<Record<Screen, string>> = { inventory: 'inventory', options: 'options', controls: 'controls', credits: 'credits', confirmNew: 'newUnit', confirmQuit: 'quit' };
+const OPENED_BY: Partial<Record<Screen, string>> = {
+  history: 'history',
+  inventory: 'inventory',
+  options: 'options',
+  controls: 'controls',
+  credits: 'credits',
+  confirmNew: 'newUnit',
+  confirmQuit: 'quit',
+};
 
 export class PauseScene extends Phaser.Scene {
   protected readonly mode: 'pause' | 'title';
@@ -196,7 +209,7 @@ export class PauseScene extends Phaser.Scene {
     if (id.includes(':')) return;
     snd.play('recargar');
     if (id === 'resume' || id === 'no' || id === 'back') this.back();
-    else if (id === 'options' || id === 'controls' || id === 'credits' || id === 'inventory') this.show(id);
+    else if (id === 'options' || id === 'controls' || id === 'credits' || id === 'inventory' || id === 'history') this.show(id);
     else if (id === 'newUnit') this.show('confirmNew');
     else if (id === 'quit') this.show('confirmQuit');
     else if (id === 'start' || id === 'practice') {
@@ -232,7 +245,7 @@ export class PauseScene extends Phaser.Scene {
       for (const id of p.synergies) lines.push({ kind: 'action', id: `syn:${id}`, label: SYNERGIES[id]?.name ?? id });
       lines.push({ kind: 'action', id: 'back', label: PAUSE_MENU.back });
       this.menu = new Menu(lines);
-    } else if (screen === 'controls' || screen === 'credits') this.menu = new Menu([{ kind: 'action', id: 'back', label: PAUSE_MENU.back }]);
+    } else if (screen === 'controls' || screen === 'credits' || screen === 'history') this.menu = new Menu([{ kind: 'action', id: 'back', label: PAUSE_MENU.back }]);
     else {
       const t = screen === 'confirmNew' ? CONFIRM_MENU : QUIT_MENU;
       this.menu = new Menu([
@@ -261,6 +274,7 @@ export class PauseScene extends Phaser.Scene {
     const titleMain = this.mode === 'title' && this.screen === 'main';
     const titles: Record<Screen, string> = {
       main: PAUSE_TITLE,
+      history: HISTORY_TITLE,
       inventory: INVENTORY_TITLE,
       options: OPTIONS_TITLE,
       controls: CONTROLS_TITLE,
@@ -268,11 +282,12 @@ export class PauseScene extends Phaser.Scene {
       confirmNew: CONFIRM_TITLE,
       confirmQuit: QUIT_TITLE,
     };
-    const subs: Partial<Record<Screen, string>> = { main: this.subtitle, confirmNew: CONFIRM_TEXT, confirmQuit: QUIT_TEXT };
+    const history = this.screen === 'history' ? this.historyRows() : [];
+    const subs: Partial<Record<Screen, string>> = { history: HISTORY_SUB, main: this.subtitle, confirmNew: CONFIRM_TEXT, confirmQuit: QUIT_TEXT };
     const sub = titleMain ? '' : subs[this.screen] ?? '';
-    const rows = this.screen === 'controls' ? CONTROLS_ROWS.length + 1 : this.screen === 'credits' ? CREDITS.length : 0;
+    const rows = this.screen === 'controls' ? CONTROLS_ROWS.length + 1 : this.screen === 'credits' ? CREDITS.length : history.length;
     let h = 44 + (sub ? 12 : 0) + (rows ? rows * 11 + 8 : 0) + this.menu.items.length * 13 + 18;
-    let w = this.screen === 'controls' || this.screen === 'credits' ? 340 : PANEL_W;
+    let w = this.screen === 'controls' || this.screen === 'credits' || this.screen === 'history' ? 360 : PANEL_W;
     let y0 = Math.round((VIEW_H - h) / 2) - 6;
     if (titleMain) {
       // The logo up top, the menu in a narrower panel under it, to the right of the toaster.
@@ -311,6 +326,13 @@ export class PauseScene extends Phaser.Scene {
         text(c1, y, a, CREAM, 0);
         text(c2, y, k, 0xf4f1e8, 0);
         text(c3, y, p, 0x69dbd8, 0);
+        y += 11;
+      }
+      y += 8;
+    } else if (this.screen === 'history') {
+      for (const r of history) {
+        text(x0 + 14, y, r.label, CREAM, 0);
+        text(x0 + 160, y, r.text, r.label ? 0xf4f1e8 : GREY, 0);
         y += 11;
       }
       y += 8;
@@ -465,6 +487,28 @@ export class PauseScene extends Phaser.Scene {
     const logo = this.add.bitmapText(cx, y, FONT, fontText(TITLE), 8).setOrigin(0.5, 0).setScale(4).setTint(GOLD);
     const tag = this.add.bitmapText(cx, y + 46, FONT, fontText(TITLE_TAGLINE), 8).setOrigin(0.5, 0).setTint(CREAM);
     this.objs.push(shadow, logo, tag);
+  }
+
+  /** The record of past runs, as lines (or a single one when there is none yet). */
+  private historyRows(): { label: string; text: string }[] {
+    const p = profile();
+    if (p.runs === 0) return [{ label: '', text: HISTORY_EMPTY }];
+    const c = topCause(p);
+    return historyLines({
+      runs: p.runs,
+      downs: p.downs,
+      floorsCleared: p.floorsCleared,
+      bestFloorSeconds: p.bestFloorSeconds,
+      bossesBeaten: Object.values(p.bosses).reduce((a, b) => a + b, 0),
+      kills: p.kills,
+      coupons: p.coupons,
+      longestRun: p.longestRun,
+      found: p.found.items.filter((id) => FINDABLE_ITEMS.includes(id)).length + p.found.actives.filter((id) => FINDABLE_ACTIVES.includes(id)).length,
+      findable: FINDABLE_ITEMS.length + FINDABLE_ACTIVES.length,
+      weapons: p.found.weapons.filter((id) => FINDABLE_WEAPONS.includes(id)).length,
+      findableWeapons: FINDABLE_WEAPONS.length,
+      cause: c ? { text: downCause(c.by, c.how), times: c.times } : null,
+    });
   }
 
   private pad(): Gamepad | null {

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T12:55:00+01:00",
+  "actualizado": "2026-10-29T13:00:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -49,7 +49,7 @@
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
       "estado": "en_curso",
-      "hechas": 6,
+      "hechas": 7,
       "total": 9
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 289,
-    "tests_ok": 289,
+    "tests": 292,
+    "tests_ok": 292,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 10754
+    "lineas_codigo": 11015
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T13:00:00+01:00",
+      "hito": "M6",
+      "resumen": "El juego recuerda tus partidas en el navegador: reclamaciones presentadas, unidades dadas de baja, plantas superadas (y la más rápida), jefas liquidadas, electrodomésticos desmontados, cupones, la vida útil más larga, los objetos y armas descubiertos y la causa de baja más habitual. Se ve en «Historial» de la portada. Es la base de los desbloqueos que vendrán (el piso secreto pedirá vencer a todas las jefas y ganar con tres personajes).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T12:55:00+01:00",
       "hito": "M6",
@@ -393,11 +399,11 @@
       "pie": "La pausa: «Pausa de cinco minutos. Le quedan cuatro.» El juego se queda congelado detrás; se maneja con teclado, ratón o mando"
     },
     {
-      "archivo": "capturas/sinergia.png",
-      "pie": "Ventana de descripción de la Broca del Ocho (en rojo lo que quita, en verde lo que da) y encima la sinergia que enciende con el Manual en Chino: «¡Sinergia! Bricolaje Avanzado»"
+      "archivo": "capturas/historial.png",
+      "pie": "«Historial de reclamaciones» en la portada: «Guardado en este navegador. No en la nube: no nos fiamos.»"
     }
   ],
-  "proximo": "M6: guardado local de desbloqueos y estadísticas; después la música (planta y jefe) y la revisión de textos.",
+  "proximo": "M6: una pista de música chiptune para la planta y otra para la jefa; después, la revisión de textos con la guía de humor.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -426,11 +432,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "session_01LyCe1SFVh7Qnvzw655R3w9",
-      "tarea": "M6: guardado local de desbloqueos y estadísticas (src/render/save.ts, src/sim/stats o similar)",
-      "desde": "2026-10-29T12:56:00+01:00"
-    }
-  ]
+  "en_curso": []
 }
