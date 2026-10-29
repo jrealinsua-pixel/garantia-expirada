@@ -63,19 +63,38 @@ export interface DummyDef {
   box: { x: number; y: number; w: number; h: number };
 }
 
+/** What a room is for on a floor (src/sim/floor.ts); `test` is the Sala de Pruebas. */
+export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'boss';
+
 /**
  * Room templates are drawn as text. Legend:
  * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `M` training dummy,
  * `A` Aspirador Desahuciado, `O` Microondas Sin Seguro, `L` Bombilla de Bajo Consumo (con su polilla), `T` Batidora de Mano,
  * `Z` Mandos a Distancia (vienen en grupo: see EnemyDef.pack).
+ * Slots, filled when a floor is built (src/sim/room.ts, fillTemplate): `e` an enemy (or nothing),
+ * `o` an obstacle (or nothing), `*` an item pedestal, `$` the shopkeeper, `s` a shop shelf,
+ * `J` the boss.
  * The top two rows are the back wall (shelves are painted on them).
+ * Floor templates keep the four door openings (centre of each wall) and the two tiles in front
+ * of them clear, so any template fits any set of doors.
  */
 export interface RoomTemplate {
   id: string;
   name: string;
   rows: readonly string[];
+  /** What the room is for on a floor; templates without one (the test room) never appear on a floor. */
+  kind?: RoomKind;
   /** Seconds after the last enemy dies before the room's enemies come back (test room only). */
   restock?: number;
+}
+
+/** One enemy that can fill an `e` slot: its template letter, how much of the room's budget it takes and how often it comes up. */
+export interface SlotEnemy {
+  ch: string;
+  cost: number;
+  weight: number;
+  /** At most this many per room. */
+  max?: number;
 }
 
 /** What an enemy leaves behind when it is taken apart. */

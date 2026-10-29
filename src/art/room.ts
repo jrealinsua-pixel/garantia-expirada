@@ -37,6 +37,45 @@ function shutter(S: Canvas, x: number, y: number, w: number, h: number): void {
   S.rect(x + Math.floor(w / 2) - 4, y + 5, 3, 1, hx('#ff8a70'));
 }
 
+const BOX_COLORS = ['#c23d38', '#d9a52a', '#3f74bd', '#4b9a4e', '#d3849a', '#d9782a', '#5cc2c0', '#a8916c', '#aab1c4'];
+
+/** One tile of a free-standing shelving unit (interior wall), with outline on the open sides. */
+function shelfUnit(S: Canvas, rng: Rng, x: number, y: number, o: { front: boolean; up: boolean; left: boolean; right: boolean }): void {
+  const TOP = hx('#4c5374');
+  const TOP_HI = hx('#5d658a');
+  const FRAME = hx('#2b3048');
+  // Top surface of the unit (dusty sheet metal).
+  const topH = o.front ? 7 : T;
+  S.rect(x, y, T, topH, TOP);
+  for (let i = 0; i < 6; i++) S.set(x + rng.int(1, T - 2), y + rng.int(1, topH - 2), shade(TOP, rng.chance(0.5) ? 9 : -9));
+  if (o.up) S.rect(x, y, T, 1, TOP_HI);
+  if (o.front) {
+    // Front: dark frame, two planks with boxes on them.
+    const fy = y + topH;
+    S.rect(x, fy, T, T - topH, FRAME);
+    S.rect(x, fy, T, 1, K);
+    for (const [plank, hmax] of [[fy + 8, 7], [fy + 16, 6]] as const) {
+      let bx = x + 1;
+      while (bx < x + T - 3) {
+        const w = rng.int(4, 7);
+        const h = rng.int(3, hmax);
+        if (bx + w > x + T - 1) break;
+        const col = hx(rng.pick(BOX_COLORS));
+        S.rect(bx, plank - h, w, h, col);
+        S.rect(bx + w - 1, plank - h, 1, h, shade(col, -40));
+        S.rect(bx, plank - h, w, 1, shade(col, 30));
+        bx += w + rng.int(1, 2);
+      }
+      S.rect(x, plank, T, 1, hx('#5d658a'));
+    }
+    S.rect(x, y + T - 1, T, 1, K);
+  }
+  if (o.left) S.rect(x, y, 1, T, K);
+  if (o.right) S.rect(x + T - 1, y, 1, T, K);
+  if (o.up) S.rect(x, y, T, 1, K);
+  if (o.up) S.rect(x + (o.left ? 1 : 0), y + 1, T - (o.left ? 1 : 0) - (o.right ? 1 : 0), 1, TOP_HI);
+}
+
 export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const rng = new Rng('room-art:' + seed);
   const W = room.cols * T;
@@ -128,12 +167,22 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       S.rect(c * T, r * T, T, T, WALL);
       if (r >= 2 && (c === 0 || c === room.cols - 1) && r % 2 === 0) S.rect(c * T, r * T, T, 1, SEAM);
       if (r === room.rows - 1 && c % 2 === 1) S.rect(c * T, r * T, 1, T, SEAM);
-      // Interior pillars get a lighter top face.
-      const interior = c > 0 && r > 1 && c < room.cols - 1 && r < room.rows - 1;
-      if (interior) {
-        S.rect(c * T, r * T, T, 6, hx('#3e4560'));
-        S.rect(c * T, r * T, T, 1, hx('#5d658a'));
-      }
+    }
+  }
+  // Interior walls are free-standing shelving units seen in three-quarter view: the top of the
+  // unit on every tile, and the front (shelves full of returns) on the tiles with floor below.
+  const interior = (c: number, r: number): boolean => c > 0 && r > 1 && c < room.cols - 1 && r < room.rows - 1 && wall(c, r);
+  for (let r = 0; r < room.rows; r++) {
+    for (let c = 0; c < room.cols; c++) {
+      if (!interior(c, r)) continue;
+      shelfUnit(S, rng, c * T, r * T, {
+        front: !wall(c, r + 1),
+        up: !wall(c, r - 1),
+        left: !wall(c - 1, r),
+        right: !wall(c + 1, r),
+      });
+      // Its shadow on the floor below.
+      if (!wall(c, r + 1)) for (let y = 0; y < 5; y++) for (let x = 0; x < T; x++) S.set(c * T + x, (r + 1) * T + y, [12, 10, 22, 110 - y * 20]);
     }
   }
   for (let x = 0; x < W; x += 48) S.rect(x, 0, 1, 48, SEAM);

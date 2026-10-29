@@ -1,14 +1,14 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { ROOMS } from '../data/rooms.ts';
+import { ROOMS, SLOT_ENEMIES_1 } from '../data/rooms.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ENEMIES } from '../data/enemies.ts';
-import type { CharacterDef, DummyDef, EnemyDef, WeaponDef } from '../data/types.ts';
+import type { CharacterDef, DummyDef, EnemyDef, RoomTemplate, WeaponDef } from '../data/types.ts';
 import { updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type PatternDef, type ShotSpec } from './patterns.ts';
-import { buildRoom, isWallAt, wallRectsNear, type Room } from './room.ts';
+import { buildRoom, fillTemplate, isWallAt, wallRectsNear, type Room } from './room.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
 export const DT = 1 / 60;
@@ -273,14 +273,19 @@ export const PLAYER_HURT_Y = 9;
 export interface WorldOptions {
   seed: string;
   room?: string;
+  /** A concrete template (a filled floor room) instead of one of ROOMS by id. */
+  template?: RoomTemplate;
+  /** Floor rooms picked by id have their slots filled for this depth (default 3). */
+  depth?: number;
   character?: string;
   /** Leave the room's enemies out (tests that only need the player and the dummies). */
   noEnemies?: boolean;
 }
 
 export function createWorld(opts: WorldOptions): World {
-  const tpl = ROOMS[opts.room ?? 'sala-pruebas'];
+  let tpl = opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
+  if (!opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: SLOT_ENEMIES_1 });
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
@@ -831,12 +836,12 @@ function updatePickups(w: World): void {
       continue;
     }
     if (k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
-      // Pulled in faster the closer it gets.
+      // Pulled in faster the closer it gets; it slides round pillars and boxes instead of
+      // flying through them.
       const sp = 90 + (1 - d / PICKUP_MAGNET) * 160;
       k.vx = (dx / d) * sp;
       k.vy = (dy / d) * sp;
-      k.x += k.vx * DT;
-      k.y += k.vy * DT;
+      slide(w, k, PICKUP_RADIUS, k.vx * DT, k.vy * DT);
     } else {
       const v = Math.hypot(k.vx, k.vy);
       const nv = Math.max(0, v - PICKUP_FRICTION * DT);

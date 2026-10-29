@@ -167,3 +167,20 @@ test('el botín de un enemigo pegado a la pared no aparece dentro del muro', asy
   }
   assert.ok(w.pickups.length > 0);
 });
+
+test('el imán de cupones no los mete dentro de una columna', () => {
+  // A pillar between the coupon and the toaster: the coupon slides round it, never into it.
+  const rows = ['########', '########', '#......#', '#......#', '#..##..#', '#......#', '#P.....#', '########'];
+  const w = createWorld({ seed: 'columna', template: { id: 'col', name: 'col', rows } });
+  w.player.x = 3.5 * 24 + 2;
+  w.player.y = 5 * 24 + 6;
+  w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: 4 * 24, y: 3 * 24 + 20, vx: 0, vy: 0, age: PICKUP_DELAY });
+  for (let i = 0; i < 90; i++) {
+    step(w, NO_INPUT);
+    for (const k of w.pickups) {
+      const c = Math.floor(k.x / 24);
+      const r = Math.floor(k.y / 24);
+      assert.ok(!(r === 4 && (c === 3 || c === 4)), `cupón dentro de la columna en ${k.x.toFixed(1)},${k.y.toFixed(1)}`);
+    }
+  }
+});

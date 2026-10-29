@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T00:50:00+01:00",
+  "actualizado": "2026-10-29T01:50:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M3",
   "hitos": [
@@ -28,7 +28,7 @@
       "id": "M3",
       "nombre": "Salas y planta",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 6
     },
     {
@@ -101,14 +101,20 @@
     "jefes": 0,
     "armas": 1,
     "objetos": 0,
-    "plantillas_sala": 1,
-    "tests": 131,
-    "tests_ok": 131,
+    "plantillas_sala": 20,
+    "tests": 140,
+    "tests_ok": 140,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 4733
+    "lineas_codigo": 5339
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T01:50:00+01:00",
+      "hito": "M3",
+      "resumen": "19 plantillas de sala hechas a mano para la planta 1 (14 de combate, entrada, tesoro, tienda, secreta y jefe), con huecos que se rellenan de enemigos según la profundidad y obstáculos al azar. Las paredes interiores ya se ven como estanterías llenas de devoluciones. Arreglado: los cupones atraídos por el imán atravesaban columnas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T00:50:00+01:00",
       "hito": "M3",
@@ -202,12 +208,16 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/mando.png",
-      "pie": "Sala de Pruebas con todos los enemigos: abajo, un Mando a Distancia; a la izquierda, la estática donde va a reaparecer otro"
+      "archivo": "capturas/sala-garantias.png",
+      "pie": "Cámara de Garantías Vencidas, una de las 19 plantillas nuevas: estanterías sueltas, enemigos repartidos por sus huecos"
     },
     {
-      "archivo": "capturas/batidora.png",
-      "pie": "La Batidora de Mano, en TURBO, avisa antes de lanzarse contra la tostadora (al lado, el Aspirador)"
+      "archivo": "capturas/sala-archivo.png",
+      "pie": "Archivo de Tickets Sin Sello: pasillos de estanterías llenas de devoluciones"
+    },
+    {
+      "archivo": "capturas/mando.png",
+      "pie": "Sala de Pruebas con todos los enemigos: abajo, un Mando a Distancia; a la izquierda, la estática donde va a reaparecer otro"
     },
     {
       "archivo": "capturas/desmontaje.png",
@@ -218,14 +228,10 @@
       "pie": "Parte de baja: causa, vida útil, recomendación del fabricante y el sello rojo"
     },
     {
-      "archivo": "capturas/bombilla.png",
-      "pie": "La Bombilla de Bajo Consumo suelta su espiral de chispas; debajo, la Polilla Fiel (ampliado)"
-    },
-    {
       "archivo": "capturas/sala-devoluciones.png",
       "pie": "Maqueta de estilo aprobada: Sala de Devoluciones"
     }
   ],
-  "proximo": "M3: plantillas de sala de combate hechas a mano (al menos 15) que encajen con las puertas del generador; después las persianas, la transición y el minimapa.",
+  "proximo": "M3: persianas que se cierran durante el combate (y se abren las puertas reales en las salas), luego la transición entre salas para recorrer una planta entera; el bot necesitará buscar camino entre estanterías.",
   "bloqueos": []
 }

@@ -3,7 +3,9 @@
 // the same seed always gives the same floor.
 import { Rng } from './rng.ts';
 
-export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'boss';
+import type { RoomKind } from '../data/types.ts';
+
+export type { RoomKind };
 export type Dir = 'N' | 'S' | 'E' | 'W';
 
 export interface Door {

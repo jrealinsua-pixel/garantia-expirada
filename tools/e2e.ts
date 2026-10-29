@@ -263,6 +263,17 @@ try {
   console.log(`Parte de baja: ${rep.join(' | ')}`);
   await page.keyboard.press('r');
   await page.waitForFunction('!window.__GE__.state().over && window.__GE__.state().tick < 120', undefined, { timeout: 4000 });
+
+  // Floor room templates (M3), slots filled for a deep room: they load, nothing breaks, and they read.
+  for (const [i, sala] of ['carga-descarga', 'archivo-tickets', 'camara-garantias'].entries()) {
+    await page.goto(`${url}?semilla=e2e-${sala}&sala=${sala}&profundidad=5`);
+    await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+    await page.evaluate('window.__GE__.scene.world.noDamage = true');
+    await page.waitForTimeout(1600);
+    await shot(`14${'abc'[i]}-sala-${sala}.png`);
+    const n = await page.evaluate<number>('window.__GE__.scene.world.enemies.length');
+    if (n === 0) throw new Error(`La sala ${sala} no tiene enemigos`);
+  }
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);
