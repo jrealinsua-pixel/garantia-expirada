@@ -207,3 +207,39 @@ export const CHEST_OPEN_LINES: readonly string[] = [
 export const ITEM_KIND_PASSIVE = 'Objeto pasivo · se queda contigo';
 export const ITEM_KIND_ACTIVE = 'Objeto activo · se usa con Q';
 export const ITEM_KIND_WEAPON = 'Arma · E o rueda para cambiar';
+
+/** The pause menu (Esc, P or Start). */
+export const PAUSE_TITLE = 'En pausa';
+/** Under the title: a different one each time. */
+export const PAUSE_LINES: readonly string[] = [
+  'Su partida está en espera. No cuelgue.',
+  'Pausa de cinco minutos. Le quedan cuatro.',
+  'Descanso no remunerado.',
+  'La Dirección ha detenido la producción para revisar sus márgenes.',
+];
+export const PAUSE_MENU = {
+  resume: 'Continuar',
+  options: 'Opciones',
+  controls: 'Controles',
+  newUnit: 'Pedir otra unidad',
+  back: 'Volver',
+} as const;
+export const OPTIONS_TITLE = 'Opciones';
+export const OPTION_LABELS = { volume: 'Volumen de efectos', fullscreen: 'Pantalla completa', shake: 'Temblor de cámara' } as const;
+export const CONFIRM_TITLE = '¿Pedir otra unidad?';
+export const CONFIRM_TEXT = 'La unidad actual irá al punto limpio. Lo que lleva, también.';
+export const CONFIRM_MENU = { yes: 'Sí, al punto limpio', no: 'No, que aguante' } as const;
+export const CONTROLS_TITLE = 'Controles';
+export const CONTROLS_HEADERS = ['Teclado y ratón', 'Mando'] as const;
+/** Action, keyboard and mouse, pad. */
+export const CONTROLS_ROWS: readonly (readonly [string, string, string])[] = [
+  ['Mover', 'WASD o flechas', 'Stick izquierdo'],
+  ['Apuntar', 'Ratón', 'Stick derecho'],
+  ['Disparar', 'Clic izquierdo', 'RT o RB'],
+  ['Rodar', 'Espacio o mayúsculas', 'A, LB o LT'],
+  ['Recargar', 'R', 'X'],
+  ['Cambiar de arma', 'E o rueda', 'Y'],
+  ['Objeto activo', 'Q', 'B'],
+  ['Pausa', 'Esc o P', 'Start'],
+];
+export const MENU_HINT = 'Flechas o WASD: elegir · Intro o espacio: aceptar · Esc: volver';

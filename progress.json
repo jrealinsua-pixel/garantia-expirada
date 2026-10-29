@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T12:10:00+01:00",
+  "actualizado": "2026-10-29T12:45:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M6",
   "hitos": [
@@ -49,8 +49,8 @@
       "id": "M6",
       "nombre": "Partida completa (primera versión jugable)",
       "estado": "en_curso",
-      "hechas": 0,
-      "total": 8
+      "hechas": 1,
+      "total": 9
     },
     {
       "id": "M7",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 280,
-    "tests_ok": 280,
+    "tests": 283,
+    "tests_ok": 283,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 9705
+    "lineas_codigo": 10115
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T12:45:00+01:00",
+      "hito": "M6",
+      "resumen": "Empieza M6 con la pausa: Esc, P o Start congelan el juego y abren un menú (Continuar, Opciones, Controles y Pedir otra unidad, que pregunta antes de mandar la tostadora al punto limpio). En opciones: volumen de efectos, pantalla completa y temblor de cámara, que se guardan en el navegador. Controles con teclado, ratón y mando. Si cambias de pestaña, el juego se pausa solo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T12:10:00+01:00",
       "hito": "M5",
@@ -337,6 +343,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/pausa.png",
+      "pie": "La pausa: «Pausa de cinco minutos. Le quedan cuatro.» El juego se queda congelado detrás; se maneja con teclado, ratón o mando"
+    },
+    {
       "archivo": "capturas/tienda-comprado.png",
       "pie": "Recién comprada la Etiqueta A+++ por 15 cupones: el escáner pita, la Caja de Autocobro sonríe («Objeto inesperado en la zona de embolsado.») y el precio del ticket se enciende en dorado porque ya llega"
     },
@@ -349,10 +359,6 @@
       "pie": "La Caja Fuerte de Devoluciones recién abierta con un ticket: la tapa arriba, el piloto en verde y la Pila Casi Agotada esperando delante; el contador de tickets (arriba a la izquierda) vuelve a 0"
     },
     {
-      "archivo": "capturas/ticket.png",
-      "pie": "Ticket recogido: «Ticket de compra · válido 14 días». Antes, contra el cofre cerrado y sin ticket: «Presente el ticket de compra»"
-    },
-    {
       "archivo": "capturas/sinergia.png",
       "pie": "Ventana de descripción de la Broca del Ocho (en rojo lo que quita, en verde lo que da) y encima la sinergia que enciende con el Manual en Chino: «¡Sinergia! Bricolaje Avanzado»"
     },
@@ -361,7 +367,7 @@
       "pie": "Ventana de la Grapadora Táctica: sus números (daño 1, 9 disparos/s, cargador 24, recarga 1,6 s, alcance 240) para comparar armas de un vistazo"
     }
   ],
-  "proximo": "M6: menú principal, pausa y opciones (dividir: primero pausa y opciones, después el menú principal); después el inventario en la pausa.",
+  "proximo": "M6: el menú principal (empezar, opciones, controles, créditos) con la maquinaria de la pausa; después el inventario en la pausa.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

@@ -8,6 +8,12 @@ export class Sound {
   private master: GainNode | null = null;
   volume = 0.7;
 
+  /** Changes the effects volume (0 to 1) at once, sounds already playing included. */
+  setVolume(v: number): void {
+    this.volume = Math.max(0, Math.min(1, v));
+    if (this.master) this.master.gain.value = this.volume;
+  }
+
   unlock(): void {
     if (this.ctx) {
       if (this.ctx.state === 'suspended') void this.ctx.resume();

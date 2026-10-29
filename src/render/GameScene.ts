@@ -21,6 +21,7 @@ import { ENEMIES } from '../data/enemies.ts';
 import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
+import { settings } from './settings.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 
 export const VIEW_W = 480;
@@ -343,6 +344,13 @@ export class GameScene extends Phaser.Scene {
     // Asking for a new unit: a fresh press of R or a click once the report is up (a pad's
     // reload button is polled in syncView).
     this.input.keyboard?.on('keydown-R', () => this.newUnit());
+    // Pause: Esc or P (Start on the pad, see update); also when the tab is hidden.
+    this.input.keyboard?.on('keydown-ESC', () => this.openPause());
+    this.input.keyboard?.on('keydown-P', () => this.openPause());
+    const onHidden = (): void => this.openPause();
+    this.game.events.on(Phaser.Core.Events.HIDDEN, onHidden);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.game.events.off(Phaser.Core.Events.HIDDEN, onHidden));
+    this.sound2.setVolume(settings().volume / 10);
     this.input.on('pointerdown', () => this.newUnit());
 
     const room = this.world.room;
@@ -543,7 +551,7 @@ export class GameScene extends Phaser.Scene {
     // Small fry (the moth) gets a smaller send-off.
     const big = !v || v.s.width >= 20;
     this.hitstop = big ? 0.08 : 0.04;
-    this.cameras.main.shake(big ? 170 : 90, big ? 0.009 : 0.005, true);
+    this.shake(big ? 170 : 90, big ? 0.009 : 0.005, true);
     this.sound2.play('desmontar', { detune: big ? this.fx.range(-150, 100) : 500, volume: big ? 1 : 0.6 });
     const cx = e.x;
     const cy = e.y - e.alt;
@@ -696,7 +704,7 @@ export class GameScene extends Phaser.Scene {
         onComplete: () => {
           if (o !== stamp) return;
           this.sound2.play('sello');
-          this.cameras.main.shake(120, 0.006, true);
+          this.shake(120, 0.006, true);
         },
       });
     }
@@ -713,7 +721,7 @@ export class GameScene extends Phaser.Scene {
     const f = p.facing;
     this.popped = true;
     this.hitstop = 0.06;
-    this.cameras.main.shake(160, 0.01, true);
+    this.shake(160, 0.01, true);
     this.sound2.play('saltar');
     this.time.delayedCall(90, () => this.sound2.play('muelle'));
     this.flashHero = 0.05;
@@ -770,6 +778,18 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /** Freezes the game and opens the pause menu over it (src/render/PauseScene.ts). */
+  openPause(): void {
+    if (this.leaving || !this.scene.isActive()) return;
+    this.scene.launch('pause');
+    this.scene.pause();
+  }
+
+  /** A camera shake, unless the player turned them off in the options. */
+  private shake(ms: number, intensity: number, force?: boolean): void {
+    if (settings().shake) this.cameras.main.shake(ms, intensity, force);
+  }
+
   private canAskNewUnit(): boolean {
     if (this.world.won) return this.downPanel.length > 0 && this.winT > WIN_REPORT + 0.5;
     return this.world.over && this.downPanel.length > 0 && this.downT > DOWN_REPORT + 0.5;
@@ -816,7 +836,7 @@ export class GameScene extends Phaser.Scene {
       name.setAlpha(1).setScale(1.6);
       this.tweens.add({ targets: name, scale: 1, duration: 140, ease: 'Quad.easeIn' });
       this.time.delayedCall(140, () => {
-        this.cameras.main.shake(180, 0.008, true);
+        this.shake(180, 0.008, true);
         this.sound2.play('jefe');
         line.setAlpha(1);
         this.tweens.add({ targets: line, width: name.width + 4, duration: 420, ease: 'Quad.easeOut' });
@@ -987,7 +1007,7 @@ export class GameScene extends Phaser.Scene {
     const bx = en.x + this.fx.range(-w * 0.4, w * 0.4);
     const by = en.y - this.fx.range(6, h * 0.85);
     this.sound2.play('estallido', { detune: this.fx.range(-300, 300), volume: 0.6 + 0.4 * k });
-    this.cameras.main.shake(90, 0.006 + 0.006 * k, true);
+    this.shake(90, 0.006 + 0.006 * k, true);
     for (let i = 0; i < 7; i++) this.spark(bx, by, this.fx.range(0, Math.PI * 2), this.fx.range(40, 130), this.fx.int(0, 3));
     this.puff(bx, by, this.fx.range(0.5, 0.8));
     if (this.fx.chance(0.5)) this.puff(en.x + this.fx.range(-20, 20), en.y - this.fx.range(10, 50), 0.9);
@@ -1016,7 +1036,7 @@ export class GameScene extends Phaser.Scene {
    */
   private bossDown(e: Extract<SimEvent, { type: 'death' }>): void {
     this.hitstop = 0.3;
-    this.cameras.main.shake(700, 0.022, true);
+    this.shake(700, 0.022, true);
     this.flashWhite(1, 650);
     this.sound2.play('derrumbe');
     this.sound2.play('estallido', { detune: -600 });
@@ -1061,7 +1081,7 @@ export class GameScene extends Phaser.Scene {
     // The stamp, slammed over where she stood (on the screen, so it does not drift).
     this.time.delayedCall(450, () => {
       this.sound2.play('sello');
-      this.cameras.main.shake(140, 0.008, true);
+      this.shake(140, 0.008, true);
       const cam = this.cameras.main;
       const sx = Math.round(e.x - cam.scrollX);
       const sy = Math.max(40, Math.min(VIEW_H - 70, Math.round(e.y - 40 - cam.scrollY)));
@@ -1143,6 +1163,10 @@ export class GameScene extends Phaser.Scene {
     // Fading out to the next room: the picture freezes (the world is already in the next room)
     // and the simulation waits for the new scene.
     if (this.leaving) return;
+    if (this.controls.padPause()) {
+      this.openPause();
+      return;
+    }
     if (this.hitstop > 0) {
       this.hitstop -= dt;
     } else {
@@ -1186,7 +1210,7 @@ export class GameScene extends Phaser.Scene {
           this.muzzleT = 0.05;
           this.muzzle.setFrame(this.fx.int(0, 1));
           const look = WEAPONS[e.weapon]?.look;
-          this.cameras.main.shake(50, look?.shake ?? 0.0025, true);
+          this.shake(50, look?.shake ?? 0.0025, true);
           this.sound2.play(look?.sound ?? 'disparo', { detune: this.fx.range(-150, 150) });
           if (e.weapon === 'secador') this.sound2.play('disparoTono', { detune: this.fx.range(-100, 100) });
           if (e.weapon === 'plancha') {
@@ -1205,7 +1229,7 @@ export class GameScene extends Phaser.Scene {
             break;
           }
           this.hitstop = 0.045;
-          this.cameras.main.shake(70, 0.004, true);
+          this.shake(70, 0.004, true);
           this.sound2.play('golpe', { detune: this.fx.range(-200, 200) });
           this.sound2.play('golpeRuido', { volume: 0.7 });
           for (let i = 0; i < 6; i++) this.spark(e.x, e.y, e.angle + Math.PI + this.fx.range(-1.1, 1.1), this.fx.range(50, 130), this.fx.int(0, 2));
@@ -1245,14 +1269,14 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('derrape', { volume: 0.8 });
           break;
         case 'bonk': {
-          this.cameras.main.shake(120, 0.006, true);
+          this.shake(120, 0.006, true);
           this.sound2.play('choque');
           for (let i = 0; i < 8; i++) this.spark(e.x, e.y, Math.atan2(-e.dirY, -e.dirX) + this.fx.range(-1.4, 1.4), this.fx.range(40, 110), this.fx.int(0, 2));
           for (let i = 0; i < 3; i++) this.puff(e.x + this.fx.range(-5, 5), e.y + this.fx.range(-3, 3), 0.45);
           break;
         }
         case 'contact':
-          this.cameras.main.shake(90, 0.005, true);
+          this.shake(90, 0.005, true);
           this.flashHero = 0.06;
           this.sound2.play('empujon');
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y, Math.atan2(e.dirY, e.dirX) + this.fx.range(-1, 1), this.fx.range(40, 90), this.fx.int(0, 2));
@@ -1267,7 +1291,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'turbo': {
           this.sound2.play('turbo');
-          this.cameras.main.shake(100, 0.004, true);
+          this.shake(100, 0.004, true);
           for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 16, this.fx.range(0, Math.PI * 2), this.fx.range(40, 120), this.fx.int(0, 3));
           const t = this.add.bitmapText(Math.round(e.x), Math.round(e.y - 38), FONT, fontText(TURBO_LINE), 8).setOrigin(0.5, 1).setDepth(85000).setTint(0xe0453b);
           this.floats.push({ t, vy: -14, life: 1 });
@@ -1374,7 +1398,7 @@ export class GameScene extends Phaser.Scene {
             this.sound2.play('choque', { volume: 0.6 });
             for (let i = 0; i < 6; i++) this.puff(e.x + this.fx.range(-12, 12), e.y - this.fx.range(0, 6), this.fx.range(0.5, 0.8));
             this.floatText(e.x, e.y - 28, fontText(CHEST_NAME), 0xd6cdb2);
-            this.cameras.main.shake(90, 0.004, true);
+            this.shake(90, 0.004, true);
           } else this.sound2.play('desbloquear', { volume: 0.6 });
           break;
         case 'chest':
@@ -1384,7 +1408,7 @@ export class GameScene extends Phaser.Scene {
             this.sound2.play('desbloquear');
             for (let i = 0; i < 16; i++) this.spark(e.x + this.fx.range(-8, 8), e.y - 14, -Math.PI / 2 + this.fx.range(-1.2, 1.2), this.fx.range(50, 130), 1);
             this.floatText(e.x, e.y - 30, fontText(this.fx.pick(CHEST_OPEN_LINES)), 0xf6c431);
-            this.cameras.main.shake(80, 0.004, true);
+            this.shake(80, 0.004, true);
             this.ticketPop = 0.3;
           } else {
             // Locked: a flat buzz, the light blinks and the ticket counter shakes.
@@ -1406,7 +1430,7 @@ export class GameScene extends Phaser.Scene {
             this.heartHit = Math.floor((this.world.player.hp - 1) / 2);
             this.heartHitT = 0.5;
           }
-          this.cameras.main.shake(120, 0.004);
+          this.shake(120, 0.004);
           break;
         }
         case 'activeEmpty':
@@ -1432,7 +1456,7 @@ export class GameScene extends Phaser.Scene {
           this.hitstop = 0.1;
           this.hurtFace = 0.3;
           this.flashHero = 0.08;
-          this.cameras.main.shake(220, 0.011, true);
+          this.shake(220, 0.011, true);
           this.sound2.play('dolor');
           this.hurtFlash.setAlpha(0.28);
           this.heartHit = Math.floor(e.hp / 2);
@@ -1446,7 +1470,7 @@ export class GameScene extends Phaser.Scene {
           this.downT = 0;
           this.downCause = e.cause;
           this.hitstop = 0.3;
-          this.cameras.main.shake(400, 0.016, true);
+          this.shake(400, 0.016, true);
           this.sound2.play('baja');
           for (let i = 0; i < 8; i++) this.puff(e.x + this.fx.range(-8, 8), e.y - this.fx.range(4, 22), this.fx.range(0.5, 0.9));
           break;
@@ -1463,13 +1487,13 @@ export class GameScene extends Phaser.Scene {
           if (e.product !== undefined) {
             // An expired product bursts: a wet splat and green bits flying.
             this.sound2.play('chof', { detune: this.fx.range(-300, 300) });
-            this.cameras.main.shake(70, 0.003, true);
+            this.shake(70, 0.003, true);
             for (let i = 0; i < 8; i++) this.goo(e.x + this.fx.range(-3, 3), e.y);
             this.puff(e.x, e.y - 2, 0.45);
             break;
           }
           this.sound2.play('escarcha', { detune: this.fx.range(-200, 200) });
-          this.cameras.main.shake(80, 0.004, true);
+          this.shake(80, 0.004, true);
           for (let i = 0; i < 7; i++) this.iceShard(e.x + this.fx.range(-4, 4), e.y);
           for (let i = 0; i < 3; i++) this.puff(e.x + this.fx.range(-e.r * 0.6, e.r * 0.6), e.y + this.fx.range(-4, 4), 0.5);
           break;
@@ -1485,7 +1509,7 @@ export class GameScene extends Phaser.Scene {
           // open (a creak and a cold breath) and comes in offer red.
           this.hitstop = 0.12;
           this.sound2.play('jefe', { volume: 0.7 });
-          this.cameras.main.shake(320, 0.014, true);
+          this.shake(320, 0.014, true);
           this.flashWhite(0.55, 380);
           const boss = this.world.enemies.find((en) => en.id === e.boss);
           if (e.phase >= 1 && boss) {
@@ -1509,7 +1533,7 @@ export class GameScene extends Phaser.Scene {
         case 'floorDone':
           this.winT = 0;
           this.sound2.play('ascensor');
-          this.cameras.main.shake(200, 0.006, true);
+          this.shake(200, 0.006, true);
           for (let i = 0; i < 8; i++) this.puff(e.x + this.fx.range(-20, 20), e.y + this.fx.range(-8, 8), 0.6);
           break;
         case 'fireCleared': {
@@ -1524,7 +1548,7 @@ export class GameScene extends Phaser.Scene {
         case 'bossDying': {
           // Her life runs out: a long freeze, a flash, and the camera goes to her while she comes apart.
           this.hitstop = 0.35;
-          this.cameras.main.shake(500, 0.018, true);
+          this.shake(500, 0.018, true);
           this.flashWhite(0.8, 500);
           this.sound2.play('jefe', { detune: -500 });
           this.sound2.play('estallido');
@@ -1683,7 +1707,7 @@ export class GameScene extends Phaser.Scene {
     if (slam && this.shutters.length) {
       this.time.delayedCall(410, () => {
         this.sound2.play('persiana');
-        this.cameras.main.shake(110, 0.005, true);
+        this.shake(110, 0.005, true);
         for (const s of this.shutters) for (let i = 0; i < 3; i++) this.puff(s.img.x + this.fx.range(4, s.img.width - 4), s.img.y + s.h - 2, 0.4);
       });
     }

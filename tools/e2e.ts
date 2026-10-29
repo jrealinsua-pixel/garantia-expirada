@@ -621,6 +621,37 @@ try {
   await shot('24c-tienda-comprado.png');
   if (await page.evaluate<number>('window.__GE__.scene.world.player.coupons') !== 16) throw new Error('La compra no cobra 15 cupones');
   console.log('Tienda: saludo, sin cupones no vende y con cupones cobra 15 y da el objeto.');
+
+  // M6: the pause menu. Esc freezes the game; options change and are kept; the controls are listed; Esc goes back.
+  await page.goto(`${url}?semilla=e2e-pausa&sala=sala-pruebas`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.waitForTimeout(300);
+  await page.keyboard.press('Escape');
+  await page.waitForFunction('window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  const pausedAt = await page.evaluate<number>('window.__GE__.scene.world.tick');
+  await page.waitForTimeout(400);
+  if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) !== pausedAt) throw new Error('El juego sigue en pausa');
+  await shot('25a-pausa.png');
+  const tapKeys = async (...keys: string[]): Promise<void> => {
+    for (const k of keys) {
+      await page.keyboard.press(k);
+      await page.waitForTimeout(60);
+    }
+  };
+  await tapKeys('ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('25b-opciones.png');
+  const saved = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')");
+  if (saved !== JSON.stringify({ volume: 4, shake: false })) throw new Error(`Opciones mal guardadas: ${saved}`);
+  await tapKeys('Escape', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('25c-controles.png');
+  await tapKeys('Escape', 'Escape');
+  await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  await page.waitForTimeout(300);
+  if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) === pausedAt) throw new Error('El juego no vuelve después de la pausa');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
+  console.log('Pausa: congela el juego, guarda volumen 4 y sin temblor, enseña los controles y vuelve.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

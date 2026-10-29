@@ -67,6 +67,17 @@ export class Controls {
     return null;
   }
 
+  private prevPadStart = true;
+
+  /** The pad's Start button was just pressed (it opens the pause menu). */
+  padPause(): boolean {
+    const pad = this.pad();
+    const down = !!pad?.buttons[9]?.pressed;
+    const hit = down && !this.prevPadStart;
+    this.prevPadStart = down;
+    return hit;
+  }
+
   read(src: AimSource): Input {
     const k = this.keys;
     let mx = (k.D!.isDown || k.RIGHT!.isDown ? 1 : 0) - (k.A!.isDown || k.LEFT!.isDown ? 1 : 0);
