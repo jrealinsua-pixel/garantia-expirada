@@ -467,6 +467,11 @@
       "sesion": "2026-10-29 12:44 UTC",
       "tarea": "M7: rendimiento con 300 balas",
       "desde": "2026-10-29T13:42:00Z"
+    },
+    {
+      "sesion": "2026-10-29 13:24 UTC",
+      "tarea": "M7: animaciones completas de todos los enemigos",
+      "desde": "2026-10-29T13:44:00Z"
     }
   ]
 }
