@@ -149,5 +149,6 @@ test('planta: el montacargas se queda en su sala al salir y sigue allí al volve
   enterRoom(w, door.to, OPPOSITE[door.dir]);
   assert.equal(w.lift, null, 'en la sala vecina no hay montacargas');
   enterRoom(w, boss, door.dir);
-  assert.deepEqual(w.lift && { x: w.lift.x, y: w.lift.y }, at, 'al volver sigue en su sitio');
+  const back = (w as World).lift;
+  assert.deepEqual(back && { x: back.x, y: back.y }, at, 'al volver sigue en su sitio');
 });
