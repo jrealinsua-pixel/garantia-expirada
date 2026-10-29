@@ -15,4 +15,5 @@ Ejemplo:
 
 - [atendida] 2026-10-29  La versión de escritorio va a ser lo ultimo para hacer, el juego tiene que tener varios unos 5 pisos y un piso final especial solo desbloqueable completando unos requisitos, mucha variedad de enemigos, jefes, armas, objetos y unos 5 personajes jugables con historias diferentes 
   → Hoja de ruta rehecha: M10 plantas 3 y 4, M11 planta 5 (Atención al Cliente), M12 piso final secreto (el Servicio Técnico, con requisitos de desbloqueo), M13 cinco personajes con historia propia, M14 mucha más variedad, y la versión de escritorio pasa a ser lo último (M15). También en `docs/DISENO.md`.
+  
 2026-10-29 Añade cuando puedas un aproximado de lo que crees que tardaras las fases del desarrollo del juego en completarse
