@@ -67,6 +67,10 @@ try {
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
   // The scripted play is not about surviving: nothing hurts the toaster until the damage test at the end.
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  // The sounds are synthesised in the background before the first click (no stall on it): within
+  // a few seconds every effect and song is ready, with no AudioContext yet.
+  await page.waitForFunction('(() => { const s = window.__GE__.scene.sound2; return s.buffers.size >= 50 && s.songs.size >= 2 && !s.ctx; })()', undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('Los sonidos no se han preparado antes del primer clic'); });
   const state = (): Promise<State> => page.evaluate<State>('window.__GE__.state()');
   // Screen position of a world point.
   const toScreen = (x: number, y: number): Promise<{ x: number; y: number }> =>
@@ -333,6 +337,32 @@ try {
   await page.evaluate('(() => { const s = window.__GE__.scene; s.world.floor.rooms.forEach((r) => { r.visited = true; }); s.drawMinimap(); })()');
   await page.waitForTimeout(100);
   await shot('16e-minimapa.png');
+  // From the floor into the boss room (not the loose ?sala=jefe): the start room's door is rewired
+  // to lead there, as if it were next door. She must be there, with her entrance, doors shut.
+  await page.goto(`${url}?semilla=e2e-planta`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const toBoss = await page.evaluate<{ dir: string }>(`(() => {
+    const w = window.__GE__.scene.world; const f = w.floor; const here = f.layout.rooms[f.current];
+    const boss = f.layout.rooms[f.layout.boss]; const opp = { N: 'S', S: 'N', E: 'W', W: 'E' };
+    const door = here.doors.find((d) => !d.secret && boss.doors.some((b) => b.dir === opp[d.dir])) || here.doors.find((d) => !d.secret);
+    door.to = f.layout.boss;
+    const d = w.room.doors.find((x) => x.dir === door.dir); const p = w.player;
+    p.x = d.dir === 'E' ? d.x - 20 : d.dir === 'W' ? d.x + d.w + 20 : d.x + d.w / 2;
+    p.y = d.dir === 'N' ? d.y + d.h + 20 : d.dir === 'S' ? d.y - 20 : d.y + d.h / 2 + 4;
+    return { dir: door.dir };
+  })()`);
+  const tkey = { N: 'w', S: 's', E: 'd', W: 'a' }[toBoss.dir] ?? 'd';
+  await page.keyboard.down(tkey);
+  await page.waitForFunction(`window.__GE__.scene.world.room.kind === 'boss'`, undefined, { timeout: 4000 });
+  await page.keyboard.up(tkey);
+  await page.waitForTimeout(900);
+  const inBoss = await page.evaluate<{ boss: boolean; intro: boolean; shut: boolean }>(
+    '(() => { const w = window.__GE__.scene.world; return { boss: w.enemies.some((e) => e.def.boss), intro: !!w.intro, shut: w.doorsShut }; })()',
+  );
+  await shot('16f-planta-jefa.png');
+  console.log(`Planta: de la entrada a la sala de la jefa por la puerta ${toBoss.dir}: ${JSON.stringify(inBoss)}`);
+  if (!inBoss.boss || !inBoss.intro || !inBoss.shut) throw new Error(`Al entrar desde la planta, la jefa no está o no se presenta: ${JSON.stringify(inBoss)}`);
 
   // The boss room (M4): La Nevera Suprema makes her entrance; firing again skips the rest.
   await page.goto(`${url}?semilla=e2e-jefe&sala=jefe`);

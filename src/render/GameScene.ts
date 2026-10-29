@@ -12,7 +12,8 @@ import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
-import { doorCells } from '../sim/room.ts';
+import { doorCells, isWallAt } from '../sim/room.ts';
+import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
 import { activeWarnings, addModifier, createWorld, LIFT_READY, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import { dropTicket, giveActive, giveItem, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
@@ -25,6 +26,7 @@ import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
+import { frameAxis } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
 import { cardLayout, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 import { bulbLit, enemyFrame } from './enemyAnim.ts';
@@ -501,7 +503,7 @@ export class GameScene extends Phaser.Scene {
       if (t.sub) parts.push(this.add.bitmapText(4 + (t.main ? (textWidth(t.main) + 5) * scale : 0), y, FONT, t.sub, 8 * scale).setTint(0xb9b3a3));
     });
     const title = this.hud(this.add.container(titleX(tw, span), TITLE_TOP, parts));
-    // A boss's entrance has its own name card: the room's name waits until it is over.
+    // A boss's entrance has its own name card, with the room's name in its top bar.
     this.roomTitle = title;
     if (this.world.intro) title.setAlpha(0);
     else this.tweens.add({ targets: title, alpha: 0, delay: 2500, duration: 800 });
@@ -915,6 +917,12 @@ export class GameScene extends Phaser.Scene {
       this.tweens.add({ targets: bar, y: top ? 0 : VIEW_H - BAR, duration: 260, ease: 'Quad.easeOut' });
       this.introBars.push(bar);
     }
+    // The room's name goes in the top bar (instead of over the boss's head once the fight starts).
+    const scale = readScale(settings());
+    const where = this.hud(this.add.bitmapText(VIEW_W / 2, Math.round((BAR - 8 * scale) / 2) + 1, FONT, fontText(this.world.room.name), 8 * scale).setOrigin(0.5, 0)).setDepth(96001);
+    where.setTint(0x858ea8).setAlpha(0);
+    this.introParts.push(where);
+    this.tweens.add({ targets: where, alpha: 1, delay: 300, duration: 200 });
     const x = 22;
     const y = VIEW_H - BAR - 46;
     const sub = this.hud(this.add.bitmapText(x, y, FONT, fontText(BOSS_CARD_SUBTITLE), 8)).setDepth(96001);
@@ -1233,11 +1241,7 @@ export class GameScene extends Phaser.Scene {
     // (The card's own parts went through hud() too: they are on their way out.)
     this.hudObjs = this.hudObjs.filter((o) => !parts.includes(o as unknown as Phaser.GameObjects.GameObject) && !bars.includes(o as unknown as Phaser.GameObjects.Rectangle));
     for (const o of this.hudObjs) o.setVisible(true);
-    const title = this.roomTitle;
-    if (title) {
-      this.tweens.add({ targets: title, alpha: 1, delay: 300, duration: 200 });
-      this.tweens.add({ targets: title, alpha: 0, delay: 2800, duration: 800 });
-    }
+    // (The room's name was in the top bar: it does not come back over the boss's head.)
   }
 
   private hud<T extends Phaser.GameObjects.Components.ScrollFactor & Phaser.GameObjects.Components.Depth>(o: T): T {
@@ -2512,6 +2516,12 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Whether the floor point (x, y) is a wall or inside a prop (where debris cannot lie). */
+  private solidFloor(x: number, y: number): boolean {
+    const room = this.world.room;
+    return isWallAt(room, x, y) || room.props.some((pr) => pointInRect(x, y, pr.box));
+  }
+
   private updateParticles(dt: number): void {
     const keep: Particle[] = [];
     for (const q of this.particles) {
@@ -2520,8 +2530,18 @@ export class GameScene extends Phaser.Scene {
         q.s.destroy();
         continue;
       }
-      q.s.x += q.vx * dt;
-      q.s.y += q.vy * dt;
+      if (q.gravity) {
+        // Pieces on the floor bounce off walls and boxes instead of going through them.
+        const nx = q.s.x + q.vx * dt;
+        if (this.solidFloor(nx, q.s.y)) q.vx *= -0.4;
+        else q.s.x = nx;
+        const ny = q.s.y + q.vy * dt;
+        if (this.solidFloor(q.s.x, ny)) q.vy *= -0.4;
+        else q.s.y = ny;
+      } else {
+        q.s.x += q.vx * dt;
+        q.s.y += q.vy * dt;
+      }
       if (q.gravity) {
         q.vz -= 260 * dt;
         q.z += q.vz * dt;
@@ -2770,12 +2790,15 @@ export class GameScene extends Phaser.Scene {
     // Fighting a boss, the camera leans towards it too, so it stays in the picture (but never so
     // much that the toaster leaves it).
     const boss = this.camFocus ? undefined : this.world.enemies.find((en) => en.def.boss);
+    let tx = this.camFocus ? this.camFocus.x - VIEW_W / 2 : p.x + lx - VIEW_W / 2;
+    let ty = this.camFocus ? this.camFocus.y - VIEW_H / 2 : p.y - BODY_HEIGHT + ly - VIEW_H / 2;
     if (boss) {
-      lx += Math.max(-(VIEW_W / 2 - 70), Math.min(VIEW_W / 2 - 70, (boss.x - p.x) * 0.4));
-      ly += Math.max(-(VIEW_H / 2 - 50), Math.min(VIEW_H / 2 - 50, (boss.y - 36 - p.y) * 0.4));
+      // The whole boss (crown included) in the picture whenever it fits with the toaster; the
+      // toaster always, clear of the corners of the HUD and the boss's life bar.
+      const hb = boss.def.hurt;
+      tx = frameAxis(tx, { lo: p.x - 70, hi: p.x + 70 }, { lo: boss.x + hb.x - 6, hi: boss.x + hb.x + hb.w + 6 }, VIEW_W);
+      ty = frameAxis(ty, { lo: p.y - BODY_HEIGHT - 30, hi: p.y + 30 }, { lo: boss.y + hb.y - 26, hi: boss.y + 6 }, VIEW_H);
     }
-    const tx = this.camFocus ? this.camFocus.x - VIEW_W / 2 : p.x + lx - VIEW_W / 2;
-    const ty = this.camFocus ? this.camFocus.y - VIEW_H / 2 : p.y - BODY_HEIGHT + ly - VIEW_H / 2;
     const k = 1 - Math.pow(this.camFocus ? 0.02 : 0.0005, dt);
     this.camX += (tx - this.camX) * k;
     this.camY += (ty - this.camY) * k;

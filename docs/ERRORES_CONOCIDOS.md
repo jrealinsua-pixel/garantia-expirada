@@ -9,14 +9,7 @@ decisiones tomadas o trabajo que ya tiene sitio en otro hito.
 
 ## Errores (algo funciona mal)
 
-- [ ] Al entrar en la sala de la jefa, durante el primer segundo tras su presentación la cámara
-  aún está volviendo y la nevera sale cortada por arriba (visto en M4; por comprobar si sigue).
-- [ ] Los trozos del despiece (enemigos y tostadora) pueden cruzar una pared al salir despedidos
-  si mueren pegados a ella.
-- [ ] Al sintetizar la primera canción hay un parón de unos 0,15 s con el primer gesto.
-- [ ] No hay e2e que entre en la sala de la jefa desde la planta (solo la sala suelta `?sala=jefe`):
-  el error de M7 por el que la jefa no salía se escapó por eso. Lo cubren los tests de
-  simulación, pero falta verlo en el juego de verdad.
+Ninguno conocido.
 
 ## Asperezas (se ve o se nota feo, sin romper nada)
 
@@ -72,6 +65,19 @@ decisiones tomadas o trabajo que ya tiene sitio en otro hito.
 
 ## Arreglados
 
+- 2026-10-29 · **La jefa salía cortada por arriba** al empezar el combate, con el nombre de la
+  sala encima de la cabeza: la cámara ahora encuadra a la jefa entera (corona incluida) siempre
+  que quepa con la tostadora (`frameAxis` en `src/render/camera.ts`), y el nombre de la sala sale
+  en la franja negra de arriba durante la presentación, no después. Si la tostadora está en la
+  puerta de abajo no caben las dos (366 px en una vista de 270): manda la tostadora y la cámara
+  se acerca a la jefa todo lo que puede.
+- 2026-10-29 · **Los trozos del despiece cruzaban paredes**: ahora rebotan contra paredes y cajas.
+- 2026-10-29 · **Parón al primer clic** (se sintetizaban los 56 efectos y la canción): ahora se
+  sintetizan en segundo plano desde que carga la página, uno cada 30 ms, sin `AudioContext`; el
+  e2e comprueba que están listos antes del primer clic. La canción más larga aún cuesta ~0,1 s de
+  golpe, pero en la portada, antes de jugar.
+- 2026-10-29 · **No había e2e de la sala de la jefa desde la planta**: ahora el e2e entra desde la
+  entrada de una planta generada y comprueba que la jefa está, se presenta y cierra (captura 16f).
 - 2026-10-29 · **Rendijas**: entre un carrito y la caja de debajo (`cola-atencion`), o detrás de
   una caja pegada a la pared del fondo, quedaba un hueco de 5–13 px donde solo cabían los pies:
   la tostadora se colaba dibujada a través de las dos cosas y el bot se atascaba. Ahora

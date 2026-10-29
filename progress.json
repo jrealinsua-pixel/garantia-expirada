@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T17:02:00+01:00",
+  "actualizado": "2026-10-29T17:21:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 329,
-    "tests_ok": 329,
+    "tests": 332,
+    "tests_ok": 332,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 12172
+    "lineas_codigo": 12254
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T17:21:00+01:00",
+      "hito": "M7",
+      "resumen": "Sección «Errores» vacía: la cámara encuadra a la jefa entera, los trozos rebotan en las paredes, los sonidos se preparan antes del primer clic y el e2e entra en la sala de la jefa desde la planta.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T17:02:00+01:00",
       "hito": "M7",
@@ -457,6 +463,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/jefa-encuadre.png",
+      "pie": "La cámara encuadra a la Nevera Suprema entera desde el primer segundo del combate (antes salía cortada y con el nombre de la sala encima)"
+    },
+    {
       "archivo": "capturas/teclas.png",
       "pie": "Opciones › Cambiar teclas: subir pasa a la I y rodar a la K. «Cambio de titularidad de las teclas. Sin coste adicional.»"
     },
@@ -469,10 +479,6 @@
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     },
     {
-      "archivo": "capturas/hud.png",
-      "pie": "El HUD repasado: placas oscuras en cada esquina para que se lea sobre las estanterías, los objetos encima de la ayuda de controles y el nombre de la sala en su franja de arriba"
-    },
-    {
       "archivo": "capturas/parte-de-baja.png",
       "pie": "Parte de baja con texto grande: casi a pantalla completa, el equipaje en su fila y el sello «Dado de baja» en un hueco libre para no tapar la recomendación"
     },
@@ -481,7 +487,7 @@
       "pie": "El inventario de la pausa: el Secador con la Resistencia y la Pila hace 2 de daño pero el cargador baja de 14 a 10 (en rojo); a la derecha, los objetos y lo que hace el elegido"
     }
   ],
-  "proximo": "M7: errores conocidos (2): los cuatro de la sección «Errores» de docs/ERRORES_CONOCIDOS.md, y después sus asperezas.",
+  "proximo": "M7: errores conocidos (3): las asperezas de docs/ERRORES_CONOCIDOS.md.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -510,11 +516,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 15:41 UTC",
-      "tarea": "M7: errores conocidos (2), la sección «Errores» de docs/ERRORES_CONOCIDOS.md",
-      "desde": "2026-10-29T16:12:00Z"
-    }
-  ]
+  "en_curso": []
 }

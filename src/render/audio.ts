@@ -1,7 +1,12 @@
-// Plays the synthesised effects and the music with the Web Audio API. Created lazily after the
-// first input (browsers block audio until the player interacts).
+// Plays the synthesised effects and the music with the Web Audio API. The sounds are synthesised
+// in the background from the start, a bit at a time (an AudioBuffer needs no AudioContext); the
+// context itself is created after the first input (browsers block audio until then), and by
+// then there is usually nothing left to synthesise, so the first click does not stall the game.
 import { SFX, synth } from '../audio/synth.ts';
 import { renderSong, SONGS } from '../audio/music.ts';
+
+/** Sample rate the sounds are synthesised at (any context plays them, resampled if it must). */
+const PREPARE_RATE = 44100;
 
 export class Sound {
   private ctx: AudioContext | null = null;
@@ -15,6 +20,55 @@ export class Sound {
   private wanted: string | null = null;
   private playing: { name: string; src: AudioBufferSourceNode; gain: GainNode } | null = null;
   private ducked = false;
+
+  constructor() {
+    this.prepare();
+  }
+
+  /**
+   * Synthesises every effect and song into buffers at PREPARE_RATE, one per idle slot, before
+   * anyone has clicked (the context resamples them when it plays them).
+   */
+  private prepare(): void {
+    if (typeof AudioBuffer === 'undefined' || typeof setTimeout === 'undefined') return;
+    const jobs: (() => void)[] = [
+      ...Object.keys(SFX).map((name) => () => this.effectBuffer(name, PREPARE_RATE)),
+      ...Object.keys(SONGS).map((name) => () => this.songBuffer(name, PREPARE_RATE)),
+    ];
+    const next = (): void => {
+      const job = jobs.shift();
+      if (!job) return;
+      job();
+      setTimeout(next, 30);
+    };
+    setTimeout(next, 200);
+  }
+
+  /** The buffer of effect `name`, synthesised now if it was not ready. */
+  private effectBuffer(name: string, rate: number): AudioBuffer | null {
+    const known = this.buffers.get(name);
+    if (known) return known;
+    const p = SFX[name];
+    if (!p) return null;
+    const data = synth(p, rate, name);
+    const buf = new AudioBuffer({ length: data.length, sampleRate: rate, numberOfChannels: 1 });
+    buf.getChannelData(0).set(data);
+    this.buffers.set(name, buf);
+    return buf;
+  }
+
+  /** The buffer of song `name`, synthesised now if it was not ready. */
+  private songBuffer(name: string, rate: number): AudioBuffer | null {
+    const known = this.songs.get(name);
+    if (known) return known;
+    const def = SONGS[name];
+    if (!def) return null;
+    const data = renderSong(def, rate);
+    const buf = new AudioBuffer({ length: data.length, sampleRate: rate, numberOfChannels: 1 });
+    buf.getChannelData(0).set(data);
+    this.songs.set(name, buf);
+    return buf;
+  }
 
   setMusicVolume(v: number): void {
     this.musicVolume = Math.max(0, Math.min(1, v));
@@ -54,13 +108,8 @@ export class Sound {
     }
     const def = name ? SONGS[name] : undefined;
     if (!name || !def) return;
-    let buf = this.songs.get(name);
-    if (!buf) {
-      const data = renderSong(def, ctx.sampleRate);
-      buf = ctx.createBuffer(1, data.length, ctx.sampleRate);
-      buf.getChannelData(0).set(data);
-      this.songs.set(name, buf);
-    }
+    const buf = this.songBuffer(name, PREPARE_RATE);
+    if (!buf) return;
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.loop = true;
@@ -92,12 +141,8 @@ export class Sound {
     this.musicGain = this.ctx.createGain();
     this.musicGain.gain.value = this.musicVolume * 0.55;
     this.musicGain.connect(this.ctx.destination);
-    for (const [name, p] of Object.entries(SFX)) {
-      const data = synth(p, this.ctx.sampleRate, name);
-      const buf = this.ctx.createBuffer(1, data.length, this.ctx.sampleRate);
-      buf.getChannelData(0).set(data);
-      this.buffers.set(name, buf);
-    }
+    // (The effects were synthesised in the background; any still missing, now.)
+    for (const name of Object.keys(SFX)) this.effectBuffer(name, PREPARE_RATE);
     // The song asked for before the first input starts now.
     const w = this.wanted;
     this.wanted = null;

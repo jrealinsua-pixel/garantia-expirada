@@ -171,6 +171,8 @@ semillas distintas acaban con builds distintas.
 - [x] Animaciones completas de todos los enemigos (reposo con respiración y paso de 4 fotogramas por distancia; golpe y muerte ya eran comunes: destello blanco y despiece).
 - [ ] Lista de errores conocidos vacía (`docs/ERRORES_CONOCIDOS.md`: las secciones «Errores» y «Asperezas» sin nada).
   - [x] Parte 1: reunir la lista (repasando cada «Problema conocido» de la bitácora) y arreglar las rendijas entre obstáculos, los enemigos que se amontonaban, los cupones de la jefa sobre el montacargas y el montacargas que volvía a subir.
+  - [x] Parte 2: la sección «Errores» (la jefa cortada al empezar, trozos que cruzan paredes, parón del primer clic, e2e de la jefa desde la planta).
+  - [ ] Parte 3: las asperezas.
 
 ## M8 · Planta 2: Informática
 
