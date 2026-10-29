@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T17:40:00+01:00",
+  "actualizado": "2026-10-29T18:37:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -63,7 +63,7 @@
       "id": "M8",
       "nombre": "Planta 2: Informática",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 5
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 334,
-    "tests_ok": 334,
+    "tests": 338,
+    "tests_ok": 338,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 12314
+    "lineas_codigo": 12744
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T18:37:00+01:00",
+      "hito": "M8",
+      "resumen": "M8 empieza: juego de casillas y color propio de la planta 2 (Informática): suelo técnico, racks, monitores, LED fríos, cubrecables, café y tóner. La planta 1 sigue idéntica píxel a píxel.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T17:40:00+01:00",
       "hito": "M7",
@@ -475,6 +481,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/planta2.png",
+      "pie": "La planta 2, Informática: suelo técnico verde pantalla, racks de servidores, una pared de monitores encendidos y cubrecables. Se ve con ?planta=2 mientras no tenga salas propias"
+    },
+    {
       "archivo": "capturas/portada.png",
       "pie": "La portada con los créditos a la derecha: ya no tapan a la tostadora, y el fondo llega de lado a lado"
     },
@@ -487,10 +497,6 @@
       "pie": "La cámara encuadra a la Nevera Suprema entera desde el primer segundo del combate (antes salía cortada y con el nombre de la sala encima)"
     },
     {
-      "archivo": "capturas/teclas.png",
-      "pie": "Opciones › Cambiar teclas: subir pasa a la I y rodar a la K. «Cambio de titularidad de las teclas. Sin coste adicional.»"
-    },
-    {
       "archivo": "capturas/montacargas.png",
       "pie": "Los cupones de la jefa salen en corona y se quedan fuera del montacargas (antes lo tapaban)"
     },
@@ -499,7 +505,7 @@
       "pie": "Texto grande: la Broca del Ocho con su ventana de descripción a doble tamaño. El HUD se queda como estaba"
     }
   ],
-  "proximo": "M8: juego de casillas y color propio de la planta 2 (Informática).",
+  "proximo": "M8: entornos bien diseñados (plantillas con variantes y una idea de combate por sala), repasando también las de la planta 1.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -528,11 +534,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 cloud (rutina)",
-      "tarea": "M8: juego de casillas y color propio de la planta 2 (src/art/)",
-      "desde": "2026-10-29T17:27Z"
-    }
-  ]
+  "en_curso": []
 }

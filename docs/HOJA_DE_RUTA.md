@@ -176,7 +176,7 @@ semillas distintas acaban con builds distintas.
 
 ## M8 · Planta 2: Informática
 
-- [ ] Juego de casillas y color propio.
+- [x] Juego de casillas y color propio. (`src/art/informatica.ts`; se ve con `?planta=2`.)
 - [ ] Entornos bien diseñados sin perder la generación procedural (nota del humano): plantillas
   hechas a mano con variantes (obstáculos, decorado y enemigos que cambian con la semilla),
   cada sala con una idea de combate propia; repasar también las de la planta 1.

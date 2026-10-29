@@ -390,6 +390,8 @@ export type SimEvent =
 
 export interface World {
   seed: string;
+  /** Which floor of the store this is (1: the warehouse, 2: Informática). For now it only picks the look. */
+  level: number;
   tick: number;
   rng: Rng;
   room: Room;
@@ -532,6 +534,8 @@ export interface WorldOptions {
   noEnemies?: boolean;
   /** Play a whole generated floor (seeded by `seed`), starting in its entrance. Ignores room and template. */
   floor?: boolean;
+  /** Which floor of the store (default 1). */
+  level?: number;
 }
 
 export function createWorld(opts: WorldOptions): World {
@@ -548,6 +552,7 @@ export function createWorld(opts: WorldOptions): World {
   const dummies: Dummy[] = room.dummySpawns.map((s) => ({ id: nextId++, def: s.def, x: s.x, y: s.y, lean: 0, leanV: 0, hitT: 0, damageTaken: 0 }));
   const w: World = {
     seed: opts.seed,
+    level: opts.level ?? 1,
     tick: 0,
     rng: new Rng(opts.seed),
     room,

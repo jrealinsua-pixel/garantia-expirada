@@ -146,3 +146,13 @@ test('la simulación es determinista', () => {
   };
   assert.equal(play('a'), play('a'));
 });
+
+test('la planta (level) por ahora solo cambia el aspecto: misma partida en la planta 1 y en la 2', () => {
+  const a = createWorld({ seed: 'nivel', floor: true });
+  const b = createWorld({ seed: 'nivel', floor: true, level: 2 });
+  assert.equal(a.level, 1);
+  assert.equal(b.level, 2);
+  run(a, 3, aimRight);
+  run(b, 3, aimRight);
+  assert.equal(worldHash(a), worldHash(b));
+});

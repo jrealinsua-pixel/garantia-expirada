@@ -1,9 +1,10 @@
-// Paints a warehouse room (floor 1) from its tile grid. Same method as the approved mock-up
+// Paints a room from its tile grid: the warehouse (floor 1) or Informática (floor 2, src/art/informatica.ts). Same method as the approved mock-up
 // (tools/referencia/build2.py make_scene), generalised to any size and with the game's seeded RNG.
 import { Rng } from '../sim/rng.ts';
 import { Canvas, hx, type RGBA } from './canvas.ts';
 import { K, WHITE } from './lib.ts';
 import * as W from './warehouse.ts';
+import * as I from './informatica.ts';
 
 export interface PaintableRoom {
   cols: number;
@@ -13,6 +14,8 @@ export interface PaintableRoom {
   doors?: readonly { dir: string; x: number; y: number; w: number; h: number }[];
   /** What the room is for (src/data/types.ts RoomKind, or 'test'): picks the decoration. */
   kind?: string;
+  /** Which floor of the store (1: the warehouse, 2: Informática). Picks the tile set. Default 1. */
+  level?: number;
 }
 
 const T = 24;
@@ -90,10 +93,38 @@ const SIGNS: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]
   boss: [['DIRECCIÓN', '#1b1d2e', '#69dbd8']],
 };
 
+/** Floor 2: the same jokes, with a computer department's vocabulary. */
+const STENCILS_2: Record<W.RoomStyle, readonly string[]> = {
+  combat: ['NO DESCONECTAR', 'REINICIE Y VUELVA', 'SIN COBERTURA', 'ACTUALIZANDO', 'LICENCIA CADUCADA', 'ACEPTE LAS COOKIES', 'CARGANDO...'],
+  test: ['ZONA DE PRUEBAS'],
+  start: ['SESIÓN INICIADA'],
+  treasure: ['RECUPERADO'],
+  shop: ['PAGUE AQUÍ'],
+  secret: ['ARCHIVO NO ENCONTRADO'],
+  boss: ['SOLO ADMINISTRADORES'],
+};
+
+const SIGNS_2: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]>> = {
+  combat: [
+    ['INFORMÁTICA', '#2f6b5a', '#f4f1e8'],
+    ['PERIFÉRICOS', '#3f66a6', '#f4f1e8'],
+    ['TELEFONÍA', '#5a3f7a', '#f4f1e8'],
+    ['CONSUMIBLES', '#a42f37', '#fff1a8'],
+    ['REACONDICIONADOS', '#434963', '#d3d8e4'],
+  ],
+  test: [['SALA DE PRUEBAS', '#434963', '#f6c431']],
+  start: [['PLANTA 2 · INFORMÁTICA', '#2f6b5a', '#f4f1e8']],
+  treasure: [['COPIAS DE SEGURIDAD', '#8f5a1c', '#fff1a8']],
+  shop: [['OFERTAS FLASH', '#a42f37', '#fff1a8']],
+  secret: [['PAPELERA DE RECICLAJE', '#434963', '#858ea8']],
+  boss: [['SALA DE SERVIDORES', '#1b1d2e', '#58b45a']],
+};
+
 const STYLES: readonly W.RoomStyle[] = ['start', 'combat', 'treasure', 'shop', 'secret', 'boss', 'test'];
 
 export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const rng = new Rng('room-art:' + seed);
+  const two = room.level === 2;
   const style: W.RoomStyle = STYLES.includes(room.kind as W.RoomStyle) ? (room.kind as W.RoomStyle) : 'combat';
   const features: string[] = [];
   const W_ = room.cols * T;
@@ -131,7 +162,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const FA = hx('#3a4060');
   const FB = hx('#353b58');
   const GR = hx('#262b40');
-  const variants = new Map<W.TileVariant, number>();
+  const variants = new Map<W.TileVariant | I.PanelVariant, number>();
   const count = (v: string): void => {
     features.push(v);
   };
@@ -143,6 +174,21 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       if (wall(c, r)) continue;
       const x = c * T;
       const y = r * T;
+      if (two) {
+        const base = (c + r) % 2 === 0 ? I.C.floorA : I.C.floorB;
+        I.panel(S, rng, x, y, base);
+        let v = r >= 2 ? I.pickPanel(rng, style) : 'plain';
+        if (v === 'perforated' && (grates >= maxGrates * 2 || r * room.cols + c - lastGrate < 3)) v = 'plain';
+        if (v === 'perforated') {
+          lastGrate = r * room.cols + c;
+          grates++;
+        }
+        if (v !== 'plain') {
+          I.paintPanel(S, rng, x, y, base, v);
+          variants.set(v, (variants.get(v) ?? 0) + 1);
+        }
+        continue;
+      }
       const base = (c + r) % 2 === 0 ? FA : FB;
       S.rect(x, y, T, T, base);
       S.rect(x, y, T, 1, GR);
@@ -165,7 +211,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
   for (const v of variants.keys()) count(`casilla:${v}`);
   // A patch of diamond plate where the heavy stuff gets dragged.
-  if (style !== 'secret' && style !== 'start' && rng.chance(0.55)) {
+  if (!two && style !== 'secret' && style !== 'start' && rng.chance(0.55)) {
     const tw = rng.int(2, 3);
     const p = place(tw * T, 2 * T, 30, T);
     if (p) {
@@ -200,7 +246,19 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   // Grime: oil puddles and rust stains (more of both in the forgotten rooms).
   const area = (W_ * H) / (480 * 288);
   const dirt = style === 'secret' ? 2 : style === 'shop' || style === 'start' ? 0.5 : 1;
-  for (let i = 0; i < Math.round(3 * area * dirt); i++) {
+  if (two) {
+    // Coffee rings where people waited for the update, toner where the printer gave up.
+    for (let i = 0; i < Math.round(4 * area * dirt); i++) {
+      const { x: cx, y: cy } = randFloor(14);
+      I.coffeeRing(S, cx, cy, rng.int(3, 4));
+      if (rng.chance(0.4)) I.coffeeRing(S, cx + rng.int(4, 7), cy + rng.int(-2, 3), 3);
+    }
+    for (let i = 0; i < Math.round(2 * area * dirt); i++) {
+      const { x: cx, y: cy } = randFloor(24);
+      I.tonerSmudge(S, rng, cx, cy);
+    }
+  }
+  for (let i = 0; i < (two ? 0 : Math.round(3 * area * dirt)); i++) {
     const { x: cx, y: cy } = randFloor(30);
     const rx = rng.int(12, 26);
     const ry = Math.max(4, Math.round(rx / 2.8));
@@ -211,7 +269,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       }
     }
   }
-  for (let i = 0; i < Math.round(3 * area * dirt); i++) {
+  for (let i = 0; i < (two ? 0 : Math.round(3 * area * dirt)); i++) {
     const { x: cx, y: cy } = randFloor(12);
     for (let k = 0; k < 26; k++) S.set(cx + rng.int(-6, 6), cy + rng.int(-4, 4), hx('#6e4a34'));
   }
@@ -219,26 +277,29 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   // Forklift tracks across the room.
   if ((style === 'combat' || style === 'test') && rng.chance(0.6)) {
     const vertical = rng.chance(0.4);
-    if (vertical) W.tyreTracks(S, rng.int(floorX0 + 20, floorX1 - 32), floorY0, floorY1 - floorY0, true);
-    else W.tyreTracks(S, floorX0, rng.int(floorY0 + 20, floorY1 - 32), floorX1 - floorX0, false);
-    count('rodadas');
+    const tracks = two ? I.cableCover : W.tyreTracks;
+    if (vertical) tracks(S, rng.int(floorX0 + 20, floorX1 - 32), floorY0, floorY1 - floorY0, true);
+    else tracks(S, floorX0, rng.int(floorY0 + 20, floorY1 - 32), floorX1 - floorX0, false);
+    count(two ? 'cubrecables' : 'rodadas');
   }
   // A painted loading bay.
   if ((style === 'combat' || style === 'test') && rng.chance(0.45)) {
     const w = rng.int(3, 4) * T;
     const p = place(w, 2 * T, 30, T);
     if (p) {
-      W.loadingBay(S, p.x + 3, p.y + 3, w - 6, 2 * T - 6, rng.pick(['CARGA', 'DESCARGA', 'DESCARTES', 'MERMA']));
-      count('muelle');
+      if (two) W.loadingBay(S, p.x + 3, p.y + 3, w - 6, 2 * T - 6, rng.pick(['DEMO', 'EXPOSICIÓN', 'SIN STOCK', 'AGOTADO']), [118, 196, 160], [20, 32, 30, 200]);
+      else W.loadingBay(S, p.x + 3, p.y + 3, w - 6, 2 * T - 6, rng.pick(['CARGA', 'DESCARGA', 'DESCARTES', 'MERMA']));
+      count(two ? 'expositor' : 'muelle');
     }
   }
   // Words painted on the floor.
   const nStencils = style === 'combat' && area > 1.6 ? 2 : 1;
-  for (const text of rng.shuffle([...STENCILS[style]]).slice(0, nStencils)) {
+  for (const text of rng.shuffle([...(two ? STENCILS_2 : STENCILS)[style]]).slice(0, nStencils)) {
     const tw = W.stencilWidth(text);
     const p = place(tw + 4, 9);
     if (p) {
-      W.floorStencil(S, p.x + 2, p.y + 2, text);
+      if (two) W.floorStencil(S, p.x + 2, p.y + 2, text, I.C.paint);
+      else W.floorStencil(S, p.x + 2, p.y + 2, text);
       count(`letrero:${text}`);
     }
   }
@@ -252,7 +313,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       const cy = d.y + d.h / 2;
       const tip = d.dir === 'N' ? { x: cx, y: floorY0 + 8 } : d.dir === 'S' ? { x: cx, y: floorY1 - 8 } : d.dir === 'W' ? { x: floorX0 + 10, y: cy } : { x: floorX1 - 11, y: cy };
       if (!onFloor(tip.x, tip.y)) continue;
-      W.chevrons(S, Math.round(tip.x), Math.round(tip.y), d.dir);
+      W.chevrons(S, Math.round(tip.x), Math.round(tip.y), d.dir, two ? I.C.paint : undefined);
       n++;
     }
     if (n > 0) count('flechas');
@@ -265,7 +326,10 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
   for (let i = 0; i < Math.round(6 * area * litter); i++) {
     const { x, y } = randFloor(4);
-    if (onFloor(x, y)) W.screw(S, x, y);
+    if (!onFloor(x, y)) continue;
+    if (!two) W.screw(S, x, y);
+    else if (rng.chance(0.75)) I.keycap(S, rng, x, y);
+    else if (onFloor(x + 6, y + 2)) I.usbStick(S, rng, x, y);
   }
   for (let i = 0; i < Math.max(1, Math.round(area * litter)); i++) {
     const { x, y } = randFloor(12);
@@ -278,12 +342,19 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const midX = Math.round(W_ / 2);
   if (style === 'start') {
     const x = (southDoor ? southDoor.x + southDoor.w / 2 : midX) - 26;
-    W.doormat(S, Math.round(x), floorY1 - 16, 52, 'BIENVENIDO');
+    if (two) W.doormat(S, Math.round(x), floorY1 - 16, 52, 'CONECTANDO', hx('#26384a'), hx('#8fb8d8'), hx('#141e28'));
+    else W.doormat(S, Math.round(x), floorY1 - 16, 52, 'BIENVENIDO');
     count('felpudo');
   } else if (style === 'shop') {
     const top = floorY0 + 2 * T;
-    W.carpet(S, midX - 22, top, 44, floorY1 - top - 2);
+    if (two) W.carpet(S, midX - 22, top, 44, floorY1 - top - 2, hx('#2a4a7a'), hx('#9aa2c0'));
+    else W.carpet(S, midX - 22, top, 44, floorY1 - top - 2);
     count('alfombra');
+  } else if (style === 'boss' && two) {
+    // The servers' interference: snow and dead pixels, and everything a little greener.
+    I.staticSnow(S, rng, floorX0, floorY0, floorX1, floorY1);
+    for (let y = floorY0; y < floorY1; y++) for (let x = floorX0; x < floorX1; x++) S.set(x, y, [88, 180, 90, 12]);
+    count('interferencias');
   } else if (style === 'boss') {
     for (let i = 0; i < Math.round(4 * area); i++) {
       const { x, y } = randFloor(20);
@@ -299,7 +370,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
 
   // Painted safety lines, 16 px inside the walls (nobody painted the secret room).
   if (style !== 'secret') {
-    const dash = hx('#8a7424');
+    const dash = two ? I.C.dash : hx('#8a7424');
     const lx0 = floorX0 + 16;
     const lx1 = floorX1 - 16;
     const ly0 = floorY0 + 12;
@@ -319,8 +390,8 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
 
   // Walls.
-  const WALL = hx('#222638');
-  const SEAM = hx('#1a1d2c');
+  const WALL = two ? I.C.wall : hx('#222638');
+  const SEAM = two ? I.C.seam : hx('#1a1d2c');
   for (let r = 0; r < room.rows; r++) {
     for (let c = 0; c < room.cols; c++) {
       if (!wall(c, r)) continue;
@@ -335,7 +406,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   for (let r = 0; r < room.rows; r++) {
     for (let c = 0; c < room.cols; c++) {
       if (!interior(c, r)) continue;
-      shelfUnit(S, rng, c * T, r * T, {
+      (two ? I.rackUnit : shelfUnit)(S, rng, c * T, r * T, {
         front: !wall(c, r + 1),
         up: !wall(c, r - 1),
         left: !wall(c - 1, r),
@@ -349,7 +420,8 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
 
   // Side and front walls: a conduit with brackets, electrical boxes, an extinguisher, vents.
   const nearDoor = (x: number, y: number, w: number, h: number): boolean => doorsIn.some((d) => hit({ x, y, w, h }, { x: d.x - 6, y: d.y - 6, w: d.w + 12, h: d.h + 12 }));
-  for (const wx of [0, W_ - T]) {
+  if (two) for (const wx of [0, W_ - T]) I.duct(S, wx + 7, floorY0, floorY1, (y) => nearDoor(wx + 6, y, 6, 4));
+  for (const wx of two ? [] : [0, W_ - T]) {
     const px = wx + 7;
     for (let y = floorY0; y < floorY1; y++) {
       if (nearDoor(px, y, 3, 1)) continue;
@@ -366,6 +438,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       const y = rng.int(floorY0 + 6, floorY1 - 20);
       if (nearDoor(wx, y - 2, T, 16)) continue;
       if (boxes === 0 && style !== 'secret') W.extinguisher(S, wx + 9, y);
+      else if (two) I.wallSwitch(S, rng, wx + 5, y);
       else W.junctionBox(S, wx + 5, y);
       boxes++;
     }
@@ -378,21 +451,31 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
 
   // Ceiling pipe and fluorescent lamps (the secret room got one, and it was a cheap one).
-  S.rect(0, 2, W_, 5, hx('#3e4560'));
-  S.rect(0, 2, W_, 1, hx('#5d658a'));
-  S.rect(0, 6, W_, 1, hx('#262b40'));
-  for (let x = 30; x < W_; x += 90) S.rect(x, 1, 3, 7, hx('#2a2f48'));
+  if (two) I.cableTray(S, rng, W_);
+  else {
+    S.rect(0, 2, W_, 5, hx('#3e4560'));
+    S.rect(0, 2, W_, 1, hx('#5d658a'));
+    S.rect(0, 6, W_, 1, hx('#262b40'));
+    for (let x = 30; x < W_; x += 90) S.rect(x, 1, 3, 7, hx('#2a2f48'));
+  }
   const lamps: RoomArt['lamps'] = [];
   const nLamps = style === 'secret' ? 1 : Math.max(2, Math.round(W_ / 240));
   for (let i = 0; i < nLamps; i++) {
     const lx = Math.round(((i + 0.5) * W_) / nLamps) - 22;
-    S.rect(lx, 8, 44, 3, hx('#cfc9a8'));
-    S.rect(lx + 2, 11, 40, 1, WHITE);
+    if (two) I.ledPanel(S, lx, 8);
+    else {
+      S.rect(lx, 8, 44, 3, hx('#cfc9a8'));
+      S.rect(lx + 2, 11, 40, 1, WHITE);
+    }
     lamps.push({ x: lx + 22, y: floorY0 + (floorY1 - floorY0) * 0.42 });
   }
 
   // Shelves full of returned boxes.
-  for (const [plankY, hmax, hmin] of [[26, 14, 8], [40, 11, 7]] as const) {
+  if (two) {
+    I.monitorShelf(S, rng, W_, 26, 14, 9);
+    I.monitorShelf(S, rng, W_, 40, 12, 8);
+  }
+  for (const [plankY, hmax, hmin] of two ? [] : ([[26, 14, 8], [40, 11, 7]] as const)) {
     let x = 26;
     while (x < W_ - 28) {
       const w = rng.int(8, 15);
@@ -423,7 +506,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       taken.push(x);
       return x;
     };
-    const [text, bg, fg] = rng.pick(SIGNS[style]);
+    const [text, bg, fg] = rng.pick((two ? SIGNS_2 : SIGNS)[style]);
     const sx = spot(W.stencilWidth(text) / 2 + 6);
     if (sx !== null) {
       W.signPlate(S, sx, 14, text, hx(bg), hx(fg));
@@ -432,8 +515,9 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     if (style !== 'secret' && style !== 'treasure') {
       const tx = spot(12);
       if (tx !== null) {
-        W.turnDisplay(S, rng, tx - 11, 28);
-        count('turno');
+        if (two) I.progressDisplay(S, tx - 11, 28);
+        else W.turnDisplay(S, rng, tx - 11, 28);
+        count(two ? 'progreso' : 'turno');
       }
     }
     const cx = spot(6);
@@ -448,13 +532,18 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
 
   // Yellow and black hazard tape on the inner edge of the walls.
+  if (two) {
+    I.skirting(S, T - 5, floorY0, 5, floorY1 - floorY0, true);
+    I.skirting(S, W_ - T, floorY0, 5, floorY1 - floorY0, true, true);
+    I.skirting(S, T, H - T, W_ - 2 * T, 5, false);
+  }
   const ya = hx('#b08a1c');
   const yb = hx('#191622');
-  for (let y = floorY0; y < floorY1; y++) {
+  for (let y = floorY0; y < (two ? floorY0 : floorY1); y++) {
     for (let x = T - 5; x < T; x++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
     for (let x = W_ - T; x < W_ - T + 5; x++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
   }
-  for (let x = T; x < W_ - T; x++) for (let y = H - T; y < H - T + 5; y++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
+  for (let x = T; x < (two ? T : W_ - T); x++) for (let y = H - T; y < H - T + 5; y++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
 
   // Cobwebs in the corners of the room nobody visits.
   if (style === 'secret') {
@@ -467,23 +556,27 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
 
   // Doorways: a dark hole in the wall with a steel frame; the renderer puts the shutter on top.
   const doors: RoomArt['doors'] = [];
+  const FR = two ? I.C.frame : hx('#5d658a');
+  const FR_D = two ? I.C.frameDark : hx('#3e4560');
   for (const d of doorsIn) {
     const hole = d.dir === 'N' ? { x: d.x, y: 14, w: d.w, h: 34 } : { x: d.x, y: d.y, w: d.w, h: d.h };
     S.rect(hole.x, hole.y, hole.w, hole.h, hx('#0b0a12'));
     if (d.dir === 'N' || d.dir === 'S') {
-      S.rect(hole.x - 2, hole.y - (d.dir === 'N' ? 2 : 0), 2, hole.h + 2, hx('#5d658a'));
-      S.rect(hole.x + hole.w, hole.y - (d.dir === 'N' ? 2 : 0), 2, hole.h + 2, hx('#3e4560'));
-      if (d.dir === 'N') S.rect(hole.x - 2, hole.y - 2, hole.w + 4, 2, hx('#5d658a'));
+      S.rect(hole.x - 2, hole.y - (d.dir === 'N' ? 2 : 0), 2, hole.h + 2, FR);
+      S.rect(hole.x + hole.w, hole.y - (d.dir === 'N' ? 2 : 0), 2, hole.h + 2, FR_D);
+      if (d.dir === 'N') S.rect(hole.x - 2, hole.y - 2, hole.w + 4, 2, FR);
       doors.push({ dir: d.dir, x: hole.x, y: hole.y, w: hole.w, h: d.dir === 'N' ? 33 : hole.h });
     } else {
-      S.rect(hole.x, hole.y - 2, hole.w, 2, hx('#5d658a'));
-      S.rect(hole.x, hole.y + hole.h, hole.w, 2, hx('#3e4560'));
+      S.rect(hole.x, hole.y - 2, hole.w, 2, FR);
+      S.rect(hole.x, hole.y + hole.h, hole.w, 2, FR_D);
       doors.push({ dir: d.dir, ...hole });
     }
   }
 
   // Warm light pools under the lamps (stronger over the treasure: it wants to be seen).
   const pool = style === 'treasure' ? 46 : style === 'secret' ? 16 : 26;
+  // Downstairs the tubes are warm; upstairs the LED panels are cold.
+  const glow = two ? I.C.light : ([255, 226, 150] as const);
   const pools = style === 'treasure' ? [{ x: W_ / 2, y: floorY0 + (floorY1 - floorY0) / 2 }] : lamps;
   for (const l of pools) {
     const rx = 90;
@@ -491,7 +584,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     for (let y = Math.round(l.y - ry); y <= l.y + ry; y++) {
       for (let x = Math.round(l.x - rx); x <= l.x + rx; x++) {
         const d = ((x - l.x) / rx) ** 2 + ((y - l.y) / ry) ** 2;
-        if (d <= 1 && y >= floorY0 && x >= T && x < W_ - T && y < floorY1) S.set(x, y, [255, 226, 150, Math.trunc(pool * (1 - d))]);
+        if (d <= 1 && y >= floorY0 && x >= T && x < W_ - T && y < floorY1) S.set(x, y, [glow[0], glow[1], glow[2], Math.trunc(pool * (1 - d))]);
       }
     }
   }

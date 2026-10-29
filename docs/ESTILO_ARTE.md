@@ -90,3 +90,30 @@ siempre el sprite aprobado. Qué fotogramas se usan lo dicen los datos (`anim` d
   negras en los bordes, charcos de aceite, rejillas, barriles y carros de la compra.
 - Viñeteado suave y focos de luz cálida de los fluorescentes.
 - Cada planta nueva necesita su propio juego de casillas y su color dominante.
+
+### Planta 2: Informática (`src/art/informatica.ts`)
+
+Color dominante: **verde pantalla** (suelo `#304541` / `#2c403d`, juntas `#1c2a28`, paredes
+`#1b2524`), igual de oscuro que el almacén para que las balas se lean igual en las dos plantas
+(lo vigila `tests/roomart.test.ts`).
+
+- **Suelo técnico**: placas de 24 × 24 sobre pilares, con el borde de arriba y de la izquierda
+  iluminado, la junta oscura abajo y a la derecha, un cuadradito oscuro donde se juntan cuatro y
+  vinilo moteado. Variantes: placa levantada (rendija con cables de colores), pasacables con un
+  cable que no va a ninguna parte, desgaste de sillas de oficina, pegatina de inventario medio
+  despegada y placa perforada de ventilación (rara).
+- **Suelo**: anillos de café, manchas de tóner, cubrecables de goma de lado a lado (en lugar de las
+  rodadas de carretilla), teclas sueltas y memorias USB (en lugar de tornillos), zona de
+  «DEMO / EXPOSICIÓN / AGOTADO» y letras en verde gastado («REINICIE Y VUELVA», «ACEPTE LAS
+  COOKIES»…). Las líneas de seguridad, en verde.
+- **Paredes**: racks de servidores con LEDs en lugar de estanterías; canaleta blanca con enchufes y
+  switches de red en las laterales; rodapié-canaleta gris con enchufes en lugar de la cinta
+  amarilla y negra. Arriba, bandeja de cables con cables colgando y paneles LED fríos (la luz es
+  fría, no cálida). En la pared del fondo, monitores encendidos (pantallazo azul, carta de ajuste,
+  texto verde, «sin señal», una actualización atascada) y cajas de portátil; el reloj sigue en las
+  12 y el turno es una barra de progreso en el 99 %.
+- Salas: entrada con felpudo «CONECTANDO» y cartel «PLANTA 2 · INFORMÁTICA»; tienda con alfombra
+  azul; tesoro «COPIAS DE SEGURIDAD»; secreta «PAPELERA DE RECICLAJE»; jefe «SALA DE SERVIDORES»
+  con interferencias (nieve verde y píxeles muertos) en lugar de escarcha.
+- Pendiente para «Entornos» (M8): obstáculos propios (las cajas, barriles y carritos siguen siendo
+  los del almacén) y persianas a juego.

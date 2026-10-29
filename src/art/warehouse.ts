@@ -185,9 +185,9 @@ export function tyreTracks(S: Canvas, x: number, y: number, len: number, vertica
 }
 
 /** A painted loading bay: dashed outline and diagonal hatching, faded. */
-export function loadingBay(S: Canvas, x: number, y: number, w: number, h: number, label: string): void {
-  const line: RGBA = [176, 138, 28, 120];
-  const hatch: RGBA = [176, 138, 28, 38];
+export function loadingBay(S: Canvas, x: number, y: number, w: number, h: number, label: string, ink: readonly [number, number, number] = [176, 138, 28], under: RGBA = [33, 37, 58, 200]): void {
+  const line: RGBA = [ink[0], ink[1], ink[2], 120];
+  const hatch: RGBA = [ink[0], ink[1], ink[2], 38];
   for (let i = 0; i < w; i++) {
     if (Math.floor(i / 4) % 2 === 0) {
       S.set(x + i, y, line);
@@ -203,9 +203,9 @@ export function loadingBay(S: Canvas, x: number, y: number, w: number, h: number
   for (let j = 2; j < h - 2; j++) for (let i = 2; i < w - 2; i++) if ((i + j) % 8 < 2) S.set(x + i, y + j, hatch);
   const tw = stencilWidth(label);
   if (tw < w - 6) {
-    S.rect(x + Math.floor((w - tw) / 2) - 2, y + Math.floor(h / 2) - 4, tw + 4, 9, [33, 37, 58, 200]);
+    S.rect(x + Math.floor((w - tw) / 2) - 2, y + Math.floor(h / 2) - 4, tw + 4, 9, under);
     // Worn paint: some pixels missing.
-    stencil(S, x + Math.floor((w - tw) / 2), y + Math.floor(h / 2) - 2, label, [176, 138, 28, 150], (i) => i % 7 === 3);
+    stencil(S, x + Math.floor((w - tw) / 2), y + Math.floor(h / 2) - 2, label, [ink[0], ink[1], ink[2], 150], (i) => i % 7 === 3);
   }
 }
 
@@ -215,8 +215,7 @@ export function floorStencil(S: Canvas, x: number, y: number, text: string, c: R
 }
 
 /** A painted arrow (three chevrons) pointing at a door; (x, y) is the tip. */
-export function chevrons(S: Canvas, x: number, y: number, dir: string): void {
-  const c: RGBA = [176, 138, 28, 95];
+export function chevrons(S: Canvas, x: number, y: number, dir: string, c: RGBA = [176, 138, 28, 95]): void {
   // Draw pointing up in (u, v) space (u across, v away from the tip), then map to the direction.
   const put = (u: number, v: number): void => {
     if (dir === 'N') S.set(x + u, y + v, c);
@@ -235,25 +234,23 @@ export function chevrons(S: Canvas, x: number, y: number, dir: string): void {
 }
 
 /** A doormat (shop entrance style) with a word on it. */
-export function doormat(S: Canvas, x: number, y: number, w: number, word: string): void {
-  const M = hx('#5a3a2c');
+export function doormat(S: Canvas, x: number, y: number, w: number, word: string, M: RGBA = hx('#5a3a2c'), ink: RGBA = hx('#c9a26a'), dark: RGBA = hx('#2e1e18')): void {
   S.rect(x, y, w, 13, M);
   S.rect(x, y, w, 1, shade(M, 18));
-  S.rect(x, y + 12, w, 1, hx('#2e1e18'));
+  S.rect(x, y + 12, w, 1, dark);
   for (let i = x + 1; i < x + w - 1; i += 2) S.set(i, y + 2, shade(M, -14));
   for (let i = x + 1; i < x + w - 1; i += 2) S.set(i, y + 10, shade(M, -14));
   const tw = stencilWidth(word);
-  stencil(S, x + Math.floor((w - tw) / 2), y + 4, word, hx('#c9a26a'));
+  stencil(S, x + Math.floor((w - tw) / 2), y + 4, word, ink);
 }
 
 /** A long carpet runner (shop): red with a gold border. */
-export function carpet(S: Canvas, x: number, y: number, w: number, h: number): void {
-  const C = hx('#7a2a34');
+export function carpet(S: Canvas, x: number, y: number, w: number, h: number, C: RGBA = hx('#7a2a34'), trim: RGBA = hx('#b08a3c')): void {
   S.rect(x, y, w, h, C);
-  S.rect(x + 2, y + 2, w - 4, 1, hx('#b08a3c'));
-  S.rect(x + 2, y + h - 3, w - 4, 1, hx('#b08a3c'));
-  S.rect(x + 2, y + 2, 1, h - 4, hx('#b08a3c'));
-  S.rect(x + w - 3, y + 2, 1, h - 4, hx('#b08a3c'));
+  S.rect(x + 2, y + 2, w - 4, 1, trim);
+  S.rect(x + 2, y + h - 3, w - 4, 1, trim);
+  S.rect(x + 2, y + 2, 1, h - 4, trim);
+  S.rect(x + w - 3, y + 2, 1, h - 4, trim);
   for (let j = y + 5; j < y + h - 5; j += 6) for (let i = x + 6; i < x + w - 6; i += 6) S.set(i, j, shade(C, 22));
   S.rect(x, y + h, w, 2, [12, 10, 22, 80]);
 }

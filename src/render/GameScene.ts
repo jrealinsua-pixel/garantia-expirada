@@ -364,19 +364,21 @@ export class GameScene extends Phaser.Scene {
       this.runBosses = [];
       this.runRecorded = false;
     }
+    // ?planta=2: the same rooms with the look of floor 2 (Informática) while it has no rooms of its own.
+    const level = Math.max(1, Math.min(2, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
     if (carried) {
       // Walked through a door: same run, next room. The controls hint was read already.
       this.world = carried;
       this.hintT = 0;
     } else if (this.startSala && !params.get('sala')) {
-      this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala });
+      this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala, level });
     } else if (params.get('sala')) {
       // ?sala=<id>&profundidad=<n>: one room template, its slots filled for that depth (the test
       // room is ?sala=sala-pruebas).
-      this.world = createWorld({ seed: params.get('semilla') ?? params.get('sala')!, room: params.get('sala')!, depth: Number(params.get('profundidad') ?? 3) });
+      this.world = createWorld({ seed: params.get('semilla') ?? params.get('sala')!, room: params.get('sala')!, depth: Number(params.get('profundidad') ?? 3), level });
     } else {
       // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
-      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true });
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level });
     }
     const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);
@@ -404,7 +406,7 @@ export class GameScene extends Phaser.Scene {
     // Open doors are floor in the simulation; the painter wants the wall around the opening.
     const tiles = room.tiles.slice();
     for (const d of room.doors) for (const c of doorCells(room.cols, room.rows, d.dir)) tiles[c.r * room.cols + c.c] = 1;
-    const art = paintRoom({ ...room, tiles }, seed);
+    const art = paintRoom({ ...room, tiles, level: this.world.level }, seed);
     addCanvasTexture(this, 'sala', art.canvas);
     this.add.image(0, 0, 'sala').setOrigin(0, 0).setDepth(-100000);
     this.makeShutters(art.doors);
