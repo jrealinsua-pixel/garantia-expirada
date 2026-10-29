@@ -86,7 +86,14 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
       const bottom = (r + 1) * TILE - 2;
       if (ch === '#') tiles[r * cols + c] = 1;
       else if (ch === 'P') playerStart = { x: cx, y: r * TILE + TILE / 2 + 4 };
-      else if (SLOT_CHARS[ch]) slots.push({ kind: SLOT_CHARS[ch], x: cx, y: r * TILE + TILE / 2 + 4 });
+      else if (SLOT_CHARS[ch]) {
+        slots.push({ kind: SLOT_CHARS[ch], x: cx, y: r * TILE + TILE / 2 + 4 });
+        // The shopkeeper is a till that stands there (solid, like a box).
+        if (SLOT_CHARS[ch] === 'shopkeeper') {
+          const def = PROPS.autocobro!;
+          props.push({ def, x: cx, y: bottom, box: { x: cx + def.box.x, y: bottom + def.box.y, w: def.box.w, h: def.box.h } });
+        }
+      }
       else if (ch === 'M') dummySpawns.push({ def: DUMMIES.maniqui!, x: cx, y: bottom });
       else if (ENEMY_CHARS[ch]) enemySpawns.push({ def: ENEMIES[ENEMY_CHARS[ch]]!, x: cx, y: r * TILE + TILE / 2 + 4 });
       else if (PROP_CHARS[ch]) {

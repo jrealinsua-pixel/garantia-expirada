@@ -156,5 +156,8 @@ export const SFX: Record<string, SfxParams> = {
   activar: { wave: 'square', freq: 300, freqEnd: 1500, attack: 0.002, sustain: 0.12, decay: 0.2, volume: 0.15, duty: 0.4, vibrato: 0.06, vibratoSpeed: 20 },
   sinCarga: { wave: 'square', freq: 110, freqEnd: 100, attack: 0.002, sustain: 0.1, decay: 0.05, volume: 0.13, duty: 0.5, crush: 3 },
   pila: { wave: 'square', freq: 900, freqEnd: 1400, attack: 0.001, sustain: 0.03, decay: 0.08, volume: 0.12, duty: 0.3 },
+  // The shop till: the scanner beep of a sale, and its two flat notes of «no».
+  escaner: { wave: 'square', freq: 1900, freqEnd: 1900, attack: 0.001, sustain: 0.07, decay: 0.04, volume: 0.12, duty: 0.4 },
+  cajaError: { wave: 'square', freq: 340, freqEnd: 250, attack: 0.002, sustain: 0.16, decay: 0.12, volume: 0.13, duty: 0.5, crush: 2 },
   espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
 };

@@ -4,6 +4,7 @@ import { FLOOR_BOSS_1, ROOMS, SLOT_ENEMIES_1, templatesOf } from '../data/rooms.
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
+import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon } from './mods.ts';
 import { bossWarnSpot, updateEnemies } from './enemies.ts';
@@ -120,6 +121,10 @@ export interface Pickup {
   charge?: number;
   /** Put down just now under the toaster: it cannot be picked up until the toaster has stepped off it. */
   stepOff?: boolean;
+  /** For sale on a shop shelf: its price in coupons (walking onto it buys it, if it can be paid). */
+  price?: number;
+  /** For sale: the toaster is standing on it (so a refusal is said once per visit, not every tick). */
+  touched?: boolean;
 }
 
 /** Seconds after changing weapon before the new one fires (it is being drawn). */
@@ -359,6 +364,8 @@ export type SimEvent =
   | { type: 'reward'; reward: RoomReward; x: number; y: number }
   /** Walked into a shut chest: opened with a ticket (`item` is what came out), or locked (no ticket). */
   | { type: 'chest'; x: number; y: number; opened: boolean; tickets: number; item?: string }
+  /** Walked onto something for sale: bought it (`left` coupons after paying), or not (too poor, or a heart with all its life). */
+  | { type: 'shop'; x: number; y: number; outcome: 'bought' | 'poor' | 'full'; good: PickupKind; price: number; left: number; item?: string }
   /** The active item was used (`effect` is its effect's type). */
   | { type: 'active'; item: string; effect: string; x: number; y: number }
   /** Q with an active item that cannot be used now (not charged, or nothing to heal). */
@@ -598,6 +605,7 @@ export function createWorld(opts: WorldOptions): World {
   // The test room lays out every findable weapon on its pedestals, to try them all; a treasure
   // (or secret) room played on its own stocks its pedestals as on a floor.
   if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], [], []);
+  else if (room.kind === 'shop') stockShop(w, decksOf(w));
   else if (room.kind === 'treasure' || room.kind === 'secret') {
     const decks = lootDecks(opts.seed);
     stockPedestals(w, decks.weapons, decks.items, decks.actives);
@@ -726,6 +734,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   // Until there are chests, the treasure room (and the secret one) keep a weapon and items on their pedestals.
   const kind = f.layout.rooms[id]!.kind;
   if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons, f.items, f.actives);
+  if (first && kind === 'shop') stockShop(w, f);
   w.doorsShut = !st.cleared;
   setDoorTiles(w, !w.doorsShut);
   w.events.push({ type: 'room', id, via });
@@ -753,6 +762,30 @@ function stockPedestals(w: World, weapons: string[], items: string[], actives: s
     else if (d === 1) w.pickups.push({ id: w.nextId++, kind: 'objeto', item: id, ...at });
     else w.pickups.push({ id: w.nextId++, kind: 'activo', item: id, charge: ACTIVE_ITEMS[id]!.charges, ...at });
   }
+}
+
+/**
+ * Puts the goods on the shop's shelves, left to right as SHOP_SHELVES says: the next item of the
+ * decks (passive, else active, else weapon), a spare heart and a ticket, each with its price.
+ */
+function stockShop(w: World, decks: { weapons: string[]; items: string[]; actives: string[] }): void {
+  const shelves = w.room.slots.filter((s) => s.kind === 'shelf').sort((a, b) => a.x - b.x || a.y - b.y);
+  shelves.forEach((s, i) => {
+    const what = SHOP_SHELVES[i % SHOP_SHELVES.length]!;
+    const at = { id: 0, x: s.x, y: s.y, vx: 0, vy: 0, age: PICKUP_DELAY, value: 1 };
+    let k: Pickup | null = null;
+    if (what === 'corazon') k = { ...at, kind: 'corazon', value: 2 };
+    else if (what === 'ticket') k = { ...at, kind: 'ticket' };
+    else if (decks.items.length > 0) k = { ...at, kind: 'objeto', item: decks.items.shift()! };
+    else if (decks.actives.length > 0) {
+      const item = decks.actives.shift()!;
+      k = { ...at, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges };
+    } else if (decks.weapons.length > 0) k = { ...at, kind: 'arma', weapon: decks.weapons.shift()! };
+    if (!k) return;
+    k.id = w.nextId++;
+    k.price = SHOP_PRICES[k.kind as ShopGood];
+    w.pickups.push(k);
+  });
 }
 
 /**
@@ -1697,6 +1730,34 @@ function updatePickups(w: World): void {
     const dx = p.x - k.x;
     const dy = p.y - 2 - k.y;
     const d = Math.hypot(dx, dy);
+    if (k.price !== undefined) {
+      // For sale: it stays on its shelf until the toaster walks onto it and pays.
+      const on = d < WEAPON_GRAB && !isRolling(p) && k.age >= PICKUP_DELAY && !w.over;
+      if (!on) {
+        k.touched = false;
+        keep.push(k);
+        continue;
+      }
+      if (k.touched) {
+        keep.push(k);
+        continue;
+      }
+      k.touched = true;
+      const good = k.kind;
+      const item = k.item ?? k.weapon;
+      const refuse = good === 'corazon' && p.hp >= p.def.maxHp ? 'full' : p.coupons < k.price ? 'poor' : null;
+      if (refuse) {
+        w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: refuse, good, price: k.price, left: p.coupons, item });
+        keep.push(k);
+        continue;
+      }
+      p.coupons -= k.price;
+      w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: 'bought', good, price: k.price, left: p.coupons, item });
+      delete k.price;
+      delete k.touched;
+      grab(w, k);
+      continue;
+    }
     // A spare heart stays where it is while the toaster has all its life.
     if (k.kind === 'arma') {
       // A weapon waits on its pedestal until the toaster walks onto it (rolling over it does not count).
@@ -1862,6 +1923,26 @@ export function placeChest(w: World, x: number, y: number): PropInstance {
   w.room.props.push(prop);
   w.events.push({ type: 'reward', reward: 'chest', x: at.x, y: at.y });
   return prop;
+}
+
+/** Hands over something bought (as if it had been picked up off the floor). */
+function grab(w: World, k: Pickup): void {
+  const p = w.player;
+  if (k.kind === 'arma' && k.weapon) {
+    giveWeapon(w, k.weapon);
+    w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.arsenal.length, weapon: k.weapon });
+  } else if (k.kind === 'objeto' && k.item) {
+    giveItem(w, k.item);
+    w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.items.length, item: k.item });
+  } else if (k.kind === 'activo' && k.item) {
+    giveActive(w, k.item, k.charge);
+    w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.active?.charge ?? 0, item: k.item });
+  } else {
+    if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);
+    else if (k.kind === 'ticket') p.tickets += k.value;
+    else p.coupons += k.value;
+    w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: k.kind === 'corazon' ? p.hp : k.kind === 'ticket' ? p.tickets : p.coupons });
+  }
 }
 
 /** The decks loot comes from: the floor's, or (a single room) the world's own. */

@@ -4,6 +4,7 @@ import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
 import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, SWAP_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
+import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { ACTIVE_LINES, activeHint, NO_CHARGE_LINE } from '../data/texts.ts';
@@ -22,6 +23,15 @@ import { Controls } from './input.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 
 export const VIEW_W = 480;
+
+/** How a pickup is drawn: its sprite and shadow, its name, and its price when it is for sale. */
+interface PickupView {
+  s: Phaser.GameObjects.Image;
+  shadow: Phaser.GameObjects.Image;
+  label?: Phaser.GameObjects.BitmapText;
+  price?: Phaser.GameObjects.BitmapText;
+  priceIcon?: Phaser.GameObjects.Image;
+}
 export const VIEW_H = 270;
 
 const HERO_FEET_X = 17.5;
@@ -144,7 +154,7 @@ export class GameScene extends Phaser.Scene {
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
   private enemySprites = new Map<number, EnemyView>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
-  private pickupSprites = new Map<number, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; label?: Phaser.GameObjects.BitmapText }>();
+  private pickupSprites = new Map<number, PickupView>();
   /** Name of the weapon in hand, over the ammo, for a moment after changing. */
   private weaponName!: Phaser.GameObjects.BitmapText;
   private weaponNameT = 0;
@@ -178,6 +188,13 @@ export class GameScene extends Phaser.Scene {
   private chestDrop = false;
   private chestSprites = new Map<number, { s: Phaser.GameObjects.Image; open: boolean; pop: number }>();
   private couponPop = 0;
+  /** The shop till (only in the shop), what it is saying and for how long, and its refusal face. */
+  private till: Phaser.GameObjects.Image | null = null;
+  private bubble: { g: Phaser.GameObjects.Graphics; t: Phaser.GameObjects.BitmapText } | null = null;
+  private bubbleT = 0;
+  private tillNoT = 0;
+  /** A line the till says once the one it is saying ends. */
+  private tillNext: string | null = null;
   private banner!: Phaser.GameObjects.BitmapText;
   private shutters: Array<{ img: Phaser.GameObjects.Image; h: number }> = [];
   /** Red flash over the whole screen when hurt, and the heart that just broke. */
@@ -272,6 +289,11 @@ export class GameScene extends Phaser.Scene {
     this.pickupSprites = new Map();
     this.chestSprites = new Map();
     this.ticketPop = 0;
+    this.till = null;
+    this.bubble = null;
+    this.bubbleT = 0;
+    this.tillNoT = 0;
+    this.tillNext = null;
     this.frostViews = new Map();
     this.particles = [];
     this.mapG = null;
@@ -319,9 +341,20 @@ export class GameScene extends Phaser.Scene {
         this.add.image(pr.x, pr.y + 1, shadowTexture(this, 10, 3)).setDepth(-50000);
         continue;
       }
+      if (key === 'autocobro') {
+        // The shop till: drawShop changes its face.
+        this.add.image(pr.x, pr.y + 1, shadowTexture(this, 12, 3)).setDepth(-50000);
+        this.till = this.add.image(pr.x, pr.y, key, 0).setOrigin(0.5, 1).setDepth(pr.y);
+        continue;
+      }
       const tex = this.textures.get(key).getSourceImage();
       this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
       this.add.image(pr.x, pr.y, key).setOrigin(0.5, 1).setDepth(pr.y);
+    }
+    if (room.kind === 'shop') {
+      // A display stand under every shelf, and the till says hello.
+      for (const sl of room.slots) if (sl.kind === 'shelf') this.add.image(sl.x, sl.y + 6, 'expositor').setOrigin(0.5, 1).setDepth(sl.y - 1);
+      this.time.delayedCall(700, () => this.tillSay(this.fx.pick(SHOPKEEPER.greet)));
     }
     for (const d of this.world.dummies) {
       this.add.image(d.x, d.y - 1, shadowTexture(this, 8, 3)).setDepth(-50000);
@@ -1280,6 +1313,22 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('cupon', { detune: Math.min(600, (e.total % 8) * 80) });
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 3, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1);
           break;
+        case 'shop':
+          if (e.outcome === 'bought') {
+            // Sold: the scanner beeps, the price flies off and the till thanks you (and says when it is empty).
+            this.sound2.play('escaner');
+            this.time.delayedCall(90, () => this.sound2.play('escaner', { detune: 300 }));
+            this.floatText(e.x, e.y + 4, `-${e.price}`, 0xf6c431);
+            this.couponPop = 0.25;
+            this.tillSay(this.fx.pick(SHOPKEEPER.thanks), this.world.pickups.some((k) => k.price !== undefined) ? null : SHOPKEEPER.soldOut);
+          } else {
+            // No: two flat notes, the screen goes red and the coupon counter shakes.
+            this.sound2.play('cajaError');
+            this.tillNoT = 1.1;
+            if (e.outcome === 'poor') this.couponPop = -0.4;
+            this.tillSay(e.outcome === 'poor' ? this.fx.pick(SHOPKEEPER.poor) : SHOPKEEPER.full);
+          }
+          break;
         case 'swap': {
           const def = WEAPONS[e.weapon];
           if (!e.found) this.sound2.play('cambiar');
@@ -1640,6 +1689,55 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * The till says `text` in a bubble over it (replacing what it was saying); `then` follows when
+   * that ends. Its screen mouths the words while the bubble is up.
+   */
+  private tillSay(text: string, then: string | null = null): void {
+    if (!this.till) return;
+    this.bubble?.g.destroy();
+    this.bubble?.t.destroy();
+    const room = this.world.room;
+    const t = this.add.bitmapText(0, 0, FONT, fontText(text), 8).setOrigin(0.5, 1).setCenterAlign().setMaxWidth(150).setTint(0xf4f1e8).setDepth(86001);
+    const w = Math.ceil(t.width) + 10;
+    const h = Math.ceil(t.height) + 7;
+    const x = Math.round(Math.min(room.w - 4 - w / 2, Math.max(4 + w / 2, this.till.x)));
+    const y = Math.round(this.till.y - 39);
+    t.setPosition(x, y - 3);
+    // A dark plate with a light border (light text reads; dark text on light blurs this font).
+    const g = this.add.graphics().setDepth(86000);
+    const x0 = Math.round(x - w / 2);
+    g.fillStyle(0xd6cdb2, 1).fillRect(x0 - 1, y - h - 1, w + 2, h + 2);
+    g.fillStyle(0x0e0c16, 0.94).fillRect(x0, y - h, w, h);
+    // The tail points down at the till's screen.
+    const tx = Math.round(this.till.x);
+    g.fillStyle(0xd6cdb2, 1).fillRect(tx - 3, y + 1, 7, 1).fillRect(tx - 2, y + 2, 5, 1).fillRect(tx - 1, y + 3, 3, 1);
+    g.fillStyle(0x0e0c16, 1).fillRect(tx - 2, y, 5, 1).fillRect(tx - 1, y + 1, 3, 1).fillRect(tx, y + 2, 1, 1);
+    this.bubble = { g, t };
+    this.bubbleT = 1.4 + text.length * 0.045;
+    this.tillNext = then;
+  }
+
+  /** The till's face (talking, refusing or smiling) and its bubble running out. */
+  private drawShop(dt: number): void {
+    if (!this.till) return;
+    this.tillNoT = Math.max(0, this.tillNoT - dt);
+    if (this.bubble) {
+      this.bubbleT -= dt;
+      this.bubble.g.setAlpha(Math.min(1, this.bubbleT * 4));
+      this.bubble.t.setAlpha(Math.min(1, this.bubbleT * 4));
+      if (this.bubbleT <= 0) {
+        this.bubble.g.destroy();
+        this.bubble.t.destroy();
+        this.bubble = null;
+        const next = this.tillNext;
+        if (next) this.time.delayedCall(250, () => this.tillSay(next));
+      }
+    }
+    const talking = !!this.bubble && this.bubbleT > 0.3 && Math.floor(this.time.now / 140) % 2 === 0;
+    this.till.setFrame(this.tillNoT > 0 ? 2 : talking ? 1 : 0);
+  }
+
   private floatText(x: number, y: number, text: string, tint: number): void {
     const t = this.add.bitmapText(Math.round(x), Math.round(y), FONT, text, 8).setOrigin(0.5, 1).setDepth(85000).setTint(tint);
     this.floats.push({ t, vy: -30, life: 0.6 });
@@ -1649,6 +1747,7 @@ export class GameScene extends Phaser.Scene {
     const w = this.world;
     this.drawBossBar(dt);
     this.drawLift(dt);
+    this.drawShop(dt);
     const p = w.player;
     const rolling = isRolling(p);
 
@@ -1947,7 +2046,8 @@ export class GameScene extends Phaser.Scene {
         const heart = k.kind === 'corazon';
         const arm = k.kind === 'arma' ? WEAPONS[k.weapon ?? ''] : undefined;
         const item = k.kind === 'objeto' ? ITEMS[k.item ?? ''] : k.kind === 'activo' ? ACTIVE_ITEMS[k.item ?? ''] : undefined;
-        const shown = arm ? { sprite: arm.look.sprite, name: arm.name } : item ? { sprite: item.sprite, name: item.name } : null;
+        const good = k.price !== undefined && (k.kind === 'corazon' || k.kind === 'ticket') ? { sprite: k.kind === 'corazon' ? 'corazon-suelo' : 'ticket', name: GOOD_NAMES[k.kind] } : null;
+        const shown = arm ? { sprite: arm.look.sprite, name: arm.name } : item ? { sprite: item.sprite, name: item.name } : good;
         if (shown) {
           v = {
             s: this.add.image(k.x, k.y, shown.sprite).setOrigin(0.5, 1),
@@ -1958,9 +2058,21 @@ export class GameScene extends Phaser.Scene {
           const key = heart ? 'corazon-suelo' : k.kind === 'ticket' ? 'ticket' : 'cupon';
           v = { s: this.add.image(k.x, k.y, key, 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
         }
+        if (k.price !== undefined) {
+          // For sale: its price under the stand, with a coupon (gold if it can be paid, grey if not).
+          v.price = this.add.bitmapText(k.x + 5, k.y + 8, FONT, String(k.price), 8).setOrigin(0.5, 0).setDepth(k.y + 1);
+          v.priceIcon = this.add.image(k.x - 5 - Math.ceil(v.price.width / 2), k.y + 8, 'cupon', 0).setOrigin(0.5, 0).setDepth(k.y + 1);
+          v.shadow.setVisible(false);
+        }
         this.pickupSprites.set(k.id, v);
       }
-      if (k.kind === 'arma' || k.kind === 'objeto' || k.kind === 'activo') {
+      if (v.price && k.price !== undefined) {
+        const p = this.world.player;
+        const can = p.coupons >= k.price && !(k.kind === 'corazon' && p.hp >= p.def.maxHp);
+        v.price.setTint(can ? 0xf6c431 : 0x858ea8);
+        v.priceIcon?.setTint(can ? 0xffffff : 0x858ea8);
+      }
+      if (k.kind === 'arma' || k.kind === 'objeto' || k.kind === 'activo' || k.price !== undefined) {
         // A weapon (or an item) floats over its spot, turning a little and glinting; its name shows up close.
         const t = this.time.now / 1000 + k.id;
         const glintW = Math.floor(this.time.now / 80 + k.id * 5) % 24 === 0;
@@ -1970,7 +2082,7 @@ export class GameScene extends Phaser.Scene {
         v.shadow.setPosition(Math.round(k.x), Math.round(k.y)).setScale(1 - Math.sin(t * 2.4) * 0.12, 1);
         const p = this.world.player;
         const near = Math.hypot(p.x - k.x, p.y - k.y) < 56;
-        v.label?.setPosition(Math.round(k.x), Math.round(k.y - (k.kind === 'arma' ? 22 : 26) - Math.sin(t * 2.4) * 2)).setAlpha(near ? 1 : 0);
+        v.label?.setPosition(Math.round(k.x), Math.round(k.y - (k.kind === 'arma' ? 22 : k.kind === 'corazon' || k.kind === 'ticket' ? 21 : 26) - Math.sin(t * 2.4) * 2)).setAlpha(near ? 1 : 0);
         continue;
       }
       const hop = k.age < PICKUP_DELAY ? Math.sin((Math.PI * k.age) / PICKUP_DELAY) * 12 : Math.max(0, Math.sin(this.time.now / 260 + k.id)) * 1.5;
@@ -1984,6 +2096,8 @@ export class GameScene extends Phaser.Scene {
       v.s.destroy();
       v.shadow.destroy();
       v.label?.destroy();
+      v.price?.destroy();
+      v.priceIcon?.destroy();
       this.pickupSprites.delete(id);
     }
   }
@@ -2245,9 +2359,12 @@ export class GameScene extends Phaser.Scene {
     this.hurtFlash.setAlpha(Math.max(0, this.hurtFlash.alpha - dt * 1.6));
     this.updateActiveSlot(dt);
     this.couponText.setText(String(p.coupons));
-    this.couponPop = Math.max(0, this.couponPop - dt);
-    this.couponIcon.setY(this.couponPop > 0.12 ? 17 : 19);
-    this.couponText.setTint(this.couponPop > 0 ? 0xfff1a8 : 0xf6c431);
+    // Coupons: the counter jumps when one comes in, and shakes red when the shop says no.
+    const cp = this.couponPop;
+    this.couponPop = cp > 0 ? Math.max(0, cp - dt) : Math.min(0, cp + dt);
+    const cshake = cp < 0 ? Math.round(Math.sin(this.time.now / 25) * 1.5) : 0;
+    this.couponIcon.setPosition(7 + cshake, cp > 0.12 ? 17 : 19);
+    this.couponText.setX(21 + cshake).setTint(cp < 0 ? 0xe0453b : cp > 0 ? 0xfff1a8 : 0xf6c431);
     // Tickets: the counter jumps when one comes in or goes, and shakes red at a locked chest.
     this.ticketText.setText(String(p.tickets));
     const tp = this.ticketPop;

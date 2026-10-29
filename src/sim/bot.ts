@@ -176,8 +176,11 @@ export class Bot {
       return this.wander ? steer(w, this.wander, r, blocked) : null;
     }
     // A weapon or an item on a pedestal: go and get it (unless it got stuck going for something).
-    const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => k.kind === 'arma' || k.kind === 'objeto');
+    const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => (k.kind === 'arma' || k.kind === 'objeto') && k.price === undefined);
     if (arm) return steer(w, { x: arm.x, y: arm.y }, r, blocked);
+    // In the shop: buy what it can pay for (an item first, a heart if hurt, then a ticket).
+    const buy = this.ignorePickups > 0 ? undefined : this.shopping(w);
+    if (buy) return steer(w, { x: buy.x, y: buy.y }, r, blocked);
     // A shut chest and a ticket to open it: walk into its front.
     const chest = p.tickets > 0 && this.ignorePickups <= 0 ? w.room.props.find((pr) => pr.chest && !pr.chest.open) : undefined;
     if (chest) return steer(w, { x: chest.x, y: chest.y + 4 }, r, blocked);
@@ -200,6 +203,19 @@ export class Bot {
     let near = 0;
     for (const b of w.bullets) if (b.owner === 'enemy' && Math.hypot(b.x - p.x, b.y - p.y) < 90) near++;
     return near >= 6;
+  }
+
+  /** The good on sale it wants next, if it can pay for it. */
+  private shopping(w: World): Point | undefined {
+    const p = w.player;
+    const rank = (k: (typeof w.pickups)[number]): number =>
+      k.kind === 'corazon' ? (p.hp <= p.def.maxHp - 2 ? 1 : -1) : k.kind === 'ticket' ? 2 : k.kind === 'activo' && p.active ? -1 : 0;
+    let best: (typeof w.pickups)[number] | undefined;
+    for (const k of w.pickups) {
+      if (k.price === undefined || k.price > p.coupons || rank(k) < 0) continue;
+      if (!best || rank(k) < rank(best)) best = k;
+    }
+    return best;
   }
 
   private wander: Point | null = null;
@@ -231,6 +247,9 @@ export class Bot {
     if (w.floor) {
       const plan = this.floorGoal(w);
       if (plan) this.target = plan;
+    } else if (w.enemies.length === 0 && this.ignorePickups <= 0 && this.shopping(w)) {
+      // A shop on its own: the same shopping as on a floor.
+      this.target = steer(w, this.shopping(w)!, p.def.footRadius, blockedTiles(w, p.def.footRadius));
     } else if (w.lift && w.enemies.length === 0) {
       // A single room with the lift up (the boss fight): straight to it.
       this.target = steer(w, { x: w.lift.x, y: w.lift.y }, p.def.footRadius, blockedTiles(w, p.def.footRadius));
@@ -240,7 +259,7 @@ export class Bot {
     let near = 110;
     if (this.ignorePickups > 0) this.ignorePickups--;
     else for (const k of w.pickups) {
-      if (k.kind === 'corazon' && p.hp >= p.def.maxHp) continue;
+      if ((k.kind === 'corazon' && p.hp >= p.def.maxHp) || k.price !== undefined) continue;
       const d = Math.hypot(k.x - p.x, k.y - p.y);
       if (d < near) {
         near = d;

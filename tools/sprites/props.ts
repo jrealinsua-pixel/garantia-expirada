@@ -710,3 +710,86 @@ export function makeTicket(): Canvas {
   }
   return sheet;
 }
+
+/**
+ * The shopkeeper: a self-checkout till, 3 frames of 30x36 (idle with a smiley on its screen,
+ * talking, and refusing with the screen gone red). Scanner on top, a card slot, a receipt
+ * printer with a receipt far too long, the bagging shelf and the «call an assistant» lamp that
+ * nobody answers.
+ */
+export function makeSelfCheckout(): Canvas {
+  const sheet = new Canvas(90, 36);
+  for (let k = 0; k < 3; k++) {
+    const cv = new Canvas(30, 36);
+    // The «call an assistant» lamp on its pole (lit when it refuses).
+    cv.rect(25, 3, 1, 14, DSTEEL[2]!);
+    cv.rect(24, 1, 3, 3, k === 2 ? RED[1]! : RED[3]!);
+    cv.set(24, 1, k === 2 ? RED[0]! : RED[2]!);
+    // The screen, tilted towards the customer, on a short neck.
+    cv.rect(13, 13, 4, 3, DSTEEL[2]!);
+    box(cv, 6, 1, 18, 13, DSTEEL);
+    const scr = k === 2 ? RED[3]! : hx('#16303a');
+    cv.rect(8, 3, 14, 9, scr);
+    // Its face, in screen pixels.
+    const lit = k === 2 ? RED[0]! : hx('#7ef0a0');
+    if (k === 2) {
+      // X X and a flat mouth: «unexpected item».
+      for (const [x, y] of [[11, 5], [13, 7], [12, 6], [13, 5], [11, 7], [17, 5], [19, 7], [18, 6], [19, 5], [17, 7]] as const) cv.set(x, y, lit);
+      cv.rect(12, 10, 7, 1, lit);
+    } else {
+      cv.rect(11, 5, 2, 2, lit);
+      cv.rect(18, 5, 2, 2, lit);
+      if (k === 0) {
+        cv.set(11, 9, lit);
+        cv.rect(12, 10, 7, 1, lit);
+        cv.set(19, 9, lit);
+      } else {
+        cv.rect(13, 9, 5, 2, lit);
+        cv.rect(14, 9, 3, 1, hx('#3aa86a'));
+      }
+    }
+    // Scanlines and a glare in the corner.
+    for (let y = 4; y < 12; y += 2) for (let x = 8; x < 22; x++) if ((x + y) % 7 === 0) cv.set(x, y, k === 2 ? RED[2]! : hx('#1f4450'));
+    cv.set(9, 4, WHITE);
+    cv.set(10, 4, k === 2 ? RED[0]! : hx('#2f6070'));
+    // The body: white plastic, the scanner glass on top with its red line.
+    cube(cv, 2, 15, 24, 20, 5, 5, CREAM, DSTEEL, STEEL);
+    cv.rect(10, 16, 11, 2, GLOVE[3]!);
+    cv.rect(10, 17, 11, 1, RED[1]!);
+    // Card slot and coupon slot with their lights.
+    cv.rect(9, 22, 6, 2, K);
+    cv.rect(10, 22, 4, 1, GLOVE[1]!);
+    cv.set(16, 22, k === 2 ? RED[1]! : GREEN);
+    cv.rect(18, 22, 5, 2, YEL[2]!);
+    cv.rect(19, 22, 3, 1, K);
+    // The receipt printer and its receipt, down to the floor and curling.
+    cv.rect(10, 26, 8, 2, GLOVE[2]!);
+    cv.rect(11, 27, 6, 1, K);
+    cv.rect(12, 28, 4, 6, WHITE);
+    for (let y = 29; y < 34; y += 2) cv.rect(13, y, 2, 1, CREAM[2]!);
+    cv.rect(11, 34, 7, 1, WHITE);
+    cv.set(18, 34, CREAM[1]!);
+    // Price sticker «-0 %» on the side, and a scuff.
+    cv.rect(3, 23, 3, 4, YEL[1]!);
+    cv.set(4, 24, RED[2]!);
+    cv.set(4, 26, RED[2]!);
+    cv.set(23, 31, CREAM[2]!);
+    // Bagging shelf on the right, with a sad plastic bag.
+    cv.rect(26, 21, 4, 1, STEEL[2]!);
+    cv.rect(27, 17, 2, 4, WHITE);
+    cv.set(27, 17, CREAM[1]!);
+    cv.set(28, 16, WHITE);
+    sheet.blit(outline(cv), k * 30, 0);
+  }
+  return sheet;
+}
+
+/** A shop display stand (under each shelf slot), 22x13: a steel plinth with a red «offer» strip. */
+export function makeShopStand(): Canvas {
+  const cv = new Canvas(22, 13);
+  cube(cv, 1, 0, 20, 12, 3, 4, CREAM, DSTEEL, STEEL);
+  cv.rect(4, 6, 16, 3, RED[1]!);
+  cv.rect(4, 6, 16, 1, RED[0]!);
+  for (let x = 6; x < 18; x += 3) cv.set(x, 7, WHITE);
+  return outline(cv);
+}

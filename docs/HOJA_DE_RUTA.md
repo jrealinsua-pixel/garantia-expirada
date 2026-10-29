@@ -126,7 +126,7 @@ distinguen claramente en las capturas.
 - [x] 3 objetos activos (tecla Q), con pilas como cargas, con nombre y descripción según la guía de humor.
 - [x] Al menos 4 sinergias con texto propio.
 - [x] Cofres que se abren con tickets (la Caja Fuerte de Devoluciones; los tickets salen al limpiar salas).
-- [ ] Tienda con vendedor y precios en cupones (también vende tickets).
+- [x] Tienda con vendedor y precios en cupones (también vende tickets).
 - [ ] Ventana de descripción al recoger un objeto.
 
 **Criterios de aceptación:** cada objeto tiene un test de su efecto; las partidas del bot con

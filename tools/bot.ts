@@ -62,6 +62,9 @@ export interface FloorReport {
   /** Tickets picked up and chests opened per floor (with damage on). */
   tickets: number;
   cofres: number;
+  /** Things bought in the shop per floor, and coupons spent there per floor (with damage on). */
+  compras: number;
+  gastoTienda: number;
 }
 
 function arg(name: string, def: number): number {
@@ -139,6 +142,8 @@ interface FloorResult {
   synergies: number;
   tickets: number;
   chests: number;
+  buys: number;
+  spent: number;
   down: boolean;
   seconds: number;
   visited: number;
@@ -161,6 +166,8 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
   let uses = 0;
   let tickets = 0;
   let chests = 0;
+  let buys = 0;
+  let spent = 0;
   const ticks = Math.round(maxSeconds / DT);
   try {
     for (let i = 0; i < ticks && !Bot.explored(w) && !w.over; i++) {
@@ -173,6 +180,10 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
         else if (e.type === 'active') uses++;
         else if (e.type === 'pickup' && e.kind === 'ticket') tickets++;
         else if (e.type === 'chest' && e.opened) chests++;
+        else if (e.type === 'shop' && e.outcome === 'bought') {
+          buys++;
+          spent += e.price;
+        }
       }
       if (i % 30 === 0) {
         const errs = checkInvariants(w);
@@ -204,6 +215,8 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
     synergies: w.player.synergies.length,
     tickets,
     chests,
+    buys,
+    spent,
     uses,
     hash: worldHash(w),
     errors,
@@ -316,6 +329,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let withSynergy = 0;
   let tickets = 0;
   let chests = 0;
+  let buys = 0;
+  let spent = 0;
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
@@ -334,6 +349,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     if (b.synergies) withSynergy++;
     tickets += b.tickets;
     chests += b.chests;
+    buys += b.buys;
+    spent += b.spent;
     items += b.items ? b.items.split('+').length : 0;
     for (const r of [a, b]) {
       if (r.errors.length) {
@@ -370,6 +387,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       conSinergia: pct(withSynergy),
       tickets: one(tickets / floors),
       cofres: one(chests / floors),
+      compras: one(buys / floors),
+      gastoTienda: one(spent / floors),
     },
     errors,
     failed,
@@ -464,7 +483,8 @@ if (import.meta.main) {
         `con daño la recorre el ${pl.recorridoConDanio} %, cae el ${pl.caidas} % · ${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
         `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate · ` +
         `acaba con ${pl.armas} armas y ${pl.objetos} objetos, ${pl.arsenalesDistintos} arsenales y ${pl.buildsDistintas} builds distintas · ` +
-        `el ${pl.conActivo} % con objeto activo, ${pl.usosActivo} usos por planta · el ${pl.conSinergia} % con alguna sinergia · ${pl.tickets} tickets y ${pl.cofres} cofres abiertos por planta`,
+        `el ${pl.conActivo} % con objeto activo, ${pl.usosActivo} usos por planta · el ${pl.conSinergia} % con alguna sinergia · ${pl.tickets} tickets y ${pl.cofres} cofres abiertos por planta · ` +
+        `compra ${pl.compras} cosas en la tienda (${pl.gastoTienda} cupones) por planta`,
     );
   }
   const j = report.jefe;

@@ -598,6 +598,29 @@ try {
   await shot('23d-cofre-abierto.png');
   if (!(await page.evaluate<boolean>("window.__GE__.scene.world.pickups.some((k) => k.kind === 'objeto')"))) throw new Error('El cofre no suelta ningún objeto');
   console.log('Cofres: cerrado sin ticket, abierto con ticket y con su objeto.');
+
+  // M5: the shop. The till greets; without coupons it says no; with them the item is bought.
+  await page.goto(`${url}?semilla=e2e-tienda&sala=tienda`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const k = w.pickups.find((p) => p.kind === 'objeto');
+    w.player.x = k.x; w.player.y = k.y + 46; })()`);
+  await page.waitForTimeout(1100);
+  await shot('24a-tienda.png');
+  await page.keyboard.down('w');
+  await page.waitForFunction("window.__GE__.scene.world.events.some((e) => e.type === 'shop') || window.__GE__.scene.tillNoT > 0", undefined, { timeout: 3000 });
+  await page.keyboard.up('w');
+  await page.waitForTimeout(250);
+  await shot('24b-tienda-sin-cupones.png');
+  if (await page.evaluate<number>('window.__GE__.scene.world.player.items.length')) throw new Error('Se compra sin cupones');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.coupons = 31; w.player.y += 40; })()`);
+  await page.waitForTimeout(200);
+  await page.keyboard.down('w');
+  await page.waitForFunction('window.__GE__.scene.world.player.items.length === 1', undefined, { timeout: 3000 });
+  await page.keyboard.up('w');
+  await page.waitForTimeout(350);
+  await shot('24c-tienda-comprado.png');
+  if (await page.evaluate<number>('window.__GE__.scene.world.player.coupons') !== 16) throw new Error('La compra no cobra 15 cupones');
+  console.log('Tienda: saludo, sin cupones no vende y con cupones cobra 15 y da el objeto.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

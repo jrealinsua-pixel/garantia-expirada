@@ -269,6 +269,18 @@
     "frameH": 11,
     "frames": 2
   },
+  "autocobro": {
+    "file": "autocobro.png",
+    "frameW": 30,
+    "frameH": 36,
+    "frames": 3
+  },
+  "expositor": {
+    "file": "expositor.png",
+    "frameW": 22,
+    "frameH": 13,
+    "frames": 1
+  },
   "objeto-pila": {
     "file": "objeto-pila.png",
     "frameW": 16,

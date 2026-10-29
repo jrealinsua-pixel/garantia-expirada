@@ -127,7 +127,14 @@ escena al empezar la partida y su propio final (hito M13).
   combate que sueltan un ticket al limpiarlas y otras 2 donde cae una **Caja Fuerte de
   Devoluciones** (el cofre). Se abre andando contra ella con un ticket: se lo traga y suelta el
   siguiente objeto pasivo (o activo, o arma) y unos cupones. Sin ticket, se queja («Sin ticket
-  no hay devolución»). La tienda venderá más tickets.
+  no hay devolución»).
+- **La tienda** (Tienda del Personal): la atiende la **Caja de Autocobro**, una caja de
+  autopago que se quedó sola después de que despidieran a las demás. Tres baldas: el siguiente
+  objeto de la baraja de la planta (15 cupones; si no quedan pasivos, un activo por 12 o un arma
+  por 18), un corazón de recambio (6) y un ticket (8). Se compra andando sobre lo que se quiere;
+  sin cupones suficientes la pantalla se pone roja («Saldo insuficiente. Pruebe a tener más.») y
+  con la vida llena no vende corazones («No le vendo nada que no necesite. Aún.»). Una planta
+  entera da unos 40 cupones: da para dos o tres cosas, así que comprar es elegir.
 - **Pilas** como cargas del objeto activo.
 
 ### Armas y objetos

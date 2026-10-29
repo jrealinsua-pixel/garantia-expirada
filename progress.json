@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T10:50:00+01:00",
+  "actualizado": "2026-10-29T11:40:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M5",
   "hitos": [
@@ -42,7 +42,7 @@
       "id": "M5",
       "nombre": "Armas, objetos y sinergias",
       "estado": "en_curso",
-      "hechas": 6,
+      "hechas": 7,
       "total": 8
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 268,
-    "tests_ok": 268,
+    "tests": 277,
+    "tests_ok": 277,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 9279
+    "lineas_codigo": 9551
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T11:40:00+01:00",
+      "hito": "M5",
+      "resumen": "La tienda ya vende: la atiende la Caja de Autocobro, una caja de autopago que se quedó sola cuando despidieron a las demás. Tres expositores con su precio en cupones: el siguiente objeto de la planta (15), un corazón de recambio (6) y un ticket (8). Se compra andando encima; sin cupones la pantalla se pone roja y te lo dice en un bocadillo («Saldo insuficiente. Pruebe a tener más.»), y al comprar pita el escáner («Objeto inesperado en la zona de embolsado.»).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T10:50:00+01:00",
       "hito": "M5",
@@ -325,6 +331,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/tienda-comprado.png",
+      "pie": "Recién comprada la Etiqueta A+++ por 15 cupones: el escáner pita, la Caja de Autocobro sonríe («Objeto inesperado en la zona de embolsado.») y el precio del ticket se enciende en dorado porque ya llega"
+    },
+    {
+      "archivo": "capturas/tienda-sin-cupones.png",
+      "pie": "Sin cupones no hay trato: la pantalla de la caja se pone roja, el contador de cupones tiembla y los precios que no llegan salen en gris"
+    },
+    {
       "archivo": "capturas/cofre-abierto.png",
       "pie": "La Caja Fuerte de Devoluciones recién abierta con un ticket: la tapa arriba, el piloto en verde y la Pila Casi Agotada esperando delante; el contador de tickets (arriba a la izquierda) vuelve a 0"
     },
@@ -337,19 +351,11 @@
       "pie": "«¡Sinergia! Bricolaje Avanzado» al coger la Broca del Ocho llevando el Manual en Chino: «Nadie ha leído las instrucciones, así que las balas improvisan.»"
     },
     {
-      "archivo": "capturas/musica-de-espera.png",
-      "pie": "La Música de Espera en la Sala de Pruebas: la sala se enfría, las balas se quedan colgadas en el aire y sobre la tostadora sale «Su ataque es muy importante para nosotros.»"
-    },
-    {
       "archivo": "capturas/objeto-recogido.png",
       "pie": "La Pila Casi Agotada recién recogida en Objetos Perdidos: su nombre y «Dura lo que un contrato temporal. Después, nada.»; la Grapadora espera en el otro pedestal y la pila ya sale abajo a la izquierda"
-    },
-    {
-      "archivo": "capturas/planta-superada.png",
-      "pie": "«Incidencia resuelta»: el informe de planta superada, con el sello y una nota de la empresa («Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05»)"
     }
   ],
-  "proximo": "M5: la tienda con vendedor y precios en cupones (que venda también tickets); después, la ventana de descripción al recoger un objeto.",
+  "proximo": "M5: la ventana de descripción al recoger un objeto (y con ella M5 terminado); después, M6.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

@@ -7,6 +7,8 @@ export const PROPS: Record<string, PropDef> = {
   barril: { id: 'barril', name: 'Bidón de aceite usado', box: { x: -6, y: -14, w: 12, h: 13 }, blocksBullets: true },
   carrito: { id: 'carrito', name: 'Carro sin moneda', box: { x: -12, y: -12, w: 24, h: 10 }, blocksBullets: false },
   // Not placed by templates: it appears in some combat rooms when they are cleared (world.ts).
+  // Placed on the shopkeeper's spot ($) of the shop: the till that sells (it does not move).
+  autocobro: { id: 'autocobro', name: 'Caja de Autocobro', box: { x: -11, y: -16, w: 22, h: 14 }, blocksBullets: true },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 

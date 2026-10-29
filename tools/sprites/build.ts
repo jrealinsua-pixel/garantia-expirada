@@ -79,6 +79,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'corazon-suelo': { canvas: P.makeSpareHeart(), frameW: 13, frameH: 12 },
     cofre: { canvas: P.makeChest(), frameW: 26, frameH: 24 },
     ticket: { canvas: P.makeTicket(), frameW: 9, frameH: 11 },
+    autocobro: { canvas: P.makeSelfCheckout(), frameW: 30, frameH: 36 },
+    expositor: one(P.makeShopStand()),
   };
   for (const n of Object.keys(ITEM_GRIDS)) sheets['objeto-' + n] = one(makeItem(n));
   return sheets;
@@ -108,7 +110,7 @@ function main(): void {
   x = 4;
   const row = ['caja', 'barril', 'carrito', 'bala-jugador', 'bala-roja', 'bala-cubito', 'bola-escarcha', 'escarcha', 'fogonazo'];
   const row2 = ['pelusa', 'polvo', 'mira', 'corazones', 'municion', 'mano', 'arma-secador', 'arma-grapadora', 'arma-plancha', 'bala-grapa', 'bala-vapor'];
-  for (const k of [...row, ...row2, 'cupon', 'chatarra', 'despiece', 'montacargas', 'corazon-suelo', 'cofre', 'ticket']) {
+  for (const k of [...row, ...row2, 'cupon', 'chatarra', 'despiece', 'montacargas', 'corazon-suelo', 'cofre', 'ticket', 'autocobro', 'expositor']) {
     const c = sheets[k]!.canvas;
     sheet.blit(c, x, 4);
     x += c.w + 3;
