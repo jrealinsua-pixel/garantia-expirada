@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-29T04:05:00+01:00",
+  "actualizado": "2026-10-29T03:35:00+01:00",
   "version": "0.1.0",
-  "hito_actual": "M3",
+  "hito_actual": "M4",
   "hitos": [
     {
       "id": "M0",
@@ -27,14 +27,14 @@
     {
       "id": "M3",
       "nombre": "Salas y planta",
-      "estado": "en_curso",
-      "hechas": 5,
+      "estado": "hecho",
+      "hechas": 6,
       "total": 6
     },
     {
       "id": "M4",
       "nombre": "La Nevera Suprema",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 5
     },
@@ -102,13 +102,19 @@
     "armas": 1,
     "objetos": 0,
     "plantillas_sala": 20,
-    "tests": 157,
-    "tests_ok": 157,
+    "tests": 161,
+    "tests_ok": 161,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 5961
+    "lineas_codigo": 6523
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T03:35:00+01:00",
+      "hito": "M3",
+      "resumen": "Juego de casillas del almacén: baldosas agrietadas, gastadas, con parche, rejillas y chapa estriada; letras pintadas en el suelo, muelles de carga, rodadas, tickets y tornillos; carteles, reloj parado y pantalla de turnos en la pared, y decoración propia de entrada, tienda, tesoro, secreta y jefe. M3 terminado.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T04:05:00+01:00",
       "hito": "M3",
@@ -226,20 +232,20 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/planta-entrada.png",
+      "pie": "La entrada de la planta: cartel de Entrada de Personal, pantalla de turnos, felpudo de bienvenida y «Sin devolución» pintado en el suelo"
+    },
+    {
+      "archivo": "capturas/sala-archivo.png",
+      "pie": "Archivo de Tickets Sin Sello: grietas, rejilla, letras gastadas en el suelo («Espere su turno») y un muelle de descartes"
+    },
+    {
       "archivo": "capturas/planta-vecina.png",
       "pie": "Recién llegada a la sala vecina por la puerta oeste: las persianas bajan detrás y el primer enemigo ya espera"
     },
     {
       "archivo": "capturas/minimapa.png",
       "pie": "El minimapa con la planta entera conocida: calavera del jefe, carrito de la tienda y caja de regalo del tesoro (ampliado)"
-    },
-    {
-      "archivo": "capturas/sala-garantias.png",
-      "pie": "Cámara de Garantías Vencidas, una de las 19 plantillas: estanterías sueltas, enemigos repartidos por sus huecos"
-    },
-    {
-      "archivo": "capturas/persianas.png",
-      "pie": "Sala vaciada: las persianas suben con el piloto en verde y la tienda agradece su paciencia"
     },
     {
       "archivo": "capturas/desmontaje.png",
@@ -250,6 +256,6 @@
       "pie": "Parte de baja: causa, vida útil, recomendación del fabricante y el sello rojo"
     }
   ],
-  "proximo": "M3: casillas de la planta 1 (almacén) con variaciones y decoración; después comprobar criterios y cerrar M3. Pendiente de equilibrio: sin curación el bot cae en el 55 % de las plantas (llegarán corazones con M5).",
+  "proximo": "M4 · La Nevera Suprema: empezar por la sala del jefe con presentación (nombre y lema en pantalla). Pendiente de equilibrio: sin curación el bot cae en el 55 % de las plantas (llegarán corazones con M5).",
   "bloqueos": []
 }

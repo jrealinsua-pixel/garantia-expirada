@@ -64,17 +64,20 @@ a una sala media más del 40 % de las veces.
 *Cumplidos el 2026-10-29: la Sala de Pruebas con los seis enemigos (y la polilla) se lee bien en
 las capturas del e2e; el bot la vacía sin caer el 52,5 % de las veces y sobrevive el 92 %.*
 
-## M3 · Salas y planta
+## M3 · Salas y planta (hecho)
 
 - [x] Plantillas de sala hechas a mano (al menos 15) con huecos para enemigos y obstáculos.
 - [x] Generador de planta: grafo de 10–15 salas con entrada, combate, tesoro, tienda, secreta y jefe; tests de conectividad con 10.000 semillas. (La distribución; la planta jugable llega con las plantillas, las puertas y la transición.)
 - [x] Puertas que se cierran durante el combate (persianas con piloto rojo). (Cerrar y abrir; cruzarlas llega con la transición entre salas.)
 - [x] Minimapa.
-- [ ] Juego de casillas de la planta 1 (almacén) con variaciones y decoración.
+- [x] Juego de casillas de la planta 1 (almacén) con variaciones y decoración.
 - [x] Transición entre salas. (Fundido entre salas; la planta generada es ya la partida por defecto. Las puertas secretas siguen cerradas hasta que haya algo que las abra.)
 
 **Criterios de aceptación:** 10.000 semillas generan plantas válidas; el bot recorre una planta
 entera sin quedarse atascado.
+*Cumplidos el 2026-10-29: las 10.000 semillas del test de `tests/floor.test.ts` dan plantas
+válidas, y sin daño el bot recorre la planta entera en 20 de 20 plantas (y 100 de 100 en una
+prueba aparte) sin atascarse.*
 
 ## M4 · La Nevera Suprema
 
