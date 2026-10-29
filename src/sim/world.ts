@@ -476,6 +476,8 @@ export interface FloorRoomState {
   pickups: Pickup[];
   /** What a combat room leaves when it is cleared, besides its coupons (decided with the floor). */
   reward?: RoomReward;
+  /** The goods lift, once its boss has fallen: it stays in its room when the player walks out. */
+  lift?: Lift | null;
 }
 
 /** A ticket (a key) or a chest that a ticket opens. */
@@ -637,7 +639,7 @@ function planFloor(seed: string): FloorRun {
   };
   const rooms = layout.rooms.map((fr): FloorRoomState => {
     const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth: Math.max(1, fr.depth), pool: SLOT_ENEMIES_1, boss: FLOOR_BOSS_1 });
-    return { template, room: null, visited: false, cleared: fr.kind !== 'combat', pickups: [] };
+    return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets, the next ones the chests).
   const combat = new Rng(`premios:${seed}`).shuffle(layout.rooms.filter((fr) => fr.kind === 'combat').map((fr) => fr.id));
@@ -705,6 +707,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   const f = w.floor;
   if (!f) throw new Error('enterRoom needs a floor');
   f.rooms[f.current]!.pickups = w.pickups;
+  f.rooms[f.current]!.lift = w.lift;
   f.current = id;
   const st = f.rooms[id]!;
   const first = !st.visited;
@@ -717,6 +720,8 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.dummies = [];
   w.pickups = st.pickups;
   st.pickups = [];
+  w.lift = st.lift ?? null;
+  st.lift = null;
   w.emptyT = 0;
   const p = w.player;
   const at = entrySpot(w.room, via);
@@ -729,7 +734,11 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   }
   p.vx *= 0.5;
   p.vy *= 0.5;
-  if (!st.cleared && w.spawnsEnemies) spawnRoomEnemies(w);
+  if (!st.cleared && w.spawnsEnemies) {
+    spawnRoomEnemies(w);
+    // The boss waits at the far end: walking in from the north would put it in the toaster's face.
+    if (w.room.kind === 'boss' && via === 'N') for (const en of w.enemies) if (en.def.boss) en.y = w.room.h - en.y;
+  }
   if (w.enemies.length === 0) st.cleared = true;
   // Until there are chests, the treasure room (and the secret one) keep a weapon and items on their pedestals.
   const kind = f.layout.rooms[id]!.kind;

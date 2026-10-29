@@ -184,8 +184,8 @@ export class Bot {
     // A shut chest and a ticket to open it: walk into its front.
     const chest = p.tickets > 0 && this.ignorePickups <= 0 ? w.room.props.find((pr) => pr.chest && !pr.chest.open) : undefined;
     if (chest) return steer(w, { x: chest.x, y: chest.y + 4 }, r, blocked);
-    // The boss has fallen: down the goods lift.
-    if (w.lift) return steer(w, { x: w.lift.x, y: w.lift.y }, r, blocked);
+    // The boss has fallen: down the goods lift, once there is nothing left to see on the floor.
+    if (w.lift && nextDoor(w) === null) return steer(w, { x: w.lift.x, y: w.lift.y }, r, blocked);
     const dir = nextDoor(w, w.floor?.layout.boss);
     const door = dir ? w.room.doors.find((d) => d.dir === dir) : undefined;
     if (!door) return null;

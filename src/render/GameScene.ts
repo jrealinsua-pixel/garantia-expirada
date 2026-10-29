@@ -533,6 +533,12 @@ export class GameScene extends Phaser.Scene {
       placeChest: (x: number, y: number) => void placeChest(this.world, x, y),
       dropTicket: (x: number, y: number) => dropTicket(this.world, x, y),
     };
+    // Back in the boss room after walking out: the lift is still there, waiting.
+    const lift = this.world.lift;
+    if (lift) {
+      this.raiseLift(lift.x, lift.y);
+      if (lift.t >= LIFT_READY) this.liftView!.s.setFrame(1);
+    }
   }
 
   private makeEnemyView(en: Enemy): EnemyView {

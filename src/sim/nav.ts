@@ -131,11 +131,16 @@ export function nextDoor(w: World, fallback?: number): Dir | null {
   const firstStep = new Map<number, Dir | null>([[f.current, null]]);
   const queue = [f.current];
   let target: number | null = null;
+  // The boss room is left for last, like a player who wants to arrive with everything the floor gives.
+  let bossFound = false;
   for (let qi = 0; qi < queue.length; qi++) {
     const id = queue[qi]!;
     if (!f.rooms[id]!.visited) {
-      target = id;
-      break;
+      if (id !== f.layout.boss) {
+        target = id;
+        break;
+      }
+      bossFound = true;
     }
     for (const d of rooms[id]!.doors) {
       if (d.secret || firstStep.has(d.to)) continue;
@@ -143,6 +148,7 @@ export function nextDoor(w: World, fallback?: number): Dir | null {
       queue.push(d.to);
     }
   }
+  if (target === null && bossFound) target = f.layout.boss;
   if (target === null && fallback !== undefined && fallback !== f.current && firstStep.has(fallback)) target = fallback;
   return target === null ? null : firstStep.get(target) ?? null;
 }

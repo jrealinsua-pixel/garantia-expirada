@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T13:55:00+01:00",
+  "actualizado": "2026-10-29T14:25:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,7 +56,7 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 7
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 300,
-    "tests_ok": 300,
+    "tests": 302,
+    "tests_ok": 302,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11296
+    "lineas_codigo": 11317
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T14:25:00+01:00",
+      "hito": "M7",
+      "resumen": "Error grave arreglado: en la planta generada la Nevera Suprema no aparecía nunca y la planta no se podía terminar. Ahora sale, espera al fondo de su sala y el montacargas se queda donde cayó. El bot juega partidas enteras: gana el 45 % de las plantas, casi siempre pierde ante la jefa. Dificultad media-alta, como se pidió.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T13:55:00+01:00",
       "hito": "M6",
@@ -415,7 +421,7 @@
       "pie": "La pausa: «Pausa de cinco minutos. Le quedan cuatro.» El juego se queda congelado detrás; se maneja con teclado, ratón o mando"
     }
   ],
-  "proximo": "M7: equilibrio con datos del bot (dificultad media-alta: la planta 1 se gana con práctica, no a la primera).",
+  "proximo": "M7: armas con diferencias reales (tabla de daño por segundo, alcance y cadencia medida por el bot).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -444,11 +450,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-29 12:44 UTC",
-      "tarea": "M7: equilibrio con datos del bot",
-      "desde": "2026-10-29T13:00:00Z"
-    }
-  ]
+  "en_curso": []
 }

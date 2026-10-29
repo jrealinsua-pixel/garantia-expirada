@@ -43,6 +43,10 @@ export interface FloorReport {
   /** The same floors with damage on: walked whole (%), went down (%), rooms visited and combat rooms cleared per floor. */
   recorridoConDanio: number;
   caidas: number;
+  /** Whole runs with damage on: floors won (boss beaten, down the lift), mean seconds of a won floor, and floors lost in the boss room (%). */
+  ganaPlanta: number;
+  segundosPlanta: number;
+  caeEnLaJefa: number;
   salasVisitadas: number;
   salasLimpias: number;
   /** Mean seconds a combat room takes to clear (from walking in to the shutters rolling up). */
@@ -131,6 +135,9 @@ function playOne(seed: string, seconds: number): GameResult {
 
 interface FloorResult {
   explored: boolean;
+  /** Whole run (`full`): the boss beaten and down the goods lift; or gone down in the boss room. */
+  won: boolean;
+  downAtBoss: boolean;
   /** Weapon ids carried at the end, in the order found. */
   arsenal: string;
   /** Passive item ids carried at the end, in the order found ('' for none). */
@@ -154,8 +161,11 @@ interface FloorResult {
   errors: string[];
 }
 
-/** The bot walks one generated floor until every room is visited, it goes down or time runs out. */
-export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): FloorResult {
+/**
+ * The bot walks one generated floor until every room is visited, it goes down or time runs out;
+ * with `full`, it goes on until the boss is beaten and it takes the goods lift (a whole run).
+ */
+export function playFloor(seed: string, maxSeconds: number, noDamage: boolean, full = false): FloorResult {
   const w = createWorld({ seed, floor: true });
   w.noDamage = noDamage;
   const bot = new Bot(seed);
@@ -169,9 +179,11 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
   let buys = 0;
   let spent = 0;
   const ticks = Math.round(maxSeconds / DT);
+  let seen = false;
   try {
-    for (let i = 0; i < ticks && !Bot.explored(w) && !w.over; i++) {
+    for (let i = 0; i < ticks && !(full ? w.won : seen) && !w.over; i++) {
       step(w, bot.think(w));
+      if (!seen && Bot.explored(w)) seen = true;
       for (const e of w.events) {
         if (e.type === 'doors') {
           if (e.shut) enteredAt = w.tick;
@@ -197,12 +209,14 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean): 
     errors.push(`planta ${seed}: excepción ${(e as Error).stack ?? e}`);
   }
   const f = w.floor!;
-  const explored = Bot.explored(w);
+  const explored = seen || Bot.explored(w);
   if (noDamage && !explored && !errors.length) {
     errors.push(`planta ${seed}: el bot no ha recorrido la planta en ${maxSeconds} s (atascado en ${w.room.id}, ${f.rooms.filter((r) => r.visited).length}/${f.layout.rooms.length - 1} salas)`);
   }
   return {
     explored,
+    won: w.won,
+    downAtBoss: w.over && w.floor!.current === f.layout.boss,
     down: w.over,
     seconds: w.tick * DT,
     visited: f.rooms.filter((r) => r.visited).length,
@@ -317,6 +331,9 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let walkT = 0;
   let explored = 0;
   let down = 0;
+  let won = 0;
+  let wonT = 0;
+  let downAtBoss = 0;
   let visited = 0;
   let cleared = 0;
   let hurts = 0;
@@ -335,7 +352,12 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
     walkT += a.seconds;
-    const b = playFloor(`planta-${i}`, maxSeconds, false);
+    const b = playFloor(`planta-${i}`, maxSeconds, false, true);
+    if (b.won) {
+      won++;
+      wonT += b.seconds;
+    }
+    if (b.downAtBoss) downAtBoss++;
     if (b.explored) explored++;
     if (b.down) down++;
     visited += b.visited;
@@ -374,6 +396,9 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       segundosRecorrido: one(walkT / floors),
       recorridoConDanio: pct(explored),
       caidas: pct(down),
+      ganaPlanta: pct(won),
+      segundosPlanta: won ? one(wonT / won) : 0,
+      caeEnLaJefa: pct(downAtBoss),
       salasVisitadas: one(visited / floors),
       salasLimpias: one(cleared / floors),
       segundosPorSala: rooms.length ? one(rooms.reduce((s, v) => s + v, 0) / rooms.length) : 0,
@@ -480,7 +505,9 @@ if (import.meta.main) {
   if (pl.plantas) {
     console.log(
       `${pl.plantas} plantas · sin daño la recorre entera el ${pl.recorridoSinDanio} % en ${pl.segundosRecorrido} s · ` +
-        `con daño la recorre el ${pl.recorridoConDanio} %, cae el ${pl.caidas} % · ${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
+        `con daño la recorre el ${pl.recorridoConDanio} % ` +
+        `y la gana (jefa y montacargas) el ${pl.ganaPlanta} % en ${pl.segundosPlanta} s; cae el ${pl.caidas} % (${pl.caeEnLaJefa} % ante la jefa) · ` +
+        `${pl.salasVisitadas} salas visitadas y ${pl.salasLimpias} de combate limpias por planta · ` +
         `${pl.segundosPorSala} s y ${pl.heridasPorSala} heridas por sala de combate · ` +
         `acaba con ${pl.armas} armas y ${pl.objetos} objetos, ${pl.arsenalesDistintos} arsenales y ${pl.buildsDistintas} builds distintas · ` +
         `el ${pl.conActivo} % con objeto activo, ${pl.usosActivo} usos por planta · el ${pl.conSinergia} % con alguna sinergia · ${pl.tickets} tickets y ${pl.cofres} cofres abiertos por planta · ` +

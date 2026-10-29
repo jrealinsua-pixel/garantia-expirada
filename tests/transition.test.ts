@@ -118,3 +118,36 @@ test('planta: el bot recorre la planta entera sin atascarse', () => {
     assert.ok(Bot.explored(w), `${seed}: ha visitado ${w.floor!.rooms.filter((r) => r.visited).length} salas`);
   }
 });
+
+test('planta: la sala de la jefa la tiene dentro, cierra al entrar y no se da por limpia', () => {
+  // Until 2026-10-29 the boss room was born «cleared» and the floor's boss never showed up.
+  for (let s = 0; s < 20; s++) {
+    const w = createWorld({ seed: `jefa-en-planta-${s}`, floor: true });
+    const f = w.floor!;
+    const boss = f.layout.boss;
+    assert.equal(f.rooms[boss]!.cleared, false, 'la sala de la jefa empieza sin limpiar');
+    const door = f.layout.rooms[boss]!.doors.find((d) => !d.secret)!;
+    enterRoom(w, boss, door.dir);
+    assert.ok(w.enemies.some((en) => en.def.boss), `${s}: no hay jefa en su sala`);
+    assert.ok(w.doorsShut, 'las persianas bajan');
+    assert.ok(w.intro, 'la jefa hace su entrada');
+  }
+});
+
+test('planta: el montacargas se queda en su sala al salir y sigue allí al volver', () => {
+  const w = createWorld({ seed: 'montacargas-quieto', floor: true });
+  const f = w.floor!;
+  const boss = f.layout.boss;
+  const door = f.layout.rooms[boss]!.doors.find((d) => !d.secret)!;
+  enterRoom(w, boss, door.dir);
+  w.intro = null;
+  w.noDamage = true;
+  for (const en of w.enemies) if (en.def.boss) en.damageTaken = en.def.hp;
+  for (let t = 0; t < 900 && !w.lift; t++) step(w, NO_INPUT);
+  assert.ok(w.lift, 'sale el montacargas al caer la jefa');
+  const at = { x: w.lift.x, y: w.lift.y };
+  enterRoom(w, door.to, OPPOSITE[door.dir]);
+  assert.equal(w.lift, null, 'en la sala vecina no hay montacargas');
+  enterRoom(w, boss, door.dir);
+  assert.deepEqual(w.lift && { x: w.lift.x, y: w.lift.y }, at, 'al volver sigue en su sitio');
+});
