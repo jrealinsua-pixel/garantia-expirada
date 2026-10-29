@@ -164,7 +164,7 @@ semillas distintas acaban con builds distintas.
   algunos solo dan; ninguno es inútil ni obligatorio (`npm run objetos` lo mide).
 - [x] Rendimiento: 60 fps estables con 300 balas en pantalla (`npm run rendimiento`).
 - [ ] Accesibilidad: remapeo de controles, opción de reducir temblores y destellos, tamaño de texto.
-- [ ] Animaciones completas de todos los enemigos.
+- [x] Animaciones completas de todos los enemigos (reposo con respiración y paso de 4 fotogramas por distancia; golpe y muerte ya eran comunes: destello blanco y despiece).
 - [ ] Lista de errores conocidos vacía.
 
 ## M8 · Planta 2: Informática

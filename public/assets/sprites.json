@@ -9,19 +9,19 @@
     "file": "aspirador.png",
     "frameW": 32,
     "frameH": 36,
-    "frames": 1
+    "frames": 6
   },
   "microondas": {
     "file": "microondas.png",
     "frameW": 32,
     "frameH": 40,
-    "frames": 1
+    "frames": 2
   },
   "bombilla": {
     "file": "bombilla.png",
     "frameW": 32,
     "frameH": 39,
-    "frames": 2
+    "frames": 7
   },
   "polilla": {
     "file": "polilla.png",
@@ -33,19 +33,19 @@
     "file": "batidora.png",
     "frameW": 32,
     "frameH": 38,
-    "frames": 4
+    "frames": 8
   },
   "mando": {
     "file": "mando.png",
     "frameW": 22,
     "frameH": 32,
-    "frames": 2
+    "frames": 6
   },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,
     "frameH": 76,
-    "frames": 2
+    "frames": 12
   },
   "maniqui": {
     "file": "maniqui.png",

@@ -26,6 +26,7 @@ import { settings } from './settings.ts';
 import { saveRun } from './save.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { hudLayout, splitTitle, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
+import { bulbLit, enemyFrame } from './enemyAnim.ts';
 
 export const VIEW_W = 480;
 
@@ -2113,24 +2114,18 @@ export class GameScene extends Phaser.Scene {
       const v = this.enemySprites.get(en.id) ?? this.makeEnemyView(en);
       const s = v.s;
       const warnK = sourceTelegraph(w, en.id);
-      // Hop of one pixel while walking; leans into the charge, back when braking, wobbles when stunned.
-      const bob = en.state === 'walk' && Math.floor(en.moved / 5) % 2 === 1 ? -1 : 0;
+      // Hop of one pixel while walking (only for sheets without walk frames, which bob by themselves);
+      // leans into the charge, back when braking, wobbles when stunned.
+      const bob = !en.def.anim?.walk && en.state === 'walk' && Math.floor(en.moved / 5) % 2 === 1 ? -1 : 0;
       const shiver = warnK > 0.6 ? (Math.floor(this.time.now / 40) % 2 === 0 ? 1 : -1) : 0;
       const alt = enemyAltitude(en);
       // Flyers bob up and down; the moth flaps fast, faster when it dives.
       const fly = alt > 0 ? Math.round(Math.sin(this.time.now / 160 + en.id) * 1.5) : 0;
       s.setPosition(Math.round(en.x) + shiver, Math.round(en.y) + bob - alt + fly).setDepth(en.y + (alt > 0 ? 1 : 0));
       s.setScale(en.facing, 1);
-      if (en.def.brain.kind === 'moth') s.setFrame(Math.floor(this.time.now / (en.state === 'charge' ? 35 : 70)) % 2);
-      else if (en.def.brain.kind === 'turret' && en.def.brain.startup) s.setFrame(bulbLit(en, this.time.now) ? 0 : 1);
-      else if (en.def.brain.kind === 'blinker') s.setFrame(Math.floor(this.time.now / 380 + en.id * 0.5) % 2);
-      // La Nevera Suprema opens her door for her second phase.
-      else if (en.def.brain.kind === 'boss') s.setFrame((en.bossPhase ?? 0) >= 1 ? 1 : 0);
-      else if (en.def.brain.kind === 'chaser') {
-        // Beaters turn all the time; flat out while winding up, lunging or in TURBO.
-        const fast = en.state === 'warn' || en.state === 'charge' || en.turbo;
-        s.setFrame(Math.floor(this.time.now / (fast ? 30 : 90)) % 4);
-      }
+      // Breathing, steps, the bulb flickering on, the beaters, the Nevera's open door: enemyFrame.
+      const frame = enemyFrame(en, this.time.now);
+      s.setFrame(frame);
       let rot = 0;
       if (en.def.brain.kind === 'moth') rot = en.state === 'charge' ? 0.3 * en.facing : 0;
       else if (en.state === 'charge') rot = 0.18 * en.facing;
@@ -2164,7 +2159,8 @@ export class GameScene extends Phaser.Scene {
         v.blink.clear();
         if (off && rot === 0) {
           const lx = en.facing === 1 ? bl.x - en.def.anchor.x : en.def.anchor.x - bl.x - bl.w;
-          v.blink.fillStyle(bl.color, 1).fillRect(s.x + lx, s.y + bl.y - en.def.anchor.y, bl.w, bl.h);
+          const dy = bl.frameDy?.[frame] ?? 0;
+          v.blink.fillStyle(bl.color, 1).fillRect(s.x + lx, s.y + bl.y + dy - en.def.anchor.y, bl.w, bl.h);
         }
         v.blink.setDepth(en.y + 0.1);
       }
@@ -2738,8 +2734,9 @@ const PLAYER_BULLET_R = 3;
 const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta' };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
-const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number }> = {
-  microondas: { x: 22, y: 14, w: 4, h: 1, color: 0x0e0c16 },
+const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number; frameDy?: Record<number, number> }> = {
+  // Frame 1 is its breath out: the body (and the clock) 1 px lower.
+  microondas: { x: 22, y: 14, w: 4, h: 1, color: 0x0e0c16, frameDy: { 1: 1 } },
 };
 
 /** Lights drawn around an enemy (`y` px above its feet, radius `r`) while it is lit. */
@@ -2778,14 +2775,6 @@ interface EnemyView {
  * Whether a bulb is lit now. While switching on it flickers like an energy-saving bulb: short,
  * uneven flashes that get longer until it stays on.
  */
-function bulbLit(en: Enemy, now: number): boolean {
-  if (en.state !== 'off') return true;
-  const k = en.t / en.until;
-  const slot = Math.floor(now / 70);
-  // Cheap deterministic noise per 70 ms slot (only for drawing).
-  const n = ((slot * 2654435761 + en.id * 97) >>> 0) % 100;
-  return k > 0.35 && n < k * k * 90;
-}
 
 const TV_ON_TIME = 0.16;
 

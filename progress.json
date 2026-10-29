@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T14:47:00+01:00",
+  "actualizado": "2026-10-29T14:55:00+01:00",
   "version": "0.1.0",
   "hito_actual": "M7",
   "hitos": [
@@ -56,7 +56,7 @@
       "id": "M7",
       "nombre": "Pulido de la primera versión",
       "estado": "en_curso",
-      "hechas": 4,
+      "hechas": 5,
       "total": 7
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 13,
     "plantillas_sala": 20,
-    "tests": 304,
-    "tests_ok": 304,
+    "tests": 310,
+    "tests_ok": 310,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 11358
+    "lineas_codigo": 11420
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T14:55:00+01:00",
+      "hito": "M7",
+      "resumen": "Todos los enemigos respiran quietos y dan pasos de verdad al andar: el paso cambia con la distancia, así los pies no patinan. La Nevera anda levantando un pie cada vez, con la puerta cerrada y abierta.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T14:47:00+01:00",
       "hito": "M7",

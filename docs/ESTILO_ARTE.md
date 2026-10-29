@@ -75,6 +75,14 @@ jugador, en naranja y amarillo. Nunca se confunden.
 | Golpe | 1–2 | Destello blanco de 1 fotograma |
 | Muerte | 4–8 | Se desmonta en piezas (tornillos, muelles, chispas) |
 
+### Animación de los enemigos
+
+Las mismas reglas que la tostadora: piernas en una capa y cuerpo en otra; respiración bajando
+el cuerpo 1 px; zancada de cuatro fotogramas (contacto, paso elevado 1 px, contacto con las
+piernas cruzadas, paso elevado). Las piernas crecen 1 px cuando el cuerpo sube. Los muy grandes
+(la Nevera) no cruzan las piernas: levantan un pie 2 px cada vez. El fotograma 0 de cada hoja es
+siempre el sprite aprobado. Qué fotogramas se usan lo dicen los datos (`anim` de cada enemigo).
+
 ## Escenarios
 
 - La planta 1 es el almacén del vertedero: suelo de baldosas metálicas con remaches, líneas de

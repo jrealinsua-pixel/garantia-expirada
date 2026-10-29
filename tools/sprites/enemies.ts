@@ -1,7 +1,8 @@
 // New enemies drawn after the approved set, by the same rules (docs/ESTILO_ARTE.md): 3/4 cube
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
-import { CREAM, DSTEEL, K, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, feet, hand, outline, pad, ramp } from '../../src/art/lib.ts';
+import { joinPose, poseCycle, poseFeet, type Pose } from './pose.ts';
+import { CREAM, DSTEEL, K, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, cube, hand, outline, pad, ramp } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
 
@@ -17,10 +18,11 @@ const BATTER = ramp('#fff6e0', '#f2dfb4', '#d9bd86', '#a88d5e');
  * the red TURBO notch, and the cord tied in a knot behind it. `spin` (0-3) turns the beaters.
  * 32x36 (+2 px on top for the handle).
  */
-export function makeBatidora(spin = 0): Canvas {
+export function makeBatidora(spin = 0, pose: Pose = { xb: BATIDORA_LEGS[0], xf: BATIDORA_LEGS[1], bob: 0 }): Canvas {
+  const legs = new Canvas(32, 36);
   const cv = new Canvas(32, 36);
   hand(cv, 4, 20, MINT);
-  feet(cv, 8, 13, 24, { L: 4, shoe: RUBBER });
+  poseFeet(legs, pose, 24, { L: 4, shoe: RUBBER });
   box(cv, 8, 19, 10, 5, DSTEEL);
   cv.rect(8, 21, 10, 1, MINT[2]!);
   // Carrying handle: a loop on top of the head.
@@ -77,21 +79,27 @@ export function makeBatidora(spin = 0): Canvas {
   for (const [x, y] of batter) cv.set(x, y, BATTER[1]!);
   cv.set(24, 29, BATTER[0]!);
   hand(cv, 16, 21, MINT);
-  let o = outline(cv);
+  let o = outline(joinPose(legs, cv, pose));
   // Cord out of its back, tied in a knot.
   const cord: Pt[] = [[1, 16], [0, 17], [0, 18], [1, 19], [2, 19], [2, 18], [1, 18], [0, 20], [0, 21], [1, 22]];
-  for (const [x, y] of cord) o.set(x, y, K);
-  o.set(1, 23, YEL[2]!);
+  for (const [x, y] of cord) o.set(x, y + pose.bob, K);
+  o.set(1, 23 + pose.bob, YEL[2]!);
   o = pad(o, 2);
   // A fleck of batter flying off the beaters on every other frame.
-  if (spin % 2 === 1) o.set(28, 26, BATTER[0]!);
+  if (spin % 2 === 1) o.set(28, 26 + pose.bob, BATTER[0]!);
   else o.set(27, 33, SMOKE[1]!);
   return o;
 }
 
-/** Four frames of the mixer with its beaters turning. */
+export const BATIDORA_LEGS = [8, 13] as const;
+
+/**
+ * The mixer's frames: 0-3 standing with its beaters turning (winding up, braking), 4-7 running
+ * after you, a step of the walk cycle and a quarter turn of the beaters in each.
+ */
 export function makeBatidoraFrames(): Canvas[] {
-  return [0, 1, 2, 3].map((k) => makeBatidora(k));
+  const walk = poseCycle(BATIDORA_LEGS[0], BATIDORA_LEGS[1]).slice(2);
+  return [...[0, 1, 2, 3].map((k) => makeBatidora(k)), ...walk.map((f, k) => makeBatidora(k, f.pose))];
 }
 
 /** Remote-control plastic: charcoal with a blue cast, light enough to read against the outline. */
@@ -110,15 +118,16 @@ const BUTTON = ramp('#d6cdb2', '#a89f86', '#756e5a', '#4a4538');
  * years between the sofa cushions. `bob` (0-1) lifts the body 1 px for the idle breath.
  * 22x32.
  */
-export function makeMando(bob = 0): Canvas {
+export function makeMando(bob = 0, legs: readonly [number, number] = MANDO_LEGS): Canvas {
   const cv = new Canvas(22, 30);
   const u = -bob;
+  const [xb, xf] = legs;
   hand(cv, 2, 15 + u, REMOTE);
-  feet(cv, 7, 11, 23, { L: 4, leg: REMOTE_SIDE, shoe: SLIPPER });
+  poseFeet(cv, { xb, xf, bob: u }, 23, { L: 4, leg: REMOTE_SIDE, shoe: SLIPPER });
   // Slipper check pattern.
-  cv.set(12, 27, SLIPPER[3]!);
-  cv.set(14, 27, SLIPPER[3]!);
-  cv.set(8, 27, SLIPPER[3]!);
+  cv.set(xf + 1, 27, SLIPPER[3]!);
+  cv.set(xf + 3, 27, SLIPPER[3]!);
+  cv.set(xb + 1, 27, SLIPPER[3]!);
   cube(cv, 5, 2 + u, 12, 21, 4, 2, REMOTE, REMOTE_SIDE, REMOTE_TOP);
   // Power button on top of the head.
   cv.rect(13, 2 + u, 2, 1, RED[1]!);
@@ -165,7 +174,13 @@ export function makeMando(bob = 0): Canvas {
   return pad(outline(cv), 2);
 }
 
-/** Two idle frames of the remote (it breathes). */
+export const MANDO_LEGS = [7, 11] as const;
+
+/**
+ * The remote's frames: 0-1 breathing, 2-5 shuffling sideways around you in its slippers (it
+ * lifts on the passing steps, like everyone else).
+ */
 export function makeMandoFrames(): Canvas[] {
-  return [makeMando(0), makeMando(1)];
+  const walk = poseCycle(MANDO_LEGS[0], MANDO_LEGS[1]).slice(2);
+  return [makeMando(0), makeMando(1), ...walk.map((f) => makeMando(-f.pose.bob, [f.pose.xb, f.pose.xf]))];
 }

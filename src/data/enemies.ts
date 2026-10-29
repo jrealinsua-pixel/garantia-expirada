@@ -16,6 +16,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 0.5,
     loot: { coupons: [1, 2] },
+    // 0-1 breathing, 2-5 rolling along on its wheeled shoes.
+    anim: { idle: [0, 1], idleMs: 420, walk: [2, 3, 4, 5], stepPx: 5 },
     brain: {
       kind: 'charger',
       walkSpeed: 28,
@@ -42,6 +44,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [1, 3] },
+    anim: { idle: [0, 1], idleMs: 480 },
     brain: {
       kind: 'turret',
       range: 260,
@@ -66,6 +69,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     knockbackScale: 0.25,
     loot: { coupons: [3, 5] },
     escort: 'polilla',
+    // 0 lit, 1 off (switching on), 2 lit breathing out, 3-6 walking.
+    anim: { idle: [0, 2], idleMs: 440, walk: [3, 4, 5, 6], stepPx: 5, off: 1 },
     brain: {
       kind: 'turret',
       range: 280,
@@ -92,6 +97,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 1.2,
     loot: { coupons: [0, 1] },
+    anim: { idle: [0, 1], idleMs: 70, busyMs: 35 },
     brain: {
       kind: 'moth',
       orbitRadius: 26,
@@ -118,6 +124,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 0.8,
     loot: { coupons: [1, 2] },
+    // 0-3 standing with the beaters turning (flat out while it winds up), 4-7 running.
+    anim: { idle: [0, 1, 2, 3], idleMs: 90, busyMs: 30, walk: [4, 5, 6, 7], stepPx: 5 },
     brain: {
       kind: 'chaser',
       walkSpeed: 52,
@@ -146,6 +154,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     knockbackScale: 1,
     loot: { coupons: [0, 1] },
     pack: 3,
+    // 0-1 breathing, 2-5 shuffling round you in its slippers.
+    anim: { idle: [0, 1], idleMs: 380, walk: [2, 3, 4, 5], stepPx: 4 },
     brain: {
       kind: 'blinker',
       walkSpeed: 34,
@@ -176,6 +186,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [10, 14], hearts: 1 },
+    // 0-1 breathing, 2-5 a heavy walk; 6-11 the same with the door open (second phase).
+    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, phaseShift: 6 },
     brain: {
       kind: 'boss',
       // The ice dispenser on its door, facing right.

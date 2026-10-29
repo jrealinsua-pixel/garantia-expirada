@@ -430,4 +430,22 @@ export interface EnemyDef {
   pack?: number;
   /** Bosses: the name card and motto of their entrance (shown big, in «Letra Pequeña»). */
   boss?: { title: string; motto: string };
+  /** Which frames of its sprite sheet to show standing and walking (see `enemyFrame`). */
+  anim?: EnemyAnim;
+}
+
+/** Frames of an enemy's sprite sheet (indices). Frame 0 is always its rest pose. */
+export interface EnemyAnim {
+  /** Standing: cycled in time, `idleMs` each (breathing, beaters turning...). */
+  idle: readonly number[];
+  idleMs: number;
+  /** Faster idle while it winds up or goes flat out (the mixer's beaters). */
+  busyMs?: number;
+  /** Walking: one frame every `stepPx` px moved, so the feet never slide on the floor. */
+  walk?: readonly number[];
+  stepPx?: number;
+  /** Still switching on (turrets with `startup`): shown while the light flickers off. */
+  off?: number;
+  /** Second boss phase: the same layout from this frame on (`idle`/`walk` + `phaseShift`). */
+  phaseShift?: number;
 }

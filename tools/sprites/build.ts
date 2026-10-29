@@ -6,7 +6,10 @@ import { Canvas, hx, scaled } from '../../src/art/canvas.ts';
 import { buildRoom } from '../../src/sim/room.ts';
 import { ROOMS } from '../../src/data/rooms.ts';
 import { paintRoom } from '../../src/art/room.ts';
-import { HERO_FRAMES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler } from './characters.ts';
+import {
+  ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
+} from './characters.ts';
+import { poseCycle } from './pose.ts';
 import { makeBatidoraFrames, makeMandoFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -33,14 +36,17 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
   const hero = HERO_FRAMES.map((f) => makeHeroPose(f.pose));
   const sheets: Record<string, { canvas: Canvas; frameW: number; frameH: number }> = {
     tostadora: { canvas: strip(hero), frameW: 40, frameH: 41 },
-    aspirador: one(makeAspirador()),
-    microondas: one(makeMicroondas()),
+    // Frame 0 of every enemy sheet is its approved (or first) sprite; the order of the rest is in
+    // the enemy's `anim` (src/data/enemies.ts).
+    aspirador: { canvas: strip(poseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },
+    // It never walks (bullets only nudge it): just its breathing.
+    microondas: { canvas: strip(poseCycle(...MICROONDAS_LEGS).slice(0, 2).map((f) => makeMicroondas(f.pose))), frameW: 32, frameH: 40 },
     bombilla: { canvas: strip(makeBombillaFrames()), frameW: 32, frameH: 39 },
     polilla: { canvas: strip(makePolilla()), frameW: 11, frameH: 9 },
     batidora: { canvas: strip(makeBatidoraFrames()), frameW: 32, frameH: 38 },
     mando: { canvas: strip(makeMandoFrames()), frameW: 22, frameH: 32 },
-    // Frame 0 is the approved sprite; frame 1, the second phase (door open).
-    'nevera-suprema': { canvas: strip([makeNevera(), makeNevera(true)]), frameW: 72, frameH: 76 },
+    // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
+    'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
     'arma-grapadora': one(miniStapler()),
