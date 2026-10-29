@@ -341,7 +341,23 @@ try {
   await shot('35b-planta2-inventario.png');
   await tapKeys('Escape', 'Escape');
   await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
-  console.log('Planta 2: sus cinco objetos pasivos, en el tesoro y en el inventario.');
+  // The gaming mouse: a critical hit on a dummy (every shot a critical, for the picture).
+  await page.goto(`${url}?semilla=e2e-critico&sala=sala-pruebas&planta=2`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.enemies = [];
+    for (const id of ['raton', 'bateria', 'cookies']) g.giveItem(id); w.player.weapon.def.bullets = { crit: { chance: 1, mul: 2 } };
+    const d = w.dummies[0]; w.player.x = d.x - 80; w.player.y = d.y; })()`);
+  await page.waitForTimeout(500);
+  const dc = await dummy(0);
+  await aimAt(dc.x, dc.y);
+  await page.mouse.down();
+  await page.waitForTimeout(450);
+  await aimAt(dc.x, dc.y);
+  await shot('35c-critico.png');
+  await page.mouse.up();
+  const crit = await page.evaluate<number>('window.__GE__.scene.world.dummies[0].damageTaken');
+  if (crit < 4) throw new Error(`El Ratón Gaming no hace críticos (${crit} de daño)`);
+  console.log('Planta 2: sus objetos pasivos, en el tesoro y en el inventario; el doble clic del ratón.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

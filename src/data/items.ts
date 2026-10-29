@@ -132,6 +132,33 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // One more point of damage, but every reload is a restart and the magazine shrinks.
     mod: { id: 'actualizacion', stats: [{ stat: 'damage', add: 1 }, { stat: 'reloadTime', mul: 1.6 }, { stat: 'magazine', mul: 0.8 }] },
   },
+  raton: {
+    id: 'raton',
+    name: 'Ratón Gaming RGB',
+    description: 'Dieciséis millones de colores y un clic que a veces cuenta doble.',
+    sprite: 'objeto-raton',
+    level: 2,
+    // One bullet in five deals double damage. Only good.
+    mod: { id: 'raton', bullets: { crit: { chance: 0.2, mul: 2 } } },
+  },
+  bateria: {
+    id: 'bateria',
+    name: 'Batería Externa',
+    description: 'Carga cualquier cosa menos el móvil. Pesa como un ladrillo.',
+    sprite: 'objeto-bateria',
+    level: 2,
+    // One more battery for the active item per room cleared, but it slows the toaster down.
+    mod: { id: 'bateria', stats: [{ stat: 'speed', mul: 0.92 }], perks: { charge: 1 } },
+  },
+  cookies: {
+    id: 'cookies',
+    name: 'Cookies de Terceros',
+    description: 'Aceptaste todas. Ahora cada enemigo te deja un regalito, y a ellos tus datos.',
+    sprite: 'objeto-cookies',
+    level: 2,
+    // Half the enemies killed drop one more coupon. Only good (for you).
+    mod: { id: 'cookies', perks: { coupons: 0.5 } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

@@ -197,8 +197,12 @@ semillas distintas acaban con builds distintas.
   - [x] (1) Cinco pasivos de Informática que solo salen desde la planta 2 (`level: 2`, mazo por
     planta con `itemsUpTo`): Pendrive de 2 GB, Antivirus Gratuito, Cable HDMI Dorado, Ventilador
     de Portátil y Actualización Obligatoria.
-  - [ ] (2) Cinco más con algún efecto nuevo (no solo cifras: algo que cambie cómo se juega) y
-    una o dos sinergias con los de la planta 2.
+  - [x] (2a) Tres con efectos nuevos (no solo cifras): Ratón Gaming RGB (golpes críticos),
+    Batería Externa (una pila más por sala) y Cookies de Terceros (cupones de más por baja).
+  - [ ] (2b) Dos más con efectos nuevos (ideas: Modo Avión, la voltereta borra las balas que
+    toca; Copia de Seguridad, vuelve una vez de la baja con un corazón y se gasta) y una o dos
+    sinergias con los de la planta 2 (ideas: Ratón + Ventilador sube los críticos; Antivirus +
+    Actualización acorta la recarga).
 
 ## M9 · El centro y la historia
 

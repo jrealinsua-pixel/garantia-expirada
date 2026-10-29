@@ -67,11 +67,11 @@ function reach(w: World): number {
 
 // ---------- The items as content ----------
 
-test('hay 15 objetos pasivos (10 de la planta 1 y 5 de la 2) con nombre corto, descripción en el tono del juego y sprite', () => {
+test('hay 18 objetos pasivos (10 de la planta 1 y 8 de la 2) con nombre corto, descripción en el tono del juego y sprite', () => {
   const keys = new Set(Object.keys(JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as object));
   const defs = Object.values(ITEMS);
-  assert.equal(defs.length, 15);
-  assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 5);
+  assert.equal(defs.length, 18);
+  assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 8);
   assert.deepEqual([...FINDABLE_ITEMS].sort(), Object.keys(ITEMS).sort());
   const names = new Set<string>();
   for (const d of defs) {
@@ -84,7 +84,7 @@ test('hay 15 objetos pasivos (10 de la planta 1 y 5 de la 2) con nombre corto, d
     assert.ok(d.description.length > 15 && sentences <= 3 && d.description.endsWith('.'), `${d.id}: descripción`);
     assert.ok(!/[!¡]/.test(d.name + d.description), `${d.id}: sin exclamaciones`);
     assert.ok(keys.has(d.sprite), `${d.id}: falta el sprite ${d.sprite}`);
-    assert.ok(d.mod.stats?.length || d.mod.bullets, `${d.id}: no hace nada`);
+    assert.ok(d.mod.stats?.length || d.mod.bullets || d.mod.perks, `${d.id}: no hace nada`);
   }
 });
 
@@ -311,7 +311,7 @@ test('ningún objeto es obligatorio: ninguno multiplica el daño por segundo de 
 test('los objetos de la planta 2 solo salen desde la planta 2; la planta 1 reparte los de siempre', async () => {
   const { itemsUpTo } = await import('../src/data/items.ts');
   const own = Object.values(ITEMS).filter((d) => d.level === 2).map((d) => d.id);
-  assert.equal(own.length, 5);
+  assert.equal(own.length, 8);
   assert.deepEqual(itemsUpTo(1).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) === 1).map((d) => d.id).sort());
   assert.deepEqual(itemsUpTo(2).sort(), Object.keys(ITEMS).sort());
   for (let i = 0; i < 20; i++) {

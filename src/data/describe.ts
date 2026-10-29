@@ -48,6 +48,10 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (b?.pierce) out.push({ text: `Atraviesa ${b.pierce} ${b.pierce === 1 ? 'enemigo' : 'enemigos'}`, good: true });
   if (b?.bounce) out.push({ text: `Rebota ${b.bounce} ${b.bounce === 1 ? 'vez' : 'veces'}`, good: true });
   if (b?.homing) out.push({ text: 'Balas que persiguen', good: true });
+  if (b?.crit) out.push({ text: `${Math.round(b.crit.chance * 100)} % de balas con daño ×${String(b.crit.mul).replace('.', ',')}`, good: true });
+  const k = m.perks;
+  if (k?.charge) out.push({ text: `+${k.charge} ${k.charge === 1 ? 'pila' : 'pilas'} por sala limpia`, good: true });
+  if (k?.coupons) out.push({ text: `${Math.round(k.coupons * 100)} % de bajas con un cupón más`, good: true });
   return out;
 }
 

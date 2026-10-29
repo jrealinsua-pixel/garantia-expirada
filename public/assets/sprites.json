@@ -419,6 +419,24 @@
     "frameH": 16,
     "frames": 1
   },
+  "objeto-raton": {
+    "file": "objeto-raton.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-bateria": {
+    "file": "objeto-bateria.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-cookies": {
+    "file": "objeto-cookies.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
   "objeto-encuesta": {
     "file": "objeto-encuesta.png",
     "frameW": 16,

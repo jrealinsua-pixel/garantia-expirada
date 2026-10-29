@@ -39,6 +39,8 @@ export const DOORS_OPEN_LINES: readonly string[] = [
 
 /** Over the mixer when its slider jams on the red notch. */
 export const TURBO_LINE = 'Turbo';
+/** Over a critical hit (the gaming mouse). */
+export const CRIT_LINE = 'Doble clic';
 
 /** Title of the sick-leave report (parte de baja) shown instead of «game over». */
 export const DOWN_TITLE = 'Parte de baja';

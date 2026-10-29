@@ -52,6 +52,18 @@ export interface BulletBehaviour {
   bounce?: number;
   /** Turns towards the nearest enemy within `range` px, `turnDeg` per second, for `time` s. */
   homing?: { turnDeg: number; time: number; range: number };
+  /** Each bullet has `chance` (0–1) of dealing `mul` times its damage (a critical hit). */
+  crit?: { chance: number; mul: number };
+}
+
+/**
+ * What a modifier does that is neither a stat nor a bullet behaviour. Several add up.
+ */
+export interface Perks {
+  /** Extra batteries for the active item each time a combat room is cleared. */
+  charge?: number;
+  /** Chance (0–1) that each enemy killed (bosses aside) drops one more coupon. */
+  coupons?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */
@@ -86,6 +98,7 @@ export interface Modifier {
   id: string;
   stats?: StatChange[];
   bullets?: BulletBehaviour;
+  perks?: Perks;
 }
 
 /**

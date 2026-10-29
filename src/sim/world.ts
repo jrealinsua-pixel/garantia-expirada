@@ -5,8 +5,9 @@ import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
-import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, RoomTemplate, WeaponDef } from '../data/types.ts';
-import { activeSynergies, moddedCharacter, moddedWeapon } from './mods.ts';
+import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, WeaponDef } from '../data/types.ts';
+import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
+import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
@@ -173,6 +174,8 @@ export interface Bullet {
   cut?: boolean;
   /** Player bullets: id of the weapon that fired it (how it is drawn). */
   weapon?: string;
+  /** Player bullets: a critical hit (its damage is already multiplied). */
+  crit?: boolean;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
   /**
@@ -314,7 +317,7 @@ export const MAX_FROST = 8;
 
 export type SimEvent =
   | { type: 'shot'; x: number; y: number; angle: number; weapon: string }
-  | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number }
+  | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number; crit?: boolean }
   | { type: 'bulletWall'; x: number; y: number; angle: number; bounced?: boolean }
   /** The player's modifiers changed (an item picked up or lost): its stats are recomputed. */
   | { type: 'mods'; id: string; added: boolean }
@@ -862,7 +865,7 @@ function chargeActive(w: World): void {
   const a = w.player.active;
   const def = a ? ACTIVE_ITEMS[a.id] : undefined;
   if (!a || !def || a.charge >= def.charges) return;
-  a.charge++;
+  a.charge = Math.min(def.charges, a.charge + 1 + playerPerks(w.player).charge);
   w.events.push({ type: 'battery', item: a.id, charge: a.charge, needs: def.charges });
 }
 
@@ -1180,6 +1183,11 @@ function refreshSynergies(w: World): void {
   for (const id of now) if (!before.includes(id)) w.events.push({ type: 'synergy', id, added: true });
 }
 
+/** What the player's items (and the synergies that change no weapon) do beyond stats and bullets. */
+export function playerPerks(p: Player): Required<Perks> {
+  return perksOf([...p.mods, ...p.synergies.map((id) => SYNERGIES[id]!).filter((s) => !s.weapon).map((s) => s.mod)]);
+}
+
 /** Gives the player a modifier (picking up an item). */
 export function addModifier(w: World, m: Modifier): void {
   w.player.mods.push(m);
@@ -1228,8 +1236,11 @@ function updateWeapon(w: World, input: Input): void {
   const pivot = gunPivot(p);
   const mx = pivot.x + Math.cos(p.aim) * MUZZLE;
   const my = pivot.y + Math.sin(p.aim) * MUZZLE;
+  const crit = def.bullets?.crit;
   for (let i = 0; i < def.pellets; i++) {
     const a = p.aim + ((w.rng.range(-1, 1) * def.spreadDeg) / 180) * Math.PI;
+    // A critical hit is decided when the bullet leaves the barrel (no roll without the item).
+    const isCrit = !!crit && w.rng.chance(crit.chance);
     w.bullets.push({
       id: w.nextId++,
       owner: 'player',
@@ -1239,7 +1250,7 @@ function updateWeapon(w: World, input: Input): void {
       vy: Math.sin(a) * def.bulletSpeed,
       r: def.bulletRadius,
       life: def.bulletLife,
-      damage: def.damage,
+      damage: isCrit ? def.damage * crit.mul : def.damage,
       knockback: def.knockback,
       color: 'red',
       age: 0,
@@ -1248,6 +1259,7 @@ function updateWeapon(w: World, input: Input): void {
       h: HAND_HEIGHT,
       weapon: def.id,
       ...shotBehaviour(def.bullets),
+      ...(isCrit ? { crit: true } : {}),
     });
   }
   p.vx -= Math.cos(p.aim) * def.recoil;
@@ -1333,7 +1345,7 @@ function updateBullets(w: World, held = false): void {
             const k = b.knockback * en.def.knockbackScale;
             en.vx += Math.cos(angle) * k;
             en.vy += Math.sin(angle) * k;
-            w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage, target: en.id });
+            w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage, target: en.id, ...(b.crit && damage > 0 ? { crit: true } : {}) });
             if (pierces(b, en.id)) continue;
             alive = false;
             break;
@@ -1361,7 +1373,7 @@ function updateBullets(w: World, held = false): void {
             d.hitT = 0.12;
             d.damageTaken += b.damage;
             d.leanV += Math.cos(angle) * b.knockback * 0.06;
-            w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage: b.damage, target: d.id });
+            w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage: b.damage, target: d.id, ...(b.crit ? { crit: true } : {}) });
             if (pierces(b, d.id)) continue;
             alive = false;
             break;
@@ -1693,7 +1705,10 @@ function reapEnemies(w: World): void {
     const alt = enemyAltitude(en);
     w.events.push({ type: 'death', x: en.x, y: en.y, alt, angle: en.lastHit, enemy: en.def.id, source: en.id });
     const [lo, hi] = en.def.loot.coupons;
-    const n = w.rng.int(lo, hi);
+    let n = w.rng.int(lo, hi);
+    // Third-party cookies: now and then, one more coupon (no roll without the item).
+    const extra = en.def.boss ? 0 : playerPerks(w.player).coupons;
+    if (extra > 0 && w.rng.chance(extra)) n++;
     // Loot starts on clear floor: right under the enemy, or the nearest free spot if it flew
     // over a box or stood with its feet against a wall.
     const spot = n > 0 ? freeSpot(w, en.x, en.y, PICKUP_RADIUS) : { x: en.x, y: en.y };

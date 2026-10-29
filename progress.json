@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-29T21:15:00+01:00",
+  "actualizado": "2026-10-29T21:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M8",
   "hitos": [
@@ -121,15 +121,21 @@
     "enemigos": 6,
     "jefes": 1,
     "armas": 3,
-    "objetos": 18,
+    "objetos": 21,
     "plantillas_sala": 33,
-    "tests": 349,
-    "tests_ok": 349,
+    "tests": 353,
+    "tests_ok": 353,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 13240
+    "lineas_codigo": 13318
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-29T21:55:00+01:00",
+      "hito": "M8",
+      "resumen": "Objetos nuevos (2a): Ratón Gaming RGB (golpes críticos con «Doble clic»), Batería Externa (una pila más por sala) y Cookies de Terceros (cupones de más por baja). Los objetos ya pueden hacer algo más que cambiar cifras.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-29T21:15:00+01:00",
       "hito": "M8",
@@ -517,6 +523,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/critico.png",
+      "pie": "El Ratón Gaming RGB de la planta 2: una bala de cada cinco hace el doble, con su «Doble clic» sobre el blanco"
+    },
+    {
       "archivo": "capturas/objetos-planta2.png",
       "pie": "Los cinco objetos pasivos de Informática en el inventario: Pendrive de 2 GB, Antivirus Gratuito, Cable HDMI Dorado, Ventilador de Portátil y Actualización Obligatoria. Solo salen desde la planta 2"
     },
@@ -535,13 +545,9 @@
     {
       "archivo": "capturas/inventario.png",
       "pie": "El inventario con su barra de desplazamiento: siete objetos, un activo y dos sinergias no caben a la vez"
-    },
-    {
-      "archivo": "capturas/jefa-encuadre.png",
-      "pie": "La cámara encuadra a la Nevera Suprema entera desde el primer segundo del combate (antes salía cortada y con el nombre de la sala encima)"
     }
   ],
-  "proximo": "M8: los 4 enemigos de Informática (la Impresora la tiene cogida otra sesión desde las 18:28 UTC) y objetos nuevos (2): cinco con efectos nuevos.",
+  "proximo": "M8: los 4 enemigos de Informática (empezando por la Impresora) y objetos nuevos (2b): Modo Avión, Copia de Seguridad y sinergias de la planta 2.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -575,11 +581,6 @@
       "sesion": "2026-10-29 16:3x UTC (rutina, la de las casillas)",
       "tarea": "M8: enemigos (1): la Impresora que se Atasca (src/data/enemies.ts, src/sim/enemies.ts, tools/sprites/enemies.ts)",
       "desde": "2026-10-29T18:28Z"
-    },
-    {
-      "sesion": "2026-10-29 20:25 UTC",
-      "tarea": "M8: objetos nuevos (2a): efectos nuevos (golpe crítico, pila extra, cupones por baja) en src/data/items.ts, src/data/types.ts, src/sim/mods.ts, src/sim/world.ts (disparo, bajas, carga del activo)",
-      "desde": "2026-10-29T21:20Z"
     }
   ]
 }

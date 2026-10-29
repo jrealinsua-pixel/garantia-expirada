@@ -180,6 +180,12 @@ reparte los suyos y los de las plantas de abajo (`itemsUpTo` en `src/data/items.
 | Cable HDMI Dorado | Mejora la imagen un 0 %. Lo pone en la caja, en letras doradas. | Balas ×1,2 más rápidas, la mitad de dispersión (solo bueno) |
 | Ventilador de Portátil | Suena como un avión y enfría como una vela. | Cadencia ×1,25, +5° de dispersión, alcance ×0,85 |
 | Actualización Obligatoria | Reinicie para aplicar los cambios. Sí, ahora. | +1 de daño, recarga ×1,6, cargador ×0,8 |
+| Ratón Gaming RGB | Dieciséis millones de colores y un clic que a veces cuenta doble. | 20 % de balas con daño ×2 («Doble clic» sobre el blanco) |
+| Batería Externa | Carga cualquier cosa menos el móvil. Pesa como un ladrillo. | +1 pila por sala limpia, velocidad ×0,92 |
+| Cookies de Terceros | Aceptaste todas. Ahora cada enemigo te deja un regalito, y a ellos tus datos. | El 50 % de las bajas (jefes aparte) suelta un cupón más |
+
+Los tres últimos no son solo cifras: un modificador puede llevar, además de `stats` y `bullets`,
+golpes críticos (`bullets.crit`) y `perks` (pilas de más por sala, cupones de más por baja).
 
 Objetos activos (tecla Q o botón B del mando). Se lleva uno; al coger otro, el viejo se queda en
 el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando está lleno:

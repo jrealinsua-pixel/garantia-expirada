@@ -11,7 +11,7 @@ import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
-import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
+import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, CRIT_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells, isWallAt } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
@@ -1418,6 +1418,13 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('golpeRuido', { volume: 0.7 });
           for (let i = 0; i < 6; i++) this.spark(e.x, e.y, e.angle + Math.PI + this.fx.range(-1.1, 1.1), this.fx.range(50, 130), this.fx.int(0, 2));
           this.damageText(e.target, e.x, e.y - 6, e.damage);
+          if (e.crit) {
+            // A critical hit: a longer stop, a wider spray and its line over the target.
+            this.hitstop = 0.075;
+            this.shake(90, 0.006, true);
+            for (let i = 0; i < 6; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(70, 150), 0);
+            this.floatText(e.x, e.y - 18, fontText(CRIT_LINE), 0xec8a2c, `crit:${e.target}`, -22, 0.5);
+          }
           break;
         }
         case 'bulletWall': {
