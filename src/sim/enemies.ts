@@ -6,7 +6,7 @@ import { EXPIRED_PRODUCTS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { isWallAt, wallRectsNear } from './room.ts';
-import { DT, firePattern, freeSpot, HAND_HEIGHT, hurtPlayer, isClear, isRolling, playerFeetBox, slide, throwFrost, type Enemy, type World } from './world.ts';
+import { BOSS_PHASE_BREAK, clearEnemyFire, DT, firePattern, freeSpot, HAND_HEIGHT, hurtPlayer, isClear, isRolling, playerFeetBox, slide, throwFrost, type Enemy, type World } from './world.ts';
 
 /** Bullets push enemies; this friction brings them back to their own speed. */
 const KNOCK_FRICTION = 900;
@@ -15,6 +15,13 @@ export function updateEnemies(w: World): void {
   for (const en of w.enemies) {
     en.hitT = Math.max(0, en.hitT - DT);
     en.contactCooldown = Math.max(0, en.contactCooldown - DT);
+    if (en.state === 'dying') {
+      // A boss coming apart (see reapEnemies): it stays where it fell and touches nobody.
+      en.t += DT;
+      en.vx = 0;
+      en.vy = 0;
+      continue;
+    }
     switch (en.def.brain.kind) {
       case 'charger':
         updateCharger(w, en, en.def.brain);
@@ -372,9 +379,16 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   en.t += DT;
   const phaseIdx = bossPhaseFor(en, b);
   if (en.bossPhase === undefined || phaseIdx > en.bossPhase) {
-    if (en.bossPhase !== undefined || phaseIdx > 0) w.events.push({ type: 'bossPhase', boss: en.id, phase: phaseIdx, name: b.phases[phaseIdx]!.name });
+    const announced = en.bossPhase !== undefined || phaseIdx > 0;
     en.bossPhase = phaseIdx;
     delete en.attack;
+    if (announced) {
+      // Between phases it stops, shrugs bullets off and clears the screen: a breath, and the
+      // phase's name, before the new attacks.
+      w.events.push({ type: 'bossPhase', boss: en.id, phase: phaseIdx, name: b.phases[phaseIdx]!.name });
+      clearEnemyFire(w);
+      enter(en, 'roar', BOSS_PHASE_BREAK);
+    }
   }
   const phase = b.phases[en.bossPhase]!;
   const toX = p.x - en.x;
@@ -446,6 +460,9 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     }
     case 'fire':
       if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
+      break;
+    case 'roar':
+      if (en.t >= en.until) enter(en, 'idle', 0.5);
       break;
     default:
       // First tick after its entrance: a short breath, then the first attack.

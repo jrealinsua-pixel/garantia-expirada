@@ -177,7 +177,11 @@ export interface Dummy {
   damageTaken: number;
 }
 
-export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone';
+/**
+ * `roar`: a boss between two phases (it takes no damage and does nothing for BOSS_PHASE_BREAK s).
+ * `dying`: a boss with no life left, coming apart for BOSS_DEATH s before it is taken out.
+ */
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone' | 'roar' | 'dying';
 
 export interface Enemy {
   id: number;
@@ -281,6 +285,10 @@ export type SimEvent =
   | { type: 'frostLand'; x: number; y: number; r: number; product?: number }
   /** A boss starts a new phase of its fight. */
   | { type: 'bossPhase'; boss: number; phase: number; name: string }
+  /** Every enemy bullet (and whatever was in the air) vanished at once: a boss changed phase or fell. */
+  | { type: 'fireCleared'; points: Array<{ x: number; y: number; color: BulletColor }> }
+  /** A boss has no life left: it comes apart for `duration` s, then the usual `death`. */
+  | { type: 'bossDying'; boss: number; x: number; y: number; duration: number; enemy: string }
   /** An enemy came apart. `alt` is how high it flew; `angle` the direction of the killing shot. */
   | { type: 'death'; x: number; y: number; alt: number; angle: number; enemy: string; source: number }
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number }
@@ -349,6 +357,9 @@ export interface BossIntro {
 /** Seconds a boss's entrance lasts (name card and motto), and how soon it can be skipped. */
 export const BOSS_INTRO = 3.6;
 export const BOSS_INTRO_SKIP = 0.8;
+/** Seconds a boss stops between two phases (no damage, no attacks), and how long it takes to fall. */
+export const BOSS_PHASE_BREAK = 1.6;
+export const BOSS_DEATH = 2.6;
 
 /** What each room of a floor is and what is left in it. */
 export interface FloorRoomState {
@@ -907,13 +918,15 @@ function updateBullets(w: World): void {
           if (isDead(en) || en.state === 'gone') continue;
           const hb = dummyHurtBox(en);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
-            en.hitT = 0.12;
-            en.damageTaken += b.damage;
+            // A boss between phases shrugs bullets off (they still stop on it).
+            const damage = en.state === 'roar' ? 0 : b.damage;
+            en.hitT = damage > 0 ? 0.12 : 0.04;
+            en.damageTaken += damage;
             en.lastHit = angle;
             const k = b.knockback * en.def.knockbackScale;
             en.vx += Math.cos(angle) * k;
             en.vy += Math.sin(angle) * k;
-            w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage: b.damage, target: en.id });
+            w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage, target: en.id });
             alive = false;
             break;
           }
@@ -1166,12 +1179,42 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
 
 export const isDead = (en: Enemy): boolean => en.damageTaken >= en.def.hp;
 
-/** Takes apart the enemies with no life left: event, loot, and out of the world. */
+/**
+ * Every enemy bullet, pattern about to fire and ball in the air goes (the patches already on the
+ * floor stay): a boss changes phase or falls, and the screen is cleared for it.
+ */
+export function clearEnemyFire(w: World): void {
+  const points: Array<{ x: number; y: number; color: BulletColor }> = [];
+  for (const b of w.bullets) if (b.owner === 'enemy') points.push({ x: b.x, y: b.y, color: b.color });
+  w.bullets = w.bullets.filter((b) => b.owner !== 'enemy');
+  w.emitters = [];
+  for (const f of w.frost) if (f.t < 0) points.push({ x: f.x, y: f.y, color: f.product !== undefined ? 'red' : 'ice' });
+  w.frost = w.frost.filter((f) => f.t >= 0);
+  w.events.push({ type: 'fireCleared', points });
+}
+
+/**
+ * Takes apart the enemies with no life left: event, loot, and out of the world. A boss first
+ * comes apart for BOSS_DEATH s (state `dying`: bullets go through it and it hurts nobody).
+ */
 function reapEnemies(w: World): void {
   if (!w.enemies.some(isDead)) return;
   const keep: Enemy[] = [];
   for (const en of w.enemies) {
     if (!isDead(en)) {
+      keep.push(en);
+      continue;
+    }
+    if (en.def.boss && !(en.state === 'dying' && en.t >= en.until)) {
+      if (en.state !== 'dying') {
+        en.state = 'dying';
+        en.t = 0;
+        en.until = BOSS_DEATH;
+        en.vx = 0;
+        en.vy = 0;
+        clearEnemyFire(w);
+        w.events.push({ type: 'bossDying', boss: en.id, x: en.x, y: en.y, duration: BOSS_DEATH, enemy: en.def.id });
+      }
       keep.push(en);
       continue;
     }
@@ -1327,7 +1370,8 @@ export function checkInvariants(w: World): string[] {
   for (const k of w.pickups) if (!Number.isFinite(k.x) || !Number.isFinite(k.y) || isWallAt(w.room, k.x, k.y)) errs.push(`pickup ${k.id} lost at ${k.x},${k.y}`);
   if (w.pickups.length > 500) errs.push(`too many pickups: ${w.pickups.length}`);
   for (const en of w.enemies) {
-    if (isDead(en)) errs.push(`enemy ${en.id} is dead but still in the world`);
+    if (isDead(en) && !(en.state === 'dying' && en.t <= en.until + DT)) errs.push(`enemy ${en.id} is dead but still in the world`);
+    if (en.state === 'dying' && !isDead(en)) errs.push(`enemy ${en.id} is coming apart with life left`);
     if (!Number.isFinite(en.x) || !Number.isFinite(en.y)) errs.push(`enemy ${en.id} has invalid position`);
     const eb = playerFeetBox(en, en.def.footRadius - 0.5);
     const ew: Rect[] = [];

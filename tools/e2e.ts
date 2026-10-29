@@ -375,7 +375,11 @@ try {
   // and expired products spat from the fridge.
   await page.evaluate(`(() => { const b = window.__GE__.scene.world.enemies[0]; b.damageTaken = Math.ceil(b.def.hp / 2) + 1; })()`);
   await page.waitForFunction('window.__GE__.scene.world.enemies[0].bossPhase === 1', undefined, { timeout: 3000 });
-  await page.waitForTimeout(300);
+  // The phase change: she stops, the screen clears and the phase card comes up over her life bar.
+  await page.waitForTimeout(450);
+  if ((await page.evaluate<string>('window.__GE__.scene.world.enemies[0].state')) !== 'roar') throw new Error('La nevera no se detiene al cambiar de fase');
+  if (await page.evaluate<boolean>("window.__GE__.scene.world.bullets.some((b) => b.owner === 'enemy')")) throw new Error('Quedan balas enemigas al cambiar de fase');
+  await shot('17k-nevera-cambio-fase.png');
   // Between attacks, so the open door is not hidden by the warning blink.
   await page.waitForFunction("window.__GE__.scene.world.enemies[0].state === 'idle'", undefined, { timeout: 8000 });
   await shot('17h-nevera-fase2.png');
@@ -384,6 +388,15 @@ try {
   await page.waitForFunction('window.__GE__.scene.world.frost.some((f) => f.product !== undefined && f.t > -0.45)', undefined, { timeout: 20000 });
   await shot('17j-nevera-caducados.png');
   if ((await state()).fps < 30) throw new Error(`Va lento en la fase 2: ${(await state()).fps} fps`);
+  // Her life runs out: she comes apart for a while, then «Liquidación total» and the shutters go up.
+  await page.evaluate(`(() => { const b = window.__GE__.scene.world.enemies[0]; b.damageTaken = b.def.hp; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies[0]?.state === 'dying'", undefined, { timeout: 3000 });
+  await page.waitForTimeout(1500);
+  await shot('17l-nevera-cayendo.png');
+  await page.waitForFunction('window.__GE__.scene.world.enemies.length === 0', undefined, { timeout: 5000 });
+  await page.waitForTimeout(1100);
+  await shot('17m-nevera-liquidada.png');
+  if (await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut')) throw new Error('Las persianas no suben al caer la jefa');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

@@ -206,16 +206,15 @@ export function runBoss(fights: number, maxSeconds = 240): { report: BossReport;
             hurts++;
             phaseHurts[Math.min(1, phase)]!++;
           }
+          // The fight is won when her life runs out; she then takes BOSS_DEATH s to come apart.
+          if (e.type === 'bossDying') won.push(t * DT);
           if (e.type === 'bossPhase' && e.phase >= 1 && phase === 0) {
             phase = 1;
             phase2At.push(t * DT);
           }
         }
         if (frostSlow(w, w.player.x, w.player.y) < 1) frostT += DT;
-        if (w.enemies.length === 0) {
-          won.push(t * DT);
-          break;
-        }
+        if (w.enemies.length === 0) break;
         if (t % 30 === 0) {
           const errs = checkInvariants(w);
           if (errs.length) {

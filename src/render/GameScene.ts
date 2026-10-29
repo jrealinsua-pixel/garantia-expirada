@@ -2,12 +2,14 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { fontText, textWidth } from '../art/font.ts';
-import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
+import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel } from '../data/texts.ts';
+import { DEATH_STAMPS, DOORS_OPEN_LINES, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport, RESTOCK_LINE, TURBO_LINE } from '../data/texts.ts';
 import { doorCells } from '../sim/room.ts';
 import { minimap } from '../sim/minimap.ts';
 import { activeWarnings, createWorld, PICKUP_DELAY, DT, enemyAltitude, FROST_FLAT, frostSlow, gunPivot, isRolling, sourceTelegraph, step, BODY_HEIGHT } from '../sim/world.ts';
 import type { DownCause, Enemy, SimEvent, World } from '../sim/world.ts';
 import { Rng } from '../sim/rng.ts';
+import { ENEMIES } from '../data/enemies.ts';
 import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
@@ -182,6 +184,12 @@ export class GameScene extends Phaser.Scene {
   /** Everything on the HUD (hidden during a boss's entrance), and the room's name. */
   private hudObjs: Array<Phaser.GameObjects.Components.Visible> = [];
   private roomTitle: Phaser.GameObjects.BitmapText | null = null;
+  /** The boss's life bar at the bottom of the screen (null without a boss in the room). */
+  private bossBar: BossBarView | null = null;
+  /** Full-screen white flash (a boss changing phase or falling). */
+  private whiteFlash!: Phaser.GameObjects.Rectangle;
+  /** Seconds to the next blast on a boss that is coming apart. */
+  private blastT = 0;
 
   constructor() {
     super('game');
@@ -212,6 +220,8 @@ export class GameScene extends Phaser.Scene {
     this.introParts = [];
     this.introBars = [];
     this.hudObjs = [];
+    this.bossBar = null;
+    this.blastT = 0;
     this.dummySprites = new Map();
     this.enemySprites = new Map();
     this.bulletSprites = new Map();
@@ -303,6 +313,14 @@ export class GameScene extends Phaser.Scene {
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
+    this.whiteFlash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xffffff, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(97000).setAlpha(0);
+    const boss = this.world.enemies.find((en) => en.def.boss);
+    if (boss) {
+      this.makeBossBar(boss);
+      // The controls hint would run under the bar.
+      this.hintT = 0;
+      this.hint.setAlpha(0);
+    }
     if (this.world.floor) this.drawMinimap();
 
     const cam = this.cameras.main;
@@ -656,6 +674,214 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /** The boss's life bar, bottom centre: its name over a red bar with a notch where each phase starts. */
+  private makeBossBar(boss: Enemy): void {
+    const name = this.hud(this.add.bitmapText(VIEW_W / 2, BOSS_BAR_Y - 11, FONT, fontText(boss.def.name), 8).setOrigin(0.5, 0)).setDepth(93001);
+    name.setTint(0xd6cdb2);
+    const g = this.hud(this.add.graphics()).setDepth(93000);
+    // It fills up when the fight starts (after the entrance); straight away if there is none.
+    this.bossBar = { boss: boss.id, name, g, trail: 0, fill: 0, flash: 0, alpha: 1 };
+    if (!this.world.intro) this.bossBar.fill = this.bossBar.trail = 1 - boss.damageTaken / boss.def.hp;
+  }
+
+  private drawBossBar(dt: number): void {
+    const bar = this.bossBar;
+    if (!bar) return;
+    const boss = this.world.enemies.find((en) => en.id === bar.boss);
+    const life = boss ? Math.max(0, 1 - boss.damageTaken / boss.def.hp) : 0;
+    if (this.world.intro) {
+      bar.fill = bar.trail = 0;
+    } else if (bar.fill < life && bar.trail <= bar.fill) {
+      // Filling up at the start of the fight, with a rising tick.
+      bar.fill = Math.min(life, bar.fill + dt * 1.4);
+      bar.trail = bar.fill;
+    } else {
+      bar.fill = life;
+      // The lost chunk stays white for a moment, then drains.
+      if (bar.trail > life) bar.trail = Math.max(life, bar.trail - dt * (boss?.hitT ? 0 : 0.5));
+      else bar.trail = life;
+    }
+    bar.flash = Math.max(0, bar.flash - dt);
+    if (!boss) bar.alpha = Math.max(0, bar.alpha - dt * 0.8);
+    const x = Math.round((VIEW_W - BOSS_BAR_W) / 2);
+    const y = BOSS_BAR_Y;
+    const g = bar.g;
+    g.clear().setAlpha(bar.alpha);
+    bar.name.setAlpha(bar.alpha);
+    g.fillStyle(0x0e0c16, 0.9).fillRect(x - 2, y - 2, BOSS_BAR_W + 4, BOSS_BAR_H + 4);
+    g.lineStyle(1, 0x3a3f5c, 1).strokeRect(x - 1.5, y - 1.5, BOSS_BAR_W + 3, BOSS_BAR_H + 3);
+    g.fillStyle(0x2a1620, 1).fillRect(x, y, BOSS_BAR_W, BOSS_BAR_H);
+    const tw = Math.round(bar.trail * BOSS_BAR_W);
+    const fw = Math.round(bar.fill * BOSS_BAR_W);
+    if (tw > fw) g.fillStyle(0xf4f1e8, 1).fillRect(x + fw, y, tw - fw, BOSS_BAR_H);
+    const flashOn = bar.flash > 0 && Math.floor(bar.flash * 16) % 2 === 0;
+    const dying = boss?.state === 'dying';
+    g.fillStyle(flashOn ? 0xf4f1e8 : 0xe0453b, 1).fillRect(x, y, fw, BOSS_BAR_H);
+    g.fillStyle(flashOn ? 0xffffff : 0xff7a6a, 1).fillRect(x, y, fw, 1);
+    g.fillStyle(flashOn ? 0xd6cdb2 : 0x9c2a2a, 1).fillRect(x, y + BOSS_BAR_H - 1, fw, 1);
+    // A notch where each later phase starts.
+    const brain = boss?.def.brain ?? ENEMIES['nevera-suprema']?.brain;
+    if (brain?.kind === 'boss' && !dying) {
+      for (const ph of brain.phases.slice(1)) {
+        const nx = x + Math.round(ph.from * BOSS_BAR_W);
+        g.fillStyle(0x0e0c16, 1).fillRect(nx, y - 2, 1, BOSS_BAR_H + 4);
+        g.fillStyle(0xd6cdb2, 1).fillRect(nx, y - 3, 1, 2);
+      }
+    }
+  }
+
+  /** The screen goes white and fades back (a boss changing phase or falling). */
+  private flashWhite(alpha: number, ms: number): void {
+    this.tweens.killTweensOf(this.whiteFlash);
+    this.whiteFlash.setAlpha(alpha);
+    this.tweens.add({ targets: this.whiteFlash, alpha: 0, duration: ms, ease: 'Quad.easeOut' });
+  }
+
+  /**
+   * The phase card over the boss's life bar: a dark band slides in with «Fase n · …» and the
+   * phase's name, big, in its colour; it stays while the boss stops (BOSS_PHASE_BREAK).
+   */
+  private showPhaseCard(phase: number, title: string): void {
+    const color = phase >= 1 ? 0xe0453b : 0x69dbd8;
+    const y = BOSS_BAR_Y - 46;
+    const band = this.hud(this.add.rectangle(0, y, VIEW_W, 32, 0x0e0c16, 0.62).setOrigin(0, 0)).setDepth(95000);
+    const edge = this.hud(this.add.rectangle(0, y + 32, VIEW_W, 1, color, 1).setOrigin(0, 0)).setDepth(95000);
+    const sub = this.hud(this.add.bitmapText(VIEW_W / 2, y + 3, FONT, fontText(bossPhaseLabel(phase + 1)), 8).setOrigin(0.5, 0)).setDepth(95001);
+    sub.setTint(0x858ea8);
+    const name = this.hud(this.add.bitmapText(VIEW_W / 2, y + 13, FONT, fontText(title), 16).setOrigin(0.5, 0)).setDepth(95001);
+    name.setTint(color).setScale(1.5);
+    this.tweens.add({ targets: name, scale: 1, duration: 160, ease: 'Quad.easeIn' });
+    const parts = [band, edge, sub, name];
+    band.setScale(1, 0);
+    this.tweens.add({ targets: band, scaleY: 1, duration: 120, ease: 'Quad.easeOut' });
+    this.tweens.add({
+      targets: parts,
+      alpha: 0,
+      delay: 1700,
+      duration: 400,
+      onComplete: () => {
+        for (const o of parts) o.destroy();
+        this.hudObjs = this.hudObjs.filter((o) => !parts.includes(o as never));
+      },
+    });
+  }
+
+  /**
+   * A boss coming apart (state `dying`): it shakes harder and flashes faster, with blasts of
+   * sparks, smoke and screws popping all over it, and cold breath leaking out.
+   */
+  private dyingFx(en: Enemy, v: EnemyView, dt: number): void {
+    const k = Math.min(1, en.t / en.until);
+    const s = v.s;
+    const amp = 1 + Math.round(k * 2);
+    s.setX(s.x + (Math.floor(this.time.now / 35) % 2 === 0 ? amp : -amp));
+    s.setRotation(Math.sin(this.time.now / 45) * 0.03 * k);
+    const period = 220 - 150 * k;
+    if (Math.floor(this.time.now / period) % 3 === 0) s.setTintFill(0xffffff);
+    else s.setTint(0xffc0b0);
+    this.blastT -= dt;
+    if (this.blastT > 0) return;
+    this.blastT = 0.22 - 0.12 * k;
+    const w = s.displayWidth;
+    const h = s.displayHeight;
+    const bx = en.x + this.fx.range(-w * 0.4, w * 0.4);
+    const by = en.y - this.fx.range(6, h * 0.85);
+    this.sound2.play('estallido', { detune: this.fx.range(-300, 300), volume: 0.6 + 0.4 * k });
+    this.cameras.main.shake(90, 0.006 + 0.006 * k, true);
+    for (let i = 0; i < 7; i++) this.spark(bx, by, this.fx.range(0, Math.PI * 2), this.fx.range(40, 130), this.fx.int(0, 3));
+    this.puff(bx, by, this.fx.range(0.5, 0.8));
+    if (this.fx.chance(0.5)) this.puff(en.x + this.fx.range(-20, 20), en.y - this.fx.range(10, 50), 0.9);
+    if (this.fx.chance(0.6)) {
+      const a = this.fx.range(0, Math.PI * 2);
+      this.particles.push({
+        s: this.add.image(bx, en.y + this.fx.range(-3, 3), 'chatarra', this.fx.int(0, 3)),
+        vx: Math.cos(a) * this.fx.range(30, 80),
+        vy: Math.sin(a) * this.fx.range(10, 25),
+        z: Math.max(2, en.y - by),
+        vz: this.fx.range(60, 130),
+        life: this.fx.range(1.8, 2.6),
+        maxLife: 2.6,
+        gravity: true,
+        spin: this.fx.range(-16, 16),
+        fade: true,
+        hw: 3,
+        hh: 3,
+      });
+    }
+  }
+
+  /**
+   * The boss is finally in pieces: a last freeze, a collapse, a shockwave of dust, a rain of
+   * scrap, and «Liquidación total» stamped where it stood. The camera then goes back to the toaster.
+   */
+  private bossDown(e: Extract<SimEvent, { type: 'death' }>): void {
+    this.hitstop = 0.3;
+    this.cameras.main.shake(700, 0.022, true);
+    this.flashWhite(1, 650);
+    this.sound2.play('derrumbe');
+    this.sound2.play('estallido', { detune: -600 });
+    for (let i = 0; i < 24; i++) {
+      const a = this.fx.range(0, Math.PI * 2);
+      this.particles.push({
+        s: this.add.image(e.x + this.fx.range(-16, 16), e.y + this.fx.range(-4, 4), 'chatarra', this.fx.int(0, 3)),
+        vx: Math.cos(a) * this.fx.range(40, 150),
+        vy: Math.sin(a) * this.fx.range(15, 50),
+        z: this.fx.range(10, 60),
+        vz: this.fx.range(80, 180),
+        life: this.fx.range(2.4, 3.4),
+        maxLife: 3.4,
+        gravity: true,
+        spin: this.fx.range(-18, 18),
+        fade: true,
+        hw: 3,
+        hh: 3,
+      });
+    }
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2;
+      this.puff(e.x + Math.cos(a) * 26, e.y + Math.sin(a) * 26 * FROST_FLAT - 4, this.fx.range(0.7, 1.1));
+      this.puff(e.x + this.fx.range(-20, 20), e.y - this.fx.range(10, 60), this.fx.range(0.8, 1.2));
+    }
+    for (let i = 0; i < 12; i++) this.iceShard(e.x + this.fx.range(-14, 14), e.y);
+    // A ring of dust running along the floor.
+    const ring = this.add.graphics().setDepth(e.y - 1);
+    const r = { k: 0 };
+    this.tweens.add({
+      targets: r,
+      k: 1,
+      duration: 600,
+      ease: 'Quad.easeOut',
+      onUpdate: () => {
+        ring.clear();
+        ring.lineStyle(3 - 2 * r.k, 0xd6cdb2, 0.7 * (1 - r.k));
+        ring.strokeEllipse(e.x, e.y, 30 + 170 * r.k, (30 + 170 * r.k) * FROST_FLAT);
+      },
+      onComplete: () => ring.destroy(),
+    });
+    // The stamp, slammed over where she stood (on the screen, so it does not drift).
+    this.time.delayedCall(450, () => {
+      this.sound2.play('sello');
+      this.cameras.main.shake(140, 0.008, true);
+      const cam = this.cameras.main;
+      const sx = Math.round(e.x - cam.scrollX);
+      const sy = Math.max(40, Math.min(VIEW_H - 70, Math.round(e.y - 40 - cam.scrollY)));
+      const stamp = this.add.bitmapText(sx, sy, FONT, fontText(BOSS_DOWN_STAMP), 16).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(95500);
+      stamp.setTint(0xe0453b).setAngle(-8).setScale(2.4).setAlpha(0);
+      const box = this.add.rectangle(sx, sy, stamp.width / 2.4 + 12, 24, 0x000000, 0).setStrokeStyle(2, 0xe0453b, 1).setScrollFactor(0).setDepth(95500).setAngle(-8).setScale(2.4).setAlpha(0);
+      this.tweens.add({ targets: [stamp, box], scale: 1, alpha: 1, duration: 130, ease: 'Quad.easeIn' });
+      const ly = Math.min(VIEW_H - 40, sy + 26);
+      const back = this.add.rectangle(0, sy - 24, VIEW_W, ly + 14 - (sy - 24), 0x0e0c16, 0.6).setOrigin(0, 0).setScrollFactor(0).setDepth(95400).setAlpha(0);
+      this.tweens.add({ targets: back, alpha: 1, duration: 130 });
+      const line = this.add.bitmapText(VIEW_W / 2, ly, FONT, fontText(BOSS_DOWN_LINE), 8).setOrigin(0.5, 0).setScrollFactor(0).setDepth(95500);
+      line.setTint(0xd6cdb2).setAlpha(0);
+      this.tweens.add({ targets: line, alpha: 1, delay: 500, duration: 300 });
+      this.tweens.add({ targets: [stamp, box, line, back], alpha: 0, delay: 4200, duration: 600, onComplete: () => [stamp, box, line, back].forEach((o) => o.destroy()) });
+    });
+    this.time.delayedCall(1400, () => {
+      this.camFocus = null;
+    });
+  }
+
   private endBossIntro(): void {
     this.camFocus = null;
     const parts = this.introParts;
@@ -760,6 +986,12 @@ export class GameScene extends Phaser.Scene {
           break;
         }
         case 'hit': {
+          if (e.damage <= 0) {
+            // Bounced off a boss between phases: a dry clink and no number.
+            this.sound2.play('clinc', { detune: this.fx.range(-200, 200) });
+            for (let i = 0; i < 3; i++) this.spark(e.x, e.y, e.angle + Math.PI + this.fx.range(-1.2, 1.2), this.fx.range(40, 90), 1);
+            break;
+          }
           this.hitstop = 0.045;
           this.cameras.main.shake(70, 0.004, true);
           this.sound2.play('golpe', { detune: this.fx.range(-200, 200) });
@@ -844,6 +1076,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'death':
           this.breakApart(e);
+          if (ENEMIES[e.enemy]?.boss) this.bossDown(e);
           break;
         case 'pickup':
           this.couponPop = 0.25;
@@ -912,18 +1145,40 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(25, 60), i % 2);
           break;
         case 'bossPhase': {
-          // A new phase: its name, big, and a shudder. The second one, «Oferta irrechazable», swings
-          // the door open (a creak and a cold breath) and comes in offer red.
+          // A new phase: the boss stops and shudders, the screen flashes and clears, and the phase
+          // card comes up over its life bar. The second one, «Oferta irrechazable», swings the door
+          // open (a creak and a cold breath) and comes in offer red.
+          this.hitstop = 0.12;
           this.sound2.play('jefe', { volume: 0.7 });
-          this.cameras.main.shake(260, 0.012, true);
+          this.cameras.main.shake(320, 0.014, true);
+          this.flashWhite(0.55, 380);
           const boss = this.world.enemies.find((en) => en.id === e.boss);
           if (e.phase >= 1 && boss) {
             this.sound2.play('portazo');
-            for (let i = 0; i < 6; i++) this.puff(boss.x + this.fx.range(-14, 22) * boss.facing, boss.y - this.fx.range(8, 36), this.fx.range(0.6, 1));
+            for (let i = 0; i < 10; i++) this.puff(boss.x + this.fx.range(-14, 22) * boss.facing, boss.y - this.fx.range(8, 40), this.fx.range(0.6, 1.1));
           }
-          this.banner.setText(fontText(e.name)).setTint(e.phase >= 1 ? 0xe0453b : 0x69dbd8).setAlpha(1);
-          this.tweens.killTweensOf(this.banner);
-          this.tweens.add({ targets: this.banner, alpha: 0, delay: 1800, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
+          this.showPhaseCard(e.phase, e.name);
+          if (this.bossBar) this.bossBar.flash = 0.5;
+          break;
+        }
+        case 'fireCleared': {
+          // Every enemy bullet pops at once: a sparkle of its colour where it was, and one sweep.
+          if (e.points.length) this.sound2.play('barrido');
+          for (const pt of e.points) {
+            this.puff(pt.x, pt.y, 0.3);
+            for (let i = 0; i < 2; i++) this.spark(pt.x, pt.y, this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), pt.color === 'red' || pt.color === 'card' ? 2 : 0);
+          }
+          break;
+        }
+        case 'bossDying': {
+          // Her life runs out: a long freeze, a flash, and the camera goes to her while she comes apart.
+          this.hitstop = 0.35;
+          this.cameras.main.shake(500, 0.018, true);
+          this.flashWhite(0.8, 500);
+          this.sound2.play('jefe', { detune: -500 });
+          this.sound2.play('estallido');
+          this.camFocus = { x: e.x, y: e.y - 40 };
+          this.blastT = 0.25;
           break;
         }
       }
@@ -1063,6 +1318,8 @@ export class GameScene extends Phaser.Scene {
       const p = { h: s.h };
       this.tweens.add({ targets: p, h: SHUTTER_ROLLED, duration: 650, ease: 'Sine.easeInOut', onUpdate: () => img.setCrop(0, 0, img.width, Math.round(p.h)) });
     }
+    // After a boss the stamp says it all.
+    if (this.bossBar) return;
     this.banner.setText(fontText(this.fx.pick(DOORS_OPEN_LINES))).setAlpha(1);
     this.tweens.killTweensOf(this.banner);
     this.tweens.add({ targets: this.banner, alpha: 0, delay: 1800, duration: 600 });
@@ -1092,6 +1349,7 @@ export class GameScene extends Phaser.Scene {
 
   private syncView(dt: number): void {
     const w = this.world;
+    this.drawBossBar(dt);
     const p = w.player;
     const rolling = isRolling(p);
 
@@ -1251,8 +1509,17 @@ export class GameScene extends Phaser.Scene {
       }
       if (en.hitT > 0.07 || tv.white) s.setTintFill(0xffffff);
       else if (en.hitT > 0) s.setTint(0xffb0a0);
-      else if (warnK >= 0 && blinkOn(warnK)) s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
-      else s.clearTint();
+      // A boss only goes warm while it warns: a white fill would hide its open door.
+      else if (warnK >= 0 && blinkOn(warnK)) {
+        if (en.def.boss) s.setTint(warnK > 0.75 ? 0xffe9a8 : 0xffc870);
+        else s.setTintFill(warnK > 0.75 ? 0xffffff : 0xf6c431);
+      } else s.clearTint();
+      if (en.state === 'roar') {
+        // Between phases: it shudders and breathes out cold.
+        s.setX(s.x + (Math.floor(this.time.now / 50) % 2 === 0 ? 1 : -1));
+        if (this.fx.chance(0.2)) this.puff(en.x + this.fx.range(-24, 24), en.y - this.fx.range(10, 60), 0.7);
+      }
+      if (en.state === 'dying') this.dyingFx(en, v, dt);
       // In TURBO the mixer shakes and throws sparks and batter.
       if (en.turbo) {
         s.setX(s.x + (Math.floor(this.time.now / 45) % 2 === 0 ? 1 : 0));
@@ -1580,6 +1847,24 @@ const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number
 const SPRITE_GLOWS: Record<string, { y: number; r: number; color: number }> = {
   bombilla: { y: 23, r: 26, color: 0xfff1a0 },
 };
+
+/** The boss's life bar: its parts, and the life it showed (the white trail catches up with it). */
+interface BossBarView {
+  boss: number;
+  name: Phaser.GameObjects.BitmapText;
+  g: Phaser.GameObjects.Graphics;
+  /** Life fraction drawn by the white trail, and by the red fill (it fills up on arrival). */
+  trail: number;
+  fill: number;
+  /** Seconds the bar keeps flashing (a phase change). */
+  flash: number;
+  /** Fades out once the boss is gone. */
+  alpha: number;
+}
+
+const BOSS_BAR_W = 200;
+const BOSS_BAR_H = 5;
+const BOSS_BAR_Y = VIEW_H - 13;
 
 interface EnemyView {
   /** When a remote last switched back on (ms), for the TV «switch on» animation. */

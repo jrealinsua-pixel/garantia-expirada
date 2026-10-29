@@ -132,5 +132,12 @@ export const SFX: Record<string, SfxParams> = {
   // wet splat) and a loyalty card shot down (a snip).
   portazo: { wave: 'saw', freq: 180, freqEnd: 310, attack: 0.04, sustain: 0.35, decay: 0.25, volume: 0.16, vibrato: 0.3, vibratoSpeed: 19, lowpass: 0.4, crush: 2 },
   chof: { wave: 'noise', freq: 420, freqEnd: 90, attack: 0.002, sustain: 0.04, decay: 0.18, volume: 0.22, lowpass: 0.3 },
+  // Every enemy bullet on screen vanishes at once (a boss changes phase or falls): a bright sweep.
+  barrido: { wave: 'square', freq: 600, freqEnd: 2400, attack: 0.01, sustain: 0.12, decay: 0.25, volume: 0.12, duty: 0.25, vibrato: 0.1, vibratoSpeed: 24 },
+  // A bullet bouncing off a boss that cannot be hurt right now.
+  clinc: { wave: 'square', freq: 2600, freqEnd: 2100, attack: 0.001, sustain: 0.01, decay: 0.06, volume: 0.1, duty: 0.15 },
+  // A boss coming apart: short blasts all over it, then the whole thing collapsing.
+  estallido: { wave: 'noise', freq: 1200, freqEnd: 80, attack: 0.001, sustain: 0.04, decay: 0.22, volume: 0.3, lowpass: 0.35, crush: 4 },
+  derrumbe: { wave: 'noise', freq: 700, freqEnd: 40, attack: 0.005, sustain: 0.35, decay: 1.1, volume: 0.34, lowpass: 0.25, crush: 3, vibrato: 0.2, vibratoSpeed: 9 },
   tarjeta: { wave: 'square', freq: 1800, freqEnd: 2600, attack: 0.001, sustain: 0.015, decay: 0.05, volume: 0.12, duty: 0.25 },
 };

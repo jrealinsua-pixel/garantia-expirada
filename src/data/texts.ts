@@ -19,6 +19,13 @@ export const BOSS_CARD_SUBTITLE = 'Jefa de planta · Almacén de devoluciones';
 /** Bottom corner of the entrance card, once it can be skipped. */
 export const BOSS_CARD_SKIP = 'Disparar: saltar';
 
+/** Over the phase name when a boss changes phase (n is the phase, from 1). */
+export const bossPhaseLabel = (n: number): string => `Fase ${n} · Hemos actualizado nuestras condiciones`;
+
+/** Stamped over a boss when it finally comes apart, and the line under it. */
+export const BOSS_DOWN_STAMP = 'Liquidación total';
+export const BOSS_DOWN_LINE = 'La Dirección ha cesado su actividad. Nadie responderá a su reclamación.';
+
 /** Shown when the test room brings its enemies back. */
 export const RESTOCK_LINE = 'Reposición de stock';
 
