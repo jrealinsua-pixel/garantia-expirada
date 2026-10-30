@@ -662,9 +662,9 @@
   },
   "en_curso": [
     {
-      "sesion": "2026-10-30T00:25+01:00",
-      "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación",
-      "desde": "2026-10-30T01:40:00+01:00"
+      "sesion": "2026-10-30T03:30+01:00",
+      "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación (la reserva anterior, de 00:24 UTC, lleva dos horas sin commits)",
+      "desde": "2026-10-30T03:30:00+01:00"
     }
   ]
 }
