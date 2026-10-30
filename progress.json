@@ -647,6 +647,11 @@
       "sesion": "2026-10-30T00:25+01:00",
       "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación",
       "desde": "2026-10-30T01:40:00+01:00"
+    },
+    {
+      "sesion": "2026-10-30T02:25+01:00",
+      "tarea": "M9 (3–5, textos): los diálogos de los tres PNJs y su elección según el perfil (src/data/dialogues.ts, src/sim/dialogue.ts, Profile.last)",
+      "desde": "2026-10-30T02:27:00+01:00"
     }
   ]
 }
