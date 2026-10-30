@@ -37,6 +37,7 @@ import {
   createWorld,
   LAST_LEVEL,
   leaveHub,
+  nearStation,
   LIFT_READY,
   nextFloor,
   PICKUP_DELAY,
@@ -59,7 +60,7 @@ import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { profile, saveFloor, saveRun } from './save.ts';
-import { chatarreroHere } from '../sim/dialogue.ts';
+import { cajaPages, chatarreroHere } from '../sim/dialogue.ts';
 import { TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis } from './camera.ts';
@@ -271,7 +272,11 @@ export class GameScene extends Phaser.Scene {
   private bubbleT = 0;
   private tillNoT = 0;
   /** A line the till says once the one it is saying ends. */
-  private tillNext: string | null = null;
+  private tillNext: string[] = [];
+  /** How far above the till's feet its bubble goes (the shop's till; the Mostrador's Caja is taller). */
+  private tillTop = 39;
+  /** The Caja de Devoluciones already spoke to the toaster standing at it (again once it walks off). */
+  private cajaSpoke = false;
   private banner!: Phaser.GameObjects.BitmapText;
   private bannerPlate!: Phaser.GameObjects.Graphics;
   /** The description window that opens for a while when an item or a weapon is picked up. */
@@ -403,7 +408,9 @@ export class GameScene extends Phaser.Scene {
     this.bubble = null;
     this.bubbleT = 0;
     this.tillNoT = 0;
-    this.tillNext = null;
+    this.tillNext = [];
+    this.tillTop = 39;
+    this.cajaSpoke = false;
     this.frostViews = new Map();
     this.particles = [];
     this.mapG = null;
@@ -942,7 +949,9 @@ export class GameScene extends Phaser.Scene {
       return true;
     }
     if (id === 'caja-devoluciones') {
-      this.add.image(pr.x, pr.y + 2, id, 0).setOrigin(0.5, 1).setDepth(pr.y);
+      // The Caja talks through the shop till's bubble (tillSay), from higher up: it is taller.
+      this.till = this.add.image(pr.x, pr.y + 2, id, 0).setOrigin(0.5, 1).setDepth(pr.y);
+      this.tillTop = 46;
       return true;
     }
     if (id === 'poste') {
@@ -989,6 +998,17 @@ export class GameScene extends Phaser.Scene {
     h.belt.setFrame(Math.floor(h.t * 10) % 4);
     h.turnos?.setFrame(Math.floor(h.t * 1.5) % 2);
     h.chatarrero?.setFrame(Math.floor(h.t * 2.5) % 3 === 0 ? 1 : 0);
+    // Standing at the Caja: it comments on the last run, page after page (src/sim/dialogue.ts).
+    const at = nearStation(this.world)?.kind;
+    if (at !== 'caja') this.cajaSpoke = false;
+    else if (!this.cajaSpoke && !this.bubble && !this.world.leftHub) {
+      this.cajaSpoke = true;
+      const [first, ...rest] = cajaPages(profile());
+      if (first) {
+        this.sound2.play('recargar', { detune: -300 });
+        this.tillSay(first, rest);
+      }
+    }
   }
 
   /** Walked through a door: a quick fade to black, then the scene rebuilds itself around the next room. */
@@ -2208,7 +2228,7 @@ export class GameScene extends Phaser.Scene {
    * The till says `text` in a bubble over it (replacing what it was saying); `then` follows when
    * that ends. Its screen mouths the words while the bubble is up.
    */
-  private tillSay(text: string, then: string | null = null): void {
+  private tillSay(text: string, then: string | readonly string[] | null = null): void {
     if (!this.till) return;
     this.bubble?.g.destroy();
     this.bubble?.t.destroy();
@@ -2224,12 +2244,13 @@ export class GameScene extends Phaser.Scene {
     // While the room's name is up, its plate counts as the top.
     const nameUp = this.roomTitle && this.roomTitle.alpha > 0 ? this.roomTitle.getBounds().bottom + 2 : 2;
     const viewTop = this.cameras.main.scrollY + nameUp;
-    const above = till.y - 39 - h >= viewTop;
+    const top = this.tillTop;
+    const above = till.y - top - h >= viewTop;
     const left = till.x > room.w / 2;
     const bx = above
       ? Math.round(Math.min(room.w - 4 - w, Math.max(4, till.x - w / 2)))
       : Math.round(left ? Math.max(4, till.x - 16 - w) : Math.min(room.w - 4 - w, till.x + 16));
-    const by = above ? Math.round(till.y - 39 - h) : Math.round(Math.max(viewTop, till.y - 30 - h / 2));
+    const by = above ? Math.round(till.y - top - h) : Math.round(Math.max(viewTop, till.y - 30 - h / 2));
     t.setPosition(bx + Math.round(w / 2), by + h - 3);
     // A dark plate with a light border (light text reads; dark text on light blurs this font).
     const g = this.add.graphics().setDepth(86000);
@@ -2251,7 +2272,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.bubble = { g, t };
     this.bubbleT = 1.4 + text.length * 0.045;
-    this.tillNext = then;
+    this.tillNext = then === null ? [] : typeof then === 'string' ? [then] : [...then];
   }
 
   /** The till's face (talking, refusing or smiling) and its bubble running out. */
@@ -2266,8 +2287,8 @@ export class GameScene extends Phaser.Scene {
         this.bubble.g.destroy();
         this.bubble.t.destroy();
         this.bubble = null;
-        const next = this.tillNext;
-        if (next) this.time.delayedCall(250, () => this.tillSay(next));
+        const [next, ...rest] = this.tillNext;
+        if (next) this.time.delayedCall(250, () => this.tillSay(next, rest));
       }
     }
     const talking = !!this.bubble && this.bubbleT > 0.3 && Math.floor(this.time.now / 140) % 2 === 0;

@@ -237,7 +237,7 @@ semillas distintas acaban con builds distintas.
   - [x] (3a) Los textos de los tres PNJs y de la máquina de turnos, y su elección según el perfil
     (`src/data/dialogues.ts`, `src/sim/dialogue.ts`; `Profile.last` recuerda cómo acabó la última
     partida). Tests con perfiles hechos a mano. Las partes (3)–(5) quedan para ponerlos en el juego.
-  - [ ] (3) La Caja de Devoluciones (comenta la última partida: la causa de baja, la planta a la
+  - [x] (3) La Caja de Devoluciones (comenta la última partida: la causa de baja, la planta a la
     que llegó, el jefe que la tumbó) y el bocadillo de los PNJs (el de la tienda, reutilizado).
   - [ ] (4) El teléfono del Servicio Técnico (la grabación avanza con los jefes vencidos y va
     soltando la historia) y la máquina de turnos (su número es el de partidas jugadas).

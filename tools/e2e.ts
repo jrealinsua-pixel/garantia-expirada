@@ -1069,8 +1069,17 @@ try {
     .catch(() => { throw new Error('Tras el parte de baja no se vuelve al Mostrador'); });
   await page.waitForTimeout(600);
   await shot('42-vuelta-al-mostrador.png');
+  // At the counter the Caja stamps the sick-leave report: «Motivo de la devolución: …».
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'caja'); w.player.x = c.x; w.player.y = c.y + 40; })()`);
+  await page.keyboard.down('w');
+  await page.waitForFunction('!!window.__GE__.scene.bubble', undefined, { timeout: 3000 }).catch(() => { throw new Error('La Caja de Devoluciones no dice nada'); });
+  await page.keyboard.up('w');
+  const said = await page.evaluate<string>('window.__GE__.scene.bubble.t.text');
+  if (!said.startsWith('MOTIVO DE LA DEVOLUCI')) throw new Error(`La Caja no empieza por el motivo de la baja: «${said}»`);
+  await page.waitForTimeout(500);
+  await shot('43-la-caja-habla.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
-  console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1 y tras el parte de baja se vuelve.');
+  console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve y la Caja da el motivo de la baja.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

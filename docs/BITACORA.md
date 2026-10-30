@@ -2,6 +2,19 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 05:10 — Hito M9 — La Caja de Devoluciones habla
+- Hecho: al ponerse delante del mostrador (`nearStation` → `caja`), la Caja dice `cajaPages` del
+  perfil en el bocadillo de la tienda, página a página, moviendo el cajón al hablar; vuelve a
+  hablar si te vas y regresas. `tillSay` acepta ahora una lista de páginas y una altura propia
+  (`tillTop`: la Caja es más alta que el autocobro). El e2e comprueba que tras una baja por
+  microondas empieza por «Motivo de la devolución: exposición prolongada a microondas» (43).
+- Decisiones: reutilizar el bocadillo del autocobro en vez de hacer otro: misma lectura, mismo
+  texto grande, mismas reglas para no salirse de la pantalla. Habla sola al acercarse (sin tecla de
+  «hablar»): en el Mostrador no hay nada más que hacer y así no hace falta explicar otro control.
+- Medidas: el bot no cambia.
+- Problemas conocidos: ninguno nuevo.
+- Siguiente paso: M9 (4), el teléfono y la máquina de turnos con el mismo bocadillo.
+
 ## 2026-10-30 04:50 — Hito M9 — El Mostrador, en el juego
 - Hecho: «Partida nueva» de la portada abre el Mostrador (`GameScene` con `{ hub: true }`, que se
   conserva en los reinicios de la escena); también `?mostrador`. Allí la tostadora anda y rueda con

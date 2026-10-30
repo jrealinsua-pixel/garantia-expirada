@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T04:50:00+01:00",
+  "actualizado": "2026-10-30T05:10:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -130,6 +130,12 @@
     "lineas_codigo": 15223
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T05:10:00+01:00",
+      "hito": "M9",
+      "resumen": "La Caja de Devoluciones habla: al acercarse al mostrador comenta la última partida en su bocadillo, página a página, empezando por el motivo de la devolución.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T04:50:00+01:00",
       "hito": "M9",
@@ -625,6 +631,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/caja-habla.png",
+      "pie": "La Caja de Devoluciones sella el parte de baja de la última partida: «Motivo de la devolución: exposición prolongada a microondas»"
+    },
+    {
       "archivo": "capturas/mostrador-juego.png",
       "pie": "«Partida nueva» lleva ahora al Mostrador de Devoluciones: la cinta de arriba a la derecha empieza la partida y tras el parte de baja se vuelve aquí"
     },
@@ -641,15 +651,11 @@
       "pie": "La Webcam Siempre Encendida grabando: la línea de puntos rojos te sigue; si no te escondes a tiempo, comparte pantalla y los demás atacan a la vez"
     },
     {
-      "archivo": "capturas/raton.png",
-      "pie": "El Ratón Inalámbrico sin Pilas: congelado sin señal, mientras los anillos rojos marcan dónde va a aparecer"
-    },
-    {
       "archivo": "capturas/tienda-informatica.png",
       "pie": "La tienda de la planta 2, «Accesorios Oficiales (Funda No Incluida)»: la planta 2 ya tiene tesoro, tienda, sala secreta y sala del jefe propios"
     }
   ],
-  "proximo": "M9 (3): la Caja de Devoluciones habla (bocadillo con cajaPages al acercarse) y comenta la última partida.",
+  "proximo": "M9 (4): el teléfono del Servicio Técnico y la máquina de turnos, con sus textos al acercarse.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -678,11 +684,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-30T03:30+01:00",
-      "tarea": "M9 (3): la Caja de Devoluciones habla en el Mostrador",
-      "desde": "2026-10-30T04:55:00+01:00"
-    }
-  ]
+  "en_curso": []
 }
