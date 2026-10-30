@@ -653,6 +653,11 @@
       "sesion": "2026-10-30T00:25+01:00",
       "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación",
       "desde": "2026-10-30T01:40:00+01:00"
+    },
+    {
+      "sesion": "2026-10-30T02:25+01:00",
+      "tarea": "M9 (6a): desbloqueo de personajes, condiciones en datos y Profile.unlocked (src/data/unlocks.ts, src/sim/unlocks.ts, save.ts)",
+      "desde": "2026-10-30T02:55:00+01:00"
     }
   ]
 }
