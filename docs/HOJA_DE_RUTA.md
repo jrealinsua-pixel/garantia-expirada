@@ -174,7 +174,7 @@ semillas distintas acaban con builds distintas.
   - [x] Parte 2: la sección «Errores» (la jefa cortada al empezar, trozos que cruzan paredes, parón del primer clic, e2e de la jefa desde la planta).
   - [x] Parte 3: las asperezas (portada, letreros con placa, objetos del HUD que se deslizan, barra del inventario, avisos fijos con destellos suaves, tarjeta de la jefa y textos flotantes con texto grande); las que no eran errores, a su sección con el motivo.
 
-## M8 · Planta 2: Informática
+## M8 · Planta 2: Informática (hecho)
 
 - [x] Juego de casillas y color propio. (`src/art/informatica.ts`; se ve con `?planta=2`.)
 - Entornos bien diseñados sin perder la generación procedural (nota del humano): plantillas

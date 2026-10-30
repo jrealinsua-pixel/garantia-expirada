@@ -1961,8 +1961,11 @@ export function isClear(w: World, x: number, y: number, r: number): boolean {
   return !solidsNear(w, box).some((s) => overlaps(box, s));
 }
 
-/** The nearest point to (x, y) where a feet box of radius `r` touches no wall or prop (rings of 4 px). */
-export function freeSpot(w: World, x: number, y: number, r: number): { x: number; y: number } {
+/**
+ * The nearest point to (x, y) where a feet box of radius `r` touches no wall or prop (rings of
+ * 4 px). If there is none close enough, `fallback` (by default, (x, y) itself).
+ */
+export function freeSpot(w: World, x: number, y: number, r: number, fallback?: { x: number; y: number }): { x: number; y: number } {
   const clear = (px: number, py: number): boolean => !solidsNear(w, playerFeetBox({ x: px, y: py }, r)).some((s) => overlaps(playerFeetBox({ x: px, y: py }, r), s));
   if (clear(x, y)) return { x, y };
   // Rings of 4 px, farther and farther (a room's middle can be a block of shelving 6 tiles wide).
@@ -1975,7 +1978,7 @@ export function freeSpot(w: World, x: number, y: number, r: number): { x: number
       if (clear(px, py)) return { x: px, y: py };
     }
   }
-  return { x, y };
+  return fallback ?? { x, y };
 }
 
 /** Rooms that restock bring all their enemies back a while after the last one falls. */

@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-30T00:29:00+01:00",
+  "actualizado": "2026-10-30T01:25:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M8",
+  "hito_actual": "M9",
   "hitos": [
     {
       "id": "M0",
@@ -62,14 +62,14 @@
     {
       "id": "M8",
       "nombre": "Planta 2: Informática",
-      "estado": "en_curso",
+      "estado": "hecho",
       "hechas": 4,
       "total": 4
     },
     {
       "id": "M9",
       "nombre": "El centro y la historia",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 4
     },
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 389,
-    "tests_ok": 389,
+    "tests": 392,
+    "tests_ok": 392,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 14407
+    "lineas_codigo": 14413
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T01:25:00+01:00",
+      "hito": "M8",
+      "resumen": "La tarea de la planta 2 la hicieron dos sesiones a la vez; me quedo con la que llegó antes y sumo lo que faltaba: el Ratón sin Pilas ya no salta al otro lado de un bloque de estanterías, el bot avisa si una partida se queda sin acabar y tres tests nuevos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T00:29:00+01:00",
       "hito": "M8",
@@ -630,11 +636,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-30T00:25+01:00",
-      "tarea": "M8: la planta 2 entera medida con el bot y su dificultad ajustada",
-      "desde": "2026-10-30T00:25:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

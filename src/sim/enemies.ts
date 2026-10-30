@@ -287,7 +287,10 @@ export function lagSpot(w: World, en: Enemy, b: LaggerBrain): { x: number; y: nu
     sx = -uy * side;
     sy = ux * side;
   }
-  const spot = freeSpot(w, en.x + sx * step, en.y + sy * step, en.def.footRadius + 2);
+  // Nowhere free near there (deep into a block of shelves): it stays where it is, rather than
+  // turning up inside it or far beyond its jump.
+  const spot = freeSpot(w, en.x + sx * step, en.y + sy * step, en.def.footRadius + 2, { x: en.x, y: en.y });
+  if (Math.hypot(spot.x - en.x, spot.y - en.y) > b.jump * 1.25) return { x: en.x, y: en.y };
   // Never on top of the player.
   if (Math.hypot(spot.x - p.x, spot.y - p.y) < b.keep * 0.75) return { x: en.x, y: en.y };
   return spot;

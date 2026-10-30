@@ -237,6 +237,10 @@ export function playFloor(seed: string, maxSeconds: number, noDamage: boolean, f
   if (noDamage && !explored && !errors.length) {
     errors.push(`planta ${seed}: el bot no ha recorrido la planta en ${maxSeconds} s (atascado en ${w.room.id}, ${f.rooms.filter((r) => r.visited).length}/${f.layout.rooms.length - 1} salas)`);
   }
+  // A whole run ends won or gone down: still going when time runs out is a hang.
+  if (full && !noDamage && !w.won && !w.over && !errors.length) {
+    errors.push(`planta ${seed} (nivel ${w.level}): ni gana ni cae en ${maxSeconds} s (sigue en ${w.room.id})`);
+  }
   return {
     explored,
     won: w.won,
