@@ -2,6 +2,12 @@
 // storage is in src/render/save.ts), so tests can play runs into it. Later milestones read it to
 // unlock things (M9's hub, M12's secret floor: beat every boss, win with three characters).
 
+import { ROSTER } from '../data/unlocks.ts';
+import { newUnlocks } from './unlocks.ts';
+
+/** Characters available from the start (no condition on the tablón). */
+const STARTERS = ROSTER.filter((r) => !r.condition).map((r) => r.id);
+
 export interface Profile {
   version: 1;
   /** Runs that ended (taken down or floor cleared). */
@@ -25,6 +31,8 @@ export interface Profile {
   found: { items: string[]; actives: string[]; weapons: string[] };
   /** How the last run ended (what the hub's Caja de Devoluciones comments), null before the first. */
   last: LastRun | null;
+  /** Characters unlocked (ids, src/data/unlocks.ts), for good. The Tostadora always. */
+  unlocked: string[];
 }
 
 /** The last run, as the hub remembers it. */
@@ -36,6 +44,8 @@ export interface LastRun {
   seconds: number;
   kills: number;
   cause?: { by: string; how: 'bullet' | 'contact' };
+  /** Characters this run unlocked (for the hub to announce). */
+  unlocked?: string[];
 }
 
 /** How a run ended and what it carried. */
@@ -72,6 +82,7 @@ export function emptyProfile(): Profile {
     causes: {},
     found: { items: [], actives: [], weapons: [] },
     last: null,
+    unlocked: [...STARTERS],
   };
 }
 
@@ -131,6 +142,11 @@ export function recordRun(old: Profile, r: RunResult): Profile {
     kills: Math.max(0, Math.round(r.kills)),
     ...(r.outcome === 'down' && r.cause ? { cause: { ...r.cause } } : {}),
   };
+  const fresh = newUnlocks(p);
+  if (fresh.length) {
+    p.unlocked = [...p.unlocked, ...fresh];
+    p.last.unlocked = fresh;
+  }
   return p;
 }
 
@@ -149,6 +165,8 @@ function parseLast(v: unknown): LastRun | null {
   const last: LastRun = { character: o.character, outcome: o.outcome, level: Math.max(1, count(o.level)), seconds: count(o.seconds), kills: count(o.kills) };
   const c = o.cause as Record<string, unknown> | undefined;
   if (o.outcome === 'down' && c && typeof c === 'object' && typeof c.by === 'string' && (c.how === 'bullet' || c.how === 'contact')) last.cause = { by: c.by, how: c.how };
+  const u = ids(o.unlocked);
+  if (u.length) last.unlocked = u;
   return last;
 }
 
@@ -176,6 +194,10 @@ export function parseProfile(raw: string | null): Profile {
   const f = (o.found ?? {}) as Record<string, unknown>;
   p.found = { items: ids(f.items), actives: ids(f.actives), weapons: ids(f.weapons) };
   p.last = parseLast(o.last);
+  // Unlocks are kept (even of characters this version no longer has), and checked again: a save
+  // from before a condition existed gets what it has earned.
+  p.unlocked = union([...STARTERS], ids(o.unlocked));
+  p.unlocked = [...p.unlocked, ...newUnlocks(p)];
   return p;
 }
 

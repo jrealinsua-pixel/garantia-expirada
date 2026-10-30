@@ -216,7 +216,7 @@ export const CHATARRERO = {
     {
       id: 'chat-expo',
       when: { minBosses: 1 },
-      pages: ['¿Ves el tablón de Productos en Exposición? Esos aparatos no se quedan ahí para siempre.', 'Gana plantas y alguno se animará a salir.'],
+      pages: ['¿Ves el tablón de Productos en Exposición? Esos aparatos no se quedan ahí para siempre.', 'Vence jefes, junta chatarra o cae muchas veces, y alguno se animará a salir.'],
     },
   ] satisfies readonly DialogueLine[],
 } as const;

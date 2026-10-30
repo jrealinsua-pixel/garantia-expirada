@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T02:50:00+01:00",
+  "actualizado": "2026-10-30T03:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -70,8 +70,8 @@
       "id": "M9",
       "nombre": "El centro y la historia",
       "estado": "en_curso",
-      "hechas": 1,
-      "total": 2
+      "hechas": 2,
+      "total": 3
     },
     {
       "id": "M10",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 400,
-    "tests_ok": 400,
+    "tests": 406,
+    "tests_ok": 406,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 14734
+    "lineas_codigo": 14852
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T03:05:00+01:00",
+      "hito": "M9",
+      "resumen": "El desbloqueo de personajes, por dentro: los cinco del tablón «Productos en Exposición» con su condición (vencer a la Nevera, al Router, diez bajas, veinte objetos), comprobada al acabar cada partida y guardada para siempre.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T02:50:00+01:00",
       "hito": "M9",
@@ -653,11 +659,6 @@
       "sesion": "2026-10-30T00:25+01:00",
       "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación",
       "desde": "2026-10-30T01:40:00+01:00"
-    },
-    {
-      "sesion": "2026-10-30T02:25+01:00",
-      "tarea": "M9 (6a): desbloqueo de personajes, condiciones en datos y Profile.unlocked (src/data/unlocks.ts, src/sim/unlocks.ts, save.ts)",
-      "desde": "2026-10-30T02:55:00+01:00"
     }
   ]
 }

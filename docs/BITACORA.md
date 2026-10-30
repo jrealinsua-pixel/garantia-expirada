@@ -2,6 +2,25 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 03:05 — Hito M9 — Desbloqueo de personajes, el mecanismo
+- Hecho: `src/data/unlocks.ts` con `ROSTER`, los cinco del tablón «Productos en Exposición»
+  (nombre, frase, condición en datos y su letra pequeña); `src/sim/unlocks.ts` (`meets`,
+  `newUnlocks`, `unlockProgress`, `rosterBoard`, puros); `Profile.unlocked` (la Tostadora siempre)
+  y `LastRun.unlocked` (lo que desbloqueó la última partida, para que el centro lo anuncie).
+  `recordRun` comprueba las condiciones al acabar cada partida; `parseProfile` también, así una
+  partida guardada de antes recibe lo que ya ganó. 6 tests nuevos (406).
+- Decisiones: condiciones provisionales hasta que existan las plantas 3–5 (M10–M11): Batidora de
+  Vaso al vencer a la Nevera, Plancha al vencer al Router, el Becario tras diez bajas
+  («experiencia demostrable») y el Móvil al encontrar veinte objetos distintos (hay 23). Un
+  desbloqueo no se pierde nunca, aunque la condición se endurezca o el personaje desaparezca de
+  una versión (los ids desconocidos se conservan). Comprobar dentro de `recordRun` y no en
+  `save.ts` deja el mecanismo entero en la simulación y con tests. El Chatarrero ahora dice que
+  los de la exposición salen venciendo jefes, juntando chatarra o cayendo muchas veces.
+- Medidas: el bot no cambia.
+- Problemas conocidos: los cuatro personajes nuevos aún no son jugables (M13); desbloquearlos
+  solo cambia el perfil.
+- Siguiente paso: M9 (1)/(2) si siguen libres; luego (6) el tablón en el centro con `rosterBoard`.
+
 ## 2026-10-30 02:25 — Hito M9 — Los diálogos del Mostrador, en datos y con tests
 - Hecho: `src/data/dialogues.ts` con lo que dicen la Caja de Devoluciones, el teléfono del
   Servicio Técnico, la máquina de turnos y el Chatarrero, con condiciones en datos (`DialogueWhen`:

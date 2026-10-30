@@ -240,6 +240,9 @@ semillas distintas acaban con builds distintas.
   - [ ] (4) El teléfono del Servicio Técnico (la grabación avanza con los jefes vencidos y va
     soltando la historia) y la máquina de turnos (su número es el de partidas jugadas).
   - [ ] (5) El Chatarrero (sale tras vencer al primer jefe; da pistas de los desbloqueos).
+- [x] (6a) El mecanismo: `src/data/unlocks.ts` (los cinco del tablón con su condición y su texto),
+  `src/sim/unlocks.ts` (comprobar, avance, `rosterBoard`) y `Profile.unlocked`, comprobado en
+  cada `recordRun` y al leer una partida guardada. Falta el tablón en el centro (6).
 - [ ] (6) Desbloqueo de personajes: condiciones en datos (`src/data/`), guardadas en `Profile`,
   comprobadas al acabar cada partida; el tablón «Productos en Exposición» del centro enseña a
   los cinco con su condición (siluetas los bloqueados). Los personajes nuevos jugables llegan
