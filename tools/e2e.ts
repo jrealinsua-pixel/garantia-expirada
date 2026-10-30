@@ -1098,7 +1098,8 @@ try {
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'tablon'); w.player.x = c.x; w.player.y = c.y + 6; })()`);
   await page.waitForFunction('window.__GE__.scene.boardPanel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada'); });
   const boardTexts = await page.evaluate<string[]>("window.__GE__.scene.boardPanel.filter((o) => o.type === 'BitmapText').map((o) => o.text)");
-  if (!boardTexts.some((t) => t.startsWith('RÁPIDA Y FRÁGIL')) || !boardTexts.some((t) => t.includes('ROUTER'))) throw new Error(`El tablón no enseña lo desbloqueado y lo que falta: ${boardTexts.join(' | ')}`);
+  const boardOk = boardTexts.some((t) => t.startsWith('RÁPIDA Y FRÁGIL')) && boardTexts.some((t) => t.includes('ROUTER'));
+  if (!boardOk) throw new Error(`El tablón no enseña lo desbloqueado y lo que falta: ${boardTexts.join(' | ')}`);
   await page.waitForTimeout(400);
   await shot('47-tablon.png');
   // Walking away closes it.
@@ -1114,7 +1115,8 @@ try {
   await shot('48-tablon-texto-grande.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
-  console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve; la Caja, la máquina de turnos, el teléfono y el Chatarrero hablan; el tablón enseña a los cinco.');
+  console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve; la Caja, la máquina de turnos, el teléfono y el Chatarrero hablan;'
+    + ' el tablón enseña a los cinco.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);
