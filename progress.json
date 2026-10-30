@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T06:30:00+01:00",
+  "actualizado": "2026-10-30T07:00:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 423,
-    "tests_ok": 423,
+    "tests": 427,
+    "tests_ok": 427,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15452
+    "lineas_codigo": 15615
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T07:00:00+01:00",
+      "hito": "M9",
+      "resumen": "El archivador «Reclamaciones sin Resolver» del Mostrador: la lista de documentos de historia (los que faltan, «Expediente extraviado») y la hoja abierta; la tecla de usar pasa la hoja.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T06:30:00+01:00",
       "hito": "M9",
@@ -643,6 +649,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/archivador.png",
+      "pie": "El archivador «Reclamaciones sin Resolver»: los documentos de historia encontrados (y los que faltan); la tecla de usar pasa la hoja"
+    },
+    {
       "archivo": "capturas/tablon.png",
       "pie": "El tablón «Productos en Exposición»: a color los personajes desbloqueados, en silueta los demás, con su condición y cuánto falta"
     },
@@ -661,13 +671,9 @@
     {
       "archivo": "capturas/mostrador.png",
       "pie": "El Mostrador de Devoluciones, montado a mano para revisar su arte: la Caja sobre el mostrador, la cola vacía, la máquina de turnos en el 12, el archivador, el Chatarrero y la cinta al almacén bajo «Mercancía devuelta»"
-    },
-    {
-      "archivo": "capturas/router-combate.png",
-      "pie": "El Router del Wifi en su fase 2, «Actualización de firmware»: anillos con dos huecos y tres caídas de conexión marcadas alrededor de la tostadora"
     }
   ],
-  "proximo": "M9 (7): recoger el documento de la sala secreta y el archivador «Reclamaciones sin Resolver» en el Mostrador.",
+  "proximo": "M9 (7c): el documento de la sala secreta de cada planta, en el suelo, que se coge al pisarlo y llega al archivador.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

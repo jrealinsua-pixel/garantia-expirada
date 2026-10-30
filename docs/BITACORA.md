@@ -2,6 +2,24 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 07:00 — Hito M9 — El archivador «Reclamaciones sin Resolver»
+- Hecho: al ponerse junto al archivador se abre un panel (`src/render/archivo.ts`, puro): cabecera
+  color carpeta con «1/4», la lista de documentos (el abierto en amarillo, los que faltan como
+  «Expediente extraviado. Se ruega no reclamar.», los de la última partida con «Nuevo») y debajo la
+  hoja abierta, con «Hoja 2 de 3» y «Q: pasar hoja» (la tecla de usar, que en el Mostrador no hacía
+  nada). Abre por lo último encontrado; al acabar un documento pasa al siguiente que haya, y vuelve
+  al primero (`firstCursor`, `nextCursor` en `src/sim/archive.ts`). Vacío: «Cajón vacío. Su
+  reclamación será atendida por riguroso orden de llegada.». El tablón y el archivador comparten el
+  papel y la entrada del panel (`panelPaper`, `panelSlideIn`). Tests nuevos
+  (`tests/archivador-panel.test.ts`) y e2e (49: el albarán de la Nevera, y Q pasa a la hoja 2).
+- Decisiones: la tarea (7) se parte en (7b), el archivador, y (7c), recoger el papel de la sala
+  secreta, que toca la simulación y el arte de otra manera. Con texto grande no hay lista: solo el
+  título del documento abierto, su hoja y el pie (si no, no cabe). `ARCHIVE_TITLE` repite el nombre
+  del objeto a propósito: se añade a los nombres compartidos del test de textos.
+- Medidas: el bot no cambia.
+- Problemas conocidos: los expedientes extraviados se leen bastante apagados (a propósito).
+- Siguiente paso: M9 (7c), el papel de la sala secreta.
+
 ## 2026-10-30 06:30 — Hito M9 — El tablón «Productos en Exposición»
 - Hecho: el tablón del Mostrador lleva en sus cinco tarjetas a los cinco personajes (hoja nueva
   `fichas-tablon`, 6 × 7: a color los desbloqueados y en silueta los demás). Al ponerse delante

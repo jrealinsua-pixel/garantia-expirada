@@ -419,3 +419,12 @@ export const BOARD_TITLE = 'Productos en Exposición';
 /** An unlocked character that cannot be played yet (they arrive in a later version). */
 export const BOARD_RESTOCK = 'Reposición pronto';
 export const BOARD_FOOT = 'Unidades limitadas. Condiciones sujetas a cambios sin previo aviso.';
+
+// The archivador «Reclamaciones sin Resolver» of the Mostrador (src/render/archivo.ts).
+export const ARCHIVE_TITLE = 'Reclamaciones sin Resolver';
+/** Nothing found yet: the open drawer says so. */
+export const ARCHIVE_EMPTY = 'Cajón vacío. Su reclamación será atendida por riguroso orden de llegada.';
+/** Next to a document found in the last run. */
+export const ARCHIVE_NEW = 'Nuevo';
+export const archivePage = (i: number, n: number): string => `Hoja ${i} de ${n}`;
+export const archiveHint = (k: KeyWords): string => `${k.use.own}: pasar hoja`;

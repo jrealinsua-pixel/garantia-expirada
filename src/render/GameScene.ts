@@ -27,6 +27,7 @@ import {
   ALERT_LINE,
   REVIVE_LINE,
   TURBO_LINE,
+  archiveHint,
 } from '../data/texts.ts';
 import { BACK_WALL_ROWS, doorCells, isWallAt, TILE } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
@@ -65,6 +66,8 @@ import type { StationKind } from '../sim/room.ts';
 import { rosterBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
 import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
+import { archiveLayout, type ArchiveRole } from './archivo.ts';
+import { archive, firstCursor, nextCursor, type ArchiveCursor } from '../sim/archive.ts';
 
 /** A piece of the tablón panel: it slides and fades. */
 type BoardPart = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.AlphaSingle;
@@ -435,7 +438,8 @@ export class GameScene extends Phaser.Scene {
     this.ammoPips = [];
     this.hubViews = null;
     this.hubPending = {};
-    this.boardPanel = [];
+    this.panel = [];
+    this.archiveCursor = { doc: -1, page: 0 };
     const params = new URLSearchParams(location.search);
     const carried = this.carry;
     this.carry = null;
@@ -1021,30 +1025,26 @@ export class GameScene extends Phaser.Scene {
     return rosterBoard(profile()).map((r) => ({ ...r, soon: r.unlocked && !CHARACTERS[r.id] }));
   }
 
-  /** The tablón panel along the bottom of the screen while the toaster stands at the board. */
-  private boardPanel: BoardPart[] = [];
+  /** The panel low on the screen while the toaster stands at the board or the archivador. */
+  private panel: BoardPart[] = [];
 
-  private showBoard(): void {
-    const L = boardLayout(this.boardEntries(), readScale(settings()));
-    const parts = this.boardPanel;
-    const add = <T extends BoardPart & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor>(o: T): T => {
-      o.setScrollFactor(0).setDepth(96000 + parts.length);
-      parts.push(o);
-      return o;
-    };
-    // Cork-coloured paper with the board's red header.
-    add(this.add.rectangle(L.x, L.y, L.w, L.h, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, 0xb97d48);
-    add(this.add.rectangle(L.x + 1, L.y + 1, L.w - 2, L.barH, 0xe0453b, 1).setOrigin(0, 0));
-    const g = add(this.add.graphics());
-    for (const r of L.rules) for (let x = L.x + 6; x < L.x + L.w - 6; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, r, 2, 1);
-    for (const f of L.faces) {
-      add(this.add.rectangle(f.x - 1, f.y - 1, 6 * f.zoom + 2, 7 * f.zoom + 2, 0xf4efdc, 1).setOrigin(0, 0));
-      add(this.add.image(f.x, f.y, 'fichas-tablon', f.frame).setOrigin(0, 0).setScale(f.zoom));
-    }
-    const tints: Record<BoardRole, number> = { title: 0xf4f1e8, name: 0xf4f1e8, locked: 0x858ea8, text: 0xd6cdb2, progress: 0xf6c431, soon: 0x69dbd8, foot: 0x5d647e };
-    for (const t of L.texts) add(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
-    // It slides up from the bottom edge.
-    for (const o of parts) {
+  /** Puts a piece of the station panel on the screen, over everything. */
+  private panelAdd<T extends BoardPart & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor>(o: T): T {
+    o.setScrollFactor(0).setDepth(96000 + this.panel.length);
+    this.panel.push(o);
+    return o;
+  }
+
+  /** The panel's paper: a dark sheet with a coloured edge and title bar. */
+  private panelPaper(L: { x: number; y: number; w: number; h: number; barH: number }, edge: number, bar: number): Phaser.GameObjects.Graphics {
+    this.panelAdd(this.add.rectangle(L.x, L.y, L.w, L.h, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, edge);
+    this.panelAdd(this.add.rectangle(L.x + 1, L.y + 1, L.w - 2, L.barH, bar, 1).setOrigin(0, 0));
+    return this.panelAdd(this.add.graphics());
+  }
+
+  /** The whole panel slides up from the bottom edge. */
+  private panelSlideIn(): void {
+    for (const o of this.panel) {
       const ty = o.y;
       o.y = ty + 24;
       o.alpha = 0;
@@ -1053,9 +1053,49 @@ export class GameScene extends Phaser.Scene {
     this.sound2.play('recargar', { detune: 200 });
   }
 
-  private hideBoard(): void {
-    const parts = this.boardPanel;
-    this.boardPanel = [];
+  private showBoard(): void {
+    const L = boardLayout(this.boardEntries(), readScale(settings()));
+    // Cork edge and the board's red header.
+    const g = this.panelPaper(L, 0xb97d48, 0xe0453b);
+    for (const r of L.rules) for (let x = L.x + 6; x < L.x + L.w - 6; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, r, 2, 1);
+    for (const f of L.faces) {
+      this.panelAdd(this.add.rectangle(f.x - 1, f.y - 1, 6 * f.zoom + 2, 7 * f.zoom + 2, 0xf4efdc, 1).setOrigin(0, 0));
+      this.panelAdd(this.add.image(f.x, f.y, 'fichas-tablon', f.frame).setOrigin(0, 0).setScale(f.zoom));
+    }
+    const tints: Record<BoardRole, number> = { title: 0xf4f1e8, name: 0xf4f1e8, locked: 0x858ea8, text: 0xd6cdb2, progress: 0xf6c431, soon: 0x69dbd8, foot: 0x5d647e };
+    for (const t of L.texts) this.panelAdd(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
+  }
+
+  /** Which document and page the archivador has open (src/sim/archive.ts). */
+  private archiveCursor: ArchiveCursor = { doc: -1, page: 0 };
+
+  private showArchive(): void {
+    const a = archive(profile());
+    const L = archiveLayout(a, this.archiveCursor, archiveHint(keyWords()), readScale(settings()));
+    // Filing-cabinet grey with a manila title bar.
+    const g = this.panelPaper(L, 0x858ea8, 0x8f6c40);
+    for (let x = L.x + 6; x < L.x + L.w - 6; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, L.rule, 2, 1);
+    const tints: Record<ArchiveRole, number> = {
+      title: 0xf4f1e8, count: 0xe2c797, doc: 0x858ea8, open: 0xf6c431, missing: 0x434963, new: 0x69dbd8, page: 0xf4efdc, folio: 0x858ea8, hint: 0xf6c431,
+    };
+    for (const t of L.texts) this.panelAdd(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
+  }
+
+  /** The use key at the archivador: the next sheet (redrawn in place, with a paper sound). */
+  private turnArchivePage(): void {
+    const a = archive(profile());
+    const next = nextCursor(a, this.archiveCursor);
+    if (next.doc === this.archiveCursor.doc && next.page === this.archiveCursor.page) return;
+    this.archiveCursor = next;
+    for (const o of this.panel) o.destroy();
+    this.panel = [];
+    this.showArchive();
+    this.sound2.play('recargar', { detune: 700 });
+  }
+
+  private hidePanel(): void {
+    const parts = this.panel;
+    this.panel = [];
     for (const o of parts) this.tweens.add({ targets: o, y: o.y + 24, alpha: 0, duration: 120, ease: 'Quad.easeIn', onComplete: () => o.destroy() });
   }
 
@@ -1089,9 +1129,14 @@ export class GameScene extends Phaser.Scene {
       // Walked off: the current page ends and the rest is not said.
       this.tillNext = [];
       if (kind && this.bubble) this.bubbleT = Math.min(this.bubbleT, 0.01);
-      if (this.boardPanel.length) this.hideBoard();
-      // The board does not talk: it opens its panel (src/render/board.ts).
+      if (this.panel.length) this.hidePanel();
+      // The board and the archivador do not talk: they open a panel (src/render/board.ts, archivo.ts).
       if (kind === 'tablon') this.showBoard();
+      if (kind === 'archivador') {
+        this.archiveCursor = firstCursor(archive(profile()));
+        this.showArchive();
+      }
+      if (this.panel.length) this.panelSlideIn();
     }
     if (st && !this.hubSpoke && !this.bubble) {
       this.hubSpoke = true;
@@ -1594,6 +1639,11 @@ export class GameScene extends Phaser.Scene {
       while (this.acc >= DT && steps < 5) {
         const p = this.world.player;
         const input = this.controls.read({ bodyX: p.x, bodyY: p.y - BODY_HEIGHT });
+        // At the archivador the use key turns the sheet (there is nothing to use in the Mostrador).
+        if (input.useItem && this.hubAt === 'archivador') {
+          input.useItem = false;
+          this.turnArchivePage();
+        }
         step(this.world, input);
         this.handleEvents(this.world.events);
         if (this.world.events.some((e) => e.type === 'room')) {

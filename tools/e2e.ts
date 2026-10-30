@@ -1096,27 +1096,38 @@ try {
   await standAt('chatarrero', 8, '', '46-chatarrero.png');
   // The board opens its panel: the Batidora is unlocked (the Nevera fell), the rest are silhouettes.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'tablon'); w.player.x = c.x; w.player.y = c.y + 6; })()`);
-  await page.waitForFunction('window.__GE__.scene.boardPanel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada'); });
-  const boardTexts = await page.evaluate<string[]>("window.__GE__.scene.boardPanel.filter((o) => o.type === 'BitmapText').map((o) => o.text)");
+  await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada'); });
+  const boardTexts = await page.evaluate<string[]>("window.__GE__.scene.panel.filter((o) => o.type === 'BitmapText').map((o) => o.text)");
   const boardOk = boardTexts.some((t) => t.startsWith('RÁPIDA Y FRÁGIL')) && boardTexts.some((t) => t.includes('ROUTER'));
   if (!boardOk) throw new Error(`El tablón no enseña lo desbloqueado y lo que falta: ${boardTexts.join(' | ')}`);
   await page.waitForTimeout(400);
   await shot('47-tablon.png');
   // Walking away closes it.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.y += 60; })()`);
-  await page.waitForFunction('window.__GE__.scene.boardPanel.length === 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no se cierra al irse'); });
+  await page.waitForFunction('window.__GE__.scene.panel.length === 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no se cierra al irse'); });
+  // The archivador: the Nevera's albarán is in (beating her filed it); Q turns the sheet.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'archivador'); w.player.x = c.x + 14; w.player.y = c.y + 4; })()`);
+  await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El archivador no enseña nada'); });
+  const sheet = (): Promise<string> => page.evaluate<string>("window.__GE__.scene.panel.filter((o) => o.type === 'BitmapText').map((o) => o.text).join(' | ')");
+  const first = await sheet();
+  if (!first.includes('ALBARÁN DE ENTRADA') || !first.includes('HOJA 1 DE 3')) throw new Error(`El archivador no abre el albarán: ${first}`);
+  await page.keyboard.press('q');
+  await page.waitForFunction("window.__GE__.scene.panel.some((o) => o.type === 'BitmapText' && o.text === 'HOJA 2 DE 3')", undefined, { timeout: 2000 })
+    .catch(async () => { throw new Error(`Q no pasa la hoja del archivador: ${await sheet()}`); });
+  await page.waitForTimeout(300);
+  await shot('49-archivador.png');
   // With big text it still fits: one line per character.
   await page.evaluate(`localStorage.setItem('garantia-expirada/opciones', JSON.stringify({ bigText: true }))`);
   await page.goto(`${url}?mostrador`);
   await page.waitForFunction("window.__GE__ && window.__GE__.state().ready && window.__GE__.scene.world.room.kind === 'hub'", undefined, { timeout: 20000 });
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'tablon'); w.player.x = c.x; w.player.y = c.y + 6; })()`);
-  await page.waitForFunction('window.__GE__.scene.boardPanel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada con texto grande'); });
+  await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada con texto grande'); });
   await page.waitForTimeout(400);
   await shot('48-tablon-texto-grande.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve; la Caja, la máquina de turnos, el teléfono y el Chatarrero hablan;'
-    + ' el tablón enseña a los cinco.');
+    + ' el tablón enseña a los cinco y el archivador sus documentos.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

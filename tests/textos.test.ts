@@ -82,9 +82,9 @@ test('corto: nombres de 2 a 4 palabras y descripciones de pocas frases', () => {
 
 test('variado: no se repite el mismo chiste en dos sitios', () => {
   const seen = new Map<string, number>();
-  // Names that are meant to appear twice (the chest and the shop register are also props).
+  // Names that are meant to appear twice (the chest, the shop register and the archivador are also props).
   const shared = new Set([
-    TEXTS.CHEST_NAME, SHOPKEEPER.name, ...Object.values(GOOD_NAMES), ...Object.values(TEXTS.PAUSE_MENU),
+    TEXTS.CHEST_NAME, SHOPKEEPER.name, TEXTS.ARCHIVE_TITLE, ...Object.values(GOOD_NAMES), ...Object.values(TEXTS.PAUSE_MENU),
     TEXTS.OPTIONS_TITLE, TEXTS.CONTROLS_TITLE, TEXTS.INVENTORY_TITLE, TEXTS.CREDITS_TITLE, TEXTS.TITLE, TEXTS.DOWN_UNIT,
     'La Nevera Suprema',
     'El Router del Wifi',
