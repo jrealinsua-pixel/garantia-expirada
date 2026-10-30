@@ -1,9 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FONT_CHARS, fontText } from '../src/art/font.ts';
+import { FONT_CHARS, fontText, textWidth } from '../src/art/font.ts';
+import { DEFAULT_KEY_WORDS, hubHint } from '../src/data/texts.ts';
+import { HUD_W, hudLayout } from '../src/render/hud.ts';
 import { HUB, ROOMS, templatesOf } from '../src/data/rooms.ts';
 import { PROPS } from '../src/data/props.ts';
 import { steer } from '../src/sim/nav.ts';
+import { crossHub } from '../src/sim/bot.ts';
 import type { StationKind } from '../src/sim/room.ts';
 import { WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../src/art/hub.ts';
 import { checkInvariants, createWorld, DT, leaveHub, NO_INPUT, nearStation, onBelt, step, worldHash } from '../src/sim/world.ts';
@@ -191,4 +194,24 @@ test('cada cosa del Mostrador tiene su sprite, y lo que cuelga cabe en la pared 
   assert.ok(WALL_SIGN_Y + sheets['cartel-mercancia']!.frameH <= curtainTop + sheets.cortinas!.frameH / 3, 'el cartel tapa las cortinas');
   for (const [k, y] of [['tablon', WALL_BOARD_Y], ['telefono', WALL_PHONE_Y]] as const) assert.ok(y + sheets[k]!.frameH <= 48, `${k} se sale de la pared`);
   assert.ok(b.x + b.w / 2 + sheets['cartel-mercancia']!.frameW / 2 <= w.room.w - 24, 'el cartel se sale por la derecha');
+});
+
+test('el bot cruza el Mostrador: pasa por cada cosa y la cinta le lleva a la planta 1 de su semilla', () => {
+  for (const chatarrero of [false, true]) {
+    const c = crossHub('cruce', { chatarrero });
+    assert.deepEqual(c.errors, []);
+    assert.equal(c.visited.length, chatarrero ? 6 : 5, `pasa por todo: ${c.visited.join(', ')}`);
+    assert.ok(c.run && c.run.floor && c.run.level === 1);
+    assert.equal(worldHash(c.run), worldHash(createWorld({ seed: 'cruce', floor: true, level: 1 })), 'la misma partida que sin pasar por el Mostrador');
+    assert.ok(c.seconds < 20, `tarda ${c.seconds} s`);
+  }
+});
+
+test('la ayuda del Mostrador no habla de disparar, se puede escribir y cabe', () => {
+  const h = hubHint(DEFAULT_KEY_WORDS);
+  assert.ok(!/dispar|recarg/i.test(h));
+  for (const ch of fontText(h)) assert.ok(ch === ' ' || FONT_CHARS.includes(ch), `«${ch}»`);
+  const l = hudLayout({ hearts: 3, coupons: 0, tickets: 0, hasActive: false, items: 0, magazine: 10, mapW: 0, mapH: 0, hint: fontText(h) });
+  assert.ok(l.hintBox && l.hintBox.x + l.hintBox.w <= HUD_W, 'la caja de la ayuda cabe');
+  for (const t of l.hintLines) assert.ok(t.x + textWidth(t.text) <= HUD_W - 2, `«${t.text}» se sale`);
 });

@@ -218,7 +218,7 @@ semillas distintas acaban con builds distintas.
     baja con un corazón y se gasta), y dos sinergias: Setup Gamer (Ratón + Ventilador) y
     Conflicto de Software (Antivirus + Actualización).
 
-## M9 · El centro y la historia
+## M9 · El centro y la historia (hecho)
 
 - [x] (0) El centro diseñado en `docs/DISENO.md` («El Mostrador de Devoluciones») y el hito partido en tareas.
 - Mostrador de Devoluciones como centro entre partidas. En partes:
@@ -262,7 +262,7 @@ semillas distintas acaban con builds distintas.
   - [x] (7) Documentos de historia en datos (uno por jefe vencido por primera vez y alguno en las
     salas secretas), guardados en `Profile` y leídos en el archivador «Reclamaciones sin
     Resolver» del centro.
-  - [ ] (8) Repaso del centro: que se lea, que los textos no se repitan y que el bot lo cruce.
+  - [x] (8) Repaso del centro: que se lea, que los textos no se repitan y que el bot lo cruce.
 
 **Criterios de aceptación:** al abrir el juego y al acabar cada partida se está en el Mostrador;
 desde él se empieza una partida andando; los tres PNJs dicen cosas distintas según el progreso

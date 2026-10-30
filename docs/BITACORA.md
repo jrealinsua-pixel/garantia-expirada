@@ -2,6 +2,27 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 08:00 — Hito M9 — Repaso del Mostrador; M9 terminado
+- Hecho: en el Mostrador la cámara se queda arriba (la sala solo es 18 px más alta que la pantalla
+  y su última fila es pared): el cartel, el tablón y el teléfono se ven enteros siempre. El arma va
+  enfundada también en el marcador: sin arma, munición ni su placa. La ayuda de abajo no habla de
+  disparar: «WASD mover · Espacio rodar · la cinta de «Mercancía devuelta» empieza la partida»
+  (`hubHint`). El test de textos repetidos mira ya los diálogos, los documentos y el tablón, y
+  encontró uno: el teléfono decía «su llamada es muy importante», como otro texto; ahora la llamada
+  «ha sido clasificada como “no urgente”. Como todas. La escucharemos cuando acabe la
+  clasificación. Empezó en 2011.» (2011, como el banco de pruebas del correo). El bot pasa por el
+  Mostrador antes de cada partida completa (`crossHub` en `src/sim/bot.ts`: se pone delante de cada
+  cosa y coge la cinta; falla si se atasca, si pisa la cinta antes de tiempo o si algo dispara) y
+  `npm run bot` lo cuenta. Tests nuevos en `tests/mostrador.test.ts`.
+- Decisiones: M9 se da por terminado: se cumplen todos sus criterios (se abre y se vuelve al
+  Mostrador; la partida empieza andando; los PNJs cambian según el perfil, con tests; el tablón y el
+  archivador enseñan lo que hay y lo que falta; todo se guarda en el navegador). El siguiente es M10.
+- Medidas: Mostrador cruzado en el 100 % de las partidas, en 9,4 s. El resto del bot, igual
+  (empezar desde la cinta da la misma partida que antes).
+- Problemas conocidos: el cartel con el nombre de la sala tapa un poco el teléfono los primeros
+  segundos.
+- Siguiente paso: M10, empezar por partir la planta 3 (Juguetería) en tareas y diseñarla.
+
 ## 2026-10-30 07:30 — Hito M9 — El documento de la sala secreta
 - Hecho: la sala secreta de cada planta guarda en el suelo, dos casillas delante de su pedestal, el
   documento de historia de esa planta (`placeStoryDoc`; recogida nueva `documento`, sprite nuevo:

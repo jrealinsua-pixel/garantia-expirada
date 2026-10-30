@@ -10,6 +10,9 @@ import { ROOMS } from '../src/data/rooms.ts';
 import { DUMMIES, PROPS } from '../src/data/props.ts';
 import { CHARACTERS } from '../src/data/characters.ts';
 import { GOOD_NAMES, SHOPKEEPER } from '../src/data/shop.ts';
+import { CAJA, CHATARRERO, TELEFONO, TURNOS } from '../src/data/dialogues.ts';
+import { LORE } from '../src/data/lore.ts';
+import { ROSTER } from '../src/data/unlocks.ts';
 import { FONT_CHARS, fontText } from '../src/art/font.ts';
 
 /** Every string inside a value (objects and arrays, not functions). */
@@ -34,7 +37,9 @@ function fields(v: unknown, out: string[] = []): string[] {
 }
 
 const content = [ITEMS, ACTIVE_ITEMS, WEAPONS, SYNERGIES, ENEMIES, ROOMS, PROPS, DUMMIES, CHARACTERS];
-const BASE = [...strings(Object.fromEntries(Object.entries(TEXTS).filter(([, v]) => typeof v !== 'function'))), ...strings(SHOPKEEPER), ...strings(GOOD_NAMES), ...content.flatMap((c) => fields(c))];
+const BASE = [...strings(Object.fromEntries(Object.entries(TEXTS).filter(([, v]) => typeof v !== 'function'))), ...strings(SHOPKEEPER), ...strings(GOOD_NAMES), ...content.flatMap((c) => fields(c)),
+  // The Mostrador (M9): what its NPCs say, the story documents and the board.
+  ...strings([CAJA, TELEFONO, TURNOS, CHATARRERO]), ...LORE.flatMap((l) => [l.title, ...l.pages]), ...ROSTER.flatMap((r) => [r.blurb, r.conditionText])];
 
 // The texts built by functions, with sample values.
 const ALL = [
@@ -88,11 +93,15 @@ test('variado: no se repite el mismo chiste en dos sitios', () => {
     TEXTS.OPTIONS_TITLE, TEXTS.CONTROLS_TITLE, TEXTS.INVENTORY_TITLE, TEXTS.CREDITS_TITLE, TEXTS.TITLE, TEXTS.DOWN_UNIT,
     'La Nevera Suprema',
     'El Router del Wifi',
+    // The Mostrador's NPCs are also its props.
+    'Caja de Devoluciones',
+    'El Chatarrero',
     // Key names and actions: the controls screen and Opciones › Teclas use the same words.
     ...Object.values(TEXTS.KEYS_ACTIONS), ...Object.values(TEXTS.DEFAULT_KEY_WORDS).flatMap((w) => [w.own, w.all]),
   ]);
   // Only the written texts: the function-built ones quote them on purpose.
-  for (const s of BASE) if (s.length > 12 && !shared.has(s)) seen.set(s, (seen.get(s) ?? 0) + 1);
+  // (Ids in the dialogue data, like «nevera-suprema», are not visible.)
+  for (const s of BASE) if (s.length > 12 && !shared.has(s) && !/^[a-z0-9-]+$/.test(s)) seen.set(s, (seen.get(s) ?? 0) + 1);
   const twice = [...seen].filter(([, n]) => n > 1).map(([s]) => s);
   assert.deepEqual(twice, []);
   // The same stock phrase («es muy importante para nosotros») only once.

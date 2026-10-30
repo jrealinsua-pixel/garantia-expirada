@@ -133,8 +133,8 @@ export const TELEFONO = {
     {
       id: 'tel-0',
       pages: [
-        'Ha llamado al Servicio Técnico. Su llamada es muy importante para nosotros.',
-        'Por eso la vamos a escuchar más tarde. Mucho más tarde.',
+        'Ha llamado al Servicio Técnico. Su llamada ha sido clasificada como «no urgente».',
+        'Como todas. La escucharemos cuando acabe la clasificación. Empezó en 2011.',
         'Tiempo de espera estimado: un número que no cabe en esta pantalla.',
       ],
     },

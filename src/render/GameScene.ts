@@ -28,6 +28,7 @@ import {
   REVIVE_LINE,
   TURBO_LINE,
   archiveHint,
+  hubHint,
   docFoundLine,
 } from '../data/texts.ts';
 import { BACK_WALL_ROWS, doorCells, isWallAt, TILE } from '../sim/room.ts';
@@ -3082,7 +3083,8 @@ export class GameScene extends Phaser.Scene {
 
   /** The controls hint, with the keys as they are now (Opciones › Teclas may have changed them). */
   refreshHint(): void {
-    this.hintText = fontText(controlsHint(keyWords()) + (this.world.room.kind === 'test' ? ` · ${TEST_ROOM_HINT}` : ''));
+    const kind = this.world.room.kind;
+    this.hintText = fontText(kind === 'hub' ? hubHint(keyWords()) : controlsHint(keyWords()) + (kind === 'test' ? ` · ${TEST_ROOM_HINT}` : ''));
   }
 
   /** Where everything on the HUD goes right now (see src/render/hud.ts). */
@@ -3134,7 +3136,8 @@ export class GameScene extends Phaser.Scene {
       g.lineStyle(1, 0x3a3f5c, 0.9 * alpha).strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
     };
     plate(l.status);
-    plate(l.weapon);
+    // In the Mostrador the gun is holstered: no gun, no ammo, no plate for them.
+    if (this.world.room.kind !== 'hub') plate(l.weapon);
     plate(l.itemsBox);
     plate(l.hintBox, this.hint[0]!.alpha);
   }
@@ -3235,6 +3238,8 @@ export class GameScene extends Phaser.Scene {
     this.ammoText.setY(l.ammoText.y);
     this.ammoText.setText(ws.reload > 0 ? fontText(RELOADING) : `${ws.ammo}/${ws.def.magazine}`);
     this.ammoText.setTint(ws.reload > 0 || ws.ammo === 0 ? 0xe0453b : 0xf4f1e8);
+    const holstered = this.world.room.kind === 'hub';
+    for (const o of [this.gunIcon, this.ammoText, ...this.ammoPips]) o.setAlpha(holstered ? 0 : 1);
     this.reloadBar.clear();
     if (ws.reload > 0) {
       const k = 1 - ws.reload / ws.def.reloadTime;
@@ -3288,6 +3293,9 @@ export class GameScene extends Phaser.Scene {
     const room = this.world.room;
     this.camX = Math.max(0, Math.min(room.w - VIEW_W, this.camX));
     this.camY = Math.max(0, Math.min(room.h - VIEW_H, this.camY));
+    // The Mostrador is only a little taller than the screen: the camera stays up, so what hangs on
+    // the back wall (the sign, the board, the phone) is always whole; its bottom row is the wall.
+    if (room.kind === 'hub') this.camY = 0;
     cam.setScroll(Math.round(this.camX), Math.round(this.camY));
   }
 }

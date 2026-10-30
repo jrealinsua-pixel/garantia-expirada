@@ -2,7 +2,7 @@
 // exceptions, broken invariants, non-determinism or a bot that gets stuck for good.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Bot } from '../src/sim/bot.ts';
+import { Bot, crossHub } from '../src/sim/bot.ts';
 import { checkInvariants, createWorld, DT, frostSlow, nextFloor, step, worldHash, type World } from '../src/sim/world.ts';
 import { ROOT } from './lib/deps.ts';
 
@@ -54,6 +54,9 @@ export interface Floor2Report {
 
 export interface FloorReport {
   plantas: number;
+  /** Runs started from the Mostrador: the bot stands at every station, then takes the conveyor (%), and the mean seconds it takes. */
+  cruzaMostrador: number;
+  segundosMostrador: number;
   planta2?: Floor2Report;
   /** Floors whose every room (but the secret one) the bot walks into, with nothing able to hurt it: must be 100 %. */
   recorridoSinDanio: number;
@@ -388,6 +391,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let cleared2 = 0;
   let hurts2 = 0;
   const rooms2: number[] = [];
+  let crossed = 0;
+  let hubT = 0;
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
@@ -398,7 +403,16 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       errors.push(...a2.errors);
     }
     walkT += a.seconds;
-    const b = playFloor(`planta-${i}`, maxSeconds, false, true);
+    // The whole run starts in the Mostrador, as in the game (half of them with the Chatarrero there).
+    const hub = crossHub(`planta-${i}`, { chatarrero: i % 2 === 1 });
+    if (hub.errors.length) {
+      failed++;
+      errors.push(...hub.errors);
+    } else {
+      crossed++;
+      hubT += hub.seconds;
+    }
+    const b = playFloor(`planta-${i}`, maxSeconds, false, true, 1, hub.run ?? undefined);
     if (b.won) {
       won++;
       wonT += b.seconds;
@@ -467,6 +481,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   return {
     report: {
       plantas: floors,
+      cruzaMostrador: pct(crossed),
+      segundosMostrador: crossed ? one(hubT / crossed) : 0,
       planta2,
       recorridoSinDanio: pct(walked),
       segundosRecorrido: one(walkT / floors),
@@ -593,6 +609,7 @@ if (import.meta.main) {
         `el ${pl.conActivo} % con objeto activo, ${pl.usosActivo} usos por planta · el ${pl.conSinergia} % con alguna sinergia · ${pl.tickets} tickets y ${pl.cofres} cofres abiertos por planta · ` +
         `compra ${pl.compras} cosas en la tienda (${pl.gastoTienda} cupones) por planta`,
     );
+    console.log(`Mostrador · el bot pasa por todo y coge la cinta en el ${pl.cruzaMostrador} % de las partidas, en ${pl.segundosMostrador} s`);
   }
   const p2 = pl.planta2;
   if (pl.plantas && p2) {

@@ -224,6 +224,8 @@ export const DEFAULT_KEY_WORDS: KeyWords = {
 /** The line of controls under the first room (and the test room's extra keys). */
 export const controlsHint = (k: KeyWords): string => `${k.move.own} mover · ratón apuntar · clic disparar · ${k.roll.own} rodar · ${k.reload.own} recargar`;
 export const CONTROLS_HINT = controlsHint(DEFAULT_KEY_WORDS);
+/** In the Mostrador nothing is shot: how to move, and where the run starts. */
+export const hubHint = (k: KeyWords): string => `${k.move.own} mover · ${k.roll.own} rodar · la cinta de «Mercancía devuelta» empieza la partida`;
 export const TEST_ROOM_HINT = '1-5 balas enemigas';
 /** Instead of the ammo count while reloading. */
 export const RELOADING = 'Recargando';

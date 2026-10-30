@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-30T07:30:00+01:00",
+  "actualizado": "2026-10-30T08:00:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M9",
+  "hito_actual": "M10",
   "hitos": [
     {
       "id": "M0",
@@ -69,14 +69,14 @@
     {
       "id": "M9",
       "nombre": "El centro y la historia",
-      "estado": "en_curso",
+      "estado": "hecho",
       "hechas": 3,
       "total": 3
     },
     {
       "id": "M10",
       "nombre": "Plantas 3 y 4",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 2
     },
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 430,
-    "tests_ok": 430,
+    "tests": 432,
+    "tests_ok": 432,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15667
+    "lineas_codigo": 15730
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T08:00:00+01:00",
+      "hito": "M9",
+      "resumen": "Repaso del Mostrador y M9 terminado: la cámara enseña la pared entera, sin munición ni disparos en la ayuda, el teléfono ya no repite el chiste de «su llamada es muy importante» y el bot pasa por todo el Mostrador antes de cada partida (100 %, 9,4 s).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T07:30:00+01:00",
       "hito": "M9",
@@ -679,7 +685,7 @@
       "pie": "«Partida nueva» lleva ahora al Mostrador de Devoluciones: la cinta de arriba a la derecha empieza la partida y tras el parte de baja se vuelve aquí"
     }
   ],
-  "proximo": "M9 (8): repaso del centro: que se lea, sin munición en el marcador, textos sin repetir y que el bot lo cruce.",
+  "proximo": "M10: partir la planta 3 (Juguetería) en tareas en la hoja de ruta y diseñarla en docs/DISENO.md (enemigos, jefe El Muñeco de Moda, objetos, casillas).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

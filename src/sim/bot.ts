@@ -2,7 +2,8 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
-import { FROST_FLAT, HAND_HEIGHT, isRolling, PLAYER_HURT_Y, type Input, type World } from './world.ts';
+import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, isRolling, leaveHub, NO_INPUT, nearStation, PLAYER_HURT_Y, step } from './world.ts';
+import type { Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
 
@@ -335,4 +336,58 @@ export class Bot {
       swap,
     };
   }
+}
+
+/** What happened when the bot crossed the Mostrador (see crossHub). */
+export interface HubCrossing {
+  /** The run that starts on the conveyor, or null if it never got there. */
+  run: World | null;
+  /** Stations stood at, in the order visited. */
+  visited: string[];
+  seconds: number;
+  errors: string[];
+}
+
+/**
+ * The bot goes round the Mostrador before a run, like a player would: it stands at every station
+ * (the standing ones from in front, the ones on the wall from below them), then walks onto the
+ * conveyor. Fails if it gets stuck, steps on the conveyor on the way, something shoots or an
+ * invariant breaks. The run it starts is the floor 1 of `seed` (as createWorld would make it).
+ */
+export function crossHub(seed: string, opts: { chatarrero?: boolean } = {}): HubCrossing {
+  const w = createWorld({ seed: 'mostrador', hub: { chatarrero: !!opts.chatarrero } });
+  const r = w.player.def.footRadius;
+  const blocked = blockedTiles(w, r);
+  const visited: string[] = [];
+  const errors: string[] = [];
+  const walk = (goal: Point, done: () => boolean, label: string): boolean => {
+    for (let i = 0; i < 20 / DT; i++) {
+      if (done()) return true;
+      const p = w.player;
+      const to = steer(w, goal, r, blocked);
+      const dx = to.x - p.x;
+      const dy = to.y - p.y;
+      const d = Math.hypot(dx, dy) || 1;
+      step(w, { ...NO_INPUT, moveX: dx / d, moveY: dy / d });
+      if (w.bullets.length > 0) errors.push('en el Mostrador sale una bala');
+      for (const e of checkInvariants(w)) errors.push(`Mostrador: ${e}`);
+      if (errors.length) return false;
+    }
+    errors.push(`el bot no llega a ${label} en el Mostrador (se queda en ${w.player.x.toFixed(0)},${w.player.y.toFixed(0)})`);
+    return false;
+  };
+  for (const st of w.room.stations) {
+    const standing = w.room.props.some((p) => p.x === st.x && p.y === st.y);
+    if (!walk({ x: st.x, y: standing ? st.y + 10 : st.y + 6 }, () => nearStation(w)?.kind === st.kind, st.kind)) break;
+    visited.push(st.kind);
+    if (w.leftHub) {
+      errors.push(`de camino a ${st.kind} el bot pisó la cinta`);
+      break;
+    }
+  }
+  const b = w.room.belt!;
+  if (!errors.length) walk({ x: b.x + b.w / 2, y: b.y + b.h / 2 }, () => w.leftHub, 'la cinta');
+  const run = errors.length ? null : leaveHub(w, seed);
+  if (!errors.length && !run) errors.push('la cinta no empieza la partida');
+  return { run, visited, seconds: w.tick * DT, errors };
 }
