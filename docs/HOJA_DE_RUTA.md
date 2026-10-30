@@ -271,7 +271,7 @@ falta; todo se guarda entre sesiones del navegador.
 
 ## M10 · Plantas 3 y 4
 
-- Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda)
+- [ ] Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda)
   y 10 objetos. Diseño en `docs/DISENO.md` (enemigos, jefe, objetos y aspecto). En partes:
   - [x] (0) El diseño de la planta 3 y esta lista de tareas.
   - [ ] (1) Juego de casillas y color propio (`src/art/jugueteria.ts`, se ve con `?planta=3`):
