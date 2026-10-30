@@ -2,6 +2,24 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 07:30 — Hito M9 — El documento de la sala secreta
+- Hecho: la sala secreta de cada planta guarda en el suelo, dos casillas delante de su pedestal, el
+  documento de historia de esa planta (`placeStoryDoc`; recogida nueva `documento`, sprite nuevo:
+  una carpeta de cartón con la hoja asomando, un sello rojo y la pinza). Flota como los objetos y de
+  cerca enseña su tipo («Manual de procedimiento»). Se coge al pisarlo, también rodando (es papel):
+  sello, chispas y «Manual de procedimiento: al archivador». La partida lo lleva en `World.docs`,
+  que sube de planta con `nextFloor`, y al acabar va en `RunResult.docs` al perfil (el archivador lo
+  marca como «Nuevo»). Tests nuevos (`tests/documentos.test.ts`: está en las dos plantas y en sitio
+  pisable, se coge, sube de planta y llega al archivador); el del tesoro cuenta ya el papel. E2e
+  (39, 39b).
+- Decisiones: el papel está siempre, aunque ya se tenga: no hay perfil en la simulación y volver a
+  cogerlo no archiva nada nuevo. También sale en la sala secreta jugada sola (`?sala=secreta`), para
+  poder probarlo.
+- Medidas: el bot no cambia (no lo busca).
+- Problemas conocidos: la carpeta es pequeña al lado de la tostadora; con la etiqueta se entiende.
+- Siguiente paso: M9 (8), el repaso del centro (que se lea arriba con la tostadora abajo, quitar la
+  munición del marcador en el Mostrador, que los textos no se repitan y que el bot cruce el centro).
+
 ## 2026-10-30 07:00 — Hito M9 — El archivador «Reclamaciones sin Resolver»
 - Hecho: al ponerse junto al archivador se abre un panel (`src/render/archivo.ts`, puro): cabecera
   color carpeta con «1/4», la lista de documentos (el abierto en amarillo, los que faltan como

@@ -808,6 +808,31 @@ export function makeTicket(): Canvas {
 }
 
 /**
+ * A story document on the floor of a secret room, 14 × 13: a manila folder with a sheet sticking
+ * out, a red «CONFIDENCIAL»-looking stamp and the clip of an old filing system.
+ */
+export function makeStoryDoc(): Canvas {
+  const cv = new Canvas(14, 13);
+  // The sheet behind, sticking out of the top.
+  cv.rect(3, 1, 8, 4, WHITE);
+  cv.rect(4, 2, 5, 1, DSTEEL[0]!);
+  cv.rect(4, 3, 4, 1, DSTEEL[0]!);
+  // The folder, with its tab on the left.
+  cv.rect(1, 3, 4, 2, CARD[1]!);
+  cv.rect(1, 4, 12, 8, CARD[1]!);
+  cv.rect(1, 4, 12, 1, CARD[0]!);
+  cv.rect(1, 11, 12, 1, CARD[2]!);
+  cv.rect(12, 5, 1, 6, CARD[2]!);
+  // The stamp, a bit askew, and the clip.
+  cv.rect(3, 7, 6, 1, RED[1]!);
+  cv.rect(4, 8, 6, 1, RED[1]!);
+  cv.set(3, 8, RED[2]!);
+  cv.rect(10, 2, 1, 4, STEEL[1]!);
+  cv.set(10, 2, STEEL[0]!);
+  return outline(cv);
+}
+
+/**
  * The shopkeeper: a self-checkout till, 3 frames of 30x36 (idle with a smiley on its screen,
  * talking, and refusing with the screen gone red). Scanner on top, a card slot, a receipt
  * printer with a receipt far too long, the bagging shelf and the «call an assistant» lamp that

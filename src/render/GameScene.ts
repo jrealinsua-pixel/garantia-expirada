@@ -28,6 +28,7 @@ import {
   REVIVE_LINE,
   TURBO_LINE,
   archiveHint,
+  docFoundLine,
 } from '../data/texts.ts';
 import { BACK_WALL_ROWS, doorCells, isWallAt, TILE } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
@@ -68,6 +69,7 @@ import { CHARACTERS } from '../data/characters.ts';
 import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
 import { archiveLayout, type ArchiveRole } from './archivo.ts';
 import { archive, firstCursor, nextCursor, type ArchiveCursor } from '../sim/archive.ts';
+import { LORE } from '../data/lore.ts';
 
 /** A piece of the tablón panel: it slides and fades. */
 type BoardPart = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.AlphaSingle;
@@ -1186,6 +1188,7 @@ export class GameScene extends Phaser.Scene {
       kills: this.runBefore.kills + w.kills,
       coupons: p.coupons,
       bosses: this.runBosses,
+      docs: w.docs,
       ...(outcome === 'down' && this.downCause ? { cause: this.downCause } : {}),
       items: p.items,
       ...(p.active ? { active: p.active.id } : {}),
@@ -1840,6 +1843,14 @@ export class GameScene extends Phaser.Scene {
           if (ENEMIES[e.enemy]?.boss) this.bossDown(e);
           break;
         case 'pickup':
+          if (e.kind === 'documento') {
+            // A story document: a paper rustle, the archive's stamp and its kind over it.
+            this.sound2.play('cupon', { detune: -700 });
+            this.sound2.play('sello');
+            for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(30, 90), 0);
+            this.floatText(e.x, e.y - 22, fontText(docFoundLine(LORE.find((l) => l.id === e.item)?.kind ?? 'Documento')), 0xe2c797);
+            break;
+          }
           if (e.kind === 'ticket') {
             // A ticket: a paper rustle and a stamp, its line over it and the counter in the HUD jumps.
             this.sound2.play('cupon', { detune: -500 });
@@ -2785,7 +2796,9 @@ export class GameScene extends Phaser.Scene {
         const arm = k.kind === 'arma' ? WEAPONS[k.weapon ?? ''] : undefined;
         const item = k.kind === 'objeto' ? ITEMS[k.item ?? ''] : k.kind === 'activo' ? ACTIVE_ITEMS[k.item ?? ''] : undefined;
         const good = k.price !== undefined && (k.kind === 'corazon' || k.kind === 'ticket') ? { sprite: k.kind === 'corazon' ? 'corazon-suelo' : 'ticket', name: GOOD_NAMES[k.kind] } : null;
-        const shown = arm ? { sprite: arm.look.sprite, name: arm.name } : item ? { sprite: item.sprite, name: item.name } : good;
+        const doc = k.kind === 'documento' ? LORE.find((l) => l.id === k.doc) : undefined;
+        const paper = doc ? { sprite: 'documento', name: doc.kind } : null;
+        const shown = arm ? { sprite: arm.look.sprite, name: arm.name } : item ? { sprite: item.sprite, name: item.name } : (good ?? paper);
         if (shown) {
           v = {
             s: this.add.image(k.x, k.y, shown.sprite).setOrigin(0.5, 1),
@@ -2810,7 +2823,7 @@ export class GameScene extends Phaser.Scene {
         v.price.setTint(can ? 0xf6c431 : 0x858ea8);
         v.priceIcon?.setTint(can ? 0xffffff : 0x858ea8);
       }
-      if (k.kind === 'arma' || k.kind === 'objeto' || k.kind === 'activo' || k.price !== undefined) {
+      if (k.kind === 'arma' || k.kind === 'objeto' || k.kind === 'activo' || k.kind === 'documento' || k.price !== undefined) {
         // A weapon (or an item) floats over its spot, turning a little and glinting; its name shows up close.
         const t = this.time.now / 1000 + k.id;
         const glintW = Math.floor(this.time.now / 80 + k.id * 5) % 24 === 0;

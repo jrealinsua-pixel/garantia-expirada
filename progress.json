@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T07:00:00+01:00",
+  "actualizado": "2026-10-30T07:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 427,
-    "tests_ok": 427,
+    "tests": 430,
+    "tests_ok": 430,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15615
+    "lineas_codigo": 15667
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T07:30:00+01:00",
+      "hito": "M9",
+      "resumen": "La sala secreta de cada planta guarda un documento de historia en el suelo; al pisarlo va al archivador del Mostrador y sale como «Nuevo».",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T07:00:00+01:00",
       "hito": "M9",
@@ -649,6 +655,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/documento-secreto.png",
+      "pie": "La sala secreta guarda un documento de historia en el suelo: al pisarlo va al archivador del Mostrador"
+    },
+    {
       "archivo": "capturas/archivador.png",
       "pie": "El archivador «Reclamaciones sin Resolver»: los documentos de historia encontrados (y los que faltan); la tecla de usar pasa la hoja"
     },
@@ -667,13 +677,9 @@
     {
       "archivo": "capturas/mostrador-juego.png",
       "pie": "«Partida nueva» lleva ahora al Mostrador de Devoluciones: la cinta de arriba a la derecha empieza la partida y tras el parte de baja se vuelve aquí"
-    },
-    {
-      "archivo": "capturas/mostrador.png",
-      "pie": "El Mostrador de Devoluciones, montado a mano para revisar su arte: la Caja sobre el mostrador, la cola vacía, la máquina de turnos en el 12, el archivador, el Chatarrero y la cinta al almacén bajo «Mercancía devuelta»"
     }
   ],
-  "proximo": "M9 (7c): el documento de la sala secreta de cada planta, en el suelo, que se coge al pisarlo y llega al archivador.",
+  "proximo": "M9 (8): repaso del centro: que se lea, sin munición en el marcador, textos sin repetir y que el bot lo cruce.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

@@ -347,6 +347,12 @@
     "frameH": 11,
     "frames": 2
   },
+  "documento": {
+    "file": "documento.png",
+    "frameW": 14,
+    "frameH": 13,
+    "frames": 1
+  },
   "autocobro": {
     "file": "autocobro.png",
     "frameW": 30,

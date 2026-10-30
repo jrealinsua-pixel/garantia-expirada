@@ -1047,6 +1047,20 @@ try {
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Historial: una reclamación, una baja por microondas.');
 
+  // M9: the secret room keeps a story document on the floor; walking over it files it.
+  await page.goto(`${url}?semilla=e2e-documento&sala=secreta`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const k = w.pickups.find((p) => p.kind === 'documento');
+    w.player.x = k.x; w.player.y = k.y + 34; })()`);
+  await page.waitForTimeout(600);
+  await shot('39-documento-secreto.png');
+  await page.keyboard.down('w');
+  await page.waitForFunction('window.__GE__.scene.world.docs.length === 1', undefined, { timeout: 3000 }).catch(() => { throw new Error('El documento de la sala secreta no se coge'); });
+  await page.keyboard.up('w');
+  await page.waitForTimeout(250);
+  await shot('39b-documento-archivado.png');
+  console.log('Sala secreta: el documento está en el suelo y se coge al pisarlo.');
+
   // M9: the Mostrador de Devoluciones. Every run starts on its conveyor and ends back at its counter.
   await page.goto(`${url}?mostrador`);
   await page.waitForFunction("window.__GE__ && window.__GE__.state().ready && window.__GE__.scene.world.room.kind === 'hub'", undefined, { timeout: 20000 });

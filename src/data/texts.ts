@@ -428,3 +428,5 @@ export const ARCHIVE_EMPTY = 'Cajón vacío. Su reclamación será atendida por 
 export const ARCHIVE_NEW = 'Nuevo';
 export const archivePage = (i: number, n: number): string => `Hoja ${i} de ${n}`;
 export const archiveHint = (k: KeyWords): string => `${k.use.own}: pasar hoja`;
+/** Over a story document picked up in a secret room (it goes to the archivador). */
+export const docFoundLine = (kind: string): string => `${kind}: al archivador`;

@@ -257,11 +257,11 @@ semillas distintas acaban con builds distintas.
   - [x] (7b) El archivador «Reclamaciones sin Resolver» en el centro: al acercarse, un panel con
     la lista (los que faltan, «Expediente extraviado»; lo nuevo, marcado) y la hoja abierta; la
     tecla de usar pasa la hoja (`src/render/archivo.ts`, `firstCursor`/`nextCursor`).
-  - [ ] (7c) Recoger el documento de la sala secreta de cada planta (un papel en el suelo que se
+  - [x] (7c) Recoger el documento de la sala secreta de cada planta (un papel en el suelo que se
     coge al pisarlo, con su aviso) y que llegue a `RunResult.docs` al acabar la partida.
-  - (7) Documentos de historia en datos (uno por jefe vencido por primera vez y alguno en las
+  - [x] (7) Documentos de historia en datos (uno por jefe vencido por primera vez y alguno en las
     salas secretas), guardados en `Profile` y leídos en el archivador «Reclamaciones sin
-    Resolver» del centro: queda (7c).
+    Resolver» del centro.
   - [ ] (8) Repaso del centro: que se lea, que los textos no se repitan y que el bot lo cruce.
 
 **Criterios de aceptación:** al abrir el juego y al acabar cada partida se está en el Mostrador;

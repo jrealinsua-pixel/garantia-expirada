@@ -103,6 +103,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'corazon-suelo': { canvas: P.makeSpareHeart(), frameW: 13, frameH: 12 },
     cofre: { canvas: P.makeChest(), frameW: 26, frameH: 24 },
     ticket: { canvas: P.makeTicket(), frameW: 9, frameH: 11 },
+    documento: one(P.makeStoryDoc()),
     autocobro: { canvas: P.makeSelfCheckout(), frameW: 30, frameH: 36 },
     expositor: one(P.makeShopStand()),
     // The Mostrador de Devoluciones (the hub): see tools/sprites/mostrador.ts.

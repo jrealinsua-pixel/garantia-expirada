@@ -130,9 +130,11 @@ test('la sala del tesoro tiene un arma, un objeto y un activo; la secreta, otro;
     seen.add(it);
     if (secret) {
       enterRoom(w, secret.id, 'S');
-      assert.equal(w.pickups.length, 1);
+      // Its pedestal, and the story document on the floor (tests/documentos.test.ts).
+      assert.equal(w.pickups.length, 2);
+      assert.equal(w.pickups.filter((x) => x.kind === 'documento').length, 1);
       // The second weapon if it is still there, or else an item.
-      const k = w.pickups[0]!;
+      const k = w.pickups.find((x) => x.kind !== 'documento')!;
       assert.ok(k.kind === 'arma' ? FINDABLE_WEAPONS.includes(k.weapon!) : ITEMS[k.item!], `semilla ${s}`);
       if (k.item) seen.add(k.item);
     }

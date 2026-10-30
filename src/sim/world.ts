@@ -15,6 +15,7 @@ import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef,
 import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
 import { BACK_WALL_ROWS, buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type PropInstance, type Room, type RoomDoor, type Station } from './room.ts';
 import { PROPS } from '../data/props.ts';
+import { LORE } from '../data/lore.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
 export const DT = 1 / 60;
@@ -101,7 +102,7 @@ export interface Player {
  * A discount coupon (currency), a spare heart (gives back `value` life; left alone at full
  * life), a weapon or a passive item (these two wait on a pedestal).
  */
-export type PickupKind = 'cupon' | 'corazon' | 'ticket' | 'arma' | 'objeto' | 'activo';
+export type PickupKind = 'cupon' | 'corazon' | 'ticket' | 'arma' | 'objeto' | 'activo' | 'documento';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -120,6 +121,8 @@ export interface Pickup {
   item?: string;
   /** An active item's stored batteries (one put down keeps them). */
   charge?: number;
+  /** A story document on the floor of a secret room (kind 'documento'): its id in src/data/lore.ts. */
+  doc?: string;
   /** Put down just now under the toaster: it cannot be picked up until the toaster has stepped off it. */
   stepOff?: boolean;
   /** For sale on a shop shelf: its price in coupons (walking onto it buys it, if it can be paid). */
@@ -431,6 +434,8 @@ export interface World {
   nextId: number;
   /** Enemies taken apart so far. */
   kills: number;
+  /** Story documents picked up in this run (src/data/lore.ts), carried up from floor to floor. */
+  docs: string[];
   /** Seconds the room has been empty, counting towards its restock. */
   emptyT: number;
   /** Whether this world spawns the room's enemies at all. */
@@ -633,6 +638,7 @@ export function createWorld(opts: WorldOptions): World {
     events: [],
     nextId,
     kills: 0,
+    docs: [],
     emptyT: 0,
     spawnsEnemies: !opts.noEnemies,
     over: false,
@@ -653,13 +659,15 @@ export function createWorld(opts: WorldOptions): World {
     return w;
   }
   // The test room lays out every findable weapon on its pedestals, to try them all; a treasure
-  // (or secret) room played on its own stocks its pedestals as on a floor.
+  // (or secret) room played on its own stocks its pedestals as on a floor (and the secret one keeps
+  // its story document).
   if (room.kind === 'hub') return w;
   if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], [], []);
   else if (room.kind === 'shop') stockShop(w, decksOf(w));
   else if (room.kind === 'treasure' || room.kind === 'secret') {
     const decks = lootDecks(opts.seed, opts.level ?? 1);
     stockPedestals(w, decks.weapons, decks.items, decks.actives);
+    if (room.kind === 'secret') placeStoryDoc(w);
   }
   if (w.spawnsEnemies) spawnRoomEnemies(w);
   // Walking into a combat room brings its shutters down until the last enemy falls.
@@ -736,6 +744,7 @@ export function nextFloor(w: World): World | null {
   f.weapons = f.weapons.filter((id) => !owned.has(id));
   f.items = f.items.filter((id) => !owned.has(id));
   f.actives = f.actives.filter((id) => !owned.has(id));
+  n.docs = [...w.docs];
   return n;
 }
 
@@ -865,6 +874,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   // Until there are chests, the treasure room (and the secret one) keep a weapon and items on their pedestals.
   const kind = f.layout.rooms[id]!.kind;
   if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons, f.items, f.actives);
+  if (first && kind === 'secret') placeStoryDoc(w);
   if (first && kind === 'shop') stockShop(w, f);
   w.doorsShut = !st.cleared;
   setDoorTiles(w, !w.doorsShut);
@@ -893,6 +903,24 @@ function stockPedestals(w: World, weapons: string[], items: string[], actives: s
     else if (d === 1) w.pickups.push({ id: w.nextId++, kind: 'objeto', item: id, ...at });
     else w.pickups.push({ id: w.nextId++, kind: 'activo', item: id, charge: ACTIVE_ITEMS[id]!.charges, ...at });
   }
+}
+
+/**
+ * The secret room of floor N keeps the story document of that floor (src/data/lore.ts, source
+ * `{ secret: N }`) on the floor, two tiles in front of its pedestal (or in the middle of the room).
+ * It is there every time: finding it again in another run files nothing new.
+ */
+function placeStoryDoc(w: World): void {
+  const doc = LORE.find((l) => 'secret' in l.source && l.source.secret === w.level);
+  if (!doc) return;
+  const slot = w.room.slots.find((s) => s.kind === 'item');
+  let x = slot ? slot.x : w.room.w / 2;
+  let y = slot ? slot.y + 2 * TILE : w.room.h / 2;
+  if (isWallAt(w.room, x, y)) {
+    x = w.room.w / 2;
+    y = w.room.h / 2;
+  }
+  w.pickups.push({ id: w.nextId++, kind: 'documento', doc: doc.id, x, y, vx: 0, vy: 0, age: PICKUP_DELAY, value: 1 });
 }
 
 /**
@@ -1964,6 +1992,16 @@ function updatePickups(w: World): void {
       if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.weapon) {
         giveWeapon(w, k.weapon);
         w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.arsenal.length, weapon: k.weapon });
+        continue;
+      }
+      keep.push(k);
+      continue;
+    }
+    if (k.kind === 'documento') {
+      // A story document: walked over, it is filed (rolling over it too: it is only paper).
+      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && k.doc) {
+        if (!w.docs.includes(k.doc)) w.docs.push(k.doc);
+        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: w.docs.length, item: k.doc });
         continue;
       }
       keep.push(k);
