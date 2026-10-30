@@ -226,10 +226,12 @@ semillas distintas acaban con builds distintas.
     persianas), con el mostrador, la cola de cinta, el tablón, el archivador, el teléfono y la
     **cinta de entrada al almacén**: pisarla termina el centro y empieza una partida (evento y
     `World.leaveHub`). Tests: se recorre entera, nada hace daño, la cinta lleva a una planta 1.
-  - [ ] (2) Su arte (casillas y decorado propios: mostrador con caja, postes con cinta, máquina
-    de turnos, carteles) y el centro en el juego: «Partida nueva» de la portada lleva al
-    Mostrador; al acabar una partida (el parte de baja o la última planta) se vuelve a él.
-    Capturas.
+  - [ ] (2a) Su arte: sprites del mostrador con la Caja, los postes y su cinta, la máquina de
+    turnos, el archivador, el Chatarrero, el tablón, el teléfono y la cinta del almacén con sus
+    cortinas y el cartel «Mercancía devuelta». Una hoja de contacto para revisarlos.
+  - [ ] (2b) El centro en el juego: «Partida nueva» de la portada lleva al Mostrador; la cinta
+    empieza la partida; al acabar una partida (el parte de baja o la última planta) se vuelve a
+    él. Capturas.
 - PNJs con diálogos que cambian con el progreso (los textos y su elección, puros y con tests,
   a partir de `Profile`). En partes:
   - [x] (3a) Los textos de los tres PNJs y de la máquina de turnos, y su elección según el perfil

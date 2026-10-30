@@ -666,5 +666,11 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": []
+  "en_curso": [
+    {
+      "sesion": "2026-10-30T03:30+01:00",
+      "tarea": "M9 (2a): el arte del Mostrador (sprites de sus cosas)",
+      "desde": "2026-10-30T03:50:00+01:00"
+    }
+  ]
 }
