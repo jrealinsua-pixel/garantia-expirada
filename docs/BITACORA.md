@@ -2,6 +2,31 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 02:25 — Hito M9 — Los diálogos del Mostrador, en datos y con tests
+- Hecho: `src/data/dialogues.ts` con lo que dicen la Caja de Devoluciones, el teléfono del
+  Servicio Técnico, la máquina de turnos y el Chatarrero, con condiciones en datos (`DialogueWhen`:
+  partidas, jefes vencidos, cómo acabó la última partida, planta, rapidez, objetos encontrados) y
+  prioridades. `src/sim/dialogue.ts` elige, puro: `cajaPages` (empieza por «Motivo de la
+  devolución: <causa del parte de baja>», luego un comentario —jefe > rapidez/planta > genérico— y
+  un sello), `telefonoPages` (el capítulo más alto que desbloquean los jefes), `turnosScreen`
+  («Atendiendo al 12 · Su turno: 4.000.037») y `chatarreroPages` (null hasta el primer jefe; la
+  pista de lo que falta primero). `Profile.last` guarda la última partida (planta incluida:
+  `RunResult.level`, que pasa `GameScene`); `parseProfile` lo lee con cuidado. 8 tests nuevos
+  (400 en total).
+- Decisiones: otra sesión tenía cogida M9 (1) hace 45 min, así que hice la parte pura de (3)–(5),
+  que no toca la sala ni el motor; la apunto en la hoja como (3a) y dejo (3)–(5) para ponerlos en
+  el juego (el bocadillo, cuando el Mostrador exista). Elección sin estado: entre las frases de
+  más prioridad, un orden barajado con semilla fija recorrido por `runs`, así la misma visita dice
+  lo mismo y dos partidas seguidas no repiten frase. Cada página ≤ 90 caracteres (un bocadillo de
+  tres líneas); lo comprueba un test, igual que la fuente. El Chatarrero no habla de paredes
+  huecas porque las puertas secretas aún no se abren en el juego: solo dice que hay una sala que
+  no sale en el plano.
+- Medidas: el bot no cambia (no toca el equilibrio).
+- Problemas conocidos: nada lo enseña todavía; la máquina de turnos usa el número de partidas
+  (`runs`), que no cuenta las plantas superadas a mitad de partida (correcto: es una por unidad).
+- Siguiente paso: M9 (1)/(2) si siguen libres; después (3) poner la Caja y el bocadillo en el
+  centro usando `cajaPages`.
+
 ## 2026-10-30 01:40 — Hito M9 — El centro diseñado y el hito partido
 
 - Hecho: **el Mostrador de Devoluciones diseñado** en `docs/DISENO.md` (sección nueva bajo «Progresión entre partidas»): sala pequeña sin enemigos donde empieza y acaba cada partida, con la cola de cinta vacía, la Caja de Devoluciones (comenta tu última baja), el teléfono del Servicio Técnico (la grabación avanza con los jefes y suelta la historia), la máquina de turnos (tu número son las partidas jugadas más cuatro millones), el Chatarrero (tras el primer jefe; pistas de desbloqueos), el tablón «Productos en Exposición» (los cinco personajes, en silueta los bloqueados, con su condición) y el archivador «Reclamaciones sin Resolver» (los documentos de historia). Se entra al almacén pisando la cinta transportadora de «Mercancía devuelta». **M9 partido en nueve tareas** en `docs/HOJA_DE_RUTA.md`, con criterios de aceptación.

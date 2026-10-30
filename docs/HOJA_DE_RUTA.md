@@ -232,6 +232,9 @@ semillas distintas acaban con builds distintas.
     Capturas.
 - PNJs con diálogos que cambian con el progreso (los textos y su elección, puros y con tests,
   a partir de `Profile`). En partes:
+  - [x] (3a) Los textos de los tres PNJs y de la máquina de turnos, y su elección según el perfil
+    (`src/data/dialogues.ts`, `src/sim/dialogue.ts`; `Profile.last` recuerda cómo acabó la última
+    partida). Tests con perfiles hechos a mano. Las partes (3)–(5) quedan para ponerlos en el juego.
   - [ ] (3) La Caja de Devoluciones (comenta la última partida: la causa de baja, la planta a la
     que llegó, el jefe que la tumbó) y el bocadillo de los PNJs (el de la tienda, reutilizado).
   - [ ] (4) El teléfono del Servicio Técnico (la grabación avanza con los jefes vencidos y va

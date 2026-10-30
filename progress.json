@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T01:40:00+01:00",
+  "actualizado": "2026-10-30T02:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -71,7 +71,7 @@
       "nombre": "El centro y la historia",
       "estado": "en_curso",
       "hechas": 1,
-      "total": 9
+      "total": 2
     },
     {
       "id": "M10",
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 392,
-    "tests_ok": 392,
+    "tests": 400,
+    "tests_ok": 400,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 14413
+    "lineas_codigo": 14734
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T02:50:00+01:00",
+      "hito": "M9",
+      "resumen": "Los diálogos del Mostrador en datos: lo que dicen la Caja de Devoluciones (comenta cómo acabó tu última partida), el teléfono del Servicio Técnico (la grabación avanza con los jefes vencidos), la máquina de turnos y el Chatarrero (pistas de lo que falta), elegidos según tu perfil y con tests.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T01:40:00+01:00",
       "hito": "M9",
@@ -647,11 +653,6 @@
       "sesion": "2026-10-30T00:25+01:00",
       "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación",
       "desde": "2026-10-30T01:40:00+01:00"
-    },
-    {
-      "sesion": "2026-10-30T02:25+01:00",
-      "tarea": "M9 (3–5, textos): los diálogos de los tres PNJs y su elección según el perfil (src/data/dialogues.ts, src/sim/dialogue.ts, Profile.last)",
-      "desde": "2026-10-30T02:27:00+01:00"
     }
   ]
 }

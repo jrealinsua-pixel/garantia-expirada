@@ -919,6 +919,7 @@ export class GameScene extends Phaser.Scene {
       outcome,
       seconds: this.runBefore.seconds + w.tick * DT,
       floorSeconds: w.tick * DT,
+      level: w.level,
       kills: this.runBefore.kills + w.kills,
       coupons: p.coupons,
       bosses: this.runBosses,

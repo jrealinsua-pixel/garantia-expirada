@@ -23,6 +23,19 @@ export interface Profile {
   causes: Record<string, number>;
   /** Everything ever picked up, by id (for the compendium and the unlocks). */
   found: { items: string[]; actives: string[]; weapons: string[] };
+  /** How the last run ended (what the hub's Caja de Devoluciones comments), null before the first. */
+  last: LastRun | null;
+}
+
+/** The last run, as the hub remembers it. */
+export interface LastRun {
+  character: string;
+  outcome: 'down' | 'floor';
+  /** Floor the run ended on (1 = the first). */
+  level: number;
+  seconds: number;
+  kills: number;
+  cause?: { by: string; how: 'bullet' | 'contact' };
 }
 
 /** How a run ended and what it carried. */
@@ -36,6 +49,8 @@ export interface RunResult {
   bosses: readonly string[];
   /** Seconds on the last floor (for the fastest floor), when the run had several; default `seconds`. */
   floorSeconds?: number;
+  /** Floor the run ended on (1 = the first); default 1. */
+  level?: number;
   cause?: { by: string; how: 'bullet' | 'contact' };
   items: readonly string[];
   active?: string;
@@ -56,6 +71,7 @@ export function emptyProfile(): Profile {
     longestRun: 0,
     causes: {},
     found: { items: [], actives: [], weapons: [] },
+    last: null,
   };
 }
 
@@ -107,6 +123,14 @@ export function recordRun(old: Profile, r: RunResult): Profile {
   p.found.items = union(p.found.items, r.items);
   p.found.actives = union(p.found.actives, r.active ? [r.active] : []);
   p.found.weapons = union(p.found.weapons, r.weapons);
+  p.last = {
+    character: r.character,
+    outcome: r.outcome,
+    level: Math.max(1, Math.floor(r.level ?? 1)),
+    seconds: Math.round(r.seconds),
+    kills: Math.max(0, Math.round(r.kills)),
+    ...(r.outcome === 'down' && r.cause ? { cause: { ...r.cause } } : {}),
+  };
   return p;
 }
 
@@ -117,6 +141,16 @@ const counts = (v: unknown): Record<string, number> => {
   return out;
 };
 const ids = (v: unknown): string[] => (Array.isArray(v) ? [...new Set(v.filter((x): x is string => typeof x === 'string'))] : []);
+
+function parseLast(v: unknown): LastRun | null {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
+  const o = v as Record<string, unknown>;
+  if (typeof o.character !== 'string' || (o.outcome !== 'down' && o.outcome !== 'floor')) return null;
+  const last: LastRun = { character: o.character, outcome: o.outcome, level: Math.max(1, count(o.level)), seconds: count(o.seconds), kills: count(o.kills) };
+  const c = o.cause as Record<string, unknown> | undefined;
+  if (o.outcome === 'down' && c && typeof c === 'object' && typeof c.by === 'string' && (c.how === 'bullet' || c.how === 'contact')) last.cause = { by: c.by, how: c.how };
+  return last;
+}
 
 /** Reads a saved profile, keeping what makes sense: a broken or strange save never breaks the game. */
 export function parseProfile(raw: string | null): Profile {
@@ -141,6 +175,7 @@ export function parseProfile(raw: string | null): Profile {
   p.causes = counts(o.causes);
   const f = (o.found ?? {}) as Record<string, unknown>;
   p.found = { items: ids(f.items), actives: ids(f.actives), weapons: ids(f.weapons) };
+  p.last = parseLast(o.last);
   return p;
 }
 
