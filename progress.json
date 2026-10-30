@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T03:05:00+01:00",
+  "actualizado": "2026-10-30T03:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 406,
-    "tests_ok": 406,
+    "tests": 410,
+    "tests_ok": 410,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 14852
+    "lineas_codigo": 14955
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T03:20:00+01:00",
+      "hito": "M9",
+      "resumen": "Los documentos de historia: un albarán, un correo interno, una página del manual y un ticket de cafetería que, leídos en orden, insinúan que el Servicio Técnico no repara nada. Se archivan al vencer a cada jefe por primera vez y se guardan en el perfil.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T03:05:00+01:00",
       "hito": "M9",
@@ -659,11 +665,6 @@
       "sesion": "2026-10-30T00:25+01:00",
       "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación",
       "desde": "2026-10-30T01:40:00+01:00"
-    },
-    {
-      "sesion": "2026-10-30T02:25+01:00",
-      "tarea": "M9 (7a): documentos de historia en datos y Profile.docs (src/data/lore.ts, profile.ts)",
-      "desde": "2026-10-30T03:08:00+01:00"
     }
   ]
 }

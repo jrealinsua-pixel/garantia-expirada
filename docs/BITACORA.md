@@ -2,6 +2,26 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 03:20 — Hito M9 — Documentos de historia, en datos y en el perfil
+- Hecho: `src/data/lore.ts` con cuatro documentos en orden de lectura: el albarán de la Nevera
+  («súbase como todos, no hace falta mirar»), una página del manual de procedimiento (la sección
+  «Reparación» arrancada; sala secreta de la planta 1), un correo interno sobre el banco de pruebas
+  que quitaron para poner «la máquina de arriba» (Router) y un ticket de la cafetería de la última
+  planta que vende piezas reacondicionadas (sala secreta de la planta 2). `Profile.docs` y
+  `LastRun.docs`; `recordRun` archiva el de cada jefe vencido por primera vez y los que traiga
+  `RunResult.docs`; `parseProfile` da los de los jefes a partidas guardadas de antes.
+  `src/sim/archive.ts` (`archive`, `archiveCount`) prepara el archivador: lo encontrado, en orden
+  de la historia; lo demás, «Expediente extraviado». 4 tests nuevos (410).
+- Decisiones: la historia insinúa la trituradora (piezas sueltas a céntimos, «la máquina de
+  arriba») sin decirla; eso queda para M12. Sin «º», «€» ni rayas porque la fuente no los tiene
+  (un test lo vigila). Un test exige un documento por jefe: cada jefe nuevo de M10–M11 tendrá que
+  traer el suyo. Los de las salas secretas no se recogen todavía (las puertas secretas aún no se
+  abren en el juego); el perfil ya los acepta.
+- Medidas: el bot no cambia.
+- Problemas conocidos: nada lo enseña todavía.
+- Siguiente paso: M9 (1)/(2) si siguen libres; luego (3) Caja y bocadillo, (6) tablón y (7)
+  archivador en el centro, que ya tienen su lógica hecha.
+
 ## 2026-10-30 03:05 — Hito M9 — Desbloqueo de personajes, el mecanismo
 - Hecho: `src/data/unlocks.ts` con `ROSTER`, los cinco del tablón «Productos en Exposición»
   (nombre, frase, condición en datos y su letra pequeña); `src/sim/unlocks.ts` (`meets`,

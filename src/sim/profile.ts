@@ -4,6 +4,10 @@
 
 import { ROSTER } from '../data/unlocks.ts';
 import { newUnlocks } from './unlocks.ts';
+import { LORE } from '../data/lore.ts';
+
+/** The documents beating these bosses gives, in archivador order. */
+const bossDocs = (bosses: readonly string[]): string[] => LORE.filter((l) => 'boss' in l.source && bosses.includes(l.source.boss)).map((l) => l.id);
 
 /** Characters available from the start (no condition on the tablón). */
 const STARTERS = ROSTER.filter((r) => !r.condition).map((r) => r.id);
@@ -33,6 +37,8 @@ export interface Profile {
   last: LastRun | null;
   /** Characters unlocked (ids, src/data/unlocks.ts), for good. The Tostadora always. */
   unlocked: string[];
+  /** Story documents found (ids, src/data/lore.ts), in the order found. */
+  docs: string[];
 }
 
 /** The last run, as the hub remembers it. */
@@ -46,6 +52,8 @@ export interface LastRun {
   cause?: { by: string; how: 'bullet' | 'contact' };
   /** Characters this run unlocked (for the hub to announce). */
   unlocked?: string[];
+  /** Story documents this run found. */
+  docs?: string[];
 }
 
 /** How a run ended and what it carried. */
@@ -61,6 +69,8 @@ export interface RunResult {
   floorSeconds?: number;
   /** Floor the run ended on (1 = the first); default 1. */
   level?: number;
+  /** Story documents picked up in the run (the secret rooms'); the bosses' come from `bosses`. */
+  docs?: readonly string[];
   cause?: { by: string; how: 'bullet' | 'contact' };
   items: readonly string[];
   active?: string;
@@ -83,6 +93,7 @@ export function emptyProfile(): Profile {
     found: { items: [], actives: [], weapons: [] },
     last: null,
     unlocked: [...STARTERS],
+    docs: [],
   };
 }
 
@@ -142,6 +153,11 @@ export function recordRun(old: Profile, r: RunResult): Profile {
     kills: Math.max(0, Math.round(r.kills)),
     ...(r.outcome === 'down' && r.cause ? { cause: { ...r.cause } } : {}),
   };
+  const newDocs = union(p.docs, [...bossDocs(r.bosses), ...(r.docs ?? []).filter((d) => LORE.some((l) => l.id === d))]).slice(p.docs.length);
+  if (newDocs.length) {
+    p.docs = [...p.docs, ...newDocs];
+    p.last.docs = newDocs;
+  }
   const fresh = newUnlocks(p);
   if (fresh.length) {
     p.unlocked = [...p.unlocked, ...fresh];
@@ -167,6 +183,8 @@ function parseLast(v: unknown): LastRun | null {
   if (o.outcome === 'down' && c && typeof c === 'object' && typeof c.by === 'string' && (c.how === 'bullet' || c.how === 'contact')) last.cause = { by: c.by, how: c.how };
   const u = ids(o.unlocked);
   if (u.length) last.unlocked = u;
+  const d = ids(o.docs);
+  if (d.length) last.docs = d;
   return last;
 }
 
@@ -198,6 +216,8 @@ export function parseProfile(raw: string | null): Profile {
   // from before a condition existed gets what it has earned.
   p.unlocked = union([...STARTERS], ids(o.unlocked));
   p.unlocked = [...p.unlocked, ...newUnlocks(p)];
+  // Documents kept as saved; the bosses' are given again to a save from before they existed.
+  p.docs = union(ids(o.docs), bossDocs(Object.keys(p.bosses)));
   return p;
 }
 

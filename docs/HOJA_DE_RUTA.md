@@ -248,6 +248,10 @@ semillas distintas acaban con builds distintas.
   los cinco con su condición (siluetas los bloqueados). Los personajes nuevos jugables llegan
   en M13; aquí, el mecanismo y el tablón.
 - Objetos de historia que revelan poco a poco la verdad del Servicio Técnico. En partes:
+  - [x] (7a) Los documentos en datos (`src/data/lore.ts`: uno por jefe y uno por sala secreta de
+    las plantas 1 y 2), `Profile.docs` (los de los jefes al acabar la partida; los de las salas
+    secretas llegan en `RunResult.docs`) y `src/sim/archive.ts` para el archivador. Falta recogerlos
+    en la sala secreta y el archivador en el centro (7).
   - [ ] (7) Documentos de historia en datos (uno por jefe vencido por primera vez y alguno en las
     salas secretas), guardados en `Profile` y leídos en el archivador «Reclamaciones sin
     Resolver» del centro.
