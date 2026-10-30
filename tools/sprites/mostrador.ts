@@ -341,8 +341,6 @@ export function makeBoard(): Canvas {
   return outline(cv);
 }
 
-/** Where the board's five cards are (their inner 6 × 7 window), from the board's top-left. */
-export const BOARD_CARDS: ReadonlyArray<{ x: number; y: number }> = [0, 1, 2, 3, 4].map((i) => ({ x: 4 + i * 9, y: (i % 2 ? 11 : 10) + 1 }));
 
 /**
  * El teléfono del Servicio Técnico, 18 × 32, two frames: a wall phone with the receiver off the
