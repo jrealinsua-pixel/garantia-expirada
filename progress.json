@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T06:00:00+01:00",
+  "actualizado": "2026-10-30T06:15:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -78,7 +78,7 @@
       "nombre": "Plantas 3 y 4",
       "estado": "en_curso",
       "hechas": 0,
-      "total": 2
+      "total": 1
     },
     {
       "id": "M11",
@@ -130,6 +130,12 @@
     "lineas_codigo": 15789
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T06:15:00+01:00",
+      "hito": "M10",
+      "resumen": "Diseño de la planta 3 (Juguetería): cuatro enemigos que castigan quedarse quieto y no mirar el suelo, el Muñeco de Moda en tres fases, diez objetos, dos sinergias y su aspecto; M10 partido en tareas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T06:00:00+01:00",
       "hito": "M9",
@@ -691,7 +697,7 @@
       "pie": "«Partida nueva» lleva ahora al Mostrador de Devoluciones: la cinta de arriba a la derecha empieza la partida y tras el parte de baja se vuelve aquí"
     }
   ],
-  "proximo": "M10: partir la planta 3 (Juguetería) en tareas en la hoja de ruta y diseñarla en docs/DISENO.md (enemigos, jefe El Muñeco de Moda, objetos, casillas).",
+  "proximo": "M10 (1): el juego de casillas de la Juguetería (src/art/jugueteria.ts, ?planta=3).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -720,11 +726,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "session_01LyCe1PUYAzbArXoXGQZpSo",
-      "tarea": "M10 (0): diseñar la planta 3 (Juguetería) y partirla en tareas",
-      "desde": "2026-10-30T06:02:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

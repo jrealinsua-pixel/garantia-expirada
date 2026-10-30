@@ -271,8 +271,36 @@ falta; todo se guarda entre sesiones del navegador.
 
 ## M10 · Plantas 3 y 4
 
-- [ ] Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda) y 10 objetos.
-- [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de Recursos Inhumanos) y 10 objetos.
+- Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda)
+  y 10 objetos. Diseño en `docs/DISENO.md` (enemigos, jefe, objetos y aspecto). En partes:
+  - [x] (0) El diseño de la planta 3 y esta lista de tareas.
+  - [ ] (1) Juego de casillas y color propio (`src/art/jugueteria.ts`, se ve con `?planta=3`):
+    suelo de goma EVA, pared de nubes, estanterías de cajas, obstáculos de los huecos `o` y
+    persianas propias.
+  - [ ] (2a) Seis plantillas de combate propias de la planta 3, cada una con su idea y sus grupos.
+  - [ ] (2b) Seis plantillas de combate más y las salas especiales propias (tesoro, tienda, secreta
+    con su documento de historia, y el Escaparate de Novedades del jefe).
+  - [ ] (3) Encadenar: tras el Router se baja en el montacargas a la planta 3, con todo lo que se
+    lleva; hasta que llegue el Muñeco, el Router pelea en el Escaparate.
+  - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
+    - [ ] (4a) Robot de Cuerda (rebota como una bola de billar; sin cuerda, quieto y frágil).
+    - [ ] (4b) Coche Teledirigido (arcos derrapando, embestida, vuelca contra la pared).
+    - [ ] (4c) Cubo de Piezas (siembra el suelo de piezas que hacen daño al andar, no al rodar).
+    - [ ] (4d) Sobre Sorpresa (al romperlo, sorpresa: repetidos, cupones o el Muñequito Dorado).
+  - Jefe: El Muñeco de Moda. En partes:
+    - [ ] (5a) Sprites: con caja (reposo, andar, posar), las etiquetas de rebaja, la caja rota y
+      sin ella; y los Muñequitos Repetidos.
+    - [ ] (5b) Fases 1 y 2 en la simulación (pasarela, rebajas y repetidos), cartel y sonidos.
+    - [ ] (5c) Fase 3 (liquidación: la caja rota se queda como obstáculo, espirales de pegatinas).
+  - 10 objetos nuevos, en partes:
+    - [ ] (6a) Cinco de cifras o casi: Pilas No Incluidas, Muelle de Juguete, Purpurina, Juguete
+      del Menú Infantil y Caja de Cartón Vacía.
+    - [ ] (6b) Cinco con efectos nuevos: Pegatina de Edición Limitada, Plastilina Mezclada, Llave
+      Allen Sobrante, Mando con Vibración y Mascota Virtual; y las sinergias Unboxing y
+      Manualidades.
+  - [ ] (7) La planta 3 medida con el bot y ajustada para que sea el muro: el bot con daño la
+    supera menos de una vez de cada cuatro, y es donde más partidas acaban.
+- [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de Recursos Inhumanos) y 10 objetos. (Se parte en tareas al acabar la planta 3.)
 
 **Criterios de aceptación:** se puede jugar de la planta 1 a la 4 seguidas; cada planta se
 distingue a la primera en una captura; el bot llega a la planta 4 en alguna partida. Pasar de la

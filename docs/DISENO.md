@@ -100,13 +100,28 @@ mezclados con los de la planta 1.
 | Ratón Inalámbrico sin Pilas | Hecho | Va hacia ti (sin meterse encima: de cerca te rodea) y, cada poco más de un segundo, se queda sin señal: se congela 0,85 s con un círculo de carga por ojos mientras un anillo rojo marca dónde va a aparecer (hasta 110 px más cerca, nunca a menos de 56 px de ti; si ya está cerca, salta de lado). Luego aparece allí de golpe y hace clic: dos anillos de ocho balas. 10 de vida. Ruedecita, luz de batería baja parpadeando, el hueco de las pilas vacío con una telaraña y el cable cortado con tijeras para hacerlo «inalámbrico». |
 | Webcam Siempre Encendida | Hecha | Enemigo de apoyo, como mucho una por sala. Guarda las distancias (150 px) y, cada 1,6–2,6 s, si te ve (nada en medio, a menos de 260 px), **graba**: 1,2 s con el objetivo en rojo, «Grabando» encima y una línea de puntos rojos que te sigue. Si te escondes detrás de algo, «Conexión perdida» y vuelta a empezar. Si no, «Compartiendo pantalla»: los demás enemigos de la sala dejan de esperar y atacan ya, y durante 4 s sus esperas corren ×1,6; ella saca la foto (dos abanicos, de cinco y de cuatro balas). 12 de vida. Barra de webcam negra sobre su pinza de monitor, el objetivo como único ojo bajo la tapa de privacidad bajada a medias como un párpado receloso; la lucecita de «no estoy grabando», apagada y rota (graba igual); el trozo de celo que alguien le puso, despegado y colgando, y la cola USB. |
 
+### Enemigos de la tercera planta (Juguetería)
+
+La planta 3 es el muro de la partida (nota del humano: pasar de ella tiene que ser difícil de
+verdad). Sus enemigos no pegan más fuerte: castigan quedarse quieto y no mirar el suelo. Salen
+desde la planta 3, mezclados con los de las plantas de abajo. Juguetes gastados, nunca monos:
+caras de cansancio y de rencor, pintura saltada, pegatinas de oferta a medio despegar (la regla
+de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ningún sitio).
+
+| Enemigo | Estado | Comportamiento |
+| --- | --- | --- |
+| Robot de Cuerda | Por hacer | Anda en línea recta y deprisa mientras le gira la llave, y rebota en las paredes y en las cosas como una bola de billar; en cada rebote suelta un abanico de tres tuercas. Cada 4–5 s se le acaba la cuerda: se para en seco 2 s, con la llave quieta y «Cuerda agotada» encima, y recibe el doble de daño; luego se da cuerda él solo (avisa con el ruido de la llave). 14 de vida. Hojalata abollada, un ojo de tornillo, la llave a la espalda con un esparadrapo y la etiqueta «Edad: 3+» rayada a «Edad: 33+». |
+| Coche Teledirigido | Por hacer | Rodea a la tostadora a mucha velocidad, en arcos, derrapando (deja marcas en el suelo) y, cuando la tiene de lado, frena y embiste en línea recta. Si choca con la pared vuelca 1,5 s con las ruedas al aire (el momento de darle). «Pilas no incluidas»: de vez en cuando se para a mitad de un arco, parpadea y sigue. 10 de vida. Un deportivo de plástico con cara de matón en el parachoques, una antena doblada, un alerón pegado con celo y una rueda de otro coche. |
+| Cubo de Piezas | Por hacer | Torreta lenta que guarda las distancias y lanza en parábola puñados de piezas de construcción: caen donde marca una sombra y se quedan en el suelo 6 s. Pisarlas andando quita medio corazón (como pisar una de verdad descalzo); rodando por encima no pasa nada, y una bala las barre. Es lo contrario de la escarcha: aquí lo que castiga es andar. 16 de vida. Un cubo de plástico con asa, la tapa como gorra, ojos de dos piezas redondas y una pieza que no encaja con nada pegada en la frente. |
+| Sobre Sorpresa | Por hacer | Un sobre de cromos sellado que da saltitos y escupe confeti de papel de regalo en abanicos cortos. Al romperlo sale algo al azar: dos Muñequitos Repetidos (casi siempre; 3 de vida, persiguen y muerden), una lluvia de cupones (a veces) o el **Muñequito Dorado Ultrarraro**, que dispara anillos y vale cinco cupones (muy pocas veces). El jugador ve las probabilidades en el reverso del sobre, en letra pequeña. 8 de vida. |
+
 ### Jefes
 
 | Jefe | Estado | Idea |
 | --- | --- | --- |
 | **La Nevera Suprema** | Aprobada | Jefa de la planta 1. Fase 1, «Congelación de precios»: ráfagas de cubitos, anillos de granizo y bolas de escarcha que dejan charcos que frenan al andar (no al rodar). Fase 2, «Oferta irrechazable» (desde la mitad de la vida): abre la puerta y enseña un interior lleno de comida caducada; dispara tarjetas de fidelización que te persiguen un rato (más lentas que tú, giran abierto y se rompen a tiros), escupe yogures hinchados, bricks y latas abolladas que caen donde marca un anillo rojo y revientan en balas, y sigue soltando cubitos. Entra con cartel: «Jefa de planta · Almacén de devoluciones» y el lema «Congelamos los precios. Y las reclamaciones.» |
 | El Router del Wifi | Hecho | Jefe de la planta 2 (letra `X`; la Nevera sigue en la 1). 200 de vida. Un router blanco de cuatro antenas (una doblada y con celo), ojos verdes de piloto bajo unos párpados de suficiencia, la luz de «internet» siempre en rojo (conectado, sin internet), la pegatina de la clave medio arrancada y un cable de red que no lleva a ninguna parte. Entra con cartel: «Jefe de planta · Informática» y el lema «Cobertura total. En la otra habitación.». Fase 1, «Cobertura total»: al empezar planta dos **repetidores** (8 de vida) en las esquinas más lejanas de la tostadora; ataca con dos anillos de ondas cian, cada uno con su «zona sin cobertura» (un hueco de 60° a un lado de la tostadora, un poco más girado en el segundo: hay que moverse hasta él), que los repetidores reenvían a la vez desde su sitio con un anillo fino; y con tres abanicos de «paquetes» rojos. **Reinicio** a media vida: «Reiniciando. No desenchufe el dispositivo», 5 s apagado con los ojos cerrados y las luces encendiéndose una a una, sin recibir daño; se limpian las balas y caen los repetidores. Fase 2, «Actualización de firmware»: tres anillos más rápidos con dos huecos que se separan, cada uno hacia su lado; abanicos más anchos; y «caídas de conexión»: tres sitios marcados en el suelo (uno bajo la tostadora) que al cabo de 1 s sueltan un anillo corto. Sin repetidores, planta uno nuevo cada 12 s. Su sala es amplia y despejada en el centro, con cuatro escuadras de rack para cubrirse de los repetidores. |
-| El Muñeco de Moda | Por diseñar | Planta 3 (Juguetería). Juguete de la temporada pasada, olvidado y rencoroso. |
+| El Muñeco de Moda | Por hacer | Jefe de la planta 3 (Juguetería). 300 de vida: el más duro hasta ahora. El juguete del año pasado, todavía en su caja de escaparate (la caja va con él: es su armadura), con una sonrisa de anuncio que ya no le llega a los ojos, el pelo de plástico encrespado, la pegatina «¡Novedad!» tachada a rotulador y encima «Temporada anterior». Entra con cartel: «Jefe de planta · Juguetería» y el lema «Pasado de moda. Como tú.». Fase 1, «Lanzamiento»: abanicos de accesorios (zapatitos y bolsos de plástico rosa, que giran) y la **pasarela**: cruza la sala de lado a lado posando, y por donde pasa deja una fila de destellos de flash que estallan en balas a los 0,6 s. Fase 2, «Rebajas» (desde el 60 %): la etiqueta de su caja va bajando (−30 %, −50 %, −70 %); con cada rebaja va más deprisa, dispara anillos más densos y llama a dos Muñequitos Repetidos, y suelta «¡Ahora con más accesorios!». Fase 3, «Liquidación total» (desde el 25 %): rompe la caja, que se queda en la sala como un obstáculo que tapa balas, y sin ella gira sobre sí misma soltando espirales de pegatinas de oferta que persiguen un poco, más rápido que nunca y recibiendo un 25 % más de daño (sin caja). Su sala, el Escaparate de Novedades: centro despejado y cuatro expositores de cristal que paran balas. |
 | El Director de Recursos Inhumanos | Por diseñar | Jefe humano de la planta de oficinas. |
 
 ## Mecánicas
@@ -201,6 +216,34 @@ reparte los suyos y los de las plantas de abajo (`itemsUpTo` en `src/data/items.
 Los tres últimos no son solo cifras: un modificador puede llevar, además de `stats` y `bullets`,
 golpes críticos (`bullets.crit`) y `perks` (pilas de más por sala, cupones de más por baja,
 voltereta que corta balas y vuelta de la baja).
+
+Objetos pasivos de la planta 3 (Juguetería, `level: 3`). Más raros que los de abajo: muchos
+cambian cómo se juega, no solo las cifras.
+
+| Objeto | Descripción | Efecto |
+| --- | --- | --- |
+| Pilas No Incluidas | Funciona de maravilla. Con otras pilas. | Tras cada recarga, cadencia ×1,4 durante 3 s; el resto del tiempo, ×0,9 |
+| Pegatina de Edición Limitada | Solo se han fabricado diez millones. | La última bala de cada cargador hace el triple de daño |
+| Plastilina Mezclada | Era de cuatro colores. Ahora es de uno, y no tiene nombre. | Las balas que chocan con algo se quedan pegadas 1,5 s y dañan a quien pase; balas ×0,85 más lentas |
+| Muelle de Juguete | Salta. No se sabe hacia dónde. | Voltereta ×1,3 más larga y +1 rebote, +4° de dispersión |
+| Llave Allen Sobrante | Siempre sobra una pieza. Esta es la tuya. | Una vez por planta, un cofre se abre sin ticket |
+| Mando con Vibración | Para notar cada golpe en la muñeca. | Al recibir daño, suelta un anillo de 10 balas |
+| Caja de Cartón Vacía | El niño jugó con la caja. El juguete sigue sin abrir. | Un 20 % de los golpes no hacen daño («Era solo la caja») (solo bueno) |
+| Purpurina | Se queda para siempre. En todo. | Los enemigos tocados van ×0,8 más lentos 2 s; balas un poco más pequeñas |
+| Juguete del Menú Infantil | Venía con la comida. Duró menos que la comida. | Velocidad ×1,2 y cadencia ×1,15, −1 corazón |
+| Mascota Virtual | Había que darle de comer cada cinco minutos. | Cada sala limpia sin recibir daño, +1 de daño (hasta +3); un golpe lo pone a cero |
+
+Dos sinergias nuevas: **Unboxing** (Caja de Cartón Vacía + Pegatina de Edición Limitada: «Abrirlo
+le quita la mitad del valor. Grabarlo se lo devuelve.»; la bala de la pegatina atraviesa a todos) y
+**Manualidades** (Plastilina + Purpurina: «Nadie sabe qué es, pero la nevera de casa lo va a lucir
+igual.»; los charcos de plastilina también frenan).
+
+La Juguetería se ve a la primera: suelo de goma EVA de puzle (losetas de colores primarios
+desvaídos, alguna que falta y deja ver el hormigón), una carretera de alfombra de juguete en los
+pasillos, estanterías altas de cajas con ventana de plástico y precios tachados una y otra vez,
+papel pintado de nubes despegándose en la pared de atrás, y obstáculos propios: casitas de muñecas
+cerradas por reformas, cajas de pelotas, caballitos de balancín quietos y montones de peluches
+desteñidos. Persianas con una tira de luces de feria fundidas.
 
 Objetos activos (tecla Q o botón B del mando). Se lleva uno; al coger otro, el viejo se queda en
 el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando está lleno:

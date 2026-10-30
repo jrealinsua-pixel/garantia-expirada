@@ -2,6 +2,23 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 06:15 (hora real) — Hito M10 — Diseño de la planta 3 (Juguetería)
+- Hecho: la planta 3 diseñada en `docs/DISENO.md`: cuatro enemigos (Robot de Cuerda, Coche
+  Teledirigido, Cubo de Piezas y Sobre Sorpresa), el jefe El Muñeco de Moda en tres fases
+  (Lanzamiento, Rebajas y Liquidación total, con su sala, el Escaparate de Novedades), diez objetos
+  pasivos de `level: 3`, dos sinergias (Unboxing y Manualidades) y el aspecto de la planta (goma EVA,
+  nubes despegadas, cajas con ventana, casitas de muñecas cerradas por reformas). M10 partido en
+  tareas en `docs/HOJA_DE_RUTA.md`, como se hizo con M8; la planta 4 se partirá al acabar la 3.
+- Decisiones: la planta 3 es el muro que pidió el humano, pero no a base de pegar más: sus
+  enemigos castigan quedarse quieto (el robot rebota por toda la sala, el coche embiste de lado) y
+  andar sin mirar el suelo (las piezas hacen daño al andar y no al rodar: lo contrario de la
+  escarcha). El jefe tiene tres fases y 300 de vida. Juguetes gastados y con mala cara, nunca
+  monos (`docs/ESTILO_ARTE.md`). El sobre sorpresa es la sátira de las cajas de botín, con las
+  probabilidades en letra pequeña. Nombres comprobados para no chocar con los que ya hay.
+- Medidas: no hay cambios de juego.
+- Problemas conocidos: ninguno.
+- Siguiente paso: M10 (1), el juego de casillas de la Juguetería.
+
 ## 2026-10-30 06:00 (hora real) — Hito M9 — Después del repaso: salas centradas, frases al volver y postes
 - Contexto: esta sesión cogió «M9 (8)» en `en_curso` a la vez que otra lo terminaba; al ir a
   publicar ya estaba hecho. En vez de tirar el trabajo, se ha rehecho encima de lo publicado,
