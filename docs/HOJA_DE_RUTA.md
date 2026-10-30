@@ -229,7 +229,7 @@ semillas distintas acaban con builds distintas.
   - [x] (2a) Su arte: sprites del mostrador con la Caja, los postes y su cinta, la máquina de
     turnos, el archivador, el Chatarrero, el tablón, el teléfono y la cinta del almacén con sus
     cortinas y el cartel «Mercancía devuelta». Una hoja de contacto para revisarlos.
-  - [ ] (2b) El centro en el juego: «Partida nueva» de la portada lleva al Mostrador; la cinta
+  - [x] (2b) El centro en el juego: «Partida nueva» de la portada lleva al Mostrador; la cinta
     empieza la partida; al acabar una partida (el parte de baja o la última planta) se vuelve a
     él. Capturas.
 - PNJs con diálogos que cambian con el progreso (los textos y su elección, puros y con tests,

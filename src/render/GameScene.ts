@@ -28,7 +28,7 @@ import {
   REVIVE_LINE,
   TURBO_LINE,
 } from '../data/texts.ts';
-import { doorCells, isWallAt } from '../sim/room.ts';
+import { BACK_WALL_ROWS, doorCells, isWallAt, TILE } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
 import { minimap } from '../sim/minimap.ts';
 import {
@@ -36,6 +36,7 @@ import {
   addModifier,
   createWorld,
   LAST_LEVEL,
+  leaveHub,
   LIFT_READY,
   nextFloor,
   PICKUP_DELAY,
@@ -57,7 +58,9 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
-import { saveFloor, saveRun } from './save.ts';
+import { profile, saveFloor, saveRun } from './save.ts';
+import { chatarreroHere } from '../sim/dialogue.ts';
+import { TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
@@ -194,6 +197,15 @@ const MAP_ICONS: Partial<Record<string, { rows: string[]; color: number }>> = {
 const ROOM_FADE_OUT = 110;
 const ROOM_FADE_IN = 170;
 
+/** The Mostrador's moving parts. */
+interface HubViews {
+  belt: Phaser.GameObjects.Image;
+  curtain: Phaser.GameObjects.Image;
+  turnos: Phaser.GameObjects.Image | null;
+  chatarrero: Phaser.GameObjects.Image | null;
+  t: number;
+}
+
 export class GameScene extends Phaser.Scene {
   world!: World;
   controls!: Controls;
@@ -306,6 +318,12 @@ export class GameScene extends Phaser.Scene {
   private carry: World | null = null;
   /** Fading out towards the next room. */
   private leaving = false;
+  /** Started from the title's «Partida nueva»: every run starts and ends in the Mostrador (kept on restart). */
+  private hubMode = false;
+  /** The world carried in is a new run (it came from the Mostrador's conveyor). */
+  private freshRun = false;
+  /** The Mostrador's moving parts (null in any other room). */
+  private hubViews: HubViews | null = null;
   private mapG: Phaser.GameObjects.Graphics | null = null;
   /** Where the camera looks instead of the player (a boss's entrance), or null. */
   private camFocus: { x: number; y: number } | null = null;
@@ -339,8 +357,9 @@ export class GameScene extends Phaser.Scene {
   /** Started from the title screen's practice option: that room instead of a floor (kept on restart). */
   private startSala: string | null = null;
 
-  init(data: { sala?: string } | undefined): void {
+  init(data: { sala?: string; hub?: boolean } | undefined): void {
     this.startSala = data?.sala ?? null;
+    this.hubMode = !!data?.hub;
   }
 
   create(): void {
@@ -391,10 +410,13 @@ export class GameScene extends Phaser.Scene {
     this.floats = [];
     this.hearts = [];
     this.ammoPips = [];
+    this.hubViews = null;
+    this.hubPending = {};
     const params = new URLSearchParams(location.search);
     const carried = this.carry;
     this.carry = null;
-    if (!carried) {
+    if (!carried || this.freshRun) {
+      this.freshRun = false;
       // A new run: nothing beaten yet, nothing written in the record.
       this.runBosses = [];
       this.runRecorded = false;
@@ -406,6 +428,9 @@ export class GameScene extends Phaser.Scene {
       // Walked through a door: same run, next room. The controls hint was read already.
       this.world = carried;
       this.hintT = 0;
+    } else if (this.hubMode) {
+      // The Mostrador de Devoluciones: where every run starts and ends. The Chatarrero comes once a boss has fallen.
+      this.world = createWorld({ seed: 'mostrador', hub: { chatarrero: chatarreroHere(profile()) } });
     } else if (this.startSala && !params.get('sala')) {
       this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala, level });
     } else if (params.get('sala')) {
@@ -449,6 +474,7 @@ export class GameScene extends Phaser.Scene {
 
     for (const pr of room.props) {
       const key = pr.def.id;
+      if (room.kind === 'hub' && this.makeHubProp(pr)) continue;
       // Chests change (they open), so drawChests keeps them; here only their shadow.
       if (pr.chest) {
         this.add.image(pr.x, pr.y + 1, shadowTexture(this, 10, 3)).setDepth(-50000);
@@ -465,6 +491,7 @@ export class GameScene extends Phaser.Scene {
       this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
       this.add.image(pr.x, pr.y, look).setOrigin(0.5, 1).setDepth(pr.y);
     }
+    if (room.kind === 'hub') this.makeHub();
     if (room.kind === 'shop') {
       // A display stand under every shelf, and the till says hello.
       for (const sl of room.slots) if (sl.kind === 'shelf') this.add.image(sl.x, sl.y + 6, 'expositor').setOrigin(0.5, 1).setDepth(sl.y - 1);
@@ -886,6 +913,82 @@ export class GameScene extends Phaser.Scene {
     }
     for (let i = 0; i < 6; i++) this.puff(p.x + this.fx.range(-8, 8) + 2 * f, p.y - 26 + this.fx.range(-4, 4), this.fx.range(0.5, 0.9));
     for (let i = 0; i < 12; i++) this.spark(p.x + 2 * f, p.y - 26, this.fx.range(-Math.PI, 0), this.fx.range(60, 150), this.fx.int(0, 3));
+  }
+
+  /** The Mostrador's conveyor: a slower fade, then the first room of a new run on floor 1. */
+  private leaveHubRoom(): void {
+    this.leaving = true;
+    this.acc = 0;
+    this.cameras.main.fadeOut(ROOM_FADE_OUT * 2, 14, 12, 22);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.carry = leaveHub(this.world, `planta-${Date.now().toString(36)}`);
+      this.freshRun = true;
+      this.scene.restart();
+    });
+  }
+
+  /**
+   * A prop of the Mostrador with its own drawing (the counter's stretches, the Caja, the queue's
+   * posts and tape, the ticket machine and the Chatarrero). False: draw it like any other prop.
+   */
+  private makeHubProp(pr: { def: { id: string }; x: number; y: number }): boolean {
+    const id = pr.def.id;
+    const props = this.world.room.props;
+    const counterAt = (x: number): boolean => props.some((o) => (o.def.id === 'mostrador' || o.def.id === 'caja-devoluciones') && o.y === pr.y && o.x === x);
+    const shadow = (rx: number): void => void this.add.image(pr.x, pr.y + 1, shadowTexture(this, rx, 3)).setDepth(-50000);
+    if (id === 'mostrador') {
+      const frame = counterAt(pr.x - TILE) ? (counterAt(pr.x + TILE) ? 1 : 2) : 0;
+      this.add.image(pr.x, pr.y + 2, id, frame).setOrigin(0.5, 1).setDepth(pr.y);
+      return true;
+    }
+    if (id === 'caja-devoluciones') {
+      this.add.image(pr.x, pr.y + 2, id, 0).setOrigin(0.5, 1).setDepth(pr.y);
+      return true;
+    }
+    if (id === 'poste') {
+      shadow(4);
+      this.add.image(pr.x, pr.y + 1, id).setOrigin(0.5, 1).setDepth(pr.y);
+      // The tape to the next post along the row, at the height of the cassettes.
+      const next = props.find((o) => o.def.id === 'poste' && o.y === pr.y && o.x > pr.x && o.x - pr.x <= 4 * TILE);
+      if (next) this.add.tileSprite(pr.x + 3, pr.y + 1 - TAPE_Y, next.x - pr.x - 6, 4, 'cinta-cola').setOrigin(0, 0).setDepth(pr.y - 0.1);
+      return true;
+    }
+    if (id === 'turnos' || id === 'chatarrero') {
+      shadow(id === 'turnos' ? 5 : 13);
+      const img = this.add.image(pr.x, pr.y + 1, id, 0).setOrigin(0.5, 1).setDepth(pr.y);
+      this.hubPending[id] = img;
+      return true;
+    }
+    return false;
+  }
+
+  private hubPending: { turnos?: Phaser.GameObjects.Image; chatarrero?: Phaser.GameObjects.Image } = {};
+
+  /** What hangs on the Mostrador's back wall (the board, the phone, the curtain and its sign) and the conveyor. */
+  private makeHub(): void {
+    const room = this.world.room;
+    const b = room.belt!;
+    const wallY = BACK_WALL_ROWS * TILE;
+    const belt = this.add.image(b.x, b.y, 'cinta-almacen', 0).setOrigin(0, 0).setDepth(-90000);
+    const curtain = this.add.image(b.x, wallY, 'cortinas', 0).setOrigin(0, 1).setDepth(-90000);
+    // The sign low on the wall, over the top of the curtain: the camera never shows the wall's top rows.
+    this.add.image(b.x + b.w / 2, WALL_SIGN_Y, 'cartel-mercancia').setOrigin(0.5, 0).setDepth(-89999);
+    for (const st of room.stations) {
+      if (st.kind === 'tablon') this.add.image(st.x, WALL_BOARD_Y, 'tablon').setOrigin(0.5, 0).setDepth(-90000);
+      if (st.kind === 'telefono') this.add.image(st.x, WALL_PHONE_Y, 'telefono', 0).setOrigin(0.5, 0).setDepth(-90000);
+    }
+    this.hubViews = { belt, curtain, turnos: this.hubPending.turnos ?? null, chatarrero: this.hubPending.chatarrero ?? null, t: 0 };
+    this.hubPending = {};
+  }
+
+  /** The Mostrador's idle life: the conveyor runs, the ticket machine blinks, the Chatarrero's wheel squeaks. */
+  private drawHub(dt: number): void {
+    const h = this.hubViews;
+    if (!h) return;
+    h.t += dt;
+    h.belt.setFrame(Math.floor(h.t * 10) % 4);
+    h.turnos?.setFrame(Math.floor(h.t * 1.5) % 2);
+    h.chatarrero?.setFrame(Math.floor(h.t * 2.5) % 3 === 0 ? 1 : 0);
   }
 
   /** Walked through a door: a quick fade to black, then the scene rebuilds itself around the next room. */
@@ -1723,6 +1826,11 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 8; i++) this.spark(e.x, e.y, a + this.fx.range(-1, 1), this.fx.range(50, 140), this.fx.int(1, 3));
           break;
         }
+        case 'leaveHub':
+          this.sound2.play('puerta');
+          this.hubViews?.curtain.setFrame(1);
+          this.leaveHubRoom();
+          break;
         case 'down':
           this.downT = 0;
           this.downCause = e.cause;
@@ -2208,6 +2316,7 @@ export class GameScene extends Phaser.Scene {
     this.drawBossBar(dt);
     this.drawLift(dt);
     this.drawShop(dt);
+    this.drawHub(dt);
     const p = w.player;
     const rolling = isRolling(p);
 
@@ -2301,8 +2410,10 @@ export class GameScene extends Phaser.Scene {
     const gx = pv.x - Math.cos(p.aim) * this.gunKick;
     const gy = pv.y - Math.sin(p.aim) * this.gunKick;
     const behind = Math.sin(p.aim) < -0.35;
-    this.gun.setVisible(!rolling && !w.over && !w.won);
-    this.hand.setVisible(!rolling && !w.over && !w.won);
+    // In the Mostrador the gun stays holstered: nobody shoots there.
+    const armed = !rolling && !w.over && !w.won && w.room.kind !== 'hub';
+    this.gun.setVisible(armed);
+    this.hand.setVisible(armed);
     this.gun.setPosition(Math.round(gx), Math.round(gy)).setRotation(p.aim).setScale(1, p.facing);
     this.gun.setDepth(p.y + (behind ? -0.5 : 0.5));
     this.hand.setPosition(Math.round(gx), Math.round(gy + 1)).setDepth(p.y + (behind ? -0.4 : 0.6));

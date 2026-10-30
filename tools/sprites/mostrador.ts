@@ -7,6 +7,7 @@ import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
 import { GLYPHS } from '../../src/art/font.ts';
 import { BLUE, BROWN, CARD, CREAM, DSTEEL, GLOVE, GREEN, ICE, K, RED, RUSTR, STEEL, WHITE, YEL } from '../../src/art/lib.ts';
 import { box, cube, ellipse, hand, outline, ramp } from '../../src/art/lib.ts';
+import { TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../../src/art/hub.ts';
 
 /** The counter's melamine front: the store's grey-blue with the red «Devoluciones» stripe. */
 const FRONT = DSTEEL;
@@ -173,8 +174,6 @@ export function makePost(): Canvas {
   return outline(cv);
 }
 
-/** How high (px above the post's feet) the queue tape runs. */
-export const TAPE_Y = 18;
 
 /** The queue tape, 4 × 4, tiled between two posts: blue with the store's dashes. */
 export function makeQueueTape(): Canvas {
@@ -475,10 +474,10 @@ export function previewHub(
   cv.blit(frame(sheets['cinta-almacen']!, 1), b.x, b.y);
   cv.blit(frame(sheets.cortinas!), b.x, 2 * T - 33);
   const sign = sheets['cartel-mercancia']!.canvas;
-  cv.blit(sign, b.x + b.w / 2 - Math.floor(sign.w / 2), 1);
+  cv.blit(sign, b.x + b.w / 2 - Math.floor(sign.w / 2), WALL_SIGN_Y);
   for (const st of room.stations) {
-    if (st.kind === 'tablon') cv.blit(sheets.tablon!.canvas, st.x - 25, 8);
-    if (st.kind === 'telefono') cv.blit(frame(sheets.telefono!), st.x - 9, 12);
+    if (st.kind === 'tablon') cv.blit(sheets.tablon!.canvas, st.x - 25, WALL_BOARD_Y);
+    if (st.kind === 'telefono') cv.blit(frame(sheets.telefono!), st.x - 9, WALL_PHONE_Y);
   }
   const at = (key: string, x: number, y: number, i = 0): void => {
     const f = frame(sheets[key]!, i);

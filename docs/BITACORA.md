@@ -2,6 +2,29 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 04:50 — Hito M9 — El Mostrador, en el juego
+- Hecho: «Partida nueva» de la portada abre el Mostrador (`GameScene` con `{ hub: true }`, que se
+  conserva en los reinicios de la escena); también `?mostrador`. Allí la tostadora anda y rueda con
+  el arma enfundada (ni se ve ni dispara); el mostrador elige sus tramos por vecinos, los postes
+  tienden su cinta, la cinta del almacén corre, la máquina de turnos parpadea, el Chatarrero (si ya
+  cayó un jefe, `chatarreroHere`) mueve la rueda, y el tablón, el teléfono, las cortinas y el cartel
+  cuelgan de la pared. Pisar la cinta: las cortinas se apartan, fundido y `leaveHub` con una semilla
+  nueva; la partida empieza de cero. Al acabar (R tras el parte de baja o tras la última planta) se
+  vuelve al Mostrador; «Unidad nueva» de la pausa también. El e2e pasa ahora por el Mostrador en la
+  portada y en el historial, y tiene su tramo propio (40–42): no se dispara, la cinta lleva a la
+  planta 1 y tras el parte de baja se vuelve. `src/art/hub.ts` guarda la geometría que comparten
+  sprites y juego (`TAPE_Y`, la altura de lo que cuelga).
+- Decisiones: el tablón pasa a la columna 5 (en la 2 lo tapaba el marcador de vida). Lo que cuelga
+  va bajo en la pared, porque la cámara no enseña las filas de arriba con la tostadora abajo; el
+  cartel tapa el tercio de arriba de las cortinas. Los enlaces con `?sala=`/`?semilla=` siguen como
+  antes (reiniciar da otra planta), para no romper las pruebas ni el panel. El aviso de controles
+  sale también en el Mostrador, aunque nombre el disparo: es la primera pantalla que se ve.
+- Medidas: el bot no cambia (juega plantas, no el Mostrador).
+- Problemas conocidos: con la tostadora abajo, el cartel «Mercancía devuelta» y el tablón se ven
+  cortados por arriba hasta que se sube un poco. Los PNJs aún no hablan; el marcador de munición
+  sigue en pantalla en el Mostrador.
+- Siguiente paso: M9 (3), el bocadillo de la Caja con `cajaPages`.
+
 ## 2026-10-30 04:15 — Hito M9 — El arte del Mostrador
 - Hecho: `tools/sprites/mostrador.ts` con doce hojas: el mostrador en tres tramos de una casilla
   (extremo izquierdo, medio y extremo derecho, que se juntan sin costura), la Caja de Devoluciones

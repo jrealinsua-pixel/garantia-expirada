@@ -91,6 +91,26 @@ try {
     }
   };
 
+  /**
+   * M9: «Partida nueva» (or ?mostrador) opens the Mostrador de Devoluciones; stepping on its
+   * conveyor starts floor 1. Waits for the hub, puts the toaster just under the conveyor, walks
+   * onto it and waits for the run's first room.
+   */
+  const throughHub = async (name?: string): Promise<void> => {
+    const inHub = "window.__GE__ && window.__GE__.state().ready && window.__GE__.scene.world.room.kind === 'hub'";
+    await page.waitForFunction(`window.__GE_PHASER__.scene.isActive('game') && ${inHub}`, undefined, { timeout: 20000 })
+      .catch(() => { throw new Error('«Partida nueva» no lleva al Mostrador'); });
+    await page.waitForTimeout(500);
+    if (name) await shot(name);
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world; const b = w.room.belt; w.player.x = b.x + b.w / 2; w.player.y = b.y + b.h + 12; })()`);
+    await page.keyboard.down('w');
+    await page.waitForFunction("window.__GE__.scene.world.leftHub || !!window.__GE__.scene.world.floor", undefined, { timeout: 3000 })
+      .catch(() => { throw new Error('Pisar la cinta del Mostrador no hace nada'); });
+    await page.keyboard.up('w');
+    await page.waitForFunction("!!window.__GE__.scene.world.floor && window.__GE__.state().ready", undefined, { timeout: 5000 })
+      .catch(() => { throw new Error('La cinta del Mostrador no lleva a la planta 1'); });
+  };
+
   const s0 = await state();
   await shot('01-inicio.png');
 
@@ -998,8 +1018,7 @@ try {
   await page.waitForTimeout(150);
   await shot('26b-creditos.png');
   await tapKeys('Escape', 'ArrowDown', 'Enter');
-  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('game') && window.__GE__ && window.__GE__.state().ready", undefined, { timeout: 20000 });
-  if (!(await page.evaluate<boolean>('!!window.__GE__.scene.world.floor'))) throw new Error('«Presentar reclamación» no empieza una planta');
+  await throughHub('26c-mostrador-desde-portada.png');
   await page.waitForTimeout(600);
   await shot('26c-partida-desde-portada.png');
   await tapKeys('Escape', 'ArrowUp', 'Enter');
@@ -1011,7 +1030,7 @@ try {
 
   // M6: the record. A run on a floor ends with the toaster down; the title's history shows it.
   await tapKeys('Enter');
-  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('game') && window.__GE__ && window.__GE__.state().ready", undefined, { timeout: 20000 });
+  await throughHub();
   await page.waitForTimeout(400);
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.hp = 1; w.player.invulnerable = 0; w.player.rollT = -1; })()`);
   await page.evaluate(bulletAt(24));
@@ -1027,6 +1046,31 @@ try {
   await shot('29-historial.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Historial: una reclamación, una baja por microondas.');
+
+  // M9: the Mostrador de Devoluciones. Every run starts on its conveyor and ends back at its counter.
+  await page.goto(`${url}?mostrador`);
+  await page.waitForFunction("window.__GE__ && window.__GE__.state().ready && window.__GE__.scene.world.room.kind === 'hub'", undefined, { timeout: 20000 });
+  await page.waitForTimeout(1200);
+  await shot('40-mostrador.png');
+  // Nobody shoots in there: holding the trigger fires nothing.
+  await page.mouse.down();
+  await page.waitForTimeout(400);
+  await page.mouse.up();
+  if ((await page.evaluate<number>('window.__GE__.scene.world.bullets.length')) !== 0) throw new Error('En el Mostrador se dispara');
+  await throughHub();
+  await page.waitForTimeout(700);
+  await shot('41-de-la-cinta-a-la-planta.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.hp = 1; w.player.invulnerable = 0; w.player.rollT = -1; })()`);
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 });
+  await page.waitForTimeout(3200);
+  await page.keyboard.press('r');
+  await page.waitForFunction("window.__GE__.state().ready && window.__GE__.scene.world.room.kind === 'hub'", undefined, { timeout: 5000 })
+    .catch(() => { throw new Error('Tras el parte de baja no se vuelve al Mostrador'); });
+  await page.waitForTimeout(600);
+  await shot('42-vuelta-al-mostrador.png');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
+  console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1 y tras el parte de baja se vuelve.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

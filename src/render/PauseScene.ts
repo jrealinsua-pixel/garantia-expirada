@@ -287,11 +287,13 @@ export class PauseScene extends Phaser.Scene {
     else if (id === 'quit') this.show('confirmQuit');
     else if (id === 'start' || id === 'practice') {
       snd.play('arma');
-      this.scene.start('game', id === 'practice' ? { sala: 'sala-pruebas' } : {});
+      // «Partida nueva» goes to the Mostrador, where every run starts and ends.
+      this.scene.start('game', id === 'practice' ? { sala: 'sala-pruebas' } : { hub: true });
     } else if (id === 'yes' && this.screen === 'confirmNew') {
-      // Off to the recycling point: a new run of the same kind.
+      // Off to the recycling point: a new run of the same kind (back to the Mostrador if it came from there).
+      const data = (this.scene.get('game').sys.settings.data ?? {}) as { hub?: boolean; sala?: string };
       this.scene.stop('game');
-      this.scene.start('game');
+      this.scene.start('game', data);
     } else if (id === 'yes') {
       this.scene.stop('game');
       this.scene.start('title');
