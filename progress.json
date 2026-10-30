@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T01:25:00+01:00",
+  "actualizado": "2026-10-30T01:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -70,8 +70,8 @@
       "id": "M9",
       "nombre": "El centro y la historia",
       "estado": "en_curso",
-      "hechas": 0,
-      "total": 4
+      "hechas": 1,
+      "total": 9
     },
     {
       "id": "M10",
@@ -130,6 +130,12 @@
     "lineas_codigo": 14413
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T01:40:00+01:00",
+      "hito": "M9",
+      "resumen": "M9 empieza: el Mostrador de Devoluciones diseñado (la sala donde empieza y acaba cada partida, con tres PNJs, el tablón de personajes y el archivador de la historia) y el hito partido en nueve tareas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T01:25:00+01:00",
       "hito": "M8",
@@ -607,7 +613,7 @@
       "pie": "La Impresora que se Atasca en la planta 2: cada pocas ráfagas de facturas se queda atascada y temblando («Atasco de papel»)"
     }
   ],
-  "proximo": "M9 (el centro y la historia): el Mostrador de Devoluciones como centro entre partidas. Conviene partirlo en tareas pequeñas en la hoja de ruta antes de empezar.",
+  "proximo": "M9 (1): la sala del Mostrador de Devoluciones en la simulación (clase hub, cinta de entrada al almacén).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -639,8 +645,8 @@
   "en_curso": [
     {
       "sesion": "2026-10-30T00:25+01:00",
-      "tarea": "M9 (1): partir M9 en tareas y diseñar el Mostrador de Devoluciones (docs); después, la sala del centro en la simulación",
-      "desde": "2026-10-30T01:33:00+01:00"
+      "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación",
+      "desde": "2026-10-30T01:40:00+01:00"
     }
   ]
 }

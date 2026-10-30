@@ -2,6 +2,13 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 01:40 — Hito M9 — El centro diseñado y el hito partido
+
+- Hecho: **el Mostrador de Devoluciones diseñado** en `docs/DISENO.md` (sección nueva bajo «Progresión entre partidas»): sala pequeña sin enemigos donde empieza y acaba cada partida, con la cola de cinta vacía, la Caja de Devoluciones (comenta tu última baja), el teléfono del Servicio Técnico (la grabación avanza con los jefes y suelta la historia), la máquina de turnos (tu número son las partidas jugadas más cuatro millones), el Chatarrero (tras el primer jefe; pistas de desbloqueos), el tablón «Productos en Exposición» (los cinco personajes, en silueta los bloqueados, con su condición) y el archivador «Reclamaciones sin Resolver» (los documentos de historia). Se entra al almacén pisando la cinta transportadora de «Mercancía devuelta». **M9 partido en nueve tareas** en `docs/HOJA_DE_RUTA.md`, con criterios de aceptación.
+- Decisiones: los PNJs son aparatos, como todo el reparto (una caja registradora, un teléfono, un carrito), y el chiste apunta a la atención al cliente y no a quien atiende. Los personajes nuevos jugables siguen en M13: en M9 va el mecanismo de desbloqueo y el tablón, para no hacer cinco personajes a medias. El Chatarrero solo habla por ahora; una tienda entre partidas pide una moneda que dure entre partidas y eso es diseño de M14. El centro se recorre andando y no es un menú: así sirve la misma simulación (sala sin enemigos) y el bot puede cruzarlo.
+- Medidas: sin cambios de código.
+- Siguiente paso: M9 (1), la sala del Mostrador en la simulación.
+
 ## 2026-10-30 01:25 — Hito M8 — La tarea doble de la planta 2: lo que sumo a la otra sesión
 
 - Qué pasó: esta sesión (23:25 UTC) apuntó la tarea en `en_curso` e hizo push antes de empezar, pero la otra sesión ya estaba en ella sin apuntarla (lo cuenta en su entrada). Las dos llegamos a lo mismo: el bot encadena la planta 2, `freeSpot` busca más lejos, el bot no se planta sobre un activo y la planta 2 cuenta como 3 salas más honda. **Me quedo con lo suyo** (llegó antes a `main`) y descarto mi versión de todo eso; solo añado lo que no estaba.

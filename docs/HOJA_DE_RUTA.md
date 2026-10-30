@@ -220,10 +220,37 @@ semillas distintas acaban con builds distintas.
 
 ## M9 · El centro y la historia
 
-- [ ] Mostrador de Devoluciones como centro entre partidas.
-- [ ] PNJs con diálogos que cambian con el progreso.
-- [ ] Desbloqueo de personajes jugables.
-- [ ] Objetos de historia que revelan poco a poco la verdad del Servicio Técnico.
+- [x] (0) El centro diseñado en `docs/DISENO.md` («El Mostrador de Devoluciones») y el hito partido en tareas.
+- Mostrador de Devoluciones como centro entre partidas. En partes:
+  - [ ] (1) La sala en la simulación: plantilla `mostrador` (clase `hub`, sin enemigos ni
+    persianas), con el mostrador, la cola de cinta, el tablón, el archivador, el teléfono y la
+    **cinta de entrada al almacén**: pisarla termina el centro y empieza una partida (evento y
+    `World.leaveHub`). Tests: se recorre entera, nada hace daño, la cinta lleva a una planta 1.
+  - [ ] (2) Su arte (casillas y decorado propios: mostrador con caja, postes con cinta, máquina
+    de turnos, carteles) y el centro en el juego: «Partida nueva» de la portada lleva al
+    Mostrador; al acabar una partida (el parte de baja o la última planta) se vuelve a él.
+    Capturas.
+- PNJs con diálogos que cambian con el progreso (los textos y su elección, puros y con tests,
+  a partir de `Profile`). En partes:
+  - [ ] (3) La Caja de Devoluciones (comenta la última partida: la causa de baja, la planta a la
+    que llegó, el jefe que la tumbó) y el bocadillo de los PNJs (el de la tienda, reutilizado).
+  - [ ] (4) El teléfono del Servicio Técnico (la grabación avanza con los jefes vencidos y va
+    soltando la historia) y la máquina de turnos (su número es el de partidas jugadas).
+  - [ ] (5) El Chatarrero (sale tras vencer al primer jefe; da pistas de los desbloqueos).
+- [ ] (6) Desbloqueo de personajes: condiciones en datos (`src/data/`), guardadas en `Profile`,
+  comprobadas al acabar cada partida; el tablón «Productos en Exposición» del centro enseña a
+  los cinco con su condición (siluetas los bloqueados). Los personajes nuevos jugables llegan
+  en M13; aquí, el mecanismo y el tablón.
+- Objetos de historia que revelan poco a poco la verdad del Servicio Técnico. En partes:
+  - [ ] (7) Documentos de historia en datos (uno por jefe vencido por primera vez y alguno en las
+    salas secretas), guardados en `Profile` y leídos en el archivador «Reclamaciones sin
+    Resolver» del centro.
+  - [ ] (8) Repaso del centro: que se lea, que los textos no se repitan y que el bot lo cruce.
+
+**Criterios de aceptación:** al abrir el juego y al acabar cada partida se está en el Mostrador;
+desde él se empieza una partida andando; los tres PNJs dicen cosas distintas según el progreso
+(tests con perfiles hechos a mano); el tablón y el archivador enseñan lo desbloqueado y lo que
+falta; todo se guarda entre sesiones del navegador.
 
 ## M10 · Plantas 3 y 4
 

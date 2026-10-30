@@ -242,6 +242,42 @@ repite objeto.
 - Un pequeño **centro**: el mostrador de Devoluciones del vertedero, con PNJs (el Servicio
   Técnico al teléfono, un vendedor ambulante de piezas) que cambian con el progreso.
 
+### El Mostrador de Devoluciones (el centro, hito M9)
+
+Donde empieza y acaba cada partida: el mostrador de Devoluciones del sótano del Megamarket,
+una sala pequeña (unas 18 × 12 casillas) que se recorre andando, sin enemigos ni balas. Al
+abrir el juego, «Partida nueva» lleva aquí; tras el parte de baja (o tras ganar la última
+planta) se vuelve aquí. El chiste de fondo: es el único sitio del edificio donde de verdad te
+atienden, y no sirve para nada.
+
+- **La cola de cinta**: postes con cinta extensible que hacen un zigzag hasta el mostrador.
+  Vacía. Se puede (y se debe) cruzar por debajo.
+- **La Caja de Devoluciones** (PNJ, tras el mostrador): una caja registradora vieja con el
+  cajón abierto como boca y el cartel «Esta caja cierra en 5 minutos» desde hace años. Sella
+  el parte de baja y comenta la última partida: de qué caíste, hasta qué planta llegaste, qué
+  jefe te tumbó. Seca y burocrática: «Motivo de la devolución: le disparó un microondas. No
+  cubierto».
+- **El teléfono del Servicio Técnico** (PNJ, en la pared): un teléfono de góndola descolgado
+  con música de espera. La grabación «avanza» con los jefes vencidos y va soltando la historia
+  (el Servicio Técnico existe, tiene una oficina en lo alto, «su reparación está en curso»…),
+  sin revelar el final verdadero (M12).
+- **La máquina de turnos**: su pantalla roja enseña «Atendiendo al 12» y tu número, que es el de
+  partidas jugadas más cuatro millones. Nunca llega.
+- **El Chatarrero** (PNJ, aparece tras vencer al primer jefe): un carrito de supermercado con
+  una rueda que chirría, lleno de piezas sueltas, que «compra y vende reacondicionados». En M9
+  solo habla: da pistas de cómo se desbloquea lo que falta. Su tienda entre partidas, más
+  adelante (M14).
+- **El tablón «Productos en Exposición»**: los cinco personajes jugables. Los desbloqueados, a
+  color; los otros, en silueta y con su condición en letra pequeña («Disponible al vencer a la
+  Nevera Suprema»). Las condiciones son datos y se comprueban al acabar cada partida.
+- **El archivador «Reclamaciones sin Resolver»**: los documentos de historia encontrados
+  (albaranes, correos internos, manuales de procedimiento del Servicio Técnico), uno por jefe
+  vencido por primera vez y alguno en salas secretas. Leídos en orden cuentan, poco a poco, que
+  el Servicio Técnico no repara nada.
+- **La cinta de entrada al almacén**: una cinta transportadora con cortinas de tiras de
+  plástico en una pared, bajo el cartel «Mercancía devuelta». Pisarla empieza la partida en la
+  planta 1 (como un producto más que vuelve al almacén).
+
 ## Pautas del humano (2026-10-29)
 
 - Objetos pasivos que dan y quitan (más daño y más cadencia pero menos velocidad, por ejemplo);
