@@ -413,3 +413,9 @@ export function historyLines(h: HistoryInfo): { label: string; text: string }[] 
     { label: 'Causa de baja más habitual', text: h.cause ? `${h.cause.text} (${h.cause.times})` : 'Ninguna (aún)' },
   ];
 }
+
+// The tablón «Productos en Exposición» of the Mostrador (src/render/board.ts).
+export const BOARD_TITLE = 'Productos en Exposición';
+/** An unlocked character that cannot be played yet (they arrive in a later version). */
+export const BOARD_RESTOCK = 'Reposición pronto';
+export const BOARD_FOOT = 'Unidades limitadas. Condiciones sujetas a cambios sin previo aviso.';

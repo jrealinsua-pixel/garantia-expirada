@@ -7,7 +7,7 @@ import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
 import { GLYPHS } from '../../src/art/font.ts';
 import { BLUE, BROWN, CARD, CREAM, DSTEEL, GLOVE, GREEN, ICE, K, RED, RUSTR, STEEL, WHITE, YEL } from '../../src/art/lib.ts';
 import { box, cube, ellipse, hand, outline, ramp } from '../../src/art/lib.ts';
-import { TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../../src/art/hub.ts';
+import { BOARD_CARDS, TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../../src/art/hub.ts';
 
 /** The counter's melamine front: the store's grey-blue with the red «Devoluciones» stripe. */
 const FRONT = DSTEEL;
@@ -19,6 +19,9 @@ const MINT = ramp('#cfe8d0', '#9cc7a4', '#6c9a7c', '#46695a');
 const LED = hx('#ff4a3a');
 /** The Caja's old green display (red eyes are for enemies). */
 const VFD = hx('#7ef0a0');
+/** Toast and skin for the tiny faces on the board. */
+const TOAST = hx('#d9a35a');
+const SKIN = hx('#e9b98f');
 const LED_OFF = hx('#5a1d22');
 
 /** Writes `s` with «Letra Pequeña» glyphs (no outline) at (x, y): y is the top of the accent rows. */
@@ -342,6 +345,46 @@ export function makeBoard(): Canvas {
 }
 
 
+/** Who is on each card of the board, 6 × 7 each (the card's window), in ROSTER order: palette letters. */
+const BOARD_FACES: readonly string[][] = [
+  // La Tostadora: toast peeking out, chrome, the red band.
+  ['.T..T.', 'SSSSSS', 'SKSSKS', 'SSSSSS', 'RRRRRR', 'ssssss', '.K..K.'],
+  // La Batidora de Vaso: lid, the glass jug with its blades, the red base.
+  ['.GGGG.', '.IIIIG', '.KIKIG', '.IIII.', '.IWWI.', 'rRRRRr', 'rrrrrr'],
+  // La Plancha de Vapor: the handle, the white shell, the soleplate and its steam holes.
+  ['..BBB.', '..B.B.', '.WWWWW', 'WKWWKW', 'WWWWWW', 'SSSSSS', '.c.c..'],
+  // El Becario Eterno: messy hair, a face, a white shirt and the lanyard with its badge.
+  ['.HHHH.', 'HFFFF.', '.KFFK.', '.FFFF.', 'WWYWWW', 'WWYWWW', 'WYYYWW'],
+  // El Móvil Reacondicionado: a cracked screen and the battery at 1 %.
+  ['GGGGGG', 'GbbWbG', 'GKWbKG', 'GbWbbG', 'GbbWbG', 'GRbbbG', 'GGGGGG'],
+];
+
+/** A card's silhouette (the locked ones): the same shape, all in the board's darkest cork. */
+const SILHOUETTE = hx('#3b3348');
+
+/**
+ * The faces on the board's cards, 6 × 7 each: the five in colour (frames 0–4, ROSTER order) and
+ * their silhouettes (5–9) for the ones still locked. The game pins them on the cards (BOARD_CARDS).
+ */
+export function makeBoardFaces(): Canvas {
+  const pal: Record<string, RGBA> = {
+    T: TOAST, S: STEEL[1]!, s: STEEL[2]!, K: K, R: RED[1]!, r: RED[2]!, G: GLOVE[1]!, I: ICE[1]!, W: WHITE,
+    B: BLUE[1]!, c: ICE[2]!, H: BROWN[2]!, F: SKIN, Y: YEL[1]!, b: BLUE[2]!,
+  };
+  const n = BOARD_FACES.length;
+  const sheet = new Canvas(6 * n * 2, 7);
+  BOARD_FACES.forEach((rows, i) =>
+    rows.forEach((row, y) =>
+      [...row].forEach((ch, x) => {
+        if (ch === '.') return;
+        sheet.set(i * 6 + x, y, pal[ch]!);
+        sheet.set((n + i) * 6 + x, y, SILHOUETTE);
+      }),
+    ),
+  );
+  return sheet;
+}
+
 /**
  * El teléfono del Servicio Técnico, 18 × 32, two frames: a wall phone with the receiver off the
  * hook, hanging from its curly cord and swinging.
@@ -474,7 +517,11 @@ export function previewHub(
   const sign = sheets['cartel-mercancia']!.canvas;
   cv.blit(sign, b.x + b.w / 2 - Math.floor(sign.w / 2), WALL_SIGN_Y);
   for (const st of room.stations) {
-    if (st.kind === 'tablon') cv.blit(sheets.tablon!.canvas, st.x - 25, WALL_BOARD_Y);
+    if (st.kind === 'tablon') {
+      cv.blit(sheets.tablon!.canvas, st.x - 25, WALL_BOARD_Y);
+      // As on a first visit: only the Tostadora in colour, the rest as silhouettes.
+      BOARD_CARDS.forEach((c, i) => cv.blit(frame(sheets['fichas-tablon']!, i === 0 ? 0 : BOARD_FACES.length + i), st.x - 25 + c.x, WALL_BOARD_Y + c.y));
+    }
     if (st.kind === 'telefono') cv.blit(frame(sheets.telefono!), st.x - 9, WALL_PHONE_Y);
   }
   const at = (key: string, x: number, y: number, i = 0): void => {

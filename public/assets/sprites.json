@@ -407,6 +407,12 @@
     "frameH": 34,
     "frames": 1
   },
+  "fichas-tablon": {
+    "file": "fichas-tablon.png",
+    "frameW": 6,
+    "frameH": 7,
+    "frames": 10
+  },
   "telefono": {
     "file": "telefono.png",
     "frameW": 18,

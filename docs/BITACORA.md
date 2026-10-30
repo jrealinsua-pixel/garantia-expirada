@@ -2,6 +2,25 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 06:30 — Hito M9 — El tablón «Productos en Exposición»
+- Hecho: el tablón del Mostrador lleva en sus cinco tarjetas a los cinco personajes (hoja nueva
+  `fichas-tablon`, 6 × 7: a color los desbloqueados y en silueta los demás). Al ponerse delante
+  se abre un panel abajo (`src/render/board.ts`, puro): cabecera roja, una fila por personaje con
+  su cara, el nombre y debajo su frase o su condición; a la derecha cuánto falta («2/10») o
+  «Reposición pronto» si está desbloqueado pero aún no es jugable (llegan en M13); al pie, «Unidades
+  limitadas. Condiciones sujetas a cambios sin previo aviso.». Se cierra al apartarse. Con texto
+  grande, una línea por personaje: el nombre o la condición con su cuenta. Tests nuevos
+  (`tests/tablon.test.ts`: cuenta, caras a color/silueta, cabe y no se pisa a los dos tamaños con
+  cuatro perfiles) y e2e (47–48: el panel con la Batidora desbloqueada y con texto grande).
+- Decisiones: un panel y no el bocadillo, porque son cinco cosas a la vez y el bocadillo va página
+  a página. Va abajo y por encima de la ayuda de controles y la munición, porque el tablón cuelga
+  arriba y la tostadora está allí. La cuenta solo sale cuando hay algo que contar (un jefe se vence
+  o no). Los nombres de los bloqueados se ven, en gris: dan ganas y el Chatarrero ya los nombra.
+- Medidas: el bot no cambia.
+- Problemas conocidos: la silueta del móvil es un rectángulo (se lee como «un móvil», sin más).
+  El marcador de munición sigue en pantalla en el Mostrador.
+- Siguiente paso: M9 (7), recoger el documento de la sala secreta y el archivador del centro.
+
 ## 2026-10-30 05:35 — Hito M9 — El teléfono, la máquina de turnos y el Chatarrero hablan
 - Hecho: el bocadillo del Mostrador sirve ya a cualquier estación (`talkAt`, `STATION_TOP`,
   `hubPages`): la máquina de turnos dice su pantalla y una nota (`turnosScreen`), el teléfono la

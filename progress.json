@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T05:35:00+01:00",
+  "actualizado": "2026-10-30T06:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -70,7 +70,7 @@
       "id": "M9",
       "nombre": "El centro y la historia",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 3
     },
     {
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 419,
-    "tests_ok": 419,
+    "tests": 423,
+    "tests_ok": 423,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15223
+    "lineas_codigo": 15452
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T06:30:00+01:00",
+      "hito": "M9",
+      "resumen": "El tablón «Productos en Exposición» del Mostrador: los cinco personajes en sus tarjetas (a color o en silueta) y, al acercarse, un panel con su condición y cuánto falta («2/10»).",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T05:35:00+01:00",
       "hito": "M9",
@@ -637,6 +643,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/tablon.png",
+      "pie": "El tablón «Productos en Exposición»: a color los personajes desbloqueados, en silueta los demás, con su condición y cuánto falta"
+    },
+    {
       "archivo": "capturas/chatarrero.png",
       "pie": "El Chatarrero aparece en el Mostrador tras vencer al primer jefe y da pistas de lo que falta"
     },
@@ -655,13 +665,9 @@
     {
       "archivo": "capturas/router-combate.png",
       "pie": "El Router del Wifi en su fase 2, «Actualización de firmware»: anillos con dos huecos y tres caídas de conexión marcadas alrededor de la tostadora"
-    },
-    {
-      "archivo": "capturas/tienda-informatica.png",
-      "pie": "La tienda de la planta 2, «Accesorios Oficiales (Funda No Incluida)»: la planta 2 ya tiene tesoro, tienda, sala secreta y sala del jefe propios"
     }
   ],
-  "proximo": "M9 (6): el tablón «Productos en Exposición» en el Mostrador, con los cinco personajes (siluetas los bloqueados) y su condición.",
+  "proximo": "M9 (7): recoger el documento de la sala secreta y el archivador «Reclamaciones sin Resolver» en el Mostrador.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -690,11 +696,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-30 06:00",
-      "tarea": "M9 (6): el tablón de personajes en el Mostrador",
-      "desde": "2026-10-30T06:00:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

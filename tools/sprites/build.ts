@@ -114,6 +114,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     archivador: one(H.makeFilingCabinet()),
     chatarrero: { canvas: H.makeScrapDealer(), frameW: 36, frameH: 36 },
     tablon: one(H.makeBoard()),
+    'fichas-tablon': { canvas: H.makeBoardFaces(), frameW: 6, frameH: 7 },
     telefono: { canvas: H.makeWallPhone(), frameW: 18, frameH: 32 },
     'cinta-almacen': { canvas: H.makeConveyor(), frameW: 48, frameH: 24 },
     cortinas: { canvas: H.makeStripCurtain(), frameW: 48, frameH: 33 },

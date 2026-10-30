@@ -245,7 +245,7 @@ semillas distintas acaban con builds distintas.
 - [x] (6a) El mecanismo: `src/data/unlocks.ts` (los cinco del tablón con su condición y su texto),
   `src/sim/unlocks.ts` (comprobar, avance, `rosterBoard`) y `Profile.unlocked`, comprobado en
   cada `recordRun` y al leer una partida guardada. Falta el tablón en el centro (6).
-- [ ] (6) Desbloqueo de personajes: condiciones en datos (`src/data/`), guardadas en `Profile`,
+- [x] (6) Desbloqueo de personajes: condiciones en datos (`src/data/`), guardadas en `Profile`,
   comprobadas al acabar cada partida; el tablón «Productos en Exposición» del centro enseña a
   los cinco con su condición (siluetas los bloqueados). Los personajes nuevos jugables llegan
   en M13; aquí, el mecanismo y el tablón.

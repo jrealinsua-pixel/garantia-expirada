@@ -62,10 +62,16 @@ import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from
 import { profile, saveFloor, saveRun } from './save.ts';
 import { cajaPages, chatarreroHere, chatarreroPages, telefonoPages, turnosScreen } from '../sim/dialogue.ts';
 import type { StationKind } from '../sim/room.ts';
+import { rosterBoard } from '../sim/unlocks.ts';
+import { CHARACTERS } from '../data/characters.ts';
+import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
+
+/** A piece of the tablón panel: it slides and fades. */
+type BoardPart = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.AlphaSingle;
 
 /** How far above a station's spot of the Mostrador its bubble goes (px; the Caja uses the till's). */
 const STATION_TOP: Record<StationKind, number> = { caja: 46, telefono: 50, turnos: 34, chatarrero: 34, tablon: 52, archivador: 34 };
-import { TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
+import { BOARD_CARDS, TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
@@ -429,6 +435,7 @@ export class GameScene extends Phaser.Scene {
     this.ammoPips = [];
     this.hubViews = null;
     this.hubPending = {};
+    this.boardPanel = [];
     const params = new URLSearchParams(location.search);
     const carried = this.carry;
     this.carry = null;
@@ -994,11 +1001,62 @@ export class GameScene extends Phaser.Scene {
     this.add.image(b.x + b.w / 2, WALL_SIGN_Y, 'cartel-mercancia').setOrigin(0.5, 0).setDepth(-89999);
     let phone: Phaser.GameObjects.Image | null = null;
     for (const st of room.stations) {
-      if (st.kind === 'tablon') this.add.image(st.x, WALL_BOARD_Y, 'tablon').setOrigin(0.5, 0).setDepth(-90000);
+      if (st.kind === 'tablon') {
+        const board = this.add.image(st.x, WALL_BOARD_Y, 'tablon').setOrigin(0.5, 0).setDepth(-90000);
+        // Who is on each card: in colour once unlocked, a silhouette until then.
+        const faces = this.boardEntries();
+        BOARD_CARDS.forEach((c, i) => {
+          const e = faces[i];
+          if (e) this.add.image(board.x - board.width / 2 + c.x, WALL_BOARD_Y + c.y, 'fichas-tablon', e.unlocked ? i : faces.length + i).setOrigin(0, 0).setDepth(-89999);
+        });
+      }
       if (st.kind === 'telefono') phone = this.add.image(st.x, WALL_PHONE_Y, 'telefono', 0).setOrigin(0.5, 0).setDepth(-90000);
     }
     this.hubViews = { belt, curtain, phone, turnos: this.hubPending.turnos ?? null, chatarrero: this.hubPending.chatarrero ?? null, t: 0 };
     this.hubPending = {};
+  }
+
+  /** The tablón's five, from the saved profile (the unlocked ones that are not playable yet say so). */
+  private boardEntries(): BoardEntry[] {
+    return rosterBoard(profile()).map((r) => ({ ...r, soon: r.unlocked && !CHARACTERS[r.id] }));
+  }
+
+  /** The tablón panel along the bottom of the screen while the toaster stands at the board. */
+  private boardPanel: BoardPart[] = [];
+
+  private showBoard(): void {
+    const L = boardLayout(this.boardEntries(), readScale(settings()));
+    const parts = this.boardPanel;
+    const add = <T extends BoardPart & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor>(o: T): T => {
+      o.setScrollFactor(0).setDepth(96000 + parts.length);
+      parts.push(o);
+      return o;
+    };
+    // Cork-coloured paper with the board's red header.
+    add(this.add.rectangle(L.x, L.y, L.w, L.h, 0x0e0c16, 0.93).setOrigin(0, 0)).setStrokeStyle(1, 0xb97d48);
+    add(this.add.rectangle(L.x + 1, L.y + 1, L.w - 2, L.barH, 0xe0453b, 1).setOrigin(0, 0));
+    const g = add(this.add.graphics());
+    for (const r of L.rules) for (let x = L.x + 6; x < L.x + L.w - 6; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, r, 2, 1);
+    for (const f of L.faces) {
+      add(this.add.rectangle(f.x - 1, f.y - 1, 6 * f.zoom + 2, 7 * f.zoom + 2, 0xf4efdc, 1).setOrigin(0, 0));
+      add(this.add.image(f.x, f.y, 'fichas-tablon', f.frame).setOrigin(0, 0).setScale(f.zoom));
+    }
+    const tints: Record<BoardRole, number> = { title: 0xf4f1e8, name: 0xf4f1e8, locked: 0x858ea8, text: 0xd6cdb2, progress: 0xf6c431, soon: 0x69dbd8, foot: 0x5d647e };
+    for (const t of L.texts) add(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
+    // It slides up from the bottom edge.
+    for (const o of parts) {
+      const ty = o.y;
+      o.y = ty + 24;
+      o.alpha = 0;
+      this.tweens.add({ targets: o, y: ty, alpha: 1, duration: 160, ease: 'Quad.easeOut' });
+    }
+    this.sound2.play('recargar', { detune: 200 });
+  }
+
+  private hideBoard(): void {
+    const parts = this.boardPanel;
+    this.boardPanel = [];
+    for (const o of parts) this.tweens.add({ targets: o, y: o.y + 24, alpha: 0, duration: 120, ease: 'Quad.easeIn', onComplete: () => o.destroy() });
   }
 
   /** What a station of the Mostrador says now, from the saved profile (empty: it says nothing). */
@@ -1031,6 +1089,9 @@ export class GameScene extends Phaser.Scene {
       // Walked off: the current page ends and the rest is not said.
       this.tillNext = [];
       if (kind && this.bubble) this.bubbleT = Math.min(this.bubbleT, 0.01);
+      if (this.boardPanel.length) this.hideBoard();
+      // The board does not talk: it opens its panel (src/render/board.ts).
+      if (kind === 'tablon') this.showBoard();
     }
     if (st && !this.hubSpoke && !this.bubble) {
       this.hubSpoke = true;
