@@ -2,6 +2,28 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 03:45 — Hito M9 — El Mostrador de Devoluciones, en la simulación
+- Hecho: plantilla `HUB` (`mostrador`, 18 × 12, clase `hub`, fuera de `ROOMS` para que nunca salga
+  en una planta) con mostrador (`m`, uno por casilla) y la Caja encima (`C`), el tablón (`B`) y el
+  teléfono (`t`) en la pared del fondo, la máquina de turnos (`n`) a la cabeza de una cola de seis
+  postes (`|`, no paran balas ni cortan el paso más que su pie), el archivador (`a`), el Chatarrero
+  (`h`) y la cinta de entrada al almacén (`>`, dos casillas bajo la pared). `Room.stations` (dónde
+  se pone la tostadora para usar cada cosa) y `Room.belt`; `createWorld({ hub: { chatarrero } })`;
+  `nearStation`, `onBelt`, `World.leftHub`, el evento `leaveHub` y `leaveHub(w, semilla)`, que da la
+  planta 1 de una partida nueva con el mismo personaje. En el Mostrador no se dispara, no se
+  recarga ni se usa el objeto activo; rodar sí. 8 tests nuevos (418).
+- Decisiones: la reserva de esta tarea (de la sesión de las 00:24 UTC) llevaba dos horas sin un
+  commit, más de los 90 minutos del protocolo, así que la cogí. La Caja va sobre el mostrador (una
+  registradora encima del mostrador se lee mejor que escondida detrás) y se le habla desde delante.
+  La cinta, en la pared del fondo para que las cortinas de tiras y el cartel «Mercancía devuelta»
+  se vean de frente; cuenta pegarse a la pared encima de ella, pero no pasar rodando (como el
+  montacargas). La semilla de la partida la pone quien llama (el juego elegirá una nueva cada
+  vez). El Chatarrero lo decide quien crea el Mostrador (con el perfil), no la simulación.
+- Medidas: el bot no cambia (el Mostrador aún no está en el juego).
+- Problemas conocidos: los props nuevos no tienen sprite todavía; el juego no enseña el Mostrador.
+- Siguiente paso: M9 (2), su arte y el centro en el juego (portada → Mostrador → cinta → planta 1;
+  el parte de baja vuelve a él).
+
 ## 2026-10-30 03:20 — Hito M9 — Documentos de historia, en datos y en el perfil
 - Hecho: `src/data/lore.ts` con cuatro documentos en orden de lectura: el albarán de la Nevera
   («súbase como todos, no hace falta mirar»), una página del manual de procedimiento (la sección

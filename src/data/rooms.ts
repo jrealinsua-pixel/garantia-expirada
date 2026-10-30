@@ -875,3 +875,30 @@ export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1):
   const own = (level === 2 ? FLOOR_2 : FLOOR_1).filter((t) => t.kind === kind);
   return own.length > 0 ? own : FLOOR_1.filter((t) => t.kind === kind);
 }
+
+/**
+ * El Mostrador de Devoluciones (docs/DISENO.md): the hub between runs, 18 × 12 tiles, no enemies,
+ * no doors. The counter with the Caja, the phone and the board on the back wall, the ticket
+ * machine at the head of an empty queue of posts, the filing cabinet, the Chatarrero (only once a
+ * boss has fallen: see createWorld) and, under «Mercancía devuelta», the conveyor (`>`) into the
+ * warehouse: stepping on it starts a run. Not in ROOMS: it is never a floor room.
+ */
+export const HUB: RoomTemplate = {
+  id: 'mostrador',
+  kind: 'hub',
+  name: 'Mostrador de Devoluciones',
+  rows: [
+    '##################',
+    '##################',
+    '#.B.........t.>>.#',
+    '#.....mmCmm......#',
+    '#a...........n...#',
+    '#...|...|...|....#',
+    '#................#',
+    '#...|...|...|..h.#',
+    '#................#',
+    '#.......P........#',
+    '#k..............b#',
+    '##################',
+  ],
+};

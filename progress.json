@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T03:20:00+01:00",
+  "actualizado": "2026-10-30T03:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 410,
-    "tests_ok": 410,
+    "tests": 418,
+    "tests_ok": 418,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 14955
+    "lineas_codigo": 15103
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T03:45:00+01:00",
+      "hito": "M9",
+      "resumen": "El Mostrador de Devoluciones ya existe en la simulación: mostrador con la Caja, teléfono, tablón, máquina de turnos con su cola vacía, archivador, Chatarrero y la cinta al almacén, que empieza una partida nueva al pisarla. Nadie dispara ahí dentro.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T03:20:00+01:00",
       "hito": "M9",
@@ -631,7 +637,7 @@
       "pie": "La Impresora que se Atasca en la planta 2: cada pocas ráfagas de facturas se queda atascada y temblando («Atasco de papel»)"
     }
   ],
-  "proximo": "M9 (1): la sala del Mostrador de Devoluciones en la simulación (clase hub, cinta de entrada al almacén).",
+  "proximo": "M9 (2): el arte del Mostrador y el centro en el juego (portada → Mostrador → cinta → planta 1; al acabar, de vuelta).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -660,11 +666,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-30T03:30+01:00",
-      "tarea": "M9 (1): la sala del Mostrador de Devoluciones en la simulación (la reserva anterior, de 00:24 UTC, lleva dos horas sin commits)",
-      "desde": "2026-10-30T03:30:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

@@ -43,12 +43,39 @@ export interface Room {
   enemySpawns: Array<{ def: EnemyDef; x: number; y: number }>;
   /** Seconds before dead enemies come back (0 = never). */
   restock: number;
-  kind: RoomKind | 'test';
+  kind: RoomKind | 'test' | 'hub';
   /** Openings in the walls (still solid until the floor's transitions arrive). */
   doors: RoomDoor[];
   /** Item pedestals, shopkeeper, shop shelves and boss spot (centre of the tile). */
   slots: Array<{ kind: SlotKind; x: number; y: number }>;
+  /** The Mostrador's things that talk or show something (see Station). Empty in any other room. */
+  stations: Station[];
+  /** The Mostrador's conveyor into the warehouse (pixels): stepping on it starts a run. */
+  belt: Rect | null;
 }
+
+/** What can be talked to or looked at in the Mostrador de Devoluciones (the hub). */
+export type StationKind = 'caja' | 'telefono' | 'turnos' | 'chatarrero' | 'tablon' | 'archivador';
+
+/**
+ * A station of the hub. `x, y` is where the toaster's feet go to use it: the bottom-centre of a
+ * prop that stands (the Caja, the ticket machine, the cabinet, the Chatarrero), or the middle of
+ * the tile under something that hangs on the back wall (the board, the phone).
+ */
+export interface Station {
+  kind: StationKind;
+  x: number;
+  y: number;
+}
+
+const STATION_CHARS: Record<string, { kind: StationKind; prop?: string }> = {
+  C: { kind: 'caja', prop: 'caja-devoluciones' },
+  n: { kind: 'turnos', prop: 'turnos' },
+  a: { kind: 'archivador', prop: 'archivador' },
+  h: { kind: 'chatarrero', prop: 'chatarrero' },
+  B: { kind: 'tablon' },
+  t: { kind: 'telefono' },
+};
 
 export interface RoomDoor {
   dir: Dir;
@@ -62,7 +89,7 @@ export interface RoomDoor {
 export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
 const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 'shelf', J: 'boss' };
 
-const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito' };
+const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', m: 'mostrador', '|': 'poste' };
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
   O: 'microondas',
@@ -90,6 +117,8 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
   const dummySpawns: Room['dummySpawns'] = [];
   const enemySpawns: Room['enemySpawns'] = [];
   const slots: Room['slots'] = [];
+  const stations: Station[] = [];
+  const belt: Cell[] = [];
   let playerStart: Vec | null = null;
   t.rows.forEach((line, r) => {
     if (line.length !== cols) throw new Error(`Room ${t.id}: row ${r} has ${line.length} columns, expected ${cols}`);
@@ -107,6 +136,14 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
           props.push({ def, x: cx, y: bottom, box: { x: cx + def.box.x, y: bottom + def.box.y, w: def.box.w, h: def.box.h } });
         }
       }
+      else if (STATION_CHARS[ch]) {
+        const st = STATION_CHARS[ch];
+        if (st.prop) {
+          const def = PROPS[st.prop]!;
+          props.push({ def, x: cx, y: bottom, box: { x: cx + def.box.x, y: bottom + def.box.y, w: def.box.w, h: def.box.h } });
+          stations.push({ kind: st.kind, x: cx, y: bottom });
+        } else stations.push({ kind: st.kind, x: cx, y: r * TILE + TILE / 2 + 4 });
+      } else if (ch === '>') belt.push({ c, r });
       else if (ch === 'M') dummySpawns.push({ def: DUMMIES.maniqui!, x: cx, y: bottom });
       else if (ENEMY_CHARS[ch]) enemySpawns.push({ def: ENEMIES[ENEMY_CHARS[ch]]!, x: cx, y: r * TILE + TILE / 2 + 4 });
       else if (PROP_CHARS[ch]) {
@@ -127,7 +164,8 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
     playerStart = { x: (inner.c + 1) * TILE, y: inner.r * TILE + TILE / 2 + 4 };
   }
   const roomDoors: RoomDoor[] = [];
-  for (const dir of doors ?? (t.kind ? (['N', 'S', 'E', 'W'] as const) : (['N', 'S'] as const))) {
+  // The hub has no doors: it is left by the conveyor.
+  for (const dir of doors ?? (t.kind === 'hub' ? [] : t.kind ? (['N', 'S', 'E', 'W'] as const) : (['N', 'S'] as const))) {
     const cells = doorCells(cols, rows, dir);
     if (cells.some((c) => !tiles[c.r * cols + c.c])) throw new Error(`Room ${t.id}: door ${dir} is not in a wall`);
     const c0 = Math.min(...cells.map((c) => c.c));
@@ -152,7 +190,20 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
     kind: t.kind ?? 'test',
     doors: roomDoors,
     slots,
+    stations,
+    belt: beltRect(belt),
   };
+}
+
+/** The rectangle the conveyor's tiles cover (they must make one), or null without any. */
+function beltRect(cells: Cell[]): Rect | null {
+  if (cells.length === 0) return null;
+  const c0 = Math.min(...cells.map((k) => k.c));
+  const c1 = Math.max(...cells.map((k) => k.c));
+  const r0 = Math.min(...cells.map((k) => k.r));
+  const r1 = Math.max(...cells.map((k) => k.r));
+  if ((c1 - c0 + 1) * (r1 - r0 + 1) !== cells.length) throw new Error('The conveyor tiles (>) must make a rectangle');
+  return { x: c0 * TILE, y: r0 * TILE, w: (c1 - c0 + 1) * TILE, h: (r1 - r0 + 1) * TILE };
 }
 
 /**

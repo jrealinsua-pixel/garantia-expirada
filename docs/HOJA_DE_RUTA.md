@@ -222,7 +222,7 @@ semillas distintas acaban con builds distintas.
 
 - [x] (0) El centro diseñado en `docs/DISENO.md` («El Mostrador de Devoluciones») y el hito partido en tareas.
 - Mostrador de Devoluciones como centro entre partidas. En partes:
-  - [ ] (1) La sala en la simulación: plantilla `mostrador` (clase `hub`, sin enemigos ni
+  - [x] (1) La sala en la simulación: plantilla `mostrador` (clase `hub`, sin enemigos ni
     persianas), con el mostrador, la cola de cinta, el tablón, el archivador, el teléfono y la
     **cinta de entrada al almacén**: pisarla termina el centro y empieza una partida (evento y
     `World.leaveHub`). Tests: se recorre entera, nada hace daño, la cinta lleva a una planta 1.

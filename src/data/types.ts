@@ -212,6 +212,10 @@ export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'bo
  * Slots, filled when a floor is built (src/sim/room.ts, fillTemplate): `e` an enemy (or nothing),
  * `o` an obstacle (or nothing), `*` an item pedestal, `$` the shopkeeper, `s` a shop shelf,
  * `J` the boss. `1`–`9`: a group of shelving that stands or not with the seed (each digit on its own).
+ * The Mostrador (hub, src/sim/room.ts): `m` a stretch of counter, `C` the counter with the Caja de
+ * Devoluciones on it, `n` the ticket machine, `a` the filing cabinet, `h` the Chatarrero, `|` a
+ * queue post, `B` the board and `t` the phone (both hang on the back wall over that tile) and `>`
+ * the conveyor into the warehouse (stepping on it starts a run).
  * The top two rows are the back wall (shelves are painted on them).
  * Floor templates keep the four door openings (centre of each wall) and the two tiles in front
  * of them clear, so any template fits any set of doors.
@@ -220,8 +224,8 @@ export interface RoomTemplate {
   id: string;
   name: string;
   rows: readonly string[];
-  /** What the room is for on a floor; templates without one (the test room) never appear on a floor. */
-  kind?: RoomKind;
+  /** What the room is for on a floor; templates without one (the test room) never appear on a floor. `hub`: the Mostrador de Devoluciones, between runs. */
+  kind?: RoomKind | 'hub';
   /** Seconds after the last enemy dies before the room's enemies come back (test room only). */
   restock?: number;
   /** Which floor of the store it belongs to (default 1). */

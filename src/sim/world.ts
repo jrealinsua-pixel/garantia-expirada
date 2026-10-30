@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { floorBossOf, ROOMS, slotEnemiesOf, templatesOf } from '../data/rooms.ts';
+import { floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -13,7 +13,7 @@ import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
-import { BACK_WALL_ROWS, buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type PropInstance, type Room, type RoomDoor } from './room.ts';
+import { BACK_WALL_ROWS, buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type PropInstance, type Room, type RoomDoor, type Station } from './room.ts';
 import { PROPS } from '../data/props.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
@@ -377,6 +377,8 @@ export type SimEvent =
   /** The goods lift came up where the boss fell (it can be used once it is `ready`). */
   | { type: 'lift'; x: number; y: number }
   | { type: 'liftReady'; x: number; y: number }
+  /** The toaster stepped on the Mostrador's conveyor: the hub is done and a run starts (see leaveHub). */
+  | { type: 'leaveHub'; x: number; y: number }
   /** The toaster stepped on the lift: the floor is done (see World.won). */
   | { type: 'floorDone'; x: number; y: number; seconds: number; kills: number; coupons: number }
   | { type: 'restock' }
@@ -454,6 +456,8 @@ export interface World {
   won: boolean;
   /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
   holdT: number;
+  /** The Mostrador: the toaster stepped on the conveyor, the hub stands still and a run is due (see leaveHub). */
+  leftHub: boolean;
 }
 
 export interface Lift {
@@ -560,18 +564,32 @@ export interface WorldOptions {
   floor?: boolean;
   /** Which floor of the store (default 1). */
   level?: number;
+  /** The Mostrador de Devoluciones (the hub between runs) instead of a room or a floor. */
+  hub?: HubOptions;
+}
+
+/** Who is in the Mostrador this time (the profile decides; see src/sim/dialogue.ts). */
+export interface HubOptions {
+  /** The Chatarrero turns up once a boss has fallen; without him his spot is clear floor. */
+  chatarrero?: boolean;
 }
 
 export function createWorld(opts: WorldOptions): World {
-  const floor = opts.floor ? planFloor(opts.seed, opts.level ?? 1) : null;
-  let tpl = floor ? floor.rooms[floor.current]!.template : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
+  const floor = opts.floor && !opts.hub ? planFloor(opts.seed, opts.level ?? 1) : null;
+  const single = opts.hub ? HUB : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
+  let tpl = floor ? floor.rooms[floor.current]!.template : single;
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
-  if (!floor && !opts.template && tpl.kind) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(opts.level ?? 1), boss: floorBossOf(opts.level ?? 1) });
+  const filled = !floor && !opts.template && tpl.kind && tpl.kind !== 'hub';
+  if (filled) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(opts.level ?? 1), boss: floorBossOf(opts.level ?? 1) });
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
   if (!wdef) throw new Error(`Unknown weapon ${def.startWeapon}`);
   const room = floor ? floorRoomOf(floor, floor.current) : buildRoom(tpl, opts.doors);
+  if (opts.hub && !opts.hub.chatarrero) {
+    room.stations = room.stations.filter((st) => st.kind !== 'chatarrero');
+    room.props = room.props.filter((pr) => pr.def.id !== 'chatarrero');
+  }
   let nextId = 1;
   const dummies: Dummy[] = room.dummySpawns.map((s) => ({ id: nextId++, def: s.def, x: s.x, y: s.y, lean: 0, leanV: 0, hitT: 0, damageTaken: 0 }));
   const w: World = {
@@ -626,6 +644,7 @@ export function createWorld(opts: WorldOptions): World {
     lift: null,
     won: false,
     holdT: 0,
+    leftHub: false,
   };
   w.player.arsenal.push(w.player.weapon);
   if (floor) {
@@ -635,6 +654,7 @@ export function createWorld(opts: WorldOptions): World {
   }
   // The test room lays out every findable weapon on its pedestals, to try them all; a treasure
   // (or secret) room played on its own stocks its pedestals as on a floor.
+  if (room.kind === 'hub') return w;
   if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], [], []);
   else if (room.kind === 'shop') stockShop(w, decksOf(w));
   else if (room.kind === 'treasure' || room.kind === 'secret') {
@@ -646,6 +666,51 @@ export function createWorld(opts: WorldOptions): World {
   if (fights(room) && w.enemies.length > 0) w.doorsShut = true;
   startIntro(w);
   return w;
+}
+
+/**
+ * The run that starts when the toaster steps on the Mostrador's conveyor: floor 1 of a new run,
+ * seeded by `seed` (the caller picks a fresh one per run), with the same character. Null while
+ * the toaster has not stepped on it (or outside the hub).
+ */
+export function leaveHub(w: World, seed: string): World | null {
+  if (w.room.kind !== 'hub' || !w.leftHub) return null;
+  return createWorld({ seed, floor: true, level: 1, character: w.player.base.def.id });
+}
+
+/** How close (px) the toaster's feet must be to a station of the hub to use it. */
+export const STATION_REACH = 30;
+
+/** The hub's station the toaster is standing at (the closest within STATION_REACH), or null. */
+export function nearStation(w: World): Station | null {
+  const p = w.player;
+  let best: Station | null = null;
+  let bestD = STATION_REACH;
+  for (const st of w.room.stations) {
+    const d = Math.hypot(st.x - p.x, st.y - p.y);
+    if (d < bestD) {
+      best = st;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+/** Whether the toaster's feet are on the hub's conveyor (not just brushing its sides; against the wall behind it counts). */
+export function onBelt(w: World): boolean {
+  const b = w.room.belt;
+  const p = w.player;
+  return !!b && p.x > b.x + 4 && p.x < b.x + b.w - 4 && p.y > b.y && p.y < b.y + b.h;
+}
+
+/** The hub: stepping on the conveyor (not rolling over it) ends it. */
+function updateBelt(w: World): void {
+  if (w.room.kind !== 'hub' || w.leftHub || isRolling(w.player) || !onBelt(w)) return;
+  const p = w.player;
+  w.leftHub = true;
+  p.vx = 0;
+  p.vy = 0;
+  w.events.push({ type: 'leaveHub', x: p.x, y: p.y });
 }
 
 /** How many rooms deeper each floor of the store starts (see planFloor): the enemy budget grows with it. */
@@ -2141,8 +2206,8 @@ function updateChests(w: World): void {
 
 export function step(w: World, input: Input): void {
   w.events = [];
-  // Gone down the lift: the floor is done and nothing moves any more.
-  if (w.won) {
+  // Gone down the lift (or onto the hub's conveyor): nothing moves any more.
+  if (w.won || w.leftHub) {
     w.tick++;
     return;
   }
@@ -2151,6 +2216,8 @@ export function step(w: World, input: Input): void {
     w.tick++;
     return;
   }
+  // The Mostrador is the one place in the building where nobody shoots.
+  if (w.room.kind === 'hub') input = { ...input, fire: false, reload: false, useItem: false, debugPattern: undefined };
   // Once down, the toaster lies there: the room goes on without it.
   updatePlayer(w, w.over ? { ...NO_INPUT, aimX: w.player.x + Math.cos(w.player.aim), aimY: w.player.y - HAND_HEIGHT + Math.sin(w.player.aim) } : input);
   if (input.useItem && !w.over) useActive(w);
@@ -2182,6 +2249,7 @@ export function step(w: World, input: Input): void {
   updateRestock(w);
   updateDoors(w);
   updateLift(w);
+  updateBelt(w);
   updateExits(w);
   w.tick++;
 }
