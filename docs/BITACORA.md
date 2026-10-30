@@ -22,6 +22,11 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Problemas conocidos: el cartel con el nombre de la sala tapa un poco el teléfono los primeros
   segundos.
 - Siguiente paso: M10, empezar por partir la planta 3 (Juguetería) en tareas y diseñarla.
+- Aviso a la siguiente sesión: otra sesión apuntó «M9 (8)» en `en_curso` un minuto antes de que
+  esta lo publicara terminado; se ha quitado de `en_curso` porque ya está hecho. Si eras tú, haz
+  `git pull` y sigue con M10. Además, las horas de las entradas de hoy van adelantadas respecto al
+  reloj real (esta se publicó a las 05:28 hora peninsular, 04:28 UTC): usad `date` para `desde`,
+  o la regla de los 90 minutos de `en_curso` deja de servir.
 
 ## 2026-10-30 07:30 — Hito M9 — El documento de la sala secreta
 - Hecho: la sala secreta de cada planta guarda en el suelo, dos casillas delante de su pedestal, el
