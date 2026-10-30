@@ -60,7 +60,11 @@ import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { profile, saveFloor, saveRun } from './save.ts';
-import { cajaPages, chatarreroHere } from '../sim/dialogue.ts';
+import { cajaPages, chatarreroHere, chatarreroPages, telefonoPages, turnosScreen } from '../sim/dialogue.ts';
+import type { StationKind } from '../sim/room.ts';
+
+/** How far above a station's spot of the Mostrador its bubble goes (px; the Caja uses the till's). */
+const STATION_TOP: Record<StationKind, number> = { caja: 46, telefono: 50, turnos: 34, chatarrero: 34, tablon: 52, archivador: 34 };
 import { TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis } from './camera.ts';
@@ -202,6 +206,7 @@ const ROOM_FADE_IN = 170;
 interface HubViews {
   belt: Phaser.GameObjects.Image;
   curtain: Phaser.GameObjects.Image;
+  phone: Phaser.GameObjects.Image | null;
   turnos: Phaser.GameObjects.Image | null;
   chatarrero: Phaser.GameObjects.Image | null;
   t: number;
@@ -275,8 +280,11 @@ export class GameScene extends Phaser.Scene {
   private tillNext: string[] = [];
   /** How far above the till's feet its bubble goes (the shop's till; the Mostrador's Caja is taller). */
   private tillTop = 39;
-  /** The Caja de Devoluciones already spoke to the toaster standing at it (again once it walks off). */
-  private cajaSpoke = false;
+  /** The Mostrador's station the toaster stands at, and whether it already spoke (again once it walks off). */
+  private hubAt: StationKind | null = null;
+  private hubSpoke = false;
+  /** Who the bubble belongs to when it is not the till (a station of the Mostrador): where it points. */
+  private talkAt: { x: number; y: number; top: number } | null = null;
   private banner!: Phaser.GameObjects.BitmapText;
   private bannerPlate!: Phaser.GameObjects.Graphics;
   /** The description window that opens for a while when an item or a weapon is picked up. */
@@ -410,7 +418,9 @@ export class GameScene extends Phaser.Scene {
     this.tillNoT = 0;
     this.tillNext = [];
     this.tillTop = 39;
-    this.cajaSpoke = false;
+    this.hubAt = null;
+    this.hubSpoke = false;
+    this.talkAt = null;
     this.frostViews = new Map();
     this.particles = [];
     this.mapG = null;
@@ -982,12 +992,26 @@ export class GameScene extends Phaser.Scene {
     const curtain = this.add.image(b.x, wallY, 'cortinas', 0).setOrigin(0, 1).setDepth(-90000);
     // The sign low on the wall, over the top of the curtain: the camera never shows the wall's top rows.
     this.add.image(b.x + b.w / 2, WALL_SIGN_Y, 'cartel-mercancia').setOrigin(0.5, 0).setDepth(-89999);
+    let phone: Phaser.GameObjects.Image | null = null;
     for (const st of room.stations) {
       if (st.kind === 'tablon') this.add.image(st.x, WALL_BOARD_Y, 'tablon').setOrigin(0.5, 0).setDepth(-90000);
-      if (st.kind === 'telefono') this.add.image(st.x, WALL_PHONE_Y, 'telefono', 0).setOrigin(0.5, 0).setDepth(-90000);
+      if (st.kind === 'telefono') phone = this.add.image(st.x, WALL_PHONE_Y, 'telefono', 0).setOrigin(0.5, 0).setDepth(-90000);
     }
-    this.hubViews = { belt, curtain, turnos: this.hubPending.turnos ?? null, chatarrero: this.hubPending.chatarrero ?? null, t: 0 };
+    this.hubViews = { belt, curtain, phone, turnos: this.hubPending.turnos ?? null, chatarrero: this.hubPending.chatarrero ?? null, t: 0 };
     this.hubPending = {};
+  }
+
+  /** What a station of the Mostrador says now, from the saved profile (empty: it says nothing). */
+  private hubPages(kind: StationKind): string[] {
+    const p = profile();
+    if (kind === 'caja') return cajaPages(p);
+    if (kind === 'telefono') return telefonoPages(p);
+    if (kind === 'turnos') {
+      const t = turnosScreen(p);
+      return [t.screen, t.note];
+    }
+    if (kind === 'chatarrero') return chatarreroPages(p) ?? [];
+    return [];
   }
 
   /** The Mostrador's idle life: the conveyor runs, the ticket machine blinks, the Chatarrero's wheel squeaks. */
@@ -998,17 +1022,27 @@ export class GameScene extends Phaser.Scene {
     h.belt.setFrame(Math.floor(h.t * 10) % 4);
     h.turnos?.setFrame(Math.floor(h.t * 1.5) % 2);
     h.chatarrero?.setFrame(Math.floor(h.t * 2.5) % 3 === 0 ? 1 : 0);
-    // Standing at the Caja: it comments on the last run, page after page (src/sim/dialogue.ts).
-    const at = nearStation(this.world)?.kind;
-    if (at !== 'caja') this.cajaSpoke = false;
-    else if (!this.cajaSpoke && !this.bubble && !this.world.leftHub) {
-      this.cajaSpoke = true;
-      const [first, ...rest] = cajaPages(profile());
+    // Standing at something that talks: it says its piece, page after page (src/sim/dialogue.ts).
+    const st = this.world.leftHub ? null : nearStation(this.world);
+    const kind = st?.kind ?? null;
+    if (kind !== this.hubAt) {
+      this.hubAt = kind;
+      this.hubSpoke = false;
+      // Walked off: the current page ends and the rest is not said.
+      this.tillNext = [];
+      if (kind && this.bubble) this.bubbleT = Math.min(this.bubbleT, 0.01);
+    }
+    if (st && !this.hubSpoke && !this.bubble) {
+      this.hubSpoke = true;
+      const [first, ...rest] = this.hubPages(st.kind);
       if (first) {
-        this.sound2.play('recargar', { detune: -300 });
+        this.talkAt = st.kind === 'caja' ? null : { x: st.x, y: st.y, top: STATION_TOP[st.kind] };
+        this.sound2.play('recargar', { detune: st.kind === 'telefono' ? 500 : -300 });
         this.tillSay(first, rest);
       }
     }
+    // The phone's receiver swings on its cord; faster while the recording plays.
+    h.phone?.setFrame(Math.floor(h.t * (this.bubble && this.hubAt === 'telefono' ? 6 : 1.2)) % 2);
   }
 
   /** Walked through a door: a quick fade to black, then the scene rebuilds itself around the next room. */
@@ -2237,14 +2271,14 @@ export class GameScene extends Phaser.Scene {
     const t = this.add.bitmapText(0, 0, FONT, wrapLines(fontText(text), 150 * scale, scale).join('\n'), 8 * scale).setOrigin(0.5, 1).setCenterAlign().setTint(0xf4f1e8).setDepth(86001);
     const w = Math.ceil(t.width) + 10;
     const h = Math.ceil(t.height) + 7;
-    const till = this.till;
+    const till = this.talkAt ?? this.till;
     // Over the till, with the tail pointing down at its screen; if that would go off the top of
     // the view or under the room's name (big text, a till against the back wall), beside it, with
     // the tail pointing at it.
     // While the room's name is up, its plate counts as the top.
     const nameUp = this.roomTitle && this.roomTitle.alpha > 0 ? this.roomTitle.getBounds().bottom + 2 : 2;
     const viewTop = this.cameras.main.scrollY + nameUp;
-    const top = this.tillTop;
+    const top = this.talkAt?.top ?? this.tillTop;
     const above = till.y - top - h >= viewTop;
     const left = till.x > room.w / 2;
     const bx = above
@@ -2291,7 +2325,7 @@ export class GameScene extends Phaser.Scene {
         if (next) this.time.delayedCall(250, () => this.tillSay(next, rest));
       }
     }
-    const talking = !!this.bubble && this.bubbleT > 0.3 && Math.floor(this.time.now / 140) % 2 === 0;
+    const talking = !!this.bubble && !this.talkAt && this.bubbleT > 0.3 && Math.floor(this.time.now / 140) % 2 === 0;
     this.till.setFrame(this.tillNoT > 0 ? 2 : talking ? 1 : 0);
   }
 

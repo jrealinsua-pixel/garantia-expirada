@@ -1078,8 +1078,24 @@ try {
   if (!said.startsWith('MOTIVO DE LA DEVOLUCI')) throw new Error(`La Caja no empieza por el motivo de la baja: «${said}»`);
   await page.waitForTimeout(500);
   await shot('43-la-caja-habla.png');
+  // The ticket machine and the phone talk too, each in its own bubble.
+  const standAt = async (kind: string, dy: number, expect: string, name: string): Promise<void> => {
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === '${kind}'); w.player.x = c.x; w.player.y = c.y + ${dy}; })()`);
+    await page.waitForFunction(`(() => { const b = window.__GE__.scene.bubble; return !!b && b.t.text.includes(${JSON.stringify(expect)}); })()`, undefined, { timeout: 4000 })
+      .catch(async () => { throw new Error(`${kind} no dice «${expect}»: «${await page.evaluate<string>('window.__GE__.scene.bubble?.t.text ?? ""')}»`); });
+    await page.waitForTimeout(400);
+    await shot(name);
+  };
+  await standAt('turnos', 8, 'ATENDIENDO AL 12', '44-maquina-de-turnos.png');
+  await standAt('telefono', 2, '', '45-telefono.png');
+  // With a boss beaten, the Chatarrero is there and gives a hint.
+  await page.evaluate(`localStorage.setItem('garantia-expirada/perfil', JSON.stringify({ runs: 3, downs: 2, bosses: { 'nevera-suprema': 1 } }))`);
+  await page.goto(`${url}?mostrador`);
+  await page.waitForFunction("window.__GE__ && window.__GE__.state().ready && window.__GE__.scene.world.room.kind === 'hub'", undefined, { timeout: 20000 });
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.room.stations.some((s) => s.kind === 'chatarrero')"))) throw new Error('El Chatarrero no sale tras vencer a un jefe');
+  await standAt('chatarrero', 8, '', '46-chatarrero.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
-  console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve y la Caja da el motivo de la baja.');
+  console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve; la Caja, la máquina de turnos, el teléfono y el Chatarrero hablan.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

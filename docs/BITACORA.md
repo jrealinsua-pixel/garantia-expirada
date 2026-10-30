@@ -2,6 +2,22 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 05:35 — Hito M9 — El teléfono, la máquina de turnos y el Chatarrero hablan
+- Hecho: el bocadillo del Mostrador sirve ya a cualquier estación (`talkAt`, `STATION_TOP`,
+  `hubPages`): la máquina de turnos dice su pantalla y una nota (`turnosScreen`), el teléfono la
+  grabación del capítulo que toque (`telefonoPages`; el auricular se balancea más deprisa mientras
+  suena) y el Chatarrero su pista (`chatarreroPages`), solo si ya cayó un jefe. Al pasar de una cosa
+  a otra, la primera se calla y habla la nueva; al irse, termina la página y no sigue. El e2e se
+  pone delante de cada uno (44–46) y comprueba que el Chatarrero aparece con un jefe vencido en el
+  perfil.
+- Decisiones: (4) y (5) en un solo commit porque son la misma pieza (el bocadillo genérico) con
+  datos distintos que ya estaban hechos y probados en (3a). El tablón y el archivador no hablan:
+  enseñarán un panel propio en (6) y (7).
+- Medidas: el bot no cambia.
+- Problemas conocidos: delante de la máquina de turnos la tostadora la tapa casi entera (es
+  estrecha y baja); se lee igual por el bocadillo.
+- Siguiente paso: M9 (6), el tablón con `rosterBoard` y las tarjetas (`BOARD_CARDS` ya está).
+
 ## 2026-10-30 05:10 — Hito M9 — La Caja de Devoluciones habla
 - Hecho: al ponerse delante del mostrador (`nearStation` → `caja`), la Caja dice `cajaPages` del
   perfil en el bocadillo de la tienda, página a página, moviendo el cajón al hablar; vuelve a

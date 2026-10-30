@@ -239,9 +239,9 @@ semillas distintas acaban con builds distintas.
     partida). Tests con perfiles hechos a mano. Las partes (3)–(5) quedan para ponerlos en el juego.
   - [x] (3) La Caja de Devoluciones (comenta la última partida: la causa de baja, la planta a la
     que llegó, el jefe que la tumbó) y el bocadillo de los PNJs (el de la tienda, reutilizado).
-  - [ ] (4) El teléfono del Servicio Técnico (la grabación avanza con los jefes vencidos y va
+  - [x] (4) El teléfono del Servicio Técnico (la grabación avanza con los jefes vencidos y va
     soltando la historia) y la máquina de turnos (su número es el de partidas jugadas).
-  - [ ] (5) El Chatarrero (sale tras vencer al primer jefe; da pistas de los desbloqueos).
+  - [x] (5) El Chatarrero (sale tras vencer al primer jefe; da pistas de los desbloqueos).
 - [x] (6a) El mecanismo: `src/data/unlocks.ts` (los cinco del tablón con su condición y su texto),
   `src/sim/unlocks.ts` (comprobar, avance, `rosterBoard`) y `Profile.unlocked`, comprobado en
   cada `recordRun` y al leer una partida guardada. Falta el tablón en el centro (6).

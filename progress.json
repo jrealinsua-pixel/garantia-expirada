@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T05:10:00+01:00",
+  "actualizado": "2026-10-30T05:35:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -130,6 +130,12 @@
     "lineas_codigo": 15223
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T05:35:00+01:00",
+      "hito": "M9",
+      "resumen": "Hablan todos en el Mostrador: la máquina de turnos («Atendiendo al 12 · Su turno: 4.000.001»), el teléfono del Servicio Técnico con su grabación (el auricular se balancea más deprisa mientras suena) y el Chatarrero, que solo está tras vencer a un jefe.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T05:10:00+01:00",
       "hito": "M9",
@@ -631,6 +637,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/chatarrero.png",
+      "pie": "El Chatarrero aparece en el Mostrador tras vencer al primer jefe y da pistas de lo que falta"
+    },
+    {
       "archivo": "capturas/caja-habla.png",
       "pie": "La Caja de Devoluciones sella el parte de baja de la última partida: «Motivo de la devolución: exposición prolongada a microondas»"
     },
@@ -647,15 +657,11 @@
       "pie": "El Router del Wifi en su fase 2, «Actualización de firmware»: anillos con dos huecos y tres caídas de conexión marcadas alrededor de la tostadora"
     },
     {
-      "archivo": "capturas/webcam.png",
-      "pie": "La Webcam Siempre Encendida grabando: la línea de puntos rojos te sigue; si no te escondes a tiempo, comparte pantalla y los demás atacan a la vez"
-    },
-    {
       "archivo": "capturas/tienda-informatica.png",
       "pie": "La tienda de la planta 2, «Accesorios Oficiales (Funda No Incluida)»: la planta 2 ya tiene tesoro, tienda, sala secreta y sala del jefe propios"
     }
   ],
-  "proximo": "M9 (4): el teléfono del Servicio Técnico y la máquina de turnos, con sus textos al acercarse.",
+  "proximo": "M9 (6): el tablón «Productos en Exposición» en el Mostrador, con los cinco personajes (siluetas los bloqueados) y su condición.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
