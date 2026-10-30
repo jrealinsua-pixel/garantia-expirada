@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { emptyProfile, parseProfile, recordRun, type Profile, type RunResult } from '../src/sim/profile.ts';
-import { cajaPages, chatarreroHere, chatarreroPages, holds, pickLine, telefonoPages, turnosScreen } from '../src/sim/dialogue.ts';
+import { cajaPages, chatarreroHere, chatarreroPages, holds, pickLine, stationPages, telefonoPages, turnosScreen } from '../src/sim/dialogue.ts';
 import { CAJA, CHATARRERO, DIALOGUE_PAGE_MAX, TELEFONO, TURNOS, type DialogueLine } from '../src/data/dialogues.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { FONT_CHARS, fontText } from '../src/art/font.ts';
@@ -129,7 +129,8 @@ test('el Chatarrero sale tras el primer jefe y da pistas de lo que falta', () =>
 
 test('todos los textos del Mostrador caben en el bocadillo y se pueden escribir con la fuente', () => {
   const all = [CAJA.lines, TELEFONO.lines, CHATARRERO.lines].flat();
-  const pages = [...all.flatMap((l) => l.pages), ...CAJA.stamps, ...TURNOS.notes, TURNOS.screen(12, 4_123_456), CAJA.reason('Atasco de papel con daños personales')];
+  const again = [...CAJA.again, ...TELEFONO.again, ...CHATARRERO.again];
+  const pages = [...all.flatMap((l) => l.pages), ...again, ...CAJA.stamps, ...TURNOS.notes, TURNOS.screen(12, 4_123_456), CAJA.reason('Atasco de papel con daños personales')];
   const ids = all.map((l) => l.id);
   assert.equal(new Set(ids).size, ids.length, 'ids sin repetir');
   for (const page of pages) {
@@ -142,4 +143,43 @@ test('todos los textos del Mostrador caben en el bocadillo y se pueden escribir 
     assert.ok(cajaPages(p).length > 0);
     assert.ok(telefonoPages(p).length > 0);
   }
+});
+
+test('ningún texto del Mostrador se repite: ni dos frases iguales en los datos ni la misma dos veces seguidas al volver', () => {
+  const all = [CAJA.lines, TELEFONO.lines, CHATARRERO.lines].flat();
+  const pages = [...all.flatMap((l) => l.pages), ...CAJA.again, ...TELEFONO.again, ...CHATARRERO.again, ...CAJA.stamps, ...TURNOS.notes];
+  const seen = new Set<string>();
+  for (const page of pages) {
+    assert.ok(!seen.has(page), `«${page}» está dos veces`);
+    seen.add(page);
+  }
+  const profiles = [
+    emptyProfile(),
+    played(run()),
+    played(run({ outcome: 'floor', bosses: ['nevera-suprema'] })),
+    played(run({ outcome: 'floor', bosses: ['nevera-suprema'] }), run({ level: 2, bosses: ['router-wifi'], cause: { by: 'router-wifi', how: 'bullet' } })),
+  ];
+  for (const p of profiles) {
+    for (const kind of ['caja', 'telefono', 'turnos', 'chatarrero'] as const) {
+      const first = stationPages(kind, p, 0);
+      if (kind === 'caja') assert.deepEqual(first, cajaPages(p));
+      if (kind === 'telefono') assert.deepEqual(first, telefonoPages(p));
+      if (kind === 'chatarrero' && !chatarreroHere(p)) {
+        assert.deepEqual(first, []);
+        continue;
+      }
+      // Going back again and again: never the same as the time before, and the short lines go
+      // round all of them before any comes back.
+      const visits = Array.from({ length: 7 }, (_, n) => stationPages(kind, p, n).join(' / '));
+      for (let n = 1; n < visits.length; n++) assert.notEqual(visits[n], visits[n - 1], `${kind} repite en la vuelta ${n}`);
+      if (kind !== 'turnos') {
+        const shortOnes = visits.slice(1, 4);
+        assert.equal(new Set(shortOnes).size, 3, `${kind}: las tres frases cortas, sin repetir`);
+        assert.ok(visits.slice(1).every((v) => !v.includes(' / ')), `${kind}: al volver, una sola página`);
+      }
+    }
+  }
+  // The board and the archivador open a panel: they never talk.
+  assert.deepEqual(stationPages('tablon', emptyProfile()), []);
+  assert.deepEqual(stationPages('archivador', emptyProfile(), 3), []);
 });

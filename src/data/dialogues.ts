@@ -49,6 +49,12 @@ export const CAJA = {
   reason: (cause: string): string => `Motivo de la devolución: ${cause.charAt(0).toLowerCase()}${cause.slice(1)}.`,
   /** «No cubierto», stamped at the end of every comment about a breakdown. */
   stamps: ['No cubierto.', 'Reclamación denegada.', 'Archivado sin leer.', 'Sellado. Siguiente.'],
+  /** Going back to her in the same visit: one of these (in order) instead of saying it all again. */
+  again: [
+    'Su reclamación ya está denegada. No hace falta denegarla dos veces.',
+    'Esta ventanilla atiende una vez por cliente y vida útil.',
+    'Siguiente. Ah, que sigue siendo usted.',
+  ],
   lines: [
     {
       id: 'caja-primera',
@@ -129,6 +135,12 @@ export const CAJA = {
 
 export const TELEFONO = {
   name: 'Teléfono del Servicio Técnico',
+  /** Picking it up again in the same visit. */
+  again: [
+    'Para volver a escuchar este mensaje, pulse 1. Este teléfono no tiene teclas.',
+    'Ha superado el número de reproducciones gratuitas. Bip.',
+    'Su llamada sigue clasificada como «no urgente». Ahora con más antigüedad.',
+  ],
   lines: [
     {
       id: 'tel-0',
@@ -175,6 +187,8 @@ export const TURNOS = {
     'Tiempo de espera estimado: sí.',
     'Por favor, no golpee la máquina. Ya lo han hecho.',
     'Turno perdido si no está presente cuando le llamen. No le llamarán.',
+    'Su número ha sido actualizado. Sigue siendo el mismo.',
+    'Gracias por esperar. Siga esperando.',
   ],
 } as const;
 
@@ -186,6 +200,12 @@ export const CHATARRERO = {
   name: 'El Chatarrero',
   /** He shows up once any boss has been beaten. */
   appears: { minBosses: 1 } satisfies DialogueWhen,
+  /** Back to him in the same visit. */
+  again: [
+    '¿Otra vez tú? Ya te lo he dicho todo. Lo demás es de pago.',
+    'Si me sigues mirando así, te cobro la consulta.',
+    'Ahora no, que estoy chirriando.',
+  ],
   lines: [
     {
       id: 'chat-hola',

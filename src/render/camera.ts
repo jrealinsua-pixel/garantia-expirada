@@ -20,3 +20,18 @@ export function frameAxis(want: number, keep: Span, also: Span, view: number): n
   // Both do not fit: as close to the other one as the toaster allows.
   return also.lo < keep.lo ? keepMin : keepMax;
 }
+
+/**
+ * How far the camera may scroll along one axis for a room `room` px long in a view `view` px
+ * long: from the room's start to its end; a room shorter than the view sits centred in it (the
+ * black margins on both sides, not all on one). `pinStart` keeps the room's start always in the
+ * picture (the Mostrador: its signs hang on the top wall, and the room is barely taller than the
+ * view, so the toaster is still in it at the bottom).
+ */
+export function scrollRange(room: number, view: number, pinStart = false): Span {
+  if (room < view) {
+    const c = Math.floor((room - view) / 2);
+    return { lo: c, hi: c };
+  }
+  return { lo: 0, hi: pinStart ? 0 : room - view };
+}

@@ -1102,6 +1102,12 @@ try {
   };
   await standAt('turnos', 8, 'ATENDIENDO AL 12', '44-maquina-de-turnos.png');
   await standAt('telefono', 2, '', '45-telefono.png');
+  // Back at the phone in the same visit: not the whole recording again, a short line of its own.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.y += 70; })()`);
+  await page.waitForFunction('!window.__GE__.scene.bubble', undefined, { timeout: 9000 }).catch(() => { throw new Error('El bocadillo del teléfono no se va al irse'); });
+  await standAt('telefono', 2, 'PARA VOLVER A ESCUCHAR', '45b-telefono-otra-vez.png');
+  // Nothing is fired in the Mostrador: no ammo in the corner.
+  if ((await page.evaluate<number>('window.__GE__.scene.ammoText.alpha')) !== 0) throw new Error('En el Mostrador sale la munición');
   // With a boss beaten, the Chatarrero is there and gives a hint.
   await page.evaluate(`localStorage.setItem('garantia-expirada/perfil', JSON.stringify({ runs: 3, downs: 2, bosses: { 'nevera-suprema': 1 } }))`);
   await page.goto(`${url}?mostrador`);

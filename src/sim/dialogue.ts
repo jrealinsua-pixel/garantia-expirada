@@ -6,6 +6,7 @@ import { DOWN_CAUSE_DEFAULT, DOWN_CAUSES } from '../data/texts.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { Profile } from './profile.ts';
 import { Rng } from './rng.ts';
+import type { StationKind } from './room.ts';
 
 /** Different bosses beaten at least once. */
 export const bossesBeaten = (p: Profile): string[] => Object.keys(p.bosses).filter((b) => (p.bosses[b] ?? 0) > 0);
@@ -84,4 +85,25 @@ export const chatarreroHere = (p: Profile): boolean => holds(CHATARRERO.appears,
 export function chatarreroPages(p: Profile): string[] | null {
   if (!chatarreroHere(p)) return null;
   return [...(pickLine(CHATARRERO.lines, p, 'chatarrero')?.pages ?? [])];
+}
+
+/**
+ * What a station of the Mostrador says when the toaster walks up to it, `heard` times already in
+ * this visit: the first time its whole piece; after that a short line of its own, a different one
+ * each time (they come round again only after all of them), so nothing is said twice running.
+ * The ticket machine shows its screen with the next note. Empty: it says nothing.
+ */
+export function stationPages(kind: StationKind, p: Profile, heard = 0): string[] {
+  if (kind === 'turnos') {
+    const t = turnosScreen(p);
+    return [t.screen, TURNOS.notes[(p.runs + heard) % TURNOS.notes.length]!];
+  }
+  const again = (lines: readonly string[]): string[] => [lines[(heard - 1) % lines.length]!];
+  if (kind === 'caja') return heard ? again(CAJA.again) : cajaPages(p);
+  if (kind === 'telefono') return heard ? again(TELEFONO.again) : telefonoPages(p);
+  if (kind === 'chatarrero') {
+    if (!chatarreroHere(p)) return [];
+    return heard ? again(CHATARRERO.again) : chatarreroPages(p) ?? [];
+  }
+  return [];
 }

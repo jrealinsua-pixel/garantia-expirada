@@ -215,3 +215,15 @@ test('la ayuda del Mostrador no habla de disparar, se puede escribir y cabe', ()
   assert.ok(l.hintBox && l.hintBox.x + l.hintBox.w <= HUD_W, 'la caja de la ayuda cabe');
   for (const t of l.hintLines) assert.ok(t.x + textWidth(t.text) <= HUD_W - 2, `«${t.text}» se sale`);
 });
+
+test('el camino no atraviesa un poste de la cola aunque su casilla parezca libre', () => {
+  const w = hub();
+  // Justo debajo del poste del centro, camino de la Caja: ir recto es chocar con el poste.
+  w.player.x = 204;
+  w.player.y = 192;
+  const caja = w.room.stations.find((s) => s.kind === 'caja')!;
+  const r = w.player.def.footRadius;
+  assert.notEqual(steer(w, { x: caja.x, y: caja.y + 10 }, r).x, 204, 'va recto contra el poste');
+  const { ok } = walkUntil(w, caja.x, caja.y + 10, () => nearStation(w)?.kind === 'caja', 6);
+  assert.ok(ok, `no llega a la Caja (se queda en ${w.player.x.toFixed(0)},${w.player.y.toFixed(0)})`);
+});

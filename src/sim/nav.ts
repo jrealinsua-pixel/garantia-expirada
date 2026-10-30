@@ -74,6 +74,9 @@ export function findPath(w: World, from: Point, to: Point, r: number, blocked = 
       if (!inside(nc, nr)) continue;
       const j = nr * cols + nc;
       if (prev[j] !== -2 || blocked[j]) continue;
+      // Both tiles free is not enough: something small can sit between their walking points (a
+      // queue post at the bottom of its tile, right in the way from the tile below).
+      if (!clearLine(w, centre(c, rr), centre(nc, nr), r)) continue;
       prev[j] = i;
       queue.push(j);
     }

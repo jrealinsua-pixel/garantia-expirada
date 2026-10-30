@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T08:00:00+01:00",
+  "actualizado": "2026-10-30T06:00:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -123,13 +123,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 432,
-    "tests_ok": 432,
+    "tests": 435,
+    "tests_ok": 435,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15730
+    "lineas_codigo": 15789
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T06:00:00+01:00",
+      "hito": "M9",
+      "resumen": "Tras el repaso: las salas estrechas van centradas en la pantalla, los PNJs del Mostrador dicen una frase corta distinta al volver (nada se repite) y la navegación ya no atraviesa los postes de la cola.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T08:00:00+01:00",
       "hito": "M9",
@@ -661,8 +667,12 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/documento-secreto.png",
-      "pie": "La sala secreta guarda un documento de historia en el suelo: al pisarlo va al archivador del Mostrador"
+      "archivo": "capturas/telefono-otra-vez.png",
+      "pie": "Volver al teléfono en la misma visita: una frase corta en vez de la grabación entera («Pulse 1. Este teléfono no tiene teclas»)"
+    },
+    {
+      "archivo": "capturas/salas-centradas.png",
+      "pie": "Las salas de 16 casillas van ahora centradas en la pantalla, con el margen repartido a los dos lados"
     },
     {
       "archivo": "capturas/archivador.png",
@@ -675,10 +685,6 @@
     {
       "archivo": "capturas/chatarrero.png",
       "pie": "El Chatarrero aparece en el Mostrador tras vencer al primer jefe y da pistas de lo que falta"
-    },
-    {
-      "archivo": "capturas/caja-habla.png",
-      "pie": "La Caja de Devoluciones sella el parte de baja de la última partida: «Motivo de la devolución: exposición prolongada a microondas»"
     },
     {
       "archivo": "capturas/mostrador-juego.png",

@@ -63,7 +63,7 @@ import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { profile, saveFloor, saveRun } from './save.ts';
-import { cajaPages, chatarreroHere, chatarreroPages, telefonoPages, turnosScreen } from '../sim/dialogue.ts';
+import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
 import type { StationKind } from '../sim/room.ts';
 import { rosterBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
@@ -79,7 +79,7 @@ type BoardPart = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.T
 const STATION_TOP: Record<StationKind, number> = { caja: 46, telefono: 50, turnos: 34, chatarrero: 34, tablon: 52, archivador: 34 };
 import { BOARD_CARDS, TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
-import { frameAxis } from './camera.ts';
+import { frameAxis, scrollRange } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
 import { cardLayout, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 import { bulbLit, enemyFrame } from './enemyAnim.ts';
@@ -432,6 +432,7 @@ export class GameScene extends Phaser.Scene {
     this.tillTop = 39;
     this.hubAt = null;
     this.hubSpoke = false;
+    this.hubHeard = {};
     this.talkAt = null;
     this.frostViews = new Map();
     this.particles = [];
@@ -621,7 +622,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, room.w, room.h);
+    const xr = scrollRange(room.w, VIEW_W);
+    const yr = scrollRange(room.h, VIEW_H, room.kind === 'hub');
+    cam.setBounds(xr.lo, yr.lo, xr.hi - xr.lo + VIEW_W, yr.hi - yr.lo + VIEW_H);
     cam.setRoundPixels(true);
     this.camX = this.world.player.x - VIEW_W / 2;
     this.camY = this.world.player.y - VIEW_H / 2;
@@ -1104,16 +1107,13 @@ export class GameScene extends Phaser.Scene {
 
   /** What a station of the Mostrador says now, from the saved profile (empty: it says nothing). */
   private hubPages(kind: StationKind): string[] {
-    const p = profile();
-    if (kind === 'caja') return cajaPages(p);
-    if (kind === 'telefono') return telefonoPages(p);
-    if (kind === 'turnos') {
-      const t = turnosScreen(p);
-      return [t.screen, t.note];
-    }
-    if (kind === 'chatarrero') return chatarreroPages(p) ?? [];
-    return [];
+    const heard = this.hubHeard[kind] ?? 0;
+    this.hubHeard[kind] = heard + 1;
+    return stationPages(kind, profile(), heard);
   }
+
+  /** Times each station has spoken in this visit to the Mostrador: the second time it says something shorter. */
+  private hubHeard: Partial<Record<StationKind, number>> = {};
 
   /** The Mostrador's idle life: the conveyor runs, the ticket machine blinks, the Chatarrero's wheel squeaks. */
   private drawHub(dt: number): void {
@@ -3291,11 +3291,13 @@ export class GameScene extends Phaser.Scene {
     this.camX += (tx - this.camX) * k;
     this.camY += (ty - this.camY) * k;
     const room = this.world.room;
-    this.camX = Math.max(0, Math.min(room.w - VIEW_W, this.camX));
-    this.camY = Math.max(0, Math.min(room.h - VIEW_H, this.camY));
-    // The Mostrador is only a little taller than the screen: the camera stays up, so what hangs on
-    // the back wall (the sign, the board, the phone) is always whole; its bottom row is the wall.
-    if (room.kind === 'hub') this.camY = 0;
+    // A room narrower or lower than the screen sits centred in it. The Mostrador is only a little
+    // taller than the screen: the camera stays up, so what hangs on the back wall (the sign, the
+    // board, the phone) is always whole; its bottom row is the wall.
+    const xr = scrollRange(room.w, VIEW_W);
+    const yr = scrollRange(room.h, VIEW_H, room.kind === 'hub');
+    this.camX = Math.max(xr.lo, Math.min(xr.hi, this.camX));
+    this.camY = Math.max(yr.lo, Math.min(yr.hi, this.camY));
     cam.setScroll(Math.round(this.camX), Math.round(this.camY));
   }
 }

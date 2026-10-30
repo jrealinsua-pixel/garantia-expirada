@@ -2,6 +2,31 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 06:00 (hora real) — Hito M9 — Después del repaso: salas centradas, frases al volver y postes
+- Contexto: esta sesión cogió «M9 (8)» en `en_curso` a la vez que otra lo terminaba; al ir a
+  publicar ya estaba hecho. En vez de tirar el trabajo, se ha rehecho encima de lo publicado,
+  quedándose solo con lo que no estaba: la cámara, el marcador sin arma, `hubHint` y `crossHub` son
+  los de la otra sesión.
+- Hecho: (1) Las salas más estrechas o más bajas que la pantalla (las de 16 casillas, y el
+  Mostrador, de 18) van centradas, con el negro repartido a los dos lados en vez de todo a la
+  derecha (`scrollRange` en `src/render/camera.ts`, que también sustituye al «camY = 0» del
+  Mostrador). (2) Los textos no se repiten al volver: acercarse otra vez a la Caja, al teléfono o al
+  Chatarrero en la misma visita da una frase corta suya, distinta cada vez (`again` en
+  `src/data/dialogues.ts`, `stationPages` en `src/sim/dialogue.ts`); la máquina de turnos pasa a su
+  siguiente nota (dos notas nuevas). Test: ninguna frase está dos veces en los datos y nada se dice
+  dos veces seguidas. E2e 45b (el teléfono, otra vez: «Pulse 1. Este teléfono no tiene teclas.»).
+  (3) La navegación atravesaba los postes de la cola: su casilla parece libre (el poste está en el
+  borde de abajo) y un bot que fuera de la fila de abajo a la Caja por el centro se quedaba
+  empujando el poste. `findPath` comprueba ahora que se puede andar en línea recta entre las dos
+  casillas de cada paso. Test nuevo (falla sin el arreglo).
+- Decisiones: las frases cortas salen en orden y solo vuelven cuando se han dicho todas (tres por
+  PNJ). La hora de esta entrada es la real (`date`), como pide el aviso de la entrada anterior;
+  por eso va «antes» que las 08:00 de arriba, aunque es posterior.
+- Medidas: el bot no cambia ni una cifra (el arreglo de los postes no toca las plantas); Mostrador
+  cruzado el 100 %, en 9,4 s.
+- Problemas conocidos: ninguno nuevo.
+- Siguiente paso: M10, partir la planta 3 (Juguetería) en tareas y diseñarla.
+
 ## 2026-10-30 08:00 — Hito M9 — Repaso del Mostrador; M9 terminado
 - Hecho: en el Mostrador la cámara se queda arriba (la sala solo es 18 px más alta que la pantalla
   y su última fila es pared): el cartel, el tablón y el teléfono se ven enteros siempre. El arma va
