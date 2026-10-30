@@ -2,6 +2,28 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-10-30 04:15 — Hito M9 — El arte del Mostrador
+- Hecho: `tools/sprites/mostrador.ts` con doce hojas: el mostrador en tres tramos de una casilla
+  (extremo izquierdo, medio y extremo derecho, que se juntan sin costura), la Caja de Devoluciones
+  sobre su tramo (quieta y hablando: el cajón, que es su boca, sale de golpe con tres monedas), el
+  poste de la cola y su cinta azul (`TAPE_Y`), la máquina de turnos con «12» en rojo y un punto
+  que parpadea, el archivador con el cajón de arriba que no cierra de tantos papeles, el Chatarrero
+  (una radio de baquelita roja en la sillita de un carrito de chatarra, con la rueda que baila),
+  el tablón de corcho con cinco tarjetas vacías (`BOARD_CARDS`: el juego pondrá en ellas a los
+  personajes), el teléfono con el auricular colgando del cable, la cinta del almacén (cuatro
+  fotogramas que suben hacia la pared), las cortinas de tiras (quietas y apartadas) y el cartel
+  «Mercancía devuelta» escrito con la «Letra Pequeña». `npm run sprites` deja además
+  `capturas/sprites-mostrador.png`, el Mostrador entero montado con la tostadora para revisarlo.
+  Un test nuevo (419): cada cosa tiene sprite y lo que cuelga cabe en la pared.
+- Decisiones: la Caja tiene los ojos verdes de un visor antiguo, no rojos (los ojos rojos son de
+  enemigos). El teléfono cuelga boca abajo para que se lea «descolgado». El cartel va escrito con la
+  fuente del juego (una línea, 79 px, más ancho que la cinta, centrado encima).
+- Medidas: el bot no cambia.
+- Problemas conocidos: el Chatarrero es algo pequeño al lado de la tostadora; si en el juego no se
+  lee, agrandar la radio. El teléfono y el tablón quedan sobre las estanterías pintadas de la
+  pared; en (2b) quizá convenga una pared sin estanterías detrás.
+- Siguiente paso: M9 (2b), el centro en el juego.
+
 ## 2026-10-30 03:45 — Hito M9 — El Mostrador de Devoluciones, en la simulación
 - Hecho: plantilla `HUB` (`mostrador`, 18 × 12, clase `hub`, fuera de `ROOMS` para que nunca salga
   en una planta) con mostrador (`m`, uno por casilla) y la Caja encima (`C`), el tablón (`B`) y el

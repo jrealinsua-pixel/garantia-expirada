@@ -165,3 +165,26 @@ test('el Mostrador es determinista', () => {
   };
   assert.equal(run(), run());
 });
+
+test('cada cosa del Mostrador tiene su sprite, y lo que cuelga cabe en la pared del fondo', async () => {
+  const { allSheets } = await import('../tools/sprites/build.ts');
+  const sheets = allSheets();
+  const w = hub();
+  for (const pr of w.room.props) assert.ok(sheets[pr.def.id], `${pr.def.id} sin sprite`);
+  for (const k of ['tablon', 'telefono', 'cinta-almacen', 'cortinas', 'cartel-mercancia', 'cinta-cola']) assert.ok(sheets[k], `falta ${k}`);
+  // El mostrador: tres tramos (dos extremos y el del medio) del ancho de una casilla.
+  assert.equal(sheets.mostrador!.frameW, 24);
+  assert.equal(sheets.mostrador!.canvas.w / sheets.mostrador!.frameW, 3);
+  // La Caja: quieta y hablando.
+  assert.equal(sheets['caja-devoluciones']!.canvas.w / sheets['caja-devoluciones']!.frameW, 2);
+  // La cinta ocupa sus casillas; las cortinas, la pared de encima (como una persiana del norte).
+  const b = w.room.belt!;
+  assert.equal(sheets['cinta-almacen']!.frameW, b.w);
+  assert.equal(sheets['cinta-almacen']!.frameH, b.h);
+  assert.equal(sheets.cortinas!.frameW, b.w);
+  assert.equal(sheets.cortinas!.frameH, sheets['persiana-n']!.frameH);
+  // Lo que cuelga cabe en las dos filas de pared (48 px) y el cartel no se sale de la sala.
+  for (const k of ['tablon', 'telefono']) assert.ok(sheets[k]!.frameH <= 40, `${k} no cabe en la pared`);
+  assert.ok(sheets['cartel-mercancia']!.frameH + sheets.cortinas!.frameH <= 48, 'el cartel tapa las cortinas');
+  assert.ok(b.x + b.w / 2 + sheets['cartel-mercancia']!.frameW / 2 <= w.room.w - 24, 'el cartel se sale por la derecha');
+});

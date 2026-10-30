@@ -226,7 +226,7 @@ semillas distintas acaban con builds distintas.
     persianas), con el mostrador, la cola de cinta, el tablón, el archivador, el teléfono y la
     **cinta de entrada al almacén**: pisarla termina el centro y empieza una partida (evento y
     `World.leaveHub`). Tests: se recorre entera, nada hace daño, la cinta lleva a una planta 1.
-  - [ ] (2a) Su arte: sprites del mostrador con la Caja, los postes y su cinta, la máquina de
+  - [x] (2a) Su arte: sprites del mostrador con la Caja, los postes y su cinta, la máquina de
     turnos, el archivador, el Chatarrero, el tablón, el teléfono y la cinta del almacén con sus
     cortinas y el cartel «Mercancía devuelta». Una hoja de contacto para revisarlos.
   - [ ] (2b) El centro en el juego: «Partida nueva» de la portada lleva al Mostrador; la cinta

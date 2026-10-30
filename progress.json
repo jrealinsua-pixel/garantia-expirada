@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-30T03:45:00+01:00",
+  "actualizado": "2026-10-30T04:15:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9",
   "hitos": [
@@ -130,6 +130,12 @@
     "lineas_codigo": 15103
   },
   "sesiones": [
+    {
+      "fecha": "2026-10-30T04:15:00+01:00",
+      "hito": "M9",
+      "resumen": "El arte del Mostrador: el mostrador con su franja roja, la Caja de Devoluciones (una registradora verde menta con el cajón por boca y el cartel de «cierra en 5 minutos»), la cola con su cinta azul, la máquina de turnos en el 12, el archivador que no cierra, el Chatarrero (una radio de baquelita en un carrito de chatarra), el tablón, el teléfono descolgado y la cinta al almacén con sus cortinas de tiras.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T03:45:00+01:00",
       "hito": "M9",
@@ -613,6 +619,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/mostrador.png",
+      "pie": "El Mostrador de Devoluciones, montado a mano para revisar su arte: la Caja sobre el mostrador, la cola vacía, la máquina de turnos en el 12, el archivador, el Chatarrero y la cinta al almacén bajo «Mercancía devuelta»"
+    },
+    {
       "archivo": "capturas/router-combate.png",
       "pie": "El Router del Wifi en su fase 2, «Actualización de firmware»: anillos con dos huecos y tres caídas de conexión marcadas alrededor de la tostadora"
     },
@@ -625,10 +635,6 @@
       "pie": "El Ratón Inalámbrico sin Pilas: congelado sin señal, mientras los anillos rojos marcan dónde va a aparecer"
     },
     {
-      "archivo": "capturas/cargador.png",
-      "pie": "El Cargador Falso: dos cargadores tirados por el taller, hasta que te acercas"
-    },
-    {
       "archivo": "capturas/tienda-informatica.png",
       "pie": "La tienda de la planta 2, «Accesorios Oficiales (Funda No Incluida)»: la planta 2 ya tiene tesoro, tienda, sala secreta y sala del jefe propios"
     },
@@ -637,7 +643,7 @@
       "pie": "La Impresora que se Atasca en la planta 2: cada pocas ráfagas de facturas se queda atascada y temblando («Atasco de papel»)"
     }
   ],
-  "proximo": "M9 (2): el arte del Mostrador y el centro en el juego (portada → Mostrador → cinta → planta 1; al acabar, de vuelta).",
+  "proximo": "M9 (2b): el centro en el juego (portada → Mostrador → cinta → planta 1; al acabar, de vuelta).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -666,11 +672,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-10-30T03:30+01:00",
-      "tarea": "M9 (2a): el arte del Mostrador (sprites de sus cosas)",
-      "desde": "2026-10-30T03:50:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

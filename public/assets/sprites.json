@@ -359,6 +359,78 @@
     "frameH": 13,
     "frames": 1
   },
+  "mostrador": {
+    "file": "mostrador.png",
+    "frameW": 24,
+    "frameH": 30,
+    "frames": 3
+  },
+  "caja-devoluciones": {
+    "file": "caja-devoluciones.png",
+    "frameW": 24,
+    "frameH": 46,
+    "frames": 2
+  },
+  "poste": {
+    "file": "poste.png",
+    "frameW": 8,
+    "frameH": 22,
+    "frames": 1
+  },
+  "cinta-cola": {
+    "file": "cinta-cola.png",
+    "frameW": 4,
+    "frameH": 4,
+    "frames": 1
+  },
+  "turnos": {
+    "file": "turnos.png",
+    "frameW": 16,
+    "frameH": 34,
+    "frames": 2
+  },
+  "archivador": {
+    "file": "archivador.png",
+    "frameW": 24,
+    "frameH": 34,
+    "frames": 1
+  },
+  "chatarrero": {
+    "file": "chatarrero.png",
+    "frameW": 36,
+    "frameH": 36,
+    "frames": 2
+  },
+  "tablon": {
+    "file": "tablon.png",
+    "frameW": 50,
+    "frameH": 34,
+    "frames": 1
+  },
+  "telefono": {
+    "file": "telefono.png",
+    "frameW": 18,
+    "frameH": 32,
+    "frames": 2
+  },
+  "cinta-almacen": {
+    "file": "cinta-almacen.png",
+    "frameW": 48,
+    "frameH": 24,
+    "frames": 4
+  },
+  "cortinas": {
+    "file": "cortinas.png",
+    "frameW": 48,
+    "frameH": 33,
+    "frames": 2
+  },
+  "cartel-mercancia": {
+    "file": "cartel-mercancia.png",
+    "frameW": 79,
+    "frameH": 13,
+    "frames": 1
+  },
   "objeto-pila": {
     "file": "objeto-pila.png",
     "frameW": 16,

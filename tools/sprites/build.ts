@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Canvas, hx, scaled } from '../../src/art/canvas.ts';
 import { buildRoom } from '../../src/sim/room.ts';
-import { ROOMS } from '../../src/data/rooms.ts';
+import { HUB, ROOMS } from '../../src/data/rooms.ts';
 import { paintRoom } from '../../src/art/room.ts';
 import {
   ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
@@ -14,6 +14,7 @@ import { makeBatidoraFrames, makeCargadorFrames, makeImpresoraFrames, makeMandoF
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
+import * as H from './mostrador.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
 
@@ -104,6 +105,19 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     ticket: { canvas: P.makeTicket(), frameW: 9, frameH: 11 },
     autocobro: { canvas: P.makeSelfCheckout(), frameW: 30, frameH: 36 },
     expositor: one(P.makeShopStand()),
+    // The Mostrador de Devoluciones (the hub): see tools/sprites/mostrador.ts.
+    mostrador: { canvas: H.makeCounter(), frameW: 24, frameH: 30 },
+    'caja-devoluciones': { canvas: H.makeReturnsTill(), frameW: 24, frameH: 46 },
+    poste: one(H.makePost()),
+    'cinta-cola': one(H.makeQueueTape()),
+    turnos: { canvas: H.makeTicketMachine(), frameW: 16, frameH: 34 },
+    archivador: one(H.makeFilingCabinet()),
+    chatarrero: { canvas: H.makeScrapDealer(), frameW: 36, frameH: 36 },
+    tablon: one(H.makeBoard()),
+    telefono: { canvas: H.makeWallPhone(), frameW: 18, frameH: 32 },
+    'cinta-almacen': { canvas: H.makeConveyor(), frameW: 48, frameH: 24 },
+    cortinas: { canvas: H.makeStripCurtain(), frameW: 48, frameH: 33 },
+    'cartel-mercancia': one(H.makeReturnedGoodsSign()),
   };
   for (const n of Object.keys(ITEM_GRIDS)) sheets['objeto-' + n] = one(makeItem(n));
   return sheets;
@@ -141,6 +155,7 @@ function main(): void {
   writeFileSync(join(ROOT, 'capturas/sprites-hoja.png'), encodePng(scaled(sheet, 3)));
   const room = buildRoom(ROOMS['sala-pruebas']!);
   writeFileSync(join(ROOT, 'capturas/sprites-sala.png'), encodePng(paintRoom(room, 'preview').canvas));
+  writeFileSync(join(ROOT, 'capturas/sprites-mostrador.png'), encodePng(scaled(H.previewHub(buildRoom(HUB), sheets, paintRoom), 2)));
   console.log(`${Object.keys(manifest).length} hojas de sprites en public/assets/.`);
 }
 
