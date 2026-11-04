@@ -332,6 +332,26 @@ atienden, y no sirve para nada.
 
 Están repartidas como tareas en `docs/HOJA_DE_RUTA.md` (M6, M7, M8 y M10).
 
+## Pautas del humano (2026-10-30)
+
+- Todo más difícil: jefes que se mueven, erráticos y más rápidos cuanto menos vida tienen; balas
+  enemigas más grandes; armas con menos daño de base y objetos que suben menos.
+- Escasez: se empieza con 1 ticket; cupones y tickets escasos (muchas veces no se podrá abrir un
+  cofre); los objetos solo salen de cofres o de la tienda; unos 2 cofres por planta y alguno más
+  al limpiar salas. Cofres de calidades: el normal da cosas flojas, el raro solo cosas buenas.
+- Un botón de interactuar para hablar, comprar, abrir cofres y volcar muebles como cobertura;
+  objetos del escenario que explotan o hacen otras cosas.
+- Los cupones se recogen solos al limpiar la sala. Sin números de daño ni textos al matar.
+- Corazones que suben y bajan con objetos; un escudo temporal ligado a la trama; corazones
+  especiales temporales con su sprite y su rareza (cuanto más potentes, más raros).
+- Sinergias indirectas: objetos que se complementan sin crear nada nuevo.
+- Los activos que curan no pueden recargarse en dos salas.
+- Para más adelante: jefes al azar en cada planta (varios posibles por planta), glosario de
+  enemigos y armas, contenido limitado que se desbloquea con logros, PNJs en las plantas que
+  piden cosas y acaban en el Mostrador, un Mostrador más grande, y enemigos más distinguibles.
+
+Repartidas en `docs/HOJA_DE_RUTA.md`: M9b (lo inmediato) y M14 (lo de más adelante).
+
 ## Contenido mínimo de la primera versión jugable (fin del hito M6)
 
 - 1 personaje (Tostadora), 3 armas, 10 objetos pasivos, 3 activos.

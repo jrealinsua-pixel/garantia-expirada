@@ -34,7 +34,7 @@ export function milestones(roadmap: string): Hito[] {
   let cur: Hito | null = null;
   let accepted = false;
   for (const line of roadmap.split('\n')) {
-    const h = /^## (M\d+) · (.+?)\s*(\(hecho\))?$/.exec(line);
+    const h = /^## (M\d+[a-z]?) · (.+?)\s*(\(hecho\))?$/.exec(line);
     if (h) {
       cur = { id: h[1]!, nombre: h[2]!, estado: 'pendiente', hechas: 0, total: 0 };
       accepted = !!h[3];

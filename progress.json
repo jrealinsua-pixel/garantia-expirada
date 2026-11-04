@@ -704,11 +704,8 @@
     "unidad": "sesiones",
     "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:29: M8 terminado en unas 14 sesiones (estimadas 13).",
     "hitos": {
-      "M5": 0,
-      "M6": 0,
-      "M7": 0,
-      "M8": 0,
       "M9": 10,
+      "M9b": 16,
       "M10": 24,
       "M11": 13,
       "M12": 12,
@@ -726,5 +723,11 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": []
+  "en_curso": [
+    {
+      "sesion": "2026-11-04 16:30 UTC",
+      "tarea": "M9b (1): fallo de la tecla de movimiento al entrar en una sala",
+      "desde": "2026-11-04T16:30:00Z"
+    }
+  ]
 }

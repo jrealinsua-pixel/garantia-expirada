@@ -269,6 +269,48 @@ desde él se empieza una partida andando; los tres PNJs dicen cosas distintas se
 (tests con perfiles hechos a mano); el tablón y el archivador enseñan lo desbloqueado y lo que
 falta; todo se guarda entre sesiones del navegador.
 
+## M9b · Lo que pidió el humano el 30 de octubre
+
+Las dos primeras notas del humano del 2026-10-30, partidas en tareas. Van antes que M10 porque
+las notas del humano tienen prioridad, y porque cambian la economía y la dificultad sobre las que
+se van a medir las plantas 3 y 4. Lo que la nota marca «para más adelante» (jefes al azar en cada
+planta, glosario, logros que desbloquean contenido, PNJs en las plantas, una portada más grande y
+el pixel art más distinguible) está en «Pautas del humano (2026-10-30)» de `docs/DISENO.md` y
+repartido en M12–M14.
+
+- [ ] (1) Fallo: si se entra en una sala con una tecla de movimiento pulsada, el personaje no anda
+  hasta soltarla y volver a pulsarla.
+- [ ] (2) Fuera los números de daño sobre los enemigos y el texto que sale al matar a uno.
+- [ ] (3) Balas enemigas más grandes y más difíciles de esquivar (sprites y caja de golpe),
+  medido con el bot.
+- [ ] (4) Botón de interactuar (una tecla nueva, reasignable): hablar con los PNJs, comprar en la
+  tienda y abrir cofres ya no se hace pisando, sino con ese botón. Con su aviso en pantalla.
+- [ ] (5) Economía más escasa: se empieza con 1 ticket; muchos menos cupones y tickets; los objetos
+  solo salen de cofres o de la tienda (nunca sueltos en una sala); unos 2 cofres por planta y
+  alguno más al limpiar salas; los cupones se recogen solos al limpiar la sala. Medido con el bot.
+- [ ] (6) Calidades de cofre: el de cartón (el normal) da pasivos o armas flojas; el bueno (raro)
+  solo armas y objetos buenos. Cada objeto y arma lleva su calidad en los datos.
+- [ ] (7) Menos daño y menos estadística: las armas hacen menos daño de base y los objetos suben
+  menos; el activo que curaba dos corazones en dos salas tarda muchas más salas o es de un solo uso.
+  Medido con el bot.
+- [ ] (8) Jefes que se mueven, erráticos, y que van más deprisa (andar y disparar) cuanto menos
+  vida les queda: la Nevera y el Router. Medido con el bot.
+- [ ] (9) La Música de Espera ya no congela al jefe: ralentiza sus balas y su movimiento.
+- [ ] (10) Los enemigos que esperan quietos a que te acerques (los cargadores falsos y similares) se
+  activan solos al pasar un tiempo o al quedarse solos en la sala.
+- [ ] (11) Corazones que suben o bajan con objetos (contenedores de vida que se ganan y se pierden).
+- [ ] (12) Un escudo temporal con el aguante de un corazón, con una idea de la trama en vez de un
+  escudo; y corazones especiales temporales (daño a toda la sala, más daño un rato…), cada uno con
+  su sprite y su probabilidad: el escudo es lo más probable; cuanto más potente, más raro.
+- [ ] (13) Objetos del escenario: unos se vuelcan con el botón de interactuar y sirven de cobertura;
+  otros explotan o hacen otras cosas.
+- [ ] (14) Sinergias indirectas: parejas de objetos que se complementan sin crear nada nuevo,
+  pensadas y medidas.
+
+**Criterios de aceptación:** cada punto de las dos notas tiene su test o su medida; el bot sigue
+pasando sin bloqueos; el juego es más difícil que antes según el bot (menos victorias contra los
+jefes y menos plantas ganadas), y los números están en la bitácora.
+
 ## M10 · Plantas 3 y 4
 
 - [ ] Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda)
@@ -342,6 +384,15 @@ planta 1 con todos; los cinco se distinguen a la primera en una captura.
 
 - [ ] Mucha variedad: hasta 30 armas, 80 objetos, 30 enemigos y 8 jefes en total.
 - [ ] Salas especiales raras, retos diarios con semilla fija.
+- [ ] Jefes al azar: cada planta elige entre varios jefes (la planta 1, la Nevera u otros tres).
+  (Nota del humano del 2026-10-30.)
+- [ ] Glosario de enemigos y armas descubiertos, en el Mostrador o en la pausa.
+- [ ] Contenido limitado y desbloqueable con logros (matar 100 de un tipo, ganar a un jefe sin
+  recibir daño, conseguir una sinergia…).
+- [ ] PNJs que aparecen a veces en las plantas, piden cosas o proponen desafíos y, encontrados
+  (según lo que se haya hecho antes), se quedan en el Mostrador: cuentan historia y desbloquean
+  cosas. El Mostrador, más grande y con más cosas.
+- [ ] Repaso del pixel art: enemigos más distinguibles entre sí, sin cambiar el estilo aprobado.
 
 ## M15 · Versión de escritorio (lo último)
 
