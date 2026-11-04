@@ -43,6 +43,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
   },
   plancha: {
     id: 'plancha',
+    quality: 'buena',
     name: 'Plancha de Vapor Turbo',
     description: 'Vapor a tres bares. Quita las arrugas, la pintura y las ganas de reclamar. No planchar la ropa puesta.',
     fireRate: 1.3,

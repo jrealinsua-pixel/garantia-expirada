@@ -23,7 +23,14 @@ export interface PropInstance {
 export interface ChestState {
   id: number;
   open: boolean;
+  /**
+   * 'carton' (the ordinary one: an ordinary passive item, active or weapon) or 'premium' (rare:
+   * only things of quality «buena»). Nota del humano del 2026-10-30.
+   */
+  tier: ChestTier;
 }
+
+export type ChestTier = 'carton' | 'premium';
 
 export interface Room {
   id: string;

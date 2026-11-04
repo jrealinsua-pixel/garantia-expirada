@@ -752,17 +752,26 @@ export function makeSteam(): Canvas {
  * Caja Fuerte de Devoluciones, 2 frames of 26x24: shut (a ticket slot with a red light, the
  * "returns" label and a hazard strip) and open (the lid up, gold light inside, the light green).
  */
-export function makeChest(): Canvas {
+/** Wine-red lacquer and gold of the premium chest (makeChest(true)). */
+const WINE = ramp('#c4566a', '#8e2f45', '#64203a', '#3e1428');
+const WINE_TOP = ramp('#e07a8a', '#b24458', '#8e2f45', '#64203a');
+
+/**
+ * The returns safe: 2 frames of 26x24 (shut, open). `premium`: the rare one (nota del humano del
+ * 2026-10-30), wine-red lacquer with gold trim, a gold label and a gold strip along its foot.
+ */
+export function makeChest(premium = false): Canvas {
   const sheet = new Canvas(52, 24);
   for (let k = 0; k < 2; k++) {
     const cv = new Canvas(26, 24);
     const open = k === 1;
     if (open) {
       // The lid stands up at the back.
-      box(cv, 6, 0, 18, 6, DSTEEL);
-      cv.rect(7, 2, 16, 1, DSTEEL[2]!);
+      box(cv, 6, 0, 18, 6, premium ? WINE : DSTEEL);
+      cv.rect(7, 2, 16, 1, premium ? YEL[2]! : DSTEEL[2]!);
     }
-    cube(cv, 1, 6, 24, 17, 4, 4, DSTEEL, GLOVE, STEEL);
+    if (premium) cube(cv, 1, 6, 24, 17, 4, 4, WINE, WINE, WINE_TOP);
+    else cube(cv, 1, 6, 24, 17, 4, 4, DSTEEL, GLOVE, STEEL);
     if (open) {
       // Inside: dark, with the gold of what is waiting in it.
       for (let j = 0; j < 4; j++) {
@@ -779,15 +788,17 @@ export function makeChest(): Canvas {
     cv.set(19, 13, open ? GREEN : RED[2]!);
     cv.set(20, 12, open ? WHITE : RED[0]!);
     // The "returns" label: cream with two lines of small print and a red stripe.
-    cv.rect(8, 15, 10, 4, CREAM[0]!);
-    cv.rect(9, 16, 6, 1, CREAM[2]!);
+    cv.rect(8, 15, 10, 4, premium ? YEL[1]! : CREAM[0]!);
+    cv.rect(9, 16, 6, 1, premium ? YEL[3]! : CREAM[2]!);
     cv.rect(9, 17, 8, 1, RED[1]!);
     // Hazard strip along the foot.
-    for (let x = 5; x < 24; x++) cv.set(x, 20, (x >> 1) % 2 === 0 ? YEL[1]! : K);
+    for (let x = 5; x < 24; x++) cv.set(x, 20, premium ? (x % 2 === 0 ? YEL[0]! : YEL[2]!) : (x >> 1) % 2 === 0 ? YEL[1]! : K);
+    // Gold corners on the premium one.
+    if (premium) for (const [x, y] of [[5, 10], [24, 10], [5, 21], [24, 21]] as const) cv.set(x, y, YEL[1]!);
     // Rivets and a dent.
-    for (const [x, y] of [[6, 11], [23, 11], [6, 18]] as const) cv.set(x, y, STEEL[1]!);
+    for (const [x, y] of [[6, 11], [23, 11], [6, 18]] as const) cv.set(x, y, premium ? YEL[0]! : STEEL[1]!);
     cv.set(21, 16, DSTEEL[2]!);
-    cv.set(2, 14, RUSTR[1]!);
+    if (!premium) cv.set(2, 14, RUSTR[1]!);
     sheet.blit(outline(cv), k * 26, 0);
   }
   return sheet;

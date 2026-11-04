@@ -13,7 +13,22 @@ import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
-import { BACK_WALL_ROWS, buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type PropInstance, type Room, type RoomDoor, type Station, type StationKind } from './room.ts';
+import {
+  BACK_WALL_ROWS,
+  buildRoom,
+  doorApron,
+  doorCells,
+  fillTemplate,
+  isWallAt,
+  TILE,
+  wallRectsNear,
+  type PropInstance,
+  type Room,
+  type RoomDoor,
+  type ChestTier,
+  type Station,
+  type StationKind,
+} from './room.ts';
 import { PROPS } from '../data/props.ts';
 import { LORE } from '../data/lore.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
@@ -407,9 +422,9 @@ export type SimEvent =
   | { type: 'floorDone'; x: number; y: number; seconds: number; kills: number; coupons: number }
   | { type: 'restock' }
   /** A cleared room left its reward: a ticket popped out, or a chest turned up. */
-  | { type: 'reward'; reward: RoomReward; x: number; y: number }
+  | { type: 'reward'; reward: RoomReward; x: number; y: number; tier?: ChestTier }
   /** Walked into a shut chest: opened with a ticket (`item` is what came out), or locked (no ticket). */
-  | { type: 'chest'; x: number; y: number; opened: boolean; tickets: number; item?: string }
+  | { type: 'chest'; x: number; y: number; opened: boolean; tickets: number; item?: string; tier?: ChestTier }
   /** Walked onto something for sale: bought it (`left` coupons after paying), or not (too poor, or a heart with all its life). */
   | { type: 'shop'; x: number; y: number; outcome: 'bought' | 'poor' | 'full'; good: PickupKind; price: number; left: number; item?: string }
   /** The active item was used (`effect` is its effect's type). */
@@ -554,6 +569,8 @@ export const CLEAR_CHEST_CHANCE = 0.15;
 export const TREASURE_CHESTS = 2;
 /** Coupons that spill out of a chest with its item. */
 export const CHEST_COUPONS = 1;
+/** Odds that a chest is the premium one (only good things in it). */
+export const PREMIUM_CHANCE = 0.15;
 /** Odds that a chest holds a weapon, or an active item (else a passive item). */
 const CHEST_WEAPON = 0.2;
 const CHEST_ACTIVE = 0.25;
@@ -2189,7 +2206,7 @@ export function dropTicket(w: World, x: number, y: number): void {
  * A shut chest turns up as close to (x, y) as it fits: on clear floor, off the toaster and off
  * anything lying on the floor. Returns its prop.
  */
-export function placeChest(w: World, x: number, y: number, drop = true): PropInstance {
+export function placeChest(w: World, x: number, y: number, drop = true, tier: ChestTier = w.rng.chance(PREMIUM_CHANCE) ? 'premium' : 'carton'): PropInstance {
   const def = PROPS.cofre!;
   const p = w.player;
   const fits = (cx: number, cy: number): boolean => {
@@ -2216,9 +2233,9 @@ export function placeChest(w: World, x: number, y: number, drop = true): PropIns
       }
     }
   }
-  const prop: PropInstance = { def, x: at.x, y: at.y, box: { x: at.x + def.box.x, y: at.y + def.box.y, w: def.box.w, h: def.box.h }, chest: { id: w.nextId++, open: false } };
+  const prop: PropInstance = { def, x: at.x, y: at.y, box: { x: at.x + def.box.x, y: at.y + def.box.y, w: def.box.w, h: def.box.h }, chest: { id: w.nextId++, open: false, tier } };
   w.room.props.push(prop);
-  if (drop) w.events.push({ type: 'reward', reward: 'chest', x: at.x, y: at.y });
+  if (drop) w.events.push({ type: 'reward', reward: 'chest', x: at.x, y: at.y, tier });
   return prop;
 }
 
@@ -2330,22 +2347,32 @@ function openChest(w: World, pr: PropInstance): void {
   const spot = freeSpot(w, pr.x, pr.y + 32, 8);
   const base = { x: spot.x, y: spot.y, vx: 0, vy: 0, age: 0, value: 1 };
   // Now that items only come out of chests (and the shop), a chest can hold any of the three:
-  // mostly a passive item, sometimes a weapon or an active one (whatever is left in the decks).
-  let item: string | undefined;
+  // mostly a passive item, sometimes a weapon or an active one. The cardboard one gives only
+  // ordinary things; the premium one only things of quality «buena» (the first of each deck that
+  // fits; if no deck has one, whatever is next).
+  const good = c.tier === 'premium';
+  const fits = (q: 'buena' | undefined): boolean => (q === 'buena') === good;
   const roll = w.rng.next();
-  const order = roll < CHEST_WEAPON ? ['arma', 'objeto', 'activo'] : roll < CHEST_WEAPON + CHEST_ACTIVE ? ['activo', 'objeto', 'arma'] : ['objeto', 'activo', 'arma'];
-  for (const kind of order) {
-    if (kind === 'objeto' && decks.items.length > 0) {
-      item = decks.items.shift()!;
-      w.pickups.push({ id: w.nextId++, kind: 'objeto', item, ...base });
-    } else if (kind === 'activo' && decks.actives.length > 0) {
-      item = decks.actives.shift()!;
-      w.pickups.push({ id: w.nextId++, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges, ...base });
-    } else if (kind === 'arma' && decks.weapons.length > 0) {
-      item = decks.weapons.shift()!;
-      w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: item, ...base });
-    } else continue;
-    break;
+  const order: Array<'objeto' | 'activo' | 'arma'> = good
+    ? roll < 0.35 ? ['arma', 'objeto'] : ['objeto', 'arma']
+    : roll < CHEST_WEAPON ? ['arma', 'objeto', 'activo'] : roll < CHEST_WEAPON + CHEST_ACTIVE ? ['activo', 'objeto', 'arma'] : ['objeto', 'activo', 'arma'];
+  const take = (deck: string[], quality: (id: string) => 'buena' | undefined, strict: boolean): string | undefined => {
+    const at = deck.findIndex((id) => !strict || fits(quality(id)));
+    return at < 0 ? undefined : deck.splice(at, 1)[0];
+  };
+  let item: string | undefined;
+  for (const strict of [true, false]) {
+    for (const kind of order) {
+      if (kind === 'objeto') item = take(decks.items, (id) => ITEMS[id]?.quality, strict);
+      else if (kind === 'activo') item = take(decks.actives, (id) => ACTIVE_ITEMS[id]?.quality, strict);
+      else item = take(decks.weapons, (id) => WEAPONS[id]?.quality, strict);
+      if (!item) continue;
+      if (kind === 'objeto') w.pickups.push({ id: w.nextId++, kind: 'objeto', item, ...base });
+      else if (kind === 'activo') w.pickups.push({ id: w.nextId++, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges, ...base });
+      else w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: item, ...base });
+      break;
+    }
+    if (item) break;
   }
   const out = freeSpot(w, pr.x, pr.y + 6, PICKUP_RADIUS);
   for (let i = 0; i < CHEST_COUPONS + (item ? 0 : 3); i++) {
@@ -2353,7 +2380,7 @@ function openChest(w: World, pr: PropInstance): void {
     const sp = w.rng.range(50, 100);
     w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: out.x, y: out.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
   }
-  w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: true, tickets: p.tickets, item });
+  w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: true, tickets: p.tickets, item, tier: c.tier });
 }
 
 export function step(w: World, input: Input): void {

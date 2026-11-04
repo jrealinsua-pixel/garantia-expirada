@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T19:12:12+01:00",
+  "actualizado": "2026-11-04T19:21:02+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 9,
+      "hechas": 10,
       "total": 15
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 449,
-    "tests_ok": 449,
+    "tests": 450,
+    "tests_ok": 450,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16059
+    "lineas_codigo": 16122
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T19:21:02+01:00",
+      "hito": "M9b",
+      "resumen": "Dos calidades de cofre: la caja gris da cosas corrientes y la Premium (granate y dorada, un 15 %) solo armas y objetos buenos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T19:12:12+01:00",
       "hito": "M9b",
@@ -734,6 +740,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/cofre-premium.png",
+      "pie": "La Caja Fuerte Premium (abajo, granate y dorada) al lado de la gris de siempre ya abierta: la rara solo da cosas buenas"
+    },
+    {
       "archivo": "capturas/tesoro-dos-cofres.png",
       "pie": "La sala del tesoro de una planta: dos cofres cerrados y nada suelto. Se empieza con un ticket (arriba a la izquierda)"
     },
@@ -752,13 +762,9 @@
     {
       "archivo": "capturas/balas-grandes.png",
       "pie": "Las balas enemigas, ahora de 9 px con borde oscuro: se ven más y cuesta más colarse entre ellas"
-    },
-    {
-      "archivo": "capturas/sin-numeros.png",
-      "pie": "Un microondas desmontado: piezas, tornillos y chispas, y ya ningún número ni sello encima"
     }
   ],
-  "proximo": "M9b (6): calidades de cofre (cartón normal y uno raro bueno), con la calidad de cada objeto y arma en los datos.",
+  "proximo": "M9b (7) con (15): menos daño de base y objetos más moderados, el activo que cura de un solo uso, y equilibrar para que el bot gane la planta 1 un 15–30 %.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -784,11 +790,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-04 16:30 UTC",
-      "tarea": "M9b (6): calidades de cofre",
-      "desde": "2026-11-04T18:13:00Z"
-    }
-  ]
+  "en_curso": []
 }

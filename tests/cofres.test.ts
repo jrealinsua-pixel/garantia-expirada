@@ -247,3 +247,32 @@ test('con cofres y tickets la simulación sigue siendo determinista', () => {
   };
   assert.equal(run(), run());
 });
+
+test('calidades de cofre (nota del humano del 2026-10-30): el de cartón da cosas normales, el premium solo buenas, y es raro', async () => {
+  const { ITEMS, ACTIVE_ITEMS } = await import('../src/data/items.ts');
+  const { WEAPONS, FINDABLE_WEAPONS } = await import('../src/data/weapons.ts');
+  const { PREMIUM_CHANCE } = await import('../src/sim/world.ts');
+  const keys = new Set(Object.keys(JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as object));
+  assert.ok(keys.has('cofre-premium'), 'falta el sprite del cofre premium');
+  // There are good and ordinary ones of each: weapons and passive items.
+  assert.ok(FINDABLE_WEAPONS.some((id) => WEAPONS[id]!.quality === 'buena') && FINDABLE_WEAPONS.some((id) => !WEAPONS[id]!.quality));
+  const good = Object.values(ITEMS).filter((d) => d.quality === 'buena').length;
+  assert.ok(good >= 5 && good <= Object.keys(ITEMS).length / 2, `objetos buenos: ${good}`);
+  const quality = (k: { kind: string; item?: string; weapon?: string }): string | undefined =>
+    k.kind === 'arma' ? WEAPONS[k.weapon!]!.quality : k.kind === 'activo' ? ACTIVE_ITEMS[k.item!]!.quality : ITEMS[k.item!]!.quality;
+  for (const tier of ['carton', 'premium'] as const) {
+    for (let i = 0; i < 25; i++) {
+      const w = bare(`calidad-${tier}-${i}`);
+      w.player.tickets = 1;
+      const c = placeChest(w, 200, 150, true, tier);
+      walkInto(w, c, 0.3);
+      step(w, { ...NO_INPUT, interact: true });
+      const got = w.pickups.find((k) => k.kind !== 'cupon')!;
+      assert.ok(got, 'el cofre no da nada');
+      assert.equal(quality(got) === 'buena', tier === 'premium', `${tier} ${i}: ${got.item ?? got.weapon}`);
+    }
+  }
+  let premium = 0;
+  for (let i = 0; i < 400; i++) if (placeChest(bare(`raro-${i}`), 200, 150).chest!.tier === 'premium') premium++;
+  assert.ok(premium / 400 > PREMIUM_CHANCE / 2 && premium / 400 < PREMIUM_CHANCE * 2, `premium: ${premium / 400}`);
+});

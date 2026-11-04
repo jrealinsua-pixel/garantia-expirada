@@ -288,7 +288,7 @@ repartido en M12–M14.
 - [x] (5) Economía más escasa: se empieza con 1 ticket; muchos menos cupones y tickets; los objetos
   solo salen de cofres o de la tienda (nunca sueltos en una sala); unos 2 cofres por planta y
   alguno más al limpiar salas; los cupones se recogen solos al limpiar la sala. Medido con el bot.
-- [ ] (6) Calidades de cofre: el de cartón (el normal) da pasivos o armas flojas; el bueno (raro)
+- [x] (6) Calidades de cofre: el de cartón (el normal) da pasivos o armas flojas; el bueno (raro)
   solo armas y objetos buenos. Cada objeto y arma lleva su calidad en los datos.
 - [ ] (7) Menos daño y menos estadística: las armas hacen menos daño de base y los objetos suben
   menos; el activo que curaba dos corazones en dos salas tarda muchas más salas o es de un solo uso.

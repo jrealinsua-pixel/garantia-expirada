@@ -161,6 +161,12 @@ de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ni
   limpia tiene un 15 % de dejar otra. Muchas veces un cofre se queda cerrado. Se abre con el botón
   de interactuar (F) y un ticket: se lo traga y suelta un objeto pasivo (lo normal), un arma o un
   activo, y un cupón. Sin ticket, se queja («Sin ticket no hay devolución»).
+- **Dos calidades de cofre.** La Caja Fuerte de Devoluciones normal (gris, la de siempre) solo
+  da cosas corrientes: pasivos normales, activos o la Grapadora. La **Caja Fuerte Premium · Solo
+  Clientes Oro** (granate y dorada, brilla de vez en cuando; un 15 % de los cofres) solo da cosas
+  de calidad «buena»: la Plancha o un pasivo bueno (Garantía Extendida, Broca del Ocho,
+  Resistencia de Recambio, Cable HDMI Dorado, Actualización Obligatoria, Ratón Gaming RGB, Copia
+  de Seguridad). La calidad está en los datos (`quality: 'buena'`).
 - **Los objetos nunca están sueltos** por una sala: solo salen de cofres o de la tienda.
 - **Los cupones se recogen solos** al limpiar una sala: vuelan hacia la tostadora. Los enemigos
   sueltan la mitad que antes (0–1 casi todos; los jefes, 5–9): una planta da unos 20.

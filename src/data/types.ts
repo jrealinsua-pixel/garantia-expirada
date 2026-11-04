@@ -2,6 +2,11 @@
 
 export interface WeaponDef {
   id: string;
+  /**
+   * «buena»: only the premium chest gives it (and never the cardboard one), see docs/DISENO.md
+   * «Economía». Unset: an ordinary one.
+   */
+  quality?: 'buena';
   name: string;
   description: string;
   /** Shots per second while the trigger is held. */
@@ -111,6 +116,11 @@ export interface Modifier {
  */
 export interface PassiveItemDef {
   id: string;
+  /**
+   * «buena»: only the premium chest gives it (and never the cardboard one), see docs/DISENO.md
+   * «Economía». Unset: an ordinary one.
+   */
+  quality?: 'buena';
   /** 2 to 4 words (docs/DISENO.md). */
   name: string;
   /** One sentence, two at most, in the game's tone. */
@@ -154,6 +164,11 @@ export type ActiveEffect =
  */
 export interface ActiveItemDef {
   id: string;
+  /**
+   * «buena»: only the premium chest gives it (and never the cardboard one), see docs/DISENO.md
+   * «Economía». Unset: an ordinary one.
+   */
+  quality?: 'buena';
   name: string;
   description: string;
   sprite: string;

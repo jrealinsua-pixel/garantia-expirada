@@ -877,6 +877,11 @@ try {
   await page.keyboard.up('a');
   await page.waitForTimeout(300);
   await shot('23d-cofre-abierto.png');
+  // The rare premium chest (nota del humano del 2026-10-30): wine-red and gold, its name in gold as it drops in.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; window.__GE__.placeChest(w.player.x + 60, w.player.y + 30, 'premium'); })()`);
+  await page.waitForTimeout(500);
+  await shot('23e-cofre-premium.png');
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.room.props.some((p) => p.chest && p.chest.tier === 'premium')"))) throw new Error('No hay cofre premium');
   // A passive item, an active one or a weapon (not one of the test room's pedestals: those are old).
   const fromChest = "window.__GE__.scene.world.pickups.some((k) => k.kind === 'objeto' || k.kind === 'activo' || (k.kind === 'arma' && k.age < 3))";
   if (!(await page.evaluate<boolean>(fromChest))) throw new Error('El cofre no suelta ningún objeto');

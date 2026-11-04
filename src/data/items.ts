@@ -24,6 +24,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
   },
   garantia: {
     id: 'garantia',
+    quality: 'buena',
     name: 'Garantía Extendida',
     description: 'Cubre todo excepto lo que te pase. La letra pequeña no se puede leer: forma parte del servicio.',
     sprite: 'objeto-garantia',
@@ -64,6 +65,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
   },
   broca: {
     id: 'broca',
+    quality: 'buena',
     name: 'Broca del Ocho',
     description: 'Para colgar un cuadro. Ya puestos, para todo lo demás.',
     sprite: 'objeto-broca',
@@ -80,6 +82,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
   },
   resistencia: {
     id: 'resistencia',
+    quality: 'buena',
     name: 'Resistencia de Recambio',
     description: 'Pieza no original. Calienta más de lo que pone en la caja.',
     sprite: 'objeto-resistencia',
@@ -124,6 +127,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
   },
   hdmi: {
     id: 'hdmi',
+    quality: 'buena',
     name: 'Cable HDMI Dorado',
     description: 'Mejora la imagen un 0 %. Lo pone en la caja, en letras doradas.',
     sprite: 'objeto-hdmi',
@@ -142,6 +146,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
   },
   actualizacion: {
     id: 'actualizacion',
+    quality: 'buena',
     name: 'Actualización Obligatoria',
     description: 'Reinicie para aplicar los cambios. Sí, ahora.',
     sprite: 'objeto-actualizacion',
@@ -151,6 +156,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
   },
   raton: {
     id: 'raton',
+    quality: 'buena',
     name: 'Ratón Gaming RGB',
     description: 'Dieciséis millones de colores y un clic que a veces cuenta doble.',
     sprite: 'objeto-raton',
@@ -187,6 +193,7 @@ export const ITEMS: Record<string, PassiveItemDef> = {
   },
   copia: {
     id: 'copia',
+    quality: 'buena',
     name: 'Copia de Seguridad',
     description: 'Restaura el sistema tal y como estaba el martes. Funciona una vez, como todo.',
     sprite: 'objeto-copia',

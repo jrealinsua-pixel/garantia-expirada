@@ -2,6 +2,7 @@
 // live in src/sim/.
 import { paintRoom } from '../art/room.ts';
 import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
+import { CHEST_NAME_PREMIUM } from '../data/texts.ts';
 import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, controlsHint, RELOADING, swapHint, TEST_ROOM_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
@@ -639,7 +640,7 @@ export class GameScene extends Phaser.Scene {
       addModifier: (m: Modifier) => void;
       giveItem: (id: string) => void;
       giveActive: (id: string) => void;
-      placeChest: (x: number, y: number) => void;
+      placeChest: (x: number, y: number, tier?: 'carton' | 'premium') => void;
       dropTicket: (x: number, y: number) => void;
     };
     (window as unknown as { __GE__: TestHooks }).__GE__ = {
@@ -651,7 +652,7 @@ export class GameScene extends Phaser.Scene {
       giveItem: (id: string) => giveItem(this.world, id),
       giveActive: (id: string) => giveActive(this.world, id),
       // ...or a chest, or a ticket, wherever.
-      placeChest: (x: number, y: number) => void placeChest(this.world, x, y),
+      placeChest: (x: number, y: number, tier?: 'carton' | 'premium') => void placeChest(this.world, x, y, true, tier),
       dropTicket: (x: number, y: number) => dropTicket(this.world, x, y),
     };
     // Back in the boss room after walking out: the lift is still there, waiting.
@@ -1938,7 +1939,7 @@ export class GameScene extends Phaser.Scene {
             this.chestDrop = true;
             this.sound2.play('choque', { volume: 0.6 });
             for (let i = 0; i < 6; i++) this.puff(e.x + this.fx.range(-12, 12), e.y - this.fx.range(0, 6), this.fx.range(0.5, 0.8));
-            this.floatText(e.x, e.y - 28, fontText(CHEST_NAME), 0xd6cdb2);
+            this.floatText(e.x, e.y - 28, fontText(e.tier === 'premium' ? CHEST_NAME_PREMIUM : CHEST_NAME), e.tier === 'premium' ? 0xf6c431 : 0xd6cdb2);
             this.shake(90, 0.004, true);
           } else this.sound2.play('desbloquear', { volume: 0.6 });
           break;
@@ -2780,7 +2781,7 @@ export class GameScene extends Phaser.Scene {
       let v = this.chestSprites.get(c.id);
       if (!v) {
         // Only one that just turned up drops in (one already there when the room was built does not).
-        v = { s: this.add.image(pr.x, pr.y, 'cofre', c.open ? 1 : 0).setOrigin(0.5, 1).setDepth(pr.y), open: c.open, pop: this.chestDrop ? 0.35 : 0 };
+        v = { s: this.add.image(pr.x, pr.y, c.tier === 'premium' ? 'cofre-premium' : 'cofre', c.open ? 1 : 0).setOrigin(0.5, 1).setDepth(pr.y), open: c.open, pop: this.chestDrop ? 0.35 : 0 };
         this.chestDrop = false;
         this.chestSprites.set(c.id, v);
       }
@@ -2795,6 +2796,10 @@ export class GameScene extends Phaser.Scene {
       const blink = !c.open && Math.floor(this.time.now / 120 + c.id) % 14 === 0;
       if (blink) v.s.setTint(0xffd0c8);
       else v.s.clearTint();
+      // The premium one glints now and then: a gold spark on its lid.
+      if (!c.open && c.tier === 'premium' && this.fx.chance(dt * 1.5)) {
+        this.spark(pr.x + this.fx.range(-10, 10), pr.y - this.fx.range(14, 20), -Math.PI / 2 + this.fx.range(-0.6, 0.6), this.fx.range(15, 35), 1);
+      }
     }
     for (const [id, v] of this.chestSprites) {
       if (alive.has(id)) continue;

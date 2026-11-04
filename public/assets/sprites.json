@@ -341,6 +341,12 @@
     "frameH": 24,
     "frames": 2
   },
+  "cofre-premium": {
+    "file": "cofre-premium.png",
+    "frameW": 26,
+    "frameH": 24,
+    "frames": 2
+  },
   "ticket": {
     "file": "ticket.png",
     "frameW": 9,

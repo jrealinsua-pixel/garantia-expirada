@@ -246,6 +246,8 @@ export const SYNERGY_LINE = 'Sinergia corporativa:';
 /** Tickets and chests (M5). */
 export const TICKET_LINE = 'Ticket de compra · válido 14 días';
 export const CHEST_NAME = 'Caja Fuerte de Devoluciones';
+/** The rare one, with only good things in it (nota del humano del 2026-10-30). */
+export const CHEST_NAME_PREMIUM = 'Caja Fuerte Premium · Solo Clientes Oro';
 export const CHEST_LOCKED_LINES: readonly string[] = [
   'Sin ticket no hay devolución',
   'Presente el ticket de compra',
