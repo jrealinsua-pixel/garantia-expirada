@@ -431,7 +431,7 @@ export interface BossPhase {
   name: string;
   /** It starts when the boss has this fraction of its life left or less (1 for the first). */
   from: number;
-  /** Between attacks, farther than `keep` px from the player, it shuffles closer. */
+  /** Its walking speed between attacks (px/s), and the distance it likes to keep from the player. */
   walkSpeed: number;
   keep: number;
   /** Seconds of rest between attacks (random in this range). */
@@ -451,21 +451,34 @@ export interface BossPhase {
 }
 
 /**
- * A floor boss: between attacks it shuffles closer if the player keeps away; then it picks one of its current
- * phase's attacks (weighted, never the same twice in a row), warns and fires it from `muzzle`
- * (px from its feet, facing right).
+ * A floor boss: between attacks it never stands still (see `roam`); then it picks one of its
+ * current phase's attacks (weighted, never the same twice in a row), warns standing still and fires
+ * it from `muzzle` (px from its feet, facing right), drifting on while the bullets stream out.
  */
 export interface BossBrain {
   kind: 'boss';
   muzzle: { x: number; y: number };
   phases: BossPhase[];
+  /**
+   * Its erratic walk between attacks: it circles the player in legs of `leg` s (random), each one
+   * maybe the other way round, at the phase's `walkSpeed` times a random factor in `burst` (now a
+   * stroll, now a lurch) and at `keep` px (± `spread`) from the player.
+   */
+  roam: { leg: [number, number]; burst: [number, number]; spread: number };
+  /** Share of its speed it keeps while its bullets stream out (after the warning). */
+  drift: number;
+  /**
+   * Rage: with no life left it would walk and recover (1 + rage) times faster; in between, in
+   * proportion to the life it has lost.
+   */
+  rage: number;
 }
 
 /**
  * Lies on the floor passing for something else until the player comes within `wake` px (or hits
  * it), until it has waited `patience` s (a random time in that range), or until only bait is left:
- * no other kind of enemy is standing, and `alone` s have gone by since then. Then it jumps up (`reveal` s), runs at the player and, within `range` px, gives a shock:
- * `pattern` fired round itself with `telegraph` s of warning. Waits `cooldown` s between shocks.
+ * no other kind of enemy is standing, and `alone` s have gone by since then. Then it jumps up
+ * (`reveal` s), runs at the player and, within `range` px, gives a shock: `pattern` fired round itself with `telegraph` s of warning. Waits `cooldown` s between shocks.
  */
 export interface MimicBrain {
   kind: 'mimic';

@@ -215,6 +215,8 @@ export interface Emitter {
   aim: number;
   aimed: boolean;
   color: BulletColor;
+  /** It comes out of enemy `id`, (dx, dy) px from its feet, wherever that enemy walks (a boss drifting while it fires). */
+  follow?: { id: number; dx: number; dy: number };
 }
 
 /** Default warning for enemy attacks (s). Enough to react, short enough to stay tense. */
@@ -290,6 +292,14 @@ export interface Enemy {
   attack?: number;
   /** Bosses with relays: seconds it has gone without any (see BossPhase.relays.every). */
   relayT?: number;
+  /**
+   * Bosses: seconds left of the current leg of its walk, how fast (share of its speed), which way
+   * round the player (1 or -1) and how far from it.
+   */
+  legT?: number;
+  legPace?: number;
+  legSpin?: number;
+  legKeep?: number;
 }
 
 /**
@@ -1695,6 +1705,14 @@ export const ENEMY_BULLET_RADIUS = 3.5;
 function updateEmitters(w: World): void {
   const keep: Emitter[] = [];
   for (const e of w.emitters) {
+    if (e.follow) {
+      const f = e.follow;
+      const en = w.enemies.find((o) => o.id === f.id && o.state !== 'dying');
+      if (en) {
+        e.x = en.x + f.dx;
+        e.y = en.y + f.dy;
+      }
+    }
     while (e.next < e.shots.length && e.shots[e.next]!.delay <= e.t + 1e-9) {
       const s = e.shots[e.next++]!;
       const b: Bullet = {

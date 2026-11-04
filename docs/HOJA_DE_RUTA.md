@@ -293,7 +293,7 @@ repartido en M12–M14.
 - [ ] (7) Menos daño y menos estadística: las armas hacen menos daño de base y los objetos suben
   menos; el activo que curaba dos corazones en dos salas tarda muchas más salas o es de un solo uso.
   Medido con el bot.
-- [ ] (8) Jefes que se mueven, erráticos, y que van más deprisa (andar y disparar) cuanto menos
+- [x] (8) Jefes que se mueven, erráticos, y que van más deprisa (andar y disparar) cuanto menos
   vida les queda: la Nevera y el Router. Medido con el bot.
 - [x] (9) La Música de Espera ya no congela al jefe: ralentiza sus balas y su movimiento.
 - [x] (10) Los enemigos que esperan quietos a que te acerques (los cargadores falsos y similares) se

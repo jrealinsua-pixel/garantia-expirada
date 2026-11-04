@@ -1,6 +1,6 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { BlinkerBrain, BossAttack, BossBrain, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain } from '../data/types.ts';
+import type { BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain } from '../data/types.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS } from '../data/props.ts';
@@ -697,6 +697,60 @@ function pickAttack(w: World, attacks: readonly BossAttack[], last: number | und
  * pattern comes out of its muzzle; frost is lobbed at the player and around it at the end of the
  * warning. Moving into a new phase is announced (event `bossPhase`).
  */
+/** How much faster a boss walks and recovers for the life it has lost (1 at full life, 1 + rage at none). */
+export function bossRage(en: Enemy, b: BossBrain): number {
+  const lost = Math.min(1, Math.max(0, en.damageTaken / en.def.hp));
+  return 1 + b.rage * lost;
+}
+
+/** Seconds of warning of the boss's current attack (0 if it has none). */
+function bossWarnTime(phase: BossPhase, en: Enemy): number {
+  const a = en.attack === undefined ? undefined : phase.attacks[en.attack];
+  return a?.telegraph ?? 0;
+}
+
+/**
+ * The boss's erratic walk: it circles the player at about `keep` px, in legs of random length; each
+ * leg it may turn back the other way, change pace (a stroll or a lurch) and pick a new distance
+ * (`keep` ± roam.spread), which it closes or opens as it goes. Returns the velocity it wants.
+ */
+function bossRoam(w: World, en: Enemy, b: BossBrain, speed: number, keep: number): { x: number; y: number } {
+  const p = w.player;
+  en.legT = (en.legT ?? 0) - DT;
+  if (en.legT <= 0 || en.legSpin === undefined) {
+    en.legT = w.rng.range(b.roam.leg[0], b.roam.leg[1]);
+    en.legPace = w.rng.range(b.roam.burst[0], b.roam.burst[1]);
+    // Mostly it turns back: that is what makes it hard to read.
+    en.legSpin = en.legSpin === undefined ? (w.rng.next() < 0.5 ? 1 : -1) : w.rng.next() < ROAM_FLIP ? -en.legSpin : en.legSpin;
+    en.legKeep = keep + w.rng.range(-b.roam.spread, b.roam.spread);
+  }
+  // Round the player, on a flattened circle (see FLOOR_FLAT).
+  const rx = en.x - p.x;
+  const ry = (en.y - p.y) / FLOOR_FLAT;
+  const r = Math.hypot(rx, ry) || 1;
+  const out = Math.max(-1, Math.min(1, ((en.legKeep ?? keep) - r) / 40));
+  let vx = (-ry / r) * en.legSpin + (rx / r) * out;
+  let vy = ((rx / r) * en.legSpin + (ry / r) * out) * FLOOR_FLAT;
+  const n = Math.hypot(vx, vy) || 1;
+  const v = speed * (en.legPace ?? 1);
+  vx = (vx / n) * v;
+  vy = (vy / n) * v;
+  // Into a wall: it turns back at once rather than grinding against it.
+  if (!isClear(w, en.x + vx * 0.25, en.y + vy * 0.25, en.def.footRadius)) {
+    en.legSpin = -en.legSpin;
+    en.legT = Math.min(en.legT, 0.3);
+  }
+  return { x: vx, y: vy };
+}
+
+/** Share of a boss's legs that go back the way it came. */
+const ROAM_FLIP = 0.6;
+/**
+ * Vertical squash of a boss's circle round the player: the screen is wider than tall, and the
+ * camera has to show the toaster and the whole boss at once (see frameAxis in render/camera.ts).
+ */
+const FLOOR_FLAT = 0.5;
+
 function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   const p = w.player;
   en.t += DT;
@@ -721,6 +775,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
   }
   const phase = b.phases[en.bossPhase]!;
+  const rage = bossRage(en, b);
   // Without relays left, it plants a new one now and then (if the phase says so).
   if (phase.relays?.every && en.state !== 'roar' && !w.over) {
     if (relaysOf(w, en).length > 0) en.relayT = 0;
@@ -737,13 +792,10 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   let walkY = 0;
   switch (en.state) {
     case 'idle': {
-      // Comes closer when you keep away, slowly (it is a fridge); it never backs off: the
-      // Management does not give ground (and backed against the wall it would leave the picture).
-      const d = Math.hypot(p.x - en.x, p.y - en.y) || 1;
-      const sign = d > phase.keep + 30 ? 1 : 0;
-      walkX = ((p.x - en.x) / d) * sign * phase.walkSpeed;
-      walkY = ((p.y - en.y) / d) * sign * phase.walkSpeed;
-      if (en.t >= en.until && !w.over) {
+      // Never still between attacks: from spot to spot round the player, now strolling, now
+      // lurching, and quicker the less life it has.
+      ({ x: walkX, y: walkY } = bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep));
+      if (en.t * rage >= en.until && !w.over) {
         const i = pickAttack(w, phase.attacks, en.attack);
         en.attack = i;
         const a = phase.attacks[i]!;
@@ -751,7 +803,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         if (a.kind === 'pattern') {
           const def = PATTERNS[a.pattern];
           if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
-          firePattern(w, def, mx, en.y - mh, aim, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: mh });
+          const em = firePattern(w, def, mx, en.y - mh, aim, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: mh });
+          em.follow = { id: en.id, dx: mx - en.x, dy: -mh };
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.25);
           // Its relays send the same thing out from where they stand.
           const relayed = a.relay ? PATTERNS[a.relay] : undefined;
@@ -821,6 +874,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       break;
     }
     case 'fire':
+      // Once the warning is over it drifts on while its bullets stream out (they follow it).
+      if (en.t > bossWarnTime(phase, en)) ({ x: walkX, y: walkY } = bossRoam(w, en, b, phase.walkSpeed * rage * b.drift, phase.keep));
       if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
       break;
     case 'roar':

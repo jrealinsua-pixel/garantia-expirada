@@ -305,13 +305,16 @@ export const ENEMIES: Record<string, EnemyDef> = {
     anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 9, reboot: [6, 7, 8, 9, 10, 11] },
     brain: {
       kind: 'boss',
+      roam: { leg: [0.5, 1.3], burst: [0.6, 1.4], spread: 50 },
+      drift: 0.35,
+      rage: 0.6,
       // The middle of its front, between the lights: the waves come out of there.
       muzzle: { x: 6, y: 40 },
       phases: [
         {
           name: 'Cobertura total',
           from: 1,
-          walkSpeed: 14,
+          walkSpeed: 34,
           keep: 140,
           rest: [1.1, 1.6],
           relays: { id: 'repetidor', count: 2 },
@@ -325,7 +328,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           // Half its life gone: it reboots (5 s off, its repeaters fall) and comes back updated.
           name: 'Actualización de firmware',
           from: 0.5,
-          walkSpeed: 16,
+          walkSpeed: 42,
           keep: 130,
           rest: [0.8, 1.2],
           reboot: { time: 5, line: 'Reiniciando. No desenchufe el dispositivo' },
@@ -378,13 +381,16 @@ export const ENEMIES: Record<string, EnemyDef> = {
     anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, phaseShift: 6 },
     brain: {
       kind: 'boss',
+      roam: { leg: [0.5, 1.3], burst: [0.6, 1.4], spread: 50 },
+      drift: 0.35,
+      rage: 0.6,
       // The ice dispenser on its door, facing right.
       muzzle: { x: 5, y: 34 },
       phases: [
         {
           name: 'Congelación de precios',
           from: 1,
-          walkSpeed: 16,
+          walkSpeed: 38,
           keep: 130,
           rest: [0.9, 1.5],
           attacks: [
@@ -398,7 +404,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           // Half its life gone: the door swings open and the offers start.
           name: 'Oferta irrechazable',
           from: 0.5,
-          walkSpeed: 20,
+          walkSpeed: 48,
           keep: 120,
           rest: [0.8, 1.3],
           attacks: [

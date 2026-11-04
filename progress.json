@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T18:39:25+01:00",
+  "actualizado": "2026-11-04T18:53:51+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 6,
+      "hechas": 7,
       "total": 14
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 440,
-    "tests_ok": 440,
+    "tests": 445,
+    "tests_ok": 445,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15900
+    "lineas_codigo": 15988
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T18:53:51+01:00",
+      "hito": "M9b",
+      "resumen": "Los jefes se mueven: rodean a la tostadora a tirones y cambiando de sentido, siguen andando mientras disparan y van más deprisa cuanta menos vida les queda. El Router pasa de ganarse el 27 % de las veces al 10 %.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T18:39:25+01:00",
       "hito": "M9b",
@@ -716,6 +722,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/router-se-mueve.png",
+      "pie": "El Router ya no espera arriba: da vueltas alrededor de la tostadora, cambia de sentido sin avisar y suelta sus caídas de conexión sobre la marcha"
+    },
+    {
       "archivo": "capturas/boton-interactuar.png",
       "pie": "Delante de un cofre: «F: Abrir». Ya no se abre empujándolo"
     },
@@ -734,13 +744,9 @@
     {
       "archivo": "capturas/telefono-otra-vez.png",
       "pie": "Volver al teléfono en la misma visita: una frase corta en vez de la grabación entera («Pulse 1. Este teléfono no tiene teclas»)"
-    },
-    {
-      "archivo": "capturas/salas-centradas.png",
-      "pie": "Las salas de 16 casillas van ahora centradas en la pantalla, con el margen repartido a los dos lados"
     }
   ],
-  "proximo": "M9b (5): economía más escasa (empezar con 1 ticket, menos cupones y tickets, objetos solo en cofres y tienda, 2 cofres por planta, cupones que se recogen solos al limpiar).",
+  "proximo": "M9b (4) si la otra sesión lo suelta; si no, M9b (7): menos daño de las armas y menos estadística de los objetos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -771,11 +777,6 @@
       "sesion": "2026-11-04 16:30 UTC",
       "tarea": "M9b (5): economía más escasa",
       "desde": "2026-11-04T18:00:00Z"
-    },
-    {
-      "sesion": "2026-11-04 17:25 UTC",
-      "tarea": "M9b (8): jefes que se mueven, erráticos y más rápidos con menos vida",
-      "desde": "2026-11-04T17:55:00Z"
     }
   ]
 }
