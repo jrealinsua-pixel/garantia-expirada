@@ -6,6 +6,23 @@ import { settings } from './settings.ts';
 
 const DEADZONE = 0.22;
 
+/**
+ * Keys held down right now (KeyboardEvent.code), for the whole page and not per scene: walking
+ * through a door restarts the scene, and a key held through it never sends another keydown (nota
+ * del humano del 2026-10-30: the toaster stopped until the key was pressed again). The window's
+ * own listeners also hear the key-ups that come while the scene is being restarted.
+ */
+const HELD = new Set<string>();
+let listening = false;
+
+function listen(): void {
+  if (listening || typeof window === 'undefined') return;
+  listening = true;
+  window.addEventListener('keydown', (e) => HELD.add(e.code), true);
+  window.addEventListener('keyup', (e) => HELD.delete(e.code), true);
+  window.addEventListener('blur', () => HELD.clear());
+}
+
 export interface AimSource {
   /** Player body centre in world space, for stick aiming. */
   bodyX: number;
@@ -13,8 +30,8 @@ export interface AimSource {
 }
 
 export class Controls {
-  /** Keys held down right now (KeyboardEvent.code). */
-  private held = new Set<string>();
+  /** Keys held down right now (the page's, see HELD). */
+  private held = HELD;
   private scene: Phaser.Scene;
   private rollQueued = false;
   private patternQueued: string | undefined;
@@ -32,6 +49,7 @@ export class Controls {
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+    listen();
     const kb = scene.input.keyboard!;
     const K = Phaser.Input.Keyboard.KeyCodes;
     // The page must not scroll with the arrows or the space bar.
@@ -47,6 +65,7 @@ export class Controls {
       else if (a === 'use') this.useQueued = true;
     });
     kb.on('keyup', (e: KeyboardEvent) => this.held.delete(e.code));
+    // (Both lists are the same set: the window's listeners keep it right between scenes.)
     // Keys let go while the window was not looking would stay held.
     const forget = (): void => this.held.clear();
     scene.game.events.on(Phaser.Core.Events.BLUR, forget);

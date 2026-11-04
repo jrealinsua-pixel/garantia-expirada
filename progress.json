@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-10-30T06:15:00+01:00",
+  "actualizado": "2026-11-04T17:36:11+01:00",
   "version": "0.2.0",
-  "hito_actual": "M10",
+  "hito_actual": "M9b",
   "hitos": [
     {
       "id": "M0",
@@ -74,9 +74,16 @@
       "total": 3
     },
     {
+      "id": "M9b",
+      "nombre": "Lo que pidió el humano el 30 de octubre",
+      "estado": "en_curso",
+      "hechas": 1,
+      "total": 14
+    },
+    {
       "id": "M10",
       "nombre": "Plantas 3 y 4",
-      "estado": "en_curso",
+      "estado": "pendiente",
       "hechas": 0,
       "total": 2
     },
@@ -106,7 +113,7 @@
       "nombre": "Más contenido y rejugabilidad",
       "estado": "pendiente",
       "hechas": 0,
-      "total": 2
+      "total": 7
     },
     {
       "id": "M15",
@@ -127,9 +134,15 @@
     "tests_ok": 435,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15789
+    "lineas_codigo": 15806
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T17:36:11+01:00",
+      "hito": "M9b",
+      "resumen": "Notas del humano del 30 de octubre partidas en el hito M9b; arreglado que la tostadora se parara al cruzar una puerta con la tecla pulsada.",
+      "commit": ""
+    },
     {
       "fecha": "2026-10-30T06:15:00+01:00",
       "hito": "M10",
@@ -697,7 +710,7 @@
       "pie": "«Partida nueva» lleva ahora al Mostrador de Devoluciones: la cinta de arriba a la derecha empieza la partida y tras el parte de baja se vuelve aquí"
     }
   ],
-  "proximo": "M10 (1): el juego de casillas de la Juguetería (src/art/jugueteria.ts, ?planta=3).",
+  "proximo": "M9b (2): fuera los números de daño y el texto al matar a un enemigo.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -726,8 +739,8 @@
   "en_curso": [
     {
       "sesion": "2026-11-04 16:30 UTC",
-      "tarea": "M9b (1): fallo de la tecla de movimiento al entrar en una sala",
-      "desde": "2026-11-04T16:30:00Z"
+      "tarea": "M9b (2): fuera los números de daño y el texto al matar",
+      "desde": "2026-11-04T16:40:00Z"
     }
   ]
 }

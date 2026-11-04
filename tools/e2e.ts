@@ -508,6 +508,15 @@ try {
   await page.waitForFunction(`window.__GE__.scene.world.floor.current !== ${start.room}`, undefined, { timeout: 4000 });
   await page.waitForTimeout(60);
   await shot('16b-planta-fundido.png');
+  // Still holding the key on the other side of the door: the toaster keeps walking in without
+  // letting go and pressing it again (nota del humano del 2026-10-30).
+  await page.waitForTimeout(500);
+  const pos = (): Promise<{ x: number; y: number }> => page.evaluate('(() => { const p = window.__GE__.scene.world.player; return { x: p.x, y: p.y }; })()');
+  const p0 = await pos();
+  await page.waitForTimeout(300);
+  const p1 = await pos();
+  const walked = { N: p0.y - p1.y, S: p1.y - p0.y, E: p1.x - p0.x, W: p0.x - p1.x }[door.dir] ?? 0;
+  if (walked < 8) throw new Error(`Con la tecla pulsada al cruzar la puerta, el personaje no sigue andando (${walked.toFixed(1)} px en 0,3 s)`);
   await page.keyboard.up(key);
   await page.waitForTimeout(700);
   await shot('16c-planta-sala-vecina.png');

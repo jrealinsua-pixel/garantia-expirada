@@ -278,7 +278,7 @@ planta, glosario, logros que desbloquean contenido, PNJs en las plantas, una por
 el pixel art más distinguible) está en «Pautas del humano (2026-10-30)» de `docs/DISENO.md` y
 repartido en M12–M14.
 
-- [ ] (1) Fallo: si se entra en una sala con una tecla de movimiento pulsada, el personaje no anda
+- [x] (1) Fallo: si se entra en una sala con una tecla de movimiento pulsada, el personaje no anda
   hasta soltarla y volver a pulsarla.
 - [ ] (2) Fuera los números de daño sobre los enemigos y el texto que sale al matar a uno.
 - [ ] (3) Balas enemigas más grandes y más difíciles de esquivar (sprites y caja de golpe),
