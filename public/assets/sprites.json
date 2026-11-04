@@ -347,6 +347,30 @@
     "frameH": 8,
     "frames": 2
   },
+  "corazon-turbo": {
+    "file": "corazon-turbo.png",
+    "frameW": 13,
+    "frameH": 12,
+    "frames": 2
+  },
+  "corazon-sobretension": {
+    "file": "corazon-sobretension.png",
+    "frameW": 13,
+    "frameH": 12,
+    "frames": 2
+  },
+  "turbo-hud": {
+    "file": "turbo-hud.png",
+    "frameW": 9,
+    "frameH": 8,
+    "frames": 2
+  },
+  "sobretension-hud": {
+    "file": "sobretension-hud.png",
+    "frameW": 9,
+    "frameH": 8,
+    "frames": 2
+  },
   "cofre": {
     "file": "cofre.png",
     "frameW": 26,

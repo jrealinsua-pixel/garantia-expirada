@@ -299,12 +299,12 @@ repartido en M12–M14.
 - [x] (10) Los enemigos que esperan quietos a que te acerques (los cargadores falsos y similares) se
   activan solos al pasar un tiempo o al quedarse solos en la sala.
 - [x] (11) Corazones que suben o bajan con objetos (contenedores de vida que se ganan y se pierden).
-- [ ] (12) Un escudo temporal con el aguante de un corazón, con una idea de la trama en vez de un
+- [x] (12) Un escudo temporal con el aguante de un corazón, con una idea de la trama en vez de un
   escudo; y corazones especiales temporales (daño a toda la sala, más daño un rato…), cada uno con
   su sprite y su probabilidad: el escudo es lo más probable; cuanto más potente, más raro.
   - [x] (12a) El escudo: la Garantía Provisional, un corazón de papel que aguanta un corazón de
     daño y caduca al cambiar de planta. Sale a veces al limpiar una sala.
-  - [ ] (12b) Los corazones especiales temporales, cada uno con su sprite y su probabilidad (más
+  - [x] (12b) Los corazones especiales temporales, cada uno con su sprite y su probabilidad (más
     raros que el escudo, y cuanto más potentes, más raros).
 - [ ] (13) Objetos del escenario: unos se vuelcan con el botón de interactuar y sirven de cobertura;
   otros explotan o hacen otras cosas.

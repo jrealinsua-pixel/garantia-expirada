@@ -30,6 +30,7 @@ import {
   type StationKind,
 } from './room.ts';
 import { PROPS } from '../data/props.ts';
+import { SPECIAL_HEARTS, SURGE_DAMAGE, SURGE_VALUE, TURBO_DAMAGE, TURBO_HEAL } from '../data/hearts.ts';
 import { LORE } from '../data/lore.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
 
@@ -100,6 +101,14 @@ export interface Player {
    * it first; it is not healed, and it expires when the toaster goes down to another floor.
    */
   shield: number;
+  /**
+   * The special temporary hearts (M9b 12b, src/data/hearts.ts). `surge`: the Corazón de
+   * Sobretensión, life on loan in halves (it pays before the warranty, and when a hit breaks it, it
+   * shocks the room). `turbo`: the Corazón Modo Turbo is on (more damage until the next combat room
+   * is cleared). Both are gone on the next floor.
+   */
+  surge: number;
+  turbo: boolean;
   /** Seconds since the roll started, or -1 when not rolling. */
   rollT: number;
   rollDirX: number;
@@ -127,7 +136,7 @@ export interface Player {
  * A discount coupon (currency), a spare heart (gives back `value` life; left alone at full
  * life), a weapon or a passive item (these two wait on a pedestal).
  */
-export type PickupKind = 'cupon' | 'corazon' | 'garantia' | 'ticket' | 'arma' | 'objeto' | 'activo' | 'documento';
+export type PickupKind = 'cupon' | 'corazon' | 'garantia' | 'turbo' | 'sobretension' | 'ticket' | 'arma' | 'objeto' | 'activo' | 'documento';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -454,7 +463,11 @@ export type SimEvent =
   /** The entrance is over (or was skipped): the fight starts. */
   | { type: 'bossIntroEnd'; boss: number; skipped: boolean }
   /** The player lost `damage` life (now `hp`); `dirX, dirY` is where the blow came from towards it. */
-  | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number; shield?: number; covered?: number }
+  | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number; shield?: number; covered?: number; surge?: number }
+  /** The Corazón de Sobretensión broke: every enemy in `targets` took SURGE_DAMAGE. */
+  | { type: 'surge'; x: number; y: number; targets: { id: number; x: number; y: number }[] }
+  /** The Corazón Modo Turbo ran out (a combat room was cleared, M9b 12b). */
+  | { type: 'turboEnd' }
   /** The player has no life left: the run is over. */
   | { type: 'down'; x: number; y: number; source: number; cause: DownCause }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
@@ -563,7 +576,7 @@ export interface FloorRoomState {
 }
 
 /** A ticket (a key) or a chest that a ticket opens. */
-export type RoomReward = 'ticket' | 'chest' | 'heart' | 'shield';
+export type RoomReward = 'ticket' | 'chest' | 'heart' | 'shield' | 'turbo' | 'surge';
 /**
  * The economy is scarce (nota del humano del 2026-10-30): a run starts with one ticket, each floor
  * has one combat room that leaves a ticket, two chests wait in the treasure room (one more in the
@@ -696,6 +709,8 @@ export function createWorld(opts: WorldOptions): World {
       facing: 1,
       hp: def.maxHp,
       shield: 0,
+      surge: 0,
+      turbo: false,
       rollT: -1,
       rollDirX: 1,
       rollDirY: 0,
@@ -819,7 +834,9 @@ export function nextFloor(w: World): World | null {
   const p = w.player;
   const n = createWorld({ seed: `${w.seed}:planta${w.level + 1}`, floor: true, level: w.level + 1, character: p.base.def.id });
   const q = n.player;
-  n.player = { ...p, x: q.x, y: q.y, vx: 0, vy: 0, aim: q.aim, facing: q.facing, rollT: q.rollT, rollDirX: q.rollDirX, rollDirY: q.rollDirY, rollCooldown: 0, invulnerable: q.invulnerable, shield: 0 };
+  n.player = { ...p, x: q.x, y: q.y, vx: 0, vy: 0, aim: q.aim, facing: q.facing, rollT: q.rollT, rollDirX: q.rollDirX, rollDirY: q.rollDirY, rollCooldown: 0, invulnerable: q.invulnerable };
+  // What was on loan expires with the floor: the warranty and the special hearts.
+  Object.assign(n.player, { shield: 0, surge: 0, turbo: false });
   const f = n.floor!;
   const owned = new Set([...p.arsenal.map((ws) => ws.base.id), ...p.items, ...(p.active ? [p.active.id] : [])]);
   f.weapons = f.weapons.filter((id) => !owned.has(id));
@@ -860,13 +877,19 @@ function planFloor(seed: string, level: number): FloorRun {
   // Hearts with their own generator, so they do not move the tickets and chests around.
   const hearts = new Rng(`corazones:${seed}`);
   const shields = new Rng(`garantias:${seed}`);
+  const specials = new Rng(`especiales:${seed}`);
   combat.forEach((id, i) => {
     if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
     else if (prize.chance(CLEAR_CHEST_CHANCE)) rooms[id]!.reward = 'chest';
-    // Both dice are rolled every time, so one chance does not move the other's rooms.
+    // Every die is rolled every time, so one chance does not move the other's rooms. The rarer
+    // (and stronger) reward is decided first: surge, turbo, warranty, heart.
+    const special = specials.next();
     const shield = shields.chance(CLEAR_SHIELD_CHANCE);
     const heart = hearts.chance(CLEAR_HEART_CHANCE);
-    if (!rooms[id]!.reward && shield) rooms[id]!.reward = 'shield';
+    const surge = SPECIAL_HEARTS.sobretension.chance;
+    if (!rooms[id]!.reward && special < surge) rooms[id]!.reward = 'surge';
+    else if (!rooms[id]!.reward && special < surge + SPECIAL_HEARTS.turbo.chance) rooms[id]!.reward = 'turbo';
+    else if (!rooms[id]!.reward && shield) rooms[id]!.reward = 'shield';
     else if (!rooms[id]!.reward && heart) rooms[id]!.reward = 'heart';
   });
   return { layout, current: layout.start, rooms, ...lootDecks(seed, level) };
@@ -1493,7 +1516,7 @@ function updateWeapon(w: World, input: Input): void {
       vy: Math.sin(a) * def.bulletSpeed,
       r: def.bulletRadius,
       life: def.bulletLife,
-      damage: isCrit ? def.damage * crit.mul : def.damage,
+      damage: (isCrit ? def.damage * crit.mul : def.damage) * (p.turbo ? TURBO_DAMAGE : 1),
       knockback: def.knockback,
       color: 'red',
       age: 0,
@@ -1910,12 +1933,16 @@ export const canBeHurt = (w: World): boolean => !w.over && !w.noDamage && w.play
 export function hurtPlayer(w: World, damage: number, source: number, dirX: number, dirY: number, cause: DownCause = { by: 'desconocido', how: 'contact' }): boolean {
   if (!canBeHurt(w) || damage <= 0) return false;
   const p = w.player;
-  // The provisional warranty pays first (what it covers is gone for good).
-  const covered = Math.min(p.shield, damage);
-  p.shield -= covered;
+  // The surge heart pays first, then the provisional warranty (what they cover is gone for good).
+  const bySurge = Math.min(p.surge, damage);
+  p.surge -= bySurge;
+  const covered = bySurge + Math.min(p.shield, damage - bySurge);
+  p.shield -= covered - bySurge;
   p.hp = Math.max(0, p.hp - (damage - covered));
   p.invulnerable = HURT_IFRAMES;
-  w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...(covered > 0 ? { covered, shield: p.shield } : {}) });
+  const extra = covered > 0 ? { covered, shield: p.shield, ...(bySurge > 0 ? { surge: p.surge } : {}) } : {};
+  w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...extra });
+  if (bySurge > 0 && p.surge === 0) surgeShock(w);
   const keep: Bullet[] = [];
   for (const b of w.bullets) {
     if (b.owner === 'enemy' && Math.hypot(b.x - p.x, b.y - (p.y - PLAYER_HURT_Y)) < HURT_CLEAR_RADIUS) w.events.push({ type: 'bulletFade', x: b.x, y: b.y });
@@ -2125,13 +2152,18 @@ function updatePickups(w: World): void {
       keep.push(k);
       continue;
     }
-    const wanted = k.kind === 'corazon' ? p.hp < p.def.maxHp : k.kind === 'garantia' ? p.shield < SHIELD_MAX : true;
+    const wanted = wantsPickup(w, k);
     if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
       if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);
       else if (k.kind === 'garantia') p.shield = Math.min(SHIELD_MAX, p.shield + k.value);
+      else if (k.kind === 'sobretension') p.surge = Math.min(SURGE_VALUE, p.surge + k.value);
+      else if (k.kind === 'turbo') {
+        p.hp = Math.min(p.def.maxHp, p.hp + k.value);
+        p.turbo = true;
+      }
       else if (k.kind === 'ticket') p.tickets += k.value;
       else p.coupons += k.value;
-      const total = k.kind === 'corazon' ? p.hp : k.kind === 'garantia' ? p.shield : k.kind === 'ticket' ? p.tickets : p.coupons;
+      const total = k.kind === 'corazon' || k.kind === 'turbo' ? p.hp : k.kind === 'garantia' ? p.shield : k.kind === 'sobretension' ? p.surge : k.kind === 'ticket' ? p.tickets : p.coupons;
       w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total });
       continue;
     }
@@ -2219,6 +2251,11 @@ function updateDoors(w: World): void {
     w.events.push({ type: 'doors', shut: false });
     chargeActive(w);
     w.vacuum = true;
+    // The turbo lasts until the next combat room is cleared (this one, if it was already on).
+    if (w.player.turbo) {
+      w.player.turbo = false;
+      w.events.push({ type: 'turboEnd' });
+    }
     if (w.floor) {
       const st = w.floor.rooms[w.floor.current]!;
       st.cleared = true;
@@ -2226,6 +2263,8 @@ function updateDoors(w: World): void {
       else if (st.reward === 'chest') placeChest(w, ...roomMiddle(w));
       else if (st.reward === 'heart') dropHeart(w, ...roomMiddle(w));
       else if (st.reward === 'shield') dropHeart(w, ...roomMiddle(w), 'garantia');
+      else if (st.reward === 'turbo') dropHeart(w, ...roomMiddle(w), 'turbo');
+      else if (st.reward === 'surge') dropHeart(w, ...roomMiddle(w), 'sobretension');
     }
     setDoorTiles(w, true);
   }
@@ -2237,12 +2276,48 @@ function roomMiddle(w: World): [number, number] {
   return [r.w / 2, (r.h + BACK_WALL_ROWS * TILE) / 2];
 }
 
-/** A spare heart (or a Garantía Provisional) pops out at (x, y) (or the nearest free floor): a cleared room's reward. */
-export function dropHeart(w: World, x: number, y: number, kind: 'corazon' | 'garantia' = 'corazon'): void {
+/** The hearts a cleared room can leave: the spare one, the warranty and the special ones. */
+export type HeartKind = 'corazon' | 'garantia' | 'turbo' | 'sobretension';
+const HEART_DROPS: Record<HeartKind, { value: number; reward: RoomReward }> = {
+  corazon: { value: 2, reward: 'heart' },
+  garantia: { value: SHIELD_VALUE, reward: 'shield' },
+  turbo: { value: TURBO_HEAL, reward: 'turbo' },
+  sobretension: { value: SURGE_VALUE, reward: 'surge' },
+};
+
+/** A spare heart (or a Garantía Provisional, or a special heart) pops out at (x, y) (or the nearest free floor): a cleared room's reward. */
+export function dropHeart(w: World, x: number, y: number, kind: HeartKind = 'corazon'): void {
   const at = freeSpot(w, x, y, PICKUP_RADIUS);
   const a = w.rng.range(0, Math.PI * 2);
-  w.pickups.push({ id: w.nextId++, kind, value: kind === 'garantia' ? SHIELD_VALUE : 2, x: at.x, y: at.y, vx: Math.cos(a) * 40, vy: Math.sin(a) * 40, age: 0 });
-  w.events.push({ type: 'reward', reward: kind === 'garantia' ? 'shield' : 'heart', x: at.x, y: at.y });
+  const h = HEART_DROPS[kind];
+  w.pickups.push({ id: w.nextId++, kind, value: h.value, x: at.x, y: at.y, vx: Math.cos(a) * 40, vy: Math.sin(a) * 40, age: 0 });
+  w.events.push({ type: 'reward', reward: h.reward, x: at.x, y: at.y });
+}
+
+/** Whether walking over `k` picks it up now (a heart is left alone when it would do nothing). */
+export function wantsPickup(w: World, k: Pickup): boolean {
+  const p = w.player;
+  if (k.kind === 'corazon') return p.hp < p.def.maxHp;
+  if (k.kind === 'garantia') return p.shield < SHIELD_MAX;
+  if (k.kind === 'sobretension') return p.surge < SURGE_VALUE;
+  if (k.kind === 'turbo') return p.hp < p.def.maxHp || !p.turbo;
+  return true;
+}
+
+/**
+ * The Corazón de Sobretensión broke: every enemy in the room (a boss between phases aside) takes
+ * SURGE_DAMAGE at once. They come apart as if shot (reapEnemies).
+ */
+function surgeShock(w: World): void {
+  const targets: { id: number; x: number; y: number }[] = [];
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar') continue;
+    en.damageTaken = Math.min(en.def.hp, en.damageTaken + SURGE_DAMAGE);
+    en.hitT = 0.12;
+    const hb = dummyHurtBox(en);
+    targets.push({ id: en.id, x: hb.x + hb.w / 2, y: hb.y + hb.h / 2 });
+  }
+  w.events.push({ type: 'surge', x: w.player.x, y: w.player.y - PLAYER_HURT_Y, targets });
 }
 
 /** A purchase ticket pops out at (x, y) (or the nearest free floor). */
@@ -2505,6 +2580,7 @@ export function checkInvariants(w: World): string[] {
   if (!Number.isInteger(p.hp) || p.hp < 0 || p.hp > p.def.maxHp) errs.push(`player hp out of range: ${p.hp}`);
   if (p.hp === 0 && !w.over) errs.push('player has no life but the run is not over');
   if (!Number.isInteger(p.shield) || p.shield < 0 || p.shield > SHIELD_MAX) errs.push(`player shield out of range: ${p.shield}`);
+  if (!Number.isInteger(p.surge) || p.surge < 0 || p.surge > SURGE_VALUE) errs.push(`player surge out of range: ${p.surge}`);
   if (p.weapon.ammo < 0 || p.weapon.ammo > p.weapon.def.magazine) errs.push(`ammo out of range: ${p.weapon.ammo}`);
   if (w.bullets.length > 2000) errs.push(`too many bullets: ${w.bullets.length}`);
   for (const b of w.bullets) if (!Number.isFinite(b.x) || !Number.isFinite(b.y)) errs.push(`bullet ${b.id} has invalid position`);
@@ -2526,7 +2602,7 @@ export function checkInvariants(w: World): string[] {
 export function worldHash(w: World): string {
   const p = w.player;
   const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills];
-  parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield);
+  parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield, p.surge, p.turbo ? 1 : 0);
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));

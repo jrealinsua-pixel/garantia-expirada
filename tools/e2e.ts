@@ -305,6 +305,40 @@ try {
   await shot('11d-garantia-cubre.png');
   const after = await page.evaluate<{ hp: number; shield: number }>('({ hp: window.__GE__.scene.world.player.hp, shield: window.__GE__.scene.world.player.shield })');
   if (after.hp !== hpBefore || after.shield !== 1) throw new Error(`La garantía no cubre el golpe (vida ${hpBefore} → ${after.hp}, garantía ${after.shield})`);
+  // The special hearts (M9b 12b): a turbo and a surge heart drop, both are picked up (the HUD shows
+  // the surge heart, the warranty and the turbo after the hearts), the shots come out orange, and a
+  // bullet breaks the surge heart: a bolt to every enemy in the room.
+  await page.waitForTimeout(1300);
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; const p = w.player; w.noDamage = true;
+    g.dropHeart(p.x + 16, p.y - 4, 'turbo'); g.dropHeart(p.x + 34, p.y + 4, 'sobretension'); })()`);
+  await page.waitForTimeout(300);
+  await shot('11e-corazones-especiales.png');
+  for (const kind of ['turbo', 'sobretension']) {
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world; const p = w.player; const k = w.pickups.find((q) => q.kind === '${kind}'); if (k) { p.x = k.x; p.y = k.y; } })()`);
+    await page.waitForTimeout(350);
+  }
+  const loans = await page.evaluate<{ surge: number; turbo: boolean }>('({ surge: window.__GE__.scene.world.player.surge, turbo: window.__GE__.scene.world.player.turbo })');
+  if (loans.surge !== 2 || !loans.turbo) throw new Error(`Los corazones especiales no se cogen (${JSON.stringify(loans)})`);
+  {
+    const p = await state();
+    await aimAt(p.x + 120, p.y - 30);
+  }
+  await page.mouse.down();
+  await page.waitForTimeout(160);
+  await shot('11f-modo-turbo.png');
+  await page.mouse.up();
+  await page.evaluate(`(() => { const g = window.__GE__; const p = g.scene.world.player;
+    g.spawnIdle('polilla', p.x + 70, p.y - 50); g.spawnIdle('aspirador', p.x + 110, p.y + 30); g.spawnIdle('mando', p.x - 60, p.y + 40); })()`);
+  await page.waitForTimeout(500);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.invulnerable = 0; w.player.rollT = -1; w.player.surge = 1; })()`);
+  const hpSurge = (await state()).hp;
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction('window.__GE__.scene.world.player.surge === 0', undefined, { timeout: 3000 });
+  await page.waitForTimeout(60);
+  await shot('11g-sobretension.png');
+  const zapped = await page.evaluate<{ hp: number; hit: number }>('({ hp: window.__GE__.scene.world.player.hp, hit: window.__GE__.scene.world.enemies.filter((e) => e.damageTaken > 0).length })');
+  if (zapped.hp !== hpSurge || zapped.hit < 1) throw new Error(`La sobretensión no descarga (vida ${hpSurge} → ${zapped.hp}, tocados ${zapped.hit})`);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const en of w.enemies) en.damageTaken = en.def.hp; w.player.turbo = false; w.player.shield = 0; })()`);
   // Down: with half a heart left, one more bullet ends it. The toaster comes apart (slices,
   // spring, screws), the sick-leave report drops in with its stamp, and R asks for a new unit.
   await page.waitForTimeout(1300);

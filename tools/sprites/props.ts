@@ -750,6 +750,89 @@ export function makeShieldPickup(): Canvas {
   return out;
 }
 
+/** A heart pattern drawn into `cv` at (ox, oy): 1 body, 2 highlight, 3 shade (as makeSpareHeart). */
+function heartInto(cv: Canvas, ox: number, oy: number, pat: readonly string[], col: (ch: string) => RGBA | null): void {
+  pat.forEach((row, j) =>
+    [...row].forEach((ch, i) => {
+      if (ch === '.') return;
+      const c = col(ch);
+      if (c) cv.set(ox + i, oy + j, c);
+    }),
+  );
+}
+
+const BIG_HEART = ['.111.111.', '122111111', '121111111', '111111113', '.1111113.', '..11113..', '...113...', '....3....'];
+const SMALL_HEART = ['.11.11.', '1211111', '1111113', '.11113.', '..113..', '...3...'];
+
+/**
+ * The Corazón Modo Turbo (M9b 12b) on the floor: a red heart with a yellow racing stripe across it
+ * and a flame coming out behind, like the turbo button on a hairdryer, 13 × 12. Two frames: the
+ * flame flickers and the heart catches the light.
+ */
+export function makeTurboHeart(): Canvas {
+  const out = new Canvas(26, 12);
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(13, 12);
+    heartInto(cv, 3, 1, BIG_HEART, (ch) => (ch === '1' ? RED[1]! : ch === '2' ? (k === 1 ? WHITE : RED[0]!) : RED[2]!));
+    // The racing stripe: light on top, darker under it, across the middle.
+    for (let x = 3; x <= 11; x++) if (cv.get(x, 4)[3]) cv.set(x, 4, YEL[0]!);
+    for (let x = 4; x <= 10; x++) if (cv.get(x, 5)[3]) cv.set(x, 5, YEL[1]!);
+    // The exhaust flame on the left, longer in the second frame.
+    const flame: [number, number, RGBA][] = k === 0
+      ? [[2, 4, YEL[0]!], [2, 5, GLOW], [1, 5, RED[0]!]]
+      : [[2, 4, YEL[0]!], [1, 4, GLOW], [2, 5, GLOW], [1, 5, YEL[1]!], [0, 5, RED[0]!]];
+    for (const [x, y, c] of flame) cv.set(x, y, c);
+    out.blit(outline(cv), k * 13, 0);
+  }
+  return out;
+}
+
+/**
+ * The Corazón de Sobretensión (M9b 12b) on the floor: a yellow heart with a dark lightning bolt
+ * through it, like a high-voltage sign, 13 × 12. Two frames: in the second, cyan sparks jump off it.
+ */
+export function makeSurgeHeart(): Canvas {
+  const out = new Canvas(26, 12);
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(13, 12);
+    heartInto(cv, 2, 1, BIG_HEART, (ch) => (ch === '1' ? YEL[1]! : ch === '2' ? YEL[0]! : YEL[2]!));
+    // The bolt: a zigzag from the top right lobe down to the tip.
+    for (const [x, y] of [[7, 2], [8, 2], [6, 3], [7, 3], [5, 4], [6, 4], [7, 4], [8, 4], [7, 5], [6, 6]] as const) cv.set(x, y, OFFICE[1]!);
+    if (k === 1) {
+      for (const [x, y] of [[1, 2], [11, 1], [12, 5], [0, 6]] as const) cv.set(x, y, ICE[1]!);
+      cv.set(3, 2, WHITE);
+    }
+    out.blit(outline(cv), k * 13, 0);
+  }
+  return out;
+}
+
+/** The Corazón Modo Turbo in the HUD: 2 frames of 9 × 8, the stripe flickering (it is not lost by halves). */
+export function makeTurboHud(): Canvas {
+  const sheet = new Canvas(18, 8);
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(9, 8);
+    heartInto(cv, 1, 1, SMALL_HEART, (ch) => (ch === '1' ? RED[1]! : ch === '2' ? RED[0]! : RED[2]!));
+    for (let x = 1; x <= 7; x++) if (cv.get(x, 3)[3]) cv.set(x, 3, k === 0 ? YEL[0]! : GLOW);
+    sheet.blit(outline(cv), k * 9, 0);
+  }
+  return sheet;
+}
+
+/** The Corazón de Sobretensión in the HUD: 2 frames of 9 × 8, whole and half (the left half). */
+export function makeSurgeHud(): Canvas {
+  const sheet = new Canvas(18, 8);
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(9, 8);
+    // The half one keeps the left half only (what is left after a hit).
+    const pat = k === 0 ? SMALL_HEART : SMALL_HEART.map((r) => r.slice(0, 4));
+    heartInto(cv, 1, 1, pat, (ch) => (ch === '1' ? YEL[1]! : ch === '2' ? YEL[0]! : YEL[2]!));
+    for (const [x, y] of [[5, 2], [4, 3], [5, 3], [4, 4]] as const) if (k === 0 || x < 5) cv.set(x, y, OFFICE[1]!);
+    sheet.blit(outline(cv), k * 9, 0);
+  }
+  return sheet;
+}
+
 // ---------- Weapons found on the floor (M5) ----------
 
 /** Plancha de Vapor Turbo in the hand: white body, blue water window, hot steel soleplate, taped grip. */

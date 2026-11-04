@@ -140,6 +140,10 @@ export const SHIELD_LINE = 'Garantía provisional · 30 días';
 /** When the provisional warranty takes a hit, and when it is used up. */
 export const SHIELD_HIT_LINE = 'Cubierto. Esta vez.';
 export const SHIELD_GONE_LINE = 'Garantía agotada';
+/** The special hearts (M9b 12b): the surge heart half gone, and broken (the shock); the turbo over. */
+export const SURGE_HIT_LINE = 'Chisporrotea';
+export const SURGE_LINE = 'Subida de tensión · daños no cubiertos';
+export const TURBO_END_LINE = 'Fin del modo turbo';
 
 /** The report shown when the floor is done (the toaster went down the lift). */
 export const WIN_TITLE = 'Incidencia resuelta';

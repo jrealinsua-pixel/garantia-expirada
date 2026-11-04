@@ -79,7 +79,7 @@ test('cada planta reparte tickets y cofres entre sus salas de combate, siempre i
   assert.ok(rate > CLEAR_CHEST_CHANCE / 2 && rate < CLEAR_CHEST_CHANCE * 2, `cofres al limpiar: ${rate}`);
 });
 
-test('al limpiar una sala con premio sale su ticket, su cofre, su corazón o su garantía', () => {
+test('al limpiar una sala con premio sale su ticket, su cofre, su corazón, su garantía o su corazón especial', () => {
   const w = createWorld({ seed: 'premios-limpiar', floor: true });
   w.noDamage = true;
   const f = w.floor!;
@@ -99,6 +99,8 @@ test('al limpiar una sala con premio sale su ticket, su cofre, su corazón o su 
     if (st.reward === 'ticket') assert.ok(w.pickups.some((k) => k.kind === 'ticket'));
     else if (st.reward === 'heart') assert.ok(w.pickups.some((k) => k.kind === 'corazon' && k.value === 2), 'no hay corazón');
     else if (st.reward === 'shield') assert.ok(w.pickups.some((k) => k.kind === 'garantia'), 'no hay garantía');
+    else if (st.reward === 'turbo') assert.ok(w.pickups.some((k) => k.kind === 'turbo'), 'no hay corazón turbo');
+    else if (st.reward === 'surge') assert.ok(w.pickups.some((k) => k.kind === 'sobretension'), 'no hay corazón de sobretensión');
     else {
       const c = w.room.props.find((pr) => pr.chest);
       assert.ok(c, 'no hay cofre');

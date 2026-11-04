@@ -175,7 +175,20 @@ de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ni
   pueden llevar dos y **caduca al bajar de planta** (es provisional: 30 días, y en el vertedero
   nadie cuenta los días). Se dibuja tras los corazones, algo separada. Sale al limpiar una sala de
   combate que no da ticket ni cofre: un 10 % de las veces (antes que el corazón de recambio, que es
-  el 35 %). Es lo más común de lo especial; los corazones con efecto de M9b (12b) serán más raros.
+  el 35 %). Es lo más común de lo especial; los corazones con efecto de M9b (12b) son más raros.
+- **Los corazones especiales** (M9b 12b, `src/data/hearts.ts`): también premio de salas limpias,
+  más raros que la garantía y cuanto más potentes, más raros. Ninguno dura: caducan al bajar de
+  planta, o antes.
+  - **Corazón Modo Turbo** (5 %): rojo con una franja amarilla de carreras y una llamita detrás,
+    como el botón turbo de un secador. Cura un corazón y, **hasta limpiar la siguiente sala de
+    combate**, cada disparo hace un 30 % más (las balas salen anaranjadas y la tostadora suelta
+    chispas). «Modo Turbo · hasta la próxima sala»; al acabar, «Fin del modo turbo». En el
+    marcador, tras los corazones, con la franja parpadeando.
+  - **Corazón de Sobretensión** (3 %): amarillo con un rayo negro, como el cartel de alta tensión.
+    Un corazón prestado que paga antes que la garantía y la vida; cuando un golpe lo rompe,
+    descarga un rayo a **todos los enemigos de la sala** (8 de daño: se lleva polillas, mandos y
+    cargadores, deja a medias a un aspirador y a un jefe apenas le hace cosquillas). «Subida de
+    tensión · daños no cubiertos». Uno como mucho.
 - **Los objetos nunca están sueltos** por una sala: solo salen de cofres o de la tienda.
 - **Los cupones se recogen solos** al limpiar una sala: vuelan hacia la tostadora. Los enemigos
   sueltan la mitad que antes (0–1 casi todos; los jefes, 5–9): una planta da unos 20.

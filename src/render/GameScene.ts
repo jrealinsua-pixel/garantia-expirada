@@ -12,6 +12,8 @@ import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { INTERACT_VERBS, interactPrompt, REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE } from '../data/texts.ts';
+import { SPECIAL_HEARTS } from '../data/hearts.ts';
+import { SURGE_HIT_LINE, SURGE_LINE, TURBO_END_LINE } from '../data/texts.ts';
 import { SHIELD_GONE_LINE, SHIELD_HIT_LINE, SHIELD_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import {
   DOORS_OPEN_LINES,
@@ -56,6 +58,16 @@ import {
   BODY_HEIGHT,
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { spawnEnemy, type HeartKind, type Player } from '../sim/world.ts';
+
+/** What the toaster has on loan after its hearts, in the order it pays: surge, warranties, turbo. */
+function loanIcons(p: Player): { key: string; half: boolean }[] {
+  const out: { key: string; half: boolean }[] = [];
+  if (p.surge > 0) out.push({ key: SPECIAL_HEARTS.sobretension.hud, half: p.surge < 2 });
+  for (let i = 0; i < Math.ceil(p.shield / 2); i++) out.push({ key: 'garantias-hud', half: p.shield - i * 2 < 2 });
+  if (p.turbo) out.push({ key: SPECIAL_HEARTS.turbo.hud, half: false });
+  return out;
+}
 import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -647,6 +659,8 @@ export class GameScene extends Phaser.Scene {
       placeChest: (x: number, y: number, tier?: 'carton' | 'premium') => void;
       dropTicket: (x: number, y: number) => void;
       dropShield: (x: number, y: number) => void;
+      dropHeart: (x: number, y: number, kind: HeartKind) => void;
+      spawnIdle: (id: string, x: number, y: number) => void;
     };
     (window as unknown as { __GE__: TestHooks }).__GE__ = {
       scene: this,
@@ -661,6 +675,15 @@ export class GameScene extends Phaser.Scene {
       dropTicket: (x: number, y: number) => dropTicket(this.world, x, y),
       // ...or a Garantía Provisional.
       dropShield: (x: number, y: number) => dropHeart(this.world, x, y, 'garantia'),
+      // ...or any heart (the special ones, M9b 12b).
+      dropHeart: (x: number, y: number, kind: HeartKind) => dropHeart(this.world, x, y, kind),
+      // ...or an enemy standing still, waiting (to see what hits it).
+      spawnIdle: (id: string, x: number, y: number) => {
+        const en = spawnEnemy(this.world.nextId++, ENEMIES[id]!, x, y);
+        en.state = 'idle';
+        en.until = 999;
+        this.world.enemies.push(en);
+      },
     };
     // Back in the boss room after walking out: the lift is still there, waiting.
     const lift = this.world.lift;
@@ -1881,6 +1904,25 @@ export class GameScene extends Phaser.Scene {
             this.floatText(e.x, e.y - 14, fontText(SHIELD_LINE), 0xa9cbf2);
             break;
           }
+          if (e.kind === 'turbo') {
+            // Turbo: the engine revs up, orange sparks, the heart in the HUD pumps and its line.
+            this.sound2.play('turbo');
+            this.sound2.play('curar', { volume: 0.6 });
+            for (let i = 0; i < 12; i++) this.spark(e.x, e.y - 4, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 1);
+            this.floatText(e.x, e.y - 14, fontText(SPECIAL_HEARTS.turbo.line), 0xffb347);
+            this.heartHit = Math.floor((e.total - 1) / 2);
+            this.heartHitT = 0.5;
+            this.shake(90, 0.004, true);
+            break;
+          }
+          if (e.kind === 'sobretension') {
+            // Surge: a crackle and cyan sparks jumping off it.
+            this.sound2.play('zapear');
+            this.sound2.play('encender', { volume: 0.6 });
+            for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 4, this.fx.range(0, Math.PI * 2), this.fx.range(50, 120), 0, 0x69dbd8);
+            this.floatText(e.x, e.y - 14, fontText(SPECIAL_HEARTS.sobretension.line), 0xf6c431);
+            break;
+          }
           if (e.kind === 'corazon') {
             // A spare heart: a warm chime, red sparks and the heart in the HUD pumps.
             this.sound2.play('curar');
@@ -2010,7 +2052,17 @@ export class GameScene extends Phaser.Scene {
           for (const en of this.world.enemies) for (let i = 0; i < 4; i++) this.puff(en.x + this.fx.range(-8, 8), en.y - enemyAltitude(en) - this.fx.range(0, 16), 0.5);
           break;
         case 'hurt': {
-          if (e.covered) {
+          if (e.covered && e.surge !== undefined) {
+            // The surge heart took it: a crackle (when it breaks, the 'surge' event does the rest).
+            this.hitstop = 0.06;
+            this.flashHero = 0.08;
+            this.shake(140, 0.006, true);
+            this.sound2.play('zapear');
+            if (e.covered < e.damage) this.sound2.play('dolor');
+            for (let i = 0; i < 8; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(50, 120), 0, 0x69dbd8);
+            if (e.surge > 0) this.floatText(e.x, e.y - 12, fontText(SURGE_HIT_LINE), 0xf6c431);
+            if (e.covered >= e.damage) break;
+          } else if (e.covered) {
             // The provisional warranty took it: a stamp instead of the pain, torn paper, and its line.
             this.hitstop = 0.06;
             this.flashHero = 0.08;
@@ -2032,6 +2084,16 @@ export class GameScene extends Phaser.Scene {
           // Crumbs and sparks thrown away from the blow.
           const a = Math.atan2(e.dirY, e.dirX);
           for (let i = 0; i < 8; i++) this.spark(e.x, e.y, a + this.fx.range(-1, 1), this.fx.range(50, 140), this.fx.int(1, 3));
+          break;
+        }
+        case 'surge':
+          this.surgeShock(e);
+          break;
+        case 'turboEnd': {
+          // The turbo winds down: the engine stops and a line over the toaster.
+          const p = this.world.player;
+          this.sound2.play('apagar');
+          this.floatText(p.x, p.y - 30, fontText(TURBO_END_LINE), 0xd9932a);
           break;
         }
         case 'leaveHub':
@@ -2228,6 +2290,39 @@ export class GameScene extends Phaser.Scene {
     this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.6, z: 2, vz: this.fx.range(50, 110), life: 0.7, maxLife: 0.7, gravity: true, spin: 0, fade: true, hw: 1, hh: 1 });
   }
 
+  /**
+   * The surge heart breaks: a white flash, a strong shake, a jagged bolt from the toaster to every
+   * enemy in the room and a burst of cyan sparks on each one.
+   */
+  private surgeShock(e: Extract<SimEvent, { type: 'surge' }>): void {
+    this.hitstop = 0.12;
+    this.shake(260, 0.014, true);
+    this.sound2.play('estallido');
+    this.sound2.play('zapear', { detune: -600 });
+    this.hurtFlash.setFillStyle(0xb6f1f0).setAlpha(0.35);
+    this.time.delayedCall(140, () => this.hurtFlash.setFillStyle(0xe0453b));
+    this.floatText(e.x, e.y - 14, fontText(SURGE_LINE), 0xb6f1f0);
+    const g = this.add.graphics().setDepth(90000);
+    for (const t of e.targets) {
+      // A zigzag in eight steps, each knocked sideways a little.
+      const steps = 8;
+      const dx = t.x - e.x;
+      const dy = t.y - e.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len;
+      const ny = dx / len;
+      const pts: Phaser.Math.Vector2[] = [];
+      for (let i = 0; i <= steps; i++) {
+        const off = i === 0 || i === steps ? 0 : this.fx.range(-7, 7);
+        pts.push(new Phaser.Math.Vector2(e.x + (dx * i) / steps + nx * off, e.y + (dy * i) / steps + ny * off));
+      }
+      g.lineStyle(3, 0x69dbd8, 0.6).strokePoints(pts);
+      g.lineStyle(1, 0xffffff, 1).strokePoints(pts);
+      for (let i = 0; i < 6; i++) this.spark(t.x, t.y, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 0, 0x69dbd8);
+    }
+    this.tweens.add({ targets: g, alpha: 0, duration: 260, ease: 'Quad.easeIn', onComplete: () => g.destroy() });
+  }
+
   /** A scrap of paper (a warranty slip) thrown out from (x, y). */
   private paperBit(x: number, y: number): void {
     const a = this.fx.range(0, Math.PI * 2);
@@ -2236,8 +2331,9 @@ export class GameScene extends Phaser.Scene {
     this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, z: 0, vz: 0, life: 0.35, maxLife: 0.35, gravity: false, spin: 0, fade: true });
   }
 
-  private spark(x: number, y: number, a: number, speed: number, frame: number): void {
+  private spark(x: number, y: number, a: number, speed: number, frame: number, tint?: number): void {
     const s = this.add.image(x, y, 'chispas', frame);
+    if (tint !== undefined) s.setTint(tint);
     this.particles.push({ s, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, z: 0, vz: 0, life: 0.25, maxLife: 0.25, gravity: false, spin: 0, fade: false });
   }
 
@@ -2769,6 +2865,9 @@ export class GameScene extends Phaser.Scene {
         const look = b.owner === 'player' ? WEAPONS[b.weapon ?? '']?.look : undefined;
         const tex = b.owner === 'player' ? look?.bullet ?? 'bala-jugador' : BULLET_TEXTURES[b.color];
         s = this.bulletPool.pop()?.setTexture(tex).setVisible(true).setAlpha(1).setRotation(0) ?? this.add.image(b.x, b.y, tex);
+        // In turbo, the toaster's shots come out orange-hot.
+        if (b.owner === 'player' && w.player.turbo) s.setTint(0xffb36b);
+        else s.clearTint();
         if (look?.turn) s.setRotation(b.dir);
         this.bulletSprites.set(b.id, s);
       }
@@ -2863,8 +2962,9 @@ export class GameScene extends Phaser.Scene {
             label: this.add.bitmapText(k.x, k.y - 26, FONT, fontText(shown.name), 8).setOrigin(0.5, 1).setTint(0xf6c431).setDepth(84000).setAlpha(0),
           };
         } else {
-          const shield = k.kind === 'garantia';
-          const key = heart ? 'corazon-suelo' : shield ? 'garantia-provisional' : k.kind === 'ticket' ? 'ticket' : 'cupon';
+          const special = k.kind === 'turbo' || k.kind === 'sobretension' ? SPECIAL_HEARTS[k.kind].sprite : null;
+          const shield = k.kind === 'garantia' || !!special;
+          const key = heart ? 'corazon-suelo' : special ?? (k.kind === 'garantia' ? 'garantia-provisional' : k.kind === 'ticket' ? 'ticket' : 'cupon');
           v = { s: this.add.image(k.x, k.y, key, 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart || shield ? 5 : 4, 2)).setDepth(-50000) };
         }
         if (k.price !== undefined) {
@@ -3124,7 +3224,7 @@ export class GameScene extends Phaser.Scene {
       h.setVisible(this.gunIcon.visible);
       this.hearts.push(h);
     }
-    const shields = Math.ceil(p.shield / 2);
+    const shields = loanIcons(p).length;
     while (this.shieldIcons.length > shields) drop(this.shieldIcons.pop()!);
     while (this.shieldIcons.length < shields) {
       const h = this.hud(this.add.image(8, 8, 'garantias-hud', 0).setOrigin(0, 0));
@@ -3156,7 +3256,7 @@ export class GameScene extends Phaser.Scene {
     const p = this.world.player;
     return hudLayout({
       hearts: Math.ceil(p.def.maxHp / 2),
-      shields: Math.ceil(p.shield / 2),
+      shields: loanIcons(p).length,
       coupons: p.coupons,
       tickets: p.tickets,
       hasActive: !!p.active,
@@ -3270,11 +3370,28 @@ export class GameScene extends Phaser.Scene {
       if (hit && Math.floor(this.heartHitT * 16) % 2 === 0) this.whiteOut(h);
       else h.clearTint();
     });
-    // The warranties on loan: whole or half, with a slow sway, as paper does.
+    // What is on loan after the hearts, in the order it pays: the surge heart (it crackles), the
+    // warranties (whole or half, with a slow sway, as paper does) and the turbo (its stripe flickers).
+    const loans = loanIcons(p);
     this.shieldIcons.forEach((h, i) => {
-      h.setFrame(p.shield - i * 2 >= 2 ? 0 : 1);
-      h.setY(8 - (Math.floor(this.time.now / 400 + i) % 4 === 0 ? 1 : 0));
+      const l = loans[i];
+      if (!l) return;
+      if (h.texture.key !== l.key) h.setTexture(l.key);
+      if (l.key === 'turbo-hud') {
+        h.setFrame(Math.floor(this.time.now / 90) % 2);
+        h.setY(8);
+      } else if (l.key === 'sobretension-hud') {
+        h.setFrame(l.half ? 1 : 0);
+        h.setY(8 + (Math.floor(this.time.now / 60) % 9 === 0 ? 1 : 0));
+      } else {
+        h.setFrame(l.half ? 1 : 0);
+        h.setY(8 - (Math.floor(this.time.now / 400 + i) % 4 === 0 ? 1 : 0));
+      }
     });
+    // In turbo, the toaster leaves sparks behind it now and then.
+    if (p.turbo && !this.world.over && this.fx.chance(dt * 14)) {
+      this.spark(p.x - p.facing * 6, p.y - 8, p.facing > 0 ? Math.PI : 0, this.fx.range(20, 50), 1);
+    }
     this.hurtFlash.setAlpha(Math.max(0, this.hurtFlash.alpha - dt * 1.6));
     this.updateActiveSlot(dt);
     this.couponText.setText(String(p.coupons));

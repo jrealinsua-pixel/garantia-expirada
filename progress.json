@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T20:55:00+01:00",
+  "actualizado": "2026-11-04T21:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 13,
+      "hechas": 14,
       "total": 15
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 464,
-    "tests_ok": 464,
+    "tests": 472,
+    "tests_ok": 472,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16331
+    "lineas_codigo": 16569
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T21:40:00+01:00",
+      "hito": "M9b",
+      "resumen": "Corazones especiales temporales: el Modo Turbo (cura y un 30 % más de daño hasta la siguiente sala limpia) y el de Sobretensión (corazón prestado que, al romperse, electrocuta a toda la sala). Más raros que la garantía.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T20:55:00+01:00",
       "hito": "M9b",
@@ -746,6 +752,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sobretension.png",
+      "pie": "Se rompe el Corazón de Sobretensión: un rayo a cada enemigo de la sala. «Subida de tensión · daños no cubiertos»"
+    },
+    {
+      "archivo": "capturas/modo-turbo.png",
+      "pie": "Modo Turbo: tras los corazones, el amarillo de sobretensión y el turbo con su franja; las balas del secador salen anaranjadas"
+    },
+    {
       "archivo": "capturas/garantia-provisional.png",
       "pie": "La Garantía Provisional (el corazón de papel tras los rojos, ya a medias) acaba de parar una bala: «Cubierto. Esta vez.»"
     },
@@ -760,17 +774,9 @@
     {
       "archivo": "capturas/tesoro-dos-cofres.png",
       "pie": "La sala del tesoro de una planta: dos cofres cerrados y nada suelto. Se empieza con un ticket (arriba a la izquierda)"
-    },
-    {
-      "archivo": "capturas/router-se-mueve.png",
-      "pie": "El Router ya no espera arriba: da vueltas alrededor de la tostadora, cambia de sentido sin avisar y suelta sus caídas de conexión sobre la marcha"
-    },
-    {
-      "archivo": "capturas/boton-interactuar.png",
-      "pie": "Delante de un cofre: «F: Abrir». Ya no se abre empujándolo"
     }
   ],
-  "proximo": "M9b (12b): los corazones especiales temporales (daño a toda la sala, más daño un rato…), más raros que la Garantía Provisional. Después, (13): objetos del escenario que se vuelcan o explotan.",
+  "proximo": "M9b (13): objetos del escenario que se vuelcan con el botón de interactuar (cobertura) o explotan. Es lo último de M9b.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -796,11 +802,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-04 20:58",
-      "tarea": "M9b (12b): corazones especiales temporales",
-      "desde": "2026-11-04T20:58:00+01:00"
-    }
-  ]
+  "en_curso": []
 }
