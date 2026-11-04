@@ -205,7 +205,7 @@ test('Batería Hinchada y Contrato de Permanencia: dan algo y quitan un corazón
   const w = bare('hinchada', 'hinchada');
   assert.equal(w.player.def.maxHp, base.player.def.maxHp - 2);
   assert.equal(w.player.hp, w.player.def.maxHp, 'con la vida llena, se queda llena con un corazón menos');
-  assert.equal(w.player.weapon.def.damage, base.player.weapon.def.damage + 1);
+  assert.ok(w.player.weapon.def.damage > base.player.weapon.def.damage);
   assert.ok(modifierLines(ITEMS.hinchada!.mod).some((l) => l.text === '-1 corazón' && !l.good), 'la descripción lo dice, en rojo');
   const c = bare('permanencia', 'permanencia');
   assert.equal(c.player.def.maxHp, base.player.def.maxHp - 2);
@@ -257,7 +257,7 @@ test('Etiqueta A+++: anda más y vuelve a rodar antes', () => {
     for (let i = 0; i < ticks(1); i++) step(w, { ...NO_INPUT, moveX: 1 });
     return w.player.x - x0;
   };
-  assert.ok(walk(['etiqueta']) > walk([]) * 1.1);
+  assert.ok(walk(['etiqueta']) > walk([]) * 1.05);
   const w = bare('etiqueta', 'etiqueta');
   assert.ok(w.player.def.rollCooldown < bare('etiqueta').player.def.rollCooldown);
 });
@@ -265,10 +265,10 @@ test('Etiqueta A+++: anda más y vuelve a rodar antes', () => {
 test('Alargador de Tres Metros: las balas llegan más lejos', () => {
   const a = reach(bare('alargador'));
   const b = reach(bare('alargador', 'alargador'));
-  assert.ok(b > a * 1.4, `${b} px frente a ${a}`);
+  assert.ok(b > a * 1.3, `${b} px frente a ${a}`);
 });
 
-test('Broca del Ocho: una bala atraviesa a dos maniquíes en fila', () => {
+test('Broca del Ocho: una bala atraviesa a un maniquí y le da también al de detrás', () => {
   const run = (items: string[]): number[] => {
     const w = bare('broca', ...items);
     w.dummies.forEach((d, i) => {
@@ -285,7 +285,7 @@ test('Broca del Ocho: una bala atraviesa a dos maniquíes en fila', () => {
   assert.deepEqual(run(['broca']), [d, d]);
 });
 
-test('Cinta Americana: recarga mucho antes', () => {
+test('Cinta Americana: recarga antes', () => {
   const reloadSecs = (items: string[]): number => {
     const w = bare('cinta', ...items);
     w.player.weapon.ammo = 0;
@@ -299,13 +299,13 @@ test('Cinta Americana: recarga mucho antes', () => {
   };
   const a = reloadSecs([]);
   const b = reloadSecs(['cinta']);
-  assert.ok(b < a * 0.7, `${b} s frente a ${a} s`);
+  assert.ok(b < a * 0.8, `${b} s frente a ${a} s`);
 });
 
-test('Resistencia de Recambio: cada bala hace un punto más de daño, aunque dispara más despacio', () => {
+test('Resistencia de Recambio: cada bala hace un 30 % más de daño, aunque dispara más despacio', () => {
   const base = bare('resistencia');
   const w = bare('resistencia', 'resistencia');
-  assert.equal(w.player.weapon.def.damage, base.player.weapon.def.damage + 1);
+  assert.ok(Math.abs(w.player.weapon.def.damage - base.player.weapon.def.damage * 1.3) < 1e-9);
   assert.ok(w.player.weapon.def.fireRate < base.player.weapon.def.fireRate);
   // One shot at the dummy: a point more.
   const one = (x: World): number => {
@@ -318,7 +318,7 @@ test('Resistencia de Recambio: cada bala hace un punto más de daño, aunque dis
     return d.damageTaken;
   };
   assert.equal(one(base), WEAPONS.secador!.damage);
-  assert.equal(one(w), WEAPONS.secador!.damage + 1);
+  assert.ok(Math.abs(one(w) - WEAPONS.secador!.damage * 1.3) < 1e-9);
   // And over a while it still deals more.
   assert.ok(dummyDamage(bare('resistencia', 'resistencia'), 2) > dummyDamage(bare('resistencia'), 2));
 });
@@ -332,7 +332,7 @@ test('los objetos se acumulan y la partida sigue siendo determinista', () => {
   };
   assert.equal(run(), run());
   // The data is never changed by playing with it.
-  assert.deepEqual(ITEMS.pila!.mod.stats, [{ stat: 'fireRate', mul: 1.3 }, { stat: 'magazine', mul: 0.7 }]);
+  assert.deepEqual(ITEMS.pila!.mod.stats, [{ stat: 'fireRate', mul: 1.2 }, { stat: 'magazine', mul: 0.7 }]);
 });
 
 test('ningún objeto es obligatorio: ninguno multiplica el daño por segundo de todas las armas por más de 1,6', async () => {
@@ -375,6 +375,6 @@ test('cada objeto de la planta 2 hace lo que dice su ficha', () => {
   assert.ok(w('antivirus').player.def.speed < base.player.def.speed && w('antivirus').player.def.rollCooldown > base.player.def.rollCooldown);
   assert.ok(wd(w('hdmi')).bulletSpeed > wd(base).bulletSpeed && wd(w('hdmi')).spreadDeg <= wd(base).spreadDeg);
   assert.ok(wd(w('ventilador')).fireRate > wd(base).fireRate && wd(w('ventilador')).bulletLife < wd(base).bulletLife);
-  assert.equal(wd(w('actualizacion')).damage, wd(base).damage + 1);
+  assert.ok(wd(w('actualizacion')).damage > wd(base).damage);
   assert.ok(wd(w('actualizacion')).reloadTime > wd(base).reloadTime);
 });

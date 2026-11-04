@@ -91,7 +91,7 @@ test('Cookies de Terceros: la mitad de las bajas sueltan un cupón más', () => 
 });
 
 test('la ficha de los objetos nuevos dice lo que hacen', () => {
-  assert.deepEqual(modifierLines(ITEMS.raton!.mod), [{ text: '20 % de balas con daño ×2', good: true }]);
+  assert.deepEqual(modifierLines(ITEMS.raton!.mod), [{ text: '15 % de balas con daño ×2', good: true }]);
   assert.deepEqual(modifierLines(ITEMS.bateria!.mod), [
     { text: 'Velocidad -8 %', good: false },
     { text: '+1 pila por sala limpia', good: true },
@@ -148,9 +148,9 @@ test('Copia de Seguridad: una vez, en vez de la baja, vuelve con un corazón; la
 test('sinergias de la planta 2: Setup Gamer sube los críticos y Conflicto de Software anula la recarga lenta', () => {
   const gamer = range('gamer', 'raton', 'ventilador');
   assert.ok(gamer.player.synergies.includes('gamer'));
-  assert.equal(gamer.player.weapon.def.bullets?.crit?.chance, 0.35);
+  assert.equal(gamer.player.weapon.def.bullets?.crit?.chance, 0.25);
   const conflict = range('conflicto', 'antivirus', 'actualizacion');
   assert.ok(conflict.player.synergies.includes('conflicto'));
   assert.ok(Math.abs(conflict.player.weapon.def.reloadTime - WEAPONS.secador!.reloadTime) < 1e-9);
-  assert.equal(conflict.player.weapon.def.damage, WEAPONS.secador!.damage + 1, 'el daño de la actualización se queda');
+  assert.ok(Math.abs(conflict.player.weapon.def.damage - WEAPONS.secador!.damage * 1.25) < 1e-9, 'el daño de la actualización se queda');
 });

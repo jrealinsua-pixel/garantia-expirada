@@ -570,7 +570,7 @@ export class PauseScene extends Phaser.Scene {
         sprite = a.sprite;
         edge = 0x69dbd8;
         desc = a.description;
-        lines = [...activeLines(a, keyWords()), { text: inventoryBatteries(p.active?.charge ?? 0, a.charges), good: (p.active?.charge ?? 0) >= a.charges }];
+        lines = [...activeLines(a, keyWords()), ...(a.singleUse ? [] : [{ text: inventoryBatteries(p.active?.charge ?? 0, a.charges), good: (p.active?.charge ?? 0) >= a.charges }])];
       } else if (kind === 'syn' && SYNERGIES[id]) {
         name = SYNERGIES[id].name;
         edge = 0x69dbd8;

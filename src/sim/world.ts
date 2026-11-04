@@ -553,7 +553,7 @@ export interface FloorRoomState {
 }
 
 /** A ticket (a key) or a chest that a ticket opens. */
-export type RoomReward = 'ticket' | 'chest';
+export type RoomReward = 'ticket' | 'chest' | 'heart';
 /**
  * The economy is scarce (nota del humano del 2026-10-30): a run starts with one ticket, each floor
  * has one combat room that leaves a ticket, two chests wait in the treasure room (one more in the
@@ -565,6 +565,12 @@ export const START_TICKETS = 1;
 export const FLOOR_TICKETS = 1;
 /** Chance that any other combat room leaves a chest when cleared (decided with the floor). */
 export const CLEAR_CHEST_CHANCE = 0.15;
+/**
+ * Chance that a combat room with no ticket and no chest leaves a spare heart when cleared (decided
+ * with the floor, M9b 15). Without them nothing heals between the start and the boss but the shop,
+ * and the bot reached the boss with half a heart: hard was turning into impossible.
+ */
+export const CLEAR_HEART_CHANCE = 0.35;
 /** Chests in the treasure room. */
 export const TREASURE_CHESTS = 2;
 /** Coupons that spill out of a chest with its item. */
@@ -832,9 +838,12 @@ function planFloor(seed: string, level: number): FloorRun {
   // chest, now and then).
   const prize = new Rng(`premios:${seed}`);
   const combat = prize.shuffle(layout.rooms.filter((fr) => fr.kind === 'combat').map((fr) => fr.id));
+  // Hearts with their own generator, so they do not move the tickets and chests around.
+  const hearts = new Rng(`corazones:${seed}`);
   combat.forEach((id, i) => {
     if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
     else if (prize.chance(CLEAR_CHEST_CHANCE)) rooms[id]!.reward = 'chest';
+    if (!rooms[id]!.reward && hearts.chance(CLEAR_HEART_CHANCE)) rooms[id]!.reward = 'heart';
   });
   return { layout, current: layout.start, rooms, ...lootDecks(seed, level) };
 }
@@ -1041,6 +1050,7 @@ export function useActive(w: World): boolean {
     return false;
   }
   a.charge = 0;
+  if (def.singleUse) p.active = null;
   if (effect.type === 'clearFire') clearEnemyFire(w);
   else if (effect.type === 'hold') w.holdT = Math.max(w.holdT, effect.seconds);
   else p.hp = Math.min(p.def.maxHp, p.hp + effect.amount);
@@ -2183,6 +2193,7 @@ function updateDoors(w: World): void {
       st.cleared = true;
       if (st.reward === 'ticket') dropTicket(w, ...roomMiddle(w));
       else if (st.reward === 'chest') placeChest(w, ...roomMiddle(w));
+      else if (st.reward === 'heart') dropHeart(w, ...roomMiddle(w));
     }
     setDoorTiles(w, true);
   }
@@ -2192,6 +2203,14 @@ function updateDoors(w: World): void {
 function roomMiddle(w: World): [number, number] {
   const r = w.room;
   return [r.w / 2, (r.h + BACK_WALL_ROWS * TILE) / 2];
+}
+
+/** A spare heart pops out at (x, y) (or the nearest free floor): a cleared room's reward. */
+export function dropHeart(w: World, x: number, y: number): void {
+  const at = freeSpot(w, x, y, PICKUP_RADIUS);
+  const a = w.rng.range(0, Math.PI * 2);
+  w.pickups.push({ id: w.nextId++, kind: 'corazon', value: 2, x: at.x, y: at.y, vx: Math.cos(a) * 40, vy: Math.sin(a) * 40, age: 0 });
+  w.events.push({ type: 'reward', reward: 'heart', x: at.x, y: at.y });
 }
 
 /** A purchase ticket pops out at (x, y) (or the nearest free floor). */

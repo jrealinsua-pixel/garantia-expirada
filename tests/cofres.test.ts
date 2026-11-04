@@ -10,6 +10,7 @@ import {
   dropTicket,
   enterRoom,
   CLEAR_CHEST_CHANCE,
+  CLEAR_HEART_CHANCE,
   FLOOR_TICKETS,
   START_TICKETS,
   TREASURE_CHESTS,
@@ -78,7 +79,7 @@ test('cada planta reparte tickets y cofres entre sus salas de combate, siempre i
   assert.ok(rate > CLEAR_CHEST_CHANCE / 2 && rate < CLEAR_CHEST_CHANCE * 2, `cofres al limpiar: ${rate}`);
 });
 
-test('al limpiar una sala con premio sale su ticket o su cofre', () => {
+test('al limpiar una sala con premio sale su ticket, su cofre o su corazón', () => {
   const w = createWorld({ seed: 'premios-limpiar', floor: true });
   w.noDamage = true;
   const f = w.floor!;
@@ -96,6 +97,7 @@ test('al limpiar una sala con premio sale su ticket o su cofre', () => {
     }
     assert.deepEqual(seen, [st.reward]);
     if (st.reward === 'ticket') assert.ok(w.pickups.some((k) => k.kind === 'ticket'));
+    else if (st.reward === 'heart') assert.ok(w.pickups.some((k) => k.kind === 'corazon' && k.value === 2), 'no hay corazón');
     else {
       const c = w.room.props.find((pr) => pr.chest);
       assert.ok(c, 'no hay cofre');
@@ -113,6 +115,26 @@ test('al limpiar una sala con premio sale su ticket o su cofre', () => {
     got.push(st.reward);
   }
   assert.equal(got.filter((r) => r === 'ticket').length, FLOOR_TICKETS);
+});
+
+test('M9b (15): de vez en cuando una sala limpia suelta un corazón, sin mover los tickets ni los cofres', () => {
+  let hearts = 0;
+  let free = 0;
+  let premios = 0;
+  for (let i = 0; i < 60; i++) {
+    const f = createWorld({ seed: `corazones${i}`, floor: true }).floor!;
+    for (const [id, r] of f.rooms.entries()) {
+      if (f.layout.rooms[id]!.kind !== 'combat') continue;
+      if (r.reward === 'heart') hearts++;
+      if (r.reward === 'ticket' || r.reward === 'chest') premios++;
+      else free++;
+    }
+  }
+  const rate = hearts / free;
+  assert.ok(rate > CLEAR_HEART_CHANCE * 0.6 && rate < CLEAR_HEART_CHANCE * 1.4, `corazones al limpiar: ${rate.toFixed(2)}`);
+  assert.ok(premios > 0);
+  // Never the default: hard means most rooms give nothing back.
+  assert.ok(CLEAR_HEART_CHANCE < 0.5);
 });
 
 test('escasez (nota del humano del 2026-10-30): se empieza con un ticket, el tesoro guarda dos cofres y nada suelto, la secreta uno', () => {

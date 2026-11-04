@@ -59,9 +59,9 @@ test('se coge andando, llega cargado y al coger otro deja el viejo en el suelo c
   const carried = (): string | undefined => w.player.active?.id;
   assert.deepEqual(w.player.active, { id: 'encuesta', charge: 2 });
   w.player.active!.charge = 1;
-  w.pickups.push({ id: w.nextId++, kind: 'activo', item: 'pegamento', charge: 2, value: 1, x: 160, y: 200, vx: 0, vy: 0, age: 1 });
+  w.pickups.push({ id: w.nextId++, kind: 'activo', item: 'pegamento', charge: 1, value: 1, x: 160, y: 200, vx: 0, vy: 0, age: 1 });
   for (let i = 0; i < ticks(1) && carried() !== 'pegamento'; i++) step(w, { ...NO_INPUT, moveX: 1 });
-  assert.deepEqual(w.player.active, { id: 'pegamento', charge: 2 });
+  assert.deepEqual(w.player.active, { id: 'pegamento', charge: 1 });
   const old = w.pickups.find((k) => k.kind === 'activo')!;
   assert.equal(old.item, 'encuesta');
   assert.equal(old.charge, 1);
@@ -167,15 +167,17 @@ test('Música de Espera ante un jefe: no lo congela, lo frena; sus balas van a c
   assert.ok(w.player.hp < hp, 'la bala del jefe duele');
 });
 
-test('Pegamento Exprés: devuelve un corazón; con la vida llena no se gasta', () => {
+test('Pegamento Exprés: devuelve un corazón una sola vez; con la vida llena no se gasta', () => {
   const w = bare('pegamento', 'pegamento');
+  assert.ok(ACTIVE_ITEMS.pegamento!.singleUse, 'es de un solo uso (M9b 7)');
   step(w, use);
   assert.ok(w.events.some((e) => e.type === 'activeEmpty'));
-  assert.equal(w.player.active!.charge, 2);
+  assert.equal(w.player.active!.charge, 1);
   w.player.hp = 2;
   step(w, use);
   assert.equal(w.player.hp, 4);
-  assert.equal(w.player.active!.charge, 0);
+  assert.equal(w.player.active, null, 'el tubo se acaba: ya no se lleva');
+  assert.ok(w.events.some((e) => e.type === 'active'));
 });
 
 test('limpiar una sala de combate mete una pila, hasta llenarlo', () => {

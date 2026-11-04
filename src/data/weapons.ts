@@ -3,8 +3,10 @@ import type { WeaponDef } from './types.ts';
 /**
  * The toaster's arsenal (M7: real differences, measured with `node tools/armas.ts`). The Secador
  * hits hard per bullet, reaches furthest and is the most accurate, but deals the least per second;
- * the Grapadora is a hose of 1-damage staples (highest rate, long magazine, long reload, mid range);
- * the Plancha does 10 per pull from close up and nothing from afar (tiny magazine).
+ * the Grapadora is a hose of weak staples (highest rate, long magazine, long reload, mid range);
+ * the Plancha does 8 per pull from close up and nothing from afar (tiny magazine).
+ * M9b (7): every base damage went down a fifth (2 → 1.6, 1 → 0.8): the human found the weapons
+ * too strong. Damage numbers are no longer drawn, so they need not be whole.
  */
 export const WEAPONS: Record<string, WeaponDef> = {
   secador: {
@@ -17,7 +19,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     spreadDeg: 3,
     bulletSpeed: 320,
     bulletLife: 1.1,
-    damage: 2,
+    damage: 1.6,
     bulletRadius: 3,
     recoil: 30,
     knockback: 60,
@@ -34,7 +36,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     spreadDeg: 7,
     bulletSpeed: 400,
     bulletLife: 0.55,
-    damage: 1,
+    damage: 0.8,
     bulletRadius: 2,
     recoil: 14,
     knockback: 25,
@@ -52,7 +54,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     spreadDeg: 18,
     bulletSpeed: 280,
     bulletLife: 0.36,
-    damage: 2,
+    damage: 1.6,
     bulletRadius: 3,
     recoil: 95,
     knockback: 120,

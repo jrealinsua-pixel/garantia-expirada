@@ -1,7 +1,7 @@
 // What an item or a weapon does, as short lines for the description window (and, later, the
 // inventory). Each line says whether it is good or bad for the player, so the window can colour
 // it: almost every item gives something and takes something.
-import { activeHint, DEFAULT_KEY_WORDS, type KeyWords } from './texts.ts';
+import { activeHint, DEFAULT_KEY_WORDS, singleUseHint, type KeyWords } from './texts.ts';
 import type { ActiveItemDef, CharacterDef, Modifier, StatKey, WeaponDef } from './types.ts';
 
 export interface EffectLine {
@@ -57,7 +57,6 @@ export function modifierLines(m: Modifier): EffectLine[] {
   return out;
 }
 
-/** What an active item does, and what it costs to use. */
 /** What an active item does, and how to use it (with `keys`, the keys the player has chosen). */
 export function activeLines(a: ActiveItemDef, keys: KeyWords = DEFAULT_KEY_WORDS): EffectLine[] {
   const e = a.effect;
@@ -67,7 +66,7 @@ export function activeLines(a: ActiveItemDef, keys: KeyWords = DEFAULT_KEY_WORDS
   else what = `Cura ${e.amount / 2} ${e.amount === 2 ? 'corazón' : 'corazones'}`;
   return [
     { text: what, good: true },
-    { text: activeHint(a.charges, keys), good: true },
+    { text: a.singleUse ? singleUseHint(keys) : activeHint(a.charges, keys), good: true },
   ];
 }
 
@@ -104,7 +103,7 @@ export function weaponLines(w: WeaponDef): EffectLine[] {
   const shots = w.pellets > 1 ? ` × ${w.pellets}` : '';
   const range = Math.round((w.bulletSpeed * w.bulletLife) / 10) * 10;
   return [
-    { text: `Daño ${w.damage}${shots} · ${round1(w.fireRate)} disparos/s`, good: true },
+    { text: `Daño ${round1(w.damage)}${shots} · ${round1(w.fireRate)} disparos/s`, good: true },
     { text: `Cargador ${w.magazine} · recarga ${round1(w.reloadTime)} s · alcance ${range}`, good: true },
   ];
 }
@@ -130,9 +129,9 @@ const reach = (w: WeaponDef): number => Math.round((w.bulletSpeed * w.bulletLife
 
 /** The weapon in hand, untouched and as the items leave it. */
 export function weaponStatRows(base: WeaponDef, now: WeaponDef): StatRow[] {
-  const dmg = (w: WeaponDef): string => (w.pellets > 1 ? `${w.damage} × ${w.pellets}` : String(w.damage));
+  const dmg = (w: WeaponDef): string => (w.pellets > 1 ? `${round1(w.damage)} × ${w.pellets}` : round1(w.damage));
   return [
-    { ...row('Daño', shots(base), shots(now), String, true), base: dmg(base), now: dmg(now) },
+    { ...row('Daño', shots(base), shots(now), round1, true), base: dmg(base), now: dmg(now) },
     row('Cadencia', base.fireRate, now.fireRate, (n) => `${round1(n)}/s`, true),
     row('Cargador', base.magazine, now.magazine, String, true),
     row('Recarga', base.reloadTime, now.reloadTime, (n) => `${round1(n)} s`, false),
@@ -146,6 +145,7 @@ export function characterStatRows(base: CharacterDef, now: CharacterDef): StatRo
   return [
     row('Corazones', base.maxHp, now.maxHp, (n) => round1(n / 2), true),
     row('Velocidad', base.speed, now.speed, (n) => String(Math.round(n)), true),
-    row('Voltereta cada', base.rollCooldown, now.rollCooldown, (n) => `${round1(n)} s`, false),
+    // In hundredths: the roll waits a few tenths, and an item changes it by a few hundredths.
+    row('Voltereta cada', base.rollCooldown, now.rollCooldown, (n) => `${String(Math.round(n * 100) / 100).replace('.', ',')} s`, false),
   ];
 }

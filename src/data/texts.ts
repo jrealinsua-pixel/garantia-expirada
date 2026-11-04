@@ -230,6 +230,8 @@ export const WEAPON_FOUND_LINES: readonly string[] = [
 ];
 
 /** Active items: a line under its description when one is picked up (`n` batteries it needs). */
+/** The hint of an active item that is used once and gone. */
+export const singleUseHint = (k: KeyWords = DEFAULT_KEY_WORDS): string => `${k.use.own}: usar · un solo uso`;
 export const activeHint = (n: number, k: KeyWords = DEFAULT_KEY_WORDS): string => `${k.use.own}: usar · necesita ${n} pila${n === 1 ? '' : 's'} (una por sala limpia)`;
 /** Over the toaster when an active item is used, by effect. */
 export const ACTIVE_LINES: Record<string, string> = {

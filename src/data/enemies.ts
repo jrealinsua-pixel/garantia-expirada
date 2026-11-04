@@ -292,7 +292,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description:
       'Todas sus luces en verde menos la de internet, que lleva en rojo desde que lo instalaron. ' +
       'La clave está en la pegatina; la pegatina, arrancada.',
-    hp: 200,
+    // M9b (15): 200 → 170, to make up for the weapons' lower damage (M9b 7).
+    hp: 170,
     sprite: 'router-wifi',
     anchor: { x: 36, y: 74 },
     hurt: { x: -28, y: -46, w: 56, h: 34 },
@@ -368,7 +369,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description:
       'Jefa de planta, clase A+++ y «Empleada del mes» con una pegatina que se puso ella misma. ' +
       'Lleva veinte años sin descongelarse y sin dar una sola explicación.',
-    hp: 200,
+    // M9b (15): 200 → 135, to make up for the weapons' lower damage (M9b 7) and keep floor 1 winnable.
+    hp: 135,
     sprite: 'nevera-suprema',
     anchor: { x: 34, y: 73 },
     hurt: { x: -25, y: -70, w: 48, h: 62 },
@@ -383,7 +385,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
       kind: 'boss',
       roam: { leg: [0.5, 1.3], burst: [0.6, 1.4], spread: 50 },
       drift: 0.35,
-      rage: 0.6,
+      rage: 0.45,
       // The ice dispenser on its door, facing right.
       muzzle: { x: 5, y: 34 },
       phases: [

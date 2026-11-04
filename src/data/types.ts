@@ -174,6 +174,8 @@ export interface ActiveItemDef {
   sprite: string;
   /** Batteries it needs to be used (and the most it holds). */
   charges: number;
+  /** Used once and gone (it comes charged and never recharges). */
+  singleUse?: boolean;
   effect: ActiveEffect;
 }
 

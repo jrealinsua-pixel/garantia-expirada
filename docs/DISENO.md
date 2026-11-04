@@ -119,8 +119,8 @@ de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ni
 
 | Jefe | Estado | Idea |
 | --- | --- | --- |
-| **La Nevera Suprema** | Aprobada | Jefa de la planta 1. Fase 1, «Congelación de precios»: ráfagas de cubitos, anillos de granizo y bolas de escarcha que dejan charcos que frenan al andar (no al rodar). Fase 2, «Oferta irrechazable» (desde la mitad de la vida): abre la puerta y enseña un interior lleno de comida caducada; dispara tarjetas de fidelización que te persiguen un rato (más lentas que tú, giran abierto y se rompen a tiros), escupe yogures hinchados, bricks y latas abolladas que caen donde marca un anillo rojo y revientan en balas, y sigue soltando cubitos. Entra con cartel: «Jefa de planta · Almacén de devoluciones» y el lema «Congelamos los precios. Y las reclamaciones.» |
-| El Router del Wifi | Hecho | Jefe de la planta 2 (letra `X`; la Nevera sigue en la 1). 200 de vida. Un router blanco de cuatro antenas (una doblada y con celo), ojos verdes de piloto bajo unos párpados de suficiencia, la luz de «internet» siempre en rojo (conectado, sin internet), la pegatina de la clave medio arrancada y un cable de red que no lleva a ninguna parte. Entra con cartel: «Jefe de planta · Informática» y el lema «Cobertura total. En la otra habitación.». Fase 1, «Cobertura total»: al empezar planta dos **repetidores** (8 de vida) en las esquinas más lejanas de la tostadora; ataca con dos anillos de ondas cian, cada uno con su «zona sin cobertura» (un hueco de 60° a un lado de la tostadora, un poco más girado en el segundo: hay que moverse hasta él), que los repetidores reenvían a la vez desde su sitio con un anillo fino; y con tres abanicos de «paquetes» rojos. **Reinicio** a media vida: «Reiniciando. No desenchufe el dispositivo», 5 s apagado con los ojos cerrados y las luces encendiéndose una a una, sin recibir daño; se limpian las balas y caen los repetidores. Fase 2, «Actualización de firmware»: tres anillos más rápidos con dos huecos que se separan, cada uno hacia su lado; abanicos más anchos; y «caídas de conexión»: tres sitios marcados en el suelo (uno bajo la tostadora) que al cabo de 1 s sueltan un anillo corto. Sin repetidores, planta uno nuevo cada 12 s. Su sala es amplia y despejada en el centro, con cuatro escuadras de rack para cubrirse de los repetidores. |
+| **La Nevera Suprema** | Aprobada | Jefa de la planta 1, 135 de vida (200 hasta M9b 15: las armas pegan menos) y rabia 0,45. Fase 1, «Congelación de precios»: ráfagas de cubitos, anillos de granizo y bolas de escarcha que dejan charcos que frenan al andar (no al rodar). Fase 2, «Oferta irrechazable» (desde la mitad de la vida): abre la puerta y enseña un interior lleno de comida caducada; dispara tarjetas de fidelización que te persiguen un rato (más lentas que tú, giran abierto y se rompen a tiros), escupe yogures hinchados, bricks y latas abolladas que caen donde marca un anillo rojo y revientan en balas, y sigue soltando cubitos. Entra con cartel: «Jefa de planta · Almacén de devoluciones» y el lema «Congelamos los precios. Y las reclamaciones.» |
+| El Router del Wifi | Hecho | Jefe de la planta 2 (letra `X`; la Nevera sigue en la 1). 170 de vida (200 hasta M9b 15). Un router blanco de cuatro antenas (una doblada y con celo), ojos verdes de piloto bajo unos párpados de suficiencia, la luz de «internet» siempre en rojo (conectado, sin internet), la pegatina de la clave medio arrancada y un cable de red que no lleva a ninguna parte. Entra con cartel: «Jefe de planta · Informática» y el lema «Cobertura total. En la otra habitación.». Fase 1, «Cobertura total»: al empezar planta dos **repetidores** (8 de vida) en las esquinas más lejanas de la tostadora; ataca con dos anillos de ondas cian, cada uno con su «zona sin cobertura» (un hueco de 60° a un lado de la tostadora, un poco más girado en el segundo: hay que moverse hasta él), que los repetidores reenvían a la vez desde su sitio con un anillo fino; y con tres abanicos de «paquetes» rojos. **Reinicio** a media vida: «Reiniciando. No desenchufe el dispositivo», 5 s apagado con los ojos cerrados y las luces encendiéndose una a una, sin recibir daño; se limpian las balas y caen los repetidores. Fase 2, «Actualización de firmware»: tres anillos más rápidos con dos huecos que se separan, cada uno hacia su lado; abanicos más anchos; y «caídas de conexión»: tres sitios marcados en el suelo (uno bajo la tostadora) que al cabo de 1 s sueltan un anillo corto. Sin repetidores, planta uno nuevo cada 12 s. Su sala es amplia y despejada en el centro, con cuatro escuadras de rack para cubrirse de los repetidores. |
 | El Muñeco de Moda | Por hacer | Jefe de la planta 3 (Juguetería). 300 de vida: el más duro hasta ahora. El juguete del año pasado, todavía en su caja de escaparate (la caja va con él: es su armadura), con una sonrisa de anuncio que ya no le llega a los ojos, el pelo de plástico encrespado, la pegatina «¡Novedad!» tachada a rotulador y encima «Temporada anterior». Entra con cartel: «Jefe de planta · Juguetería» y el lema «Pasado de moda. Como tú.». Fase 1, «Lanzamiento»: abanicos de accesorios (zapatitos y bolsos de plástico rosa, que giran) y la **pasarela**: cruza la sala de lado a lado posando, y por donde pasa deja una fila de destellos de flash que estallan en balas a los 0,6 s. Fase 2, «Rebajas» (desde el 60 %): la etiqueta de su caja va bajando (−30 %, −50 %, −70 %); con cada rebaja va más deprisa, dispara anillos más densos y llama a dos Muñequitos Repetidos, y suelta «¡Ahora con más accesorios!». Fase 3, «Liquidación total» (desde el 25 %): rompe la caja, que se queda en la sala como un obstáculo que tapa balas, y sin ella gira sobre sí misma soltando espirales de pegatinas de oferta que persiguen un poco, más rápido que nunca y recibiendo un 25 % más de daño (sin caja). Su sala, el Escaparate de Novedades: centro despejado y cuatro expositores de cristal que paran balas. |
 | El Director de Recursos Inhumanos | Por diseñar | Jefe humano de la planta de oficinas. |
 
@@ -158,7 +158,9 @@ de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ni
   2026-10-30): la partida empieza con **1 ticket**; cada planta tiene 1 sala de combate que suelta
   otro al limpiarla, y la tienda vende uno. Las **Cajas Fuertes de Devoluciones** (los cofres)
   son más que los tickets: **2 en la sala del tesoro**, 1 en la secreta, y cada sala de combate
-  limpia tiene un 15 % de dejar otra. Muchas veces un cofre se queda cerrado. Se abre con el botón
+  limpia tiene un 15 % de dejar otra (y, si no deja ni ticket ni cofre, un 35 % de dejar un
+  **corazón de recambio**: M9b 15; sin ellos nada curaba entre la entrada y el jefe salvo la
+  tienda). Muchas veces un cofre se queda cerrado. Se abre con el botón
   de interactuar (F) y un ticket: se lo traga y suelta un objeto pasivo (lo normal), un arma o un
   activo, y un cupón. Sin ticket, se queja («Sin ticket no hay devolución»).
 - **Dos calidades de cofre.** La Caja Fuerte de Devoluciones normal (gris, la de siempre) solo
@@ -189,38 +191,44 @@ de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ni
 
 | Arma | Daño | Disparos/s | Cargador | Recarga | Alcance | Daño/s (con recargas) | Gana en | Pierde en |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| Secador Mágnum 2200 W | 2 | 2,6 | 10 | 1,2 s | 350 | 4,0 | Alcance, puntería, golpe por bala | Daño por segundo |
-| Grapadora Táctica | 1 | 11 | 33 | 2,2 s | 220 | 6,3 | Cadencia, cargador | Daño por bala, recarga larga |
-| Plancha de Vapor Turbo | 2 × 5 | 1,3 | 4 | 1,7 s | 100 | 8,4 de cerca | Golpe por disparo (10) | Alcance, cargador, puntería |
+| Secador Mágnum 2200 W | 1,6 | 2,6 | 10 | 1,2 s | 350 | 3,2 | Alcance, puntería, golpe por bala | Daño por segundo |
+| Grapadora Táctica | 0,8 | 11 | 33 | 2,2 s | 220 | 5,1 | Cadencia, cargador | Daño por bala, recarga larga |
+| Plancha de Vapor Turbo | 1,6 × 5 | 1,3 | 4 | 1,7 s | 100 | 6,7 de cerca | Golpe por disparo (8) | Alcance, cargador, puntería |
 
-Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quitan algo:
+Desde M9b (7) (nota del humano del 2026-10-30: «las armas hacen demasiado daño») todo el daño de
+base es un quinto menor (2 → 1,6, 1 → 0,8). Como ya no se pintan números de daño, el daño no tiene
+que ser entero, y los objetos lo suben en porcentaje (+25–30 %), nunca en puntos.
+
+Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quitan algo, y desde
+M9b (7) suben menos: ninguno sube una estadística más de un 30 % (el cargador, un 50 %), lo vigila
+`tests/equilibrio.test.ts`:
 
 | Objeto | Descripción | Efecto |
 | --- | --- | --- |
-| Pila Casi Agotada | Dura lo que un contrato temporal. Después, nada. | Cadencia ×1,3, cargador ×0,7 |
+| Pila Casi Agotada | Dura lo que un contrato temporal. Después, nada. | Cadencia ×1,2, cargador ×0,7 |
 | Manual en Chino | Nadie sabe por qué funciona. Tampoco el fabricante. | Las balas rebotan 2 veces y duran ×1,3 |
 | Garantía Extendida | Cubre todo excepto lo que te pase. La letra pequeña no se puede leer: forma parte del servicio. | +1 corazón |
-| Regleta Sin Tierra | Seis enchufes y un solo contrato de luz. Lo que salte después no está cubierto. | +1 bala por disparo, +6° de dispersión, cadencia ×0,7 |
+| Regleta Sin Tierra | Seis enchufes y un solo contrato de luz. Lo que salte después no está cubierto. | +1 bala por disparo, +6° de dispersión, cadencia ×0,6 |
 | Tarjeta de Socio | Te sigue a todas partes. Como los correos de la tienda. | Las balas persiguen un momento; un poco más lentas |
-| Etiqueta A+++ | Eficiencia energética certificada por el propio fabricante. | Velocidad ×1,15, voltereta antes |
-| Alargador de Tres Metros | Llega a todas partes. Sobre todo a los tobillos. | Alcance ×1,35, balas más rápidas |
-| Broca del Ocho | Para colgar un cuadro. Ya puestos, para todo lo demás. | Las balas atraviesan 2 enemigos; menos empuje |
-| Cinta Americana | Lo arregla todo durante una semana. | Recarga ×0,6 |
-| Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,75, más retroceso |
-| Batería Hinchada | Rinde un 20 % más. Hasta que revienta. Eso no viene en la ficha técnica. | Daño +1, −1 corazón (M9b) |
+| Etiqueta A+++ | Eficiencia energética certificada por el propio fabricante. | Velocidad ×1,1, voltereta ×0,85 |
+| Alargador de Tres Metros | Llega a todas partes. Sobre todo a los tobillos. | Alcance ×1,25, balas ×1,1 más rápidas |
+| Broca del Ocho | Para colgar un cuadro. Ya puestos, para todo lo demás. | Las balas atraviesan 1 enemigo; menos empuje |
+| Cinta Americana | Lo arregla todo durante una semana. | Recarga ×0,75 |
+| Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | Daño ×1,3, balas más gordas, cadencia ×0,85, más retroceso |
+| Batería Hinchada | Rinde un 20 % más. Hasta que revienta. Eso no viene en la ficha técnica. | Daño ×1,25, −1 corazón (M9b) |
 
 Objetos pasivos de la planta 2 (Informática, `level: 2`). Solo salen desde la planta 2: cada planta
 reparte los suyos y los de las plantas de abajo (`itemsUpTo` en `src/data/items.ts`).
 
 | Objeto | Descripción | Efecto |
 | --- | --- | --- |
-| Pendrive de 2 GB | Cabe todo lo que no necesitas. Copiarlo tarda una tarde. | Cargador ×1,6, recarga ×1,3 |
+| Pendrive de 2 GB | Cabe todo lo que no necesitas. Copiarlo tarda una tarde. | Cargador ×1,4, recarga ×1,3 |
 | Antivirus Gratuito | Te protege de todo menos de sí mismo. Gasta la mitad del procesador. | +1 corazón, velocidad ×0,9, voltereta ×1,3 más tarde |
-| Contrato de Permanencia | Dieciocho meses de compromiso. El primero, gratis. Los otros diecisiete se cobran en salud. | Velocidad ×1,15, voltereta ×0,7, −1 corazón (M9b) |
-| Cable HDMI Dorado | Mejora la imagen un 0 %. Lo pone en la caja, en letras doradas. | Balas ×1,2 más rápidas, la mitad de dispersión (solo bueno) |
-| Ventilador de Portátil | Suena como un avión y enfría como una vela. | Cadencia ×1,25, +5° de dispersión, alcance ×0,85 |
-| Actualización Obligatoria | Reinicie para aplicar los cambios. Sí, ahora. | +1 de daño, recarga ×1,6, cargador ×0,8 |
-| Ratón Gaming RGB | Dieciséis millones de colores y un clic que a veces cuenta doble. | 20 % de balas con daño ×2 («Doble clic» sobre el blanco) |
+| Contrato de Permanencia | Dieciocho meses de compromiso. El primero, gratis. Los otros diecisiete se cobran en salud. | Velocidad ×1,12, voltereta ×0,7, −1 corazón (M9b) |
+| Cable HDMI Dorado | Mejora la imagen un 0 %. Lo pone en la caja, en letras doradas. | Balas ×1,15 más rápidas, dispersión ×0,6 (solo bueno) |
+| Ventilador de Portátil | Suena como un avión y enfría como una vela. | Cadencia ×1,15, +5° de dispersión, alcance ×0,85 |
+| Actualización Obligatoria | Reinicie para aplicar los cambios. Sí, ahora. | Daño ×1,25, recarga ×1,6, cargador ×0,8 |
+| Ratón Gaming RGB | Dieciséis millones de colores y un clic que a veces cuenta doble. | 15 % de balas con daño ×2 («Doble clic» sobre el blanco) |
 | Batería Externa | Carga cualquier cosa menos el móvil. Pesa como un ladrillo. | +1 pila por sala limpia, velocidad ×0,92 |
 | Cookies de Terceros | Aceptaste todas. Ahora cada enemigo te deja un regalito, y a ellos tus datos. | El 50 % de las bajas (jefes aparte) suelta un cupón más |
 | Modo Avión | Corta todas las conexiones. También las que vienen hacia ti. | La voltereta corta las balas enemigas que toca; voltereta ×1,25 más tarde |
@@ -265,7 +273,7 @@ el suelo con sus pilas. Cada sala de combate limpia mete una pila; se usa cuando
 | --- | --- | --- | --- |
 | Encuesta de Satisfacción | Su opinión es muy importante para nosotros. Por eso nadie la lee. | 2 | Borra todas las balas enemigas |
 | Música de Espera | Todos nuestros enemigos están ocupados. Su ataque será atendido en breve. | 3 | Enemigos, balas y ataques en espera 3,5 s (siguen recibiendo daño) |
-| Pegamento Exprés | Pega cualquier cosa a cualquier cosa. Sobre todo los dedos. | 2 | Devuelve un corazón (con la vida llena no se gasta) |
+| Pegamento Exprés | Pega cualquier cosa a cualquier cosa. Sobre todo los dedos. Un solo tubo: después se seca. | — | Devuelve un corazón y se acaba: **un solo uso** (M9b 7; antes se recargaba en dos salas). Con la vida llena no se gasta |
 
 La sala del tesoro tiene tres pedestales (un arma, un objeto pasivo y uno activo) y la secreta
 uno (lo siguiente que quede). Los cofres sacan de las mismas barajas, así que una planta no
@@ -277,12 +285,12 @@ repite objeto.
 
 | Sinergia | Piezas | Frase | Efecto |
 | --- | --- | --- | --- |
-| Sobrecarga | Pila Casi Agotada + Secador | El secador sopla como nunca hasta que salta el diferencial. | Secador: cadencia ×1,25, balas +1 de radio, recarga ×1,4 |
+| Sobrecarga | Pila Casi Agotada + Secador | El secador sopla como nunca hasta que salta el diferencial. | Secador: cadencia ×1,15, balas +1 de radio, recarga ×1,4 |
 | Papeleo Exprés | Cinta Americana + Grapadora | Grapa, cinta y archivado. Así se cierran los expedientes sin leerlos. | Grapadora: cargador ×1,5, recarga ×0,8 |
 | Bricolaje Avanzado | Manual en Chino + Broca del Ocho | Nadie ha leído las instrucciones, así que las balas improvisan. | +1 rebote y +1 enemigo atravesado |
 | Instalación Casera | Regleta Sin Tierra + Alargador | Todo enchufado a todo. El seguro del hogar ha dejado de coger el teléfono. | +1 bala por disparo, 3° menos de dispersión |
 | Cliente Preferente | Tarjeta de Socio + Etiqueta A+++ | Puntos dobles en cada disparo. Caducan mañana. | Persecución más fuerte: gira 400°/s durante 1 s, desde 150 px |
-| Setup Gamer | Ratón Gaming RGB + Ventilador de Portátil | Luces, ruido y el ventilador al máximo. Los fotogramas no suben, pero se nota. | +15 % de críticos (35 % en total) |
+| Setup Gamer | Ratón Gaming RGB + Ventilador de Portátil | Luces, ruido y el ventilador al máximo. Los fotogramas no suben, pero se nota. | +10 % de críticos (25 % en total) |
 | Conflicto de Software | Antivirus Gratuito + Actualización Obligatoria | El antivirus bloquea la actualización. Por una vez, se agradece. | Recarga ×0,625: anula la recarga lenta de la actualización y deja su daño |
 
 ### Balas enemigas

@@ -58,11 +58,11 @@ test('Sobrecarga: with the Pila, the Secador fires faster with bigger air and re
   assert.ok(on(w, 'sobrecarga'));
   const sec = weaponDef(w, 'secador')!;
   const gra = weaponDef(w, 'grapadora')!;
-  // The Pila alone multiplies the rate by 1.3; the synergy adds 1.25 on top.
-  assert.ok(Math.abs(sec.fireRate - sec0.fireRate * 1.3 * 1.25) < 1e-9);
+  // The Pila alone multiplies the rate by 1.2; the synergy adds 1.15 on top.
+  assert.ok(Math.abs(sec.fireRate - sec0.fireRate * 1.2 * 1.15) < 1e-9);
   assert.equal(sec.bulletRadius, sec0.bulletRadius + 1);
   assert.ok(sec.reloadTime > sec0.reloadTime * 1.39);
-  assert.ok(Math.abs(gra.fireRate - gra0.fireRate * 1.3) < 1e-9);
+  assert.ok(Math.abs(gra.fireRate - gra0.fireRate * 1.2) < 1e-9);
   assert.equal(gra.bulletRadius, gra0.bulletRadius);
 });
 
@@ -77,15 +77,15 @@ test('Papeleo Exprés: with the Cinta, the Grapadora gets a longer strip (loaded
   assert.equal(g.base.id, 'grapadora');
   assert.equal(g.def.magazine, Math.round(g.base.magazine * 1.5));
   assert.equal(g.ammo, g.def.magazine);
-  assert.ok(Math.abs(g.def.reloadTime - g.base.reloadTime * 0.6 * 0.8) < 1e-9);
+  assert.ok(Math.abs(g.def.reloadTime - g.base.reloadTime * 0.75 * 0.8) < 1e-9);
   assert.equal(weaponDef(w, 'secador')!.magazine, sec0);
 });
 
-test('Bricolaje Avanzado: bullets bounce three times and go through three enemies', () => {
+test('Bricolaje Avanzado: bullets bounce three times and go through two enemies', () => {
   const w = world();
   giveItem(w, 'manual');
   giveItem(w, 'broca');
-  assert.deepEqual(w.player.weapon.def.bullets, { bounce: 3, pierce: 3 });
+  assert.deepEqual(w.player.weapon.def.bullets, { bounce: 3, pierce: 2 });
 });
 
 test('Instalación Casera: one more bullet per shot than the two items alone, in a tighter fan', () => {

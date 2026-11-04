@@ -396,7 +396,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
-    const a2 = playFloor(`planta-${i}`, maxSeconds, true, false, 2);
+    // Floor 2 is half as big again (and its enemies tougher): the same 1.5 times the time as its full run below.
+    const a2 = playFloor(`planta-${i}`, maxSeconds * 1.5, true, false, 2);
     if (a2.explored) walked2++;
     if (a2.errors.length) {
       failed++;

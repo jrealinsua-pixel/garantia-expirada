@@ -382,7 +382,8 @@ try {
   await shot('35c-critico.png');
   await page.mouse.up();
   const crit = await page.evaluate<number>('window.__GE__.scene.world.dummies[0].damageTaken');
-  if (crit < 4) throw new Error(`El Ratón Gaming no hace críticos (${crit} de daño)`);
+  // A critical Secador shot is 1.6 × 2.
+  if (crit < 3) throw new Error(`El Ratón Gaming no hace críticos (${crit} de daño)`);
   // The backup: half a heart left and a bullet in the face; it comes back instead of going down.
   await page.waitForTimeout(700);
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.hp = 1; w.player.invulnerable = 0; })()`);

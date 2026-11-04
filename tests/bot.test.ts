@@ -50,7 +50,7 @@ test('el bot no ve una bala recién disparada (tiempo de reacción)', () => {
 test('esquivando recibe muchos menos golpes que sin esquivar', () => {
   const play = (dodges: boolean): number => {
     let hurts = 0;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 30; i++) {
       const w = createWorld({ seed: `prueba-${i}` });
       const bot = new Bot(`prueba-${i}`, { dodge: dodges });
       for (let t = 0; t < 30 * 60 && !w.over; t++) {

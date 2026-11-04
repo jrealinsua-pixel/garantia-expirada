@@ -290,7 +290,7 @@ repartido en M12–M14.
   alguno más al limpiar salas; los cupones se recogen solos al limpiar la sala. Medido con el bot.
 - [x] (6) Calidades de cofre: el de cartón (el normal) da pasivos o armas flojas; el bueno (raro)
   solo armas y objetos buenos. Cada objeto y arma lleva su calidad en los datos.
-- [ ] (7) Menos daño y menos estadística: las armas hacen menos daño de base y los objetos suben
+- [x] (7) Menos daño y menos estadística: las armas hacen menos daño de base y los objetos suben
   menos; el activo que curaba dos corazones en dos salas tarda muchas más salas o es de un solo uso.
   Medido con el bot.
 - [x] (8) Jefes que se mueven, erráticos, y que van más deprisa (andar y disparar) cuanto menos
@@ -306,7 +306,7 @@ repartido en M12–M14.
   otros explotan o hacen otras cosas.
 - [ ] (14) Sinergias indirectas: parejas de objetos que se complementan sin crear nada nuevo,
   pensadas y medidas.
-- [ ] (15) Repaso del equilibrio después de todo lo anterior: con las balas grandes, la escasez y
+- [x] (15) Repaso del equilibrio después de todo lo anterior: con las balas grandes, la escasez y
   los jefes nuevos el bot con daño ya no gana la planta 1 (0 de 20 el 2026-11-04). Difícil sí,
   imposible no: que el bot con daño la gane entre un 15 % y un 30 % de las veces (un humano que
   juega bien, bastante más), sin devolver la abundancia de objetos.

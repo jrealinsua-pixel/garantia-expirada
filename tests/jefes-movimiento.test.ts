@@ -88,7 +88,7 @@ test('cuanta menos vida, más deprisa: anda y se recupera hasta (1 + rabia) vece
     let walking = 0;
     let attacks = 0;
     let was = en.state;
-    for (let i = 0; i < ticks(30); i++) {
+    for (let i = 0; i < ticks(60); i++) {
       const ox = en.x;
       const oy = en.y;
       const idle = en.state === 'idle';
@@ -105,7 +105,7 @@ test('cuanta menos vida, más deprisa: anda y se recupera hasta (1 + rabia) vece
   const fresh = measure(0.5);
   const hurt = measure(0.95);
   assert.ok(hurt.speed > fresh.speed * 1.08, `anda a ${fresh.speed.toFixed(0)} → ${hurt.speed.toFixed(0)} px/s`);
-  assert.ok(hurt.attacks > fresh.attacks, `ataca ${fresh.attacks} → ${hurt.attacks} veces en 30 s`);
+  assert.ok(hurt.attacks > fresh.attacks, `ataca ${fresh.attacks} → ${hurt.attacks} veces en 60 s`);
 });
 
 test('mientras dispara sigue moviéndose un poco, y sus balas salen de donde está, no de donde estaba', () => {

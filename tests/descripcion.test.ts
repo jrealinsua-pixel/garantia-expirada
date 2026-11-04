@@ -21,18 +21,18 @@ test('cada objeto pasivo dice lo que hace, y lo que da y lo que quita va con su 
     for (const l of lines) drawable(l.text);
   }
   assert.deepEqual(modifierLines(ITEMS.pila!.mod), [
-    { text: 'Cadencia +30 %', good: true },
+    { text: 'Cadencia +20 %', good: true },
     { text: 'Cargador -30 %', good: false },
   ]);
   assert.deepEqual(modifierLines(ITEMS.garantia!.mod), [{ text: '+1 corazón', good: true }]);
-  assert.deepEqual(modifierLines(ITEMS.cinta!.mod), [{ text: 'Tiempo de recarga -40 %', good: true }]);
+  assert.deepEqual(modifierLines(ITEMS.cinta!.mod), [{ text: 'Tiempo de recarga -25 %', good: true }]);
   assert.deepEqual(modifierLines(ITEMS.manual!.mod), [
     { text: 'Alcance +30 %', good: true },
     { text: 'Rebota 2 veces', good: true },
   ]);
   const res = modifierLines(ITEMS.resistencia!.mod);
-  assert.ok(res.some((l) => l.text === 'Daño +1' && l.good));
-  assert.ok(res.some((l) => l.text === 'Cadencia -25 %' && !l.good));
+  assert.ok(res.some((l) => l.text === 'Daño +30 %' && l.good));
+  assert.ok(res.some((l) => l.text === 'Cadencia -15 %' && !l.good));
   assert.ok(res.some((l) => l.text === 'Retroceso +40 %' && !l.good), 'más retroceso es peor');
   assert.ok(modifierLines(ITEMS.etiqueta!.mod).every((l) => l.good), 'algunos objetos solo son buenos');
 });
@@ -41,7 +41,8 @@ test('las sinergias y los objetos activos también se pueden describir', () => {
   for (const s of Object.values(SYNERGIES)) for (const l of modifierLines(s.mod)) drawable(l.text);
   for (const a of Object.values(ACTIVE_ITEMS)) {
     const lines = activeLines(a);
-    assert.ok(lines[1]!.text.includes(String(a.charges)), 'dice cuántas pilas necesita');
+    if (a.singleUse) assert.ok(lines[1]!.text.includes('un solo uso'), 'dice que es de un solo uso');
+    else assert.ok(lines[1]!.text.includes(String(a.charges)), 'dice cuántas pilas necesita');
     for (const l of lines) drawable(l.text);
   }
   assert.equal(activeLines(ACTIVE_ITEMS.espera!)[0]!.text, 'Congela la sala 3,5 s (a los jefes, los frena)');
@@ -65,16 +66,17 @@ test('el inventario compara las estadísticas sin objetos y con ellos, y dice si
   const base = WEAPONS.secador!;
   const same = weaponStatRows(base, base);
   assert.ok(same.every((r) => r.delta === 0 && r.base === r.now));
-  const mods = [ITEMS.resistencia!.mod, ITEMS.pila!.mod];
+  const mods = [ITEMS.resistencia!.mod, ITEMS.regleta!.mod, ITEMS.pila!.mod];
   const rows = weaponStatRows(base, moddedWeapon(base, mods));
   const by = (l: string) => rows.find((r) => r.label === l)!;
-  assert.deepEqual(by('Daño'), { label: 'Daño', base: String(WEAPONS.secador!.damage), now: String(WEAPONS.secador!.damage + 1), delta: 1 });
-  assert.equal(by('Cadencia').delta, -1, 'la resistencia frena más de lo que la pila acelera');
+  // Decimals with a comma: 1.6 × 1.3 = 2.08 → «2,1», and two bullets per shot with the strip.
+  assert.deepEqual(by('Daño'), { label: 'Daño', base: '1,6', now: '2,1 × 2', delta: 1 });
+  assert.equal(by('Cadencia').delta, -1, 'la resistencia y la regleta frenan más de lo que la pila acelera');
   assert.equal(by('Cargador').delta, -1);
   const tost = CHARACTERS.tostadora!;
   const c = characterStatRows(tost, moddedCharacter(tost, [ITEMS.garantia!.mod, ITEMS.etiqueta!.mod]));
   assert.deepEqual(c.map((r) => r.delta), [1, 1, 1]);
   assert.deepEqual([c[0]!.label, c[0]!.base, c[0]!.now], ['Corazones', '3', '4']);
   for (const r of [...rows, ...c]) for (const t of [r.label, r.base, r.now]) drawable(t);
-  assert.equal(weaponStatRows(WEAPONS.plancha!, WEAPONS.plancha!)[0]!.now, `${WEAPONS.plancha!.damage} × 5`);
+  assert.equal(weaponStatRows(WEAPONS.plancha!, WEAPONS.plancha!)[0]!.now, '1,6 × 5');
 });

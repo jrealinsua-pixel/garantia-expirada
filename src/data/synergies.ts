@@ -13,7 +13,7 @@ export const SYNERGIES: Record<string, SynergyDef> = {
     items: ['pila'],
     weapon: 'secador',
     // Even faster and fatter air, but the reload takes its time (the breaker has to be reset).
-    mod: { id: 'sobrecarga', stats: [{ stat: 'fireRate', mul: 1.25 }, { stat: 'bulletRadius', add: 1 }, { stat: 'reloadTime', mul: 1.4 }] },
+    mod: { id: 'sobrecarga', stats: [{ stat: 'fireRate', mul: 1.15 }, { stat: 'bulletRadius', add: 1 }, { stat: 'reloadTime', mul: 1.4 }] },
   },
   papeleo: {
     id: 'papeleo',
@@ -54,7 +54,7 @@ export const SYNERGIES: Record<string, SynergyDef> = {
     text: 'Luces, ruido y el ventilador al máximo. Los fotogramas no suben, pero se nota.',
     items: ['raton', 'ventilador'],
     // More critical hits.
-    mod: { id: 'gamer', bullets: { crit: { chance: 0.15, mul: 2 } } },
+    mod: { id: 'gamer', bullets: { crit: { chance: 0.1, mul: 2 } } },
   },
   conflicto: {
     id: 'conflicto',
