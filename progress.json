@@ -825,6 +825,11 @@
       "sesion": "2026-11-04 21:25",
       "tarea": "M10 (1): juego de casillas de la planta 3 (Juguetería)",
       "desde": "2026-11-04T21:25:00+01:00"
+    },
+    {
+      "sesion": "2026-11-04 23:25",
+      "tarea": "M10 (4b): Coche Teledirigido",
+      "desde": "2026-11-05T00:00:00+01:00"
     }
   ]
 }
