@@ -586,6 +586,22 @@ export function makeInvoice(): Canvas {
 }
 
 /**
+ * The wind-up robot's nuts (M10): an enemy bullet the same 9x9 as the round ones, red with a white
+ * core like them, but a hex nut with its hole, lit on the top-left facets. 2 frames: flat on top,
+ * and turned 30 degrees (it spins as it flies).
+ */
+export function makeNut(): Canvas {
+  const frames: Array<readonly string[]> = [
+    ['..00000..', '.0222210.', '022222110', '022333110', '022343110', '012333510', '011115550', '.0115550.', '..00000..'],
+    ['...000...', '..02210..', '.0222110.', '022333110', '022343110', '012333510', '.0115550.', '..01550..', '...000...'],
+  ];
+  const cols: Record<string, RGBA> = { '0': RED[3]!, '1': RED[1]!, '2': RED[0]!, '3': WHITE, '4': RED[3]!, '5': RED[2]! };
+  const sheet = new Canvas(9 * frames.length, 9);
+  frames.forEach((rows, f) => paintGrid(sheet, f * 9, 0, rows, cols));
+  return sheet;
+}
+
+/**
  * What the fridge spits in its second phase (see EXPIRED_PRODUCTS): 3 frames of 12x14.
  * A yogurt with its lid swollen and green, a milk carton with a mouldy stain and a dented can.
  */

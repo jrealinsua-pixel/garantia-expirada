@@ -336,7 +336,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - [ ] (3) Encadenar: tras el Router se baja en el montacargas a la planta 3, con todo lo que se
     lleva; hasta que llegue el Muñeco, el Router pelea en el Escaparate.
   - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
-    - [ ] (4a) Robot de Cuerda (rebota como una bola de billar; sin cuerda, quieto y frágil).
+    - [x] (4a) Robot de Cuerda (rebota como una bola de billar; sin cuerda, quieto y frágil).
     - [ ] (4b) Coche Teledirigido (arcos derrapando, embestida, vuelca contra la pared).
     - [ ] (4c) Cubo de Piezas (siembra el suelo de piezas que hacen daño al andar, no al rodar).
     - [ ] (4d) Sobre Sorpresa (al romperlo, sorpresa: repetidos, cupones o el Muñequito Dorado).

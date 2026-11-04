@@ -75,6 +75,8 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.15, pattern: { kind: 'fan', count: 4, spreadDeg: 30, speed: 105, color: 'red' } },
     ],
   },
+  // Robot de Cuerda: on every bounce, a fan of three nuts at you.
+  'robot-tuercas': { kind: 'fan', count: 3, spreadDeg: 30, speed: 105, color: 'nut' },
   // El Router del Wifi. «Cobertura total»: two rings of waves, each with a hole that has moved on a little.
   'router-cobertura': {
     kind: 'sequence',

@@ -164,5 +164,10 @@ export const SFX: Record<string, SfxParams> = {
   // A webcam: the beep of REC coming on, and the shutter of the photo it shares.
   grabar: { wave: 'square', freq: 1480, freqEnd: 1480, attack: 0.001, sustain: 0.05, decay: 0.05, volume: 0.1, duty: 0.5 },
   obturador: { wave: 'noise', freq: 2600, freqEnd: 900, attack: 0.001, sustain: 0.012, decay: 0.08, volume: 0.24, lowpass: 0.5, crush: 2 },
+  // A wind-up robot: the key ratcheting as it winds itself up, the spring running down, and the
+  // tin clank of a bounce.
+  cuerda: { wave: 'square', freq: 1100, freqEnd: 1500, attack: 0.001, sustain: 0.4, decay: 0.08, volume: 0.1, duty: 0.2, crush: 3, vibrato: 0.6, vibratoSpeed: 32 },
+  agotado: { wave: 'saw', freq: 520, freqEnd: 70, attack: 0.005, sustain: 0.3, decay: 0.3, volume: 0.13, lowpass: 0.45, vibrato: 0.35, vibratoSpeed: 11 },
+  chapa: { wave: 'square', freq: 820, freqEnd: 430, attack: 0.001, sustain: 0.02, decay: 0.09, volume: 0.15, duty: 0.3, crush: 3 },
   espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
 };

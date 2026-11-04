@@ -8,7 +8,7 @@ import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
 import { SYNERGIES } from '../data/synergies.ts';
-import { bossWarnSpot, updateEnemies } from './enemies.ts';
+import { bossWarnSpot, isRunDown, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
@@ -392,6 +392,8 @@ export type SimEvent =
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
   | { type: 'revive'; item: string; x: number; y: number; hp: number }
   | { type: 'jam'; x: number; y: number; source: number }
+  /** A wind-up toy sets off, bounces off something, runs down, or starts winding itself up. */
+  | { type: 'windGo' | 'windBounce' | 'windDown' | 'windUp'; x: number; y: number; source: number }
   | { type: 'reveal'; x: number; y: number; source: number }
   | { type: 'lagJump'; x: number; y: number; tx: number; ty: number; source: number }
   /** A webcam starts recording, loses the player, or shares its screen (`told` enemies attack now). */
@@ -1264,6 +1266,10 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'relay') {
     state = 'idle';
     until = Infinity;
+  } else if (b.kind === 'windup') {
+    // It comes in winding itself up: a moment to see it before it sets off.
+    state = 'jam';
+    until = b.windup;
   }
   return { id, def, x, y, vx: 0, vy: 0, facing: -1, state, t: 0, until, dirX: 1, dirY: 0, hitT: 0, damageTaken: 0, contactCooldown: 0, moved: 0, owner: -1, phase: 0, lastHit: 0 };
 }
@@ -1622,7 +1628,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
           const hb = dummyHurtBox(en);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
             // A boss between phases shrugs bullets off (they still stop on it).
-            const damage = en.state === 'roar' ? 0 : b.damage;
+            const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en);
             en.hitT = damage > 0 ? 0.12 : 0.04;
             en.damageTaken += damage;
             en.lastHit = angle;
@@ -1797,7 +1803,7 @@ function blowUp(w: World, pr: PropInstance): void {
     if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar') continue;
     const hb = dummyHurtBox(en);
     if (!near(hb.x + hb.w / 2, hb.y + hb.h / 2, Math.min(hb.w, hb.h) / 2)) continue;
-    en.damageTaken = Math.min(en.def.hp, en.damageTaken + blast.damage);
+    en.damageTaken = Math.min(en.def.hp, en.damageTaken + blast.damage * takenScale(en));
     en.hitT = 0.12;
   }
   for (const d of w.dummies) {
@@ -2100,6 +2106,11 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
     w.events.push({ type: 'down', x: p.x, y: p.y, source, cause });
   }
   return true;
+}
+
+/** How much of a hit an enemy takes: a run-down wind-up toy takes its `exposed` times. */
+export function takenScale(en: Enemy): number {
+  return isRunDown(en) && en.def.brain.kind === 'windup' ? en.def.brain.exposed : 1;
 }
 
 export const isDead = (en: Enemy): boolean => en.damageTaken >= en.def.hp;
@@ -2443,7 +2454,7 @@ function surgeShock(w: World): void {
   const targets: { id: number; x: number; y: number }[] = [];
   for (const en of w.enemies) {
     if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar') continue;
-    en.damageTaken = Math.min(en.def.hp, en.damageTaken + SURGE_DAMAGE);
+    en.damageTaken = Math.min(en.def.hp, en.damageTaken + SURGE_DAMAGE * takenScale(en));
     en.hitT = 0.12;
     const hb = dummyHurtBox(en);
     targets.push({ id: en.id, x: hb.x + hb.w / 2, y: hb.y + hb.h / 2 });

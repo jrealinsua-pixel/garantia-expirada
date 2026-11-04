@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T23:05:00+01:00",
+  "actualizado": "2026-11-04T23:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 11,
+    "enemigos": 12,
     "jefes": 2,
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 488,
-    "tests_ok": 488,
+    "tests": 498,
+    "tests_ok": 498,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16898
+    "lineas_codigo": 17110
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T23:55:00+01:00",
+      "hito": "M10",
+      "resumen": "El Robot de Cuerda, primer enemigo de la Juguetería: corre en línea recta rebotando como una bola de billar, suelta tres tuercas en cada rebote, se le acaba la cuerda (se para y recibe el doble) y se la da solo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T23:05:00+01:00",
       "hito": "M9b",
@@ -764,6 +770,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/robot-rebote.png",
+      "pie": "El Robot de Cuerda rebota en la pared y suelta su abanico de tres tuercas hacia la tostadora"
+    },
+    {
+      "archivo": "capturas/robot-agotado.png",
+      "pie": "«Cuerda agotada»: se para en seco con la llave quieta y durante 2 s recibe el doble de daño"
+    },
+    {
       "archivo": "capturas/mesa-cubre.png",
       "pie": "Tras la Mesa de Saldos volcada: las balas que bajan hacia ella se quedan en la tapa y la van astillando; las de la tostadora pasan por encima"
     },
@@ -778,17 +792,9 @@
     {
       "archivo": "capturas/sobretension.png",
       "pie": "Se rompe el Corazón de Sobretensión: un rayo a cada enemigo de la sala. «Subida de tensión · daños no cubiertos»"
-    },
-    {
-      "archivo": "capturas/modo-turbo.png",
-      "pie": "Modo Turbo: tras los corazones, el amarillo de sobretensión y el turbo con su franja; las balas del secador salen anaranjadas"
-    },
-    {
-      "archivo": "capturas/garantia-provisional.png",
-      "pie": "La Garantía Provisional (el corazón de papel tras los rojos, ya a medias) acaba de parar una bala: «Cubierto. Esta vez.»"
     }
   ],
-  "proximo": "M10 (1) si la otra sesión la suelta (juego de casillas de la Juguetería); si no, M10 (2a), las primeras plantillas de la planta 3.",
+  "proximo": "M10 (1) si la otra sesión la suelta (juego de casillas de la Juguetería); si no, M10 (4b), el Coche Teledirigido, o (2a), las primeras plantillas de la planta 3.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -819,11 +825,6 @@
       "sesion": "2026-11-04 21:25",
       "tarea": "M10 (1): juego de casillas de la planta 3 (Juguetería)",
       "desde": "2026-11-04T21:25:00+01:00"
-    },
-    {
-      "sesion": "2026-11-04 23:25",
-      "tarea": "M10 (4a): Robot de Cuerda",
-      "desde": "2026-11-04T23:25:00+01:00"
     }
   ]
 }

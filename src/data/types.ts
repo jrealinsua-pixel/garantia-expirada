@@ -577,7 +577,29 @@ export interface RelayBrain {
   muzzleY: number;
 }
 
-export type EnemyBrain = RelayBrain | ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
+/**
+ * A wind-up toy: while wound it runs in a straight line at `speed` and bounces off walls and props
+ * like a billiard ball (never straight along an axis: at least `minSlant` of its direction goes
+ * each way), firing `pattern` at the player on each bounce (not twice within `bounceGap` s). After
+ * `run` s (random in the range) it runs down: `rundown` s stopped dead, taking `exposed` times the
+ * damage; the last `windup` s of them it winds itself up again (the key turns, and it can be heard),
+ * and sets off again towards the player give or take `aimJitterDeg`. It starts winding up.
+ */
+export interface WindupBrain {
+  kind: 'windup';
+  speed: number;
+  run: [number, number];
+  rundown: number;
+  windup: number;
+  exposed: number;
+  pattern: string;
+  bounceGap: number;
+  minSlant: number;
+  aimJitterDeg: number;
+  muzzleY: number;
+}
+
+export type EnemyBrain = WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
   id: string;
@@ -630,6 +652,8 @@ export interface EnemyAnim {
   /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */
   lurk?: number;
   reveal?: number;
+  /** Frame shown while stunned or run down (the wind-up robot with its key still). */
+  stun?: number;
   /** Jammed turrets: frames cycled every `jamMs` while it shakes. */
   jam?: readonly number[];
   jamMs?: number;

@@ -115,6 +115,7 @@ const ENEMY_CHARS: Record<string, string> = {
   R: 'raton-inalambrico',
   W: 'webcam',
   X: 'router-wifi',
+  Q: 'robot-cuerda',
 };
 
 /**

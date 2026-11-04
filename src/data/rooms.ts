@@ -865,9 +865,15 @@ export const SLOT_ENEMIES_2: readonly SlotEnemy[] = [
   { ch: 'W', cost: 3, weight: 3, max: 1 },
 ];
 
+/**
+ * Floor 3 (Juguetería): floor 2's and its own toys (Q: the wind-up robot). Its other three enemies
+ * join as they are made (M10 4b-4d).
+ */
+export const SLOT_ENEMIES_3: readonly SlotEnemy[] = [...SLOT_ENEMIES_2, { ch: 'Q', cost: 3, weight: 4, max: 2 }];
+
 /** What can fill an `e` slot on floor `level`. */
 export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
-  return level === 2 ? SLOT_ENEMIES_2 : SLOT_ENEMIES_1;
+  return level >= 3 ? SLOT_ENEMIES_3 : level === 2 ? SLOT_ENEMIES_2 : SLOT_ENEMIES_1;
 }
 
 /** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses floor 1's. */

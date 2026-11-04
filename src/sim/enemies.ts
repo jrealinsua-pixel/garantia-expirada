@@ -1,6 +1,8 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
-import type { BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain } from '../data/types.ts';
+import type {
+  BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain,
+} from '../data/types.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS } from '../data/props.ts';
@@ -70,6 +72,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'relay':
         updateRelay(w, en, en.def.brain);
+        break;
+      case 'windup':
+        updateWindup(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -205,6 +210,113 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
     // Small bounce back off the wall.
     en.vx = -en.dirX * 60;
     en.vy = -en.dirY * 60;
+  }
+}
+
+/**
+ * A direction close to (x, y) that is never straight along an axis: each component keeps at least
+ * `slant` (a billiard ball sent straight at a wall would bounce back and forth in one line).
+ */
+export function slanted(x: number, y: number, slant: number): { x: number; y: number } {
+  const d = normalize(x, y);
+  let ax = Math.abs(d.x);
+  let ay = Math.abs(d.y);
+  if (ax === 0 && ay === 0) ax = 1;
+  if (ax < slant) {
+    ax = slant;
+    ay = Math.sqrt(1 - slant * slant);
+  } else if (ay < slant) {
+    ay = slant;
+    ax = Math.sqrt(1 - slant * slant);
+  }
+  const l = Math.hypot(ax, ay);
+  return { x: ((d.x < 0 ? -1 : 1) * ax) / l, y: ((d.y < 0 ? -1 : 1) * ay) / l };
+}
+
+/** Whether a wind-up toy is run down or winding up: stopped, and taking `exposed` times the damage. */
+export function isRunDown(en: Enemy): boolean {
+  return en.def.brain.kind === 'windup' && (en.state === 'stun' || en.state === 'jam');
+}
+
+/** Sets a wind-up toy off towards the player, give or take its aim jitter. */
+function setOff(w: World, en: Enemy, b: WindupBrain): void {
+  const p = w.player;
+  const a = Math.atan2(p.y - en.y, p.x - en.x) + w.rng.range(-b.aimJitterDeg, b.aimJitterDeg) * (Math.PI / 180);
+  const d = slanted(Math.cos(a), Math.sin(a), b.minSlant);
+  en.dirX = d.x;
+  en.dirY = d.y;
+  enter(en, 'charge', w.rng.range(b.run[0], b.run[1]));
+  // `phase` is the time since its last bounce (no two volleys of nuts at once in a corner).
+  en.phase = b.bounceGap;
+  w.events.push({ type: 'windGo', x: en.x, y: en.y, source: en.id });
+}
+
+/**
+ * Robot de Cuerda: runs straight and bounces like a billiard ball, firing nuts at you on each
+ * bounce, until it runs down (stopped, taking double) and winds itself up again. See WindupBrain.
+ */
+function updateWindup(w: World, en: Enemy, b: WindupBrain): void {
+  en.t += DT;
+  switch (en.state) {
+    case 'charge': {
+      en.phase += DT;
+      en.vx = en.dirX * b.speed;
+      en.vy = en.dirY * b.speed;
+      en.facing = en.dirX >= 0 ? 1 : -1;
+      const ox = en.x;
+      const oy = en.y;
+      const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+      en.moved += Math.hypot(en.x - ox, en.y - oy);
+      if (hit.hitX || hit.hitY) {
+        if (hit.hitX) en.dirX = -en.dirX;
+        if (hit.hitY) en.dirY = -en.dirY;
+        const d = slanted(en.dirX, en.dirY, b.minSlant);
+        en.dirX = d.x;
+        en.dirY = d.y;
+        en.facing = en.dirX >= 0 ? 1 : -1;
+        w.events.push({ type: 'windBounce', x: en.x, y: en.y - 6, source: en.id });
+        if (en.phase >= b.bounceGap) {
+          en.phase = 0;
+          const def = PATTERNS[b.pattern];
+          if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+          const p = w.player;
+          const mh = muzzleHeight(w, en, b.muzzleY);
+          firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - en.x), { telegraph: 0, source: en.id, by: en.def.id, height: mh });
+        }
+      }
+      if (en.t >= en.until) {
+        // Run down: it stops dead where it is.
+        enter(en, 'stun', b.rundown - b.windup);
+        en.vx = 0;
+        en.vy = 0;
+        w.events.push({ type: 'windDown', x: en.x, y: en.y, source: en.id });
+      }
+      return;
+    }
+    case 'stun':
+      approach(en, 0, 0, KNOCK_FRICTION);
+      if (en.t >= en.until) {
+        enter(en, 'jam', b.windup);
+        w.events.push({ type: 'windUp', x: en.x, y: en.y, source: en.id });
+      }
+      break;
+    case 'jam':
+      approach(en, 0, 0, KNOCK_FRICTION);
+      if (en.t >= en.until) setOff(w, en, b);
+      break;
+    default:
+      // Anything else (just spawned, or left waiting): it winds itself up first.
+      if (en.state !== 'idle' || en.t >= en.until) {
+        enter(en, 'jam', b.windup);
+        w.events.push({ type: 'windUp', x: en.x, y: en.y, source: en.id });
+      }
+  }
+  // Stopped: only a bullet's knockback moves it.
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
 }
 

@@ -286,6 +286,37 @@ export const ENEMIES: Record<string, EnemyDef> = {
       rush: { time: 4, scale: 1.6 },
     },
   },
+  // Floor 3 (Juguetería). Toys that punish standing still and not watching the floor.
+  'robot-cuerda': {
+    id: 'robot-cuerda',
+    name: 'Robot de Cuerda',
+    description: 'En la caja ponía «3+» hasta que alguien le añadió otro 3 con un clavo. Corre a toda prisa a ninguna parte hasta que se le acaba la cuerda, como todos.',
+    hp: 14,
+    sprite: 'robot-cuerda',
+    anchor: { x: 14, y: 30 },
+    hurt: { x: -10, y: -26, w: 20, h: 23 },
+    footRadius: 6,
+    contactPush: 200,
+    contactDamage: 1,
+    knockbackScale: 0.4,
+    loot: { coupons: [0, 1] },
+    // 0-1 standing, 2-5 the quick stiff march with the key turning, 6 run down, 7-8 winding up.
+    anim: { idle: [0, 1], idleMs: 300, walk: [2, 3, 4, 5], stepPx: 4, stun: 6, jam: [7, 8], jamMs: 70 },
+    brain: {
+      kind: 'windup',
+      speed: 92,
+      run: [4, 5],
+      rundown: 2,
+      windup: 0.6,
+      // Run down it takes double: the moment to go for it.
+      exposed: 2,
+      pattern: 'robot-tuercas',
+      bounceGap: 0.35,
+      minSlant: 0.35,
+      aimJitterDeg: 35,
+      muzzleY: 14,
+    },
+  },
   'router-wifi': {
     id: 'router-wifi',
     name: 'El Router del Wifi',

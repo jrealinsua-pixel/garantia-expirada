@@ -527,3 +527,128 @@ export function makeWebcamFrames(): Canvas[] {
   const cyc = narrowPoseCycle(WEBCAM_LEGS[0], WEBCAM_LEGS[1]);
   return [...cyc.map((f, k) => makeWebcam(f.pose, k === 1 || k === 4 ? -1 : 0)), makeWebcam(undefined, 0, true)];
 }
+
+/** Faded tin, painted a toy blue-green long ago and chipped down to the metal here and there. */
+const TIN = ramp('#a7c9c0', '#6f9f97', '#4c7570', '#324f4d');
+const TIN_SIDE = ramp('#4c7570', '#3d625e', '#2f4d4a', '#213735');
+const TIN_TOP = ramp('#cfe4dc', '#a7c9c0', '#6f9f97', '#4c7570');
+/** The red tin of its feet (stamped, with the paint worn off the toes). */
+const TIN_RED = ramp('#e07a62', '#b94a3c', '#86323a', '#5a2130');
+
+/**
+ * The wind-up key on its back, seen from the side as it turns: 0 the bow face-on (a brass figure
+ * of eight), 1 edge-on (a line), 2 halfway (a slanted loop). The shaft goes into the body at (4, y).
+ */
+function windKey(cv: Canvas, y: number, turn: number): void {
+  const k = ((turn % 3) + 3) % 3;
+  cv.rect(2, y, 3, 1, YEL[2]!);
+  cv.set(2, y, YEL[3]!);
+  if (k === 0) {
+    const bow: Pt[] = [[0, y - 4], [1, y - 4], [0, y - 3], [1, y - 3], [0, y - 2], [1, y - 1], [0, y + 1], [1, y + 1], [0, y + 2], [1, y + 3], [0, y + 3], [0, y + 4], [1, y + 4]];
+    for (const [x, yy] of bow) cv.set(x, yy, YEL[1]!);
+    cv.set(1, y - 2, YEL[3]!);
+    cv.set(1, y + 2, YEL[3]!);
+    cv.set(0, y - 4, YEL[0]!);
+    cv.rect(1, y, 1, 1, YEL[2]!);
+  } else if (k === 1) {
+    cv.rect(1, y - 4, 1, 9, YEL[2]!);
+    cv.set(1, y - 4, YEL[0]!);
+  } else {
+    const bow: Pt[] = [[1, y - 3], [0, y - 2], [1, y - 1], [1, y + 1], [2, y + 2], [1, y + 3]];
+    for (const [x, yy] of bow) cv.set(x, yy, YEL[1]!);
+    cv.set(1, y - 3, YEL[0]!);
+  }
+}
+
+/**
+ * Robot de Cuerda: an old tin wind-up robot, a big dented box of a head and body in one, a mouth
+ * grille and an antenna bent to one side. One eye is a sour little eye under a heavy lid; the
+ * other, a screw (it lost the real one). Jokes: the key on its back held on with a strip of white
+ * sticking plaster, and the age label on its side, «3+» scratched to «33+». `key` (0-2) turns the
+ * key; `mood`: 0 wound (glaring), 1 run down (eyes half shut, antenna drooping), 2 winding itself up
+ * (eyes squeezed, shaken `jx` px). 27x31.
+ */
+export function makeRobot(pose: Pose = { xb: ROBOT_LEGS[0], xf: ROBOT_LEGS[1], bob: 0 }, key = 0, mood: 0 | 1 | 2 = 0, jx = 0): Canvas {
+  const legs = new Canvas(26, 30);
+  const cv = new Canvas(26, 30);
+  poseFeet(legs, pose, 24, { L: 3, leg: DSTEEL, shoe: TIN_RED });
+  hand(cv, 3 + jx, 18, TIN);
+  // Antenna: a rod out of the top with a ball, bent (and drooping when run down).
+  if (mood === 1) {
+    const rod: Pt[] = [[15, 4], [15, 3], [16, 2], [17, 2], [18, 3]];
+    for (const [x, y] of rod) cv.set(x + jx, y, STEEL[2]!);
+    cv.rect(19 + jx, 3, 2, 2, RED[2]!);
+  } else {
+    const rod: Pt[] = [[15, 5], [15, 4], [15, 3], [16, 2], [17, 1]];
+    for (const [x, y] of rod) cv.set(x + jx, y, STEEL[2]!);
+    cv.rect(17 + jx, 0, 2, 2, RED[1]!);
+    cv.set(17 + jx, 0, RED[0]!);
+  }
+  cube(cv, 4 + jx, 5, 19, 19, 4, 3, TIN, TIN_SIDE, TIN_TOP);
+  // A dent in the top front corner, and the paint chipped down to the tin.
+  cv.set(20 + jx, 8, TIN[3]!);
+  cv.set(21 + jx, 8, TIN[2]!);
+  cv.set(20 + jx, 9, TIN[0]!);
+  for (const [x, y] of [[9, 21], [22, 13], [12, 6]] as Pt[]) cv.set(x + jx, y, STEEL[1]!);
+  // Rivets in the corners of its front.
+  for (const [x, y] of [[9, 9], [21, 10], [9, 20], [21, 20]] as Pt[]) cv.set(x + jx, y, TIN[3]!);
+  // Eyes: the back one small and sour under a heavy lid; the front one a screw head with its slot.
+  const ex = 11 + jx;
+  const sx = 18 + jx;
+  if (mood === 2) {
+    const shut: Pt[] = [[ex, 11], [ex + 1, 12], [ex + 2, 13], [ex + 1, 13]];
+    for (const [x, y] of shut) cv.set(x, y, K);
+  } else {
+    cv.rect(ex, 11, 3, 3, K);
+    cv.set(ex + 1, 12, WHITE);
+    cv.rect(ex, 11, 3, mood === 1 ? 2 : 1, TIN[2]!);
+  }
+  ellipse(cv, sx, 12, 2.2, 2.2, STEEL[1]!);
+  cv.set(sx - 1, 11, STEEL[0]!);
+  cv.set(sx + 1, 13, STEEL[3]!);
+  if (mood === 1) cv.rect(sx - 1, 12, 3, 1, K);
+  else {
+    cv.set(sx - 1, 13, K);
+    cv.set(sx, 12, K);
+    cv.set(sx + 1, 11, K);
+  }
+  // Brows: one slanting down to the middle, a crease over the screw.
+  if (mood === 0) {
+    const brows: Pt[] = [[10, 9], [11, 9], [12, 10], [13, 10], [17, 9], [18, 9], [19, 9]];
+    for (const [x, y] of brows) cv.set(x + jx, y, K);
+  }
+  // Mouth: a grille of tin teeth.
+  cv.rect(11 + jx, 16, 10, 3, K);
+  for (let x = 12; x <= 20; x += 2) cv.rect(x + jx, 16, 1, mood === 1 ? 2 : 3, STEEL[mood === 1 ? 2 : 1]!);
+  // Its side: the age label, «3+» scratched to «33+», and the plaster holding the key on.
+  cv.rect(5 + jx, 15, 3, 4, CREAM[0]!);
+  cv.set(5 + jx, 16, K);
+  cv.set(6 + jx, 16, K);
+  cv.set(7 + jx, 17, RED[1]!);
+  cv.set(5 + jx, 18, CREAM[2]!);
+  cv.rect(4 + jx, 10, 3, 3, WHITE);
+  cv.set(5 + jx, 11, CREAM[1]!);
+  cv.set(6 + jx, 12, CREAM[2]!);
+  windKey(cv, 11, key);
+  hand(cv, 22 + jx, 19, TIN);
+  // One px of room on the left (the key) and on top (the antenna) for the outline.
+  const out = new Canvas(27, 31);
+  out.blit(joinPose(legs, cv, pose), 1, 1);
+  return outline(out);
+}
+
+export const ROBOT_LEGS = [9, 15] as const;
+
+/**
+ * The robot's frames: 0-1 standing (the key ticking over), 2-5 the stiff quick march with the key
+ * turning, 6 run down (key still), 7-8 winding itself up (the key spins, it shakes).
+ */
+export function makeRobotFrames(): Canvas[] {
+  const cyc = narrowPoseCycle(ROBOT_LEGS[0], ROBOT_LEGS[1]);
+  return [
+    ...cyc.map((f, k) => makeRobot(f.pose, k)),
+    makeRobot({ xb: ROBOT_LEGS[0], xf: ROBOT_LEGS[1], bob: 1 }, 0, 1),
+    makeRobot(undefined, 1, 2, -1),
+    makeRobot(undefined, 2, 2, 1),
+  ];
+}

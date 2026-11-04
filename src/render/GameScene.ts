@@ -24,6 +24,7 @@ import {
   RESTOCK_LINE,
   CRIT_LINE,
   JAM_LINE,
+  WIND_DOWN_LINE,
   REVEAL_LINE,
   REC_LINE,
   REC_LOST_LINE,
@@ -1864,6 +1865,24 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 4; i++) this.spark(e.x + this.fx.range(-5, 5), e.y, this.fx.range(-Math.PI, 0), this.fx.range(20, 50), 0);
           this.floatText(e.x, e.y - 14, fontText(JAM_LINE), 0xf4f1e8, `jam:${e.source}`, -16, 1);
           break;
+        case 'windUp':
+          // A wind-up robot winding itself up: the ratchet of its key (the warning that it is off again).
+          this.sound2.play('cuerda', { detune: this.fx.range(-100, 100), volume: 0.8 });
+          break;
+        case 'windGo':
+          for (let i = 0; i < 3; i++) this.puff(e.x - this.fx.range(4, 8), e.y + this.fx.range(-2, 1), 0.3);
+          break;
+        case 'windBounce':
+          // Tin against the wall: a clank and a couple of sparks.
+          this.sound2.play('chapa', { detune: this.fx.range(-200, 200), volume: 0.7 });
+          for (let i = 0; i < 3; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 2);
+          break;
+        case 'windDown':
+          // Run down: the spring winding down, a puff, and its line over it (the moment to hit it).
+          this.sound2.play('agotado');
+          this.puff(e.x, e.y - 20, 0.4);
+          this.floatText(e.x, e.y - 14, fontText(WIND_DOWN_LINE), 0xf6c431, `wind:${e.source}`, -16, 1.1);
+          break;
         case 'switchOn':
           this.sound2.play('encender');
           for (let i = 0; i < 5; i++) this.spark(e.x + this.fx.range(-6, 6), e.y + this.fx.range(-6, 4), this.fx.range(0, Math.PI * 2), this.fx.range(20, 60), 0);
@@ -2238,7 +2257,7 @@ export class GameScene extends Phaser.Scene {
           if (e.points.length) this.sound2.play('barrido');
           for (const pt of e.points) {
             this.puff(pt.x, pt.y, 0.3);
-            for (let i = 0; i < 2; i++) this.spark(pt.x, pt.y, this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), pt.color === 'red' || pt.color === 'card' ? 2 : 0);
+            for (let i = 0; i < 2; i++) this.spark(pt.x, pt.y, this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), pt.color === 'red' || pt.color === 'card' || pt.color === 'nut' ? 2 : 0);
           }
           break;
         }
@@ -2997,7 +3016,7 @@ export class GameScene extends Phaser.Scene {
         if (this.fx.chance(0.12)) this.spark(en.x + en.facing * 7, en.y - 6, this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), this.fx.int(0, 2));
       }
       // Dust trail while charging, sparks from the wheels while braking.
-      if (en.state === 'charge' && this.fx.chance(0.5)) this.puff(en.x - en.dirX * 10 + this.fx.range(-3, 3), en.y + this.fx.range(-2, 1), 0.35);
+      if (en.state === 'charge' && this.fx.chance(en.def.brain.kind === 'windup' ? 0.12 : 0.5)) this.puff(en.x - en.dirX * 10 + this.fx.range(-3, 3), en.y + this.fx.range(-2, 1), 0.35);
       if (en.state === 'brake' && Math.hypot(en.vx, en.vy) > 40 && this.fx.chance(0.4)) {
         this.spark(en.x + this.fx.range(-6, 6), en.y, Math.atan2(-en.vy, -en.vx) + this.fx.range(-0.6, 0.6), this.fx.range(30, 70), 2);
       }
@@ -3046,6 +3065,8 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'card' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 70 + b.id) % 4);
       // Invoices flutter, slower than the cards spin.
       if (b.color === 'invoice' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 110 + b.id) % 4);
+      // Nuts spin.
+      if (b.color === 'nut' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 60 + b.id) % 2);
       const sc = (b.life < 0.15 ? 0.6 : 1) * size;
       s.setScale(sc);
     }
@@ -3653,7 +3674,7 @@ export class GameScene extends Phaser.Scene {
 /** Enemy bullet sprites by colour: the boss's ice is a cube. */
 /** Radius the player's bullet sprite is drawn for (the hair dryer's). */
 const PLAYER_BULLET_R = 3;
-const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura' };
+const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca' };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
 const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number; frameDy?: Record<number, number> }> = {

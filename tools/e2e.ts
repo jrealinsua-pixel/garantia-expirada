@@ -557,6 +557,21 @@ try {
   await shot('35m-webcam-comparte.png');
   console.log('Webcam: graba con la línea de mira y comparte pantalla.');
 
+  // M10 (4a): the wind-up robot: running and bouncing (a fan of nuts on each bounce), run down
+  // with its line over it, and winding itself up.
+  await page.goto(`${url}?semilla=e2e-robot&sala=taller-expres`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('robot-cuerda', p.x + 60, p.y - 70); const r = w.enemies[0]; r.state = 'jam'; r.t = 0; r.until = 0.6; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.color === 'nut')", undefined, { timeout: 8000 });
+  await page.waitForTimeout(140);
+  await shot('35n-robot-rebote.png');
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'robot-cuerda' && e.state === 'stun' && e.t > 0.15)", undefined, { timeout: 7000 });
+  await shot('35o-robot-agotado.png');
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'robot-cuerda' && e.state === 'jam' && e.t > 0.2)", undefined, { timeout: 3000 });
+  await shot('35p-robot-cuerda.png');
+  console.log('Robot de Cuerda: rebota soltando tuercas, se le acaba la cuerda y se la da solo.');
+
   // M8: el Router del Wifi, floor 2's boss: its card, the waves with their holes from it and its
   // repeaters, the reboot at half life and the dropped connections of phase 2.
   await page.goto(`${url}?semilla=e2e-router&sala=jefe-informatica&planta=2`);

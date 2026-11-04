@@ -46,6 +46,8 @@ export function enemyFrame(en: Enemy, now: number): number {
   if (a.reveal !== undefined && en.state === 'reveal') return a.reveal;
   // Jammed: it shakes on the spot.
   if (a.jam && en.state === 'jam') return a.jam[Math.floor(now / (a.jamMs ?? 60)) % a.jam.length]! + shift;
+  // Run down (the wind-up robot with its key still).
+  if (a.stun !== undefined && en.state === 'stun') return a.stun + shift;
   if (PLANTED.has(en.state)) return a.idle[0]! + shift;
   const speed = Math.hypot(en.vx, en.vy);
   if (a.walk && a.stepPx && en.state !== 'warn' && speed >= WALK_MIN_SPEED) {
