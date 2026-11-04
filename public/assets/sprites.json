@@ -71,6 +71,12 @@
     "frameH": 31,
     "frames": 9
   },
+  "coche-teledirigido": {
+    "file": "coche-teledirigido.png",
+    "frameW": 32,
+    "frameH": 22,
+    "frames": 7
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,

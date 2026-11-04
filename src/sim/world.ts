@@ -326,6 +326,8 @@ export interface Enemy {
   seenDamage?: number;
   /** Being watched live (a webcam shared its screen): for `t` more s its waits run `scale` times faster. */
   rush?: { t: number; scale: number };
+  /** Remote-control cars: seconds before its batteries next give out (see RcCarBrain.stall). */
+  stallT?: number;
   /** Turrets that jam: volleys left before the next jam. */
   volleys?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
@@ -394,6 +396,8 @@ export type SimEvent =
   | { type: 'jam'; x: number; y: number; source: number }
   /** A wind-up toy sets off, bounces off something, runs down, or starts winding itself up. */
   | { type: 'windGo' | 'windBounce' | 'windDown' | 'windUp'; x: number; y: number; source: number }
+  /** A remote-control car overturns against something, rights itself, or its batteries give out. */
+  | { type: 'carFlip' | 'carRight' | 'carStall'; x: number; y: number; source: number }
   | { type: 'reveal'; x: number; y: number; source: number }
   | { type: 'lagJump'; x: number; y: number; tx: number; ty: number; source: number }
   /** A webcam starts recording, loses the player, or shares its screen (`told` enemies attack now). */

@@ -1,7 +1,7 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
 import type {
-  BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain,
+  BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain,
 } from '../data/types.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
@@ -75,6 +75,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'windup':
         updateWindup(w, en, en.def.brain);
+        break;
+      case 'rccar':
+        updateRcCar(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -317,6 +320,116 @@ function updateWindup(w: World, en: Enemy, b: WindupBrain): void {
     const oy = en.y;
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+}
+
+const DEG = Math.PI / 180;
+
+/** Turns angle `a` towards `b` by at most `max` rad. */
+function turnTowards(a: number, b: number, max: number): number {
+  const d = Math.atan2(Math.sin(b - a), Math.cos(b - a));
+  return a + Math.max(-max, Math.min(max, d));
+}
+
+/**
+ * Coche Teledirigido: circles the toaster in drifting arcs and, when it has it to its side, brakes,
+ * aims and rams; into a wall it overturns. Its batteries give out now and then. See RcCarBrain.
+ */
+function updateRcCar(w: World, en: Enemy, b: RcCarBrain): void {
+  const p = w.player;
+  const toX = p.x - en.x;
+  const toY = p.y - en.y;
+  const dist = Math.hypot(toX, toY) || 1;
+  en.t += DT;
+  if (en.legSpin === undefined) en.legSpin = w.rng.next() < 0.5 ? 1 : -1;
+  if (en.stallT === undefined) en.stallT = w.rng.range(b.stall.every[0], b.stall.every[1]);
+  switch (en.state) {
+    case 'walk': {
+      // Steer to a point further round its circle about the toaster, turning no faster than it can.
+      const round = Math.atan2(en.y - p.y, en.x - p.x) + en.legSpin * b.leadDeg * DEG;
+      const want = Math.atan2(p.y + Math.sin(round) * b.orbit - en.y, p.x + Math.cos(round) * b.orbit - en.x);
+      const head = turnTowards(Math.atan2(en.dirY, en.dirX), want, b.turnDeg * DEG * DT);
+      en.dirX = Math.cos(head);
+      en.dirY = Math.sin(head);
+      approach(en, en.dirX * b.speed, en.dirY * b.speed, KNOCK_FRICTION);
+      en.facing = en.dirX >= 0 ? 1 : -1;
+      en.stallT -= DT;
+      // Side on: the toaster is roughly square to where it is going.
+      const side = Math.abs(en.dirX * toX + en.dirY * toY) / dist < Math.sin(b.sideDeg * DEG);
+      if (en.t >= en.until && side && dist < b.range) {
+        const d = normalize(toX, toY);
+        en.dirX = d.x;
+        en.dirY = d.y;
+        en.facing = d.x >= 0 ? 1 : -1;
+        enter(en, 'warn', b.telegraph);
+        w.events.push({ type: 'telegraph', x: en.x, y: en.y - 2, time: b.telegraph, aim: Math.atan2(d.y, d.x), aimed: true, color: 'red', source: en.id });
+      } else if (en.stallT <= 0) {
+        // «Pilas no incluidas»: it stops dead mid-arc and flickers (the wait before ramming keeps).
+        en.legT = Math.max(0.3, en.until - en.t);
+        enter(en, 'off', b.stall.time);
+        en.stallT = w.rng.range(b.stall.every[0], b.stall.every[1]);
+        w.events.push({ type: 'carStall', x: en.x, y: en.y, source: en.id });
+      }
+      break;
+    }
+    case 'off':
+      approach(en, 0, 0, b.brake);
+      if (en.t >= en.until) enter(en, 'walk', en.legT ?? 0.3);
+      break;
+    case 'warn':
+      // Brakes hard and turns to face it (the direction is already locked).
+      approach(en, 0, 0, b.brake);
+      if (en.t >= en.until) {
+        enter(en, 'charge', b.ramTime);
+        en.vx = en.dirX * b.ramSpeed;
+        en.vy = en.dirY * b.ramSpeed;
+        w.events.push({ type: 'charge', x: en.x, y: en.y, dirX: en.dirX, dirY: en.dirY, source: en.id });
+      }
+      break;
+    case 'charge':
+      en.vx = en.dirX * b.ramSpeed;
+      en.vy = en.dirY * b.ramSpeed;
+      if (en.t >= en.until) {
+        enter(en, 'brake', b.recover);
+        w.events.push({ type: 'brake', x: en.x, y: en.y, source: en.id });
+      }
+      break;
+    case 'brake':
+      approach(en, 0, 0, b.brake);
+      if (en.t >= en.until) {
+        // Off again, the other way round half the time.
+        if (w.rng.next() < 0.5) en.legSpin = -en.legSpin;
+        enter(en, 'walk', w.rng.range(b.ramAfter[0], b.ramAfter[1]));
+      }
+      break;
+    case 'stun':
+      // Overturned, wheels in the air.
+      approach(en, 0, 0, b.brake);
+      if (en.t >= en.until) {
+        enter(en, 'walk', w.rng.range(b.ramAfter[0], b.ramAfter[1]));
+        en.dirX = -en.dirX;
+        en.dirY = -en.dirY;
+        w.events.push({ type: 'carRight', x: en.x, y: en.y, source: en.id });
+      }
+      break;
+    default:
+      enter(en, 'walk', w.rng.range(b.ramAfter[0], b.ramAfter[1]));
+  }
+  const ox = en.x;
+  const oy = en.y;
+  const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+  en.moved += Math.hypot(en.x - ox, en.y - oy);
+  if (en.state === 'charge' && ((hit.hitX && Math.abs(en.dirX) > 0.3) || (hit.hitY && Math.abs(en.dirY) > 0.3))) {
+    w.events.push({ type: 'bonk', x: en.x + en.dirX * en.def.footRadius, y: en.y - 6, dirX: en.dirX, dirY: en.dirY, source: en.id });
+    w.events.push({ type: 'carFlip', x: en.x, y: en.y, source: en.id });
+    enter(en, 'stun', b.flip);
+    en.vx = -en.dirX * 50;
+    en.vy = -en.dirY * 50;
+  } else if (en.state === 'walk' && (hit.hitX || hit.hitY)) {
+    // Scraping along a wall while circling: it bounces off and goes round the other way.
+    if (hit.hitX) en.dirX = -en.dirX;
+    if (hit.hitY) en.dirY = -en.dirY;
+    en.legSpin = -en.legSpin;
   }
 }
 

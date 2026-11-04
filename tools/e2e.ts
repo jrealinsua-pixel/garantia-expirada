@@ -572,6 +572,22 @@ try {
   await shot('35p-robot-cuerda.png');
   console.log('Robot de Cuerda: rebota soltando tuercas, se le acaba la cuerda y se la da solo.');
 
+  // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
+  // stalling (batteries not included) and overturned.
+  await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; p.y -= 60; g.spawnIdle('coche-teledirigido', p.x + 90, p.y); const c = w.enemies[0]; c.state = 'walk'; c.t = 0; c.until = 1.5; c.stallT = 99; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.state === 'warn' && e.t > 0.2)", undefined, { timeout: 8000 });
+  await shot('35q-coche-apunta.png');
+  await page.evaluate("(() => { const c = window.__GE__.scene.world.enemies[0]; c.stallT = 0.3; })()");
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.state === 'off' && e.t > 0.15)", undefined, { timeout: 8000 });
+  await shot('35r-coche-pilas.png');
+  await page.evaluate("(() => { const c = window.__GE__.scene.world.enemies[0]; c.state = 'stun'; c.t = 0; c.until = 1.5; c.vx = 0; c.vy = 0; })()");
+  await page.waitForTimeout(500);
+  await shot('35s-coche-volcado.png');
+  console.log('Coche Teledirigido: derrapa alrededor, apunta la embestida, se queda sin pilas y vuelca.');
+
   // M8: el Router del Wifi, floor 2's boss: its card, the waves with their holes from it and its
   // repeaters, the reboot at half life and the dropped connections of phase 2.
   await page.goto(`${url}?semilla=e2e-router&sala=jefe-informatica&planta=2`);

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T23:55:00+01:00",
+  "actualizado": "2026-11-05T00:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 12,
+    "enemigos": 13,
     "jefes": 2,
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 498,
-    "tests_ok": 498,
+    "tests": 504,
+    "tests_ok": 504,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 17110
+    "lineas_codigo": 17328
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T00:40:00+01:00",
+      "hito": "M10",
+      "resumen": "El Coche Teledirigido, segundo enemigo de la Juguetería: da vueltas a la tostadora derrapando (deja marcas), la embiste cuando la tiene de lado, vuelca contra las paredes y de vez en cuando se queda sin pilas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T23:55:00+01:00",
       "hito": "M10",
@@ -770,6 +776,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/coche-apunta.png",
+      "pie": "El Coche Teledirigido frena, pone los faros en rojo y apunta la embestida; detrás, las marcas de sus derrapes"
+    },
+    {
       "archivo": "capturas/robot-rebote.png",
       "pie": "El Robot de Cuerda rebota en la pared y suelta su abanico de tres tuercas hacia la tostadora"
     },
@@ -788,13 +798,9 @@
     {
       "archivo": "capturas/bidon-explota.png",
       "pie": "Un bidón de aceite usado revienta: bola de fuego, chispas y humo; los enemigos de alrededor se llevan 12 de daño"
-    },
-    {
-      "archivo": "capturas/sobretension.png",
-      "pie": "Se rompe el Corazón de Sobretensión: un rayo a cada enemigo de la sala. «Subida de tensión · daños no cubiertos»"
     }
   ],
-  "proximo": "M10 (1) si la otra sesión la suelta (juego de casillas de la Juguetería); si no, M10 (4b), el Coche Teledirigido, o (2a), las primeras plantillas de la planta 3.",
+  "proximo": "M10 (1) si la otra sesión la suelta (juego de casillas de la Juguetería); si no, M10 (4c), el Cubo de Piezas, o (2a), las primeras plantillas de la planta 3.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -825,11 +831,6 @@
       "sesion": "2026-11-04 21:25",
       "tarea": "M10 (1): juego de casillas de la planta 3 (Juguetería)",
       "desde": "2026-11-04T21:25:00+01:00"
-    },
-    {
-      "sesion": "2026-11-04 23:25",
-      "tarea": "M10 (4b): Coche Teledirigido",
-      "desde": "2026-11-05T00:00:00+01:00"
     }
   ]
 }

@@ -599,7 +599,34 @@ export interface WindupBrain {
   muzzleY: number;
 }
 
-export type EnemyBrain = WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
+/**
+ * A remote-control car: circles the player at about `orbit` px, flat out (`speed`), steering to a
+ * point `leadDeg` further round its circle but turning at most `turnDeg` per second (so it drifts
+ * in arcs). After `ramAfter` s (random in the range), as soon as it has the player to its side
+ * (within `sideDeg` of square to where it goes) and closer than `range`, it brakes and aims
+ * (`telegraph` s, direction locked) and rams in a straight line at `ramSpeed` for up to `ramTime`
+ * s; into a wall or a prop, it overturns for `flip` s; if not, `recover` s braking. «Batteries not
+ * included»: every `stall.every` s it stops mid-arc for `stall.time` s, flickering.
+ */
+export interface RcCarBrain {
+  kind: 'rccar';
+  speed: number;
+  orbit: number;
+  leadDeg: number;
+  turnDeg: number;
+  ramAfter: [number, number];
+  sideDeg: number;
+  range: number;
+  telegraph: number;
+  ramSpeed: number;
+  ramTime: number;
+  flip: number;
+  recover: number;
+  brake: number;
+  stall: { every: [number, number]; time: number };
+}
+
+export type EnemyBrain = RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
   id: string;

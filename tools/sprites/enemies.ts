@@ -2,7 +2,7 @@
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
-import { BLUE, BURNT, CREAM, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, hand, outline, pad, ramp } from '../../src/art/lib.ts';
+import { BLUE, BURNT, CREAM, type Ramp, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, hand, outline, pad, ramp } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
 
@@ -651,4 +651,107 @@ export function makeRobotFrames(): Canvas[] {
     makeRobot(undefined, 1, 2, -1),
     makeRobot(undefined, 2, 2, 1),
   ];
+}
+
+/** Cheap purple plastic, a little faded on top. */
+const RCP = ramp('#c79be0', '#9a63c4', '#6f4196', '#4a2a68');
+const RCP_SIDE = ramp('#8a55b4', '#7a4aa6', '#5e3586', '#3f2360');
+const RCP_TOP = ramp('#e3c8f0', '#c79be0', '#9a63c4', '#6f4196');
+
+/** A wheel at (cx, cy): `r` its size, the hub `hub` coloured, `spin` (0-1) turning its spokes. */
+function rcWheel(cv: Canvas, cx: number, cy: number, r: number, hub: Ramp, spin: number): void {
+  ellipse(cv, cx, cy, r, r, RUBBER[3]!);
+  ellipse(cv, cx - 0.4, cy - 0.4, r - 1, r - 1, K);
+  ellipse(cv, cx, cy, r - 1.6, r - 1.6, hub[1]!);
+  cv.set(Math.round(cx) - 1, Math.round(cy) - 1, hub[0]!);
+  const c: Pt = [Math.round(cx), Math.round(cy)];
+  if (spin === 0) {
+    cv.set(c[0], c[1] - 1, hub[3]!);
+    cv.set(c[0], c[1] + 1, hub[3]!);
+  } else {
+    cv.set(c[0] - 1, c[1], hub[3]!);
+    cv.set(c[0] + 1, c[1], hub[3]!);
+  }
+  cv.set(c[0], c[1], K);
+}
+
+/**
+ * Coche Teledirigido: a plastic sports car seen from the side, nose to the right, with a bully's
+ * face on its front bumper (the headlights glaring under heavy brows, the grille a grin of teeth).
+ * Jokes: a bent antenna, a spoiler stuck on with tape, a peeling racing stripe and a front wheel
+ * from another car (smaller, white). `spin` (0-1) turns the wheels and `bob` shakes the body (its
+ * motor); `mood`: 0 cruising, 1 revving to ram (eyes red, mouth open), 2 overturned (drawn upside
+ * down, dizzy), 3 batteries out (lights dead). 32x22.
+ */
+export function makeRcCar(spin = 0, bob = 0, mood: 0 | 1 | 2 | 3 = 0): Canvas {
+  const cv = new Canvas(32, 22);
+  const y = 1 + bob;
+  // Bent antenna out of the back of the roof, and the spoiler on its taped post.
+  const ant: Pt[] = [[11, 3], [11, 2], [10, 1], [9, 1], [8, 0]];
+  for (const [x, yy] of ant) cv.set(x, yy + y, DSTEEL[0]!);
+  cv.set(7, y, RED[1]!);
+  cv.rect(2, 4 + y, 6, 2, RCP[2]!);
+  cv.rect(2, 4 + y, 6, 1, RCP_TOP[0]!);
+  cv.rect(4, 6 + y, 2, 2, RCP_SIDE[2]!);
+  // The cabin: roof and dark windows with a glint.
+  cv.rect(9, 3 + y, 11, 2, RCP_TOP[1]!);
+  cv.rect(10, 3 + y, 9, 1, RCP_TOP[0]!);
+  cv.rect(8, 5 + y, 14, 3, BLUE[3]!);
+  cv.set(20, 5 + y, BLUE[2]!);
+  cv.rect(21, 6 + y, 2, 2, BLUE[3]!);
+  cv.rect(10, 5 + y, 3, 1, BLUE[1]!);
+  cv.rect(15, 5 + y, 1, 3, RCP_SIDE[2]!);
+  // The body: long side face on the left, the bumper (its face) on the right.
+  cube(cv, 1, 7 + y, 30, 10, 23, 2, RCP, RCP_SIDE, RCP_TOP);
+  // Tape holding the spoiler on: two white strips across the post.
+  cv.rect(3, 7 + y, 4, 1, WHITE);
+  cv.rect(3, 8 + y, 1, 1, CREAM[1]!);
+  // Racing stripe, peeling at the back.
+  cv.rect(6, 12 + y, 17, 1, YEL[1]!);
+  cv.set(5, 13 + y, YEL[2]!);
+  cv.set(11, 12 + y, RCP_SIDE[1]!);
+  // Its face on the bumper: headlight eyes under brows, a grille of teeth.
+  const fx = 24;
+  const eye = mood === 1 ? RED[1]! : mood === 3 ? DSTEEL[1]! : YEL[0]!;
+  if (mood === 2) {
+    // Dizzy: X X.
+    const xx: Pt[] = [[fx + 1, 11], [fx + 2, 12], [fx + 1, 12], [fx + 2, 11], [fx + 4, 11], [fx + 5, 12], [fx + 4, 12], [fx + 5, 11]];
+    for (const [x, yy] of xx) cv.set(x, yy + y, K);
+  } else {
+    cv.rect(fx + 1, 11 + y, 2, 2, eye);
+    cv.rect(fx + 4, 11 + y, 2, 2, eye);
+    cv.set(fx + 2, 12 + y, K);
+    cv.set(fx + 5, 12 + y, K);
+    if (mood !== 3) {
+      cv.set(fx + 1, 11 + y, WHITE);
+      cv.set(fx + 4, 11 + y, WHITE);
+    }
+    // Heavy brows sloping down to the middle (lower still when it revs).
+    const brows: Pt[] = [[fx, 10], [fx + 1, 10], [fx + 2, mood === 1 ? 11 : 10], [fx + 4, mood === 1 ? 11 : 10], [fx + 5, 10], [fx + 6, 10]];
+    for (const [x, yy] of brows) cv.set(x, yy + y, K);
+  }
+  cv.rect(fx + 1, 14 + y, 5, mood === 1 ? 2 : 1, K);
+  for (let x = fx + 1; x <= fx + 5; x += 2) cv.set(x, 14 + y, WHITE);
+  // Wheels: its own at the back, a smaller white one from another car at the front.
+  rcWheel(cv, 8, 17, 3.6, DSTEEL, spin);
+  rcWheel(cv, 24, 18, 2.8, CREAM, spin);
+  // A scuff on the side.
+  cv.set(17, 14 + y, RCP_SIDE[3]!);
+  cv.set(18, 14 + y, RCP_SIDE[0]!);
+  let out = outline(cv);
+  if (mood === 2) {
+    // Overturned: upside down, resting on its roof at the bottom of the frame.
+    const flipped = new Canvas(32, 22);
+    for (let j = 0; j < 22; j++) for (let i = 0; i < 32; i++) flipped.p[21 - j]![i] = out.p[j]![i]!;
+    let low = 0;
+    for (let j = 0; j < 22; j++) for (let i = 0; i < 32; i++) if (flipped.get(i, j)[3] > 0) low = j;
+    out = new Canvas(32, 22);
+    out.blit(flipped, 0, 21 - low);
+  }
+  return out;
+}
+
+/** The car's frames: 0-1 idling (the motor shakes it), 2-3 driving, 4 revving to ram, 5 overturned, 6 batteries out. */
+export function makeRcCarFrames(): Canvas[] {
+  return [makeRcCar(0, 0), makeRcCar(0, 1), makeRcCar(1, 0), makeRcCar(0, 1), makeRcCar(0, 0, 1), makeRcCar(0, 0, 2), makeRcCar(0, 0, 3)];
 }

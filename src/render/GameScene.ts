@@ -25,6 +25,7 @@ import {
   CRIT_LINE,
   JAM_LINE,
   WIND_DOWN_LINE,
+  STALL_LINE,
   REVEAL_LINE,
   REC_LINE,
   REC_LOST_LINE,
@@ -248,6 +249,8 @@ export class GameScene extends Phaser.Scene {
   private fx = new Rng('fx');
   private acc = 0;
   private hitstop = 0;
+  /** Tyre marks on the floor right now (see skidMark). */
+  private skids = 0;
   private shots = 0;
 
   private hero!: Phaser.GameObjects.Sprite;
@@ -416,6 +419,7 @@ export class GameScene extends Phaser.Scene {
     this.hubAsk = false;
     this.acc = 0;
     this.hitstop = 0;
+    this.skids = 0;
     this.shots = 0;
     this.warnings = 0;
     this.charges = 0;
@@ -1877,6 +1881,20 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('chapa', { detune: this.fx.range(-200, 200), volume: 0.7 });
           for (let i = 0; i < 3; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 2);
           break;
+        case 'carStall':
+          // Batteries not included: it splutters to a halt.
+          this.sound2.play('apagar', { detune: -400, volume: 0.6 });
+          this.floatText(e.x, e.y - 12, fontText(STALL_LINE), 0xf4f1e8, `stall:${e.source}`, -14, 0.9);
+          break;
+        case 'carFlip':
+          // Over it goes, wheels in the air.
+          this.sound2.play('saltar', { detune: -500, volume: 0.7 });
+          for (let i = 0; i < 4; i++) this.puff(e.x + this.fx.range(-8, 8), e.y + this.fx.range(-2, 2), 0.4);
+          break;
+        case 'carRight':
+          this.sound2.play('saltar', { detune: 200, volume: 0.5 });
+          this.puff(e.x, e.y, 0.3);
+          break;
         case 'windDown':
           // Run down: the spring winding down, a puff, and its line over it (the moment to hit it).
           this.sound2.play('agotado');
@@ -2473,6 +2491,19 @@ export class GameScene extends Phaser.Scene {
     this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.5, z: 4, vz, life: 0.6, maxLife: 0.6, gravity: true, spin: this.fx.range(-10, 10), fade: true, fadeTime: 0.2 });
   }
 
+  /** Tyre marks: two dark dashes on the floor, fading out (at most SKID_MAX at once). */
+  private skidMark(x: number, y: number, angle: number): void {
+    if (this.skids >= SKID_MAX) return;
+    this.skids++;
+    const nx = -Math.sin(angle) * 3;
+    const ny = Math.cos(angle) * 2;
+    for (const k of [-1, 1]) {
+      const m = this.add.rectangle(Math.round(x + nx * k), Math.round(y + ny * k), 4, 2, 0x100d18, 0.7).setRotation(angle).setDepth(-49500);
+      this.tweens.add({ targets: m, alpha: 0, delay: 1800, duration: 2400, onComplete: () => m.destroy() });
+    }
+    this.time.delayedCall(4200, () => this.skids--);
+  }
+
   /** A drum blows up: gone, a fireball, debris, a scorch mark, a big shake and a bang. */
   private drumBlast(e: Extract<SimEvent, { type: 'blast' }>): void {
     const v = this.drumViews.get(`${e.x},${e.floorY}`);
@@ -3014,6 +3045,10 @@ export class GameScene extends Phaser.Scene {
       if (en.turbo) {
         s.setX(s.x + (Math.floor(this.time.now / 45) % 2 === 0 ? 1 : 0));
         if (this.fx.chance(0.12)) this.spark(en.x + en.facing * 7, en.y - 6, this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), this.fx.int(0, 2));
+      }
+      // A remote-control car drifting leaves tyre marks (they fade in a few seconds).
+      if (en.def.brain.kind === 'rccar' && (en.state === 'walk' || en.state === 'brake' || en.state === 'warn') && Math.hypot(en.vx, en.vy) > 50 && this.fx.chance(0.45)) {
+        this.skidMark(en.x - en.dirX * 8, en.y - 1, Math.atan2(en.vy, en.vx));
       }
       // Dust trail while charging, sparks from the wheels while braking.
       if (en.state === 'charge' && this.fx.chance(en.def.brain.kind === 'windup' ? 0.12 : 0.5)) this.puff(en.x - en.dirX * 10 + this.fx.range(-3, 3), en.y + this.fx.range(-2, 1), 0.35);
@@ -3674,6 +3709,9 @@ export class GameScene extends Phaser.Scene {
 /** Enemy bullet sprites by colour: the boss's ice is a cube. */
 /** Radius the player's bullet sprite is drawn for (the hair dryer's). */
 const PLAYER_BULLET_R = 3;
+/** Tyre marks on the floor at once, at most (each is two dashes). */
+const SKID_MAX = 120;
+
 const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca' };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
