@@ -67,11 +67,11 @@ function reach(w: World): number {
 
 // ---------- The items as content ----------
 
-test('hay 20 objetos pasivos (10 de la planta 1 y 10 de la 2) con nombre corto, descripción en el tono del juego y sprite', () => {
+test('hay 22 objetos pasivos (11 de la planta 1 y 11 de la 2) con nombre corto, descripción en el tono del juego y sprite', () => {
   const keys = new Set(Object.keys(JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as object));
   const defs = Object.values(ITEMS);
-  assert.equal(defs.length, 20);
-  assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 10);
+  assert.equal(defs.length, 22);
+  assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 11);
   assert.deepEqual([...FINDABLE_ITEMS].sort(), Object.keys(ITEMS).sort());
   const names = new Set<string>();
   for (const d of defs) {
@@ -184,6 +184,29 @@ test('Garantía Extendida: un corazón más, y llega lleno', () => {
   const w = bare('garantia', 'garantia');
   assert.equal(w.player.def.maxHp, base.player.def.maxHp + 2);
   assert.equal(w.player.hp, base.player.hp + 2);
+});
+
+test('Batería Hinchada y Contrato de Permanencia: dan algo y quitan un corazón (el contenedor, no solo la vida)', async () => {
+  const { modifierLines } = await import('../src/data/describe.ts');
+  const base = bare('hinchada');
+  const w = bare('hinchada', 'hinchada');
+  assert.equal(w.player.def.maxHp, base.player.def.maxHp - 2);
+  assert.equal(w.player.hp, w.player.def.maxHp, 'con la vida llena, se queda llena con un corazón menos');
+  assert.equal(w.player.weapon.def.damage, base.player.weapon.def.damage + 1);
+  assert.ok(modifierLines(ITEMS.hinchada!.mod).some((l) => l.text === '-1 corazón' && !l.good), 'la descripción lo dice, en rojo');
+  const c = bare('permanencia', 'permanencia');
+  assert.equal(c.player.def.maxHp, base.player.def.maxHp - 2);
+  assert.ok(c.player.def.speed > base.player.def.speed);
+  // Hurt and down to half a heart: losing a container never finishes you off.
+  const h = bare('hinchada-herido');
+  h.player.hp = 1;
+  giveItem(h, 'hinchada');
+  giveItem(h, 'permanencia');
+  assert.equal(h.player.hp, 1);
+  assert.equal(h.player.def.maxHp, base.player.def.maxHp - 4);
+  // And a Garantía Extendida gives the heart back.
+  giveItem(h, 'garantia');
+  assert.equal(h.player.def.maxHp, base.player.def.maxHp - 2);
 });
 
 test('Regleta Sin Tierra: una bala más por disparo y más dispersión', () => {
@@ -313,7 +336,7 @@ test('ningún objeto es obligatorio: ninguno multiplica el daño por segundo de 
 test('los objetos de la planta 2 solo salen desde la planta 2; la planta 1 reparte los de siempre', async () => {
   const { itemsUpTo } = await import('../src/data/items.ts');
   const own = Object.values(ITEMS).filter((d) => d.level === 2).map((d) => d.id);
-  assert.equal(own.length, 10);
+  assert.equal(own.length, 11);
   assert.deepEqual(itemsUpTo(1).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) === 1).map((d) => d.id).sort());
   assert.deepEqual(itemsUpTo(2).sort(), Object.keys(ITEMS).sort());
   for (let i = 0; i < 20; i++) {

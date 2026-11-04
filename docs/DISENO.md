@@ -196,6 +196,7 @@ Objetos pasivos de la planta 1 (`src/data/items.ts`). Casi todos dan algo y quit
 | Broca del Ocho | Para colgar un cuadro. Ya puestos, para todo lo demás. | Las balas atraviesan 2 enemigos; menos empuje |
 | Cinta Americana | Lo arregla todo durante una semana. | Recarga ×0,6 |
 | Resistencia de Recambio | Pieza no original. Calienta más de lo que pone en la caja. | +1 de daño, balas más gordas, cadencia ×0,75, más retroceso |
+| Batería Hinchada | Rinde un 20 % más. Hasta que revienta. Eso no viene en la ficha técnica. | Daño +1, −1 corazón (M9b) |
 
 Objetos pasivos de la planta 2 (Informática, `level: 2`). Solo salen desde la planta 2: cada planta
 reparte los suyos y los de las plantas de abajo (`itemsUpTo` en `src/data/items.ts`).
@@ -204,6 +205,7 @@ reparte los suyos y los de las plantas de abajo (`itemsUpTo` en `src/data/items.
 | --- | --- | --- |
 | Pendrive de 2 GB | Cabe todo lo que no necesitas. Copiarlo tarda una tarde. | Cargador ×1,6, recarga ×1,3 |
 | Antivirus Gratuito | Te protege de todo menos de sí mismo. Gasta la mitad del procesador. | +1 corazón, velocidad ×0,9, voltereta ×1,3 más tarde |
+| Contrato de Permanencia | Dieciocho meses de compromiso. El primero, gratis. Los otros diecisiete se cobran en salud. | Velocidad ×1,15, voltereta ×0,7, −1 corazón (M9b) |
 | Cable HDMI Dorado | Mejora la imagen un 0 %. Lo pone en la caja, en letras doradas. | Balas ×1,2 más rápidas, la mitad de dispersión (solo bueno) |
 | Ventilador de Portátil | Suena como un avión y enfría como una vela. | Cadencia ×1,25, +5° de dispersión, alcance ×0,85 |
 | Actualización Obligatoria | Reinicie para aplicar los cambios. Sí, ahora. | +1 de daño, recarga ×1,6, cargador ×0,8 |

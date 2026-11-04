@@ -87,6 +87,14 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     mod: { id: 'resistencia', stats: [{ stat: 'damage', add: 1 }, { stat: 'bulletRadius', add: 1 }, { stat: 'fireRate', mul: 0.75 }, { stat: 'recoil', mul: 1.4 }] },
   },
   // ---- Floor 2 (Informática): only found from floor 2 on ----
+  hinchada: {
+    id: 'hinchada',
+    name: 'Batería Hinchada',
+    description: 'Rinde un 20 % más. Hasta que revienta. Eso no viene en la ficha técnica.',
+    sprite: 'objeto-hinchada',
+    // More punch, one heart less (M9b: items that take hearts away, not only give them).
+    mod: { id: 'hinchada', stats: [{ stat: 'damage', add: 1 }, { stat: 'maxHp', add: -2 }] },
+  },
   usb: {
     id: 'usb',
     name: 'Pendrive de 2 GB',
@@ -104,6 +112,15 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     level: 2,
     // One more heart, but everything else runs slower: walking and rolling again.
     mod: { id: 'antivirus', stats: [{ stat: 'maxHp', add: 2 }, { stat: 'speed', mul: 0.9 }, { stat: 'rollCooldown', mul: 1.3 }] },
+  },
+  permanencia: {
+    id: 'permanencia',
+    name: 'Contrato de Permanencia',
+    description: 'Dieciocho meses de compromiso. El primero, gratis. Los otros diecisiete se cobran en salud.',
+    sprite: 'objeto-permanencia',
+    level: 2,
+    // Much quicker on your feet and rolls, one heart less.
+    mod: { id: 'permanencia', stats: [{ stat: 'speed', mul: 1.15 }, { stat: 'rollCooldown', mul: 0.7 }, { stat: 'maxHp', add: -2 }] },
   },
   hdmi: {
     id: 'hdmi',

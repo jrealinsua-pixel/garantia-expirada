@@ -527,6 +527,18 @@
     "frameH": 16,
     "frames": 1
   },
+  "objeto-hinchada": {
+    "file": "objeto-hinchada.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-permanencia": {
+    "file": "objeto-permanencia.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
   "objeto-hdmi": {
     "file": "objeto-hdmi.png",
     "frameW": 16,
