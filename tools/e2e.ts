@@ -205,6 +205,9 @@ try {
   }
   await page.waitForTimeout(160);
   await shot('09-desmontaje.png');
+  // No damage numbers and no stamp over the dead (nota del humano del 2026-10-30).
+  const floating = await page.evaluate<string[]>('window.__GE__.scene.floats.map((f) => f.t.text)');
+  if (floating.length > 0) throw new Error(`Hay textos flotando al disparar y matar: ${JSON.stringify(floating)}`);
   await page.waitForTimeout(700);
   await shot('10-cupones.png');
   const sk = await state();

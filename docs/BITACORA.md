@@ -2,6 +2,13 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-04 17:42 (hora peninsular) — Hito M9b — Sin números de daño ni sellos al matar
+- Hecho: M9b (2). Los disparos ya no ponen números sobre los enemigos (`damageText` fuera) y al desmontar a uno ya no sale su sello («Fuera de garantía», «Descatalogado»…; `DEATH_STAMPS` borrado de `src/data/texts.ts`). Quedan el destello, las chispas, el parón, el temblor, el sonido y las piezas volando. El e2e comprueba que tras disparar y desmontar al microondas no flota ningún texto.
+- Decisiones: el aviso de golpe crítico del Ratón Gaming se queda: no es un número ni sale al matar, y es lo único que dice que el objeto funciona. Si el humano lo quiere fuera también, es una línea.
+- Medidas: el bot no cambia (solo es dibujo).
+- Problemas conocidos: ninguno.
+- Siguiente paso: M9b (3), balas enemigas más grandes.
+
 ## 2026-11-04 17:36 (hora peninsular) — Hito M9b — Las notas del 30 de octubre, en tareas; la tecla pulsada sigue valiendo al cruzar una puerta
 - Contexto: el humano dejó tres notas el 2026-10-30 sin atender. Las dos primeras (dificultad, escasez, cofres por calidades, botón de interactuar, corazones especiales, jefes erráticos, muebles volcables…) están partidas en catorce tareas en un hito nuevo, **M9b**, que va antes que M10. La tercera, y lo que la primera marca «para más adelante» (jefes al azar por planta, glosario, logros, PNJs en las plantas, Mostrador más grande, enemigos más distinguibles), va a M14 y a «Pautas del humano (2026-10-30)» en `docs/DISENO.md`.
 - Hecho: M9b (1). Al entrar en una sala con una tecla de movimiento pulsada, la tostadora se quedaba quieta hasta soltarla y volver a pulsarla. Causa: cruzar una puerta reinicia la escena, y con ella `Controls`, que empezaba con la lista de teclas pulsadas vacía; una tecla que sigue pulsada no manda otro «keydown». Ahora las teclas pulsadas son de la página (`HELD` en `src/render/input.ts`, con sus propios oyentes en `window`, que además oyen los «keyup» que llegan mientras la escena se reinicia). El e2e de la planta sigue con la tecla pulsada al otro lado de la puerta y comprueba que la tostadora anda (fallaba antes del arreglo: 0 px; ahora pasa).

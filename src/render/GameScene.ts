@@ -12,7 +12,6 @@ import { REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import {
-  DEATH_STAMPS,
   DOORS_OPEN_LINES,
   DOWN_HINT,
   DOWN_STAMP,
@@ -160,9 +159,8 @@ interface FloatText {
   t: Phaser.GameObjects.BitmapText;
   vy: number;
   life: number;
-  /** Damage numbers on the same target add up in one number instead of piling up. */
+  /** Lines with the same key (one per source) do not pile up. */
   key?: string;
-  sum?: number;
   age?: number;
 }
 
@@ -784,10 +782,7 @@ export class GameScene extends Phaser.Scene {
     }
     for (let i = 0; i < (big ? 6 : 3); i++) this.puff(cx + this.fx.range(-8, 8), cy - this.fx.range(4, 20), this.fx.range(0.4, 0.7));
     for (let i = 0; i < (big ? 14 : 6); i++) this.spark(cx, cy - 12, this.fx.range(0, Math.PI * 2), this.fx.range(60, 160), this.fx.int(0, 3));
-    if (big) {
-      const stamp = DEATH_STAMPS[this.fx.int(0, DEATH_STAMPS.length - 1)]!;
-      this.floatText(cx, cy - 30, fontText(stamp), 0xe0453b, undefined, -18, 1.1);
-    }
+    // (No text over it: the human asked for none, 2026-10-30. The pieces say it.)
   }
 
   /**
@@ -1706,7 +1701,7 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('golpe', { detune: this.fx.range(-200, 200) });
           this.sound2.play('golpeRuido', { volume: 0.7 });
           for (let i = 0; i < 6; i++) this.spark(e.x, e.y, e.angle + Math.PI + this.fx.range(-1.1, 1.1), this.fx.range(50, 130), this.fx.int(0, 2));
-          this.damageText(e.target, e.x, e.y - 6, e.damage);
+          // (No damage numbers: nota del humano del 2026-10-30. The flash, the sparks and the wobble say it.)
           if (e.crit) {
             // A critical hit: a longer stop, a wider spray and its line over the target.
             this.hitstop = 0.075;
@@ -2468,25 +2463,6 @@ export class GameScene extends Phaser.Scene {
     const f: FloatText = { t, vy, life, key, age: 0 };
     this.floats.push(f);
     return f;
-  }
-
-  /**
-   * A damage number over what was hit. Hits on the same target in quick succession add up in the
-   * same number (it jumps and turns brighter) instead of stacking a column of «1»s.
-   */
-  private damageText(target: number, x: number, y: number, damage: number): void {
-    const key = `hit:${target}`;
-    const f = this.floats.find((o) => o.key === key && (o.age ?? 0) < 0.35);
-    if (f) {
-      f.sum = (f.sum ?? 0) + damage;
-      f.t.setText(String(Math.round(f.sum * 10) / 10)).setTint(0xfff1a8);
-      f.life = 0.6;
-      f.vy = -34;
-      f.t.y -= 2;
-      return;
-    }
-    const n = this.floatText(x + this.fx.range(-3, 3), y, String(damage), 0xf6c431, key);
-    n.sum = damage;
   }
 
   private syncView(dt: number): void {

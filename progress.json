@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T17:36:11+01:00",
+  "actualizado": "2026-11-04T17:42:57+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 14
     },
     {
@@ -134,9 +134,15 @@
     "tests_ok": 435,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15806
+    "lineas_codigo": 15770
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T17:42:57+01:00",
+      "hito": "M9b",
+      "resumen": "Fuera los números de daño y los sellos al matar a un enemigo: el golpe se nota por el destello, las chispas y las piezas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T17:36:11+01:00",
       "hito": "M9b",
@@ -686,6 +692,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sin-numeros.png",
+      "pie": "Un microondas desmontado: piezas, tornillos y chispas, y ya ningún número ni sello encima"
+    },
+    {
       "archivo": "capturas/telefono-otra-vez.png",
       "pie": "Volver al teléfono en la misma visita: una frase corta en vez de la grabación entera («Pulse 1. Este teléfono no tiene teclas»)"
     },
@@ -704,13 +714,9 @@
     {
       "archivo": "capturas/chatarrero.png",
       "pie": "El Chatarrero aparece en el Mostrador tras vencer al primer jefe y da pistas de lo que falta"
-    },
-    {
-      "archivo": "capturas/mostrador-juego.png",
-      "pie": "«Partida nueva» lleva ahora al Mostrador de Devoluciones: la cinta de arriba a la derecha empieza la partida y tras el parte de baja se vuelve aquí"
     }
   ],
-  "proximo": "M9b (2): fuera los números de daño y el texto al matar a un enemigo.",
+  "proximo": "M9b (3): balas enemigas más grandes y difíciles de esquivar, medido con el bot.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -739,8 +745,8 @@
   "en_curso": [
     {
       "sesion": "2026-11-04 16:30 UTC",
-      "tarea": "M9b (2): fuera los números de daño y el texto al matar",
-      "desde": "2026-11-04T16:40:00Z"
+      "tarea": "M9b (3): balas enemigas más grandes",
+      "desde": "2026-11-04T16:50:00Z"
     }
   ]
 }

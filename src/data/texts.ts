@@ -1,19 +1,5 @@
 // Short texts the game shows. All visible text follows the humour guide in docs/DISENO.md.
 
-/** Stamped over an enemy as it comes apart, like the label on a returned product. */
-export const DEATH_STAMPS: readonly string[] = [
-  'Fuera de garantía',
-  'Dado de baja',
-  'Sin reparación',
-  'No reembolsable',
-  'Obsoleto',
-  'Piezas sueltas',
-  'Mal uso acreditado',
-  'Descatalogado',
-  'Sin piezas de recambio',
-  'Reacondicionable',
-];
-
 /** Over a boss's name in its entrance card. */
 export const BOSS_CARD_SUBTITLE = 'Jefa de planta · Almacén de devoluciones';
 /** Bottom corner of the entrance card, once it can be skipped. */
