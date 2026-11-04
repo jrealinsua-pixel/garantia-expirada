@@ -327,7 +327,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
 - [ ] Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda)
   y 10 objetos. Diseño en `docs/DISENO.md` (enemigos, jefe, objetos y aspecto). En partes:
   - [x] (0) El diseño de la planta 3 y esta lista de tareas.
-  - [ ] (1) Juego de casillas y color propio (`src/art/jugueteria.ts`, se ve con `?planta=3`):
+  - [x] (1) Juego de casillas y color propio (`src/art/jugueteria.ts`, se ve con `?planta=3`):
     suelo de goma EVA, pared de nubes, estanterías de cajas, obstáculos de los huecos `o` y
     persianas propias.
   - [ ] (2a) Seis plantillas de combate propias de la planta 3, cada una con su idea y sus grupos.

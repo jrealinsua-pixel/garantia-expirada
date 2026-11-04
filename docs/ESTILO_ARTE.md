@@ -121,3 +121,36 @@ Color dominante: **verde pantalla** (suelo `#304541` / `#2c403d`, juntas `#1c2a2
   `caja-2`, `barril-2`, `carrito-2`). Las persianas, gris verdoso con la tira de goma del rodapié
   en vez de la cinta amarilla y negra (`persiana-*-2`). Regla: una versión de planta de un sprite
   se llama `<id>-<planta>` y mide lo mismo que el original.
+
+### Planta 3: Juguetería (`src/art/jugueteria.ts`)
+
+Color dominante: **cálido** (rojos y mostazas desvaídos de las losetas de goma, con azul, verde y
+rosa en menor medida; paredes ciruela `#291d2b`), igual de oscuro que las otras dos plantas
+(`tests/roomart.test.ts` lo vigila, y también que sea cálido y distinto de las otras).
+
+- **Suelo de goma EVA de puzle**: losetas de 24 × 24 de cinco colores desvaídos (`EVA`), nunca
+  del mismo color que la de la izquierda ni la de arriba, con textura de espuma, la junta oscura
+  arriba y a la izquierda y la pestaña del puzle en cada lado compartido (sale hacia un lado o al
+  otro alternando, con su ranura). Los colores están apagados a propósito: más vivos, el suelo
+  competía con las balas. Variantes: loseta que falta (hormigón gris con restos de pegamento; ahí
+  no hay pestañas), loseta de abecedario (la letra o el número recortado), mordisco en una esquina,
+  descolorida por el sol y pegatina de estrella medio despegada.
+- **Suelo**: garabatos de cera, purpurina, la **carretera de alfombra** de juguete de lado a lado
+  (en lugar de las rodadas), piezas de construcción y canicas (en lugar de tornillos), zona de
+  «ZONA DE JUEGO / NO TOCAR / AGOTADO» y letras en rosa gastado («PILAS NO INCLUIDAS», «EDAD: 3+»,
+  «NO APTO PARA ADULTOS»…). Las líneas de seguridad, en ciruela.
+- **Paredes**: estanterías de juguetes en caja (cada caja con su ventana de plástico, el juguete
+  dentro y, a veces, el precio tachado) en lugar de estanterías de chapa; tallímetro de colores en
+  las laterales y dibujos de niño con chincheta; rodapié de las piezas de borde de las losetas, de
+  colores. Arriba, una guirnalda de banderines (le faltan algunos) y lámparas de luz cálida algo
+  rosada. La pared del fondo es papel pintado de nubes que se despega en tiras (se ve el yeso y el
+  rizo de papel). El turno es un cartel de precios con todos los precios tachados.
+- Salas: entrada con felpudo «A JUGAR» y cartel «PLANTA 3 · JUGUETERÍA»; tienda «TODO A UN TICKET»
+  con alfombra morada; tesoro «CARTAS A LOS REYES»; secreta «RETIRADOS POR SEGURIDAD»; jefe
+  «ESCAPARATE DE NOVEDADES» con confeti de un lanzamiento al que no vino nadie.
+- Obstáculos (`caja-3`, `barril-3`, `carrito-3`, `mesa-3`): una **casita de muñecas** rosa
+  cerrada por reformas (cinta amarilla y negra en la puerta), una **bombona de helio** roja con dos
+  globos atados (roja como el bidón: explota igual), un **caballito de balancín** desteñido (bajo:
+  las balas pasan por encima) y una **mesa de manualidades** de plástico amarillo con patas rojas.
+  Las persianas, ciruela, con el rodapié de colores y una tira de luces de feria fundidas (solo
+  queda una encendida, en rosa) (`persiana-*-3`).

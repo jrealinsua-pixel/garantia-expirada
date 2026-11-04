@@ -145,3 +145,100 @@ test('arte de sala, planta 2: la decoración no tapa los huecos de las puertas',
     }
   }
 });
+
+// Floor 3 (Juguetería): foam mats, its own colour and decoration (src/art/jugueteria.ts).
+function paint3(room: Room, seed: string) {
+  const tiles = room.tiles.slice();
+  for (const d of room.doors) for (const c of doorCells(room.cols, room.rows, d.dir)) tiles[c.r * room.cols + c.c] = 1;
+  return paintRoom({ ...room, tiles, level: 3 }, seed);
+}
+
+test('arte de sala, planta 3: color dominante cálido, distinto de las otras dos, y igual de oscuro', () => {
+  const lum = (c: number[]): number => 0.3 * c[0]! + 0.59 * c[1]! + 0.11 * c[2]!;
+  for (const t of floorTemplates) {
+    const room = buildRoom(t);
+    const one = floorMean(paint(room, 'c'), room);
+    const two = floorMean(paint2(room, 'c'), room);
+    const three = floorMean(paint3(room, 'c'), room);
+    // Warm: more red than blue and than green (floor 1 is blue, floor 2 green).
+    assert.ok(three[0] > three[2] + 8 && three[0] > three[1] + 4, `${t.id}: la planta 3 debería ser cálida (${three.map(Math.round)})`);
+    for (const other of [one, two]) {
+      const d = Math.hypot(three[0] - other[0], three[1] - other[1], three[2] - other[2]);
+      assert.ok(d > 12, `${t.id}: la planta 3 se parece demasiado a otra (${three.map(Math.round)} frente a ${other.map(Math.round)})`);
+    }
+    assert.ok(Math.abs(lum(one) - lum(three)) < 14, `${t.id}: brillo ${lum(one).toFixed(1)} frente a ${lum(three).toFixed(1)}`);
+  }
+});
+
+test('arte de sala, planta 3: las losetas de goma no repiten color con la de la izquierda ni con la de arriba', () => {
+  const room = buildRoom(ROOMS['carga-descarga']!);
+  const art = paint3(room, 'losetas');
+  // Sample the middle of each mat away from tabs, letters and decoration: the most common colour
+  // of a 6×6 patch near its top-left corner.
+  const colour = (c: number, r: number): string => {
+    const n = new Map<string, number>();
+    for (let y = r * 24 + 2; y < r * 24 + 8; y++) for (let x = c * 24 + 2; x < c * 24 + 8; x++) {
+      const p = art.canvas.get(x, y).slice(0, 3).map((v) => v >> 4).join();
+      n.set(p, (n.get(p) ?? 0) + 1);
+    }
+    return [...n.entries()].sort((a, b) => b[1] - a[1])[0]![0];
+  };
+  let same = 0;
+  let pairs = 0;
+  for (let r = 3; r < room.rows - 1; r++) {
+    for (let c = 2; c < room.cols - 1; c++) {
+      if (room.tiles[r * room.cols + c] || room.tiles[r * room.cols + c - 1]) continue;
+      pairs++;
+      if (colour(c, r) === colour(c - 1, r)) same++;
+    }
+  }
+  // Decoration, light pools and missing mats blur a few; the mats themselves never repeat.
+  assert.ok(same / pairs < 0.15, `${same} de ${pairs} parejas iguales`);
+});
+
+test('arte de sala, planta 3: cada tipo de sala tiene su cartel, su decoración y sus casillas propias', () => {
+  const own: Record<string, string[]> = {
+    start: ['cartel:PLANTA 3 · JUGUETERÍA', 'felpudo'],
+    shop: ['cartel:TODO A UN TICKET', 'alfombra', 'etiquetas'],
+    treasure: ['cartel:CARTAS A LOS REYES'],
+    secret: ['cartel:RETIRADOS POR SEGURIDAD', 'telarañas', 'polvo'],
+    boss: ['cartel:ESCAPARATE DE NOVEDADES', 'confeti'],
+  };
+  for (const t of floorTemplates) {
+    for (const seed of ['a', 'b', 'c']) {
+      const f = paint3(buildRoom(t), seed).features;
+      for (const want of own[t.kind!] ?? []) assert.ok(f.includes(want), `${t.id} (${seed}): falta ${want} en ${f.join(', ')}`);
+      if (t.kind === 'combat') assert.ok(f.some((x) => x.startsWith('cartel:')), `${t.id}: sin cartel`);
+      assert.ok(f.some((x) => x.startsWith('letrero:')), `${t.id} (${seed}): sin letras pintadas en el suelo`);
+      assert.ok(f.includes('basura') && f.includes('pared'), `${t.id}: sin basura o sin nada en las paredes`);
+      // Nothing of the floors below.
+      const below = ['rodadas', 'muelle', 'turno', 'escarcha', 'chapa', 'cubrecables', 'expositor', 'progreso', 'interferencias'];
+      below.push('casilla:cracked', 'casilla:grate', 'casilla:lifted', 'casilla:grommet');
+      for (const no of below) assert.ok(!f.includes(no), `${t.id} (${seed}): ${no} en la planta 3`);
+    }
+  }
+  const kinds = new Set<string>();
+  const extras = new Set<string>();
+  for (const t of floorTemplates.filter((x) => x.kind === 'combat')) {
+    for (const seed of ['1', '2', '3', '4']) {
+      for (const x of paint3(buildRoom(t), seed).features) (x.startsWith('casilla:') ? kinds : extras).add(x);
+    }
+  }
+  for (const v of ['casilla:missing', 'casilla:letter', 'casilla:chewed', 'casilla:faded', 'casilla:sticker']) assert.ok(kinds.has(v), `nunca sale ${v}`);
+  for (const v of ['carretera', 'zona-juego', 'precios']) assert.ok(extras.has(v), `nunca sale ${v}`);
+});
+
+test('arte de sala, planta 3: la decoración no tapa los huecos de las puertas y las plantas 1 y 2 no cambian', () => {
+  const hole = hx('#0b0a12').join();
+  for (const t of floorTemplates) {
+    const art = paint3(buildRoom(t), 'puertas');
+    for (const d of art.doors) {
+      for (let y = d.y; y < d.y + d.h; y++) {
+        for (let x = d.x; x < d.x + d.w; x++) assert.equal(art.canvas.get(x, y).join(), hole, `${t.id}: puerta ${d.dir} pintada en (${x}, ${y})`);
+      }
+    }
+  }
+  const room = buildRoom(ROOMS['carga-descarga']!);
+  assert.notDeepEqual(paint3(room, 'x').canvas.p, paint2(room, 'x').canvas.p);
+  assert.deepEqual(paint3(room, 'x').canvas.p, paint3(room, 'x').canvas.p);
+});

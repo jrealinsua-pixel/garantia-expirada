@@ -113,6 +113,104 @@ export function makeOfficeChair(): Canvas {
   return outline(cv);
 }
 
+// Floor 3 (Juguetería) versions of the three obstacles: same footprint and collision box again.
+
+const PLAST_PINK = ramp('#eec2c8', '#d899a6', '#ad6f80', '#7c4a5c');
+const ROOF = ramp('#b8b0d8', '#8a7fb8', '#625892', '#423a6a');
+
+/** «Caja» on floor 3: a dolls' house, closed for refurbishment (tape across the door). */
+export function makeDollhouse(): Canvas {
+  const cv = new Canvas(24, 24);
+  // Walls: pink plastic, the right side in shadow.
+  box(cv, 2, 10, 20, 13, PLAST_PINK);
+  cv.rect(17, 10, 5, 13, PLAST_PINK[2]!);
+  cv.rect(17, 10, 1, 13, PLAST_PINK[3]!);
+  // Roof: a triangle of lilac tiles, a chimney.
+  for (let j = 0; j < 8; j++) cv.rect(12 - j - 2, 2 + j, 2 * j + 4, 1, j === 0 ? ROOF[0]! : j % 2 === 0 ? ROOF[2]! : ROOF[1]!);
+  cv.rect(1, 9, 22, 1, ROOF[3]!);
+  cv.rect(16, 2, 3, 4, ROOF[2]!);
+  cv.rect(16, 2, 3, 1, ROOF[1]!);
+  // Windows: pale glass with a white cross frame (not dark holes: dark ones read as eyes), and the door.
+  for (const wx of [3, 12]) {
+    cv.rect(wx, 12, 5, 5, WHITE);
+    cv.rect(wx + 1, 13, 3, 3, BLUE[0]!);
+    cv.rect(wx + 2, 13, 1, 3, WHITE);
+    cv.rect(wx + 1, 14, 3, 1, WHITE);
+  }
+  cv.rect(8, 17, 4, 6, hx('#6a4a3a'));
+  cv.set(11, 20, YEL[1]!);
+  // «Cerrado por reformas»: yellow and black tape across the door.
+  for (let i = 0; i < 14; i++) {
+    const x = 3 + i;
+    const y = 20 - Math.floor(i / 3);
+    cv.set(x, y, Math.floor(i / 2) % 2 === 0 ? YEL[1]! : K);
+    cv.set(x, y + 1, Math.floor((i + 1) / 2) % 2 === 0 ? YEL[2]! : K);
+  }
+  return outline(cv);
+}
+
+/** «Barril» on floor 3: a party helium tank, with the balloons still tied on (it goes up the same). */
+export function makeHeliumTank(): Canvas {
+  const cv = new Canvas(16, 24);
+  // Two half-deflated balloons on their strings, behind the valve.
+  ellipse(cv, 4, 3, 2.5, 2.8, BLUE[1]!);
+  cv.set(3, 2, BLUE[0]!);
+  ellipse(cv, 12, 4, 2.5, 2.8, YEL[1]!);
+  cv.set(11, 3, YEL[0]!);
+  for (let j = 6; j < 10; j++) {
+    cv.set(4 + Math.floor((j - 6) / 2), j, STEEL[3]!);
+    cv.set(12 - Math.floor((j - 6) / 2), j + 1, STEEL[3]!);
+  }
+  // Valve.
+  cv.rect(6, 7, 4, 3, STEEL[2]!);
+  cv.rect(6, 7, 4, 1, STEEL[1]!);
+  cv.rect(9, 8, 3, 1, STEEL[3]!);
+  // The tank: red like the drum downstairs (it means the same thing), a rounded shoulder.
+  box(cv, 3, 11, 10, 11, RED);
+  cv.rect(4, 10, 8, 1, RED[1]!);
+  cv.rect(4, 12, 1, 8, RED[0]!);
+  // Warning label on yellow, like the drum's (two black lines of small print), and a white band.
+  cv.rect(5, 14, 6, 4, YEL[1]!);
+  cv.rect(5, 14, 6, 1, YEL[0]!);
+  cv.rect(6, 15, 4, 1, K);
+  cv.rect(6, 17, 3, 1, K);
+  cv.rect(3, 19, 10, 1, WHITE);
+  cv.rect(3, 21, 10, 1, RED[3]!);
+  return outline(cv);
+}
+
+/** «Carrito» on floor 3: a rocking horse, faded, its mane half gone (low: bullets go over it). */
+export function makeRockingHorse(): Canvas {
+  const cv = new Canvas(28, 24);
+  const BODY = ramp('#f0e2c2', '#d8c49a', '#ab966c', '#7a6848');
+  // Rockers: a curved runner.
+  for (let x = 2; x < 26; x++) {
+    const y = 20 + Math.round(((x - 14) / 12) ** 2 * -2.5) + 2;
+    cv.set(x, y, hx('#b8683a'));
+    cv.set(x, y + 1, hx('#8a4528'));
+  }
+  // Legs down to the rockers.
+  for (const x of [7, 9, 18, 20]) cv.rect(x, 14, 1, 6, x === 9 || x === 20 ? BODY[3]! : BODY[2]!);
+  // Body and the saddle.
+  box(cv, 6, 9, 16, 6, BODY);
+  cv.rect(11, 9, 6, 3, RED[1]!);
+  cv.rect(11, 9, 6, 1, RED[0]!);
+  // Neck and head, facing right (like everything else), with an ear and an eye.
+  cv.rect(19, 4, 4, 7, BODY[1]!);
+  cv.rect(21, 3, 5, 4, BODY[1]!);
+  cv.rect(25, 5, 1, 2, BODY[2]!);
+  cv.set(20, 2, BODY[2]!);
+  cv.set(23, 4, K);
+  // The mane: a few tufts of red wool left.
+  for (const [x, y] of [[18, 4], [18, 6], [19, 3], [18, 8]] as const) cv.set(x, y, hx('#a42f37'));
+  // The tail: what is left of it.
+  cv.rect(4, 9, 2, 1, hx('#a42f37'));
+  cv.set(3, 10, hx('#a42f37'));
+  // A handle sticking out of the head.
+  cv.rect(20, 5, 1, 1, STEEL[2]!);
+  return outline(cv);
+}
+
 /** Player shot: 8x8 orange ball with a yellow core (build2.shot8). */
 export function makeShot(): Canvas {
   const cv = new Canvas(8, 8);
@@ -325,7 +423,10 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
   const out = new Canvas(w * 2, h);
   // Upstairs (Informática) the shutter is green-grey and its kick strip a grey rubber with
   // ribs, like the skirting duct; downstairs, blue steel with hazard stripes.
-  const [slat, groove, a, b] = level === 2 ? ['#3a4a47', '#28332f', '#7e8a87', '#2a3231'] : ['#3a4058', '#2b3048', '#b08a1c', '#191622'];
+  // On floor 3, plum slats, a kick strip in the foam mats' colours and a string of fair lights
+  // across it, every bulb fused but one.
+  const [slat, groove, a, b] =
+    level === 3 ? ['#4a3a50', '#36293c', '#8a5a5c', '#5a5a3c'] : level === 2 ? ['#3a4a47', '#28332f', '#7e8a87', '#2a3231'] : ['#3a4058', '#2b3048', '#b08a1c', '#191622'];
   (['red', 'green'] as const).forEach((light, i) => {
     const f = makeShutter(w, h, light, slat, groove);
     for (let x = 1; x < w - 1; x++) {
@@ -333,9 +434,26 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
       f.set(x, h - 3, Math.floor((x + 1) / 3) % 2 === 0 ? hx(a) : hx(b));
     }
     f.rect(0, h - 2, w, 2, K);
+    if (level === 3) fairLights(f, w, h);
     out.blit(f, i * w, 0);
   });
   return out;
+}
+
+/** A sagging string of fair lights across a shutter; all fused but one, which glows a faded pink. */
+function fairLights(f: Canvas, w: number, h: number): void {
+  const y0 = Math.min(12, h - 9);
+  const yAt = (x: number): number => y0 + Math.round(Math.sin((x / (w - 1)) * Math.PI) * 3);
+  for (let x = 1; x < w - 1; x++) f.set(x, yAt(x), hx('#1c1620'));
+  let n = 0;
+  for (let x = 4; x < w - 3; x += 7) {
+    const lit = n++ === 2;
+    const y = yAt(x) + 1;
+    // Dead bulbs keep the colour of their glass, dark.
+    const glass = ['#6a3438', '#3a5a3a', '#34446a', '#6a5a2c'][n % 4]!;
+    f.rect(x, y, 2, 3, lit ? hx('#f2a0bc') : hx(glass));
+    f.set(x, y, lit ? hx('#ffe0ea') : hx('#8a8090'));
+  }
 }
 
 /** Screen vignette for 480x270: transparent centre, darker corners. */
@@ -1104,7 +1222,7 @@ interface TableLook {
   tag: (cv: Canvas, x: number, y: number) => void;
 }
 
-const TABLE_LOOKS: Record<1 | 2, TableLook> = {
+const TABLE_LOOKS: Record<1 | 2 | 3, TableLook> = {
   1: {
     top: ramp('#c99e6a', '#a77c4c', '#7d5a36', '#553c24'),
     under: ramp('#8f6c40', '#6e5232', '#523c24', '#3a2a1a'),
@@ -1139,6 +1257,26 @@ const TABLE_LOOKS: Record<1 | 2, TableLook> = {
     },
     tag: (cv, x, y) => {
       cv.rect(x, y, 5, 3, BLUE[1]!);
+      cv.rect(x + 1, y + 1, 3, 1, WHITE);
+    },
+  },
+  // Floor 3: a children's craft table of yellow plastic on red legs, crayons and a colouring book.
+  3: {
+    top: ramp('#f6dc7a', '#e0b23c', '#b08a2a', '#7a5e1c'),
+    under: ramp('#b08a2a', '#8f6f22', '#6e541a', '#4e3a12'),
+    leg: RED,
+    dress: (cv, edgeY) => {
+      cv.rect(5, edgeY - 6, 6, 4, WHITE);
+      cv.rect(5, edgeY - 6, 6, 1, hx('#e9e3d2'));
+      cv.rect(6, edgeY - 4, 3, 1, BLUE[1]!);
+      cv.rect(14, edgeY - 4, 4, 1, BLUE[1]!);
+      cv.rect(14, edgeY - 3, 4, 1, hx('#4b9a4e'));
+      cv.set(17, edgeY - 5, RED[1]!);
+      cv.rect(19, edgeY, 4, 3, PLAST_PINK[1]!);
+      cv.rect(20, edgeY + 1, 2, 1, WHITE);
+    },
+    tag: (cv, x, y) => {
+      cv.rect(x, y, 5, 3, PLAST_PINK[1]!);
       cv.rect(x + 1, y + 1, 3, 1, WHITE);
     },
   },
@@ -1232,7 +1370,7 @@ function mirror(cv: Canvas): Canvas {
   return out;
 }
 
-export function makeTableFrames(level: 1 | 2): Canvas[] {
+export function makeTableFrames(level: 1 | 2 | 3): Canvas[] {
   const L = TABLE_LOOKS[level];
   const east = tableEast(L);
   return [tableStanding(L), tableNorth(L), tableSouth(L), east, mirror(east)];
