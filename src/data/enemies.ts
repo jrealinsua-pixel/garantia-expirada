@@ -218,6 +218,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     brain: {
       kind: 'mimic',
       wake: 64,
+      patience: [7, 11],
+      alone: 1.2,
       reveal: 0.5,
       walkSpeed: 72,
       range: 50,

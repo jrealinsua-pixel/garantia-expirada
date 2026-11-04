@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T17:55:34+01:00",
+  "actualizado": "2026-11-04T18:29:24+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 14
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 436,
-    "tests_ok": 436,
+    "tests": 438,
+    "tests_ok": 438,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15771
+    "lineas_codigo": 15783
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T18:29:24+01:00",
+      "hito": "M9b",
+      "resumen": "Los cargadores falsos ya no esperan para siempre: saltan a los 7–11 s aunque no te acerques, y enseguida si en la sala solo quedan cebos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T17:55:34+01:00",
       "hito": "M9b",
@@ -753,11 +759,6 @@
       "sesion": "2026-11-04 16:30 UTC",
       "tarea": "M9b (4): botón de interactuar",
       "desde": "2026-11-04T17:05:00Z"
-    },
-    {
-      "sesion": "2026-11-04 17:25 UTC",
-      "tarea": "M9b (10): los cargadores falsos se activan solos (tiempo o solos en la sala)",
-      "desde": "2026-11-04T17:26:00Z"
     }
   ]
 }

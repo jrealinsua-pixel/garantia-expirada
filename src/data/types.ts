@@ -463,12 +463,17 @@ export interface BossBrain {
 
 /**
  * Lies on the floor passing for something else until the player comes within `wake` px (or hits
- * it): then it jumps up (`reveal` s), runs at the player and, within `range` px, gives a shock:
+ * it), until it has waited `patience` s (a random time in that range), or until only bait is left:
+ * no other kind of enemy is standing, and `alone` s have gone by since then. Then it jumps up (`reveal` s), runs at the player and, within `range` px, gives a shock:
  * `pattern` fired round itself with `telegraph` s of warning. Waits `cooldown` s between shocks.
  */
 export interface MimicBrain {
   kind: 'mimic';
   wake: number;
+  /** Most it waits before it gives up pretending (s, random in the range). */
+  patience: [number, number];
+  /** Once only bait (its own kind) is left in the room, it waits this long (s) and then jumps up. */
+  alone: number;
   reveal: number;
   walkSpeed: number;
   range: number;

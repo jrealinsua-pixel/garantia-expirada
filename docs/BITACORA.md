@@ -2,6 +2,13 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-04 18:29 (hora peninsular) — Hito M9b — Los cargadores falsos ya no esperan para siempre
+- Hecho: M9b (10). El Cargador Falso (el único enemigo que esperaba quieto a que te acercaras; las torretas con arranque ya tenían un tiempo fijo) salta ahora también: (a) al cansarse de esperar, a los 7–11 s, cada uno con su paciencia para que una pareja no salte a la vez (`patience` en sus datos); (b) a los 1,2 s de quedar solo cebo en la sala, es decir, cuando ya no queda en pie ningún enemigo de otra clase (`alone`). Sigue saltando al acercarte o al darle. Tres tests nuevos en `tests/cargador.test.ts` (paciencia, paciencias distintas, solo cebos).
+- Decisiones: «quedarse solos» lo cuento como «solo quedan cargadores», no «nadie más despierto»: si no, al saltar uno de una pareja el otro volvía a esperar. Una sala que solo tiene cargadores los delata a los 1,2 s: el cebo no tiene sentido sin nadie más. Lo hago mientras otra sesión tiene M9b (4) (botón de interactuar) en `en_curso`, con menos de 90 min: esta tarea no toca sus archivos.
+- Medidas (bot, antes → después): planta 2, salas de combate limpias 7 → 7,6; cae ante el Router el 0 % → 12,5 % de las que caen (llegan más lejos); lo demás igual (planta 1 ganada 40 %, Nevera 43,3 %, Router 26,7 %).
+- Problemas conocidos: ninguno.
+- Siguiente paso: M9b (4) si la otra sesión lo suelta; si no, M9b (8), jefes que se mueven.
+
 ## 2026-11-04 17:55 (hora peninsular) — Hito M9b — Balas enemigas más grandes
 - Hecho: M9b (3). Las balas enemigas redondas (rojas y cian) pasan de 5×5 a 9×9: un borde oscuro que las despega del suelo, el anillo de color, una banda clara y el núcleo blanco. Su caja de golpe pasa de radio 2,5 a 3,5 (`ENEMY_BULLET_RADIUS`, cubre la parte de color; el borde oscuro es solo para leerlas). Vale para todas las balas enemigas, también los cubitos, las tarjetas y las facturas. Test nuevo en `tests/patterns.test.ts`.
 - Decisiones: la caja de golpe es algo menor que el dibujo, como es costumbre en el género: que una bala que «roza» el borde oscuro no duela. No he tocado velocidades: la dificultad de los jefes tiene su tarea (8).

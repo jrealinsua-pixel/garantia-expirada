@@ -456,8 +456,13 @@ function updateMimic(w: World, en: Enemy, b: MimicBrain): void {
   en.t += DT;
   switch (en.state) {
     case 'lurk':
-      // Just a charger on the floor... until you come close or shoot it.
-      if ((dist < b.wake && !w.over) || en.damageTaken > 0) {
+      // Just a charger on the floor... until you come close, shoot it, it tires of waiting or it is
+      // only bait is left in the room (no other kind of enemy standing). `until` is its patience (drawn the first time it waits) and
+      // `phase` counts the time it has been left on its own.
+      if (!Number.isFinite(en.until)) en.until = w.rng.range(b.patience[0], b.patience[1]);
+      if (w.enemies.some((o) => o.def.brain.kind !== 'mimic' && o.state !== 'dying')) en.phase = 0;
+      else en.phase += DT;
+      if ((dist < b.wake || en.t >= en.until || en.phase >= b.alone) && !w.over || en.damageTaken > 0) {
         enter(en, 'reveal', b.reveal);
         if (Math.abs(toX) > 2) en.facing = toX > 0 ? 1 : -1;
         w.events.push({ type: 'reveal', x: en.x, y: en.y - b.muzzleY, source: en.id });
