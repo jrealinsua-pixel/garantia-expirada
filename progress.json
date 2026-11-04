@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T20:45:00+01:00",
+  "actualizado": "2026-11-04T20:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 12,
+      "hechas": 13,
       "total": 15
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 459,
-    "tests_ok": 459,
+    "tests": 464,
+    "tests_ok": 464,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16239
+    "lineas_codigo": 16331
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T20:55:00+01:00",
+      "hito": "M9b",
+      "resumen": "Sinergias indirectas: diez parejas de objetos que encajan sin activar nada (una tapa el defecto de la otra o le multiplica la virtud); la Tarjeta vuelve a perseguir tras cada rebote o atravesar.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T20:45:00+01:00",
       "hito": "M9b",
@@ -764,7 +770,7 @@
       "pie": "Delante de un cofre: «F: Abrir». Ya no se abre empujándolo"
     }
   ],
-  "proximo": "M9b (12b): los corazones especiales temporales (daño a toda la sala, más daño un rato…), más raros que la Garantía Provisional.",
+  "proximo": "M9b (12b): los corazones especiales temporales (daño a toda la sala, más daño un rato…), más raros que la Garantía Provisional. Después, (13): objetos del escenario que se vuelcan o explotan.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -790,11 +796,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-04 20:26",
-      "tarea": "M9b (14): sinergias indirectas (datos de parejas, medida y reglas de bala; sin sprites ni HUD)",
-      "desde": "2026-11-04T20:26:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

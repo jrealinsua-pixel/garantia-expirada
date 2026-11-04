@@ -300,6 +300,30 @@ repite objeto.
 | Setup Gamer | Ratón Gaming RGB + Ventilador de Portátil | Luces, ruido y el ventilador al máximo. Los fotogramas no suben, pero se nota. | +10 % de críticos (25 % en total) |
 | Conflicto de Software | Antivirus Gratuito + Actualización Obligatoria | El antivirus bloquea la actualización. Por una vez, se agradece. | Recarga ×0,625: anula la recarga lenta de la actualización y deja su daño |
 
+- **Sinergias indirectas** (M9b (14), nota del 2026-10-30): parejas que funcionan mucho mejor
+  juntas que separadas sin activar nada: ni nombre en pantalla ni modificador extra. Están en
+  `src/data/complements.ts`, cada una medida en `tests/complementos.test.ts` y con el bot en
+  `npm run objetos -- --parejas`. Son de dos clases: **tapa** (un objeto devuelve casi todo lo
+  que el otro quita, y queda lo bueno de los dos) y **multiplica** (uno hace más grande lo bueno
+  del otro). Para que la Tarjeta tenga con quién multiplicar hay una regla general: una bala que
+  persigue vuelve a perseguir (otros 0,7 s) cada vez que rebota o atraviesa a un enemigo.
+
+| Pareja | Clase | Por qué |
+| --- | --- | --- |
+| Tarjeta de Socio + Manual en Chino | multiplica | Cada rebote, la bala vuelve a buscar enemigo |
+| Tarjeta de Socio + Broca del Ocho | multiplica | Atraviesa a uno y ya va a por el siguiente |
+| Pila Casi Agotada + Cinta Americana | multiplica | La pila vacía el cargador antes; con la cinta, recargar más a menudo casi no cuesta |
+| Pila Casi Agotada + Pendrive de 2 GB | tapa | El pendrive devuelve el cargador que la pila recorta |
+| Actualización Obligatoria + Cinta Americana | tapa | La cinta anula la recarga lenta de la actualización |
+| Resistencia de Recambio + Pila Casi Agotada | tapa | La pila devuelve la cadencia que la resistencia quita |
+| Ventilador de Portátil + Cable HDMI Dorado | tapa | El cable cierra la dispersión que abre el ventilador |
+| Batería Hinchada + Garantía Extendida | tapa | La garantía devuelve el corazón que la batería quita |
+| Batería Externa + Etiqueta A+++ | tapa | La etiqueta devuelve el paso que la batería quita |
+| Modo Avión + Etiqueta A+++ | tapa | La etiqueta devuelve casi toda la voltereta que el avión alarga |
+
+No se anuncian: descubrirlas es parte del juego. Cuando exista el glosario (M14) podrá contarlas
+con la frase de cada una (el campo `why`), una vez que el jugador haya llevado la pareja.
+
 ### Balas enemigas
 
 - Grandes, de colores saturados y con borde claro, para que se lean sobre cualquier suelo.
@@ -375,7 +399,7 @@ Están repartidas como tareas en `docs/HOJA_DE_RUTA.md` (M6, M7, M8 y M10).
 - Los cupones se recogen solos al limpiar la sala. Sin números de daño ni textos al matar.
 - Corazones que suben y bajan con objetos; un escudo temporal ligado a la trama; corazones
   especiales temporales con su sprite y su rareza (cuanto más potentes, más raros).
-- Sinergias indirectas: objetos que se complementan sin crear nada nuevo.
+- Sinergias indirectas: objetos que se complementan sin crear nada nuevo (hecho en M9b (14): diez parejas en «Armas y objetos»).
 - Los activos que curan no pueden recargarse en dos salas.
 - Para más adelante: jefes al azar en cada planta (varios posibles por planta), glosario de
   enemigos y armas, contenido limitado que se desbloquea con logros, PNJs en las plantas que

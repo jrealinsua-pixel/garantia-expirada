@@ -202,6 +202,11 @@ export interface Bullet {
   /** the enemies (and dummies) it already hit, and how it seeks the nearest enemy. */
   hits?: number[];
   seek?: NonNullable<BulletBehaviour['homing']>;
+  /**
+   * Age (s) at which its seeking last started: 0 when fired, and again every time it bounces or
+   * goes through an enemy (M9b (14): the card and the manual or the drill complement each other).
+   */
+  seekFrom?: number;
   /** Shot down this tick: it is gone. */
   cut?: boolean;
   /** Player bullets: id of the weapon that fired it (how it is drawn). */
@@ -1531,7 +1536,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
     let homing = !!b.homing && b.age < b.homing.time && !w.over;
     if (homing) turnTowards(b, w.player.x, w.player.y - PLAYER_HURT_Y, b.homing!.turnDeg);
     // A player bullet that seeks (an item): towards the nearest enemy in range it has not hit yet.
-    if (b.seek && b.age < b.seek.time) {
+    if (b.seek && b.age - (b.seekFrom ?? 0) < b.seek.time) {
       const t = seekTarget(w, b);
       if (t) {
         turnTowards(b, t.x, t.y, b.seek.turnDeg);
@@ -1675,6 +1680,7 @@ function bounceBullet(w: World, b: Bullet): void {
   b.y = py;
   b.dir = Math.atan2(b.vy, b.vx);
   b.bounce!--;
+  if (b.seek) b.seekFrom = b.age;
 }
 
 /** A bullet that pierces goes on through what it just hit (once per target), while it has pierce left. */
@@ -1682,6 +1688,7 @@ function pierces(b: Bullet, target: number): boolean {
   if (!b.pierce || b.pierce <= 0) return false;
   b.pierce--;
   (b.hits ??= []).push(target);
+  if (b.seek) b.seekFrom = b.age;
   return true;
 }
 

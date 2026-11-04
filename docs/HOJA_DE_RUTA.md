@@ -308,7 +308,7 @@ repartido en M12–M14.
     raros que el escudo, y cuanto más potentes, más raros).
 - [ ] (13) Objetos del escenario: unos se vuelcan con el botón de interactuar y sirven de cobertura;
   otros explotan o hacen otras cosas.
-- [ ] (14) Sinergias indirectas: parejas de objetos que se complementan sin crear nada nuevo,
+- [x] (14) Sinergias indirectas: parejas de objetos que se complementan sin crear nada nuevo,
   pensadas y medidas.
 - [x] (15) Repaso del equilibrio después de todo lo anterior: con las balas grandes, la escasez y
   los jefes nuevos el bot con daño ya no gana la planta 1 (0 de 20 el 2026-11-04). Difícil sí,
