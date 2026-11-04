@@ -795,6 +795,11 @@
       "sesion": "2026-11-04 20:15",
       "tarea": "M9b (12a): el escudo (Garantía Provisional)",
       "desde": "2026-11-04T20:15:00+01:00"
+    },
+    {
+      "sesion": "2026-11-04 20:26",
+      "tarea": "M9b (14): sinergias indirectas (datos de parejas, medida y reglas de bala; sin sprites ni HUD)",
+      "desde": "2026-11-04T20:26:00+01:00"
     }
   ]
 }
