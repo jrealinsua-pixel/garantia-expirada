@@ -161,6 +161,18 @@
     "frameH": 24,
     "frames": 1
   },
+  "mesa": {
+    "file": "mesa.png",
+    "frameW": 28,
+    "frameH": 28,
+    "frames": 5
+  },
+  "mesa-2": {
+    "file": "mesa-2.png",
+    "frameW": 28,
+    "frameH": 28,
+    "frames": 5
+  },
   "bala-jugador": {
     "file": "bala-jugador.png",
     "frameW": 8,

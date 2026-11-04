@@ -2,7 +2,8 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
-import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isRolling, leaveHub, NO_INPUT, nearStation, PLAYER_HURT_Y, step, wantsPickup } from './world.ts';
+import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
+import { PLAYER_HURT_Y, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
@@ -215,6 +216,11 @@ export class Bot {
     if (!it) return false;
     if (it.kind === 'chest') return w.player.tickets > 0;
     if (it.kind === 'shop') return this.shopping(w) === it.pickup;
+    // A table at hand (M9b 13b): over it goes if an enemy is out there, on the side it would cover.
+    if (it.kind === 'tip') {
+      const f = TIP_FACING[tipSide(it.prop, w.player.x, w.player.y - 2)];
+      return w.enemies.some((en) => !isDead(en) && en.state !== 'gone' && (en.x - w.player.x) * f.x + (en.y - w.player.y) * f.y > 40);
+    }
     return false;
   }
 

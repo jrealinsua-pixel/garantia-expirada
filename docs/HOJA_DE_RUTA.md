@@ -269,7 +269,7 @@ desde él se empieza una partida andando; los tres PNJs dicen cosas distintas se
 (tests con perfiles hechos a mano); el tablón y el archivador enseñan lo desbloqueado y lo que
 falta; todo se guarda entre sesiones del navegador.
 
-## M9b · Lo que pidió el humano el 30 de octubre
+## M9b · Lo que pidió el humano el 30 de octubre (hecho)
 
 Las dos primeras notas del humano del 2026-10-30, partidas en tareas. Van antes que M10 porque
 las notas del humano tienen prioridad, y porque cambian la economía y la dificultad sobre las que
@@ -306,11 +306,11 @@ repartido en M12–M14.
     daño y caduca al cambiar de planta. Sale a veces al limpiar una sala.
   - [x] (12b) Los corazones especiales temporales, cada uno con su sprite y su probabilidad (más
     raros que el escudo, y cuanto más potentes, más raros).
-- [ ] (13) Objetos del escenario: unos se vuelcan con el botón de interactuar y sirven de cobertura;
+- [x] (13) Objetos del escenario: unos se vuelcan con el botón de interactuar y sirven de cobertura;
   otros explotan o hacen otras cosas.
   - [x] (13a) Los bidones de aceite usado aguantan unos disparos y explotan: dañan a enemigos y a la
     tostadora alrededor y encienden a los bidones vecinos.
-  - [ ] (13b) Muebles que se vuelcan con el botón de interactuar y paran balas por un lado.
+  - [x] (13b) Muebles que se vuelcan con el botón de interactuar y paran balas por un lado.
 - [x] (14) Sinergias indirectas: parejas de objetos que se complementan sin crear nada nuevo,
   pensadas y medidas.
 - [x] (15) Repaso del equilibrio después de todo lo anterior: con las balas grandes, la escasez y

@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-11-04T22:35:00+01:00",
+  "actualizado": "2026-11-04T23:05:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M9b",
+  "hito_actual": "M10",
   "hitos": [
     {
       "id": "M0",
@@ -76,14 +76,14 @@
     {
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
-      "estado": "en_curso",
-      "hechas": 14,
+      "estado": "hecho",
+      "hechas": 15,
       "total": 15
     },
     {
       "id": "M10",
       "nombre": "Plantas 3 y 4",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 2
     },
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 479,
-    "tests_ok": 479,
+    "tests": 488,
+    "tests_ok": 488,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16727
+    "lineas_codigo": 16898
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T23:05:00+01:00",
+      "hito": "M9b",
+      "resumen": "Mesas de Saldos que se vuelcan con F: tumbadas paran las balas que vienen hacia su tapa, dejan disparar desde detrás, se gastan y se rompen. Con esto M9b queda terminado y las dos notas del 30 de octubre, atendidas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T22:35:00+01:00",
       "hito": "M9b",
@@ -758,6 +764,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/mesa-cubre.png",
+      "pie": "Tras la Mesa de Saldos volcada: las balas que bajan hacia ella se quedan en la tapa y la van astillando; las de la tostadora pasan por encima"
+    },
+    {
+      "archivo": "capturas/mesa-volcada.png",
+      "pie": "«F: Volcar»: la mesa cae lejos de la tostadora, con polvo y un golpe seco"
+    },
+    {
       "archivo": "capturas/bidon-explota.png",
       "pie": "Un bidón de aceite usado revienta: bola de fuego, chispas y humo; los enemigos de alrededor se llevan 12 de daño"
     },
@@ -772,17 +786,9 @@
     {
       "archivo": "capturas/garantia-provisional.png",
       "pie": "La Garantía Provisional (el corazón de papel tras los rojos, ya a medias) acaba de parar una bala: «Cubierto. Esta vez.»"
-    },
-    {
-      "archivo": "capturas/inventario-equilibrio.png",
-      "pie": "El inventario tras el reequilibrio: el Secador hace 1,6 (antes 2) y la Resistencia lo sube un 30 % en vez de un punto entero"
-    },
-    {
-      "archivo": "capturas/cofre-premium.png",
-      "pie": "La Caja Fuerte Premium (abajo, granate y dorada) al lado de la gris de siempre ya abierta: la rara solo da cosas buenas"
     }
   ],
-  "proximo": "M9b (13b): muebles que se vuelcan con el botón de interactuar y paran balas; con eso M9b queda terminado.",
+  "proximo": "M10 (1) si la otra sesión la suelta (juego de casillas de la Juguetería); si no, M10 (2a), las primeras plantillas de la planta 3.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -813,11 +819,6 @@
       "sesion": "2026-11-04 21:25",
       "tarea": "M10 (1): juego de casillas de la planta 3 (Juguetería)",
       "desde": "2026-11-04T21:25:00+01:00"
-    },
-    {
-      "sesion": "2026-11-04 22:25",
-      "tarea": "M9b (13b): muebles que se vuelcan con el botón de interactuar",
-      "desde": "2026-11-04T22:25:00+01:00"
     }
   ]
 }

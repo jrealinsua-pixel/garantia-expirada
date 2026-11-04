@@ -1071,3 +1071,153 @@ export function makeShopStand(): Canvas {
   for (let x = 6; x < 18; x += 3) cv.set(x, 7, WHITE);
   return outline(cv);
 }
+
+// M9b (13b): the table that tips over. Five 28 x 28 frames, the bottom row on the floor line of
+// the tile (the sim's prop y): 0 standing; tipped, its top facing 1 north (away from the camera:
+// the underside and the legs at us), 2 south (the top at us, the legs behind), 3 east and 4 west
+// (on its side, the legs out the other way). Floor 1: a bargain table of pressboard on folding
+// legs, with its «saldos» tag; floor 2: a demo desk of beige laminate on steel legs.
+
+interface TableLook {
+  top: Ramp;
+  under: Ramp;
+  leg: Ramp;
+  /** Odds and ends on the standing table and the tag on its edge. */
+  dress: (cv: Canvas, edgeY: number) => void;
+  /** The tag on the top, seen face on (tipped south). */
+  tag: (cv: Canvas, x: number, y: number) => void;
+}
+
+const TABLE_LOOKS: Record<1 | 2, TableLook> = {
+  1: {
+    top: ramp('#c99e6a', '#a77c4c', '#7d5a36', '#553c24'),
+    under: ramp('#8f6c40', '#6e5232', '#523c24', '#3a2a1a'),
+    leg: DSTEEL,
+    dress: (cv, edgeY) => {
+      // A pair of socks and a lonely box: the leftovers of the sale.
+      cv.rect(6, edgeY - 6, 4, 3, CARD[1]!);
+      cv.rect(6, edgeY - 6, 4, 1, CARD[0]!);
+      cv.rect(13, edgeY - 4, 3, 2, BLUE[1]!);
+      cv.rect(16, edgeY - 4, 2, 2, BLUE[2]!);
+      // The «saldos» tag hangs off the front edge: red, a white stripe.
+      cv.rect(19, edgeY, 4, 3, RED[1]!);
+      cv.rect(20, edgeY + 1, 2, 1, WHITE);
+    },
+    tag: (cv, x, y) => {
+      cv.rect(x, y, 5, 3, RED[1]!);
+      cv.rect(x + 1, y + 1, 3, 1, WHITE);
+    },
+  },
+  2: {
+    top: BEIGE,
+    under: ramp('#a99b74', '#857a5c', '#665d46', '#4a4334'),
+    leg: STEEL,
+    dress: (cv, edgeY) => {
+      // A demo keyboard and the card that says it is not for sale.
+      cv.rect(5, edgeY - 5, 8, 3, OFFICE[1]!);
+      cv.rect(6, edgeY - 5, 6, 1, OFFICE[0]!);
+      cv.rect(16, edgeY - 6, 4, 4, WHITE);
+      cv.rect(17, edgeY - 4, 2, 1, RED[1]!);
+      cv.rect(19, edgeY, 4, 3, BLUE[1]!);
+      cv.rect(20, edgeY + 1, 2, 1, WHITE);
+    },
+    tag: (cv, x, y) => {
+      cv.rect(x, y, 5, 3, BLUE[1]!);
+      cv.rect(x + 1, y + 1, 3, 1, WHITE);
+    },
+  },
+};
+
+function tableStanding(L: TableLook): Canvas {
+  const cv = new Canvas(28, 28);
+  // Legs first (the top hides where they meet it): the back pair shorter and darker.
+  for (const x of [6, 21]) cv.rect(x, 18, 1, 5, L.leg[3]!);
+  for (const x of [4, 23]) {
+    cv.rect(x, 18, 2, 9, L.leg[2]!);
+    cv.rect(x, 18, 1, 9, L.leg[1]!);
+  }
+  // The cross brace of the folding legs.
+  cv.rect(6, 22, 16, 1, L.leg[3]!);
+  // The top, seen from above, and its front edge.
+  box(cv, 3, 10, 22, 8, L.top);
+  cv.rect(3, 17, 22, 2, L.top[2]!);
+  cv.rect(3, 18, 22, 1, L.top[3]!);
+  // Wood grain (or the laminate's scratches).
+  cv.rect(6, 12, 5, 1, L.top[2]!);
+  cv.rect(15, 14, 6, 1, L.top[2]!);
+  L.dress(cv, 17);
+  return outline(cv);
+}
+
+/** Tipped, top to the north: the underside faces the camera and the legs stick out at it. */
+function tableNorth(L: TableLook): Canvas {
+  const cv = new Canvas(28, 28);
+  // The underside, standing up at the back of the footprint.
+  box(cv, 3, 3, 22, 13, L.under);
+  cv.rect(3, 15, 22, 1, L.under[3]!);
+  // The frame under the top, and the brace.
+  cv.rect(5, 5, 18, 1, L.under[2]!);
+  cv.rect(5, 13, 18, 1, L.under[2]!);
+  cv.rect(5, 5, 1, 9, L.under[2]!);
+  cv.rect(22, 5, 1, 9, L.under[2]!);
+  // The lower legs lie on the floor towards us; the upper ones stick out in the air.
+  for (const x of [4, 23]) {
+    cv.rect(x, 15, 2, 11, L.leg[2]!);
+    cv.rect(x, 15, 1, 11, L.leg[1]!);
+  }
+  for (const x of [7, 20]) {
+    cv.rect(x, 5, 2, 10, L.leg[1]!);
+    cv.rect(x + 1, 5, 1, 10, L.leg[2]!);
+    cv.set(x, 14, L.leg[0]!);
+  }
+  return outline(cv);
+}
+
+/** Tipped, top to the south: the top faces the camera; the legs peek over it from behind. */
+function tableSouth(L: TableLook): Canvas {
+  const cv = new Canvas(28, 28);
+  for (const x of [6, 21]) {
+    cv.rect(x, 4, 2, 10, L.leg[2]!);
+    cv.rect(x, 4, 1, 10, L.leg[1]!);
+  }
+  box(cv, 3, 13, 22, 13, L.top);
+  cv.rect(3, 25, 22, 1, L.top[3]!);
+  cv.rect(6, 16, 6, 1, L.top[2]!);
+  cv.rect(14, 20, 7, 1, L.top[2]!);
+  L.tag(cv, 17, 15);
+  return outline(cv);
+}
+
+/** Tipped, top to the east: on its side, the top a narrow wall, the legs out to the west. */
+function tableEast(L: TableLook): Canvas {
+  const cv = new Canvas(28, 28);
+  // Legs: lower pair on the floor, upper pair in the air (one row each per end of the table).
+  for (const y of [25, 16]) {
+    cv.rect(10, y, 12, 2, L.leg[2]!);
+    cv.rect(10, y, 12, 1, L.leg[1]!);
+  }
+  for (const y of [13, 4]) {
+    cv.rect(11, y, 11, 2, L.leg[1]!);
+    cv.rect(11, y + 1, 11, 1, L.leg[2]!);
+  }
+  // The top on its edge: its underside a sliver to the west, its thickness to the east.
+  cv.rect(20, 3, 3, 24, L.under[1]!);
+  cv.rect(20, 3, 1, 24, L.under[2]!);
+  cv.rect(23, 2, 3, 25, L.top[1]!);
+  cv.rect(23, 2, 1, 25, L.top[0]!);
+  cv.rect(25, 2, 1, 25, L.top[2]!);
+  cv.rect(23, 26, 3, 1, L.top[3]!);
+  return outline(cv);
+}
+
+function mirror(cv: Canvas): Canvas {
+  const out = new Canvas(cv.w, cv.h);
+  for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) out.p[y]![cv.w - 1 - x] = cv.get(x, y);
+  return out;
+}
+
+export function makeTableFrames(level: 1 | 2): Canvas[] {
+  const L = TABLE_LOOKS[level];
+  const east = tableEast(L);
+  return [tableStanding(L), tableNorth(L), tableSouth(L), east, mirror(east)];
+}

@@ -439,6 +439,7 @@ export const archivePage = (i: number, n: number): string => `Hoja ${i} de ${n}`
  */
 export const INTERACT_VERBS = {
   chest: 'Abrir',
+  tip: 'Volcar',
   shop: 'Comprar',
   caja: 'Hablar',
   telefono: 'Descolgar',

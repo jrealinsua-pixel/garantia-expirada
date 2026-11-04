@@ -58,7 +58,7 @@ import {
   BODY_HEIGHT,
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
-import { spawnEnemy, type HeartKind, type Player } from '../sim/world.ts';
+import { spawnEnemy, TIP_FACING, type HeartKind, type Player } from '../sim/world.ts';
 
 /** What the toaster has on loan after its hearts, in the order it pays: surge, warranties, turbo. */
 function loanIcons(p: Player): { key: string; half: boolean }[] {
@@ -77,7 +77,7 @@ import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { profile, saveFloor, saveRun } from './save.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
-import type { StationKind } from '../sim/room.ts';
+import type { StationKind, TipSide } from '../sim/room.ts';
 import { rosterBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
 import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
@@ -89,6 +89,10 @@ import { LORE } from '../data/lore.ts';
 type BoardPart = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.AlphaSingle;
 
 /** How far above a station's spot of the Mostrador its bubble goes (px; the Caja uses the till's). */
+/** Frame of the `mesa` sheet for each way a tipped table faces (0 is standing). */
+const TABLE_FRAME: Record<TipSide, number> = { N: 1, S: 2, E: 3, W: 4 };
+/** Seconds the table takes to go over (the drawing; the simulation tips it at once). */
+const TIP_ANIM = 0.18;
 const STATION_TOP: Record<StationKind, number> = { caja: 46, telefono: 50, turnos: 34, chatarrero: 34, tablon: 52, archivador: 34 };
 import { BOARD_CARDS, TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
@@ -296,6 +300,8 @@ export class GameScene extends Phaser.Scene {
   private chestSprites = new Map<number, { s: Phaser.GameObjects.Image; open: boolean; pop: number }>();
   /** Props that can blow up (M9b 13a), by their feet «x,y»: sprite, shadow and how hard they still shake from a hit. */
   private drumViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; jolt: number; smoke: number }>();
+  /** Tables (M9b 13b), by their spot: the sprite (its frame says how it lies), its shadow, a jolt and the tipping hop. */
+  private tableViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; y: number; jolt: number; tip: number; side?: TipSide }>();
   private couponPop = 0;
   /** The shop till (only in the shop), what it is saying and for how long, and its refusal face. */
   private till: Phaser.GameObjects.Image | null = null;
@@ -442,6 +448,7 @@ export class GameScene extends Phaser.Scene {
     this.pickupSprites = new Map();
     this.chestSprites = new Map();
     this.drumViews = new Map();
+    this.tableViews = new Map();
     this.ticketPop = 0;
     this.till = null;
     this.bubble = null;
@@ -535,6 +542,13 @@ export class GameScene extends Phaser.Scene {
         // The shop till: drawShop changes its face.
         this.add.image(pr.x, pr.y + 1, shadowTexture(this, 12, 3)).setDepth(-50000);
         this.till = this.add.image(pr.x, pr.y, key, 0).setOrigin(0.5, 1).setDepth(pr.y);
+        continue;
+      }
+      if (pr.def.tip) {
+        // Tables: drawTables changes the frame when they go over.
+        const shadow = this.add.image(pr.x, pr.y + 1, shadowTexture(this, 10, 3)).setDepth(-50000);
+        const s = this.add.image(pr.x, pr.y, this.levelKey(key), pr.tipped ? TABLE_FRAME[pr.tipped] : 0).setOrigin(0.5, 1).setDepth(pr.y);
+        this.tableViews.set(`${pr.x},${pr.y}`, { s, shadow, x: pr.x, y: pr.y, jolt: 0, tip: 0, side: pr.tipped });
         continue;
       }
       const look = this.levelKey(key);
@@ -2108,6 +2122,20 @@ export class GameScene extends Phaser.Scene {
         case 'blast':
           this.drumBlast(e);
           break;
+        case 'tip':
+          this.tableTipped(e);
+          break;
+        case 'tableHit': {
+          // It takes the bullet for the toaster: a jolt and a splinter or two off the top.
+          const v = this.tableViews.get(`${e.x},${e.y}`);
+          if (v) v.jolt = 0.1;
+          const f = TIP_FACING[e.side];
+          for (let i = 0; i < 2; i++) this.splinter(e.x + f.x * 9, e.y - 8 + f.y * 4, Math.atan2(f.y, f.x) + this.fx.range(-0.8, 0.8));
+          break;
+        }
+        case 'tableBroke':
+          this.tableBroken(e);
+          break;
         case 'turboEnd': {
           // The turbo winds down: the engine stops and a line over the toaster.
           const p = this.world.player;
@@ -2365,6 +2393,65 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
+  }
+
+  /** Tables (M9b 13b): the frame of how each lies, the hop as it goes over and the jolt of a hit. */
+  private drawTables(dt: number): void {
+    for (const v of this.tableViews.values()) {
+      v.jolt = Math.max(0, v.jolt - dt);
+      v.tip = Math.max(0, v.tip - dt);
+      const wob = v.jolt > 0 ? (Math.floor(v.jolt * 40) % 2 ? 1 : -1) : 0;
+      // Going over: for a moment it is half way (squashed and leaning), then it lands with a bump.
+      const k = v.tip / TIP_ANIM;
+      const f = v.side ? TIP_FACING[v.side] : { x: 0, y: 0 };
+      const lean = k > 0.5 ? (k - 0.5) * 2 : 0;
+      v.s.setPosition(v.x + Math.round(wob + f.x * 3 * lean), v.y + Math.round(f.y * 2 * lean) - (k > 0 && k <= 0.5 ? 1 : 0));
+      v.s.setScale(1, k > 0.5 ? 1 - 0.25 * lean : 1);
+      v.s.setAngle(k > 0.5 ? f.x * 25 * lean : 0);
+    }
+  }
+
+  /** A table goes over: the frame of its new side, a hop, a thud, dust where it lands. */
+  private tableTipped(e: Extract<SimEvent, { type: 'tip' }>): void {
+    const v = this.tableViews.get(`${e.x},${e.y}`);
+    if (v) {
+      v.side = e.side;
+      v.tip = TIP_ANIM;
+      v.s.setFrame(TABLE_FRAME[e.side]);
+    }
+    this.sound2.play('portazo', { detune: -500, volume: 0.8 });
+    this.shake(90, 0.004);
+    const f = TIP_FACING[e.side];
+    for (let i = 0; i < 6; i++) this.puff(e.x + f.x * 8 + this.fx.range(-10, 10), e.y - 3 + f.y * 6 + this.fx.range(-3, 3), 0.45);
+    // What was on it goes flying.
+    for (let i = 0; i < 3; i++) this.splinter(e.x + this.fx.range(-6, 6), e.y - 12, Math.atan2(f.y, f.x) + this.fx.range(-0.6, 0.6), 0x5f93d4);
+  }
+
+  /** A table shot to bits (or blown up): gone, a shower of splinters, dust and a crash. */
+  private tableBroken(e: Extract<SimEvent, { type: 'tableBroke' }>): void {
+    const v = this.tableViews.get(`${e.x},${e.y}`);
+    if (v) {
+      v.s.destroy();
+      v.shadow.destroy();
+      this.tableViews.delete(`${e.x},${e.y}`);
+    }
+    this.sound2.play('derrumbe', { volume: 0.6, detune: 300 });
+    this.shake(120, 0.005);
+    for (let i = 0; i < 12; i++) this.splinter(e.x + this.fx.range(-9, 9), e.y - this.fx.range(4, 14), this.fx.range(0, Math.PI * 2));
+    for (let i = 0; i < 5; i++) this.puff(e.x + this.fx.range(-10, 10), e.y - this.fx.range(2, 10), this.fx.range(0.4, 0.8));
+    // A few planks stay on the floor.
+    const wood = this.world.level > 1 ? 0xa99b74 : 0x7d5a36;
+    for (let i = 0; i < 3; i++) {
+      this.add.rectangle(e.x + this.fx.range(-10, 10), e.y - this.fx.range(1, 9), this.fx.int(4, 7), 2, wood, 1).setAngle(this.fx.pick([0, 0, 90, 30, -30])).setDepth(-48990);
+    }
+  }
+
+  /** A splinter of the table (or something that was on it) that jumps and falls. */
+  private splinter(x: number, y: number, a: number, tint?: number): void {
+    const sp = this.fx.range(30, 80);
+    const s = this.add.image(x, y, 'chispas', this.fx.int(1, 2)).setTint(tint ?? (this.world.level > 1 ? 0xd4c79f : 0xa77c4c));
+    const vz = this.fx.range(40, 90);
+    this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.5, z: 4, vz, life: 0.6, maxLife: 0.6, gravity: true, spin: this.fx.range(-10, 10), fade: true, fadeTime: 0.2 });
   }
 
   /** A drum blows up: gone, a fireball, debris, a scorch mark, a big shake and a bang. */
@@ -2926,6 +3013,7 @@ export class GameScene extends Phaser.Scene {
     this.drawFrost(dt);
     this.drawChests(dt);
     this.drawDrums(dt);
+    this.drawTables(dt);
     this.drawPickups();
 
     // Bullets.

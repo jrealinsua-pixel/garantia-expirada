@@ -213,6 +213,13 @@ export interface PropDef {
   hp?: number;
   /** What it does when it blows up: `damage` to every enemy within `radius` px, `hurt` (half hearts) to the toaster. */
   blast?: { radius: number; damage: number; hurt: number };
+  /**
+   * Furniture that tips over with the interact button (M9b 13b). Standing, bullets fly over it;
+   * on its side it stops the bullets coming at its top (and lets through the ones going away, so
+   * the toaster can shoot from behind it). `hp`: what it stands (an enemy bullet one point, the
+   * player's their damage) before it breaks; a blast next to it breaks it at once.
+   */
+  tip?: { hp: number };
 }
 
 export interface DummyDef {
@@ -230,7 +237,7 @@ export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'bo
 
 /**
  * Room templates are drawn as text. Legend:
- * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `M` training dummy,
+ * `#` wall, `.` floor, `P` player start, `c` box, `b` barrel, `k` shopping cart, `v` a table that tips over, `M` training dummy,
  * `A` Aspirador Desahuciado, `O` Microondas Sin Seguro, `L` Bombilla de Bajo Consumo (con su polilla), `T` Batidora de Mano,
  * `Z` Mandos a Distancia (vienen en grupo: see EnemyDef.pack).
  * Slots, filled when a floor is built (src/sim/room.ts, fillTemplate): `e` an enemy (or nothing),

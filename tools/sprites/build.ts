@@ -71,6 +71,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'caja-2': one(P.makeMonitorCrt()),
     'barril-2': one(P.makeWaterCooler()),
     'carrito-2': one(P.makeOfficeChair()),
+    // M9b (13b): the table that tips over: 0 standing, tipped to face 1 N, 2 S, 3 E, 4 W.
+    mesa: { canvas: strip(P.makeTableFrames(1)), frameW: 28, frameH: 28 },
+    'mesa-2': { canvas: strip(P.makeTableFrames(2)), frameW: 28, frameH: 28 },
     'bala-jugador': one(P.makeShot()),
     'bala-roja': one(P.enemyBulletRed()),
     'bala-cian': one(P.enemyBulletCyan()),

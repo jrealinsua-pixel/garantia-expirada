@@ -28,6 +28,7 @@ import {
   type ChestTier,
   type Station,
   type StationKind,
+  type TipSide,
 } from './room.ts';
 import { PROPS } from '../data/props.ts';
 import { SPECIAL_HEARTS, SURGE_DAMAGE, SURGE_VALUE, TURBO_DAMAGE, TURBO_HEAL } from '../data/hearts.ts';
@@ -472,6 +473,10 @@ export type SimEvent =
   | { type: 'propHit'; x: number; y: number; damage: number; hp: number }
   | { type: 'propLit'; x: number; y: number; fuse: number }
   | { type: 'blast'; x: number; y: number; radius: number; prop: string; floorY: number }
+  /** A table was tipped over (M9b 13b) to face `side`; hit while covering (`wear` of `hp`); broken. */
+  | { type: 'tip'; x: number; y: number; side: TipSide }
+  | { type: 'tableHit'; x: number; y: number; wear: number; hp: number; side: TipSide }
+  | { type: 'tableBroke'; x: number; y: number; side?: TipSide }
   /** The player has no life left: the run is over. */
   | { type: 'down'; x: number; y: number; source: number; cause: DownCause }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
@@ -617,6 +622,8 @@ const CHEST_WEAPON = 0.2;
 const CHEST_ACTIVE = 0.25;
 /** How close the toaster's feet have to get to a chest to open it with the interact button (px). */
 const CHEST_REACH = 10;
+/** How close (px) to a standing table the toaster must be to tip it over. */
+export const TIP_REACH = 8;
 
 export interface FloorRun {
   layout: Floor;
@@ -1582,10 +1589,12 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
       b.y += (b.vy * dt) / 2;
       const angle = Math.atan2(b.vy, b.vx);
       const fy = b.y + b.h;
-      const prop = isWallAt(w.room, b.x, fy) ? null : bulletProp(w, b.x, fy);
+      const prop = isWallAt(w.room, b.x, fy) ? null : bulletProp(w, b.x, fy, b.vx, b.vy);
       if (prop || isWallAt(w.room, b.x, fy)) {
-        // A prop that can blow up takes the hit (an enemy bullet counts for little).
-        if (prop?.def.hp) damageProp(w, prop, b.owner === 'player' ? b.damage : ENEMY_PROP_DAMAGE);
+        // A prop that can blow up takes the hit (an enemy bullet counts for little); so does a tipped table.
+        const hit = b.owner === 'player' ? b.damage : ENEMY_PROP_DAMAGE;
+        if (prop?.def.hp) damageProp(w, prop, hit);
+        else if (prop?.tipped) wearTable(w, prop, hit);
         if (b.bounce && b.bounce > 0) {
           bounceBullet(w, b);
           w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle, bounced: true });
@@ -1688,14 +1697,61 @@ function seekTarget(w: World, b: Bullet): { x: number; y: number } | null {
   return best;
 }
 
-/** Whether a wall or a prop that stops bullets is at (x, y) (a bullet's shadow). */
-function stopsBullet(w: World, x: number, y: number): boolean {
-  return isWallAt(w.room, x, y) || !!bulletProp(w, x, y);
+/** Whether a wall or a prop that stops bullets (flying vx, vy) is at (x, y) (a bullet's shadow). */
+function stopsBullet(w: World, x: number, y: number, vx: number, vy: number): boolean {
+  return isWallAt(w.room, x, y) || !!bulletProp(w, x, y, vx, vy);
 }
 
-/** The prop that stops bullets at (x, y), or null. */
-function bulletProp(w: World, x: number, y: number): PropInstance | null {
-  return w.room.props.find((pr) => pr.def.blocksBullets && pointInRect(x, y, pr.box)) ?? null;
+/** The prop that stops a bullet flying (vx, vy) at (x, y), or null. */
+function bulletProp(w: World, x: number, y: number, vx: number, vy: number): PropInstance | null {
+  return w.room.props.find((pr) => (pr.def.blocksBullets || (pr.tipped && coversFrom(pr.tipped, vx, vy))) && pointInRect(x, y, pr.box)) ?? null;
+}
+
+/** The unit vector a tipped table's top faces. */
+export const TIP_FACING: Record<TipSide, { x: number; y: number }> = { N: { x: 0, y: -1 }, S: { x: 0, y: 1 }, E: { x: 1, y: 0 }, W: { x: -1, y: 0 } };
+
+/**
+ * Whether a table tipped to face `side` stops a bullet flying (vx, vy): it does when the bullet
+ * comes at its top (against the way it faces), not when it flies off behind it.
+ */
+export function coversFrom(side: TipSide, vx: number, vy: number): boolean {
+  const f = TIP_FACING[side];
+  return vx * f.x + vy * f.y < 0;
+}
+
+/**
+ * The way a table tips when the toaster at (px, py) pushes it: away from her, along the axis she
+ * is farther off on (its top then faces what is on the other side).
+ */
+export function tipSide(pr: PropInstance, px: number, py: number): TipSide {
+  const cx = pr.box.x + pr.box.w / 2;
+  const cy = pr.box.y + pr.box.h / 2;
+  const dx = cx - px;
+  const dy = cy - py;
+  // The table is wider than deep: compare in units of its own size, so a toaster at a corner
+  // pushes it the way she is clearly off it.
+  if (Math.abs(dx) / pr.box.w > Math.abs(dy) / pr.box.h) return dx > 0 ? 'E' : 'W';
+  return dy > 0 ? 'S' : 'N';
+}
+
+/** The interact button at a standing table: over it goes, its top away from the toaster. */
+function tipTable(w: World, pr: PropInstance): void {
+  if (!pr.def.tip || pr.tipped) return;
+  pr.tipped = tipSide(pr, w.player.x, w.player.y - 2);
+  w.events.push({ type: 'tip', x: pr.x, y: pr.y, side: pr.tipped });
+}
+
+/** A tipped table takes a bullet for the toaster; worn through, it breaks. */
+function wearTable(w: World, pr: PropInstance, hit: number): void {
+  if (!pr.def.tip || !pr.tipped) return;
+  pr.damage = (pr.damage ?? 0) + hit;
+  w.events.push({ type: 'tableHit', x: pr.x, y: pr.y, wear: pr.damage, hp: pr.def.tip.hp, side: pr.tipped });
+  if (pr.damage >= pr.def.tip.hp) breakTable(w, pr);
+}
+
+function breakTable(w: World, pr: PropInstance): void {
+  w.room.props = w.room.props.filter((o) => o !== pr);
+  w.events.push({ type: 'tableBroke', x: pr.x, y: pr.y, side: pr.tipped });
 }
 
 /** Damage an enemy bullet does to a prop that can blow up (the player's bullets do their own). */
@@ -1756,6 +1812,8 @@ function blowUp(w: World, pr: PropInstance): void {
     hurtPlayer(w, blast.hurt, -1, d.x, d.y, { by: 'bidon', how: 'contact' });
   }
   for (const o of w.room.props) if (o.def.hp && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) lightProp(w, o, CHAIN_FUSE);
+  // Tables next to it (standing or tipped) are blown to bits.
+  for (const o of w.room.props.slice()) if (o.def.tip && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) breakTable(w, o);
   w.events.push({ type: 'blast', x: cx, y: cy, radius: blast.radius, prop: pr.def.id, floorY: pr.y });
 }
 
@@ -1766,8 +1824,8 @@ function blowUp(w: World, pr: PropInstance): void {
 function bounceBullet(w: World, b: Bullet): void {
   const px = b.x - (b.vx * DT) / 2;
   const py = b.y - (b.vy * DT) / 2;
-  const blockedX = stopsBullet(w, b.x, py + b.h);
-  const blockedY = stopsBullet(w, px, b.y + b.h);
+  const blockedX = stopsBullet(w, b.x, py + b.h, b.vx, b.vy);
+  const blockedY = stopsBullet(w, px, b.y + b.h, b.vx, b.vy);
   const flipX = blockedX || !blockedY;
   const flipY = blockedY || !blockedX;
   if (flipX) b.vx = -b.vx;
@@ -2444,6 +2502,7 @@ export const SHOP_REACH = 16;
 /** What the interact button would do right now, if anything (the closest thing in reach). */
 export type Interactable =
   | { kind: 'chest'; prop: PropInstance }
+  | { kind: 'tip'; prop: PropInstance }
   | { kind: 'shop'; pickup: Pickup }
   | { kind: 'station'; station: Station };
 
@@ -2457,6 +2516,17 @@ export function interactable(w: World): Interactable | null {
     const reach = { x: pr.box.x - CHEST_REACH, y: pr.box.y - CHEST_REACH, w: pr.box.w + CHEST_REACH * 2, h: pr.box.h + CHEST_REACH * 2 };
     if (overlaps(reach, feet)) return { kind: 'chest', prop: pr };
   }
+  let table: PropInstance | null = null;
+  let tableD = Infinity;
+  for (const pr of w.room.props) {
+    if (!pr.def.tip || pr.tipped) continue;
+    const reach = { x: pr.box.x - TIP_REACH, y: pr.box.y - TIP_REACH, w: pr.box.w + TIP_REACH * 2, h: pr.box.h + TIP_REACH * 2 };
+    const d = Math.hypot(pr.x - p.x, pr.y - p.y);
+    if (overlaps(reach, feet) && d < tableD) {
+      table = pr;
+      tableD = d;
+    }
+  }
   let best: Pickup | null = null;
   let bestD = SHOP_REACH;
   for (const k of w.pickups) {
@@ -2468,6 +2538,7 @@ export function interactable(w: World): Interactable | null {
     }
   }
   if (best) return { kind: 'shop', pickup: best };
+  if (table) return { kind: 'tip', prop: table };
   const st = w.room.kind === 'hub' ? nearStation(w) : null;
   return st ? { kind: 'station', station: st } : null;
 }
@@ -2477,6 +2548,7 @@ function interact(w: World): void {
   const it = interactable(w);
   if (!it) return;
   if (it.kind === 'chest') openChest(w, it.prop);
+  else if (it.kind === 'tip') tipTable(w, it.prop);
   else if (it.kind === 'shop') buy(w, it.pickup);
   else w.events.push({ type: 'interact', station: it.station.kind });
 }
@@ -2677,7 +2749,7 @@ export function worldHash(w: World): string {
   const p = w.player;
   const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills];
   parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield, p.surge, p.turbo ? 1 : 0, w.room.props.length);
-  for (const pr of w.room.props) if (pr.damage) parts.push(pr.damage, pr.fuse ?? -1);
+  for (const pr of w.room.props) if (pr.damage || pr.tipped) parts.push(pr.damage ?? 0, pr.fuse ?? -1, pr.tipped ?? '-');
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));

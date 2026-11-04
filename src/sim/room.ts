@@ -20,7 +20,12 @@ export interface PropInstance {
   /** A prop that can blow up (its def has `hp`): damage taken so far, and the seconds left once it is lit. */
   damage?: number;
   fuse?: number;
+  /** Furniture tipped over (its def has `tip`): the way its top faces, where it covers from. */
+  tipped?: TipSide;
 }
+
+/** The four ways a tipped table can face (its top, the side that stops bullets). */
+export type TipSide = 'N' | 'S' | 'E' | 'W';
 
 /** A chest: shut until the interact button is pressed at it with a ticket. */
 export interface ChestState {
@@ -97,7 +102,7 @@ export interface RoomDoor {
 export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
 const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 'shelf', J: 'boss' };
 
-const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', m: 'mostrador', '|': 'poste' };
+const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste' };
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
   O: 'microondas',
@@ -315,7 +320,7 @@ export function enemyBudget(depth: number): number {
 }
 
 /** Obstacles an `o` slot can become ('.' = nothing), with weights. */
-const OBSTACLES: readonly [string, number][] = [['.', 5], ['c', 3], ['b', 2], ['k', 1]];
+const OBSTACLES: readonly [string, number][] = [['.', 3], ['c', 3], ['b', 2], ['k', 1], ['v', 2]];
 
 /**
  * Turns a floor template into a concrete room: picks which `e` slots get an enemy (within the

@@ -345,7 +345,16 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   igual de cerca, y enciende a los bidones vecinos, que van saltando uno detrás de otro (0,15 s).
   Deja una mancha quemada y desaparece de la sala para siempre. Cobertura que se gasta y trampa
   para quien la usa mal. Causa de baja: «Bidón de aceite usado sin etiquetar».
-- **Muebles volcables** (13b, pendiente): se vuelcan con el botón de interactuar y paran balas.
+- **Mesa de Saldos** (13b; en la planta 2, una mesa de demostración beige con un teclado de
+  exposición): un mueble bajo que sale en los huecos de obstáculo (`v` en las plantillas; ahora le
+  quita sitio a los huecos vacíos, no a las cajas ni a los bidones). De pie no para nada (las balas
+  pasan por encima) y estorba al andar. Con el botón de interactuar («F: Volcar», a 8 px) se
+  vuelca **lejos de la tostadora**, por el eje en que está más apartada de ella, y ya no se
+  levanta: su tapa queda mirando al otro lado y para las balas que vienen hacia ella, mientras
+  deja pasar las que se alejan (la tostadora dispara por encima desde detrás). Aguanta 14 (una
+  bala enemiga, 1; las de la tostadora, su daño) y se rompe en astillas; un bidón que explota al
+  lado la rompe al momento, esté de pie o volcada. Cobertura de un lado, que se gasta, y que hay
+  que pensar dónde poner.
 
 ### Balas enemigas
 
