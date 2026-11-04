@@ -308,6 +308,9 @@ repartido en M12–M14.
     raros que el escudo, y cuanto más potentes, más raros).
 - [ ] (13) Objetos del escenario: unos se vuelcan con el botón de interactuar y sirven de cobertura;
   otros explotan o hacen otras cosas.
+  - [ ] (13a) Los bidones de aceite usado aguantan unos disparos y explotan: dañan a enemigos y a la
+    tostadora alrededor y encienden a los bidones vecinos.
+  - [ ] (13b) Muebles que se vuelcan con el botón de interactuar y paran balas por un lado.
 - [x] (14) Sinergias indirectas: parejas de objetos que se complementan sin crear nada nuevo,
   pensadas y medidas.
 - [x] (15) Repaso del equilibrio después de todo lo anterior: con las balas grandes, la escasez y
