@@ -765,6 +765,11 @@
       "sesion": "2026-11-04 16:30 UTC",
       "tarea": "M9b (4): botón de interactuar",
       "desde": "2026-11-04T17:05:00Z"
+    },
+    {
+      "sesion": "2026-11-04 17:25 UTC",
+      "tarea": "M9b (8): jefes que se mueven, erráticos y más rápidos con menos vida",
+      "desde": "2026-11-04T17:55:00Z"
     }
   ]
 }
