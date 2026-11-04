@@ -468,6 +468,10 @@ export type SimEvent =
   | { type: 'surge'; x: number; y: number; targets: { id: number; x: number; y: number }[] }
   /** The Corazón Modo Turbo ran out (a combat room was cleared, M9b 12b). */
   | { type: 'turboEnd' }
+  /** A prop that can blow up (at its feet x, y) was hit: `damage` of its `hp` taken; then lit, then the blast (M9b 13a). */
+  | { type: 'propHit'; x: number; y: number; damage: number; hp: number }
+  | { type: 'propLit'; x: number; y: number; fuse: number }
+  | { type: 'blast'; x: number; y: number; radius: number; prop: string; floorY: number }
   /** The player has no life left: the run is over. */
   | { type: 'down'; x: number; y: number; source: number; cause: DownCause }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
@@ -1578,7 +1582,10 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
       b.y += (b.vy * dt) / 2;
       const angle = Math.atan2(b.vy, b.vx);
       const fy = b.y + b.h;
-      if (stopsBullet(w, b.x, fy)) {
+      const prop = isWallAt(w.room, b.x, fy) ? null : bulletProp(w, b.x, fy);
+      if (prop || isWallAt(w.room, b.x, fy)) {
+        // A prop that can blow up takes the hit (an enemy bullet counts for little).
+        if (prop?.def.hp) damageProp(w, prop, b.owner === 'player' ? b.damage : ENEMY_PROP_DAMAGE);
         if (b.bounce && b.bounce > 0) {
           bounceBullet(w, b);
           w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle, bounced: true });
@@ -1683,7 +1690,73 @@ function seekTarget(w: World, b: Bullet): { x: number; y: number } | null {
 
 /** Whether a wall or a prop that stops bullets is at (x, y) (a bullet's shadow). */
 function stopsBullet(w: World, x: number, y: number): boolean {
-  return isWallAt(w.room, x, y) || w.room.props.some((pr) => pr.def.blocksBullets && pointInRect(x, y, pr.box));
+  return isWallAt(w.room, x, y) || !!bulletProp(w, x, y);
+}
+
+/** The prop that stops bullets at (x, y), or null. */
+function bulletProp(w: World, x: number, y: number): PropInstance | null {
+  return w.room.props.find((pr) => pr.def.blocksBullets && pointInRect(x, y, pr.box)) ?? null;
+}
+
+/** Damage an enemy bullet does to a prop that can blow up (the player's bullets do their own). */
+export const ENEMY_PROP_DAMAGE = 1;
+/** Seconds a prop burns once lit before it goes up: shot, or caught by a blast next to it. */
+export const BLAST_FUSE = 0.3;
+export const CHAIN_FUSE = 0.15;
+
+/** A prop that can blow up takes `damage`; with none left, it is lit. */
+export function damageProp(w: World, pr: PropInstance, damage: number): void {
+  if (!pr.def.hp || pr.fuse !== undefined) return;
+  pr.damage = (pr.damage ?? 0) + damage;
+  w.events.push({ type: 'propHit', x: pr.x, y: pr.y, damage: pr.damage, hp: pr.def.hp });
+  if (pr.damage >= pr.def.hp) lightProp(w, pr, BLAST_FUSE);
+}
+
+function lightProp(w: World, pr: PropInstance, fuse: number): void {
+  if (pr.fuse !== undefined) return;
+  pr.fuse = fuse;
+  w.events.push({ type: 'propLit', x: pr.x, y: pr.y, fuse });
+}
+
+/** Lit props burn down their fuse and blow up (M9b 13a). */
+function updateProps(w: World): void {
+  for (const pr of w.room.props.slice()) {
+    if (pr.fuse === undefined) continue;
+    pr.fuse -= DT;
+    if (pr.fuse <= 0) blowUp(w, pr);
+  }
+}
+
+/**
+ * A prop blows up: it is gone, every enemy (and dummy) within the blast takes its damage, the
+ * toaster gets hurt if it is too close, and the props that can blow up nearby are lit.
+ */
+function blowUp(w: World, pr: PropInstance): void {
+  const blast = pr.def.blast!;
+  w.room.props = w.room.props.filter((o) => o !== pr);
+  const cx = pr.x;
+  const cy = pr.y + pr.def.box.y + pr.def.box.h / 2;
+  const near = (x: number, y: number, extra = 0): boolean => Math.hypot(x - cx, y - cy) <= blast.radius + extra;
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar') continue;
+    const hb = dummyHurtBox(en);
+    if (!near(hb.x + hb.w / 2, hb.y + hb.h / 2, Math.min(hb.w, hb.h) / 2)) continue;
+    en.damageTaken = Math.min(en.def.hp, en.damageTaken + blast.damage);
+    en.hitT = 0.12;
+  }
+  for (const d of w.dummies) {
+    const hb = dummyHurtBox(d);
+    if (!near(hb.x + hb.w / 2, hb.y + hb.h / 2, Math.min(hb.w, hb.h) / 2)) continue;
+    d.hitT = 0.12;
+    d.damageTaken += blast.damage;
+  }
+  const p = w.player;
+  if (near(p.x, p.y - PLAYER_HURT_Y, PLAYER_HURT_RADIUS)) {
+    const d = normalize(p.x - cx, p.y - PLAYER_HURT_Y - cy);
+    hurtPlayer(w, blast.hurt, -1, d.x, d.y, { by: 'bidon', how: 'contact' });
+  }
+  for (const o of w.room.props) if (o.def.hp && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) lightProp(w, o, CHAIN_FUSE);
+  w.events.push({ type: 'blast', x: cx, y: cy, radius: blast.radius, prop: pr.def.id, floorY: pr.y });
 }
 
 /**
@@ -2548,6 +2621,7 @@ export function step(w: World, input: Input): void {
   if (!paused) updateEmitters(w);
   if (isRolling(w.player) && !w.over) rollCut(w);
   updateBullets(w, held, slowed ? HOLD_BOSS_SCALE : 1);
+  updateProps(w);
   if (!paused) updateFrost(w);
   reapEnemies(w);
   updateDummies(w);
@@ -2602,7 +2676,8 @@ export function checkInvariants(w: World): string[] {
 export function worldHash(w: World): string {
   const p = w.player;
   const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills];
-  parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield, p.surge, p.turbo ? 1 : 0);
+  parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield, p.surge, p.turbo ? 1 : 0, w.room.props.length);
+  for (const pr of w.room.props) if (pr.damage) parts.push(pr.damage, pr.fuse ?? -1);
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));

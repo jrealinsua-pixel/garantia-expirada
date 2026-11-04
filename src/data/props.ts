@@ -4,7 +4,15 @@ import type { DummyDef, PropDef } from './types.ts';
 // so bullets hit what they visually hit.
 export const PROPS: Record<string, PropDef> = {
   caja: { id: 'caja', name: 'Caja de devolución', box: { x: -11, y: -17, w: 22, h: 16 }, blocksBullets: true },
-  barril: { id: 'barril', name: 'Bidón de aceite usado', box: { x: -6, y: -14, w: 12, h: 13 }, blocksBullets: true },
+  // M9b (13a): it takes a few shots and goes up, taking whatever is near with it (the toaster too).
+  barril: {
+    id: 'barril',
+    name: 'Bidón de aceite usado',
+    box: { x: -6, y: -14, w: 12, h: 13 },
+    blocksBullets: true,
+    hp: 10,
+    blast: { radius: 36, damage: 12, hurt: 2 },
+  },
   carrito: { id: 'carrito', name: 'Carro sin moneda', box: { x: -12, y: -12, w: 24, h: 10 }, blocksBullets: false },
   // Not placed by templates: it appears in some combat rooms when they are cleared (world.ts).
   // Placed on the shopkeeper's spot ($) of the shop: the till that sells (it does not move).

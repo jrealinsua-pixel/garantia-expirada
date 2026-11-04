@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T21:40:00+01:00",
+  "actualizado": "2026-11-04T22:35:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 472,
-    "tests_ok": 472,
+    "tests": 479,
+    "tests_ok": 479,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16569
+    "lineas_codigo": 16727
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T22:35:00+01:00",
+      "hito": "M9b",
+      "resumen": "Los bidones de aceite usado aguantan unos disparos, se encienden y explotan: dañan a los enemigos de alrededor, a la tostadora si está cerca, y encienden a los vecinos en cadena.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T21:40:00+01:00",
       "hito": "M9b",
@@ -752,6 +758,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/bidon-explota.png",
+      "pie": "Un bidón de aceite usado revienta: bola de fuego, chispas y humo; los enemigos de alrededor se llevan 12 de daño"
+    },
+    {
       "archivo": "capturas/sobretension.png",
       "pie": "Se rompe el Corazón de Sobretensión: un rayo a cada enemigo de la sala. «Subida de tensión · daños no cubiertos»"
     },
@@ -770,13 +780,9 @@
     {
       "archivo": "capturas/cofre-premium.png",
       "pie": "La Caja Fuerte Premium (abajo, granate y dorada) al lado de la gris de siempre ya abierta: la rara solo da cosas buenas"
-    },
-    {
-      "archivo": "capturas/tesoro-dos-cofres.png",
-      "pie": "La sala del tesoro de una planta: dos cofres cerrados y nada suelto. Se empieza con un ticket (arriba a la izquierda)"
     }
   ],
-  "proximo": "M9b (13): objetos del escenario que se vuelcan con el botón de interactuar (cobertura) o explotan. Es lo último de M9b.",
+  "proximo": "M9b (13b): muebles que se vuelcan con el botón de interactuar y paran balas; con eso M9b queda terminado.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -803,11 +809,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-04 21:45",
-      "tarea": "M9b (13a): bidones que explotan",
-      "desde": "2026-11-04T21:45:00+01:00"
-    },
     {
       "sesion": "2026-11-04 21:25",
       "tarea": "M10 (1): juego de casillas de la planta 3 (Juguetería)",

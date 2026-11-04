@@ -339,6 +339,25 @@ try {
   const zapped = await page.evaluate<{ hp: number; hit: number }>('({ hp: window.__GE__.scene.world.player.hp, hit: window.__GE__.scene.world.enemies.filter((e) => e.damageTaken > 0).length })');
   if (zapped.hp !== hpSurge || zapped.hit < 1) throw new Error(`La sobretensión no descarga (vida ${hpSurge} → ${zapped.hp}, tocados ${zapped.hit})`);
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const en of w.enemies) en.damageTaken = en.def.hp; w.player.turbo = false; w.player.shield = 0; })()`);
+  // A drum of used oil (M9b 13a): battered (it smokes), lit (it blinks) and blown up (fireball,
+  // scorch mark, and it is gone from the room).
+  const drumAt = await page.evaluate<{ x: number; y: number } | null>(`(() => { const w = window.__GE__.scene.world; w.noDamage = true;
+    const mid = (pr) => Math.hypot(pr.x - w.room.w / 2, pr.y - w.room.h / 2);
+    const d = w.room.props.filter((pr) => pr.def.id === 'barril').sort((a, b) => mid(a) - mid(b))[0]; if (!d) return null;
+    w.player.x = d.x - 60; w.player.y = d.y + 20; d.damage = d.def.hp - 1; return { x: d.x, y: d.y }; })()`);
+  if (drumAt) {
+    await page.waitForTimeout(700);
+    await shot('11h-bidon-tocado.png');
+    await page.evaluate(`(() => { const d = window.__GE__.scene.world.room.props.find((pr) => pr.def.id === 'barril' && pr.x === ${drumAt.x} && pr.y === ${drumAt.y}); d.fuse = 0.3; })()`);
+    await page.waitForTimeout(150);
+    await shot('11i-bidon-encendido.png');
+    await page.waitForFunction(`!window.__GE__.scene.world.room.props.some((pr) => pr.x === ${drumAt.x} && pr.y === ${drumAt.y})`, undefined, { timeout: 2000 });
+    await page.waitForTimeout(60);
+    await shot('11j-bidon-explota.png');
+    await page.waitForTimeout(900);
+    await shot('11k-bidon-quemado.png');
+    await page.evaluate(`(() => { window.__GE__.scene.world.noDamage = false; })()`);
+  } else throw new Error('La Sala de Pruebas no tiene bidón');
   // Down: with half a heart left, one more bullet ends it. The toaster comes apart (slices,
   // spring, screws), the sick-leave report drops in with its stamp, and R asks for a new unit.
   await page.waitForTimeout(1300);

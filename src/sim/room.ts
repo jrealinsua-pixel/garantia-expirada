@@ -17,6 +17,9 @@ export interface PropInstance {
   box: Rect;
   /** Set when the prop is a chest (it appears when a room is cleared; see world.ts). */
   chest?: ChestState;
+  /** A prop that can blow up (its def has `hp`): damage taken so far, and the seconds left once it is lit. */
+  damage?: number;
+  fuse?: number;
 }
 
 /** A chest: shut until the interact button is pressed at it with a ticket. */

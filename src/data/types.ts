@@ -206,6 +206,13 @@ export interface PropDef {
   /** Collision box relative to the prop position (bottom-centre of the sprite). */
   box: { x: number; y: number; w: number; h: number };
   blocksBullets: boolean;
+  /**
+   * Damage it takes before it blows up (M9b 13a): the player's bullets do their damage, an enemy
+   * bullet one point, a blast next to it sets it off. Unset: it cannot be broken.
+   */
+  hp?: number;
+  /** What it does when it blows up: `damage` to every enemy within `radius` px, `hurt` (half hearts) to the toaster. */
+  blast?: { radius: number; damage: number; hurt: number };
 }
 
 export interface DummyDef {

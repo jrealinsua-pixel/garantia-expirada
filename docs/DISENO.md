@@ -337,6 +337,16 @@ repite objeto.
 No se anuncian: descubrirlas es parte del juego. Cuando exista el glosario (M14) podrá contarlas
 con la frase de cada una (el campo `why`), una vez que el jugador haya llevado la pareja.
 
+### Objetos del escenario (M9b 13)
+
+- **Bidón de aceite usado** (13a): aguanta 10 de daño (unos siete disparos del Secador; una bala
+  enemiga cuenta 1), se enciende (parpadea en blanco, tiembla y sisea; ya muy tocado echa humo) y a
+  los 0,3 s explota: 12 de daño a los enemigos a 36 px, **un corazón a la tostadora** si está
+  igual de cerca, y enciende a los bidones vecinos, que van saltando uno detrás de otro (0,15 s).
+  Deja una mancha quemada y desaparece de la sala para siempre. Cobertura que se gasta y trampa
+  para quien la usa mal. Causa de baja: «Bidón de aceite usado sin etiquetar».
+- **Muebles volcables** (13b, pendiente): se vuelcan con el botón de interactuar y paran balas.
+
 ### Balas enemigas
 
 - Grandes, de colores saturados y con borde claro, para que se lean sobre cualquier suelo.

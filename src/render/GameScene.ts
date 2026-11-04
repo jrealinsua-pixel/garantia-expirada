@@ -294,6 +294,8 @@ export class GameScene extends Phaser.Scene {
   private ticketPop = 0;
   private chestDrop = false;
   private chestSprites = new Map<number, { s: Phaser.GameObjects.Image; open: boolean; pop: number }>();
+  /** Props that can blow up (M9b 13a), by their feet «x,y»: sprite, shadow and how hard they still shake from a hit. */
+  private drumViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; jolt: number; smoke: number }>();
   private couponPop = 0;
   /** The shop till (only in the shop), what it is saying and for how long, and its refusal face. */
   private till: Phaser.GameObjects.Image | null = null;
@@ -439,6 +441,7 @@ export class GameScene extends Phaser.Scene {
     this.bulletPool = [];
     this.pickupSprites = new Map();
     this.chestSprites = new Map();
+    this.drumViews = new Map();
     this.ticketPop = 0;
     this.till = null;
     this.bubble = null;
@@ -536,8 +539,9 @@ export class GameScene extends Phaser.Scene {
       }
       const look = this.levelKey(key);
       const tex = this.textures.get(look).getSourceImage();
-      this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
-      this.add.image(pr.x, pr.y, look).setOrigin(0.5, 1).setDepth(pr.y);
+      const shadow = this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
+      const img = this.add.image(pr.x, pr.y, look).setOrigin(0.5, 1).setDepth(pr.y);
+      if (pr.def.hp) this.drumViews.set(`${pr.x},${pr.y}`, { s: img, shadow, x: pr.x, jolt: 0, smoke: 0 });
     }
     if (room.kind === 'hub') this.makeHub();
     if (room.kind === 'shop') {
@@ -2089,6 +2093,21 @@ export class GameScene extends Phaser.Scene {
         case 'surge':
           this.surgeShock(e);
           break;
+        case 'propHit': {
+          // A drum takes a hit: a metal clang, sparks and a jolt.
+          const v = this.drumViews.get(`${e.x},${e.y}`);
+          if (v) v.jolt = 0.12;
+          this.sound2.play('clinc', { detune: -900, volume: 0.7 });
+          for (let i = 0; i < 3; i++) this.spark(e.x, e.y - 8, this.fx.range(-Math.PI, 0), this.fx.range(30, 70), 1);
+          break;
+        }
+        case 'propLit':
+          // Lit: a hiss before the bang.
+          this.sound2.play('vapor', { detune: -800, volume: 0.6 });
+          break;
+        case 'blast':
+          this.drumBlast(e);
+          break;
         case 'turboEnd': {
           // The turbo winds down: the engine stops and a line over the toaster.
           const p = this.world.player;
@@ -2321,6 +2340,58 @@ export class GameScene extends Phaser.Scene {
       for (let i = 0; i < 6; i++) this.spark(t.x, t.y, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 0, 0x69dbd8);
     }
     this.tweens.add({ targets: g, alpha: 0, duration: 260, ease: 'Quad.easeIn', onComplete: () => g.destroy() });
+  }
+
+  /**
+   * Drums (M9b 13a): a hit jolts them; a battered one smokes now and then; a lit one blinks white
+   * and trembles until it goes up.
+   */
+  private drawDrums(dt: number): void {
+    for (const pr of this.world.room.props) {
+      if (!pr.def.hp) continue;
+      const v = this.drumViews.get(`${pr.x},${pr.y}`);
+      if (!v) continue;
+      v.jolt = Math.max(0, v.jolt - dt);
+      const lit = pr.fuse !== undefined;
+      const wob = lit ? this.fx.range(-1, 1) : v.jolt > 0 ? (Math.floor(v.jolt * 40) % 2 ? 1 : -1) : 0;
+      v.s.setX(v.x + Math.round(wob));
+      if (lit && Math.floor(this.time.now / 50) % 2 === 0) this.whiteOut(v.s);
+      else v.s.clearTint();
+      if ((pr.damage ?? 0) >= pr.def.hp / 2) {
+        v.smoke -= dt;
+        if (v.smoke <= 0) {
+          v.smoke = lit ? 0.04 : this.fx.range(0.35, 0.8);
+          this.puff(pr.x + this.fx.range(-3, 3), pr.y - 15, 0.6);
+        }
+      }
+    }
+  }
+
+  /** A drum blows up: gone, a fireball, debris, a scorch mark, a big shake and a bang. */
+  private drumBlast(e: Extract<SimEvent, { type: 'blast' }>): void {
+    const v = this.drumViews.get(`${e.x},${e.floorY}`);
+    if (v) {
+      v.s.destroy();
+      v.shadow.destroy();
+      this.drumViews.delete(`${e.x},${e.floorY}`);
+    }
+    this.hitstop = Math.max(this.hitstop, 0.08);
+    this.shake(260, 0.013, true);
+    this.sound2.play('estallido');
+    this.sound2.play('derrumbe', { volume: 0.5 });
+    // The scorch mark stays on the floor.
+    this.add.ellipse(e.x, e.floorY - 3, 26, 12, 0x15121c, 0.55).setDepth(-49000);
+    this.add.ellipse(e.x, e.floorY - 3, 14, 6, 0x0e0c16, 0.6).setDepth(-48999);
+    // The fireball: a ring that grows and fades, flames and smoke.
+    const core = this.add.circle(e.x, e.y, 8, 0xfff1a8, 1).setDepth(e.floorY + 31);
+    const fire = this.add.circle(e.x, e.y, 10, 0xff8a3a, 0.95).setDepth(e.floorY + 30);
+    const ring = this.add.circle(e.x, e.y, 8).setDepth(e.floorY + 32).setStrokeStyle(2, 0xfff1a8, 1);
+    this.tweens.add({ targets: core, radius: e.radius * 0.45, alpha: 0, duration: 160, ease: 'Quad.easeOut', onComplete: () => core.destroy() });
+    this.tweens.add({ targets: fire, radius: e.radius * 0.8, alpha: 0, duration: 320, ease: 'Cubic.easeOut', onComplete: () => fire.destroy() });
+    this.tweens.add({ targets: ring, radius: e.radius, alpha: 0, duration: 260, ease: 'Quad.easeOut', onComplete: () => ring.destroy() });
+    for (let i = 0; i < 18; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(60, 170), this.fx.int(1, 2));
+    for (let i = 0; i < 10; i++) this.puff(e.x + this.fx.range(-14, 14), e.y + this.fx.range(-10, 8), this.fx.range(0.6, 1.1));
+    for (let i = 0; i < 6; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(40, 90), 3);
   }
 
   /** A scrap of paper (a warranty slip) thrown out from (x, y). */
@@ -2854,6 +2925,7 @@ export class GameScene extends Phaser.Scene {
     this.drawStatic();
     this.drawFrost(dt);
     this.drawChests(dt);
+    this.drawDrums(dt);
     this.drawPickups();
 
     // Bullets.
