@@ -15,7 +15,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 230,
     contactDamage: 1,
     knockbackScale: 0.5,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 breathing, 2-5 rolling along on its wheeled shoes.
     anim: { idle: [0, 1], idleMs: 420, walk: [2, 3, 4, 5], stepPx: 5 },
     brain: {
@@ -43,7 +43,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 120,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [1, 3] },
+    loot: { coupons: [1, 2] },
     anim: { idle: [0, 1], idleMs: 480 },
     brain: {
       kind: 'turret',
@@ -67,7 +67,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 140,
     contactDamage: 1,
     knockbackScale: 0.25,
-    loot: { coupons: [3, 5] },
+    loot: { coupons: [1, 3] },
     escort: 'polilla',
     // 0 lit, 1 off (switching on), 2 lit breathing out, 3-6 walking.
     anim: { idle: [0, 2], idleMs: 440, walk: [3, 4, 5, 6], stepPx: 5, off: 1 },
@@ -123,7 +123,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 200,
     contactDamage: 1,
     knockbackScale: 0.8,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-3 standing with the beaters turning (flat out while it winds up), 4-7 running.
     anim: { idle: [0, 1, 2, 3], idleMs: 90, busyMs: 30, walk: [4, 5, 6, 7], stepPx: 5 },
     brain: {
@@ -184,7 +184,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 140,
     contactDamage: 1,
     knockbackScale: 0.2,
-    loot: { coupons: [1, 3] },
+    loot: { coupons: [0, 2] },
     // 0-1 humming, 2-5 a heavy shuffle, 6-7 shaking with the paper jammed.
     anim: { idle: [0, 1], idleMs: 300, walk: [2, 3, 4, 5], stepPx: 5, jam: [6, 7], jamMs: 60 },
     brain: {
@@ -211,7 +211,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 160,
     contactDamage: 1,
     knockbackScale: 0.9,
-    loot: { coupons: [0, 2] },
+    loot: { coupons: [0, 1] },
     pack: 2,
     // 0-1 humming, 2-5 scuttling, 6 lying on the floor as bait, 7 jumping up when found out.
     anim: { idle: [0, 1], idleMs: 160, walk: [2, 3, 4, 5], stepPx: 3, lurk: 6, reveal: 7 },
@@ -241,7 +241,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 150,
     contactDamage: 1,
     knockbackScale: 0.7,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 breathing, 2-5 gliding on its pads, 6 frozen without signal.
     anim: { idle: [0, 1], idleMs: 360, walk: [2, 3, 4, 5], stepPx: 4, warn: 6 },
     brain: {
@@ -268,7 +268,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 120,
     contactDamage: 1,
     knockbackScale: 0.8,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 looking about (the lens refocuses), 2-5 tiptoeing on its clip, 6 recording (REC on).
     anim: { idle: [0, 1], idleMs: 520, walk: [2, 3, 4, 5], stepPx: 4, warn: 6 },
     brain: {
@@ -300,7 +300,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [12, 16], hearts: 1 },
+    loot: { coupons: [6, 9], hearts: 1 },
     // 0-1 breathing (the wifi light blinks), 2-5 a heavy walk, 6-11 rebooting with its lights coming on one by one.
     anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 9, reboot: [6, 7, 8, 9, 10, 11] },
     brain: {
@@ -376,7 +376,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [10, 14], hearts: 1 },
+    loot: { coupons: [5, 8], hearts: 1 },
     // 0-1 breathing, 2-5 a heavy walk; 6-11 the same with the door open (second phase).
     anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, phaseShift: 6 },
     brain: {

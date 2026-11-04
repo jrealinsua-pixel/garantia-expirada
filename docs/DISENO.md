@@ -154,18 +154,23 @@ de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ni
 ### Economía
 
 - **Cupones descuento** como moneda: caen de los enemigos y se gastan en la tienda.
-- **Tickets** como llaves: abren cofres y puertas cerradas. Cada planta tiene 2 salas de
-  combate que sueltan un ticket al limpiarlas y otras 2 donde cae una **Caja Fuerte de
-  Devoluciones** (el cofre). Se abre con el botón de interactuar (F) y un ticket: se lo traga y suelta el
-  siguiente objeto pasivo (o activo, o arma) y unos cupones. Sin ticket, se queja («Sin ticket
-  no hay devolución»).
+- **Tickets** como llaves: abren cofres y puertas cerradas. Escasos (nota del humano del
+  2026-10-30): la partida empieza con **1 ticket**; cada planta tiene 1 sala de combate que suelta
+  otro al limpiarla, y la tienda vende uno. Las **Cajas Fuertes de Devoluciones** (los cofres)
+  son más que los tickets: **2 en la sala del tesoro**, 1 en la secreta, y cada sala de combate
+  limpia tiene un 15 % de dejar otra. Muchas veces un cofre se queda cerrado. Se abre con el botón
+  de interactuar (F) y un ticket: se lo traga y suelta un objeto pasivo (lo normal), un arma o un
+  activo, y un cupón. Sin ticket, se queja («Sin ticket no hay devolución»).
+- **Los objetos nunca están sueltos** por una sala: solo salen de cofres o de la tienda.
+- **Los cupones se recogen solos** al limpiar una sala: vuelan hacia la tostadora. Los enemigos
+  sueltan la mitad que antes (0–1 casi todos; los jefes, 5–9): una planta da unos 20.
 - **La tienda** (Tienda del Personal): la atiende la **Caja de Autocobro**, una caja de
   autopago que se quedó sola después de que despidieran a las demás. Tres baldas: el siguiente
   objeto de la baraja de la planta (15 cupones; si no quedan pasivos, un activo por 12 o un arma
-  por 18), un corazón de recambio (6) y un ticket (8). Se compra poniéndose delante y pulsando el botón de interactuar (F; «F: Comprar por 15» bajo la tostadora);
+  por 18), un corazón de recambio (6) y un ticket (10). Se compra poniéndose delante y pulsando el botón de interactuar (F; «F: Comprar por 15» bajo la tostadora);
   sin cupones suficientes la pantalla se pone roja («Saldo insuficiente. Pruebe a tener más.») y
   con la vida llena no vende corazones («No le vendo nada que no necesite. Aún.»). Una planta
-  entera da unos 40 cupones: da para dos o tres cosas, así que comprar es elegir.
+  entera da unos 20 cupones: da para una cosa, así que comprar es elegir.
 - **Pilas** como cargas del objeto activo.
 
 ### Armas y objetos

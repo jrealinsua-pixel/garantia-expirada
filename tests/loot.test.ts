@@ -186,3 +186,23 @@ test('el imán de cupones no los mete dentro de una columna', () => {
     }
   }
 });
+
+test('al limpiar una sala, sus cupones van solos a la tostadora (nota del humano del 2026-10-30)', async () => {
+  const { createWorld: cw, enterRoom: er, step: st, NO_INPUT: NI, DT: dt } = await import('../src/sim/world.ts');
+  const w = cw({ seed: 'aspiradora', floor: true });
+  w.noDamage = true;
+  const f = w.floor!;
+  const fr = f.layout.rooms.find((r) => r.kind === 'combat')!;
+  er(w, fr.id, fr.doors[0]!.dir);
+  assert.ok(w.doorsShut);
+  // Coupons lying about in the far corner, and the toaster standing still on the other side.
+  for (let i = 0; i < 4; i++) w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: w.room.w - 60, y: w.room.h - 50, vx: 0, vy: 0, age: 1 });
+  w.player.x = 60;
+  w.player.y = 80;
+  for (const en of w.enemies) en.damageTaken = en.def.hp;
+  const before = w.player.coupons;
+  for (let i = 0; i < Math.ceil(3 / dt); i++) st(w, NI);
+  assert.ok(!w.doorsShut);
+  assert.equal(w.pickups.filter((k) => k.kind === 'cupon').length, 0, 'quedan cupones en el suelo');
+  assert.ok(w.player.coupons >= before + 4);
+});

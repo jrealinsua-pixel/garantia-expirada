@@ -573,6 +573,32 @@ try {
   );
   await shot('16f-planta-jefa.png');
   console.log(`Planta: de la entrada a la sala de la jefa por la puerta ${toBoss.dir}: ${JSON.stringify(inBoss)}`);
+  // M9b: the floor's treasure room keeps two shut chests, and nothing loose (nota del humano del 2026-10-30).
+  await page.goto(`${url}?semilla=e2e-planta`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  const toTreasure = await page.evaluate<{ dir: string }>(`(() => {
+    const w = window.__GE__.scene.world; w.noDamage = true; const f = w.floor; const here = f.layout.rooms[f.current];
+    const t = f.layout.rooms.find((r) => r.kind === 'treasure'); const opp = { N: 'S', S: 'N', E: 'W', W: 'E' };
+    const door = here.doors.find((d) => !d.secret && t.doors.some((b) => b.dir === opp[d.dir])) || here.doors.find((d) => !d.secret);
+    door.to = t.id;
+    const d = w.room.doors.find((x) => x.dir === door.dir); const p = w.player;
+    p.x = d.dir === 'E' ? d.x - 20 : d.dir === 'W' ? d.x + d.w + 20 : d.x + d.w / 2;
+    p.y = d.dir === 'N' ? d.y + d.h + 20 : d.dir === 'S' ? d.y - 20 : d.y + d.h / 2 + 4;
+    return { dir: door.dir };
+  })()`);
+  const trkey = { N: 'w', S: 's', E: 'd', W: 'a' }[toTreasure.dir] ?? 'd';
+  await page.keyboard.down(trkey);
+  await page.waitForFunction(`window.__GE__.scene.world.room.kind === 'treasure'`, undefined, { timeout: 4000 });
+  await page.keyboard.up(trkey);
+  await page.waitForTimeout(900);
+  const inTreasure = await page.evaluate<{ chests: number; loose: number; tickets: number }>(
+    "(() => { const w = window.__GE__.scene.world; return { chests: w.room.props.filter((p) => p.chest).length,"
+      + " loose: w.pickups.filter((k) => k.kind !== 'cupon').length, tickets: w.player.tickets }; })()",
+  );
+  if (inTreasure.chests !== 2 || inTreasure.loose !== 0 || inTreasure.tickets !== 1) {
+    throw new Error(`El tesoro de la planta no tiene dos cofres y nada suelto, o no se empieza con un ticket: ${JSON.stringify(inTreasure)}`);
+  }
+  await shot('16g-planta-tesoro.png');
   if (!inBoss.boss || !inBoss.intro || !inBoss.shut) throw new Error(`Al entrar desde la planta, la jefa no está o no se presenta: ${JSON.stringify(inBoss)}`);
 
   // The boss room (M4): La Nevera Suprema makes her entrance; firing again skips the rest.
@@ -851,7 +877,9 @@ try {
   await page.keyboard.up('a');
   await page.waitForTimeout(300);
   await shot('23d-cofre-abierto.png');
-  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.pickups.some((k) => k.kind === 'objeto')"))) throw new Error('El cofre no suelta ningún objeto');
+  // A passive item, an active one or a weapon (not one of the test room's pedestals: those are old).
+  const fromChest = "window.__GE__.scene.world.pickups.some((k) => k.kind === 'objeto' || k.kind === 'activo' || (k.kind === 'arma' && k.age < 3))";
+  if (!(await page.evaluate<boolean>(fromChest))) throw new Error('El cofre no suelta ningún objeto');
   console.log('Cofres: cerrado sin ticket, abierto con ticket y con su objeto.');
 
   // M5: the shop. The till greets; without coupons it says no; with them the item is bought.

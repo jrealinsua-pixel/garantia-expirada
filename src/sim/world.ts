@@ -130,6 +130,8 @@ export interface Pickup {
   doc?: string;
   /** Put down just now under the toaster: it cannot be picked up until the toaster has stepped off it. */
   stepOff?: boolean;
+  /** Seconds it has been flying to the toaster after its room was cleared (World.vacuum). */
+  vac?: number;
   /** For sale on a shop shelf: its price in coupons (the interact button buys it, if it can be paid). */
   price?: number;
 }
@@ -143,6 +145,10 @@ const WEAPON_GRAB = 12;
 export const PICKUP_DELAY = 0.45;
 /** Pickups closer than this to the player fly towards it (px). */
 export const PICKUP_MAGNET = 44;
+/** How fast the coupons of a cleared room fly to the toaster (px/s). */
+const VACUUM_SPEED = 260;
+/** Seconds a coupon of a cleared room may take to get there before it is simply counted. */
+const VACUUM_GIVE_UP = 1.5;
 const PICKUP_GRAB = 8;
 const PICKUP_FRICTION = 260;
 const PICKUP_RADIUS = 2;
@@ -476,6 +482,8 @@ export interface World {
   won: boolean;
   /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
   holdT: number;
+  /** The room was cleared: its coupons fly to the toaster on their own (nota del humano del 2026-10-30). */
+  vacuum?: boolean;
   /** The Mostrador: the toaster stepped on the conveyor, the hub stands still and a run is due (see leaveHub). */
   leftHub: boolean;
 }
@@ -531,11 +539,24 @@ export interface FloorRoomState {
 
 /** A ticket (a key) or a chest that a ticket opens. */
 export type RoomReward = 'ticket' | 'chest';
-/** Combat rooms of each floor that leave a ticket, and a chest, when cleared. */
-export const FLOOR_TICKETS = 2;
-export const FLOOR_CHESTS = 2;
+/**
+ * The economy is scarce (nota del humano del 2026-10-30): a run starts with one ticket, each floor
+ * has one combat room that leaves a ticket, two chests wait in the treasure room (one more in the
+ * secret room), and now and then a cleared combat room leaves another chest. There are more
+ * chests than tickets: often one stays shut.
+ */
+export const START_TICKETS = 1;
+/** Combat rooms of each floor that leave a ticket when cleared. */
+export const FLOOR_TICKETS = 1;
+/** Chance that any other combat room leaves a chest when cleared (decided with the floor). */
+export const CLEAR_CHEST_CHANCE = 0.15;
+/** Chests in the treasure room. */
+export const TREASURE_CHESTS = 2;
 /** Coupons that spill out of a chest with its item. */
-export const CHEST_COUPONS = 3;
+export const CHEST_COUPONS = 1;
+/** Odds that a chest holds a weapon, or an active item (else a passive item). */
+const CHEST_WEAPON = 0.2;
+const CHEST_ACTIVE = 0.25;
 /** How close the toaster's feet have to get to a chest to open it with the interact button (px). */
 const CHEST_REACH = 10;
 
@@ -643,7 +664,7 @@ export function createWorld(opts: WorldOptions): World {
       slot: 0,
       walked: 0,
       coupons: 0,
-      tickets: 0,
+      tickets: floor ? START_TICKETS : 0,
       items: [],
       active: null,
     },
@@ -790,11 +811,13 @@ function planFloor(seed: string, level: number): FloorRun {
     const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss: floorBossOf(level), vary: true });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
-  // Rewards: a seeded pick of combat rooms (the first ones get the tickets, the next ones the chests).
-  const combat = new Rng(`premios:${seed}`).shuffle(layout.rooms.filter((fr) => fr.kind === 'combat').map((fr) => fr.id));
+  // Rewards: a seeded pick of combat rooms (the first ones get the tickets; each of the rest a
+  // chest, now and then).
+  const prize = new Rng(`premios:${seed}`);
+  const combat = prize.shuffle(layout.rooms.filter((fr) => fr.kind === 'combat').map((fr) => fr.id));
   combat.forEach((id, i) => {
     if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
-    else if (i < FLOOR_TICKETS + FLOOR_CHESTS) rooms[id]!.reward = 'chest';
+    else if (prize.chance(CLEAR_CHEST_CHANCE)) rooms[id]!.reward = 'chest';
   });
   return { layout, current: layout.start, rooms, ...lootDecks(seed, level) };
 }
@@ -872,6 +895,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.lift = st.lift ?? null;
   st.lift = null;
   w.emptyT = 0;
+  w.vacuum = false;
   const p = w.player;
   const at = entrySpot(w.room, via);
   p.x = at.x;
@@ -889,9 +913,11 @@ export function enterRoom(w: World, id: number, via: Dir): void {
     if (w.room.kind === 'boss' && via === 'N') for (const en of w.enemies) if (en.def.boss) en.y = w.room.h - en.y;
   }
   if (w.enemies.length === 0) st.cleared = true;
-  // Until there are chests, the treasure room (and the secret one) keep a weapon and items on their pedestals.
+  // On a floor nothing lies loose on a pedestal (nota del humano del 2026-10-30): the treasure
+  // room keeps its chests, and the secret room one more.
   const kind = f.layout.rooms[id]!.kind;
-  if (first && (kind === 'treasure' || kind === 'secret')) stockPedestals(w, f.weapons, f.items, f.actives);
+  if (first && kind === 'treasure') stockChests(w, TREASURE_CHESTS);
+  if (first && kind === 'secret') stockChests(w, 1);
   if (first && kind === 'secret') placeStoryDoc(w);
   if (first && kind === 'shop') stockShop(w, f);
   w.doorsShut = !st.cleared;
@@ -921,6 +947,14 @@ function stockPedestals(w: World, weapons: string[], items: string[], actives: s
     else if (d === 1) w.pickups.push({ id: w.nextId++, kind: 'objeto', item: id, ...at });
     else w.pickups.push({ id: w.nextId++, kind: 'activo', item: id, charge: ACTIVE_ITEMS[id]!.charges, ...at });
   }
+}
+
+/** Shut chests on the room's first `n` item slots (no drop, no thud: they were already there). */
+function stockChests(w: World, n: number): void {
+  const slots = w.room.slots.filter((s) => s.kind === 'item');
+  // Two chests in a row of three slots go on the outer ones, with room to stand between them.
+  const pick = n === 2 && slots.length >= 3 ? [slots[0]!, slots[slots.length - 1]!] : slots.slice(0, n);
+  for (const s of pick) placeChest(w, s.x, s.y, false);
 }
 
 /**
@@ -2043,7 +2077,20 @@ function updatePickups(w: World): void {
       w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: k.kind === 'corazon' ? p.hp : k.kind === 'ticket' ? p.tickets : p.coupons });
       continue;
     }
-    if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
+    if (w.vacuum && k.kind === 'cupon' && k.age >= PICKUP_DELAY && !w.over) {
+      // The room is clear: every coupon in it flies to the toaster, sliding round what is in the
+      // way; one that stays stuck behind something a while is counted anyway.
+      k.vac = (k.vac ?? 0) + DT;
+      if (k.vac > VACUUM_GIVE_UP) {
+        p.coupons += k.value;
+        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: p.coupons });
+        continue;
+      }
+      const sp = Math.min(VACUUM_SPEED, d / DT);
+      k.vx = (dx / d) * sp;
+      k.vy = (dy / d) * sp;
+      slide(w, k, PICKUP_RADIUS, k.vx * DT, k.vy * DT);
+    } else if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
       // Pulled in faster the closer it gets; it slides round pillars and boxes instead of
       // flying through them.
       const sp = 90 + (1 - d / PICKUP_MAGNET) * 160;
@@ -2113,6 +2160,7 @@ function updateDoors(w: World): void {
     w.doorsShut = false;
     w.events.push({ type: 'doors', shut: false });
     chargeActive(w);
+    w.vacuum = true;
     if (w.floor) {
       const st = w.floor.rooms[w.floor.current]!;
       st.cleared = true;
@@ -2141,7 +2189,7 @@ export function dropTicket(w: World, x: number, y: number): void {
  * A shut chest turns up as close to (x, y) as it fits: on clear floor, off the toaster and off
  * anything lying on the floor. Returns its prop.
  */
-export function placeChest(w: World, x: number, y: number): PropInstance {
+export function placeChest(w: World, x: number, y: number, drop = true): PropInstance {
   const def = PROPS.cofre!;
   const p = w.player;
   const fits = (cx: number, cy: number): boolean => {
@@ -2170,7 +2218,7 @@ export function placeChest(w: World, x: number, y: number): PropInstance {
   }
   const prop: PropInstance = { def, x: at.x, y: at.y, box: { x: at.x + def.box.x, y: at.y + def.box.y, w: def.box.w, h: def.box.h }, chest: { id: w.nextId++, open: false } };
   w.room.props.push(prop);
-  w.events.push({ type: 'reward', reward: 'chest', x: at.x, y: at.y });
+  if (drop) w.events.push({ type: 'reward', reward: 'chest', x: at.x, y: at.y });
   return prop;
 }
 
@@ -2281,16 +2329,23 @@ function openChest(w: World, pr: PropInstance): void {
   // Out in front (below) of the chest, or wherever there is room.
   const spot = freeSpot(w, pr.x, pr.y + 32, 8);
   const base = { x: spot.x, y: spot.y, vx: 0, vy: 0, age: 0, value: 1 };
+  // Now that items only come out of chests (and the shop), a chest can hold any of the three:
+  // mostly a passive item, sometimes a weapon or an active one (whatever is left in the decks).
   let item: string | undefined;
-  if (decks.items.length > 0) {
-    item = decks.items.shift()!;
-    w.pickups.push({ id: w.nextId++, kind: 'objeto', item, ...base });
-  } else if (decks.actives.length > 0) {
-    item = decks.actives.shift()!;
-    w.pickups.push({ id: w.nextId++, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges, ...base });
-  } else if (decks.weapons.length > 0) {
-    item = decks.weapons.shift()!;
-    w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: item, ...base });
+  const roll = w.rng.next();
+  const order = roll < CHEST_WEAPON ? ['arma', 'objeto', 'activo'] : roll < CHEST_WEAPON + CHEST_ACTIVE ? ['activo', 'objeto', 'arma'] : ['objeto', 'activo', 'arma'];
+  for (const kind of order) {
+    if (kind === 'objeto' && decks.items.length > 0) {
+      item = decks.items.shift()!;
+      w.pickups.push({ id: w.nextId++, kind: 'objeto', item, ...base });
+    } else if (kind === 'activo' && decks.actives.length > 0) {
+      item = decks.actives.shift()!;
+      w.pickups.push({ id: w.nextId++, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges, ...base });
+    } else if (kind === 'arma' && decks.weapons.length > 0) {
+      item = decks.weapons.shift()!;
+      w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: item, ...base });
+    } else continue;
+    break;
   }
   const out = freeSpot(w, pr.x, pr.y + 6, PICKUP_RADIUS);
   for (let i = 0; i < CHEST_COUPONS + (item ? 0 : 3); i++) {

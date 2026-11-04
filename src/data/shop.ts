@@ -13,7 +13,7 @@ export const SHOP_PRICES: Record<ShopGood, number> = {
   activo: 12,
   arma: 18,
   corazon: 6,
-  ticket: 8,
+  ticket: 10,
 };
 
 /**

@@ -114,33 +114,46 @@ test('un objeto se coge andando por encima (rodando no) y se lleva el resto de l
   assert.ok(!w3.pickups.includes(k3));
 });
 
-test('la sala del tesoro tiene un arma, un objeto y un activo; la secreta, otro; cada planta en su orden', () => {
+test('los cofres del tesoro y de la secreta reparten de las barajas de la planta, en su orden', () => {
   const seen = new Set<string>();
   const firsts = new Set<string>();
+  const open = (w: ReturnType<typeof createWorld>): void => {
+    w.player.tickets = 9;
+    for (const c of w.room.props.filter((pr) => pr.chest && !pr.chest.open)) {
+      w.player.x = c.x;
+      w.player.y = c.box.y + c.box.h + 6;
+      step(w, { ...NO_INPUT, interact: true });
+      assert.ok(c.chest!.open);
+    }
+  };
   for (let s = 0; s < 12; s++) {
     const w = createWorld({ seed: `planta-objetos-${s}`, floor: true });
+    w.noDamage = true;
     const f = w.floor!;
     const treasure = f.layout.rooms.find((r) => r.kind === 'treasure')!;
     const secret = f.layout.rooms.find((r) => r.kind === 'secret');
     enterRoom(w, treasure.id, 'S');
-    const kinds = w.pickups.map((k) => k.kind).sort();
-    assert.deepEqual(kinds, ['activo', 'arma', 'objeto'], `semilla ${s}: ${kinds}`);
-    const it = w.pickups.find((k) => k.kind === 'objeto')!.item!;
-    firsts.add(it);
-    seen.add(it);
+    // Nothing loose: two chests (nota del humano del 2026-10-30).
+    assert.equal(w.pickups.length, 0, `semilla ${s}`);
+    open(w);
+    const got = w.pickups.filter((k) => k.kind !== 'cupon');
+    assert.equal(got.length, 2, `semilla ${s}: ${got.map((k) => k.kind)}`);
+    for (const k of got) assert.ok(k.kind === 'arma' ? FINDABLE_WEAPONS.includes(k.weapon!) : k.item, `semilla ${s}`);
+    const first = got[0]!.item ?? got[0]!.weapon!;
+    firsts.add(first);
+    for (const k of got) seen.add(k.item ?? k.weapon!);
     if (secret) {
       enterRoom(w, secret.id, 'S');
-      // Its pedestal, and the story document on the floor (tests/documentos.test.ts).
-      assert.equal(w.pickups.length, 2);
+      // Its chest, and the story document on the floor (tests/documentos.test.ts).
       assert.equal(w.pickups.filter((x) => x.kind === 'documento').length, 1);
-      // The second weapon if it is still there, or else an item.
-      const k = w.pickups.find((x) => x.kind !== 'documento')!;
-      assert.ok(k.kind === 'arma' ? FINDABLE_WEAPONS.includes(k.weapon!) : ITEMS[k.item!], `semilla ${s}`);
-      if (k.item) seen.add(k.item);
+      open(w);
+      const k = w.pickups.find((x) => x.kind !== 'documento' && x.kind !== 'cupon')!;
+      assert.ok(k.kind === 'arma' ? FINDABLE_WEAPONS.includes(k.weapon!) : k.item, `semilla ${s}`);
+      seen.add(k.item ?? k.weapon!);
     }
     // Stocked once: walking back in does not refill it.
     enterRoom(w, treasure.id, 'S');
-    assert.equal(w.pickups.length, 3);
+    assert.equal(w.room.props.filter((pr) => pr.chest && !pr.chest.open).length, 0);
   }
   assert.ok(firsts.size >= 5, `el tesoro reparte siempre lo mismo: ${[...firsts]}`);
   assert.ok(seen.size >= 6);

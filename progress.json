@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T19:00:13+01:00",
+  "actualizado": "2026-11-04T19:12:12+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,8 +77,8 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 8,
-      "total": 14
+      "hechas": 9,
+      "total": 15
     },
     {
       "id": "M10",
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 446,
-    "tests_ok": 446,
+    "tests": 449,
+    "tests_ok": 449,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16005
+    "lineas_codigo": 16059
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T19:12:12+01:00",
+      "hito": "M9b",
+      "resumen": "Economía escasa: se empieza con un ticket, dos cofres en el tesoro y nada suelto, la mitad de cupones (que vuelan solos al limpiar la sala); el bot ya no gana la planta 1, apuntado para equilibrar.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T19:00:13+01:00",
       "hito": "M9b",
@@ -728,6 +734,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/tesoro-dos-cofres.png",
+      "pie": "La sala del tesoro de una planta: dos cofres cerrados y nada suelto. Se empieza con un ticket (arriba a la izquierda)"
+    },
+    {
       "archivo": "capturas/router-se-mueve.png",
       "pie": "El Router ya no espera arriba: da vueltas alrededor de la tostadora, cambia de sentido sin avisar y suelta sus caídas de conexión sobre la marcha"
     },
@@ -746,13 +756,9 @@
     {
       "archivo": "capturas/sin-numeros.png",
       "pie": "Un microondas desmontado: piezas, tornillos y chispas, y ya ningún número ni sello encima"
-    },
-    {
-      "archivo": "capturas/telefono-otra-vez.png",
-      "pie": "Volver al teléfono en la misma visita: una frase corta en vez de la grabación entera («Pulse 1. Este teléfono no tiene teclas»)"
     }
   ],
-  "proximo": "M9b (5) lo tiene otra sesión; después, M9b (7): menos daño de las armas y menos estadística de los objetos.",
+  "proximo": "M9b (6): calidades de cofre (cartón normal y uno raro bueno), con la calidad de cada objeto y arma en los datos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -781,8 +787,8 @@
   "en_curso": [
     {
       "sesion": "2026-11-04 16:30 UTC",
-      "tarea": "M9b (5): economía más escasa",
-      "desde": "2026-11-04T18:00:00Z"
+      "tarea": "M9b (6): calidades de cofre",
+      "desde": "2026-11-04T18:13:00Z"
     }
   ]
 }

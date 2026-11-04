@@ -9,8 +9,10 @@ import {
   DT,
   dropTicket,
   enterRoom,
-  FLOOR_CHESTS,
+  CLEAR_CHEST_CHANCE,
   FLOOR_TICKETS,
+  START_TICKETS,
+  TREASURE_CHESTS,
   interactable,
   isClear,
   NO_INPUT,
@@ -55,7 +57,9 @@ test('el cofre es un objeto del decorado con sprite y caja de choque', () => {
 });
 
 test('cada planta reparte tickets y cofres entre sus salas de combate, siempre igual con la misma semilla', () => {
-  for (let i = 0; i < 10; i++) {
+  let chests = 0;
+  let others = 0;
+  for (let i = 0; i < 40; i++) {
     const plan = (): string[] => {
       const f = createWorld({ seed: `premios${i}`, floor: true }).floor!;
       return f.rooms.map((r, id) => {
@@ -66,8 +70,12 @@ test('cada planta reparte tickets y cofres entre sus salas de combate, siempre i
     const a = plan();
     assert.deepEqual(a, plan());
     assert.equal(a.filter((r) => r === 'ticket').length, FLOOR_TICKETS);
-    assert.equal(a.filter((r) => r === 'chest').length, FLOOR_CHESTS);
+    chests += a.filter((r) => r === 'chest').length;
+    others += createWorld({ seed: `premios${i}`, floor: true }).floor!.layout.rooms.filter((fr) => fr.kind === 'combat').length - FLOOR_TICKETS;
   }
+  // A cleared room leaves a chest now and then (nota del humano del 2026-10-30), not always.
+  const rate = chests / others;
+  assert.ok(rate > CLEAR_CHEST_CHANCE / 2 && rate < CLEAR_CHEST_CHANCE * 2, `cofres al limpiar: ${rate}`);
 });
 
 test('al limpiar una sala con premio sale su ticket o su cofre', () => {
@@ -104,7 +112,41 @@ test('al limpiar una sala con premio sale su ticket o su cofre', () => {
     }
     got.push(st.reward);
   }
-  assert.equal(got.length, FLOOR_TICKETS + FLOOR_CHESTS);
+  assert.equal(got.filter((r) => r === 'ticket').length, FLOOR_TICKETS);
+});
+
+test('escasez (nota del humano del 2026-10-30): se empieza con un ticket, el tesoro guarda dos cofres y nada suelto, la secreta uno', () => {
+  for (let i = 0; i < 6; i++) {
+    const w = createWorld({ seed: `escasez${i}`, floor: true });
+    assert.equal(w.player.tickets, START_TICKETS);
+    assert.equal(START_TICKETS, 1);
+    const f = w.floor!;
+    for (const fr of f.layout.rooms) {
+      if (fr.kind !== 'treasure' && fr.kind !== 'secret') continue;
+      enterRoom(w, fr.id, fr.doors[0]?.dir ?? 'S');
+      const chests = w.room.props.filter((pr) => pr.chest && !pr.chest.open);
+      assert.equal(chests.length, fr.kind === 'treasure' ? TREASURE_CHESTS : 1, `${fr.kind}: cofres`);
+      assert.ok(!w.pickups.some((k) => k.kind === 'objeto' || k.kind === 'activo' || k.kind === 'arma'), `${fr.kind}: hay objetos sueltos`);
+      // Already there: no thud of a chest dropping in.
+      assert.ok(!w.events.some((e) => e.type === 'reward'));
+    }
+  }
+  // A single room (the test room) starts with none: the tests give them by hand.
+  assert.equal(createWorld({ seed: 'x' }).player.tickets, 0);
+});
+
+test('un cofre suelta a veces un arma o un activo, no solo pasivos', () => {
+  const kinds = new Set<string>();
+  for (let i = 0; i < 30; i++) {
+    const w = bare(`contenido${i}`);
+    w.player.tickets = 1;
+    const c = placeChest(w, 200, 150);
+    walkInto(w, c, 0.3);
+    step(w, { ...NO_INPUT, interact: true });
+    assert.ok(c.chest!.open);
+    for (const k of w.pickups) if (k.kind !== 'cupon') kinds.add(k.kind);
+  }
+  assert.deepEqual([...kinds].sort(), ['activo', 'arma', 'objeto']);
 });
 
 test('un ticket se recoge como un cupón y cuenta aparte', () => {

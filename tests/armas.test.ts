@@ -160,22 +160,29 @@ test('los modificadores valen para todas las armas que lleva', () => {
   assert.equal(w.player.weapon.base, WEAPONS.plancha, 'la base es la de los datos');
 });
 
-test('en la planta, la sala del tesoro guarda un arma y cambia con la semilla', () => {
+test('en la planta, las armas salen de los cofres (no sueltas) y cambian con la semilla', () => {
   const found = new Set<string>();
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 30; i++) {
     const w = createWorld({ seed: `tesoro${i}`, floor: true });
+    w.noDamage = true;
     const f = w.floor!;
     assert.equal(w.pickups.filter((k) => k.kind === 'arma').length, 0, 'la entrada no tiene armas');
     const t = f.layout.rooms.find((r) => r.kind === 'treasure')!;
     enterRoom(w, t.id, f.layout.rooms[t.id]!.doors[0]!.dir);
-    const arms = w.pickups.filter((k) => k.kind === 'arma');
-    assert.equal(arms.length, 1, `semilla ${i}`);
-    found.add(arms[0]!.weapon!);
+    assert.equal(w.pickups.filter((k) => k.kind === 'arma').length, 0, 'nada suelto en el tesoro (nota del humano del 2026-10-30)');
+    w.player.tickets = 2;
+    for (const c of w.room.props.filter((pr) => pr.chest)) {
+      w.player.x = c.x;
+      w.player.y = c.box.y + c.box.h + 6;
+      step(w, { ...NO_INPUT, interact: true });
+      assert.ok(c.chest!.open, `semilla ${i}: el cofre no se abre`);
+    }
+    for (const k of w.pickups) if (k.kind === 'arma') found.add(k.weapon!);
     // Coming back does not stock it again.
     const back = f.layout.rooms[t.id]!.doors[0]!;
     enterRoom(w, back.to, back.dir);
     enterRoom(w, t.id, back.dir);
-    assert.equal(w.pickups.filter((k) => k.kind === 'arma').length, 1);
+    assert.equal(w.room.props.filter((pr) => pr.chest).length, 2);
   }
   assert.deepEqual([...found].sort(), [...FINDABLE_WEAPONS].sort());
 });

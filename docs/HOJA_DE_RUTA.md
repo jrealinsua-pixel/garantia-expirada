@@ -285,7 +285,7 @@ repartido en M12–M14.
   medido con el bot.
 - [x] (4) Botón de interactuar (una tecla nueva, reasignable): hablar con los PNJs, comprar en la
   tienda y abrir cofres ya no se hace pisando, sino con ese botón. Con su aviso en pantalla.
-- [ ] (5) Economía más escasa: se empieza con 1 ticket; muchos menos cupones y tickets; los objetos
+- [x] (5) Economía más escasa: se empieza con 1 ticket; muchos menos cupones y tickets; los objetos
   solo salen de cofres o de la tienda (nunca sueltos en una sala); unos 2 cofres por planta y
   alguno más al limpiar salas; los cupones se recogen solos al limpiar la sala. Medido con el bot.
 - [ ] (6) Calidades de cofre: el de cartón (el normal) da pasivos o armas flojas; el bueno (raro)
@@ -306,6 +306,10 @@ repartido en M12–M14.
   otros explotan o hacen otras cosas.
 - [ ] (14) Sinergias indirectas: parejas de objetos que se complementan sin crear nada nuevo,
   pensadas y medidas.
+- [ ] (15) Repaso del equilibrio después de todo lo anterior: con las balas grandes, la escasez y
+  los jefes nuevos el bot con daño ya no gana la planta 1 (0 de 20 el 2026-11-04). Difícil sí,
+  imposible no: que el bot con daño la gane entre un 15 % y un 30 % de las veces (un humano que
+  juega bien, bastante más), sin devolver la abundancia de objetos.
 
 **Criterios de aceptación:** cada punto de las dos notas tiene su test o su medida; el bot sigue
 pasando sin bloqueos; el juego es más difícil que antes según el bot (menos victorias contra los

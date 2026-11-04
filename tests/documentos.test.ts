@@ -27,7 +27,7 @@ test('la sala secreta de cada planta guarda su documento en el suelo, en un siti
       assert.equal(docs.length, 1, `planta ${level}: un documento`);
       assert.equal(docs[0]!.doc, docOf(level));
       assert.ok(!isWallAt(w.room, docs[0]!.x, docs[0]!.y), 'no está en una pared');
-      assert.ok(w.pickups.some((k) => k.kind !== 'documento'), 'el pedestal sigue teniendo lo suyo');
+      assert.ok(w.room.props.some((pr) => pr.chest), 'el cofre de la secreta sigue ahí');
     }
   }
 });

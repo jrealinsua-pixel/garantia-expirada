@@ -36,7 +36,7 @@ test('la jefa suelta un corazÃ³n y el montacargas sube en suelo libre donde cayÃ
   assert.equal(w.enemies.length, 0);
   assert.ok(events.some((e) => e.type === 'lift'));
   assert.equal(w.pickups.filter((k) => k.kind === 'corazon').length, 1);
-  assert.ok(w.pickups.filter((k) => k.kind === 'cupon').length >= 10);
+  assert.ok(w.pickups.filter((k) => k.kind === 'cupon').length + w.player.coupons >= 5);
   const l = w.lift!;
   assert.ok(l, 'no hay montacargas');
   assert.ok(isClear(w, l.x, l.y, Math.max(LIFT_HALF.x, LIFT_HALF.y)), 'el montacargas pisa algo');
@@ -48,7 +48,7 @@ test('los cupones de la jefa salen despedidos y no se quedan encima del montacar
     for (let i = 0; i < ticks(1.5); i++) step(w, NO_INPUT);
     const l = w.lift!;
     const coupons = w.pickups.filter((k) => k.kind === 'cupon');
-    assert.ok(coupons.length + w.player.coupons >= 10, seed);
+    assert.ok(coupons.length + w.player.coupons >= 5, seed);
     // Off the plate with room to spare: not even the edge of a coupon (4 px) on it.
     const on = coupons.filter((k) => Math.abs(k.x - l.x) < LIFT_HALF.x + 4 && Math.abs(k.y - l.y) < LIFT_HALF.y + 4);
     assert.deepEqual(on.map((k) => `${k.x.toFixed(0)},${k.y.toFixed(0)}`), [], `${seed}: cupones sobre el montacargas en ${l.x.toFixed(0)},${l.y.toFixed(0)}`);

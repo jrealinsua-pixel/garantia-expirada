@@ -87,7 +87,7 @@ test('muerte de la jefa: se desmonta un rato, no hace daÃ±o y luego cae con botÃ
   const after = run(w, 6, () => NO_INPUT);
   assert.ok(after.some((e) => e.type === 'death' && e.enemy === 'nevera-suprema'));
   assert.equal(w.enemies.length, 0);
-  assert.ok(w.pickups.length >= 10);
+  assert.ok(w.pickups.length + w.player.coupons >= 5);
   assert.equal(w.doorsShut, false);
   assert.deepEqual(checkInvariants(w), []);
 });
