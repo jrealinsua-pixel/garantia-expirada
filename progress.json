@@ -800,7 +800,7 @@
       "pie": "Un bidón de aceite usado revienta: bola de fuego, chispas y humo; los enemigos de alrededor se llevan 12 de daño"
     }
   ],
-  "proximo": "M10 (1) si la otra sesión la suelta (juego de casillas de la Juguetería); si no, M10 (4c), el Cubo de Piezas, o (2a), las primeras plantillas de la planta 3.",
+  "proximo": "M10 (1), el juego de casillas de la Juguetería: la entrada de en_curso de las 21:25 lleva más de tres horas sin un solo commit, así que según el protocolo ya está libre (bórrala al cogerla). Después, (2a) las primeras plantillas de la planta 3 o (4c) el Cubo de Piezas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
