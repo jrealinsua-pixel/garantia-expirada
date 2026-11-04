@@ -18,13 +18,16 @@ function shop(seed = 'tienda'): World {
 
 const forSale = (w: World): Pickup[] => w.pickups.filter((k) => k.price !== undefined);
 
-/** Puts the toaster just below good `k` and walks it up onto it; returns the events on the way. */
-function walkOnto(w: World, k: { x: number; y: number }, seconds = 0.4): SimEvent[] {
+/**
+ * Puts the toaster just below good `k`, walks it up onto it and (unless `press` is false) presses
+ * the interact button once there; returns the events on the way.
+ */
+function walkOnto(w: World, k: { x: number; y: number }, seconds = 0.4, press = true): SimEvent[] {
   w.player.x = k.x;
   w.player.y = k.y + 14;
   const ev: SimEvent[] = [];
   for (let i = 0; i < ticks(seconds); i++) {
-    step(w, { ...NO_INPUT, moveY: i < 8 ? -1 : 0 });
+    step(w, { ...NO_INPUT, moveY: i < 8 ? -1 : 0, interact: press && i === 12 });
     ev.push(...w.events);
   }
   return ev;
@@ -68,10 +71,11 @@ test('lo que está a la venta no se lo traga el imán ni se coge sin pagar', () 
   w.player.y = heart.y;
   for (let i = 0; i < ticks(1); i++) step(w, NO_INPUT);
   assert.deepEqual({ x: heart.x, y: heart.y }, at, 'no se mueve hacia la tostadora');
+  assert.equal(walkOnto(w, heart, 0.4, false).filter((e) => e.type === 'shop').length, 0, 'pisarlo no hace nada');
   const ev = walkOnto(w, heart);
   assert.equal(w.player.tickets, 0);
   const refused = ev.filter((e) => e.type === 'shop');
-  assert.equal(refused.length, 1, 'se queja una vez, no a cada paso');
+  assert.equal(refused.length, 1, 'se queja una vez por pulsación');
   assert.equal(refused[0]!.type === 'shop' && refused[0]!.outcome, 'poor');
   assert.equal(forSale(w).length, 3, 'sigue en la balda');
 });
@@ -80,6 +84,10 @@ test('con cupones de sobra, comprar cobra el precio y da lo comprado', () => {
   const w = shop();
   w.player.coupons = 50;
   const [item, heart, ticket] = forSale(w).sort((a, b) => a.x - b.x);
+  // Walking onto it does not buy it any more: the interact button does (nota del humano del 2026-10-30).
+  walkOnto(w, item!, 0.4, false);
+  assert.equal(w.player.coupons, 50);
+  stepAway(w);
   let ev = walkOnto(w, item!);
   assert.deepEqual(w.player.items, [item!.item]);
   assert.equal(w.player.coupons, 50 - SHOP_PRICES.objeto);
@@ -110,7 +118,7 @@ test('rodando por encima no se compra nada', () => {
   const item = forSale(w).find((k) => k.kind === 'objeto')!;
   w.player.x = item.x;
   w.player.y = item.y + 30;
-  for (let i = 0; i < ticks(0.25); i++) step(w, { ...NO_INPUT, moveY: -1, roll: i === 0 });
+  for (let i = 0; i < ticks(0.25); i++) step(w, { ...NO_INPUT, moveY: -1, roll: i === 0, interact: i > 0 });
   assert.equal(w.player.coupons, 50);
   assert.equal(w.player.items.length, 0);
 });

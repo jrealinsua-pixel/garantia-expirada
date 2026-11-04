@@ -198,6 +198,7 @@ export interface KeyWords {
   reload: { own: string; all: string };
   swap: { own: string; all: string };
   use: { own: string; all: string };
+  interact: { own: string; all: string };
 }
 export const DEFAULT_KEY_WORDS: KeyWords = {
   move: { own: 'WASD', all: 'WASD o flechas' },
@@ -205,13 +206,14 @@ export const DEFAULT_KEY_WORDS: KeyWords = {
   reload: { own: 'R', all: 'R' },
   swap: { own: 'E', all: 'E' },
   use: { own: 'Q', all: 'Q' },
+  interact: { own: 'F', all: 'F' },
 };
 
 /** The line of controls under the first room (and the test room's extra keys). */
 export const controlsHint = (k: KeyWords): string => `${k.move.own} mover · ratón apuntar · clic disparar · ${k.roll.own} rodar · ${k.reload.own} recargar`;
 export const CONTROLS_HINT = controlsHint(DEFAULT_KEY_WORDS);
 /** In the Mostrador nothing is shot: how to move, and where the run starts. */
-export const hubHint = (k: KeyWords): string => `${k.move.own} mover · ${k.roll.own} rodar · la cinta de «Mercancía devuelta» empieza la partida`;
+export const hubHint = (k: KeyWords): string => `${k.move.own} mover · ${k.interact.own} hablar · la cinta de «Mercancía devuelta» empieza la partida`;
 export const TEST_ROOM_HINT = '1-5 balas enemigas';
 /** Instead of the ammo count while reloading. */
 export const RELOADING = 'Recargando';
@@ -306,6 +308,7 @@ export const KEYS_ACTIONS = {
   reload: 'Recargar',
   swap: 'Cambiar de arma',
   use: 'Objeto activo',
+  interact: 'Interactuar',
 } as const;
 export const CONFIRM_TITLE = '¿Pedir otra unidad?';
 export const CONFIRM_TEXT = 'La unidad actual irá al punto limpio. Lo que lleva, también.';
@@ -317,10 +320,11 @@ export const controlsRows = (k: KeyWords): readonly (readonly [string, string, s
   ['Mover', k.move.all, 'Stick izquierdo'],
   ['Apuntar', 'Ratón', 'Stick derecho'],
   ['Disparar', 'Clic izquierdo', 'RT o RB'],
-  ['Rodar', k.roll.all, 'A, LB o LT'],
+  ['Rodar', k.roll.all, 'A o LT'],
   ['Recargar', k.reload.all, 'X'],
   ['Cambiar de arma', `${k.swap.all} o rueda`, 'Y'],
   ['Objeto activo', k.use.all, 'B'],
+  ['Hablar, comprar, abrir', k.interact.all, 'LB'],
   ['Pausa', 'Esc o P', 'Start'],
 ];
 export const CONTROLS_ROWS = controlsRows(DEFAULT_KEY_WORDS);
@@ -415,6 +419,21 @@ export const ARCHIVE_EMPTY = 'Cajón vacío. Su reclamación será atendida por 
 /** Next to a document found in the last run. */
 export const ARCHIVE_NEW = 'Nuevo';
 export const archivePage = (i: number, n: number): string => `Hoja ${i} de ${n}`;
-export const archiveHint = (k: KeyWords): string => `${k.use.own}: pasar hoja`;
+/**
+ * Under the toaster when the interact button would do something (nota del humano del
+ * 2026-10-30): the key and what it does there.
+ */
+export const INTERACT_VERBS = {
+  chest: 'Abrir',
+  shop: 'Comprar',
+  caja: 'Hablar',
+  telefono: 'Descolgar',
+  turnos: 'Coger número',
+  chatarrero: 'Hablar',
+  tablon: 'Mirar',
+  archivador: 'Abrir cajón',
+} as const;
+export const interactPrompt = (k: KeyWords, verb: string): string => `${k.interact.own}: ${verb}`;
+export const archiveHint = (k: KeyWords): string => `${k.interact.own}: pasar hoja`;
 /** Over a story document picked up in a secret room (it goes to the archivador). */
 export const docFoundLine = (kind: string): string => `${kind}: al archivador`;

@@ -283,7 +283,7 @@ repartido en M12–M14.
 - [x] (2) Fuera los números de daño sobre los enemigos y el texto que sale al matar a uno.
 - [x] (3) Balas enemigas más grandes y más difíciles de esquivar (sprites y caja de golpe),
   medido con el bot.
-- [ ] (4) Botón de interactuar (una tecla nueva, reasignable): hablar con los PNJs, comprar en la
+- [x] (4) Botón de interactuar (una tecla nueva, reasignable): hablar con los PNJs, comprar en la
   tienda y abrir cofres ya no se hace pisando, sino con ese botón. Con su aviso en pantalla.
 - [ ] (5) Economía más escasa: se empieza con 1 ticket; muchos menos cupones y tickets; los objetos
   solo salen de cofres o de la tienda (nunca sueltos en una sala); unos 2 cofres por planta y

@@ -4,9 +4,9 @@
 import type { KeyWords } from '../data/texts.ts';
 import { fontText, GLYPHS, textWidth } from '../art/font.ts';
 
-export type Action = 'up' | 'down' | 'left' | 'right' | 'roll' | 'reload' | 'swap' | 'use';
+export type Action = 'up' | 'down' | 'left' | 'right' | 'roll' | 'reload' | 'swap' | 'use' | 'interact';
 
-export const ACTIONS: readonly Action[] = ['up', 'down', 'left', 'right', 'roll', 'reload', 'swap', 'use'];
+export const ACTIONS: readonly Action[] = ['up', 'down', 'left', 'right', 'roll', 'reload', 'swap', 'use', 'interact'];
 
 /** Each action's keys; the first is its own, the rest come with it (the arrows, the other Shift). */
 export type KeyMap = Record<Action, string[]>;
@@ -20,6 +20,7 @@ export const DEFAULT_KEYMAP: KeyMap = {
   reload: ['KeyR'],
   swap: ['KeyE'],
   use: ['KeyQ'],
+  interact: ['KeyF'],
 };
 
 /** Keys that cannot be given to an action: they open the pause menu. */
@@ -135,6 +136,7 @@ export function keyNames(m: KeyMap, seen: Readonly<Record<string, string>> = {})
     reload: fit(one('reload')),
     swap: fit(one('swap')),
     use: fit(one('use')),
+    interact: fit(one('interact')),
   };
 }
 

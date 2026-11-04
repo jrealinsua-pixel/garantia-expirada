@@ -11,6 +11,7 @@ import {
   enterRoom,
   FLOOR_CHESTS,
   FLOOR_TICKETS,
+  interactable,
   isClear,
   NO_INPUT,
   placeChest,
@@ -119,32 +120,34 @@ test('un ticket se recoge como un cupón y cuenta aparte', () => {
   assert.equal(w.player.coupons, 0);
 });
 
-test('sin ticket el cofre no se abre y se queja de vez en cuando', () => {
+test('sin ticket el cofre no se abre y se queja cada vez que se pulsa interactuar', () => {
   const w = bare('cofre-cerrado');
   const c = placeChest(w, 200, 150);
   const nags: boolean[] = [];
   walkInto(w, c, 0.1);
   for (let i = 0; i < ticks(3); i++) {
-    step(w, { ...NO_INPUT, moveY: -1 });
+    // Pushing against it says nothing; the interact button, twice, complains twice.
+    step(w, { ...NO_INPUT, moveY: -1, interact: i === 10 || i === ticks(2) });
     for (const e of w.events) if (e.type === 'chest') nags.push(e.opened);
   }
   assert.ok(!c.chest!.open);
-  // Pushing against it for 3 s: once at the start and again after 2 s.
   assert.deepEqual(nags, [false, false]);
   assert.equal(w.pickups.length, 0);
 });
 
-test('con ticket el cofre se abre: gasta el ticket y suelta un objeto y cupones', () => {
+test('con ticket el cofre se abre con el botón de interactuar (no andando contra él): gasta el ticket y suelta un objeto y cupones', () => {
   const w = bare('cofre-abierto');
   w.player.tickets = 2;
   const c = placeChest(w, 200, 150);
   const opened: Array<{ item?: string; tickets: number }> = [];
   w.player.x = c.x;
   w.player.y = c.y + 16;
-  for (let i = 0; i < ticks(0.5); i++) {
-    step(w, { ...NO_INPUT, moveY: -1 });
-    for (const e of w.events) if (e.type === 'chest' && e.opened) opened.push({ item: e.item, tickets: e.tickets });
-  }
+  // Walking into it does not open it any more (nota del humano del 2026-10-30).
+  for (let i = 0; i < ticks(0.5); i++) step(w, { ...NO_INPUT, moveY: -1 });
+  assert.ok(!c.chest!.open);
+  assert.equal(w.player.tickets, 2);
+  step(w, { ...NO_INPUT, interact: true });
+  for (const e of w.events) if (e.type === 'chest' && e.opened) opened.push({ item: e.item, tickets: e.tickets });
   assert.equal(opened.length, 1);
   assert.ok(c.chest!.open);
   assert.equal(w.player.tickets, 1);
@@ -157,7 +160,19 @@ test('con ticket el cofre se abre: gasta el ticket y suelta un objeto y cupones'
   assert.ok(isClear(w, item.x, item.y, 2));
   assert.ok(item.y > c.y);
   // An open chest does not open again.
-  for (let i = 0; i < ticks(1); i++) step(w, { ...NO_INPUT, moveY: -1 });
+  for (let i = 0; i < ticks(1); i++) step(w, { ...NO_INPUT, moveY: -1, interact: i % 10 === 0 });
+  assert.equal(w.player.tickets, 1);
+});
+
+test('el botón de interactuar lejos del cofre no hace nada', () => {
+  const w = bare('cofre-lejos');
+  w.player.tickets = 1;
+  const c = placeChest(w, 200, 150);
+  w.player.x = c.x + 60;
+  w.player.y = c.y + 40;
+  assert.equal(interactable(w), null);
+  step(w, { ...NO_INPUT, interact: true });
+  assert.ok(!c.chest!.open);
   assert.equal(w.player.tickets, 1);
 });
 
@@ -168,7 +183,7 @@ test('rodando contra el cofre no se abre', () => {
   w.player.x = c.x;
   w.player.y = c.y + 16;
   step(w, { ...NO_INPUT, moveY: -1, roll: true });
-  for (let i = 0; i < 12; i++) step(w, NO_INPUT);
+  for (let i = 0; i < 12; i++) step(w, { ...NO_INPUT, interact: true });
   assert.ok(!c.chest!.open);
 });
 

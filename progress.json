@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T18:37:18+01:00",
+  "actualizado": "2026-11-04T18:39:25+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 5,
+      "hechas": 6,
       "total": 14
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 439,
-    "tests_ok": 439,
+    "tests": 440,
+    "tests_ok": 440,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15792
+    "lineas_codigo": 15900
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T18:39:25+01:00",
+      "hito": "M9b",
+      "resumen": "Botón de interactuar (F, o LB): abrir cofres, comprar y hablar en el Mostrador ya no se hace pisando, con su aviso bajo la tostadora.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T18:37:18+01:00",
       "hito": "M9b",
@@ -710,6 +716,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/boton-interactuar.png",
+      "pie": "Delante de un cofre: «F: Abrir». Ya no se abre empujándolo"
+    },
+    {
+      "archivo": "capturas/tienda-boton.png",
+      "pie": "En la tienda se compra con el botón de interactuar; sin cupones, la caja se niega"
+    },
+    {
       "archivo": "capturas/balas-grandes.png",
       "pie": "Las balas enemigas, ahora de 9 px con borde oscuro: se ven más y cuesta más colarse entre ellas"
     },
@@ -724,17 +738,9 @@
     {
       "archivo": "capturas/salas-centradas.png",
       "pie": "Las salas de 16 casillas van ahora centradas en la pantalla, con el margen repartido a los dos lados"
-    },
-    {
-      "archivo": "capturas/archivador.png",
-      "pie": "El archivador «Reclamaciones sin Resolver»: los documentos de historia encontrados (y los que faltan); la tecla de usar pasa la hoja"
-    },
-    {
-      "archivo": "capturas/tablon.png",
-      "pie": "El tablón «Productos en Exposición»: a color los personajes desbloqueados, en silueta los demás, con su condición y cuánto falta"
     }
   ],
-  "proximo": "M9b (4): botón de interactuar para hablar, comprar y abrir cofres.",
+  "proximo": "M9b (5): economía más escasa (empezar con 1 ticket, menos cupones y tickets, objetos solo en cofres y tienda, 2 cofres por planta, cupones que se recogen solos al limpiar).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -763,8 +769,8 @@
   "en_curso": [
     {
       "sesion": "2026-11-04 16:30 UTC",
-      "tarea": "M9b (4): botón de interactuar",
-      "desde": "2026-11-04T17:05:00Z"
+      "tarea": "M9b (5): economía más escasa",
+      "desde": "2026-11-04T18:00:00Z"
     },
     {
       "sesion": "2026-11-04 17:25 UTC",

@@ -2,7 +2,7 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
-import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, isRolling, leaveHub, NO_INPUT, nearStation, PLAYER_HURT_Y, step } from './world.ts';
+import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isRolling, leaveHub, NO_INPUT, nearStation, PLAYER_HURT_Y, step } from './world.ts';
 import type { Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
@@ -209,8 +209,17 @@ export class Bot {
     return near >= 6;
   }
 
+  /** Whether to press the interact button now: at a chest it has a ticket for, or at what it wants to buy. */
+  private wantsInteract(w: World): boolean {
+    const it = interactable(w);
+    if (!it) return false;
+    if (it.kind === 'chest') return w.player.tickets > 0;
+    if (it.kind === 'shop') return this.shopping(w) === it.pickup;
+    return false;
+  }
+
   /** The good on sale it wants next, if it can pay for it. */
-  private shopping(w: World): Point | undefined {
+  private shopping(w: World): (typeof w.pickups)[number] | undefined {
     const p = w.player;
     const rank = (k: (typeof w.pickups)[number]): number =>
       k.kind === 'corazon' ? (p.hp <= p.def.maxHp - 2 ? 1 : -1) : k.kind === 'ticket' ? 2 : k.kind === 'activo' && p.active ? -1 : 0;
@@ -320,12 +329,14 @@ export class Bot {
       }
     }
     const useItem = this.wantsActive(w);
+    const interact = this.wantsInteract(w);
     if (dg?.roll) {
       // The roll goes where the stick points.
-      return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false, swap, useItem };
+      return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false, swap, useItem, interact };
     }
     return {
       useItem,
+      interact,
       moveX: tx / l,
       moveY: ty / l,
       aimX,

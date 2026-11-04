@@ -8,7 +8,7 @@ import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
 import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
-import { REPORT_MENU_HINT } from '../data/texts.ts';
+import { INTERACT_VERBS, interactPrompt, REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import {
@@ -53,7 +53,7 @@ import {
   step,
   BODY_HEIGHT,
 } from '../sim/world.ts';
-import { dropTicket, giveActive, giveItem, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -292,7 +292,6 @@ export class GameScene extends Phaser.Scene {
   private tillTop = 39;
   /** The Mostrador's station the toaster stands at, and whether it already spoke (again once it walks off). */
   private hubAt: StationKind | null = null;
-  private hubSpoke = false;
   /** Who the bubble belongs to when it is not the till (a station of the Mostrador): where it points. */
   private talkAt: { x: number; y: number; top: number } | null = null;
   private banner!: Phaser.GameObjects.BitmapText;
@@ -387,6 +386,9 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     // create() runs again on restart, on the same object: start from a clean slate.
+    this.prompt = null;
+    this.promptBack = null;
+    this.hubAsk = false;
     this.acc = 0;
     this.hitstop = 0;
     this.shots = 0;
@@ -429,7 +431,6 @@ export class GameScene extends Phaser.Scene {
     this.tillNext = [];
     this.tillTop = 39;
     this.hubAt = null;
-    this.hubSpoke = false;
     this.hubHeard = {};
     this.talkAt = null;
     this.frostViews = new Map();
@@ -1110,6 +1111,9 @@ export class GameScene extends Phaser.Scene {
   /** Times each station has spoken in this visit to the Mostrador: the second time it says something shorter. */
   private hubHeard: Partial<Record<StationKind, number>> = {};
 
+  /** The interact button was pressed at a station on this frame (the sim's 'interact' event). */
+  private hubAsk = false;
+
   /** The Mostrador's idle life: the conveyor runs, the ticket machine blinks, the Chatarrero's wheel squeaks. */
   private drawHub(dt: number): void {
     const h = this.hubViews;
@@ -1118,26 +1122,32 @@ export class GameScene extends Phaser.Scene {
     h.belt.setFrame(Math.floor(h.t * 10) % 4);
     h.turnos?.setFrame(Math.floor(h.t * 1.5) % 2);
     h.chatarrero?.setFrame(Math.floor(h.t * 2.5) % 3 === 0 ? 1 : 0);
-    // Standing at something that talks: it says its piece, page after page (src/sim/dialogue.ts).
+    // At something that talks, the interact button makes it say its piece, page after page
+    // (src/sim/dialogue.ts). Walking up to it no longer does (nota del humano del 2026-10-30).
     const st = this.world.leftHub ? null : nearStation(this.world);
     const kind = st?.kind ?? null;
+    const asked = this.hubAsk;
+    this.hubAsk = false;
     if (kind !== this.hubAt) {
       this.hubAt = kind;
-      this.hubSpoke = false;
       // Walked off: the current page ends and the rest is not said.
       this.tillNext = [];
-      if (kind && this.bubble) this.bubbleT = Math.min(this.bubbleT, 0.01);
+      if (this.bubble) this.bubbleT = Math.min(this.bubbleT, 0.01);
       if (this.panel.length) this.hidePanel();
-      // The board and the archivador do not talk: they open a panel (src/render/board.ts, archivo.ts).
-      if (kind === 'tablon') this.showBoard();
-      if (kind === 'archivador') {
-        this.archiveCursor = firstCursor(archive(profile()));
-        this.showArchive();
-      }
-      if (this.panel.length) this.panelSlideIn();
     }
-    if (st && !this.hubSpoke && !this.bubble) {
-      this.hubSpoke = true;
+    if (st && asked && (st.kind === 'tablon' || st.kind === 'archivador')) {
+      // The board and the archivador do not talk: they open a panel (src/render/board.ts,
+      // archivo.ts); pressing again at the open archivador turns the sheet.
+      if (st.kind === 'archivador' && this.panel.length) this.turnArchivePage();
+      else if (!this.panel.length) {
+        if (st.kind === 'tablon') this.showBoard();
+        else {
+          this.archiveCursor = firstCursor(archive(profile()));
+          this.showArchive();
+        }
+        this.panelSlideIn();
+      }
+    } else if (st && asked && !this.bubble) {
       const [first, ...rest] = this.hubPages(st.kind);
       if (first) {
         this.talkAt = st.kind === 'caja' ? null : { x: st.x, y: st.y, top: STATION_TOP[st.kind] };
@@ -1638,11 +1648,6 @@ export class GameScene extends Phaser.Scene {
       while (this.acc >= DT && steps < 5) {
         const p = this.world.player;
         const input = this.controls.read({ bodyX: p.x, bodyY: p.y - BODY_HEIGHT });
-        // At the archivador the use key turns the sheet (there is nothing to use in the Mostrador).
-        if (input.useItem && this.hubAt === 'archivador') {
-          input.useItem = false;
-          this.turnArchivePage();
-        }
         step(this.world, input);
         this.handleEvents(this.world.events);
         if (this.world.events.some((e) => e.type === 'room')) {
@@ -1671,6 +1676,10 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'bossIntroEnd':
           this.endBossIntro();
+          break;
+        case 'interact':
+          // At a station of the Mostrador: drawHub() makes it talk (or opens its panel).
+          this.hubAsk = true;
           break;
         case 'shot': {
           this.shots++;
@@ -2465,8 +2474,40 @@ export class GameScene extends Phaser.Scene {
     return f;
   }
 
+  /** «F: Abrir» under the toaster, when the interact button would do something. */
+  private prompt: Phaser.GameObjects.BitmapText | null = null;
+  private promptBack: Phaser.GameObjects.Rectangle | null = null;
+
+  private drawPrompt(): void {
+    const w = this.world;
+    const it = interactable(w);
+    // Not while something is being said or shown there (the bubble, a panel).
+    const busy = it?.kind === 'station' && (this.bubble || this.panel.length > 0);
+    // (The price goes in the line: it stands over the shelf's own price tag.)
+    const verb = !it || busy ? null : it.kind === 'station' ? INTERACT_VERBS[it.station.kind] : it.kind === 'shop' ? `${INTERACT_VERBS.shop} por ${it.pickup.price}` : INTERACT_VERBS[it.kind];
+    if (!verb) {
+      this.prompt?.setVisible(false);
+      this.promptBack?.setVisible(false);
+      return;
+    }
+    const text = fontText(interactPrompt(keyWords(), verb));
+    const h = 8 * readScale(settings());
+    if (!this.prompt) {
+      // A dark plate behind, so it reads on any floor.
+      this.promptBack = this.add.rectangle(0, 0, 1, 1, 0x0e0c16, 0.75).setOrigin(0.5, 0).setDepth(84999);
+      this.prompt = this.add.bitmapText(0, 0, FONT, text, h).setOrigin(0.5, 0).setDepth(85000).setTint(0xf4f1e8);
+    }
+    if (this.prompt.text !== text) this.prompt.setText(text);
+    this.prompt.setFontSize(h);
+    const x = Math.round(w.player.x);
+    const y = Math.round(w.player.y + 6);
+    this.prompt.setPosition(x, y).setVisible(true);
+    this.promptBack?.setPosition(x, y - 2).setSize(this.prompt.width + 6, h + 3).setVisible(true);
+  }
+
   private syncView(dt: number): void {
     const w = this.world;
+    this.drawPrompt();
     this.drawBossBar(dt);
     this.drawLift(dt);
     this.drawShop(dt);

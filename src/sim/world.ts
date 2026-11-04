@@ -13,7 +13,7 @@ import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
-import { BACK_WALL_ROWS, buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type PropInstance, type Room, type RoomDoor, type Station } from './room.ts';
+import { BACK_WALL_ROWS, buildRoom, doorApron, doorCells, fillTemplate, isWallAt, TILE, wallRectsNear, type PropInstance, type Room, type RoomDoor, type Station, type StationKind } from './room.ts';
 import { PROPS } from '../data/props.ts';
 import { LORE } from '../data/lore.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
@@ -44,6 +44,11 @@ export interface Input {
   swap?: number;
   /** Use the active item on this tick (Q or a pad button). */
   useItem?: boolean;
+  /**
+   * The interact button was pressed on this tick (F or a pad button): talk, buy, open a chest.
+   * Walking onto them no longer does it (nota del humano del 2026-10-30).
+   */
+  interact?: boolean;
   /** Test room only: name of a pattern (src/data/patterns.ts) the first dummy fires at the player. */
   debugPattern?: string;
 }
@@ -125,10 +130,8 @@ export interface Pickup {
   doc?: string;
   /** Put down just now under the toaster: it cannot be picked up until the toaster has stepped off it. */
   stepOff?: boolean;
-  /** For sale on a shop shelf: its price in coupons (walking onto it buys it, if it can be paid). */
+  /** For sale on a shop shelf: its price in coupons (the interact button buys it, if it can be paid). */
   price?: number;
-  /** For sale: the toaster is standing on it (so a refusal is said once per visit, not every tick). */
-  touched?: boolean;
 }
 
 /** Seconds after changing weapon before the new one fires (it is being drawn). */
@@ -325,6 +328,8 @@ export const FROST_FLAT = 0.6;
 export const MAX_FROST = 8;
 
 export type SimEvent =
+  /** The interact button at a station of the Mostrador: it talks (or opens its panel). */
+  | { type: 'interact'; station: StationKind }
   | { type: 'shot'; x: number; y: number; angle: number; weapon: string }
   | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number; crit?: boolean }
   | { type: 'bulletWall'; x: number; y: number; angle: number; bounced?: boolean }
@@ -521,8 +526,8 @@ export const FLOOR_TICKETS = 2;
 export const FLOOR_CHESTS = 2;
 /** Coupons that spill out of a chest with its item. */
 export const CHEST_COUPONS = 3;
-/** How close the toaster's feet have to get to a chest to open it (px). */
-const CHEST_REACH = 3;
+/** How close the toaster's feet have to get to a chest to open it with the interact button (px). */
+const CHEST_REACH = 10;
 
 export interface FloorRun {
   layout: Floor;
@@ -1965,31 +1970,8 @@ function updatePickups(w: World): void {
     const dy = p.y - 2 - k.y;
     const d = Math.hypot(dx, dy);
     if (k.price !== undefined) {
-      // For sale: it stays on its shelf until the toaster walks onto it and pays.
-      const on = d < WEAPON_GRAB && !isRolling(p) && k.age >= PICKUP_DELAY && !w.over;
-      if (!on) {
-        k.touched = false;
-        keep.push(k);
-        continue;
-      }
-      if (k.touched) {
-        keep.push(k);
-        continue;
-      }
-      k.touched = true;
-      const good = k.kind;
-      const item = k.item ?? k.weapon;
-      const refuse = good === 'corazon' && p.hp >= p.def.maxHp ? 'full' : p.coupons < k.price ? 'poor' : null;
-      if (refuse) {
-        w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: refuse, good, price: k.price, left: p.coupons, item });
-        keep.push(k);
-        continue;
-      }
-      p.coupons -= k.price;
-      w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: 'bought', good, price: k.price, left: p.coupons, item });
-      delete k.price;
-      delete k.touched;
-      grab(w, k);
+      // For sale: it stays on its shelf until it is bought with the interact button (buy()).
+      keep.push(k);
       continue;
     }
     // A spare heart stays where it is while the toaster has all its life.
@@ -2168,10 +2150,71 @@ export function placeChest(w: World, x: number, y: number): PropInstance {
       }
     }
   }
-  const prop: PropInstance = { def, x: at.x, y: at.y, box: { x: at.x + def.box.x, y: at.y + def.box.y, w: def.box.w, h: def.box.h }, chest: { id: w.nextId++, open: false, nag: 0 } };
+  const prop: PropInstance = { def, x: at.x, y: at.y, box: { x: at.x + def.box.x, y: at.y + def.box.y, w: def.box.w, h: def.box.h }, chest: { id: w.nextId++, open: false } };
   w.room.props.push(prop);
   w.events.push({ type: 'reward', reward: 'chest', x: at.x, y: at.y });
   return prop;
+}
+
+/** How close (px) the toaster must be to a shelf of the shop to buy from it. */
+export const SHOP_REACH = 16;
+
+/** What the interact button would do right now, if anything (the closest thing in reach). */
+export type Interactable =
+  | { kind: 'chest'; prop: PropInstance }
+  | { kind: 'shop'; pickup: Pickup }
+  | { kind: 'station'; station: Station };
+
+export function interactable(w: World): Interactable | null {
+  const p = w.player;
+  if (w.over || w.won || w.leftHub || isRolling(p)) return null;
+  const feet = playerFeetBox(p, p.def.footRadius);
+  for (const pr of w.room.props) {
+    const c = pr.chest;
+    if (!c || c.open) continue;
+    const reach = { x: pr.box.x - CHEST_REACH, y: pr.box.y - CHEST_REACH, w: pr.box.w + CHEST_REACH * 2, h: pr.box.h + CHEST_REACH * 2 };
+    if (overlaps(reach, feet)) return { kind: 'chest', prop: pr };
+  }
+  let best: Pickup | null = null;
+  let bestD = SHOP_REACH;
+  for (const k of w.pickups) {
+    if (k.price === undefined || k.age < PICKUP_DELAY) continue;
+    const d = Math.hypot(p.x - k.x, p.y - 2 - k.y);
+    if (d < bestD) {
+      best = k;
+      bestD = d;
+    }
+  }
+  if (best) return { kind: 'shop', pickup: best };
+  const st = w.room.kind === 'hub' ? nearStation(w) : null;
+  return st ? { kind: 'station', station: st } : null;
+}
+
+/** The interact button was pressed: it does what interactable() says. */
+function interact(w: World): void {
+  const it = interactable(w);
+  if (!it) return;
+  if (it.kind === 'chest') openChest(w, it.prop);
+  else if (it.kind === 'shop') buy(w, it.pickup);
+  else w.events.push({ type: 'interact', station: it.station.kind });
+}
+
+/** Buys `k` off its shelf, if it can be paid (and is not a heart with all the life there). */
+function buy(w: World, k: Pickup): void {
+  const p = w.player;
+  if (k.price === undefined) return;
+  const good = k.kind;
+  const item = k.item ?? k.weapon;
+  const refuse = good === 'corazon' && p.hp >= p.def.maxHp ? 'full' : p.coupons < k.price ? 'poor' : null;
+  if (refuse) {
+    w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: refuse, good, price: k.price, left: p.coupons, item });
+    return;
+  }
+  p.coupons -= k.price;
+  w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: 'bought', good, price: k.price, left: p.coupons, item });
+  delete k.price;
+  w.pickups = w.pickups.filter((o) => o !== k);
+  grab(w, k);
 }
 
 /** Hands over something bought (as if it had been picked up off the floor). */
@@ -2202,50 +2245,42 @@ function decksOf(w: World): { weapons: string[]; items: string[]; actives: strin
 }
 
 /**
- * Walking into a shut chest with a ticket opens it: the ticket is spent, the next passive item
- * (else the next active item, else the next weapon) comes out in front of it with a few
- * coupons. Without a ticket it only complains (now and then).
+ * The interact button at a shut chest: with a ticket it opens (the ticket is spent, the next
+ * passive item, else the next active item, else the next weapon comes out in front of it with a
+ * few coupons). Without a ticket it only complains.
  */
-function updateChests(w: World): void {
+function openChest(w: World, pr: PropInstance): void {
   const p = w.player;
-  for (const pr of w.room.props) {
-    const c = pr.chest;
-    if (!c || c.open) continue;
-    c.nag = Math.max(0, c.nag - DT);
-    const reach = { x: pr.box.x - CHEST_REACH, y: pr.box.y - CHEST_REACH, w: pr.box.w + CHEST_REACH * 2, h: pr.box.h + CHEST_REACH * 2 };
-    if (w.over || isRolling(p) || !overlaps(reach, playerFeetBox(p, p.def.footRadius))) continue;
-    if (p.tickets <= 0) {
-      if (c.nag === 0) {
-        w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: false, tickets: 0 });
-        c.nag = 2;
-      }
-      continue;
-    }
-    p.tickets--;
-    c.open = true;
-    const decks = decksOf(w);
-    // Out in front (below) of the chest, or wherever there is room.
-    const spot = freeSpot(w, pr.x, pr.y + 32, 8);
-    const base = { x: spot.x, y: spot.y, vx: 0, vy: 0, age: 0, value: 1 };
-    let item: string | undefined;
-    if (decks.items.length > 0) {
-      item = decks.items.shift()!;
-      w.pickups.push({ id: w.nextId++, kind: 'objeto', item, ...base });
-    } else if (decks.actives.length > 0) {
-      item = decks.actives.shift()!;
-      w.pickups.push({ id: w.nextId++, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges, ...base });
-    } else if (decks.weapons.length > 0) {
-      item = decks.weapons.shift()!;
-      w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: item, ...base });
-    }
-    const out = freeSpot(w, pr.x, pr.y + 6, PICKUP_RADIUS);
-    for (let i = 0; i < CHEST_COUPONS + (item ? 0 : 3); i++) {
-      const a = Math.PI / 2 + w.rng.range(-1.2, 1.2);
-      const sp = w.rng.range(50, 100);
-      w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: out.x, y: out.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
-    }
-    w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: true, tickets: p.tickets, item });
+  const c = pr.chest;
+  if (!c || c.open) return;
+  if (p.tickets <= 0) {
+    w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: false, tickets: 0 });
+    return;
   }
+  p.tickets--;
+  c.open = true;
+  const decks = decksOf(w);
+  // Out in front (below) of the chest, or wherever there is room.
+  const spot = freeSpot(w, pr.x, pr.y + 32, 8);
+  const base = { x: spot.x, y: spot.y, vx: 0, vy: 0, age: 0, value: 1 };
+  let item: string | undefined;
+  if (decks.items.length > 0) {
+    item = decks.items.shift()!;
+    w.pickups.push({ id: w.nextId++, kind: 'objeto', item, ...base });
+  } else if (decks.actives.length > 0) {
+    item = decks.actives.shift()!;
+    w.pickups.push({ id: w.nextId++, kind: 'activo', item, charge: ACTIVE_ITEMS[item]!.charges, ...base });
+  } else if (decks.weapons.length > 0) {
+    item = decks.weapons.shift()!;
+    w.pickups.push({ id: w.nextId++, kind: 'arma', weapon: item, ...base });
+  }
+  const out = freeSpot(w, pr.x, pr.y + 6, PICKUP_RADIUS);
+  for (let i = 0; i < CHEST_COUPONS + (item ? 0 : 3); i++) {
+    const a = Math.PI / 2 + w.rng.range(-1.2, 1.2);
+    const sp = w.rng.range(50, 100);
+    w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: out.x, y: out.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+  }
+  w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: true, tickets: p.tickets, item });
 }
 
 export function step(w: World, input: Input): void {
@@ -2293,8 +2328,8 @@ export function step(w: World, input: Input): void {
   if (!paused) updateEnemies(w);
   // Enemies that fell during their own update (a boss's relays when it reboots or goes down).
   reapEnemies(w);
+  if (input.interact && !w.over) interact(w);
   updatePickups(w);
-  updateChests(w);
   updateRestock(w);
   updateDoors(w);
   updateLift(w);

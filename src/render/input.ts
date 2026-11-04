@@ -39,6 +39,8 @@ export class Controls {
   private prevPadSwap = false;
   private swapQueued = 0;
   private useQueued = false;
+  private interactQueued = false;
+  private prevPadInteract = false;
   private prevPadUse = false;
   private lastWheel = -1e9;
   private lastStickAim = { x: 1, y: 0 };
@@ -63,6 +65,7 @@ export class Controls {
       // Change weapon: its key (next), or the mouse wheel (below).
       else if (a === 'swap') this.swapQueued = 1;
       else if (a === 'use') this.useQueued = true;
+      else if (a === 'interact') this.interactQueued = true;
     });
     kb.on('keyup', (e: KeyboardEvent) => this.held.delete(e.code));
     // (Both lists are the same set: the window's listeners keep it right between scenes.)
@@ -133,6 +136,8 @@ export class Controls {
     this.swapQueued = 0;
     let use = this.useQueued;
     this.useQueued = false;
+    let interact = this.interactQueued;
+    this.interactQueued = false;
 
     const pad = this.pad();
     if (pad) {
@@ -155,7 +160,7 @@ export class Controls {
         fire = true;
         this.mode = 'pad';
       }
-      const padRoll = btn(0) || btn(4) || btn(6);
+      const padRoll = btn(0) || btn(6);
       if (padRoll && !this.prevPadRoll) roll = true;
       this.prevPadRoll = padRoll;
       if (btn(2)) reload = true;
@@ -163,6 +168,10 @@ export class Controls {
       const padSwap = btn(3);
       if (padSwap && !this.prevPadSwap) swap = 1;
       this.prevPadSwap = padSwap;
+      // LB: interact (talk, buy, open a chest).
+      const padInteract = btn(4);
+      if (padInteract && !this.prevPadInteract) interact = true;
+      this.prevPadInteract = padInteract;
       // B: active item.
       const padUse = btn(1);
       if (padUse && !this.prevPadUse) use = true;
@@ -175,6 +184,7 @@ export class Controls {
     const input: Input = { moveX: mx, moveY: my, aimX, aimY, fire, roll, reload };
     if (swap) input.swap = swap;
     if (use) input.useItem = true;
+    if (interact) input.interact = true;
     if (this.patternQueued) {
       input.debugPattern = this.patternQueued;
       this.patternQueued = undefined;
@@ -183,6 +193,7 @@ export class Controls {
     if (this.override?.roll) this.override.roll = false;
     if (this.override?.swap) this.override.swap = 0;
     if (this.override?.useItem) this.override.useItem = false;
+    if (this.override?.interact) this.override.interact = false;
     return input;
   }
 }

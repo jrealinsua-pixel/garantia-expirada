@@ -819,12 +819,19 @@ try {
   await page.waitForTimeout(150);
   await shot('23a-cofre-cayendo.png');
   await page.waitForTimeout(600);
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.props.find((p) => p.chest); w.player.x = c.x; w.player.y = c.y + 30;
-    window.__GE__.dropTicket(c.x + 40, c.y + 10); })()`);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.props.find((p) => p.chest); w.player.x = c.x; w.player.y = c.y + 30; })()`);
   await page.keyboard.down('w');
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(200);
   await page.keyboard.up('w');
+  // In front of it, the prompt says which key opens it (nota del humano del 2026-10-30: an interact button).
+  const prompt = (): Promise<string> => page.evaluate<string>('(() => { const t = window.__GE__.scene.prompt; return t && t.visible ? t.text : ""; })()');
+  if (!/F: ABRIR/i.test(await prompt())) throw new Error(`Contra el cofre no sale «F: Abrir»: «${await prompt()}»`);
+  await shot('23a2-cofre-boton.png');
+  await page.keyboard.press('f');
+  await page.waitForTimeout(250);
   await shot('23b-cofre-sin-ticket.png');
+  await page.evaluate(`(() => { const c = window.__GE__.scene.world.room.props.find((p) => p.chest); window.__GE__.dropTicket(c.x + 40, c.y + 10); })()`);
+  await page.waitForTimeout(300);
   if (await page.evaluate<boolean>('window.__GE__.scene.world.room.props.find((p) => p.chest).chest.open')) throw new Error('El cofre se abre sin ticket');
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.pickups.find((p) => p.kind === 'ticket'); w.player.x = k.x - 20; w.player.y = k.y; })()`);
   await page.keyboard.down('d');
@@ -834,8 +841,11 @@ try {
   await shot('23c-ticket-recogido.png');
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.props.find((p) => p.chest); w.player.x = c.x; w.player.y = c.y + 22; })()`);
   await page.keyboard.down('w');
-  await page.waitForFunction('window.__GE__.scene.world.room.props.find((p) => p.chest).chest.open', undefined, { timeout: 3000 });
+  await page.waitForTimeout(400);
   await page.keyboard.up('w');
+  if (await page.evaluate<boolean>('window.__GE__.scene.world.room.props.find((p) => p.chest).chest.open')) throw new Error('El cofre se abre solo con andar contra él');
+  await page.keyboard.press('f');
+  await page.waitForFunction('window.__GE__.scene.world.room.props.find((p) => p.chest).chest.open', undefined, { timeout: 3000 });
   await page.keyboard.down('a');
   await page.waitForTimeout(250);
   await page.keyboard.up('a');
@@ -852,16 +862,20 @@ try {
   await page.waitForTimeout(1100);
   await shot('24a-tienda.png');
   await page.keyboard.down('w');
-  await page.waitForFunction("window.__GE__.scene.world.events.some((e) => e.type === 'shop') || window.__GE__.scene.tillNoT > 0", undefined, { timeout: 3000 });
+  await page.waitForTimeout(500);
   await page.keyboard.up('w');
+  if (!/F: COMPRAR POR 15/i.test(await prompt())) throw new Error(`Ante la balda no sale «F: Comprar por 15»: «${await prompt()}»`);
+  await page.keyboard.press('f');
+  await page.waitForFunction("window.__GE__.scene.world.events.some((e) => e.type === 'shop') || window.__GE__.scene.tillNoT > 0", undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('La caja no dice nada al pulsar F sin cupones'); });
   await page.waitForTimeout(250);
   await shot('24b-tienda-sin-cupones.png');
   if (await page.evaluate<number>('window.__GE__.scene.world.player.items.length')) throw new Error('Se compra sin cupones');
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.coupons = 31; w.player.y += 40; })()`);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.coupons = 31; const k = w.pickups.find((p) => p.kind === 'objeto'); w.player.x = k.x; w.player.y = k.y + 10; })()`);
   await page.waitForTimeout(200);
-  await page.keyboard.down('w');
-  await page.waitForFunction('window.__GE__.scene.world.player.items.length === 1', undefined, { timeout: 3000 });
-  await page.keyboard.up('w');
+  await page.keyboard.press('f');
+  await page.waitForFunction('window.__GE__.scene.world.player.items.length === 1', undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('Con cupones, F no compra el objeto'); });
   await page.waitForTimeout(350);
   await shot('24c-tienda-comprado.png');
   if (await page.evaluate<number>('window.__GE__.scene.world.player.coupons') !== 16) throw new Error('La compra no cobra 15 cupones');
@@ -1100,8 +1114,12 @@ try {
   // At the counter the Caja stamps the sick-leave report: «Motivo de la devolución: …».
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'caja'); w.player.x = c.x; w.player.y = c.y + 40; })()`);
   await page.keyboard.down('w');
-  await page.waitForFunction('!!window.__GE__.scene.bubble', undefined, { timeout: 3000 }).catch(() => { throw new Error('La Caja de Devoluciones no dice nada'); });
+  await page.waitForTimeout(500);
   await page.keyboard.up('w');
+  // Walking up says nothing: the interact button does (nota del humano del 2026-10-30).
+  if (await page.evaluate<boolean>('!!window.__GE__.scene.bubble')) throw new Error('La Caja habla sin pulsar el botón de interactuar');
+  await page.keyboard.press('f');
+  await page.waitForFunction('!!window.__GE__.scene.bubble', undefined, { timeout: 3000 }).catch(() => { throw new Error('La Caja de Devoluciones no dice nada'); });
   const said = await page.evaluate<string>('window.__GE__.scene.bubble.t.text');
   if (!said.startsWith('MOTIVO DE LA DEVOLUCI')) throw new Error(`La Caja no empieza por el motivo de la baja: «${said}»`);
   await page.waitForTimeout(500);
@@ -1109,6 +1127,8 @@ try {
   // The ticket machine and the phone talk too, each in its own bubble.
   const standAt = async (kind: string, dy: number, expect: string, name: string): Promise<void> => {
     await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === '${kind}'); w.player.x = c.x; w.player.y = c.y + ${dy}; })()`);
+    await page.waitForTimeout(150);
+    await page.keyboard.press('f');
     await page.waitForFunction(`(() => { const b = window.__GE__.scene.bubble; return !!b && b.t.text.includes(${JSON.stringify(expect)}); })()`, undefined, { timeout: 4000 })
       .catch(async () => { throw new Error(`${kind} no dice «${expect}»: «${await page.evaluate<string>('window.__GE__.scene.bubble?.t.text ?? ""')}»`); });
     await page.waitForTimeout(400);
@@ -1130,6 +1150,8 @@ try {
   await standAt('chatarrero', 8, '', '46-chatarrero.png');
   // The board opens its panel: the Batidora is unlocked (the Nevera fell), the rest are silhouettes.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'tablon'); w.player.x = c.x; w.player.y = c.y + 6; })()`);
+  await page.waitForTimeout(150);
+  await page.keyboard.press('f');
   await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada'); });
   const boardTexts = await page.evaluate<string[]>("window.__GE__.scene.panel.filter((o) => o.type === 'BitmapText').map((o) => o.text)");
   const boardOk = boardTexts.some((t) => t.startsWith('RÁPIDA Y FRÁGIL')) && boardTexts.some((t) => t.includes('ROUTER'));
@@ -1139,15 +1161,17 @@ try {
   // Walking away closes it.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.y += 60; })()`);
   await page.waitForFunction('window.__GE__.scene.panel.length === 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no se cierra al irse'); });
-  // The archivador: the Nevera's albarán is in (beating her filed it); Q turns the sheet.
+  // The archivador: the Nevera's albarán is in (beating her filed it); F (interact) turns the sheet.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'archivador'); w.player.x = c.x + 14; w.player.y = c.y + 4; })()`);
+  await page.waitForTimeout(150);
+  await page.keyboard.press('f');
   await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El archivador no enseña nada'); });
   const sheet = (): Promise<string> => page.evaluate<string>("window.__GE__.scene.panel.filter((o) => o.type === 'BitmapText').map((o) => o.text).join(' | ')");
   const first = await sheet();
   if (!first.includes('ALBARÁN DE ENTRADA') || !first.includes('HOJA 1 DE 3')) throw new Error(`El archivador no abre el albarán: ${first}`);
-  await page.keyboard.press('q');
+  await page.keyboard.press('f');
   await page.waitForFunction("window.__GE__.scene.panel.some((o) => o.type === 'BitmapText' && o.text === 'HOJA 2 DE 3')", undefined, { timeout: 2000 })
-    .catch(async () => { throw new Error(`Q no pasa la hoja del archivador: ${await sheet()}`); });
+    .catch(async () => { throw new Error(`F no pasa la hoja del archivador: ${await sheet()}`); });
   await page.waitForTimeout(300);
   await shot('49-archivador.png');
   // With big text it still fits: one line per character.
@@ -1155,6 +1179,8 @@ try {
   await page.goto(`${url}?mostrador`);
   await page.waitForFunction("window.__GE__ && window.__GE__.state().ready && window.__GE__.scene.world.room.kind === 'hub'", undefined, { timeout: 20000 });
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'tablon'); w.player.x = c.x; w.player.y = c.y + 6; })()`);
+  await page.waitForTimeout(150);
+  await page.keyboard.press('f');
   await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada con texto grande'); });
   await page.waitForTimeout(400);
   await shot('48-tablon-texto-grande.png');

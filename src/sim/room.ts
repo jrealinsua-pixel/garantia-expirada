@@ -19,12 +19,10 @@ export interface PropInstance {
   chest?: ChestState;
 }
 
-/** A chest: shut until the toaster walks into it with a ticket. */
+/** A chest: shut until the interact button is pressed at it with a ticket. */
 export interface ChestState {
   id: number;
   open: boolean;
-  /** Seconds before walking into it shut and without a ticket complains again. */
-  nag: number;
 }
 
 export interface Room {
