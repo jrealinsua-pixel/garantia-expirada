@@ -490,6 +490,9 @@ export interface BossIntro {
 /** Seconds a boss's entrance lasts (name card and motto), and how soon it can be skipped. */
 export const BOSS_INTRO = 3.6;
 export const BOSS_INTRO_SKIP = 0.8;
+/** Speed of a boss's bullets while on hold (Música de Espera): it slows down instead of stopping. */
+export const HOLD_BOSS_SCALE = 0.5;
+
 /** Seconds a boss stops between two phases (no damage, no attacks), and how long it takes to fall. */
 export const BOSS_PHASE_BREAK = 1.6;
 export const BOSS_DEATH = 2.6;
@@ -1411,7 +1414,7 @@ function updateWeapon(w: World, input: Input): void {
   }
 }
 
-function updateBullets(w: World, held = false): void {
+function updateBullets(w: World, held = false, enemyScale = 1): void {
   const keep: Bullet[] = [];
   for (const b of w.bullets) {
     if (b.cut) continue;
@@ -1420,13 +1423,15 @@ function updateBullets(w: World, held = false): void {
       keep.push(b);
       continue;
     }
-    b.life -= DT;
+    // A boss on hold: its bullets go in slow motion (and still hurt).
+    const dt = b.owner === 'enemy' ? DT * enemyScale : DT;
+    b.life -= dt;
     if (b.life <= 0) {
       w.events.push({ type: 'bulletFade', x: b.x, y: b.y });
       continue;
     }
-    b.age += DT;
-    if (b.accel) b.speed = Math.min(b.maxSpeed ?? Infinity, Math.max(10, b.speed + b.accel * DT));
+    b.age += dt;
+    if (b.accel) b.speed = Math.min(b.maxSpeed ?? Infinity, Math.max(10, b.speed + b.accel * dt));
     // Homing: it turns towards the player (towards its body, not its feet) for a while.
     let homing = !!b.homing && b.age < b.homing.time && !w.over;
     if (homing) turnTowards(b, w.player.x, w.player.y - PLAYER_HURT_Y, b.homing!.turnDeg);
@@ -1446,8 +1451,8 @@ function updateBullets(w: World, held = false): void {
     // Two sub-steps keep fast bullets from skipping thin things.
     let alive = true;
     for (let s = 0; s < 2 && alive; s++) {
-      b.x += (b.vx * DT) / 2;
-      b.y += (b.vy * DT) / 2;
+      b.x += (b.vx * dt) / 2;
+      b.y += (b.vy * dt) / 2;
       const angle = Math.atan2(b.vy, b.vx);
       const fy = b.y + b.h;
       if (stopsBullet(w, b.x, fy)) {
@@ -2260,9 +2265,14 @@ export function step(w: World, input: Input): void {
   // Once down, the toaster lies there: the room goes on without it.
   updatePlayer(w, w.over ? { ...NO_INPUT, aimX: w.player.x + Math.cos(w.player.aim), aimY: w.player.y - HAND_HEIGHT + Math.sin(w.player.aim) } : input);
   if (input.useItem && !w.over) useActive(w);
-  // On hold (Música de Espera) enemies, their bullets and their attacks stand still.
-  const held = w.holdT > 0;
-  if (held) {
+  // On hold (Música de Espera) enemies, their bullets and their attacks stand still. A boss does
+  // not: it (and everything in its room) goes in slow motion, its bullets at HOLD_BOSS_SCALE of
+  // their speed and its own thinking every other tick.
+  const onHold = w.holdT > 0;
+  const slowed = onHold && w.enemies.some((e) => e.def.brain.kind === 'boss' && e.state !== 'dying');
+  const held = onHold && !slowed;
+  const paused = held || (slowed && w.tick % 2 === 1);
+  if (onHold) {
     w.holdT = Math.max(0, w.holdT - DT);
     if (w.holdT === 0) w.events.push({ type: 'holdEnd' });
   }
@@ -2274,13 +2284,13 @@ export function step(w: World, input: Input): void {
       firePattern(w, def, d.x, y, Math.atan2(w.player.y - HAND_HEIGHT - y, w.player.x - d.x), { telegraph: ENEMY_TELEGRAPH, source: d.id, by: 'maniqui', height: 20 });
     }
   }
-  if (!held) updateEmitters(w);
+  if (!paused) updateEmitters(w);
   if (isRolling(w.player) && !w.over) rollCut(w);
-  updateBullets(w, held);
-  if (!held) updateFrost(w);
+  updateBullets(w, held, slowed ? HOLD_BOSS_SCALE : 1);
+  if (!paused) updateFrost(w);
   reapEnemies(w);
   updateDummies(w);
-  if (!held) updateEnemies(w);
+  if (!paused) updateEnemies(w);
   // Enemies that fell during their own update (a boss's relays when it reboots or goes down).
   reapEnemies(w);
   updatePickups(w);

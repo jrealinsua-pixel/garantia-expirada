@@ -295,7 +295,7 @@ repartido en M12–M14.
   Medido con el bot.
 - [ ] (8) Jefes que se mueven, erráticos, y que van más deprisa (andar y disparar) cuanto menos
   vida les queda: la Nevera y el Router. Medido con el bot.
-- [ ] (9) La Música de Espera ya no congela al jefe: ralentiza sus balas y su movimiento.
+- [x] (9) La Música de Espera ya no congela al jefe: ralentiza sus balas y su movimiento.
 - [x] (10) Los enemigos que esperan quietos a que te acerques (los cargadores falsos y similares) se
   activan solos al pasar un tiempo o al quedarse solos en la sala.
 - [ ] (11) Corazones que suben o bajan con objetos (contenedores de vida que se ganan y se pierden).

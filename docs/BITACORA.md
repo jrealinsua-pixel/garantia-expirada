@@ -2,6 +2,13 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-04 18:37 (hora peninsular) — Hito M9b — La Música de Espera frena a los jefes en vez de congelarlos
+- Hecho: M9b (9). Si hay un jefe en pie en la sala, la Música de Espera no la congela: el jefe y todo lo suyo (sus ataques en curso, la escarcha, los repetidores) piensan a medio ritmo (un tick sí y otro no) y las balas enemigas van a la mitad de velocidad (`HOLD_BOSS_SCALE` en `src/sim/world.ts`) y siguen doliendo. En las salas normales congela como antes. La descripción dice «Congela la sala 3,5 s (a los jefes, los frena)» (cabe en el inventario, mirado en la captura 27b). Test nuevo en `tests/activos.test.ts`. El e2e del cargador le pide paciencia a los cargadores (si no, al quedarse solos saltan, por M9b (10)).
+- Decisiones: las balas se frenan escalando su paso de tiempo (movimiento suave); el jefe, saltándose un tick de cada dos, porque toda su IA usa el paso fijo: a 30 actualizaciones por segundo se ve fluido y no hay que tocar cada cerebro. El giro de las balas teledirigidas sigue a velocidad normal (giran algo más cerrado en cámara lenta; no se nota).
+- Medidas: el bot no cambia en la planta 1 (no usa el activo contra los jefes en los combates medidos); planta 2, 5,5 → 5,1 medios corazones al llegar.
+- Problemas conocidos: ninguno.
+- Siguiente paso: M9b (8), jefes que se mueven y se aceleran al perder vida.
+
 ## 2026-11-04 18:29 (hora peninsular) — Hito M9b — Los cargadores falsos ya no esperan para siempre
 - Hecho: M9b (10). El Cargador Falso (el único enemigo que esperaba quieto a que te acercaras; las torretas con arranque ya tenían un tiempo fijo) salta ahora también: (a) al cansarse de esperar, a los 7–11 s, cada uno con su paciencia para que una pareja no salte a la vez (`patience` en sus datos); (b) a los 1,2 s de quedar solo cebo en la sala, es decir, cuando ya no queda en pie ningún enemigo de otra clase (`alone`). Sigue saltando al acercarte o al darle. Tres tests nuevos en `tests/cargador.test.ts` (paciencia, paciencias distintas, solo cebos).
 - Decisiones: «quedarse solos» lo cuento como «solo quedan cargadores», no «nadie más despierto»: si no, al saltar uno de una pareja el otro volvía a esperar. Una sala que solo tiene cargadores los delata a los 1,2 s: el cebo no tiene sentido sin nadie más. Lo hago mientras otra sesión tiene M9b (4) (botón de interactuar) en `en_curso`, con menos de 90 min: esta tarea no toca sus archivos.

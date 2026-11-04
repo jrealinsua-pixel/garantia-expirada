@@ -44,7 +44,7 @@ test('las sinergias y los objetos activos también se pueden describir', () => {
     assert.ok(lines[1]!.text.includes(String(a.charges)), 'dice cuántas pilas necesita');
     for (const l of lines) drawable(l.text);
   }
-  assert.equal(activeLines(ACTIVE_ITEMS.espera!)[0]!.text, 'Congela la sala 3,5 s');
+  assert.equal(activeLines(ACTIVE_ITEMS.espera!)[0]!.text, 'Congela la sala 3,5 s (a los jefes, los frena)');
 });
 
 test('las armas enseñan sus números, y son distintos entre sí', () => {

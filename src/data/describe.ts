@@ -63,7 +63,7 @@ export function activeLines(a: ActiveItemDef, keys: KeyWords = DEFAULT_KEY_WORDS
   const e = a.effect;
   let what: string;
   if (e.type === 'clearFire') what = 'Borra las balas enemigas';
-  else if (e.type === 'hold') what = `Congela la sala ${String(e.seconds).replace('.', ',')} s`;
+  else if (e.type === 'hold') what = `Congela la sala ${String(e.seconds).replace('.', ',')} s (a los jefes, los frena)`;
   else what = `Cura ${e.amount / 2} ${e.amount === 2 ? 'corazón' : 'corazones'}`;
   return [
     { text: what, good: true },

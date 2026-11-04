@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T18:29:24+01:00",
+  "actualizado": "2026-11-04T18:37:18+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 4,
+      "hechas": 5,
       "total": 14
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 438,
-    "tests_ok": 438,
+    "tests": 439,
+    "tests_ok": 439,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15783
+    "lineas_codigo": 15792
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T18:37:18+01:00",
+      "hito": "M9b",
+      "resumen": "La Música de Espera ya no congela a los jefes: los frena a medio ritmo y sus balas van a cámara lenta (y siguen doliendo).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T18:29:24+01:00",
       "hito": "M9b",

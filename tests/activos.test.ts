@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES } from '../src/data/items.ts';
 import { PATTERNS } from '../src/data/patterns.ts';
-import { createWorld, DT, enterRoom, firePattern, giveActive, NO_INPUT, spawnEnemy, step, worldHash, type Input, type World } from '../src/sim/world.ts';
+import { createWorld, DT, enterRoom, HOLD_BOSS_SCALE, firePattern, giveActive, NO_INPUT, spawnEnemy, step, worldHash, type Input, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
 const use: Input = { ...NO_INPUT, useItem: true };
@@ -134,6 +134,37 @@ test('Música de Espera: enemigos y balas enemigas se quedan quietos, las balas 
   step(w, NO_INPUT);
   const moving = eb.filter(({ b, x, y }) => w.bullets.includes(b) && (b.x !== x || b.y !== y));
   assert.ok(moving.length > 0);
+});
+
+test('Música de Espera ante un jefe: no lo congela, lo frena; sus balas van a cámara lenta y siguen doliendo', () => {
+  const w = bare('espera-jefe', 'espera');
+  w.noDamage = false;
+  const boss = spawnEnemy(w.nextId++, ENEMIES['nevera-suprema']!, 400, 220);
+  w.enemies.push(boss);
+  // A bullet of its own flying across the room, away from the toaster.
+  firePattern(w, { kind: 'fan', count: 1, spreadDeg: 0, speed: 120, life: 4, color: 'red' }, 300, 300, 0, { by: 'nevera-suprema' });
+  step(w, NO_INPUT);
+  const b = w.bullets.find((x) => x.owner === 'enemy')!;
+  let x0 = b.x;
+  step(w, NO_INPUT);
+  const normal = b.x - x0;
+  step(w, use);
+  assert.ok(w.holdT > 3);
+  x0 = b.x;
+  step(w, NO_INPUT);
+  assert.ok(Math.abs(b.x - x0 - normal * HOLD_BOSS_SCALE) < 1e-6, `la bala va a ${(b.x - x0).toFixed(3)} px por tick (antes ${normal.toFixed(3)})`);
+  // The boss keeps thinking, at half pace.
+  const t0 = boss.t;
+  for (let i = 0; i < 60; i++) step(w, NO_INPUT);
+  assert.ok(boss.t > t0, 'el jefe sigue pensando');
+  assert.ok(Math.abs(boss.t - t0 - 30 * DT) < 1e-6 || boss.t < t0 + 31 * DT, `a medio ritmo: ${(boss.t - t0).toFixed(3)} s en 1 s`);
+  // And its bullets still hurt.
+  w.bullets = [];
+  const hp = w.player.hp;
+  firePattern(w, { kind: 'fan', count: 1, spreadDeg: 0, speed: 120, life: 4, color: 'red' }, w.player.x + 40, w.player.y - 12, Math.PI, { by: 'nevera-suprema' });
+  for (let i = 0; i < ticks(1.5) && w.player.hp === hp; i++) step(w, NO_INPUT);
+  assert.ok(w.holdT > 0, 'aún suena la música');
+  assert.ok(w.player.hp < hp, 'la bala del jefe duele');
 });
 
 test('Pegamento Exprés: devuelve un corazón; con la vida llena no se gasta', () => {
