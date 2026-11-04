@@ -281,7 +281,7 @@ repartido en M12–M14.
 - [x] (1) Fallo: si se entra en una sala con una tecla de movimiento pulsada, el personaje no anda
   hasta soltarla y volver a pulsarla.
 - [x] (2) Fuera los números de daño sobre los enemigos y el texto que sale al matar a uno.
-- [ ] (3) Balas enemigas más grandes y más difíciles de esquivar (sprites y caja de golpe),
+- [x] (3) Balas enemigas más grandes y más difíciles de esquivar (sprites y caja de golpe),
   medido con el bot.
 - [ ] (4) Botón de interactuar (una tecla nueva, reasignable): hablar con los PNJs, comprar en la
   tienda y abrir cofres ya no se hace pisando, sino con ese botón. Con su aviso en pantalla.

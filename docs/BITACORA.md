@@ -2,6 +2,13 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-04 17:55 (hora peninsular) — Hito M9b — Balas enemigas más grandes
+- Hecho: M9b (3). Las balas enemigas redondas (rojas y cian) pasan de 5×5 a 9×9: un borde oscuro que las despega del suelo, el anillo de color, una banda clara y el núcleo blanco. Su caja de golpe pasa de radio 2,5 a 3,5 (`ENEMY_BULLET_RADIUS`, cubre la parte de color; el borde oscuro es solo para leerlas). Vale para todas las balas enemigas, también los cubitos, las tarjetas y las facturas. Test nuevo en `tests/patterns.test.ts`.
+- Decisiones: la caja de golpe es algo menor que el dibujo, como es costumbre en el género: que una bala que «roza» el borde oscuro no duela. No he tocado velocidades: la dificultad de los jefes tiene su tarea (8).
+- Medidas (bot, antes → después): heridas por minuto en la sala de pruebas 2,4 → 2,9; planta 1 ganada 45 % → 40 %; contra la Nevera gana 66,7 % → 43,3 % (5,1 heridas por combate, antes 4,23); contra el Router 50 % → 26,7 %.
+- Problemas conocidos: ninguno.
+- Siguiente paso: M9b (4), el botón de interactuar.
+
 ## 2026-11-04 17:42 (hora peninsular) — Hito M9b — Sin números de daño ni sellos al matar
 - Hecho: M9b (2). Los disparos ya no ponen números sobre los enemigos (`damageText` fuera) y al desmontar a uno ya no sale su sello («Fuera de garantía», «Descatalogado»…; `DEATH_STAMPS` borrado de `src/data/texts.ts`). Quedan el destello, las chispas, el parón, el temblor, el sonido y las piezas volando. El e2e comprueba que tras disparar y desmontar al microondas no flota ningún texto.
 - Decisiones: el aviso de golpe crítico del Ratón Gaming se queda: no es un número ni sale al matar, y es lo único que dice que el objeto funciona. Si el humano lo quiere fuera también, es una línea.

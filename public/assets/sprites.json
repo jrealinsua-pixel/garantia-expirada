@@ -169,14 +169,14 @@
   },
   "bala-roja": {
     "file": "bala-roja.png",
-    "frameW": 5,
-    "frameH": 5,
+    "frameW": 9,
+    "frameH": 9,
     "frames": 1
   },
   "bala-cian": {
     "file": "bala-cian.png",
-    "frameW": 5,
-    "frameH": 5,
+    "frameW": 9,
+    "frameH": 9,
     "frames": 1
   },
   "bala-cubito": {

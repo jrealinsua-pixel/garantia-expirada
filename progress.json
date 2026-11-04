@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T17:42:57+01:00",
+  "actualizado": "2026-11-04T17:55:34+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -77,7 +77,7 @@
       "id": "M9b",
       "nombre": "Lo que pidió el humano el 30 de octubre",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 14
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 23,
     "plantillas_sala": 37,
-    "tests": 435,
-    "tests_ok": 435,
+    "tests": 436,
+    "tests_ok": 436,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 15770
+    "lineas_codigo": 15771
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T17:55:34+01:00",
+      "hito": "M9b",
+      "resumen": "Balas enemigas más grandes (9 px, caja de golpe de 3,5): la Nevera pasa de ganarse el 67 % de las veces al 43 % y el Router del 50 % al 27 %.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T17:42:57+01:00",
       "hito": "M9b",
@@ -692,6 +698,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/balas-grandes.png",
+      "pie": "Las balas enemigas, ahora de 9 px con borde oscuro: se ven más y cuesta más colarse entre ellas"
+    },
+    {
       "archivo": "capturas/sin-numeros.png",
       "pie": "Un microondas desmontado: piezas, tornillos y chispas, y ya ningún número ni sello encima"
     },
@@ -710,13 +720,9 @@
     {
       "archivo": "capturas/tablon.png",
       "pie": "El tablón «Productos en Exposición»: a color los personajes desbloqueados, en silueta los demás, con su condición y cuánto falta"
-    },
-    {
-      "archivo": "capturas/chatarrero.png",
-      "pie": "El Chatarrero aparece en el Mostrador tras vencer al primer jefe y da pistas de lo que falta"
     }
   ],
-  "proximo": "M9b (3): balas enemigas más grandes y difíciles de esquivar, medido con el bot.",
+  "proximo": "M9b (4): botón de interactuar para hablar, comprar y abrir cofres.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -745,8 +751,8 @@
   "en_curso": [
     {
       "sesion": "2026-11-04 16:30 UTC",
-      "tarea": "M9b (3): balas enemigas más grandes",
-      "desde": "2026-11-04T16:50:00Z"
+      "tarea": "M9b (4): botón de interactuar",
+      "desde": "2026-11-04T17:05:00Z"
     }
   ]
 }

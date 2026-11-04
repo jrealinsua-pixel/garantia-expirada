@@ -1679,7 +1679,8 @@ export function activeWarnings(w: World): Warning[] {
 }
 
 export const ENEMY_BULLET_LIFE = 6;
-const ENEMY_BULLET_RADIUS = 2.5;
+/** 3.5 since the human's note of 2026-10-30 (it was 2.5): bigger bullets, harder to dodge. */
+export const ENEMY_BULLET_RADIUS = 3.5;
 
 function updateEmitters(w: World): void {
   const keep: Emitter[] = [];

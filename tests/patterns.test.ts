@@ -158,3 +158,18 @@ test('telegrafía: el patrón de prueba de la sala avisa desde el maniquí', () 
   assert.ok(ev && ev.type === 'telegraph' && ev.source === w.dummies[0]!.id);
   assert.ok(sourceTelegraph(w, w.dummies[0]!.id) >= 0);
 });
+
+test('las balas enemigas son grandes (nota del humano del 2026-10-30): radio 3,5 y sprite de 9 px', async () => {
+  const { ENEMY_BULLET_RADIUS } = await import('../src/sim/world.ts');
+  const { enemyBulletRed, enemyBulletCyan } = await import('../tools/sprites/props.ts');
+  assert.ok(ENEMY_BULLET_RADIUS >= 3.5);
+  for (const cv of [enemyBulletRed(), enemyBulletCyan()]) {
+    assert.equal(cv.w, 9);
+    assert.equal(cv.h, 9);
+  }
+  const w = createWorld({ seed: 'balas-grandes' });
+  firePattern(w, { kind: 'ring', count: 4, speed: 50 }, 100, 100, 0);
+  step(w, NO_INPUT);
+  assert.ok(w.bullets.length > 0);
+  for (const b of w.bullets) assert.equal(b.r, ENEMY_BULLET_RADIUS);
+});

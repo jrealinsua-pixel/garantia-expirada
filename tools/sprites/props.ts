@@ -122,16 +122,22 @@ export function makeShot(): Canvas {
   return cv;
 }
 
-/** Enemy bullet: 5x5 saturated ring with a white core (build2.bullet5). */
-export function makeEnemyBullet(out: RGBA): Canvas {
-  const cv = new Canvas(5, 5);
-  const pat = ['.111.', '12221', '12221', '12221', '.111.'];
-  pat.forEach((row, j) => [...row].forEach((ch, i) => ch !== '.' && cv.set(i, j, ch === '1' ? out : WHITE)));
+/**
+ * Enemy bullet: 9x9, a dark rim, a saturated ring, a lighter band and a white core. It was 5x5
+ * (build2.bullet5); bigger since the human's note of 2026-10-30, so they are harder to slip
+ * through. The hit box covers the coloured 7x7 (ENEMY_BULLET_RADIUS); the dark rim only lifts it
+ * off the floor.
+ */
+export function makeEnemyBullet(rim: RGBA, out: RGBA, mid: RGBA): Canvas {
+  const cv = new Canvas(9, 9);
+  const pat = ['..00000..', '.0011100.', '001222100', '012333210', '012333210', '012333210', '001222100', '.0011100.', '..00000..'];
+  const cols: Record<string, RGBA> = { '0': rim, '1': out, '2': mid, '3': WHITE };
+  pat.forEach((row, j) => [...row].forEach((ch, i) => ch !== '.' && cv.set(i, j, cols[ch]!)));
   return cv;
 }
 
-export const enemyBulletRed = (): Canvas => makeEnemyBullet(RED[1]!);
-export const enemyBulletCyan = (): Canvas => makeEnemyBullet(ICE[2]!);
+export const enemyBulletRed = (): Canvas => makeEnemyBullet(RED[3]!, RED[1]!, RED[0]!);
+export const enemyBulletCyan = (): Canvas => makeEnemyBullet(ICE[3]!, ICE[2]!, ICE[1]!);
 
 /** The floating front hand (3x3 plus outline). */
 export function makeHand(): Canvas {
