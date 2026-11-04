@@ -302,7 +302,7 @@ repartido en M12–M14.
 - [ ] (12) Un escudo temporal con el aguante de un corazón, con una idea de la trama en vez de un
   escudo; y corazones especiales temporales (daño a toda la sala, más daño un rato…), cada uno con
   su sprite y su probabilidad: el escudo es lo más probable; cuanto más potente, más raro.
-  - [ ] (12a) El escudo: la Garantía Provisional, un corazón de papel que aguanta un corazón de
+  - [x] (12a) El escudo: la Garantía Provisional, un corazón de papel que aguanta un corazón de
     daño y caduca al cambiar de planta. Sale a veces al limpiar una sala.
   - [ ] (12b) Los corazones especiales temporales, cada uno con su sprite y su probabilidad (más
     raros que el escudo, y cuanto más potentes, más raros).

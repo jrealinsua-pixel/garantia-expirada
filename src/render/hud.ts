@@ -29,6 +29,8 @@ export function inside(a: Box, outer: Box): boolean {
 export interface HudState {
   /** Heart containers (one per 2 life). */
   hearts: number;
+  /** Garantías Provisionales (one per 2 shield, a half one counts), drawn after the hearts. */
+  shields?: number;
   coupons: number;
   tickets: number;
   hasActive: boolean;
@@ -49,6 +51,8 @@ export interface HudLayout {
   /** Top left: hearts, coupons, tickets and (if any) the active item. */
   status: Box;
   hearts: Point[];
+  /** The provisional warranties, right after the hearts. */
+  shields: Point[];
   coupon: Point;
   couponText: Point;
   ticket: Point;
@@ -87,11 +91,14 @@ const MARGIN = 4;
 export function hudLayout(s: HudState): HudLayout {
   // Top left.
   const hearts = Array.from({ length: s.hearts }, (_, i) => ({ x: 8 + i * HEART_STEP, y: 8 }));
+  const nShields = s.shields ?? 0;
+  // A little gap between the real hearts and the ones on loan.
+  const shields = Array.from({ length: nShields }, (_, i) => ({ x: 8 + s.hearts * HEART_STEP + 2 + i * HEART_STEP, y: 8 }));
   const coupon = { x: 7, y: 19 };
   const couponText = { x: 21, y: 20 };
   const ticket = { x: Math.max(44, couponText.x + textWidth(String(s.coupons)) + 8), y: 18 };
   const ticketText = { x: ticket.x + 12, y: 20 };
-  const right = Math.max(8 + s.hearts * HEART_STEP - 2, ticketText.x + textWidth(String(s.tickets)), s.hasActive ? 33 : 0);
+  const right = Math.max(8 + s.hearts * HEART_STEP - 2 + (nShields ? nShields * HEART_STEP + 2 : 0), ticketText.x + textWidth(String(s.tickets)), s.hasActive ? 33 : 0);
   const status = { x: PAD, y: PAD, w: right + 3 - PAD, h: (s.hasActive ? 55 : 30) - PAD };
   const active = s.hasActive ? { x: 7, y: 31 } : null;
 
@@ -167,7 +174,7 @@ export function hudLayout(s: HudState): HudLayout {
   const bottoms = lows.filter((b): b is Box => overlapsX(b, cardX, cw)).map((b) => b.y);
   const cardBottom = Math.min(HUD_H - PAD, ...bottoms) - MARGIN;
 
-  return { status, hearts, coupon, couponText, ticket, ticketText, active, weapon, gun, ammoText, pips, itemsBox, items, hintBox, hintLines: hintPos, map, titleSpan, cardTop, cardBottom };
+  return { status, hearts, shields, coupon, couponText, ticket, ticketText, active, weapon, gun, ammoText, pips, itemsBox, items, hintBox, hintLines: hintPos, map, titleSpan, cardTop, cardBottom };
 }
 
 /** Width of the description window (its x is centred). */

@@ -95,6 +95,11 @@ export interface Player {
   aim: number;
   facing: 1 | -1;
   hp: number;
+  /**
+   * The Garantía Provisional (M9b 12a): life on loan, in halves of a heart like `hp`. A hit takes
+   * it first; it is not healed, and it expires when the toaster goes down to another floor.
+   */
+  shield: number;
   /** Seconds since the roll started, or -1 when not rolling. */
   rollT: number;
   rollDirX: number;
@@ -122,7 +127,7 @@ export interface Player {
  * A discount coupon (currency), a spare heart (gives back `value` life; left alone at full
  * life), a weapon or a passive item (these two wait on a pedestal).
  */
-export type PickupKind = 'cupon' | 'corazon' | 'ticket' | 'arma' | 'objeto' | 'activo' | 'documento';
+export type PickupKind = 'cupon' | 'corazon' | 'garantia' | 'ticket' | 'arma' | 'objeto' | 'activo' | 'documento';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -444,7 +449,7 @@ export type SimEvent =
   /** The entrance is over (or was skipped): the fight starts. */
   | { type: 'bossIntroEnd'; boss: number; skipped: boolean }
   /** The player lost `damage` life (now `hp`); `dirX, dirY` is where the blow came from towards it. */
-  | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number }
+  | { type: 'hurt'; x: number; y: number; damage: number; hp: number; dirX: number; dirY: number; source: number; shield?: number; covered?: number }
   /** The player has no life left: the run is over. */
   | { type: 'down'; x: number; y: number; source: number; cause: DownCause }
   | { type: 'telegraph'; x: number; y: number; time: number; aim: number; aimed: boolean; color: BulletColor; source?: number };
@@ -553,7 +558,7 @@ export interface FloorRoomState {
 }
 
 /** A ticket (a key) or a chest that a ticket opens. */
-export type RoomReward = 'ticket' | 'chest' | 'heart';
+export type RoomReward = 'ticket' | 'chest' | 'heart' | 'shield';
 /**
  * The economy is scarce (nota del humano del 2026-10-30): a run starts with one ticket, each floor
  * has one combat room that leaves a ticket, two chests wait in the treasure room (one more in the
@@ -571,6 +576,14 @@ export const CLEAR_CHEST_CHANCE = 0.15;
  * and the bot reached the boss with half a heart: hard was turning into impossible.
  */
 export const CLEAR_HEART_CHANCE = 0.35;
+/**
+ * Chance that a combat room with no ticket and no chest leaves a Garantía Provisional instead
+ * (decided before the heart, M9b 12a): rarer than a heart, but the commonest of the special ones.
+ */
+export const CLEAR_SHIELD_CHANCE = 0.1;
+/** The provisional warranty: what one gives (a heart) and the most the toaster can carry (two). */
+export const SHIELD_VALUE = 2;
+export const SHIELD_MAX = 4;
 /** Chests in the treasure room. */
 export const TREASURE_CHESTS = 2;
 /** Coupons that spill out of a chest with its item. */
@@ -677,6 +690,7 @@ export function createWorld(opts: WorldOptions): World {
       aim: 0,
       facing: 1,
       hp: def.maxHp,
+      shield: 0,
       rollT: -1,
       rollDirX: 1,
       rollDirY: 0,
@@ -800,7 +814,7 @@ export function nextFloor(w: World): World | null {
   const p = w.player;
   const n = createWorld({ seed: `${w.seed}:planta${w.level + 1}`, floor: true, level: w.level + 1, character: p.base.def.id });
   const q = n.player;
-  n.player = { ...p, x: q.x, y: q.y, vx: 0, vy: 0, aim: q.aim, facing: q.facing, rollT: q.rollT, rollDirX: q.rollDirX, rollDirY: q.rollDirY, rollCooldown: 0, invulnerable: q.invulnerable };
+  n.player = { ...p, x: q.x, y: q.y, vx: 0, vy: 0, aim: q.aim, facing: q.facing, rollT: q.rollT, rollDirX: q.rollDirX, rollDirY: q.rollDirY, rollCooldown: 0, invulnerable: q.invulnerable, shield: 0 };
   const f = n.floor!;
   const owned = new Set([...p.arsenal.map((ws) => ws.base.id), ...p.items, ...(p.active ? [p.active.id] : [])]);
   f.weapons = f.weapons.filter((id) => !owned.has(id));
@@ -840,10 +854,15 @@ function planFloor(seed: string, level: number): FloorRun {
   const combat = prize.shuffle(layout.rooms.filter((fr) => fr.kind === 'combat').map((fr) => fr.id));
   // Hearts with their own generator, so they do not move the tickets and chests around.
   const hearts = new Rng(`corazones:${seed}`);
+  const shields = new Rng(`garantias:${seed}`);
   combat.forEach((id, i) => {
     if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
     else if (prize.chance(CLEAR_CHEST_CHANCE)) rooms[id]!.reward = 'chest';
-    if (!rooms[id]!.reward && hearts.chance(CLEAR_HEART_CHANCE)) rooms[id]!.reward = 'heart';
+    // Both dice are rolled every time, so one chance does not move the other's rooms.
+    const shield = shields.chance(CLEAR_SHIELD_CHANCE);
+    const heart = hearts.chance(CLEAR_HEART_CHANCE);
+    if (!rooms[id]!.reward && shield) rooms[id]!.reward = 'shield';
+    else if (!rooms[id]!.reward && heart) rooms[id]!.reward = 'heart';
   });
   return { layout, current: layout.start, rooms, ...lootDecks(seed, level) };
 }
@@ -1884,9 +1903,12 @@ export const canBeHurt = (w: World): boolean => !w.over && !w.noDamage && w.play
 export function hurtPlayer(w: World, damage: number, source: number, dirX: number, dirY: number, cause: DownCause = { by: 'desconocido', how: 'contact' }): boolean {
   if (!canBeHurt(w) || damage <= 0) return false;
   const p = w.player;
-  p.hp = Math.max(0, p.hp - damage);
+  // The provisional warranty pays first (what it covers is gone for good).
+  const covered = Math.min(p.shield, damage);
+  p.shield -= covered;
+  p.hp = Math.max(0, p.hp - (damage - covered));
   p.invulnerable = HURT_IFRAMES;
-  w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source });
+  w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...(covered > 0 ? { covered, shield: p.shield } : {}) });
   const keep: Bullet[] = [];
   for (const b of w.bullets) {
     if (b.owner === 'enemy' && Math.hypot(b.x - p.x, b.y - (p.y - PLAYER_HURT_Y)) < HURT_CLEAR_RADIUS) w.events.push({ type: 'bulletFade', x: b.x, y: b.y });
@@ -2096,12 +2118,14 @@ function updatePickups(w: World): void {
       keep.push(k);
       continue;
     }
-    const wanted = k.kind !== 'corazon' || p.hp < p.def.maxHp;
+    const wanted = k.kind === 'corazon' ? p.hp < p.def.maxHp : k.kind === 'garantia' ? p.shield < SHIELD_MAX : true;
     if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_GRAB) {
       if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);
+      else if (k.kind === 'garantia') p.shield = Math.min(SHIELD_MAX, p.shield + k.value);
       else if (k.kind === 'ticket') p.tickets += k.value;
       else p.coupons += k.value;
-      w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: k.kind === 'corazon' ? p.hp : k.kind === 'ticket' ? p.tickets : p.coupons });
+      const total = k.kind === 'corazon' ? p.hp : k.kind === 'garantia' ? p.shield : k.kind === 'ticket' ? p.tickets : p.coupons;
+      w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total });
       continue;
     }
     if (w.vacuum && k.kind === 'cupon' && k.age >= PICKUP_DELAY && !w.over) {
@@ -2194,6 +2218,7 @@ function updateDoors(w: World): void {
       if (st.reward === 'ticket') dropTicket(w, ...roomMiddle(w));
       else if (st.reward === 'chest') placeChest(w, ...roomMiddle(w));
       else if (st.reward === 'heart') dropHeart(w, ...roomMiddle(w));
+      else if (st.reward === 'shield') dropHeart(w, ...roomMiddle(w), 'garantia');
     }
     setDoorTiles(w, true);
   }
@@ -2205,12 +2230,12 @@ function roomMiddle(w: World): [number, number] {
   return [r.w / 2, (r.h + BACK_WALL_ROWS * TILE) / 2];
 }
 
-/** A spare heart pops out at (x, y) (or the nearest free floor): a cleared room's reward. */
-export function dropHeart(w: World, x: number, y: number): void {
+/** A spare heart (or a Garantía Provisional) pops out at (x, y) (or the nearest free floor): a cleared room's reward. */
+export function dropHeart(w: World, x: number, y: number, kind: 'corazon' | 'garantia' = 'corazon'): void {
   const at = freeSpot(w, x, y, PICKUP_RADIUS);
   const a = w.rng.range(0, Math.PI * 2);
-  w.pickups.push({ id: w.nextId++, kind: 'corazon', value: 2, x: at.x, y: at.y, vx: Math.cos(a) * 40, vy: Math.sin(a) * 40, age: 0 });
-  w.events.push({ type: 'reward', reward: 'heart', x: at.x, y: at.y });
+  w.pickups.push({ id: w.nextId++, kind, value: kind === 'garantia' ? SHIELD_VALUE : 2, x: at.x, y: at.y, vx: Math.cos(a) * 40, vy: Math.sin(a) * 40, age: 0 });
+  w.events.push({ type: 'reward', reward: kind === 'garantia' ? 'shield' : 'heart', x: at.x, y: at.y });
 }
 
 /** A purchase ticket pops out at (x, y) (or the nearest free floor). */
@@ -2472,6 +2497,7 @@ export function checkInvariants(w: World): string[] {
   if (w.room.props.some((pr) => overlaps(pr.box, box))) errs.push(`player inside a prop at ${p.x.toFixed(1)},${p.y.toFixed(1)}`);
   if (!Number.isInteger(p.hp) || p.hp < 0 || p.hp > p.def.maxHp) errs.push(`player hp out of range: ${p.hp}`);
   if (p.hp === 0 && !w.over) errs.push('player has no life but the run is not over');
+  if (!Number.isInteger(p.shield) || p.shield < 0 || p.shield > SHIELD_MAX) errs.push(`player shield out of range: ${p.shield}`);
   if (p.weapon.ammo < 0 || p.weapon.ammo > p.weapon.def.magazine) errs.push(`ammo out of range: ${p.weapon.ammo}`);
   if (w.bullets.length > 2000) errs.push(`too many bullets: ${w.bullets.length}`);
   for (const b of w.bullets) if (!Number.isFinite(b.x) || !Number.isFinite(b.y)) errs.push(`bullet ${b.id} has invalid position`);
@@ -2492,7 +2518,8 @@ export function checkInvariants(w: World): string[] {
 /** Compact fingerprint of the state, to check determinism. */
 export function worldHash(w: World): string {
   const p = w.player;
-  const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills, p.coupons, p.tickets, w.pickups.length, p.hp];
+  const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills];
+  parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield);
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));

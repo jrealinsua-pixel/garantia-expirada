@@ -286,6 +286,25 @@ try {
   await shot('11-herida.png');
   const sh = await state();
   if (sh.hp !== hp0 - 1) throw new Error(`Una bala enemiga no quita medio corazón (${hp0} → ${sh.hp})`);
+  // The Garantía Provisional (M9b 12a): one drops at its feet, it is picked up (paper heart after
+  // the hearts in the HUD) and the next bullet takes it instead of the life.
+  await page.waitForTimeout(1300);
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; const p = w.player; w.noDamage = true;
+    g.dropShield(p.x + 14, p.y); })()`);
+  await page.waitForTimeout(250);
+  await shot('11b-garantia-en-el-suelo.png');
+  await page.evaluate(`(() => { const p = window.__GE__.scene.world.player; const k = window.__GE__.scene.world.pickups.find((q) => q.kind === 'garantia'); p.x = k.x; p.y = k.y; })()`);
+  await page.waitForTimeout(400);
+  await shot('11c-garantia-cogida.png');
+  const shield = await page.evaluate<number>('window.__GE__.scene.world.player.shield');
+  if (shield !== 2) throw new Error(`La garantía provisional no se coge (${shield})`);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.invulnerable = 0; w.player.rollT = -1; })()`);
+  const hpBefore = (await state()).hp;
+  await page.evaluate(bulletAt(24));
+  await page.waitForTimeout(260);
+  await shot('11d-garantia-cubre.png');
+  const after = await page.evaluate<{ hp: number; shield: number }>('({ hp: window.__GE__.scene.world.player.hp, shield: window.__GE__.scene.world.player.shield })');
+  if (after.hp !== hpBefore || after.shield !== 1) throw new Error(`La garantía no cubre el golpe (vida ${hpBefore} → ${after.hp}, garantía ${after.shield})`);
   // Down: with half a heart left, one more bullet ends it. The toaster comes apart (slices,
   // spring, screws), the sick-leave report drops in with its stamp, and R asks for a new unit.
   await page.waitForTimeout(1300);

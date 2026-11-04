@@ -2,7 +2,7 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
-import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isRolling, leaveHub, NO_INPUT, nearStation, PLAYER_HURT_Y, step } from './world.ts';
+import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isRolling, leaveHub, NO_INPUT, nearStation, PLAYER_HURT_Y, SHIELD_MAX, step } from './world.ts';
 import type { Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
@@ -278,7 +278,8 @@ export class Bot {
     else for (const k of w.pickups) {
       // Not an active item when it already has one: it would swap them back and forth (and stand
       // on the one it just put down, waiting to step off it, for ever).
-      if ((k.kind === 'corazon' && p.hp >= p.def.maxHp) || k.price !== undefined || (k.kind === 'activo' && p.active)) continue;
+      if ((k.kind === 'corazon' && p.hp >= p.def.maxHp) || (k.kind === 'garantia' && p.shield >= SHIELD_MAX)) continue;
+      if (k.price !== undefined || (k.kind === 'activo' && p.active)) continue;
       const d = Math.hypot(k.x - p.x, k.y - p.y);
       if (d < near) {
         near = d;

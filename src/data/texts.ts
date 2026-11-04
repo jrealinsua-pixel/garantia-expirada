@@ -135,6 +135,11 @@ export function downReport(info: DownReportInfo, pick: (n: number) => number): {
 export const LIFT_LINE = 'Montacargas a la planta 2 · Carga máxima: una tostadora';
 /** Floats up when the toaster picks up a spare heart. */
 export const HEART_LINE = 'Recambio original';
+/** Over the toaster when it picks up a Garantía Provisional (M9b 12a). */
+export const SHIELD_LINE = 'Garantía provisional · 30 días';
+/** When the provisional warranty takes a hit, and when it is used up. */
+export const SHIELD_HIT_LINE = 'Cubierto. Esta vez.';
+export const SHIELD_GONE_LINE = 'Garantía agotada';
 
 /** The report shown when the floor is done (the toaster went down the lift). */
 export const WIN_TITLE = 'Incidencia resuelta';

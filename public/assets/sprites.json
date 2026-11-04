@@ -335,6 +335,18 @@
     "frameH": 12,
     "frames": 2
   },
+  "garantia-provisional": {
+    "file": "garantia-provisional.png",
+    "frameW": 13,
+    "frameH": 12,
+    "frames": 2
+  },
+  "garantias-hud": {
+    "file": "garantias-hud.png",
+    "frameW": 9,
+    "frameH": 8,
+    "frames": 2
+  },
   "cofre": {
     "file": "cofre.png",
     "frameW": 26,

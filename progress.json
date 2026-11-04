@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-04T20:12:00+01:00",
+  "actualizado": "2026-11-04T20:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M9b",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 454,
-    "tests_ok": 454,
+    "tests": 459,
+    "tests_ok": 459,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 16151
+    "lineas_codigo": 16239
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-04T20:45:00+01:00",
+      "hito": "M9b",
+      "resumen": "La Garantía Provisional: un corazón de papel que aguanta un corazón de daño y caduca al bajar de planta; sale a veces al limpiar una sala.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-04T20:12:00+01:00",
       "hito": "M9b",
@@ -730,15 +736,13 @@
       "hito": "M1",
       "resumen": "M1 terminado: el mando (simulado en el e2e) mueve, apunta y dispara. Golpe y muerte de la tostadora pasan a M2.",
       "commit": "41f7c25"
-    },
-    {
-      "fecha": "2026-10-28T20:00:00+01:00",
-      "hito": "M0 + M1",
-      "resumen": "M0 terminado: proyecto, sprites aprobados regenerados por código, tests, bot, e2e, panel y publicación. M1 casi entero: ya se juega la Sala de Pruebas con la tostadora andando, rodando y disparando a maniquíes.",
-      "commit": "647d847"
     }
   ],
   "capturas": [
+    {
+      "archivo": "capturas/garantia-provisional.png",
+      "pie": "La Garantía Provisional (el corazón de papel tras los rojos, ya a medias) acaba de parar una bala: «Cubierto. Esta vez.»"
+    },
     {
       "archivo": "capturas/inventario-equilibrio.png",
       "pie": "El inventario tras el reequilibrio: el Secador hace 1,6 (antes 2) y la Resistencia lo sube un 30 % en vez de un punto entero"
@@ -758,13 +762,9 @@
     {
       "archivo": "capturas/boton-interactuar.png",
       "pie": "Delante de un cofre: «F: Abrir». Ya no se abre empujándolo"
-    },
-    {
-      "archivo": "capturas/tienda-boton.png",
-      "pie": "En la tienda se compra con el botón de interactuar; sin cupones, la caja se niega"
     }
   ],
-  "proximo": "M9b (12): el escudo temporal y los corazones especiales, cada uno con su sprite y su probabilidad (el premio de las salas limpias ya existe).",
+  "proximo": "M9b (12b): los corazones especiales temporales (daño a toda la sala, más daño un rato…), más raros que la Garantía Provisional.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -791,11 +791,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-04 20:15",
-      "tarea": "M9b (12a): el escudo (Garantía Provisional)",
-      "desde": "2026-11-04T20:15:00+01:00"
-    },
     {
       "sesion": "2026-11-04 20:26",
       "tarea": "M9b (14): sinergias indirectas (datos de parejas, medida y reglas de bala; sin sprites ni HUD)",

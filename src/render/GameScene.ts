@@ -11,7 +11,8 @@ import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { INTERACT_VERBS, interactPrompt, REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
-import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
+import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE } from '../data/texts.ts';
+import { SHIELD_GONE_LINE, SHIELD_HIT_LINE, SHIELD_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import {
   DOORS_OPEN_LINES,
   DOWN_HINT,
@@ -54,7 +55,7 @@ import {
   step,
   BODY_HEIGHT,
 } from '../sim/world.ts';
-import { dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import type { Modifier } from '../data/types.ts';
 import { Rng } from '../sim/rng.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -317,6 +318,8 @@ export class GameScene extends Phaser.Scene {
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
   private hearts: Phaser.GameObjects.Image[] = [];
+  /** The Garantías Provisionales after the hearts (M9b 12a). */
+  private shieldIcons: Phaser.GameObjects.Image[] = [];
   private ammoPips: Phaser.GameObjects.Image[] = [];
   private gunIcon!: Phaser.GameObjects.Image;
   private ammoText!: Phaser.GameObjects.BitmapText;
@@ -439,6 +442,7 @@ export class GameScene extends Phaser.Scene {
     this.mapG = null;
     this.floats = [];
     this.hearts = [];
+    this.shieldIcons = [];
     this.ammoPips = [];
     this.hubViews = null;
     this.hubPending = {};
@@ -642,6 +646,7 @@ export class GameScene extends Phaser.Scene {
       giveActive: (id: string) => void;
       placeChest: (x: number, y: number, tier?: 'carton' | 'premium') => void;
       dropTicket: (x: number, y: number) => void;
+      dropShield: (x: number, y: number) => void;
     };
     (window as unknown as { __GE__: TestHooks }).__GE__ = {
       scene: this,
@@ -654,6 +659,8 @@ export class GameScene extends Phaser.Scene {
       // ...or a chest, or a ticket, wherever.
       placeChest: (x: number, y: number, tier?: 'carton' | 'premium') => void placeChest(this.world, x, y, true, tier),
       dropTicket: (x: number, y: number) => dropTicket(this.world, x, y),
+      // ...or a Garantía Provisional.
+      dropShield: (x: number, y: number) => dropHeart(this.world, x, y, 'garantia'),
     };
     // Back in the boss room after walking out: the lift is still there, waiting.
     const lift = this.world.lift;
@@ -1866,6 +1873,14 @@ export class GameScene extends Phaser.Scene {
             this.ticketPop = 0.3;
             break;
           }
+          if (e.kind === 'garantia') {
+            // A provisional warranty: a rubber stamp, paper and blue sparks, and its line.
+            this.sound2.play('sello', { volume: 0.7 });
+            this.sound2.play('curar', { detune: 400, volume: 0.6 });
+            for (let i = 0; i < 8; i++) this.paperBit(e.x, e.y - 4);
+            this.floatText(e.x, e.y - 14, fontText(SHIELD_LINE), 0xa9cbf2);
+            break;
+          }
           if (e.kind === 'corazon') {
             // A spare heart: a warm chime, red sparks and the heart in the HUD pumps.
             this.sound2.play('curar');
@@ -1995,6 +2010,17 @@ export class GameScene extends Phaser.Scene {
           for (const en of this.world.enemies) for (let i = 0; i < 4; i++) this.puff(en.x + this.fx.range(-8, 8), en.y - enemyAltitude(en) - this.fx.range(0, 16), 0.5);
           break;
         case 'hurt': {
+          if (e.covered) {
+            // The provisional warranty took it: a stamp instead of the pain, torn paper, and its line.
+            this.hitstop = 0.06;
+            this.flashHero = 0.08;
+            this.shake(140, 0.006, true);
+            this.sound2.play('sello');
+            if (e.covered < e.damage) this.sound2.play('dolor');
+            for (let i = 0; i < 10; i++) this.paperBit(e.x, e.y);
+            this.floatText(e.x, e.y - 12, fontText(e.shield ? SHIELD_HIT_LINE : SHIELD_GONE_LINE), 0xa9cbf2);
+            if (e.covered >= e.damage) break;
+          }
           this.hitstop = 0.1;
           this.hurtFace = 0.3;
           this.flashHero = 0.08;
@@ -2200,6 +2226,14 @@ export class GameScene extends Phaser.Scene {
     const a = this.fx.range(0, Math.PI * 2);
     const sp = this.fx.range(25, 70);
     this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.6, z: 2, vz: this.fx.range(50, 110), life: 0.7, maxLife: 0.7, gravity: true, spin: 0, fade: true, hw: 1, hh: 1 });
+  }
+
+  /** A scrap of paper (a warranty slip) thrown out from (x, y). */
+  private paperBit(x: number, y: number): void {
+    const a = this.fx.range(0, Math.PI * 2);
+    const sp = this.fx.range(30, 90);
+    const s = this.add.image(x, y, 'chispas', 0).setTint(this.fx.pick([0xf4efdc, 0xd6cdb2, 0x5f93d4]));
+    this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, z: 0, vz: 0, life: 0.35, maxLife: 0.35, gravity: false, spin: 0, fade: true });
   }
 
   private spark(x: number, y: number, a: number, speed: number, frame: number): void {
@@ -2829,8 +2863,9 @@ export class GameScene extends Phaser.Scene {
             label: this.add.bitmapText(k.x, k.y - 26, FONT, fontText(shown.name), 8).setOrigin(0.5, 1).setTint(0xf6c431).setDepth(84000).setAlpha(0),
           };
         } else {
-          const key = heart ? 'corazon-suelo' : k.kind === 'ticket' ? 'ticket' : 'cupon';
-          v = { s: this.add.image(k.x, k.y, key, 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart ? 5 : 4, 2)).setDepth(-50000) };
+          const shield = k.kind === 'garantia';
+          const key = heart ? 'corazon-suelo' : shield ? 'garantia-provisional' : k.kind === 'ticket' ? 'ticket' : 'cupon';
+          v = { s: this.add.image(k.x, k.y, key, 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart || shield ? 5 : 4, 2)).setDepth(-50000) };
         }
         if (k.price !== undefined) {
           // For sale: its price under the stand, with a coupon (gold if it can be paid, grey if not).
@@ -3089,6 +3124,13 @@ export class GameScene extends Phaser.Scene {
       h.setVisible(this.gunIcon.visible);
       this.hearts.push(h);
     }
+    const shields = Math.ceil(p.shield / 2);
+    while (this.shieldIcons.length > shields) drop(this.shieldIcons.pop()!);
+    while (this.shieldIcons.length < shields) {
+      const h = this.hud(this.add.image(8, 8, 'garantias-hud', 0).setOrigin(0, 0));
+      h.setVisible(this.gunIcon.visible);
+      this.shieldIcons.push(h);
+    }
     const mag = p.weapon.def.magazine;
     if (this.ammoPips.length !== mag) {
       for (const s of this.ammoPips) drop(s);
@@ -3114,6 +3156,7 @@ export class GameScene extends Phaser.Scene {
     const p = this.world.player;
     return hudLayout({
       hearts: Math.ceil(p.def.maxHp / 2),
+      shields: Math.ceil(p.shield / 2),
       coupons: p.coupons,
       tickets: p.tickets,
       hasActive: !!p.active,
@@ -3143,6 +3186,7 @@ export class GameScene extends Phaser.Scene {
     });
     if (l.itemsBox && lag) l = { ...l, itemsBox: { ...l.itemsBox, y: l.itemsBox.y + lag } };
     this.hearts.forEach((h, i) => h.setX(l.hearts[i]?.x ?? 8));
+    this.shieldIcons.forEach((h, i) => h.setX(l.shields[i]?.x ?? 8));
     this.hint.forEach((t, i) => {
       const line = l.hintLines[i];
       t.setText(line?.text ?? '');
@@ -3225,6 +3269,11 @@ export class GameScene extends Phaser.Scene {
       h.setY(8 - (hit && this.heartHitT > 0.35 ? 2 : 0) - (beat ? 1 : 0));
       if (hit && Math.floor(this.heartHitT * 16) % 2 === 0) this.whiteOut(h);
       else h.clearTint();
+    });
+    // The warranties on loan: whole or half, with a slow sway, as paper does.
+    this.shieldIcons.forEach((h, i) => {
+      h.setFrame(p.shield - i * 2 >= 2 ? 0 : 1);
+      h.setY(8 - (Math.floor(this.time.now / 400 + i) % 4 === 0 ? 1 : 0));
     });
     this.hurtFlash.setAlpha(Math.max(0, this.hurtFlash.alpha - dt * 1.6));
     this.updateActiveSlot(dt);

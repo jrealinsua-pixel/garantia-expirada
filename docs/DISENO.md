@@ -169,6 +169,13 @@ de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ni
   de calidad «buena»: la Plancha o un pasivo bueno (Garantía Extendida, Broca del Ocho,
   Resistencia de Recambio, Cable HDMI Dorado, Actualización Obligatoria, Ratón Gaming RGB, Copia
   de Seguridad). La calidad está en los datos (`quality: 'buena'`).
+- **La Garantía Provisional** (M9b 12a, el escudo que pidió el humano): un corazón recortado de un
+  resguardo de garantía, papel crema con un sello azul y la esquina doblada. Aguanta un corazón de
+  daño antes que la vida («Cubierto. Esta vez.»; al gastarse, «Garantía agotada»); no se cura, se
+  pueden llevar dos y **caduca al bajar de planta** (es provisional: 30 días, y en el vertedero
+  nadie cuenta los días). Se dibuja tras los corazones, algo separada. Sale al limpiar una sala de
+  combate que no da ticket ni cofre: un 10 % de las veces (antes que el corazón de recambio, que es
+  el 35 %). Es lo más común de lo especial; los corazones con efecto de M9b (12b) serán más raros.
 - **Los objetos nunca están sueltos** por una sala: solo salen de cofres o de la tienda.
 - **Los cupones se recogen solos** al limpiar una sala: vuelan hacia la tostadora. Los enemigos
   sueltan la mitad que antes (0–1 casi todos; los jefes, 5–9): una planta da unos 20.

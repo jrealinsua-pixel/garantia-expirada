@@ -693,6 +693,63 @@ export function makeSpareHeart(): Canvas {
   return out;
 }
 
+/**
+ * The Garantía Provisional (M9b 12a), the toaster's temporary shield: a heart cut out of a
+ * warranty slip, cream paper with a blue rubber stamp and a folded corner. In the HUD, after the
+ * hearts: 2 frames of 9x8, whole and half (only the left half: what is left of it after a hit).
+ */
+export function makeShieldHearts(): Canvas {
+  const sheet = new Canvas(18, 8);
+  const pat = ['.11.13.', '1111133', '1122111', '.12211.', '..111..', '...1...'];
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(9, 8);
+    pat.forEach((row, j) =>
+      [...row].forEach((ch, i) => {
+        if (ch === '.' || (k === 1 && i >= 4)) return;
+        // 1 paper, 2 the stamp, 3 the folded corner (its back, darker).
+        cv.set(i + 1, j + 1, ch === '1' ? CREAM[0]! : ch === '2' ? BLUE[1]! : CREAM[2]!);
+      }),
+    );
+    // The paper's shadow edge, so it does not read as a white blob.
+    if (k === 0) cv.set(5, 5, CREAM[1]!);
+    cv.set(2, 4, CREAM[1]!);
+    sheet.blit(outline(cv), k * 9, 0);
+  }
+  return sheet;
+}
+
+/**
+ * The Garantía Provisional lying on the floor: the paper heart, a blue stamp across it, the corner
+ * folded and a red «30 días» strip at the bottom, 13 × 12. Two frames: the second catches the light.
+ */
+export function makeShieldPickup(): Canvas {
+  const out = new Canvas(26, 12);
+  const pat = ['.111.1133', '111111133', '111111111', '111111114', '.1111114.', '..11114..', '...114...', '....4....'];
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(13, 12);
+    pat.forEach((row, j) =>
+      [...row].forEach((ch, i) => {
+        if (ch === '.') return;
+        cv.set(i + 1, j + 1, ch === '1' ? CREAM[0]! : ch === '3' ? CREAM[2]! : CREAM[1]!);
+      }),
+    );
+    // The rubber stamp: a blue ring slightly askew, with a dot in the middle.
+    for (const [x, y] of [[3, 3], [4, 2], [5, 2], [6, 3], [6, 4], [5, 5], [4, 5], [3, 4]] as const) cv.set(x, y, BLUE[1]!);
+    cv.set(4, 3, BLUE[2]!);
+    cv.set(5, 4, BLUE[0]!);
+    // Lines of small print and the red validity strip.
+    cv.rect(3, 7, 3, 1, CREAM[2]!);
+    cv.rect(5, 6, 2, 1, RED[1]!);
+    cv.set(7, 6, RED[2]!);
+    if (k === 1) {
+      cv.set(2, 2, WHITE);
+      cv.set(3, 2, WHITE);
+    }
+    out.blit(outline(cv), k * 13, 0);
+  }
+  return out;
+}
+
 // ---------- Weapons found on the floor (M5) ----------
 
 /** Plancha de Vapor Turbo in the hand: white body, blue water window, hot steel soleplate, taped grip. */
