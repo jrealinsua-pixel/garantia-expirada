@@ -418,7 +418,7 @@ aspecto). En partes, como M10:
 - [x] (2a) Seis plantillas de combate propias de la planta 5, cada una con su idea y sus grupos.
 - [x] (2b) Seis plantillas de combate más.
 - Las salas especiales propias, en dos partes:
-  - [ ] (2c1) Coja Número, Objetos Perdidos, Repuestos Originales y Grabaciones con Fines de
+  - [x] (2c1) Coja Número, Objetos Perdidos, Repuestos Originales y Grabaciones con Fines de
     Calidad con su registro de llamadas (documento para el archivador).
   - [ ] (2c2) La sala de la Centralita, con sus cuatro mostradores bajos (paran balas y se cruzan
     rodando); va con la (5b), que es cuando hay jefa que pelee en ella.

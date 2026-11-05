@@ -1735,6 +1735,92 @@ const FLOOR_5: RoomTemplate[] = [
     ],
   },
   {
+    // Take a number: rows of bolted waiting chairs facing the doors, a mop bucket in each corner and
+    // two magazine tables. Nothing in front of the doors (the ticket machine is painted by the door).
+    id: 'entrada-atencion',
+    kind: 'start',
+    level: 5,
+    name: 'Coja Número (Espere a Ser Llamado)',
+    rows: [
+      '################',
+      '################',
+      '#cc..........kc#',
+      '#..............#',
+      '#..cc......cc..#',
+      '#..............#',
+      '#.......P......#',
+      '#..............#',
+      '#..v........v..#',
+      '#k............k#',
+      '################',
+    ],
+  },
+  {
+    // Lost property: what nobody came back for, piled on the chairs along the walls; the chests in
+    // the middle, waiting for an owner who will not come.
+    id: 'tesoro-atencion',
+    kind: 'treasure',
+    level: 5,
+    name: 'Objetos Perdidos (No Se Devuelven)',
+    rows: [
+      '################',
+      '################',
+      '#c.c........c.c#',
+      '#..............#',
+      '#...*......*...#',
+      '#..............#',
+      '#.......*......#',
+      '#..............#',
+      '#..k........v..#',
+      '#cc..........cc#',
+      '################',
+    ],
+  },
+  {
+    // Genuine spare parts at the price of a new one, served by the Caja de Autocobro, with a waiting
+    // corner for the queue that never moves.
+    id: 'tienda-atencion',
+    kind: 'shop',
+    level: 5,
+    name: 'Repuestos Originales (A Precio de Original)',
+    rows: [
+      '####################',
+      '####################',
+      '#cc.k........$...cc#',
+      '#..................#',
+      '#....s....s....s...#',
+      '#..................#',
+      '#..................#',
+      '#..................#',
+      '#..v............v..#',
+      '#..................#',
+      '#..................#',
+      '#kc..............cc#',
+      '####################',
+    ],
+  },
+  {
+    // Calls recorded for quality purposes: chairs piled against the walls round the reel on its
+    // pedestal; the call log lies in front of it (src/data/lore.ts, registro-1).
+    id: 'secreta-atencion',
+    kind: 'secret',
+    level: 5,
+    name: 'Grabaciones con Fines de Calidad',
+    rows: [
+      '################',
+      '################',
+      '#cc.c......c.cc#',
+      '#c............c#',
+      '#..............#',
+      '#.......*......#',
+      '#..............#',
+      '#..............#',
+      '#c............c#',
+      '#ccb........bcc#',
+      '################',
+    ],
+  },
+  {
     id: 'punto-informacion',
     kind: 'combat',
     level: 5,

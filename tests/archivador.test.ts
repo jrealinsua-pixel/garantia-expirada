@@ -24,7 +24,7 @@ test('cada jefe vencido tiene su documento y cada sala secreta de las plantas qu
   assert.equal(new Set(ids).size, ids.length);
   const bosses = Object.keys(ENEMIES).filter((e) => ENEMIES[e]!.boss);
   for (const b of bosses) assert.equal(LORE.filter((l) => 'boss' in l.source && l.source.boss === b).length, 1, `${b} deja un documento`);
-  for (const floor of [1, 2]) assert.equal(LORE.filter((l) => 'secret' in l.source && l.source.secret === floor).length, 1, `la sala secreta de la planta ${floor} guarda uno`);
+  for (const floor of [1, 2, 3, 4, 5]) assert.equal(LORE.filter((l) => 'secret' in l.source && l.source.secret === floor).length, 1, `la sala secreta de la planta ${floor} guarda uno`);
   for (const l of LORE) if ('boss' in l.source) assert.ok(ENEMIES[l.source.boss]?.boss, `${l.id}: ${l.source.boss} es un jefe`);
   for (const l of LORE) {
     for (const s of [l.kind, l.title, ...l.pages]) {

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T20:58:00+01:00",
+  "actualizado": "2026-11-05T21:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -129,7 +129,7 @@
     "jefes": 4,
     "armas": 3,
     "objetos": 53,
-    "plantillas_sala": 83,
+    "plantillas_sala": 87,
     "tests": 656,
     "tests_ok": 656,
     "partidas_bot": 100,
@@ -137,6 +137,12 @@
     "lineas_codigo": 24135
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T21:40:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (2c1): las salas especiales de Atención al Cliente (Coja Número, Objetos Perdidos, Repuestos Originales y Grabaciones con Fines de Calidad) y el Registro de llamadas para el archivador; el e2e vuelve a pasar entero.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T20:58:00+01:00",
       "hito": "M11",
@@ -1010,6 +1016,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/atencion-secreta.png",
+      "pie": "Grabaciones con Fines de Calidad, la secreta de la planta 5: en el suelo, el Registro de llamadas (todas acaban en la extensión 0)"
+    },
+    {
       "archivo": "capturas/atencion-preferente.png",
       "pie": "Cola Preferente (Oro, Plata y Resto): tres carriles entre dos mostradores largos; se cambia de carril por los extremos o por el centro"
     },
@@ -1028,13 +1038,9 @@
     {
       "archivo": "capturas/atencion-ventanillas.png",
       "pie": "Ventanillas (Diríjase a la de al Lado): un mostrador largo parte la sala; los de detrás disparan por las ventanillas abiertas"
-    },
-    {
-      "archivo": "capturas/atencion-espera.png",
-      "pie": "Sala de Espera (Su Turno Es el Siguiente): filas de sillas atornilladas que hacen de trinchera"
     }
   ],
-  "proximo": "M11 (2c): las salas especiales propias de la planta 5 (Coja Número, Objetos Perdidos, Repuestos Originales, Grabaciones y la sala de la Centralita); o la (6b2) si otra sesión tiene cogidas las salas.",
+  "proximo": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y acabar la partida al vencer a su jefe; o la (6b2) o los enemigos (4a)–(4d).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1061,11 +1067,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-05 20:58",
-      "tarea": "M11 (2c1): entrada, tesoro, tienda y secreta propias de la planta 5 y el registro de llamadas (src/data/rooms.ts, src/data/lore.ts)",
-      "desde": "2026-11-05T21:20:00+01:00"
-    },
     {
       "sesion": "2026-11-05 21:25",
       "tarea": "M11 (6b2): Hoja de Reclamaciones, Valoración de Cinco Estrellas, sinergias Ticket de Incidencia y Buzón Lleno, indirecta Turno + Formulario (src/data/items.ts, src/data/synergies.ts, src/sim/world.ts)",

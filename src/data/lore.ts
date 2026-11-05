@@ -109,4 +109,15 @@ export const LORE: readonly LoreDoc[] = [
       'Ruegos y preguntas: Contabilidad pregunta qué se reacondiciona exactamente. Se acuerda no volver a convocar a Contabilidad.',
     ],
   },
+  {
+    id: 'registro-1',
+    kind: 'Registro de llamadas',
+    title: 'Centralita · Últimos 30 días',
+    source: { secret: 5 },
+    pages: [
+      'Llamadas recibidas: 41.207. Atendidas: 0. Tiempo medio de espera: «su llamada es importante». Motivo más frecuente: «no funciona».',
+      'Desvíos: Almacén, Informática, Juguetería, Oficinas, Atención al Cliente. Todas las llamadas del edificio acaban en la misma extensión: la 0.',
+      'Extensión 0: Servicio Técnico, última planta. Estado: comunicando desde la inauguración. A lápiz, al margen: «si alguien contesta, no le dejéis colgar».',
+    ],
+  },
 ];

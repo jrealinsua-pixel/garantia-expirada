@@ -130,6 +130,12 @@ try {
   await aimAt(d0.x, d0.y);
   await shot('03-disparando.png');
   await page.waitForTimeout(900);
+  // The test room's returns walk about in real time: now and then one stands between the toaster and
+  // the dummy and eats the whole burst. Keep firing at it (aiming again) for a few more seconds.
+  for (let k = 0; k < 8 && (await state()).dummyDamage === 0; k++) {
+    await aimAt(d0.x, d0.y);
+    await page.waitForTimeout(400);
+  }
   await page.mouse.up();
   const s2 = await state();
   if (s2.shots === 0) throw new Error('No se ha disparado');
@@ -215,10 +221,16 @@ try {
     // The loot roll can give nothing only for enemies whose range starts at 0: the microwave always drops some.
     throw new Error('El microondas no ha soltado cupones');
   }
-  // Put them next to the toaster, still (they may be sliding from the drop) and ready to be picked up.
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const k of w.pickups) { k.x = w.player.x + 12; k.y = w.player.y; k.vx = 0; k.vy = 0; k.age = Math.max(k.age, 1); } })()`);
+  // Put them under the toaster (12 px to one side could be inside a wall when the fight has pushed it
+  // against one), still (they may be sliding from the drop) and ready to be picked up.
+  const dropped = await page.evaluate<string>(`JSON.stringify(window.__GE__.scene.world.pickups.map((k) => [k.kind, Math.round(k.x), Math.round(k.y), k.age.toFixed(2)]))`);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const k of w.pickups) { k.x = w.player.x; k.y = w.player.y; k.vx = 0; k.vy = 0; k.age = Math.max(k.age, 1); } })()`);
   await page.waitForFunction('window.__GE__.state().coupons > 0', undefined, { timeout: 2500 }).catch(() => undefined);
-  if ((await state()).coupons === 0) throw new Error('La tostadora no ha recogido los cupones');
+  if ((await state()).coupons === 0) {
+    const dbg = await page.evaluate<string>(`(() => { const w = window.__GE__.scene.world;
+      return JSON.stringify({ p: [w.player.x, w.player.y, w.player.hp], k: w.pickups.map((k) => [k.kind, Math.round(k.x), Math.round(k.y)]) }); })()`);
+    throw new Error(`La tostadora no ha recogido los cupones: antes ${dropped}, después ${dbg}`);
+  }
 
   // Free play for the rest of the time: strafe around shooting at both dummies.
   const keys = ['w', 'a', 's', 'd'];
@@ -467,13 +479,14 @@ try {
     await shot(`50${'abcdefghijklmno'[i]}-planta4-${names[i]}.png`);
   }
 
-  // M11 (1, 2a, 2b): floor 5 (Atención al Cliente) has its own tiles, colour, obstacles, shutters and
-  // combat rooms. Until M11 (2c) and (3) it borrows the Oficinas' special rooms (and the Director).
-  const p5 = ['sala=sala-espera&profundidad=5', 'sala=entrada-oficinas', 'sala=jefe-oficinas', 'sala=tienda-oficinas', 'sala=secreta-oficinas',
+  // M11 (1, 2a, 2b, 2c1): floor 5 (Atención al Cliente) has its own tiles, colour, obstacles, shutters,
+  // combat rooms and special rooms. Until M11 (2c2) and (3) it borrows the Oficinas' boss room (and the Director).
+  const p5 = ['sala=sala-espera&profundidad=5', 'sala=entrada-atencion', 'sala=jefe-oficinas', 'sala=tienda-atencion', 'sala=secreta-atencion',
     'sala=ventanillas&profundidad=5', 'sala=cola-zigzag&profundidad=5', 'sala=locutorio-reclamaciones&profundidad=5',
     'sala=mostrador-reclamaciones&profundidad=5', 'sala=departamento-bajas&profundidad=6',
     'sala=punto-informacion&profundidad=5', 'sala=pasillo-mamparas&profundidad=5', 'sala=autoservicio&profundidad=5',
-    'sala=mesa-formularios&profundidad=5', 'sala=cola-preferente&profundidad=6', 'sala=buzones-sugerencias&profundidad=5'];
+    'sala=mesa-formularios&profundidad=5', 'sala=cola-preferente&profundidad=6', 'sala=buzones-sugerencias&profundidad=5',
+    'sala=tesoro-atencion'];
   for (const [i, q] of p5.entries()) {
     await page.goto(`${url}?semilla=e2e-p5-${i}&${q}&planta=5`);
     await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
@@ -481,8 +494,8 @@ try {
     if ((await page.evaluate<number>('window.__GE__.scene.world.level')) !== 5) throw new Error(`?planta=5 no pone la planta 5 (${q})`);
     await page.waitForTimeout(i === 2 ? 4200 : 1600);
     const names = ['espera', 'entrada', 'jefe', 'tienda', 'secreta', 'ventanillas', 'zigzag', 'locutorio', 'mostrador', 'bajas',
-      'informacion', 'mamparas', 'autoservicio', 'formularios', 'preferente', 'buzones'];
-    await shot(`56${'abcdefghijklmnop'[i]}-planta5-${names[i]}.png`);
+      'informacion', 'mamparas', 'autoservicio', 'formularios', 'preferente', 'buzones', 'tesoro'];
+    await shot(`56${'abcdefghijklmnopq'[i]}-planta5-${names[i]}.png`);
   }
 
   // M8: floors in a row. A floor won (here, a lift under the toaster's feet at the entrance) and

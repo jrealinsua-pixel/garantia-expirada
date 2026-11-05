@@ -295,7 +295,7 @@ test('plantillas de la planta 4: doce salas de combate y las especiales, todas s
   }
 });
 
-test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tamaños variados; las especiales, de momento, las de las Oficinas', () => {
+test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tamaños variados, y sus especiales (la del jefe, de momento, la de las Oficinas)', () => {
   const five = templatesOf('combat', 5);
   assert.equal(five.length, 12, `${five.length} salas de combate en la planta 5`);
   // As on the floors below: small, middling and big rooms, never all of one size.
@@ -307,8 +307,20 @@ test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tam
     assert.ok(/[1-9]/.test(t.rows.join('')), `${t.id}: sin grupos`);
   }
   for (const level of [1, 2, 3, 4]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 5), `planta ${level}`);
-  // Until M11 (2c) its special rooms are the offices'.
-  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 5), templatesOf(k, 4), k);
+  // Its special rooms are its own (M11 (2c1)) and match the warehouse's where the code counts on it;
+  // until the Centralita's room (2c2) the boss room is the offices'.
+  const count = (t: RoomTemplate, ch: string): number => [...t.rows.join('')].filter((x) => x === ch).length;
+  for (const k of ['start', 'treasure', 'shop', 'secret'] as const) {
+    const [one] = templatesOf(k);
+    assert.ok(templatesOf(k, 5).length >= 1, k);
+    for (const level of [1, 2, 3, 4]) assert.ok(!templatesOf(k, level).some((t) => t.level === 5), `${k}, planta ${level}`);
+    for (const t of templatesOf(k, 5)) {
+      assert.equal(t.level, 5, `${k}: ${t.id}`);
+      for (const ch of ['*', 's', '$', 'J', 'e', 'P']) assert.equal(count(t, ch), count(one!, ch), `${t.id}: «${ch}»`);
+      assert.deepEqual([t.rows[0]!.length, t.rows.length], [one!.rows[0]!.length, one!.rows.length], `${t.id}: tamaño`);
+    }
+  }
+  assert.deepEqual(templatesOf('boss', 5), templatesOf('boss', 4), 'boss');
   // A generated floor 5 fights only in its own combat rooms.
   for (let i = 0; i < 10; i++) {
     const w = createWorld({ seed: `atencion-${i}`, floor: true, level: 5 });
