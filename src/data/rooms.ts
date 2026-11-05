@@ -804,6 +804,152 @@ const FLOOR_2: RoomTemplate[] = [
   },
 ];
 
+// Floor 3 (Juguetería) templates: same rules as the floors below. Its toys punish standing still
+// and not watching the floor (docs/DISENO.md), so its rooms give the wind-up robots walls to
+// bounce off, the cars room to run, the buckets of pieces floor to sow and the tables to tip.
+// Until it has its own (M10 2b), its start, treasure, shop, secret and boss rooms are floor 1's.
+const FLOOR_3: RoomTemplate[] = [
+  {
+    id: 'circuito-ocasion',
+    kind: 'combat',
+    level: 3,
+    name: 'Circuito de Coches de Ocasión (Pilas Aparte)',
+    idea: 'Una isla alargada en el centro, como la de un circuito: se pelea dándole vueltas, los coches que embisten vuelcan contra ella y a veces tiene un paso por el medio.',
+    rows: [
+      '####################',
+      '####################',
+      '#.e..............e.#',
+      '#..................#',
+      '#..................#',
+      '#....####11####....#',
+      '#....####11####....#',
+      '#....####11####....#',
+      '#..................#',
+      '#...o..........o...#',
+      '#....e........e....#',
+      '#b................b#',
+      '####################',
+    ],
+  },
+  {
+    id: 'pasillo-peluches',
+    kind: 'combat',
+    level: 3,
+    name: 'Pasillo de Peluches Desteñidos (Abrázame por 29,99)',
+    idea: 'Estanterías que bajan del fondo y suben del suelo, alternadas: un pasillo en zigzag con rincones donde esperan; los robots rebotan de rincón en rincón y las piezas cierran el paso.',
+    rows: [
+      '##########################',
+      '##########################',
+      '#.e.##..............##.e.#',
+      '#...##..e........e..##...#',
+      '#...##..............##...#',
+      '#...11..............11...#',
+      '#........................#',
+      '#.......22......22.......#',
+      '#.......##.o..o.##.......#',
+      '#.......##......##.......#',
+      '#..e....##......##....e..#',
+      '#b......##......##......b#',
+      '##########################',
+    ],
+  },
+  {
+    id: 'mesa-construcciones',
+    kind: 'combat',
+    level: 3,
+    name: 'Mesa de Construcciones (Faltan Piezas)',
+    idea: 'Cuatro mesas que se vuelcan alrededor del centro y cuatro estanterías en las esquinas: quien vuelca primero una mesa elige desde dónde se pelea, y el suelo se llena enseguida de piezas.',
+    rows: [
+      '################',
+      '################',
+      '#e............e#',
+      '#..............#',
+      '#..##1....1##..#',
+      '#..##......##..#',
+      '#.....v..v.....#',
+      '#......e.......#',
+      '#..............#',
+      '#.....v..v.....#',
+      '#..##......##..#',
+      '#..##2....2##..#',
+      '#..o........o..#',
+      '#..............#',
+      '#e............e#',
+      '################',
+    ],
+  },
+  {
+    id: 'urbanizacion-munecas',
+    kind: 'combat',
+    level: 3,
+    name: 'Urbanización de Casitas (Hipoteca a 40 Años)',
+    idea: 'Un corral de casitas de muñecas con huecos en los cuatro lados: los de dentro pelean a cubierto, y un robot que se mete dentro rebota sin parar hasta que alguien lo saca.',
+    rows: [
+      '####################',
+      '####################',
+      '#..................#',
+      '#.e..............e.#',
+      '#..................#',
+      '#.....cc.11.cc.....#',
+      '#.....#......#.....#',
+      '#.........e........#',
+      '#..o............o..#',
+      '#.....#......#.....#',
+      '#.....cc.22.cc.....#',
+      '#..................#',
+      '#.e..............e.#',
+      '#..................#',
+      '#b................b#',
+      '####################',
+    ],
+  },
+  {
+    id: 'zona-pruebame',
+    kind: 'combat',
+    level: 3,
+    name: 'Zona «Pruébame» (Pilas Agotadas)',
+    idea: 'Una sala grande casi vacía con cuatro columnas y dos mamparas que están o no: los robots rebotan de lejos, los coches cogen carrerilla y solo hay columnas para esconderse.',
+    rows: [
+      '##########################',
+      '##########################',
+      '#e......................e#',
+      '#........................#',
+      '#....##............##....#',
+      '#....##....o..o....##....#',
+      '#........................#',
+      '#.......1...e....1.......#',
+      '#.......1........1.......#',
+      '#........................#',
+      '#....##....o..o....##....#',
+      '#....##............##....#',
+      '#........................#',
+      '#e......................e#',
+      '#b......................b#',
+      '##########################',
+    ],
+  },
+  {
+    id: 'rincon-montaje',
+    kind: 'combat',
+    level: 3,
+    name: 'Rincón de Montaje (Instrucciones en Sueco)',
+    idea: 'Una sala pequeña con estanterías en escalera: queda poco sitio para esquivar y las piezas lo llenan todo enseguida; o se rueda o se sufre.',
+    rows: [
+      '################',
+      '################',
+      '#..e........e..#',
+      '#...##....##...#',
+      '#....#....#....#',
+      '#..............#',
+      '#..............#',
+      '#....11..11....#',
+      '#..e........e..#',
+      '#b............b#',
+      '################',
+    ],
+  },
+];
+
 export const ROOMS: Record<string, RoomTemplate> = {
   // 26 x 16 tiles of 24 px: a bit bigger than the screen, so the camera has to move.
   'sala-pruebas': {
@@ -832,6 +978,7 @@ export const ROOMS: Record<string, RoomTemplate> = {
   },
   ...Object.fromEntries(FLOOR_1.map((t) => [t.id, t])),
   ...Object.fromEntries(FLOOR_2.map((t) => [t.id, t])),
+  ...Object.fromEntries(FLOOR_3.map((t) => [t.id, t])),
 };
 
 /** Template letter of floor 1's boss (src/sim/room.ts ENEMY_CHARS): La Nevera Suprema. */
@@ -884,7 +1031,7 @@ export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
 
 /** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses floor 1's. */
 export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1): RoomTemplate[] {
-  const own = (level === 2 ? FLOOR_2 : FLOOR_1).filter((t) => t.kind === kind);
+  const own = (level >= 3 ? FLOOR_3 : level === 2 ? FLOOR_2 : FLOOR_1).filter((t) => t.kind === kind);
   return own.length > 0 ? own : FLOOR_1.filter((t) => t.kind === kind);
 }
 

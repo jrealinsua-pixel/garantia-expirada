@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ROOMS, SLOT_ENEMIES_1, templatesOf } from '../src/data/rooms.ts';
+import { ROOMS, SLOT_ENEMIES_1, slotEnemiesOf, templatesOf } from '../src/data/rooms.ts';
 import type { RoomTemplate } from '../src/data/types.ts';
 import { Bot } from '../src/sim/bot.ts';
 import type { Dir } from '../src/sim/floor.ts';
@@ -122,10 +122,10 @@ test('rellenar: el presupuesto crece con la profundidad y respeta los máximos',
 });
 
 test('plantillas: el bot juega 25 s en cada sala de combate rellena sin romper nada', () => {
-  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2)]) {
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3)]) {
     for (const depth of [1, 6]) {
       const seed = `bot:${t.id}:${depth}`;
-      const tpl = fillTemplate(t, new Rng(seed), { depth, pool: SLOT_ENEMIES_1 });
+      const tpl = fillTemplate(t, new Rng(seed), { depth, pool: slotEnemiesOf(t.level ?? 1) });
       const w = createWorld({ seed, template: tpl });
       const bot = new Bot(seed);
       for (let i = 0; i < 25 / DT && !w.over; i++) {
@@ -159,7 +159,7 @@ test('plantillas: no hay rendijas por las que solo quepan los pies (cada hueco �
 });
 
 test('plantillas: cada sala de combate tiene su idea de combate escrita', () => {
-  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2)]) assert.ok((t.idea ?? '').length > 20, `${t.id}: sin idea`);
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3)]) assert.ok((t.idea ?? '').length > 20, `${t.id}: sin idea`);
 });
 
 test('variantes: los grupos de estanterías salen y no salen con la semilla, y la sala se puede reflejar', () => {
@@ -195,7 +195,7 @@ test('variantes: los grupos de estanterías salen y no salen con la semilla, y l
 });
 
 test('variantes: una sala reflejada sigue teniendo las puertas en su sitio y despejadas', () => {
-  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2)]) {
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3)]) {
     const m: RoomTemplate = { ...t, rows: t.rows.map((r) => [...r].reverse().join('')) };
     const cols = t.rows[0]!.length;
     const rows = t.rows.length;
@@ -234,4 +234,25 @@ test('salas especiales de la planta 2: lo mismo que las del almacén donde impor
       for (const r of w.floor!.rooms) assert.equal(r.template.level ?? 1, own, `planta ${level}: ${r.template.id}`);
     }
   }
+});
+
+test('plantillas de la planta 3: seis salas de combate suyas, y las especiales todavía las del almacén', () => {
+  const three = templatesOf('combat', 3);
+  assert.ok(three.length >= 6, `${three.length} salas de combate en la planta 3`);
+  for (const t of three) assert.equal(t.level, 3, t.id);
+  // Nothing of floor 3 leaks into the floors below.
+  for (const level of [1, 2]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 3), `planta ${level}`);
+  // Until M10 (2b) the special rooms of floor 3 are the warehouse's.
+  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 3), templatesOf(k), k);
+  // A generated floor 3 fights only in its own rooms, and its toys come out of their slots.
+  const toys = new Set(['Q', 'V', 'U', 'Y']);
+  let withToys = 0;
+  for (let i = 0; i < 10; i++) {
+    const w = createWorld({ seed: `juguetes-${i}`, floor: true, level: 3 });
+    for (const r of w.floor!.rooms.filter((x) => x.template.kind === 'combat')) {
+      assert.equal(r.template.level, 3, r.template.id);
+      if ([...r.template.rows.join('')].some((ch) => toys.has(ch))) withToys++;
+    }
+  }
+  assert.ok(withToys > 30, `${withToys} salas con juguetes`);
 });

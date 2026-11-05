@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T03:55:00+01:00",
+  "actualizado": "2026-11-05T02:46:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 2,
     "armas": 3,
     "objetos": 25,
-    "plantillas_sala": 37,
-    "tests": 521,
-    "tests_ok": 521,
+    "plantillas_sala": 43,
+    "tests": 522,
+    "tests_ok": 522,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 18409
+    "lineas_codigo": 18555
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T02:46:00+01:00",
+      "hito": "M10",
+      "resumen": "Seis salas de combate propias de la Juguetería: un circuito de coches con su isla, un pasillo de peluches en zigzag, una mesa de construcciones con mesas que se vuelcan, una urbanización de casitas de muñecas, la Zona «Pruébame» casi vacía y un rincón de montaje pequeño con estanterías en escalera.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T03:55:00+01:00",
       "hito": "M10",
@@ -794,6 +800,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sala-circuito.png",
+      "pie": "Circuito de Coches de Ocasión: una isla de estanterías a la que se da vueltas; el Coche Teledirigido derrapa a su lado"
+    },
+    {
+      "archivo": "capturas/sala-urbanizacion.png",
+      "pie": "Urbanización de Casitas (Hipoteca a 40 Años): un corral de casitas de muñecas con huecos en los cuatro lados"
+    },
+    {
       "archivo": "capturas/sobre-salta.png",
       "pie": "Sobres Sorpresa en la Juguetería: uno da un saltito (con su sombra en el suelo) y el otro escupe un abanico corto de confeti de papel de regalo"
     },
@@ -802,23 +816,15 @@
       "pie": "Al romper los sobres sale la sorpresa: «Repetidos», dos muñequitos que persiguen y muerden (a veces, cupones; muy pocas, el Muñequito Dorado Ultrarraro)"
     },
     {
-      "archivo": "capturas/cubo-lanza.png",
-      "pie": "El Cubo de Piezas levanta la tapa y lanza un puñado de piezas: las cruces amarillas marcan dónde caerán, alrededor de la tostadora"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     },
     {
       "archivo": "capturas/jugueteria-entrada.png",
       "pie": "La entrada de la Juguetería: felpudo «A JUGAR», caballitos de balancín, papel de nubes y banderines; cada planta se distingue a la primera"
-    },
-    {
-      "archivo": "capturas/coche-apunta.png",
-      "pie": "El Coche Teledirigido frena, pone los faros en rojo y apunta la embestida; detrás, las marcas de sus derrapes"
     }
   ],
-  "proximo": "M10 (2a), las seis primeras plantillas de combate de la Juguetería (ya tiene su aspecto y sus cuatro enemigos); después (2b) y (3), encadenar la planta 3 tras el Router.",
+  "proximo": "M10 (2b), seis plantillas más y las salas especiales propias de la Juguetería; después (3), encadenar la planta 3 tras el Router.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -844,11 +850,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 02:25",
-      "tarea": "M10 (2a) seis plantillas de combate de la Juguetería",
-      "desde": "2026-11-05T01:25:00Z"
-    }
-  ]
+  "en_curso": []
 }
