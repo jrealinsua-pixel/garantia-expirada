@@ -113,6 +113,12 @@
     "frameH": 34,
     "frames": 6
   },
+  "climatizador": {
+    "file": "climatizador.png",
+    "frameW": 28,
+    "frameH": 40,
+    "frames": 7
+  },
   "munequito-repetido": {
     "file": "munequito-repetido.png",
     "frameW": 18,

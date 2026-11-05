@@ -371,7 +371,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [x] (4a) Destructora de Documentos (siempre de cara, se traga las balas de frente).
     - [x] (4b) Fotocopiadora de Planta (copia a otro enemigo de la sala).
     - [x] (4c) Sello de Denegado (estampa tinta donde no se puede rodar).
-    - [ ] (4d) Climatizador Portátil (cono de aire que empuja y tuerce las balas).
+    - [x] (4d) Climatizador Portátil (cono de aire que empuja y tuerce las balas).
   - Jefe: El Director de Recursos Inhumanos. En partes:
     - [ ] (5a) Sprites: en la silla (reposo, impulso, lanzar), de pie (andar, girar), la silla
       sola, las tarjetas, las cartas de despido y las mamparas que se mueven; y la mesa larga de la

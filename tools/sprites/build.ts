@@ -11,7 +11,8 @@ import {
 } from './characters.ts';
 import { narrowPoseCycle, poseCycle } from './pose.ts';
 import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
-  makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames, makeSelloFrames } from './enemies.ts';
+  makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
+  makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
@@ -68,6 +69,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     fotocopiadora: { canvas: strip(makeFotocopiadoraFrames()), frameW: 38, frameH: 38 },
     // 0-1 standing, 2 crouching, 3 in the air, 4 coming down to stamp, 5 just stamped.
     sello: { canvas: strip(makeSelloFrames()), frameW: 26, frameH: 34 },
+    // 0-1 humming, 2-5 dragging itself along, 6 rime on the vent (about to blow).
+    climatizador: { canvas: strip(makeClimatizadorFrames()), frameW: 28, frameH: 40 },
     'munequito-repetido': { canvas: strip(makeMunequitoFrames(false)), frameW: 18, frameH: 20 },
     'munequito-dorado': { canvas: strip(makeMunequitoFrames(true)), frameW: 18, frameH: 20 },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.

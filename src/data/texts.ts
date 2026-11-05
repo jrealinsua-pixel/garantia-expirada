@@ -55,6 +55,8 @@ export const TONER_OUT_LINE = 'Sin tóner';
 /** Over the toaster when it tries to roll on a stamp's ink (and over the stamp when it stamps). */
 export const ROLL_DENIED_LINE = 'Solicitud denegada';
 export const STAMP_LINE = 'Denegado';
+/** Over an air conditioner when it starts blowing its frost (the display never changes). */
+export const AC_LINE = 'A 17 grados';
 
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
@@ -93,6 +95,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   'robot-cuerda': { bullet: 'Tuerca suelta de un juguete de segunda mano', contact: 'Atropello por juguete sin frenos' },
   'coche-teledirigido': { contact: 'Atropello por un coche sin carné' },
   destructora: { bullet: 'Papeleo devuelto sin leer', contact: 'Triturado por error' },
+  climatizador: { bullet: 'Resfriado de oficina', contact: 'Arrollado por un climatizador' },
   sello: { bullet: 'Mancha de tinta indeleble', contact: 'Denegado, con sello y fecha' },
   fotocopiadora: { bullet: 'Corte con folio, por duplicado', contact: 'Atropello por fotocopiadora averiada' },
   'sobre-sorpresa': { bullet: 'Confeti de papel de regalo en el ojo', contact: 'Sobre abierto con los dientes' },

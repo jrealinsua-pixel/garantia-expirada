@@ -27,6 +27,7 @@ import {
   WIND_DOWN_LINE,
   SHRED_JAM_LINE,
   COPY_LINE,
+  AC_LINE,
   ROLL_DENIED_LINE,
   STAMP_LINE,
   TONER_OUT_LINE,
@@ -65,6 +66,7 @@ import {
   PICKUP_DELAY,
   DT,
   enemyAltitude,
+  isDead,
   FROST_FLAT,
   frostSlow,
   gunPivot,
@@ -383,6 +385,8 @@ export class GameScene extends Phaser.Scene {
   private reloadBar!: Phaser.GameObjects.Graphics;
   /** Attack warnings: shrinking ring, aim dots and «!», redrawn every frame from the emitters. */
   private warn!: Phaser.GameObjects.Graphics;
+  /** The air conditioners' cones of cold air, on the floor (cleared every frame). */
+  private windG!: Phaser.GameObjects.Graphics;
   /** Enemies a photocopier is scanning (from last frame's warnings): they glow green. */
   private scanned = new Set<number>();
   private warnings = 0;
@@ -684,6 +688,7 @@ export class GameScene extends Phaser.Scene {
     else this.tweens.add({ targets: title, alpha: 0, delay: 2500, duration: 800 });
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
+    this.windG = this.add.graphics().setDepth(-60100);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
     this.whiteFlash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xffffff, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(97000).setAlpha(0);
     const boss = this.world.enemies.find((en) => en.def.boss);
@@ -2070,6 +2075,11 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), 0, 0xf4f1e8);
           this.floatText(e.x, e.y - 30, fontText(COPY_LINE), 0xb7bed0, `copy:${e.copy}`, -16, 0.9);
           break;
+        case 'acBlow':
+          // It is about to blow: a rising hiss of cold air, and the temperature nobody chose.
+          this.sound2.play('soplar', { detune: this.fx.range(-100, 100) });
+          this.floatText(e.x, e.y - 46, fontText(AC_LINE), 0x8fe3ff, `ac:${e.source}`, -12, 0.8);
+          break;
         case 'stampRise':
           // Up it goes, to stamp: a creak of the handle.
           this.sound2.play('saltar', { detune: -300, volume: 0.5 });
@@ -3393,6 +3403,7 @@ export class GameScene extends Phaser.Scene {
 
     this.drawWarnings();
     this.drawStatic();
+    this.drawWind();
     this.drawFrost(dt);
     this.drawInk();
     this.drawChests(dt);
@@ -3696,6 +3707,43 @@ export class GameScene extends Phaser.Scene {
     if (!this.world.over && frostSlow(this.world, p.x, p.y) < 1) {
       if (this.flashHero <= 0 && !(p.invulnerable > 0 && !isRolling(p))) this.hero.setTint(0xbfeff0);
       if (Math.hypot(p.vx, p.vy) > 10 && this.fx.chance(dt * 14)) this.iceShard(p.x + this.fx.range(-4, 4), p.y);
+    }
+  }
+
+  /**
+   * An air conditioner's cone of cold air: a faint wash over the floor with dotted edges, and white
+   * streaks drifting out along it (faster near the vent, fading at the end of its reach).
+   */
+  private drawWind(): void {
+    const g = this.windG;
+    g.clear();
+    for (const en of this.world.enemies) {
+      const b = en.def.brain;
+      if (b.kind !== 'blower' || isDead(en) || en.state === 'dying') continue;
+      const a = Math.atan2(en.dirY, en.dirX);
+      const half = (b.coneDeg / 2) * (Math.PI / 180);
+      const x0 = en.x;
+      const y0 = en.y;
+      g.fillStyle(0xdff6ff, 0.13);
+      g.slice(x0, y0, b.range, a - half, a + half, false).fillPath();
+      // Dotted edges, so its reach reads even on the pale floors.
+      for (const s of [-1, 1]) {
+        const ea = a + s * half;
+        for (let d = 14; d < b.range; d += 6) g.fillStyle(0xdff6ff, 0.35 * (1 - d / b.range) + 0.1).fillRect(Math.round(x0 + Math.cos(ea) * d), Math.round(y0 + Math.sin(ea) * d), 1, 1);
+      }
+      // Streaks: each one a short white dash at its own angle in the cone, travelling out.
+      const t = this.time.now / 1000;
+      for (let i = 0; i < 14; i++) {
+        const k = ((t * 0.9 + i * 0.37 + en.id * 0.11) % 1 + 1) % 1;
+        const d = 12 + k * (b.range - 12);
+        const off = (((i * 0.618 + en.id * 0.3) % 1) * 2 - 1) * half * 0.9;
+        const sa = a + off;
+        const px = x0 + Math.cos(sa) * d;
+        const py = y0 + Math.sin(sa) * d - 6;
+        const len = 6 + 4 * (1 - k);
+        g.fillStyle(0xf4f1e8, 0.85 * (1 - k * k));
+        for (let j = 0; j < len; j++) g.fillRect(Math.round(px + Math.cos(sa) * j), Math.round(py + Math.sin(sa) * j), 1, 1);
+      }
     }
   }
 

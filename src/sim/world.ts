@@ -5,7 +5,7 @@ import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
-import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
+import type { BlowerBrain, BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from './enemies.ts';
@@ -335,6 +335,8 @@ export interface Enemy {
   turbo?: boolean;
   /** Where a blinker will switch back on (while it is switching off or gone). */
   dest?: { x: number; y: number };
+  /** Air conditioners: seconds it has been swinging from side to side (its sweep). */
+  sweepT?: number;
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
@@ -467,6 +469,8 @@ export type SimEvent =
   /** A DENEGADO stamp: it rises to stamp (`tx`, `ty`), it lands and inks the floor (`hit`: the player was under it). */
   | { type: 'stampRise'; x: number; y: number; tx: number; ty: number; source: number }
   | { type: 'stamp'; x: number; y: number; w: number; h: number; hit: boolean; source: number }
+  /** An air conditioner is about to blow its frost along the air. */
+  | { type: 'acBlow'; x: number; y: number; source: number }
   /** The player tried to roll on ink: a clumsy step instead, no invulnerability. */
   | { type: 'rollDenied'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'surprise'; x: number; y: number; line: string; spawned: number[]; coupons: number }
@@ -1406,6 +1410,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'hopper' || b.kind === 'stamper') {
     state = 'idle';
     until = b.rest[1];
+  } else if (b.kind === 'blower') {
+    state = 'idle';
+    until = b.interval[0] * 0.6;
   } else if (b.kind === 'lobber') {
     state = 'idle';
     until = b.interval[0] * 0.6;
@@ -1497,6 +1504,62 @@ export function slide(w: World, b: { x: number; y: number; vx: number; vy: numbe
     }
   }
   return { hitX, hitY };
+}
+
+/**
+ * Whether floor point (x, y) is in an air conditioner's cone of cold air: closer than `range` and
+ * within `coneDeg` / 2 of where it blows (dirX, dirY).
+ */
+export function inWind(en: Enemy, b: BlowerBrain, x: number, y: number): boolean {
+  const dx = x - en.x;
+  const dy = y - en.y;
+  const d = Math.hypot(dx, dy);
+  if (d > b.range || d < 1) return d < 1;
+  return (dx * en.dirX + dy * en.dirY) / d >= Math.cos(((b.coneDeg / 2) * Math.PI) / 180);
+}
+
+/** Air conditioners still blowing, with their brains. */
+function blowers(w: World): Array<{ en: Enemy; b: BlowerBrain }> {
+  const out: Array<{ en: Enemy; b: BlowerBrain }> = [];
+  for (const en of w.enemies) if (en.def.brain.kind === 'blower' && !isDead(en) && en.state !== 'dying') out.push({ en, b: en.def.brain });
+  return out;
+}
+
+/**
+ * The cold air on the player at (x, y): px/s it is pushed along each axis. Cones do not add up
+ * (two would push harder than the toaster walks, and pin it to a wall): their directions are
+ * averaged and the push is that of the strongest.
+ */
+export function windOn(w: World, x: number, y: number): { x: number; y: number } {
+  let wx = 0;
+  let wy = 0;
+  let most = 0;
+  for (const { en, b } of blowers(w)) {
+    if (!inWind(en, b, x, y)) continue;
+    wx += en.dirX * b.push;
+    wy += en.dirY * b.push;
+    most = Math.max(most, b.push);
+  }
+  const l = Math.hypot(wx, wy);
+  if (l <= most || l === 0) return { x: wx, y: wy };
+  return { x: (wx / l) * most, y: (wy / l) * most };
+}
+
+/** A player bullet in a cone of cold air turns away from its middle; true if it turned. */
+function windBend(w: World, b: Bullet, dt: number): boolean {
+  let bent = false;
+  const fy = b.y + b.h;
+  for (const { en, b: br } of blowers(w)) {
+    if (!inWind(en, br, b.x, fy)) continue;
+    // Out of the cone: towards the side of its axis the bullet is on (nx, ny), whichever way it flies.
+    const side = en.dirX * (fy - en.y) - en.dirY * (b.x - en.x) >= 0 ? 1 : -1;
+    const nx = -en.dirY * side;
+    const ny = en.dirX * side;
+    const turn = Math.cos(b.dir) * ny - Math.sin(b.dir) * nx >= 0 ? 1 : -1;
+    b.dir += (turn * br.bendDeg * Math.PI * dt) / 180;
+    bent = true;
+  }
+  return bent;
 }
 
 /** A roll denied on ink: a lurch of this many times the walking speed, and this much longer to try again. */
@@ -1603,7 +1666,9 @@ function updatePlayer(w: World, input: Input): void {
 
   const ox = p.x;
   const oy = p.y;
-  slide(w, p, p.def.footRadius, p.vx * DT, p.vy * DT);
+  // An air conditioner's cone pushes the toaster along (walking against it still gets somewhere).
+  const wind = w.over ? { x: 0, y: 0 } : windOn(w, p.x, p.y);
+  slide(w, p, p.def.footRadius, (p.vx + wind.x) * DT, (p.vy + wind.y) * DT);
   if (!isRolling(p)) p.walked += Math.hypot(p.x - ox, p.y - oy);
 }
 
@@ -1797,6 +1862,8 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
         homing = true;
       }
     }
+    // Cold air bends the player's bullets out of the cone.
+    if (b.owner === 'player' && !b.stuck && windBend(w, b, dt)) homing = true;
     if (b.wave || b.accel || homing) {
       const side = b.wave ? b.wave.amp * 2 * Math.PI * b.wave.freq * Math.cos(2 * Math.PI * b.wave.freq * b.age) : 0;
       b.vx = Math.cos(b.dir) * b.speed - Math.sin(b.dir) * side;
@@ -2251,6 +2318,11 @@ export function activeWarnings(w: World): Warning[] {
       } else {
         out.push({ x: en.x, y: en.y - b.muzzleY, k, aim: Math.atan2(w.player.y - HAND_HEIGHT - (en.y - b.muzzleY), w.player.x - en.x), aimed: true, color: 'red', bullets: true, source: en.id });
       }
+      continue;
+    }
+    if (b.kind === 'blower') {
+      // Frost coming along the air: the ring closes on its vent, the line shows where it blows.
+      out.push({ x: en.x + en.dirX * 10, y: en.y - b.muzzleY, k: Math.min(1, en.t / en.until), aim: Math.atan2(en.dirY, en.dirX), aimed: true, color: 'ice', bullets: true, source: en.id });
       continue;
     }
     if (b.kind === 'stamper' && en.dest) {

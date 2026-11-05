@@ -842,8 +842,33 @@ export interface StamperBrain {
   recover: number;
 }
 
+/**
+ * A portable air conditioner (M10 planta 4 (4d)): a heavy turret that crawls at `speed` to keep
+ * about `keep` px from the player, its blowing direction turning towards the player at most
+ * `turnDeg` °/s and swinging `sweepDeg` from side to side and back every `sweepTime` × 2 s. Its
+ * cone of cold air (`coneDeg` wide, `range` long) pushes the player at `push` px/s and bends the
+ * player's bullets out of it at `bendDeg` °/s. Every `interval` s (random in the range), with the
+ * player in the cone, it warns `telegraph` s and blows `pattern` along the air from `muzzleY`.
+ */
+export interface BlowerBrain {
+  kind: 'blower';
+  speed: number;
+  keep: number;
+  turnDeg: number;
+  sweepDeg: number;
+  sweepTime: number;
+  coneDeg: number;
+  range: number;
+  push: number;
+  bendDeg: number;
+  interval: [number, number];
+  telegraph: number;
+  pattern: string;
+  muzzleY: number;
+}
+
 export type EnemyBrain =
-  | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T13:05:00+01:00",
+  "actualizado": "2026-11-05T13:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 20,
+    "enemigos": 21,
     "jefes": 3,
     "armas": 3,
     "objetos": 43,
     "plantillas_sala": 71,
-    "tests": 602,
-    "tests_ok": 602,
+    "tests": 612,
+    "tests_ok": 612,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 21976
+    "lineas_codigo": 22227
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T13:50:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (4d): el Climatizador Portátil, que barre la sala con un cono de aire frío que empuja a la tostadora, le tuerce las balas y sopla escarcha; ya están los cuatro enemigos de las Oficinas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T13:05:00+01:00",
       "hito": "M10",
@@ -938,6 +944,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/climatizador-cono.png",
+      "pie": "El Climatizador Portátil, «A 17 grados»: su cono de aire frío empuja a la tostadora, le tuerce las balas y sopla escarcha a favor del aire"
+    },
+    {
       "archivo": "capturas/sello-aviso.png",
       "pie": "El Sello de Denegado sube a estampar: en el suelo, una sombra cuadrada con el marco rojo marca dónde caerá la tinta"
     },
@@ -956,13 +966,9 @@
     {
       "archivo": "capturas/oficinas-acreditacion.png",
       "pie": "El Economato con la Acreditación de Visitante: todo un 25 % más barato (el ticket, por 8 cupones en vez de 10)"
-    },
-    {
-      "archivo": "capturas/oficinas-objetos.png",
-      "pie": "Los cinco primeros objetos de las Oficinas en el inventario: Taza de Mejor Empleado, Corbata de Lunes, Café de Máquina, Silla con Ruedas y Bola Antiestrés"
     }
   ],
-  "proximo": "M10 planta 4 (4d): el Climatizador Portátil; o (6b2): Pósit de Urgente, Responder a Todos y sus sinergias; o M10 (7): medir las plantas 3 y 4 con el bot.",
+  "proximo": "M10 planta 4 (5a): los sprites del Director de Recursos Inhumanos y la mesa larga de la Sala de Juntas; o (6b2): Pósit de Urgente, Responder a Todos y sus sinergias; o M10 (7): medir las plantas 3 y 4 con el bot.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -988,11 +994,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 13:10 (hora peninsular)",
-      "tarea": "M10 planta 4 (4d): el Climatizador Portátil",
-      "desde": "2026-11-05T12:10:00Z"
-    }
-  ]
+  "en_curso": []
 }

@@ -1,6 +1,6 @@
 // New enemies drawn after the approved set, by the same rules (docs/ESTILO_ARTE.md): 3/4 cube
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
-import { Canvas } from '../../src/art/canvas.ts';
+import { Canvas, hx } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
 import {
   BLUE, BURNT, CREAM, type Ramp, CYAN, GREEN, DSTEEL, K, OFFICE, PANTL, PINK, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, feet, hand, outline, pad, ramp,
@@ -1421,4 +1421,79 @@ export function makeSello(squash = 0, air = false, slam = false, jx = 0): Canvas
 /** The stamp's frames: 0-1 standing (it shakes with impatience), 2 crouching, 3 in the air, 4 coming down to stamp, 5 just stamped (squashed). */
 export function makeSelloFrames(): Canvas[] {
   return [makeSello(), makeSello(0, false, false, 1), makeSello(2), makeSello(0, true), makeSello(0, false, true), makeSello(3)];
+}
+
+/** The air conditioner's white plastic, gone ivory, and the grey of its flexible hose. */
+const AC = ramp('#f4f3ee', '#d9d8d0', '#aeada3', '#7e7d74');
+const AC_SIDE = ramp('#aeada3', '#97968c', '#7e7d74', '#5b5a53');
+const AC_TOP = ramp('#ffffff', '#f4f3ee', '#d9d8d0', '#aeada3');
+const HOSE = ramp('#b7bed0', '#858ea8', '#5a627c', '#3a4058');
+/** The display's cold blue. */
+const LCD_COLD = hx('#8fe3ff');
+const ICE_C = hx('#b6f1f0');
+
+/**
+ * Climatizador Portátil (M10 planta 4 (4d)): a tall portable air conditioner, a 3/4 box of ivory
+ * plastic. On its front: a little display stuck at «17» (nobody knows who set it), two eyes of
+ * smug indifference under it and the louvred vent lower down, where the cold air comes out. Down
+ * its side the flexible exhaust hose, patched with silver tape, curling out behind it; and a sheet
+ * taped to its side: «NO TOCAR. Firmado: Dirección» (scribbles at this size). `vent`: the louvres'
+ * shimmer (0-1); `frost`: about to blow its flakes (rime on the vent, eyes narrowed). 30x40.
+ */
+export function makeClimatizador(pose: Pose = { xb: AC_LEGS[0], xf: AC_LEGS[1], bob: 0 }, vent = 0, frost = false): Canvas {
+  const legs = new Canvas(28, 38);
+  const cv = new Canvas(28, 38);
+  poseFeet(legs, pose, 31, { L: 3, leg: PANTL, shoe: OFFICE });
+  // The hose, behind the body: out of its back, down to the floor and curling away.
+  for (const [x, y] of [[2, 14], [1, 16], [1, 18], [1, 20], [1, 22], [2, 24], [2, 26], [3, 28], [4, 29]] as Pt[]) {
+    cv.rect(x, y, 4, 2, HOSE[1]!);
+    cv.set(x, y, HOSE[0]!);
+    cv.rect(x, y + 1, 4, 1, HOSE[2]!);
+  }
+  // Silver tape round it, a little crooked.
+  cv.rect(1, 20, 5, 2, STEEL[0]!);
+  cv.set(5, 21, STEEL[2]!);
+  hand(cv, 3, 21, AC);
+  // The body: tall and narrow, rounded on top.
+  cube(cv, 6, 3, 19, 28, 5, 4, AC, AC_SIDE, AC_TOP);
+  cv.rect(7, 3, 2, 1, AC_TOP[1]!);
+  // The sheet taped to its side: «NO TOCAR», scribbled.
+  cv.rect(7, 16, 4, 6, WHITE);
+  cv.rect(7, 16, 4, 1, STEEL[1]!);
+  for (const y of [18, 20]) cv.rect(8, y, 2, 1, K);
+  cv.set(9, 21, RED[1]!);
+  // Display stuck at «17», in the cold blue.
+  cv.rect(13, 9, 9, 6, K);
+  const digits: Pt[] = [[14, 10], [14, 11], [14, 12], [14, 13], [16, 10], [17, 10], [18, 10], [18, 11], [17, 12], [17, 13]];
+  for (const [x, y] of digits) cv.set(x, y, LCD_COLD);
+  cv.set(20, 10, LCD_COLD);
+  // Eyes: half-lidded, looking down on everyone; narrowed when it blows.
+  for (const x of [14, 19]) {
+    cv.rect(x, 17, 3, 3, K);
+    if (!frost) cv.set(x + 1, 18, WHITE);
+    cv.rect(x, 17, 3, frost ? 2 : 1, AC[2]!);
+  }
+  if (frost) for (const [x, y] of [[13, 15], [14, 16], [21, 16], [22, 15]] as Pt[]) cv.set(x, y, K);
+  // The vent: louvres across the front, catching the light one after another.
+  cv.rect(12, 22, 12, 7, AC[3]!);
+  for (let i = 0; i < 3; i++) {
+    const y = 23 + i * 2;
+    cv.rect(12, y, 12, 1, (i + vent) % 3 === 0 ? AC[0]! : AC[1]!);
+  }
+  if (frost) for (const [x, y] of [[13, 22], [16, 22], [20, 22], [23, 24], [12, 26], [22, 28]] as Pt[]) cv.set(x, y, ICE_C);
+  // Wear: a yellowed scuff and a sticker of the energy class, very low.
+  cv.set(23, 7, AC[2]!);
+  cv.rect(22, 30, 2, 1, RED[1]!);
+  hand(cv, 25, 20, AC);
+  return pad(outline(joinPose(legs, cv, pose)), 2);
+}
+
+export const AC_LEGS = [10, 17] as const;
+
+/** The air conditioner's frames: 0-1 humming (the louvres shimmer), 2-5 dragging itself along, 6 rime on the vent (about to blow). */
+export function makeClimatizadorFrames(): Canvas[] {
+  return [
+    ...poseCycle(AC_LEGS[0], AC_LEGS[1]).map((f, i) => makeClimatizador(f.pose, i % 3)),
+    makeClimatizador(undefined, 0, true),
+  ];
 }

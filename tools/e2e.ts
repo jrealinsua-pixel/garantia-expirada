@@ -785,6 +785,27 @@ try {
   await shot('50v-sello-denegado.png');
   console.log('Sello: sube con su sombra, estampa tinta y en ella la voltereta se deniega.');
 
+  // M10 planta 4 (4d): the portable air conditioner. Its cone of cold air with the streaks, the
+  // toaster pushed along in it and its bullets bending away; then the frost it blows.
+  await page.goto(`${url}?semilla=e2e-climatizador&sala=planta-diafana&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('climatizador', p.x - 120, p.y + 5); g.spawnIdle('batidora', p.x + 110, p.y - 40); w.enemies[0].until = 1.6; })()`);
+  const acStart = await page.evaluate<number>('window.__GE__.scene.world.player.x');
+  const acAim = await page.evaluate<{ x: number; y: number }>("(() => { const e = window.__GE__.scene.world.enemies[0]; return { x: e.x, y: e.y - 16 }; })()");
+  await aimAt(acAim.x, acAim.y);
+  await page.mouse.down();
+  await page.waitForTimeout(700);
+  await shot('50w-climatizador-cono.png');
+  await page.mouse.up();
+  const acPushed = await page.evaluate<number>('window.__GE__.scene.world.player.x');
+  if (acPushed <= acStart + 5) throw new Error(`El aire del climatizador no empuja a la tostadora (${acStart} → ${acPushed})`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'enemy' && b.color === 'ice').length >= 4", undefined, { timeout: 6000 })
+    .catch(() => { throw new Error('El climatizador no sopla escarcha'); });
+  await page.waitForTimeout(150);
+  await shot('50x-climatizador-copos.png');
+  console.log('Climatizador: el cono de aire frío empuja a la tostadora, tuerce sus balas y sopla escarcha.');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);

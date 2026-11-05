@@ -94,6 +94,8 @@ export const PATTERNS: Record<string, PatternDef> = {
   // Robot de Cuerda: on every bounce, a fan of three nuts at you.
   // The shredder gives back what it was fed from the front: five strips of paper.
   // The photocopier with nobody to copy prints three sheets at you.
+  // The air conditioner blows six frost flakes along its cold air.
+  'climatizador-copos': { kind: 'fan', count: 6, spreadDeg: 36, speed: 95, accel: 40, maxSpeed: 140, color: 'ice' },
   // The DENEGADO stamp coming down: a short ring of eight drops of ink splashing out.
   'sello-gotas': { kind: 'ring', count: 8, speed: 95, life: 0.75, color: 'ink' },
   'fotocopiadora-folios': { kind: 'fan', count: 3, spreadDeg: 34, speed: 100, color: 'sheet' },

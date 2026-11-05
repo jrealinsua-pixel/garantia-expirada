@@ -2,7 +2,7 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
-import { brickUnder, checkInvariants, inkUnder, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
+import { brickUnder, checkInvariants, inkUnder, inWind, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
 import { freeChestLeft, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
@@ -140,6 +140,14 @@ export function dodge(w: World): Dodge {
     const d = Math.hypot(dx, dy) || 1;
     out.x += (dx / d) * 1.2;
     out.y += (dy / d) * 1.2;
+  }
+  // An air conditioner's cone: step out of it sideways (in it the air pushes and the shots bend away).
+  for (const en of w.enemies) {
+    const b = en.def.brain;
+    if (b.kind !== 'blower' || isDead(en) || !inWind(en, b, p.x, p.y)) continue;
+    const side = en.dirX * (p.y - en.y) - en.dirY * (p.x - en.x) >= 0 ? 1 : -1;
+    out.x += -en.dirY * side * 0.7;
+    out.y += en.dirX * side * 0.7;
   }
   const ink = inkUnder(w, p.x, p.y);
   if (ink) {

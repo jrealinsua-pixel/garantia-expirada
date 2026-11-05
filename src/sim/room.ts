@@ -123,6 +123,7 @@ const ENEMY_CHARS: Record<string, string> = {
   S: 'destructora',
   K: 'fotocopiadora',
   G: 'sello',
+  H: 'climatizador',
 };
 
 /**

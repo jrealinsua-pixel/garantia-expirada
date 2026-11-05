@@ -2,7 +2,7 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain, CopierBrain, StamperBrain,
+  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain,
 } from '../data/types.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
@@ -19,6 +19,7 @@ import {
   freeSpot,
   HAND_HEIGHT,
   hurtPlayer,
+  inWind,
   isClear,
   isRolling,
   playerFeetBox,
@@ -116,6 +117,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'stamper':
         updateStamper(w, en, en.def.brain);
+        break;
+      case 'blower':
+        updateBlower(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1591,6 +1595,64 @@ function updateHopper(w: World, en: Enemy, b: HopperBrain): void {
 }
 
 /**
+ * The portable air conditioner: crawls to keep its distance, its vent turning slowly towards the
+ * player and swinging from side to side (the sweep); the cone of cold air itself (pushing the
+ * player, bending its bullets) is applied by the world (windOn, windBend). With the player in the
+ * cone and its wait over, it warns and blows a handful of frost flakes along the air.
+ */
+function updateBlower(w: World, en: Enemy, b: BlowerBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  const want = Math.atan2(dy, dx);
+  if (en.sweepT === undefined) en.phase = want;
+  en.sweepT = (en.sweepT ?? 0) + DT;
+  en.phase = turnTowards(en.phase, want, b.turnDeg * DEG * DT);
+  const a = en.phase + Math.sin((Math.PI * en.sweepT) / b.sweepTime) * (b.sweepDeg / 2) * DEG;
+  en.dirX = Math.cos(a);
+  en.dirY = Math.sin(a);
+  if (Math.abs(en.dirX) > 0.15) en.facing = en.dirX > 0 ? 1 : -1;
+  let walkX = 0;
+  let walkY = 0;
+  switch (en.state) {
+    case 'warn':
+      if (en.t >= en.until) {
+        const def = PATTERNS[b.pattern];
+        if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        firePattern(w, def, en.x + en.dirX * 10, en.y - mh, a, { source: en.id, by: en.def.id, height: mh });
+        enter(en, 'fire', patternDuration(def) + 0.2);
+      }
+      break;
+    case 'fire':
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+      break;
+    default: {
+      if (en.state !== 'idle') enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+      if (en.t >= en.until && !w.over && inWind(en, b, p.x, p.y)) {
+        enter(en, 'warn', b.telegraph);
+        w.events.push({ type: 'acBlow', x: en.x, y: en.y, source: en.id });
+        break;
+      }
+      // It drags itself to its distance (never backwards: the hose would not reach).
+      if (dist > b.keep + 20) {
+        walkX = (dx / dist) * b.speed;
+        walkY = (dy / dist) * b.speed;
+      }
+    }
+  }
+  approach(en, walkX, walkY, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+}
+
+/**
  * The DENEGADO stamp: hops towards the player (state `charge`, like the envelope) and every
  * `stampEvery` hops it stamps: it rises over the player's spot (state `warn`, gliding there while a
  * square shadow warns; `dest` is the spot), drops (`fire`) and inks the floor; whoever is under it
@@ -1767,10 +1829,11 @@ function updateLobber(w: World, en: Enemy, b: LobberBrain): void {
   }
 }
 
-/** Whether a photocopier can copy this enemy: alive, not a boss, a relay, a copier or a copy itself, and in sight (not lying in wait or vanished). */
+/** Whether a photocopier can copy this enemy: alive, not a boss, a relay, a copier, an air conditioner or a copy itself, and in sight (not lying in wait or vanished). */
 export function copiable(en: Enemy): boolean {
   const k = en.def.brain.kind;
-  if (k === 'boss' || k === 'relay' || k === 'copier' || en.def.boss) return false;
+  // Nor an air conditioner: one cone per room is plenty (and copies of it would pin the toaster to a wall).
+  if (k === 'boss' || k === 'relay' || k === 'copier' || k === 'blower' || en.def.boss) return false;
   return en.copyOf === undefined && !isDead(en) && en.state !== 'dying' && en.state !== 'lurk' && en.state !== 'gone';
 }
 
