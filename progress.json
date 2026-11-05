@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T08:35:00+01:00",
+  "actualizado": "2026-11-05T09:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 35,
     "plantillas_sala": 60,
-    "tests": 562,
-    "tests_ok": 562,
+    "tests": 563,
+    "tests_ok": 563,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 20509
+    "lineas_codigo": 20584
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T09:05:00+01:00",
+      "hito": "M10",
+      "resumen": "Nota del humano: el minimapa marca lo que queda por coger o abrir en las salas que dejas atrás (cofres, tickets, corazones, armas u objetos y cupones), una sola marca por tipo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T08:35:00+01:00",
       "hito": "M10",
@@ -878,6 +884,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/minimapa-botin.png",
+      "pie": "El minimapa marca lo que queda en cada sala: cofre, ticket, corazón, objeto o cupones, una marca por tipo aunque haya varios"
+    },
+    {
       "archivo": "capturas/oficinas-reunion.png",
       "pie": "Sala de Reuniones (Esto Podía Ser un Correo), una de las seis salas nuevas de las Oficinas: dos filas de mesas que se vuelcan para hacer trinchera"
     },
@@ -892,10 +902,6 @@
     {
       "archivo": "capturas/mando-vibracion.png",
       "pie": "Mando con Vibración: cada golpe que recibe la tostadora suelta un corro de diez balas suyas"
-    },
-    {
-      "archivo": "capturas/era-solo-la-caja.png",
-      "pie": "Objetos de la Juguetería: con la Caja de Cartón Vacía, uno de cada cinco golpes no hace nada («Era solo la caja»); abajo, los cinco nuevos"
     },
     {
       "archivo": "capturas/jugueteria-sala.png",

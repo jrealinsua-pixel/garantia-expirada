@@ -1,8 +1,16 @@
 // What the minimap shows: the rooms of the floor the player knows about. Pure: reads the world.
 import type { Dir, RoomKind } from './floor.ts';
-import type { World } from './world.ts';
+import type { Pickup, World } from './world.ts';
+import type { PropInstance } from './room.ts';
 
 export type MapState = 'here' | 'visited' | 'seen';
+
+/**
+ * Something still to be picked up (or opened) in a room, for its mark on the map (nota del humano
+ * del 2026-11-05): one mark per kind, however many there are. In order of importance.
+ */
+export const MAP_LOOT = ['cofre', 'ticket', 'corazon', 'objeto', 'cupon'] as const;
+export type MapLoot = (typeof MAP_LOOT)[number];
 
 export interface MapCell {
   id: number;
@@ -15,6 +23,40 @@ export interface MapCell {
   danger: boolean;
   /** Normal doors towards other known rooms (each drawn once, from either side). */
   links: Dir[];
+  /** What is left in it to pick up or open, one of each kind, most important first (rooms visited only). */
+  loot: MapLoot[];
+}
+
+/** The map mark of a pickup lying on the floor, or null (goods for sale are the shop's, not loot). */
+function lootOf(k: Pickup): MapLoot | null {
+  if (k.price !== undefined) return null;
+  switch (k.kind) {
+    case 'cupon':
+      return 'cupon';
+    case 'ticket':
+      return 'ticket';
+    case 'corazon':
+    case 'garantia':
+    case 'turbo':
+    case 'sobretension':
+      return 'corazon';
+    case 'arma':
+    case 'objeto':
+    case 'activo':
+    case 'documento':
+      return 'objeto';
+  }
+}
+
+/** What is left in a room: its pickups and its shut chests, one mark per kind, in MAP_LOOT order. */
+export function roomLoot(pickups: readonly Pickup[], props: readonly PropInstance[]): MapLoot[] {
+  const have = new Set<MapLoot>();
+  for (const k of pickups) {
+    const l = lootOf(k);
+    if (l) have.add(l);
+  }
+  if (props.some((p) => p.chest && !p.chest.open)) have.add('cofre');
+  return MAP_LOOT.filter((l) => have.has(l));
 }
 
 /**
@@ -36,6 +78,9 @@ export function minimap(w: World): MapCell[] {
   for (const [id, state] of known) {
     const fr = f.layout.rooms[id]!;
     const st = f.rooms[id]!;
+    // The room the toaster is in lives in the world; the others keep what was left in them.
+    const here = id === f.current;
+    const loot = state === 'seen' ? [] : roomLoot(here ? w.pickups : st.pickups, (here ? w.room : st.room)?.props ?? []);
     out.push({
       id,
       gx: fr.gx,
@@ -43,6 +88,7 @@ export function minimap(w: World): MapCell[] {
       kind: fr.kind,
       state,
       danger: state !== 'seen' && !st.cleared,
+      loot,
       links: fr.doors.filter((d) => known.has(d.to) && (!d.secret || (known.get(d.to) !== 'seen' && state !== 'seen'))).map((d) => d.dir),
     });
   }

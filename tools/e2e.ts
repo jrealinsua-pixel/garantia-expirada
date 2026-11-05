@@ -871,6 +871,16 @@ try {
   await page.evaluate('(() => { const s = window.__GE__.scene; s.world.floor.rooms.forEach((r) => { r.visited = true; }); s.drawMinimap(); })()');
   await page.waitForTimeout(100);
   await shot('16e-minimapa.png');
+  // What is left in rooms behind shows on the map, one mark per kind (nota del humano del 2026-11-05).
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const f = s.world.floor;
+    const others = f.rooms.map((r, i) => i).filter((i) => i !== f.current && f.layout.rooms[i].kind === 'combat');
+    const k = (kind) => ({ id: 90000 + Math.floor(Math.random() * 1e5), kind, value: 1, x: 100, y: 100, vx: 0, vy: 0, age: 1 });
+    f.rooms[others[0]].pickups.push(k('ticket'), k('cupon'), k('cupon'));
+    f.rooms[others[1]].pickups.push(k('corazon'));
+    f.rooms[others[2]].pickups.push(k('cupon'), k('corazon'), k('objeto'));
+    s.drawMinimap(); })()`);
+  await page.waitForTimeout(100);
+  await shot('16f-minimapa-botin.png');
   // From the floor into the boss room (not the loose ?sala=jefe): the start room's door is rewired
   // to lead there, as if it were next door. She must be there, with her entrance, doors shut.
   await page.goto(`${url}?semilla=e2e-planta`);

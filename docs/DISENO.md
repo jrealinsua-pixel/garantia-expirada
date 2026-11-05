@@ -497,6 +497,8 @@ Están repartidas como tareas en `docs/HOJA_DE_RUTA.md` (M6, M7, M8 y M10).
 - Un botón de interactuar para hablar, comprar, abrir cofres y volcar muebles como cobertura;
   objetos del escenario que explotan o hacen otras cosas.
 - Los cupones se recogen solos al limpiar la sala. Sin números de daño ni textos al matar.
+- (2026-11-05) Lo que se queda en una sala por coger o abrir (cofres, tickets, corazones, armas u
+  objetos, cupones) se marca en el minimapa, una sola marca por tipo, como en otros juegos del género.
 - Corazones que suben y bajan con objetos; un escudo temporal ligado a la trama; corazones
   especiales temporales con su sprite y su rareza (cuanto más potentes, más raros).
 - Sinergias indirectas: objetos que se complementan sin crear nada nuevo (hecho en M9b (14): diez parejas en «Armas y objetos»).

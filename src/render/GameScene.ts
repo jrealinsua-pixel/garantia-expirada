@@ -43,7 +43,7 @@ import {
 } from '../data/texts.ts';
 import { BACK_WALL_ROWS, doorCells, isWallAt, TILE } from '../sim/room.ts';
 import { pointInRect } from '../sim/vec.ts';
-import { minimap } from '../sim/minimap.ts';
+import { minimap, type MapLoot } from '../sim/minimap.ts';
 import {
   activeWarnings,
   addModifier,
@@ -219,10 +219,10 @@ export interface GameStateForTests {
 /** Pixels of a rolled-up shutter still showing under the lintel (with its pilot light). */
 const SHUTTER_ROLLED = 9;
 /** Minimap: size of a room and distance between rooms (px on the 480 x 270 screen). */
-const MAP_CELL_W = 9;
-const MAP_CELL_H = 7;
-const MAP_STEP_X = 11;
-const MAP_STEP_Y = 9;
+const MAP_CELL_W = 11;
+const MAP_CELL_H = 8;
+const MAP_STEP_X = 13;
+const MAP_STEP_Y = 10;
 /** Minimap icons (5 px wide at most), drawn in the middle of the room. */
 const MAP_ICONS: Partial<Record<string, { rows: string[]; color: number }>> = {
   // A skull: the boss.
@@ -233,6 +233,22 @@ const MAP_ICONS: Partial<Record<string, { rows: string[]; color: number }>> = {
   treasure: { rows: ['.#.#.', '#####', '#.#.#', '#####'], color: 0x5cc2c0 },
   // A question mark: the secret room (only once found).
   secret: { rows: ['##.', '..#', '.#.', '...', '.#.'], color: 0xd3849a },
+};
+/**
+ * Minimap marks of what is left in a room (3 x 3, up to three side by side; nota del humano del
+ * 2026-11-05): one per kind, however many there are.
+ */
+const MAP_LOOT_ICONS: Record<MapLoot, { rows: string[]; color: number }> = {
+  // A shut chest: lid, latch and body, in cardboard.
+  cofre: { rows: ['###', '#.#', '###'], color: 0xd39a5a },
+  // A ticket: a white slip.
+  ticket: { rows: ['###', '###', '###'], color: 0xf4f1e8 },
+  // A heart (any of them).
+  corazon: { rows: ['#.#', '###', '.#.'], color: 0xe0453b },
+  // Something on the floor to take: a weapon, an item, a document. A sparkle.
+  objeto: { rows: ['.#.', '###', '.#.'], color: 0x69dbd8 },
+  // Discount coupons: a coin.
+  cupon: { rows: ['.#.', '#.#', '.#.'], color: 0xf6c431 },
 };
 /** Milliseconds of the fade between rooms. */
 const ROOM_FADE_OUT = 110;
@@ -2752,6 +2768,22 @@ export class GameScene extends Phaser.Scene {
         g.fillStyle(c.state === 'here' ? 0xf4f1e8 : 0x6b7090, 1).fillRect(p.x, p.y, MAP_CELL_W, MAP_CELL_H);
         // Shade along the bottom, like the room tiles.
         g.fillStyle(c.state === 'here' ? 0xb9b3a3 : 0x4a4f6e, 1).fillRect(p.x, p.y + MAP_CELL_H - 1, MAP_CELL_W, 1);
+      }
+      // A room left behind with things in it shows them (the boss and the shop keep their icon).
+      if (c.state === 'visited' && c.loot.length > 0 && c.kind !== 'boss' && c.kind !== 'shop') {
+        const marks = c.loot.slice(0, 3);
+        const w = marks.length * 4 - 1;
+        let ix = p.x + Math.floor((MAP_CELL_W - w) / 2);
+        const iy = p.y + Math.floor((MAP_CELL_H - 1 - 3) / 2);
+        for (const m of marks) {
+          const mi = MAP_LOOT_ICONS[m];
+          g.fillStyle(mi.color, 1);
+          mi.rows.forEach((row, j) => [...row].forEach((ch, i) => {
+            if (ch === '#') g.fillRect(ix + i, iy + j, 1, 1);
+          }));
+          ix += 4;
+        }
+        continue;
       }
       const icon = MAP_ICONS[c.kind];
       if (icon) {
