@@ -333,16 +333,17 @@ Indirectas que salen solas (para `src/data/complements.ts`, a medir): la Silla c
 Etiqueta A+++ (multiplica la velocidad y el resbalón, a gusto de quien sepa frenar) y la Bola
 Antiestrés con la Batería Hinchada (tapa: los golpes que llegan duelen menos de seguido).
 
-Las Oficinas se ven a la primera: moqueta gris azulada en losetas, con manchas de café y las
+Las Oficinas se ven a la primera (M10 planta 4 (1), detalle en `docs/ESTILO_ARTE.md`): moqueta gris en losetas, con manchas de café y las
 rodadas de las sillas; pasillos de moqueta más oscura entre cubículos; pared de atrás de pladur
 con vinilos de valores («Pasión», «Resiliencia», «Familia») medio despegados y un fluorescente
-que parpadea; obstáculos propios: mesas de cubículo con su ordenador apagado, archivadores
-metálicos con un cajón que no cierra, plantas de plástico con polvo, fuentes de agua sin
-garrafa y mamparas de cristal esmerilado que paran balas. Persianas con un cartel colgado:
+que parpadea; mamparas de cubículo como paredes; obstáculos propios: archivadores metálicos con un
+cajón que no cierra, termos de café (los que explotan), ficus de plástico con polvo y mesas de
+oficina que se vuelcan. Persianas con un cartel colgado:
 «Reunión en curso». Sus salas especiales: la **Recepción (Firme Aquí, y Aquí, y Aquí)**, la
 entrada; la **Sala de Material (Pida Cita Previa)**, el tesoro; el **Economato de Empresa
 (Descuento en Nómina)**, la tienda, que sigue atendiendo la Caja de Autocobro; el **Archivo
-Muerto**, la secreta, con un acta de reunión para el archivador (la planta 4 compra a peso lo que
+**Papeles para Destruir (Confidencial)**, la secreta (el Archivo Muerto ya es el cartel de la secreta
+del almacén), con un acta de reunión para el archivador (la planta 4 compra a peso lo que
 la última planta «reacondiciona», y lo apunta como activo); y la **Sala de Juntas (Aforo: Uno)**,
 la del jefe.
 

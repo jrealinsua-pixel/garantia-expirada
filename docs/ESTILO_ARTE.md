@@ -155,6 +155,39 @@ rosa en menor medida; paredes ciruela `#291d2b`), igual de oscuro que las otras 
   Las persianas, ciruela, con el rodapié de colores y una tira de luces de feria fundidas (solo
   queda una encendida, en rosa) (`persiana-*-3`).
 
+### Planta 4: Oficinas (`src/art/oficinas.ts`)
+
+Color dominante: **gris neutro** (ni el azul del almacén, ni el verde de Informática, ni el cálido
+de la Juguetería; paredes casi negras `#232227`), igual de oscuro que las demás (`tests/roomart.test.ts`
+lo vigila). La planta más apagada a propósito: aquí el color lo ponen los enemigos y las balas.
+
+- **Moqueta en losetas** de 24 × 24 colocadas a contrapelo (el pelo va a lo ancho en una y a lo
+  largo en la siguiente, y cada dirección tiene un gris un pelo distinto), con la junta apenas
+  marcada. Variantes: mancha de café restregada, óvalo gastado donde vive una silla, loseta de otra
+  partida (otro gris y el pelo al revés), chicle aplastado y esquina levantada (poca, que de lejos
+  parecía una flecha).
+- **Suelo**: manchas de café, los arcos de las ruedas de las sillas, pósits y clips (en lugar de
+  tornillos), el **pasillo de moqueta oscura** de lado a lado (en lugar de las rodadas), zonas de
+  «PUESTO LIBRE / NO RESERVAR / REUNIÓN 5 MIN» y letras de cinta clara («OBJETIVOS Q3», «FICHE AL
+  SALIR», «ESPACIO DIÁFANO»…).
+- **Paredes**: las paredes de dentro son **mamparas de cubículo**: carril de aluminio arriba y tela
+  gris azulada delante con lo que se clava en ellas (un pósit, una hoja impresa, el calendario del
+  año pasado). La del fondo es pladur con los **valores de la empresa en vinilo** («PASIÓN»,
+  «RESILIENCIA», «FAMILIA»…) a los que les falta alguna letra, una balda de archivadores AZ y otra
+  con bandejas, cajas de folios y un teléfono. Falso techo con una placa que falta (cuelga un
+  cable) y paneles fluorescentes de luz fría. Radiadores en las laterales, pósters motivacionales
+  en vez de cuadros eléctricos, rodapié de PVC gris con cajas de suelo. El turno es una pizarrita
+  con el gráfico de objetivos bajando.
+- Salas: entrada con felpudo «FICHE AQUÍ» y cartel «PLANTA 4 · OFICINAS»; tienda «ECONOMATO» con
+  alfombra azul; tesoro «MATERIAL DE OFICINA»; secreta «CONFIDENCIAL» con tiras de papel triturado
+  y polvo gris; jefe «SALA DE JUNTAS» con la moqueta buena (carbón con ribete granate) y el aire
+  acondicionado a 17 grados.
+- Obstáculos (`caja-4`, `barril-4`, `carrito-4`, `mesa-4`): un **archivador metálico** con el cajón
+  del medio que no cierra, un **termo de café** de acero con la banda roja y la etiqueta amarilla
+  (como el bidón: explota igual), un **ficus de plástico** con polvo (bajo: las balas pasan por
+  encima) y una **mesa de oficina** gris con una taza y un pósit. Las persianas, grises, con un
+  cartel plastificado colgado: «REUNIÓN» (en las laterales, que no caben letras, una tarjeta roja).
+
 ### El Muñeco de Moda, jefe de la planta 3 (`tools/sprites/muneco.ts`)
 
 - **Con caja** (fotogramas 0–6): caja de escaparate magenta desvaído en tres cuartos (cara

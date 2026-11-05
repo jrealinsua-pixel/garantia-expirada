@@ -242,3 +242,75 @@ test('arte de sala, planta 3: la decoración no tapa los huecos de las puertas y
   assert.notDeepEqual(paint3(room, 'x').canvas.p, paint2(room, 'x').canvas.p);
   assert.deepEqual(paint3(room, 'x').canvas.p, paint3(room, 'x').canvas.p);
 });
+
+// Floor 4 (Oficinas): carpet tiles, cubicle partitions, its own colour and decoration (src/art/oficinas.ts).
+function paint4(room: Room, seed: string) {
+  const tiles = room.tiles.slice();
+  for (const d of room.doors) for (const c of doorCells(room.cols, room.rows, d.dir)) tiles[c.r * room.cols + c.c] = 1;
+  return paintRoom({ ...room, tiles, level: 4 }, seed);
+}
+
+test('arte de sala, planta 4: gris neutro (ni azul, ni verde, ni cálido), distinto de las otras tres e igual de oscuro', () => {
+  const lum = (c: number[]): number => 0.3 * c[0]! + 0.59 * c[1]! + 0.11 * c[2]!;
+  for (const t of floorTemplates) {
+    const room = buildRoom(t);
+    const four = floorMean(paint4(room, 'c'), room);
+    assert.ok(Math.max(...four) - Math.min(...four) < 12, `${t.id}: la planta 4 debería ser gris (${four.map(Math.round)})`);
+    for (const other of [floorMean(paint(room, 'c'), room), floorMean(paint2(room, 'c'), room), floorMean(paint3(room, 'c'), room)]) {
+      const d = Math.hypot(four[0] - other[0], four[1] - other[1], four[2] - other[2]);
+      assert.ok(d > 12, `${t.id}: la planta 4 se parece demasiado a otra (${four.map(Math.round)} frente a ${other.map(Math.round)})`);
+    }
+    const one = floorMean(paint(room, 'c'), room);
+    assert.ok(Math.abs(lum(one) - lum(four)) < 14, `${t.id}: brillo ${lum(one).toFixed(1)} frente a ${lum(four).toFixed(1)}`);
+  }
+});
+
+test('arte de sala, planta 4: cada tipo de sala tiene su cartel, su decoración y sus casillas propias', () => {
+  const own: Record<string, string[]> = {
+    start: ['cartel:PLANTA 4 · OFICINAS', 'felpudo'],
+    shop: ['cartel:ECONOMATO', 'alfombra', 'etiquetas'],
+    treasure: ['cartel:MATERIAL DE OFICINA'],
+    secret: ['cartel:CONFIDENCIAL', 'telarañas', 'polvo', 'tiras'],
+    boss: ['cartel:SALA DE JUNTAS', 'moqueta-juntas'],
+  };
+  for (const t of floorTemplates) {
+    for (const seed of ['a', 'b', 'c']) {
+      const f = paint4(buildRoom(t), seed).features;
+      for (const want of own[t.kind!] ?? []) assert.ok(f.includes(want), `${t.id} (${seed}): falta ${want} en ${f.join(', ')}`);
+      if (t.kind === 'combat') assert.ok(f.some((x) => x.startsWith('cartel:')), `${t.id}: sin cartel`);
+      assert.ok(f.some((x) => x.startsWith('letrero:')), `${t.id} (${seed}): sin letras en el suelo`);
+      assert.ok(f.includes('basura') && f.includes('pared'), `${t.id}: sin basura o sin nada en las paredes`);
+      // Nothing of the floors below.
+      const below = ['rodadas', 'muelle', 'turno', 'escarcha', 'chapa', 'cubrecables', 'expositor', 'progreso', 'interferencias'];
+      below.push('carretera', 'zona-juego', 'precios', 'confeti');
+      below.push('casilla:cracked', 'casilla:grate', 'casilla:lifted', 'casilla:grommet', 'casilla:missing', 'casilla:letter', 'casilla:chewed');
+      for (const no of below) assert.ok(!f.includes(no), `${t.id} (${seed}): ${no} en la planta 4`);
+    }
+  }
+  const kinds = new Set<string>();
+  const extras = new Set<string>();
+  for (const t of floorTemplates.filter((x) => x.kind === 'combat')) {
+    for (const seed of ['1', '2', '3', '4']) {
+      for (const x of paint4(buildRoom(t), seed).features) (x.startsWith('casilla:') ? kinds : extras).add(x);
+    }
+  }
+  for (const v of ['casilla:stain', 'casilla:worn', 'casilla:patch', 'casilla:gum', 'casilla:curled']) assert.ok(kinds.has(v), `nunca sale ${v}`);
+  for (const v of ['pasillo', 'puesto-libre', 'objetivos']) assert.ok(extras.has(v), `nunca sale ${v}`);
+});
+
+test('arte de sala, planta 4: la decoración no tapa los huecos de las puertas y no es la Juguetería', () => {
+  const hole = hx('#0b0a12').join();
+  for (const t of floorTemplates) {
+    const art = paint4(buildRoom(t), 'puertas');
+    for (const d of art.doors) {
+      for (let y = d.y; y < d.y + d.h; y++) {
+        for (let x = d.x; x < d.x + d.w; x++) assert.equal(art.canvas.get(x, y).join(), hole, `${t.id}: puerta ${d.dir} pintada en (${x}, ${y})`);
+      }
+    }
+  }
+  const room = buildRoom(ROOMS['carga-descarga']!);
+  assert.notDeepEqual(paint4(room, 'x').canvas.p, paint3(room, 'x').canvas.p);
+  assert.deepEqual(paint4(room, 'x').canvas.p, paint4(room, 'x').canvas.p);
+  // Higher levels (until they have their own look) paint as the offices.
+  assert.deepEqual(paintRoom({ ...room, level: 5 }, 'x').canvas.p, paintRoom({ ...room, level: 4 }, 'x').canvas.p);
+});

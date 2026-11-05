@@ -358,14 +358,13 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   Recursos Inhumanos) y 10 objetos. Diseño en `docs/DISENO.md` (enemigos, jefe, objetos y aspecto).
   En partes:
   - [x] (0) El diseño de la planta 4 y esta lista de tareas.
-  - [ ] (1) Juego de casillas y color propio (`src/art/oficinas.ts`, se ve con `?planta=4`):
-    moqueta gris azulada con manchas de café, pared de pladur con vinilos de valores, mesas de
-    cubículo, archivadores, plantas de plástico, fuentes sin garrafa, mamparas y persianas con
-    «Reunión en curso».
+  - [x] (1) Juego de casillas y color propio (`src/art/oficinas.ts`, se ve con `?planta=4`):
+    moqueta gris con manchas de café, mamparas de cubículo, pared de pladur con vinilos de valores,
+    archivadores, termos de café, ficus de plástico, mesas de oficina y persianas con «Reunión».
   - [ ] (2a) Seis plantillas de combate propias de la planta 4, cada una con su idea y sus grupos.
   - [ ] (2b) Seis plantillas de combate más.
-  - [ ] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Archivo Muerto
-    con su acta de reunión, y la Sala de Juntas del jefe).
+  - [ ] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Papeles para
+    Destruir con su acta de reunión, y la Sala de Juntas del jefe).
   - [ ] (3) Encadenar: tras el Muñeco se baja a la planta 4, con todo lo que se lleva; hasta que
     llegue el Director, el Muñeco pelea en la Sala de Juntas.
   - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):

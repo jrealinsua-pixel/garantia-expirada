@@ -448,6 +448,18 @@ try {
     await shot(`37${'abcdef'[i]}-planta3-${['sala', 'entrada', 'pruebas', 'jefe', 'tienda', 'secreta'][i]}.png`);
   }
 
+  // M10 planta 4 (1): floor 4 (Oficinas) has its own tiles, colour, obstacles and shutters. Until
+  // M10 planta 4 (2) it borrows the Juguetería's rooms (and its boss).
+  const p4 = ['sala=circuito-ocasion&profundidad=5', 'sala=entrada-jugueteria', 'sala=jefe-jugueteria', 'sala=tienda-jugueteria', 'sala=secreta-jugueteria'];
+  for (const [i, q] of p4.entries()) {
+    await page.goto(`${url}?semilla=e2e-p4-${i}&${q}&planta=4`);
+    await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+    await page.evaluate('window.__GE__.scene.world.noDamage = true');
+    if ((await page.evaluate<number>('window.__GE__.scene.world.level')) !== 4) throw new Error(`?planta=4 no pone la planta 4 (${q})`);
+    await page.waitForTimeout(i === 2 ? 4200 : 1600);
+    await shot(`50${'abcde'[i]}-planta4-${['sala', 'entrada', 'jefe', 'tienda', 'secreta'][i]}.png`);
+  }
+
   // M8: floors in a row. A floor won (here, a lift under the toaster's feet at the entrance) and
   // R: the run goes on in floor 2 with the same toaster, coupons and all.
   await page.goto(`${url}?semilla=e2e-cadena`);

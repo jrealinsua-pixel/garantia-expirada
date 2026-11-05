@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T06:41:00+01:00",
+  "actualizado": "2026-11-05T06:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 33,
     "plantillas_sala": 54,
-    "tests": 555,
-    "tests_ok": 555,
+    "tests": 558,
+    "tests_ok": 558,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 19731
+    "lineas_codigo": 20204
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T06:55:00+01:00",
+      "hito": "M10",
+      "resumen": "La planta 4 ya tiene su aspecto (se ve con ?planta=4): moqueta gris en losetas con manchas de café, mamparas de cubículo, los valores de la empresa en vinilo despegándose, archivadores, termos de café que explotan, ficus de plástico y persianas con el cartel de «Reunión».",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T06:41:00+01:00",
       "hito": "M10",
@@ -860,6 +866,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/oficinas-sala.png",
+      "pie": "Las Oficinas (planta 4): moqueta gris, mamparas de cubículo con el calendario del año pasado, un archivador, un ficus de plástico, termos de café que explotan y la pizarra de objetivos bajando"
+    },
+    {
       "archivo": "capturas/mando-vibracion.png",
       "pie": "Mando con Vibración: cada golpe que recibe la tostadora suelta un corro de diez balas suyas"
     },
@@ -876,15 +886,11 @@
       "pie": "Al 25 % rompe la caja y sale gritando «¡Todo debe desaparecer! Yo también.»: la fase 3"
     },
     {
-      "archivo": "capturas/muneco-pasarela.png",
-      "pie": "La pasarela del Muñeco de Moda: cruza el Escaparate posando y por donde pasa deja destellos de flash que se cargan en el suelo y estallan en chispas"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     }
   ],
-  "proximo": "M10 (6b2): Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades.",
+  "proximo": "M10 (6b2): Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades. En paralelo, sin pisarse: M10 planta 4 (2a), seis plantillas de combate de las Oficinas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -910,11 +916,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05T06:25:00+01:00",
-      "tarea": "M10 planta 4 (1): juego de casillas de las Oficinas (src/art/oficinas.ts, src/art/room.ts, tools/sprites/props.ts)",
-      "desde": "2026-11-05T06:36:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

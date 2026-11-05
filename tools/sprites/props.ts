@@ -1,6 +1,7 @@
 // Props, bullets, effects and HUD pieces. Props and bullets are ports of tools/referencia/build2.py.
 import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
 import { BLUE, BROWN, BURNT, CARD, CREAM, DSTEEL, FRT, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, RUSTR, STEEL, TOASTC, WHITE, YEL } from '../../src/art/lib.ts';
+import { stencil, stencilWidth } from '../../src/art/warehouse.ts';
 import { box, cube, ellipse, hand, OFFICE, outline, ramp, type Ramp } from '../../src/art/lib.ts';
 
 export function makeCaja(): Canvas {
@@ -208,6 +209,78 @@ export function makeRockingHorse(): Canvas {
   cv.set(3, 10, hx('#a42f37'));
   // A handle sticking out of the head.
   cv.rect(20, 5, 1, 1, STEEL[2]!);
+  return outline(cv);
+}
+
+// Floor 4 (Oficinas) versions of the three obstacles: same footprint and collision box again.
+
+const FILING = ramp('#a8a7b0', '#8a8994', '#66656f', '#47464e');
+
+/** «Caja» on floor 4: a metal filing cabinet, three drawers, the middle one never closes. */
+export function makeFilingCabinet(): Canvas {
+  const cv = new Canvas(24, 24);
+  cube(cv, 3, 2, 18, 21, 5, 3, FILING, FILING, FILING);
+  cv.rect(3, 5, 5, 17, FILING[2]!);
+  cv.rect(3, 5, 1, 17, FILING[3]!);
+  // Three drawers, each with a handle and a label slot; the middle one sticks out, papers in it.
+  for (const [i, y] of [[0, 6], [1, 12], [2, 18]] as const) {
+    const out = i === 1 ? 1 : 0;
+    cv.rect(9, y, 11, 5, FILING[1]!);
+    cv.rect(9, y, 11, 1, FILING[0]!);
+    cv.rect(9, y + 4, 11, 1, FILING[3]!);
+    cv.rect(12, y + 2, 5, 1, FILING[3]!);
+    cv.rect(11, y + 1, 3, 1, WHITE);
+    if (out) {
+      cv.rect(8, y - 1, 13, 1, FILING[0]!);
+      cv.rect(10, y - 2, 8, 1, CREAM[0]!);
+      cv.set(12, y - 3, CREAM[1]!);
+      cv.set(15, y - 3, CREAM[0]!);
+    }
+  }
+  // «Activo n.º 00412»: the inventory sticker.
+  cv.rect(5, 8, 2, 3, WHITE);
+  return outline(cv);
+}
+
+/** «Barril» on floor 4: the coffee urn of the meeting room (it goes up the same: red band, yellow label). */
+export function makeCoffeeUrn(): Canvas {
+  const cv = new Canvas(16, 24);
+  // A stack of paper cups on the lid.
+  cv.rect(6, 1, 4, 4, WHITE);
+  cv.rect(6, 1, 4, 1, CREAM[1]!);
+  cv.rect(9, 1, 1, 4, CREAM[2]!);
+  // Lid and the steel body.
+  cv.rect(3, 5, 10, 2, STEEL[1]!);
+  cv.rect(3, 5, 10, 1, STEEL[0]!);
+  box(cv, 3, 7, 10, 15, STEEL);
+  cv.rect(4, 8, 1, 12, STEEL[0]!);
+  // The red band and the warning label, like the drum downstairs.
+  cv.rect(3, 10, 10, 3, RED[1]!);
+  cv.rect(3, 10, 10, 1, RED[0]!);
+  cv.rect(6, 14, 5, 3, YEL[1]!);
+  cv.rect(7, 15, 3, 1, K);
+  // The tap, with a drip.
+  cv.rect(12, 17, 3, 2, OFFICE[0]!);
+  cv.set(14, 20, BROWN[2]!);
+  cv.rect(4, 21, 8, 1, STEEL[3]!);
+  return outline(cv);
+}
+
+/** «Carrito» on floor 4: a plastic office plant in its pot, dusty (low: bullets go over the pot). */
+export function makeOfficePlant(): Canvas {
+  const cv = new Canvas(28, 24);
+  const LEAF = ramp('#7ea86a', '#5a8a4e', '#3f6a3a', '#2a4a2a');
+  // The pot: grey plastic, the price sticker still on.
+  box(cv, 9, 15, 10, 8, ramp('#8a8994', '#66656f', '#47464e', '#2f2e35'));
+  cv.rect(8, 15, 12, 1, hx('#a8a7b0'));
+  cv.rect(15, 18, 3, 2, WHITE);
+  // Leaves in fans, the top ones grey with dust.
+  const leaves: Array<[number, number, number]> = [[6, 12, 1], [8, 9, 1], [11, 6, 0], [14, 4, 0], [17, 6, 0], [20, 9, 1], [22, 12, 1], [12, 11, 2], [16, 10, 2], [14, 13, 3]];
+  for (const [x, y, k] of leaves) {
+    ellipse(cv, x, y, 2.6, 1.6, LEAF[k]!);
+    cv.set(x - 1, y - 1, k === 0 ? hx('#a8b0a0') : LEAF[0]!);
+  }
+  cv.rect(14, 8, 1, 7, LEAF[3]!);
   return outline(cv);
 }
 
@@ -424,9 +497,16 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
   // Upstairs (Informática) the shutter is green-grey and its kick strip a grey rubber with
   // ribs, like the skirting duct; downstairs, blue steel with hazard stripes.
   // On floor 3, plum slats, a kick strip in the foam mats' colours and a string of fair lights
-  // across it, every bulb fused but one.
+  // across it, every bulb fused but one. On floor 4, office grey and a laminated «Reunión» card
+  // hanging over it.
   const [slat, groove, a, b] =
-    level === 3 ? ['#4a3a50', '#36293c', '#8a5a5c', '#5a5a3c'] : level === 2 ? ['#3a4a47', '#28332f', '#7e8a87', '#2a3231'] : ['#3a4058', '#2b3048', '#b08a1c', '#191622'];
+    level === 4
+      ? ['#4a4952', '#36353c', '#6a6974', '#3a3940']
+      : level === 3
+        ? ['#4a3a50', '#36293c', '#8a5a5c', '#5a5a3c']
+        : level === 2
+          ? ['#3a4a47', '#28332f', '#7e8a87', '#2a3231']
+          : ['#3a4058', '#2b3048', '#b08a1c', '#191622'];
   (['red', 'green'] as const).forEach((light, i) => {
     const f = makeShutter(w, h, light, slat, groove);
     for (let x = 1; x < w - 1; x++) {
@@ -435,9 +515,34 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
     }
     f.rect(0, h - 2, w, 2, K);
     if (level === 3) fairLights(f, w, h);
+    if (level === 4) meetingSign(f, w, h);
     out.blit(f, i * w, 0);
   });
   return out;
+}
+
+/** «Reunión en curso»: a laminated card hanging from a string over the shutter (the meeting never ends). */
+function meetingSign(f: Canvas, w: number, h: number): void {
+  const word = 'REUNIÓN';
+  const tw = stencilWidth(word);
+  if (tw + 6 > w - 4 || h < 22) {
+    // The side shutters are too narrow for the word: a red card with two lines of small print.
+    const x = Math.floor(w / 2) - 5;
+    const y = Math.min(h - 16, 14);
+    f.rect(x, y, 10, 8, K);
+    f.rect(x + 1, y + 1, 8, 6, hx('#d8d6ce'));
+    f.rect(x + 2, y + 2, 6, 1, RED[1]!);
+    f.rect(x + 2, y + 4, 5, 1, hx('#66656f'));
+    return;
+  }
+  const x = Math.floor((w - tw) / 2) - 3;
+  const y = Math.min(h - 15, 12);
+  f.set(x + 2, y - 2, hx('#1a1a20'));
+  f.set(x + tw + 3, y - 2, hx('#1a1a20'));
+  f.rect(x, y - 1, tw + 6, 9, K);
+  f.rect(x + 1, y, tw + 4, 7, hx('#d8d6ce'));
+  f.rect(x + 1, y, tw + 4, 1, WHITE);
+  stencil(f, x + 3, y + 3, word, RED[2]!);
 }
 
 /** A sagging string of fair lights across a shutter; all fused but one, which glows a faded pink. */
@@ -1222,7 +1327,7 @@ interface TableLook {
   tag: (cv: Canvas, x: number, y: number) => void;
 }
 
-const TABLE_LOOKS: Record<1 | 2 | 3, TableLook> = {
+const TABLE_LOOKS: Record<1 | 2 | 3 | 4, TableLook> = {
   1: {
     top: ramp('#c99e6a', '#a77c4c', '#7d5a36', '#553c24'),
     under: ramp('#8f6c40', '#6e5232', '#523c24', '#3a2a1a'),
@@ -1278,6 +1383,25 @@ const TABLE_LOOKS: Record<1 | 2 | 3, TableLook> = {
     tag: (cv, x, y) => {
       cv.rect(x, y, 5, 3, PLAST_PINK[1]!);
       cv.rect(x + 1, y + 1, 3, 1, WHITE);
+    },
+  },
+  // Floor 4: an office desk, grey laminate on black legs, a mug with a ring and the post-it on it.
+  4: {
+    top: ramp('#c8c8cc', '#a8a7b0', '#84838c', '#5f5e68'),
+    under: ramp('#84838c', '#66656f', '#4e4d56', '#36353c'),
+    leg: OFFICE,
+    dress: (cv, edgeY) => {
+      cv.rect(5, edgeY - 6, 7, 4, WHITE);
+      cv.rect(6, edgeY - 5, 5, 1, hx('#9a98a4'));
+      cv.rect(15, edgeY - 5, 3, 3, BLUE[2]!);
+      cv.set(18, edgeY - 4, BLUE[2]!);
+      cv.set(16, edgeY - 5, BROWN[2]!);
+      cv.rect(19, edgeY, 4, 3, YEL[1]!);
+      cv.rect(20, edgeY + 1, 2, 1, K);
+    },
+    tag: (cv, x, y) => {
+      cv.rect(x, y, 5, 3, YEL[1]!);
+      cv.rect(x + 1, y + 1, 3, 1, K);
     },
   },
 };
@@ -1370,7 +1494,7 @@ function mirror(cv: Canvas): Canvas {
   return out;
 }
 
-export function makeTableFrames(level: 1 | 2 | 3): Canvas[] {
+export function makeTableFrames(level: 1 | 2 | 3 | 4): Canvas[] {
   const L = TABLE_LOOKS[level];
   const east = tableEast(L);
   return [tableStanding(L), tableNorth(L), tableSouth(L), east, mirror(east)];
