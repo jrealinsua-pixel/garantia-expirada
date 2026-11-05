@@ -295,9 +295,13 @@ test('plantillas de la planta 4: doce salas de combate y las especiales, todas s
   }
 });
 
-test('plantillas de la planta 5: seis salas de combate suyas con grupos; las especiales, de momento, las de las Oficinas', () => {
+test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tamaños variados; las especiales, de momento, las de las Oficinas', () => {
   const five = templatesOf('combat', 5);
-  assert.ok(five.length >= 6, `${five.length} salas de combate en la planta 5`);
+  assert.equal(five.length, 12, `${five.length} salas de combate en la planta 5`);
+  // As on the floors below: small, middling and big rooms, never all of one size.
+  const sizes = new Set(five.map((t) => `${t.rows[0]!.length}x${t.rows.length}`));
+  assert.ok(sizes.size >= 10, `${sizes.size} tamaños distintos`);
+  assert.ok(five.some((t) => t.rows[0]!.length * t.rows.length <= 16 * 11) && five.some((t) => t.rows[0]!.length >= 28), 'una sala de pantalla y una larga');
   for (const t of five) {
     assert.equal(t.level, 5, t.id);
     assert.ok(/[1-9]/.test(t.rows.join('')), `${t.id}: sin grupos`);

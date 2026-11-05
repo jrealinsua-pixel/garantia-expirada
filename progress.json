@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T20:28:00+01:00",
+  "actualizado": "2026-11-05T20:58:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -91,7 +91,7 @@
       "id": "M11",
       "nombre": "Planta 5: Atención al Cliente",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 7
     },
     {
@@ -129,7 +129,7 @@
     "jefes": 4,
     "armas": 3,
     "objetos": 53,
-    "plantillas_sala": 77,
+    "plantillas_sala": 83,
     "tests": 656,
     "tests_ok": 656,
     "partidas_bot": 100,
@@ -137,6 +137,12 @@
     "lineas_codigo": 24135
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T20:58:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (2b): seis salas de combate más de Atención al Cliente (Punto de Información, Pasillo de Mamparas, Zona de Autoservicio, Mesa de Formularios, Cola Preferente y Buzones de Sugerencias): la planta 5 tiene ya doce.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T20:28:00+01:00",
       "hito": "M11",
@@ -1004,6 +1010,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/atencion-preferente.png",
+      "pie": "Cola Preferente (Oro, Plata y Resto): tres carriles entre dos mostradores largos; se cambia de carril por los extremos o por el centro"
+    },
+    {
+      "archivo": "capturas/atencion-formularios.png",
+      "pie": "Mesa de Formularios (Rellene en Mayúsculas): hileras de pupitres fijos y mesitas sueltas que se vuelcan para hacer trinchera"
+    },
+    {
       "archivo": "capturas/atencion-contestador.png",
       "pie": "Planta 5: el enemigo que te ha herido queda grabado (parpadea en rojo), el Número de Turno avanza («Van por el 13») y el Contestador repite el disparo, más tenue"
     },
@@ -1018,17 +1032,9 @@
     {
       "archivo": "capturas/atencion-espera.png",
       "pie": "Sala de Espera (Su Turno Es el Siguiente): filas de sillas atornilladas que hacen de trinchera"
-    },
-    {
-      "archivo": "capturas/atencion-sala.png",
-      "pie": "Atención al Cliente (planta 5): linóleo azul petróleo, mostradores de ventanilla con mampara y número, la mesita de revistas, el buzón de reclamaciones y el cubo con «suelo mojado»"
-    },
-    {
-      "archivo": "capturas/atencion-entrada.png",
-      "pie": "La entrada de la planta 5: «Coja número», la línea amarilla que no lleva a ninguna parte, sillas de espera atornilladas y la pantalla que siempre dice A047"
     }
   ],
-  "proximo": "M11 (2b): seis plantillas de combate más de la planta 5.",
+  "proximo": "M11 (2c): las salas especiales propias de la planta 5 (Coja Número, Objetos Perdidos, Repuestos Originales, Grabaciones y la sala de la Centralita); o la (6b2) si otra sesión tiene cogidas las salas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1054,11 +1060,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 20:25",
-      "tarea": "M11 (2b): seis plantillas de combate más de la planta 5 (src/data/rooms.ts, tests/rooms.test.ts)",
-      "desde": "2026-11-05T20:25:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

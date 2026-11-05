@@ -416,7 +416,7 @@ aspecto). En partes, como M10:
   ventanilla con mampara, dispensadores de agua, pared con el cartel de la estrella y relojes, y
   persianas con «Ventanilla cerrada».
 - [x] (2a) Seis plantillas de combate propias de la planta 5, cada una con su idea y sus grupos.
-- [ ] (2b) Seis plantillas de combate más.
+- [x] (2b) Seis plantillas de combate más.
 - [ ] (2c) Las salas especiales propias (Coja Número, Objetos Perdidos, Repuestos Originales,
   Grabaciones con Fines de Calidad con su registro de llamadas, y la sala de la Centralita).
 - [ ] (3) Encadenar y cerrar: tras el Director se sube a la planta 5 con todo lo que se lleva
