@@ -426,7 +426,7 @@ aspecto). En partes, como M10:
     Calidad con su registro de llamadas (documento para el archivador).
   - [ ] (2c2) La sala de la Centralita, con sus cuatro mostradores bajos (paran balas y se cruzan
     rodando); va con la (5b), que es cuando hay jefa que pelee en ella.
-- [ ] (3) Encadenar y cerrar: tras el Director se sube a la planta 5 con todo lo que se lleva
+- [x] (3) Encadenar y cerrar: tras el Director se sube a la planta 5 con todo lo que se lleva
   (`LAST_LEVEL` = 5); hasta que llegue la Centralita, el Director pelea en su sala. Vencer al jefe
   de la planta 5 acaba la partida con victoria («Su incidencia ha sido cerrada») y vuelta al
   Mostrador, sin montacargas.

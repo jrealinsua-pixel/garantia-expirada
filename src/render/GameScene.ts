@@ -14,7 +14,7 @@ import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHA
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE } from '../data/texts.ts';
 import { SPECIAL_HEARTS } from '../data/hearts.ts';
 import { SURGE_HIT_LINE, SURGE_LINE, TURBO_END_LINE } from '../data/texts.ts';
-import { SHIELD_GONE_LINE, SHIELD_HIT_LINE, SHIELD_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
+import { RUN_WIN_HINT, RUN_WIN_STAMP, RUN_WIN_TITLE, runWinReport, SHIELD_GONE_LINE, SHIELD_HIT_LINE, SHIELD_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import {
   DOORS_OPEN_LINES,
   DOWN_HINT,
@@ -534,7 +534,7 @@ export class GameScene extends Phaser.Scene {
       this.runBefore = { seconds: 0, kills: 0 };
     }
     // ?planta=2: floor 2 (Informática): its look, its rooms and its loot. ?planta=3: the Juguetería. ?planta=4: the
-    // Oficinas. ?planta=5: Atención al Cliente (its look; until M11 (2) and (3) it borrows the Oficinas' rooms and boss).
+    // Oficinas. ?planta=5: Atención al Cliente, the last floor of a run (until La Centralita, M11 5b, the Director fights there).
     const level = Math.max(1, Math.min(5, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
     if (carried) {
       // Walked through a door: same run, next room. The controls hint was read already.
@@ -956,6 +956,14 @@ export class GameScene extends Phaser.Scene {
    */
   private showWinPanel(): void {
     const w = this.world;
+    if (w.finale) {
+      // The last floor (M11 3): the whole run is won and the incident closed, in Liquidación yellow.
+      const totalSeconds = Math.round(this.runBefore.seconds + w.tick * DT);
+      const info = { room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, floors: w.level, totalSeconds, totalKills: this.runBefore.kills + w.kills };
+      const done = runWinReport(info, (n) => this.fx.int(0, n - 1));
+      this.showForm(done, { title: RUN_WIN_TITLE, color: 0xd9932a, light: 0xfff1a8, stamp: RUN_WIN_STAMP, hint: RUN_WIN_HINT });
+      return;
+    }
     const next = w.level < LAST_LEVEL ? w.level + 1 : undefined;
     const lines = winReport({ room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, next }, (n) => this.fx.int(0, n - 1));
     this.showForm(lines, { title: WIN_TITLE, color: 0x3a9ea6, light: 0xb6f1f0, stamp: WIN_STAMP, hint: next ? WIN_HINT_NEXT : WIN_HINT });
@@ -2666,7 +2674,8 @@ export class GameScene extends Phaser.Scene {
         case 'floorDone':
           this.winT = 0;
           this.recordRun('floor');
-          this.sound2.play('ascensor');
+          // The last floor has no lift: the run is won where the toaster stands (M11 3).
+          this.sound2.play(e.final ? 'desbloquear' : 'ascensor');
           this.shake(200, 0.006, true);
           for (let i = 0; i < 8; i++) this.puff(e.x + this.fx.range(-20, 20), e.y + this.fx.range(-8, 8), 0.6);
           break;
@@ -3357,14 +3366,21 @@ export class GameScene extends Phaser.Scene {
     if (w.won && this.winT >= 0) {
       // Going down with the lift: it sinks into the shaft, hidden by the front edge of the hole.
       this.winT += dt;
-      const k = Math.min(1, this.winT / WIN_SINK);
-      const d = Math.round(k * k * 34);
-      const edge = (w.lift ? w.lift.y : p.y) + 13;
       this.hero.setFrame(0).setRotation(0).setScale(p.facing, 1);
-      this.hero.setY(Math.round(p.y) + d);
-      const rows = Math.max(0, Math.round(edge - (p.y + d - HERO_FEET_Y)));
-      this.hero.setCrop(0, 0, HERO_W, Math.min(HERO_H, rows));
-      this.hero.setVisible(rows > 0);
+      if (w.finale) {
+        // The last floor has no lift (M11 3): the toaster stays where it is and jumps twice.
+        const hop = this.winT < 1.2 ? Math.abs(Math.sin((this.winT / 0.6) * Math.PI)) : 0;
+        this.hero.setY(Math.round(p.y - hop * 6));
+        this.hero.setVisible(true);
+      } else {
+        const k = Math.min(1, this.winT / WIN_SINK);
+        const d = Math.round(k * k * 34);
+        const edge = (w.lift ? w.lift.y : p.y) + 13;
+        this.hero.setY(Math.round(p.y) + d);
+        const rows = Math.max(0, Math.round(edge - (p.y + d - HERO_FEET_Y)));
+        this.hero.setCrop(0, 0, HERO_W, Math.min(HERO_H, rows));
+        this.hero.setVisible(rows > 0);
+      }
       if (this.winT > WIN_REPORT && this.downPanel.length === 0) this.showWinPanel();
       if (this.canAskNewUnit()) {
         const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload;

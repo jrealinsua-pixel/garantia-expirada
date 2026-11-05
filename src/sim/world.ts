@@ -611,8 +611,11 @@ export type SimEvent =
   | { type: 'liftReady'; x: number; y: number }
   /** The toaster stepped on the Mostrador's conveyor: the hub is done and a run starts (see leaveHub). */
   | { type: 'leaveHub'; x: number; y: number }
-  /** The toaster stepped on the lift: the floor is done (see World.won). */
-  | { type: 'floorDone'; x: number; y: number; seconds: number; kills: number; coupons: number }
+  /**
+   * The toaster stepped on the lift: the floor is done (see World.won). `final`: there was no lift,
+   * this was the last floor of the run and its boss has fallen: the whole run is won (M11 3).
+   */
+  | { type: 'floorDone'; x: number; y: number; seconds: number; kills: number; coupons: number; final?: boolean }
   | { type: 'restock' }
   /** A cleared room left its reward: a ticket popped out, or a chest turned up. */
   | { type: 'reward'; reward: RoomReward; x: number; y: number; tier?: ChestTier }
@@ -710,7 +713,12 @@ export interface World {
   intro: BossIntro | null;
   /** The goods lift down to the next floor, once the boss has fallen. */
   lift: Lift | null;
-  /** The toaster took the lift: the floor is done and the world stands still. */
+  /**
+   * The last floor's boss has fallen (no lift there: the run ends on its own after FINALE_DELAY,
+   * time to pick up the coupons). Where it fell, and the seconds since.
+   */
+  finale?: { x: number; y: number; t: number } | null;
+  /** The toaster took the lift (or the last floor's boss fell): the floor is done and the world stands still. */
   won: boolean;
   /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
   holdT: number;
@@ -1025,8 +1033,19 @@ function updateBelt(w: World): void {
 /** How many rooms deeper each floor of the store starts (see planFloor): the enemy budget grows with it. */
 export const LEVEL_DEPTH = 3;
 
-/** The floors of the store that exist so far (1: the warehouse, 2: Informática, 3: Juguetería, 4: Oficinas). */
-export const LAST_LEVEL = 4;
+/**
+ * The floors of a normal run (1: the warehouse, 2: Informática, 3: Juguetería, 4: Oficinas, 5:
+ * Atención al Cliente). Beating the boss of the last one wins the run (M11 3).
+ */
+export const LAST_LEVEL = 5;
+
+/** Seconds from the last floor's boss falling to the run being won (the coupons burst out meanwhile). */
+export const FINALE_DELAY = 3;
+
+/** Whether this world is the last floor of a run: its boss leaves no lift, it ends the run. */
+export function isLastFloor(w: World): boolean {
+  return w.floor !== null && w.level >= LAST_LEVEL;
+}
 
 /**
  * The next floor of the same run, once this one is won (the toaster went down the lift): a new
@@ -3147,9 +3166,16 @@ function reapEnemies(w: World): void {
     const spot = n > 0 ? freeSpot(w, en.x, en.y, PICKUP_RADIUS) : { x: en.x, y: en.y };
     // A boss leaves the way down: the goods lift comes up where it stood, and its pile of
     // coupons bursts out all round, landing off the plate (not on top of the lift).
-    if (en.def.boss && w.lift === null) {
-      openLift(w, en.x, en.y);
-      const l = w.lift!;
+    if (en.def.boss && w.lift === null && !w.finale) {
+      // On the last floor there is no way down: the run is over (updateLift ends it).
+      let l: { x: number; y: number };
+      if (isLastFloor(w)) {
+        l = freeSpot(w, en.x, en.y, PICKUP_RADIUS);
+        w.finale = { x: l.x, y: l.y, t: 0 };
+      } else {
+        openLift(w, en.x, en.y);
+        l = w.lift!;
+      }
       for (let i = 0; i < n; i++) {
         const a = ((i + w.rng.range(0.2, 0.8)) / n) * Math.PI * 2;
         const far = w.rng.range(LIFT_HALF.x + 14, LIFT_HALF.x + 32);
@@ -3237,6 +3263,19 @@ export function onLift(l: Lift, x: number, y: number): boolean {
 }
 
 function updateLift(w: World): void {
+  const f = w.finale;
+  if (f && !w.over && !w.won) {
+    f.t += DT;
+    if (f.t >= FINALE_DELAY) {
+      const p = w.player;
+      w.won = true;
+      p.vx = 0;
+      p.vy = 0;
+      w.bullets = [];
+      w.emitters = [];
+      w.events.push({ type: 'floorDone', x: p.x, y: p.y, seconds: Math.round(w.tick * DT), kills: w.kills, coupons: p.coupons, final: true });
+    }
+  }
   const l = w.lift;
   if (!l || w.over) return;
   const was = l.t;
@@ -3845,5 +3884,6 @@ export function worldHash(w: World): string {
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));
   for (const k of w.ink) parts.push(k.x.toFixed(2), k.y.toFixed(2), k.t.toFixed(3));
   if (w.lift) parts.push(w.lift.x.toFixed(2), w.lift.y.toFixed(2), w.won ? 'won' : 'lift');
+  if (w.finale) parts.push(w.finale.t.toFixed(3), w.won ? 'won' : 'finale');
   return parts.join('|');
 }

@@ -444,8 +444,10 @@ export class Bot {
       if (k.price !== undefined || (k.kind === 'activo' && p.active)) continue;
       const d = Math.hypot(k.x - p.x, k.y - p.y);
       // With the room clear, only in a straight line: one behind a partition is floorGoal's, which
-      // steers round (in a fight the detour stays as it was, to keep the bot's numbers comparable).
-      if (d < near && (w.enemies.length > 0 || clearLine(w, p, k, p.def.footRadius))) {
+      // steers round. In a fight, as before but not through a wall: one on the other side of a
+      // partition that runs down to the wall had it walking into it for ever (M11 3, Pasillo de
+      // Mamparas).
+      if (d < near && clearLine(w, p, k, w.enemies.length > 0 ? 1 : p.def.footRadius)) {
         near = d;
         goal = { x: k.x, y: k.y };
       }

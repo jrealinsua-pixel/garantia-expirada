@@ -2,9 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fontText, textWidth } from '../src/art/font.ts';
 import { ROOMS } from '../src/data/rooms.ts';
-import { FLOOR_NAMES, WIN_HINT_NEXT, winReport } from '../src/data/texts.ts';
+import { ITEMS } from '../src/data/items.ts';
+import { FLOOR_NAMES, RUN_WIN_HINT, RUN_WIN_RESOLUTION, RUN_WIN_STAMP, RUN_WIN_TITLE, runWinReport, WIN_HINT_NEXT, winReport } from '../src/data/texts.ts';
 import { emptyProfile, recordFloor, recordRun } from '../src/sim/profile.ts';
-import { checkInvariants, createWorld, DT, giveItem, LAST_LEVEL, NO_INPUT, nextFloor, step } from '../src/sim/world.ts';
+import { BOSS_DEATH, checkInvariants, createWorld, DT, enterRoom, FINALE_DELAY, giveItem, isLastFloor, LAST_LEVEL, NO_INPUT, nextFloor, step } from '../src/sim/world.ts';
+import type { SimEvent } from '../src/sim/world.ts';
 
 test('encadenar plantas: tras ganar la planta 1 se sigue en la 2 con la misma tostadora', () => {
   const w = createWorld({ seed: 'cadena', floor: true });
@@ -124,4 +126,75 @@ test('el parte de planta superada no da por hecho si el jefe es jefa o jefe, y c
   const r = winReport({ room: 'Sala de Redes', seconds: 60, kills: 1, coupons: 1 }, () => 0).find((l) => l.label === 'Resultado')!.text;
   assert.doesNotMatch(r, /^Jef[ae] /, 'la Nevera es jefa y el Router, jefe');
   assert.ok(textWidth(fontText(r)) <= 210);
+});
+
+test('encadenar plantas: tras ganar la planta 4 se sube a Atención al Cliente, la última, con lo de abajo', () => {
+  assert.equal(LAST_LEVEL, 5);
+  const w = createWorld({ seed: 'cadena-5', floor: true, level: 4 });
+  w.player.coupons = 21;
+  w.player.items = ['pila'];
+  w.won = true;
+  const n = nextFloor(w)!;
+  assert.ok(n, 'la planta 4 ganada lleva a la 5');
+  assert.equal(n.level, 5);
+  assert.equal(n.player.coupons, 21);
+  assert.deepEqual(n.player.items, ['pila']);
+  assert.ok(isLastFloor(n) && !isLastFloor(w));
+  // Its own rooms, except the boss's: until La Centralita (M11 5b) the Director fights there.
+  for (const st of n.floor!.rooms) {
+    const t = ROOMS[st.template.id]!;
+    if (t.kind === 'boss') assert.equal(t.id, 'jefe-oficinas');
+    else assert.equal(t.level, 5, st.template.id);
+  }
+  // Its items are in the decks now (floor 5's own, M11 6a-6b).
+  const deck = [...n.floor!.items, ...n.floor!.actives];
+  assert.ok(deck.some((id) => ITEMS[id]?.level === 5), 'ningún objeto de la planta 5 en sus cofres');
+  assert.ok(FLOOR_NAMES[5], 'la planta 5 tiene nombre');
+  for (let i = 0; i < 3 / DT; i++) step(n, { ...NO_INPUT, moveX: i % 120 < 60 ? 1 : -1, fire: true });
+  assert.deepEqual(checkInvariants(n), []);
+});
+
+test('la última planta: su jefe no deja montacargas y la partida se gana sola al poco', () => {
+  const w = createWorld({ seed: 'final', floor: true, level: LAST_LEVEL });
+  const bossRoom = w.floor!.rooms.findIndex((st) => st.template.kind === 'boss');
+  enterRoom(w, bossRoom, 'S');
+  w.intro = null;
+  w.noDamage = true;
+  const boss = w.enemies.find((e) => e.def.boss)!;
+  assert.ok(boss, 'hay jefe');
+  boss.damageTaken = boss.def.hp;
+  const seen: SimEvent[] = [];
+  const run = (s: number): void => {
+    for (let i = 0; i < Math.ceil(s / DT) && !w.won; i++) {
+      step(w, NO_INPUT);
+      seen.push(...w.events);
+    }
+  };
+  run(BOSS_DEATH + 0.2);
+  assert.ok(!w.enemies.some((e) => e.def.boss), 'el jefe ha caído');
+  assert.equal(w.lift, null, 'no hay montacargas en la última planta');
+  assert.ok(w.finale, 'empieza el final');
+  assert.ok(!seen.some((e) => e.type === 'lift'));
+  assert.equal(w.won, false, 'aún no: primero salen los cupones');
+  const coupons = w.pickups.filter((k) => k.kind === 'cupon').length + w.player.coupons;
+  assert.ok(coupons >= 5, 'los cupones del jefe salen igual');
+  run(FINALE_DELAY + 0.5);
+  assert.equal(w.won, true);
+  const done = seen.find((e) => e.type === 'floorDone');
+  assert.ok(done && done.type === 'floorDone' && done.final === true, 'la partida entera ganada');
+  assert.ok(w.finale!.t >= FINALE_DELAY - DT && w.finale!.t <= FINALE_DELAY + DT);
+  // There is nothing upstairs: the run ends (and the hub comes next).
+  assert.equal(nextFloor(w), null);
+  assert.deepEqual(checkInvariants(w), []);
+});
+
+test('el parte de la partida ganada: «Su incidencia ha sido cerrada», y cabe en el formulario', () => {
+  for (let k = 0; k < 6; k++) {
+    const lines = runWinReport({ room: 'Sala de Juntas (Aquí No Se Decide Nada)', seconds: 300, kills: 40, coupons: 61, floors: 5, totalSeconds: 3125, totalKills: 412 }, (n) => k % n);
+    assert.equal(lines.length, 6);
+    assert.ok(lines.every((l) => l.text.length > 0));
+    assert.match(lines[3]!.text, /5 plantas · 52:05 · Bajas: 412 · Cupones: 61/);
+  }
+  assert.equal(RUN_WIN_TITLE, 'Su incidencia ha sido cerrada');
+  for (const s of [RUN_WIN_TITLE, RUN_WIN_STAMP, RUN_WIN_HINT, ...RUN_WIN_RESOLUTION]) assert.ok(textWidth(fontText(s)) <= 210, s);
 });

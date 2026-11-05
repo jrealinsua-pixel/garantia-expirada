@@ -224,7 +224,16 @@ try {
   // Put them under the toaster (12 px to one side could be inside a wall when the fight has pushed it
   // against one), still (they may be sliding from the drop) and ready to be picked up.
   const dropped = await page.evaluate<string>(`JSON.stringify(window.__GE__.scene.world.pickups.map((k) => [k.kind, Math.round(k.x), Math.round(k.y), k.age.toFixed(2)]))`);
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const k of w.pickups) { k.x = w.player.x; k.y = w.player.y; k.vx = 0; k.vy = 0; k.age = Math.max(k.age, 1); } })()`);
+  // In the Sala de Pruebas the enemies move in real time: now and then the kill was another one,
+  // with no coupons (the weapons on their pedestals are pickups too, so the check above passes).
+  // The pickup is what is tested here: then two coupons are dropped by hand (M11 3).
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.pickups.some((k) => k.kind === 'cupon')"))) {
+    console.log(`Sin cupones en el suelo tras la baja (${dropped}): se ponen dos a mano.`);
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world;
+      for (let i = 0; i < 2; i++) w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: w.player.x, y: w.player.y, vx: 0, vy: 0, age: 1 }); })()`);
+  }
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world;
+    for (const k of w.pickups) if (k.kind === 'cupon') { k.x = w.player.x; k.y = w.player.y; k.vx = 0; k.vy = 0; k.age = Math.max(k.age, 1); } })()`);
   await page.waitForFunction('window.__GE__.state().coupons > 0', undefined, { timeout: 2500 }).catch(() => undefined);
   if ((await state()).coupons === 0) {
     const dbg = await page.evaluate<string>(`(() => { const w = window.__GE__.scene.world;
@@ -1356,6 +1365,25 @@ try {
   await page.waitForTimeout(400);
   await page.keyboard.press('r');
   await page.waitForFunction('window.__GE__.state().ready && !window.__GE__.state().won', undefined, { timeout: 5000 });
+
+  // M11 (3): the last floor has no lift. Its boss falling (here set off by hand: the fall itself is
+  // tested in tests/plantas.test.ts) wins the whole run a moment later, where the toaster stands:
+  // «Su incidencia ha sido cerrada».
+  await page.goto(`${url}?semilla=e2e-final&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  // The win goes into the player's record: put the record back afterwards (it is checked later on).
+  const recordBefore = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/perfil')");
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = []; w.finale = { x: w.player.x, y: w.player.y, t: 0 }; })()`);
+  await page.waitForFunction('window.__GE__.state().won', undefined, { timeout: 6000 });
+  if (await page.evaluate<boolean>('!!window.__GE__.scene.world.lift')) throw new Error('En la última planta ha salido un montacargas');
+  await page.waitForFunction('window.__GE__.state().report.length > 0', undefined, { timeout: 5000 });
+  await page.waitForTimeout(900);
+  await shot('17q-partida-ganada.png');
+  const final = await state();
+  if (!final.report.some((l: string) => l.includes('plantas'))) throw new Error(`El parte de la partida ganada no es el suyo: ${final.report.join(' | ')}`);
+  console.log(`Partida ganada: ${final.report.join(' | ')}`);
+  await page.evaluate(`(() => { const r = ${JSON.stringify(recordBefore)}; const key = 'garantia-expirada/perfil';
+    if (r === null) localStorage.removeItem(key); else localStorage.setItem(key, r); })()`);
 
   // M5: modifiers. In the test room the toaster gets three bullets per shot, bigger and bouncing,
   // and a longer magazine (the HUD grows a second row of pips).

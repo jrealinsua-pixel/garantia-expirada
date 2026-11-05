@@ -213,6 +213,7 @@ export const FLOOR_NAMES: Record<number, string> = {
   2: 'Planta 2: Informática. Cobertura limitada.',
   3: 'Planta 3: Juguetería. Edad recomendada: ninguna.',
   4: 'Planta 4: Oficinas. Horario flexible: siempre.',
+  5: 'Planta 5: Atención al Cliente. Espere su turno.',
 };
 /** Neutral on purpose: the boss of a floor may be the Nevera (she), the Router (he) or whoever comes next. */
 export const WIN_RESULT = 'Jefatura de planta dada de baja';
@@ -223,6 +224,23 @@ export const WIN_NEXT: readonly string[] = [
   'Pendiente de licitación.',
   'Cerrada por inventario.',
   'Disponible próximamente. Sin fecha.',
+];
+
+/**
+ * The whole run won: the last floor's boss has fallen (M11 3). The same form, closing the
+ * incident that opened when the toaster was thrown away.
+ */
+export const RUN_WIN_TITLE = 'Su incidencia ha sido cerrada';
+export const RUN_WIN_STAMP = 'Incidencia cerrada';
+export const RUN_WIN_HINT = 'R o clic: volver al Mostrador';
+export const RUN_WIN_RESULT = 'Garantía restablecida. Sin efectos retroactivos';
+/** «Resolución»: how the company closes it (a different one each time; none of them helps). */
+export const RUN_WIN_RESOLUTION: readonly string[] = [
+  'Su producto será reacondicionado y vendido otra vez.',
+  'Se ha resuelto su incidencia. No nos consta cuál era.',
+  'Caso cerrado por satisfacción presunta del cliente.',
+  'Le enviaremos una encuesta. No cambiará nada.',
+  'Su reclamación se archivará en la extensión 0.',
 ];
 
 /** «Nota de la empresa»: a different joke each time. */
@@ -252,6 +270,18 @@ export function winReport(info: WinReportInfo, pick: (n: number) => number): { l
     { label: 'Sala', text: info.room },
     { label: 'Jornada', text: `${clock(info.seconds)} · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
     { label: 'Siguiente', text: (info.next !== undefined ? FLOOR_NAMES[info.next] : undefined) ?? WIN_NEXT[pick(WIN_NEXT.length)]! },
+    { label: 'Nota de la empresa', text: WIN_NOTES[pick(WIN_NOTES.length)]! },
+  ];
+}
+
+/** The lines of the run-won report (the last floor's boss has fallen), same layout as the others. */
+export function runWinReport(info: WinReportInfo & { floors: number; totalSeconds: number; totalKills: number }, pick: (n: number) => number): { label: string; text: string }[] {
+  return [
+    { label: 'Unidad', text: DOWN_UNIT },
+    { label: 'Resultado', text: RUN_WIN_RESULT },
+    { label: 'Sala', text: info.room },
+    { label: 'Expediente', text: `${info.floors} plantas · ${clock(info.totalSeconds)} · Bajas: ${info.totalKills} · Cupones: ${info.coupons}` },
+    { label: 'Resolución', text: RUN_WIN_RESOLUTION[pick(RUN_WIN_RESOLUTION.length)]! },
     { label: 'Nota de la empresa', text: WIN_NOTES[pick(WIN_NOTES.length)]! },
   ];
 }

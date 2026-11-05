@@ -2062,7 +2062,8 @@ export const SLOT_ENEMIES_4: readonly SlotEnemy[] = [
  * three-year-old, so they take a third more; the Oficinas, where a run arrives loaded with items,
  * more still. Floors 1 and 2 as they were. Measured with `node tools/medir-plantas.ts`.
  */
-export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.5 };
+// Atención al Cliente (5) starts as hard as the Oficinas (M11 3); its own measure is M11 (7).
+export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.5, 5: 1.5 };
 
 /** The life of a room enemy on floor `level` (bosses keep theirs: they are measured one by one). */
 export function toughened<T extends { hp: number; brain: { kind: string } }>(def: T, level: number): T {

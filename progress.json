@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T23:58:00+01:00",
+  "actualizado": "2026-11-06T00:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 55,
     "plantillas_sala": 87,
-    "tests": 675,
-    "tests_ok": 675,
+    "tests": 678,
+    "tests_ok": 678,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 24586
+    "lineas_codigo": 24671
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-06T00:20:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (3): la partida tiene ya cinco plantas: tras el Director se sube a Atención al Cliente con todo lo que se lleva, y vencer a su jefe (el Director, hasta que llegue la Centralita) cierra la partida sin montacargas: «Su incidencia ha sido cerrada» y vuelta al Mostrador.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T23:58:00+01:00",
       "hito": "M11",
@@ -1034,6 +1040,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/partida-ganada.png",
+      "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
+    },
+    {
       "archivo": "capturas/clientela-sala.png",
       "pie": "Los cuatro enemigos de Atención al Cliente en la Cola Preferente: el Dispensador llama un turno y escupe tiques, los Postes tienden la cinta, el Asistente se escuda con sus preguntas frecuentes y el Teléfono suena; en el suelo, un círculo de turno llamado y otro atendido"
     },
@@ -1052,13 +1062,9 @@
     {
       "archivo": "capturas/atencion-reclamaciones.png",
       "pie": "Hoja de Reclamaciones: la tostadora dispara hacia el otro lado y la copia rosa da la vuelta tras quien la ha herido («Reclamación presentada»); encima, la Valoración va por 3 de 5 estrellas"
-    },
-    {
-      "archivo": "capturas/atencion-secreta.png",
-      "pie": "Grabaciones con Fines de Calidad, la secreta de la planta 5: en el suelo, el Registro de llamadas (todas acaban en la extensión 0)"
     }
   ],
-  "proximo": "M11 (3) si la otra sesión no la ha cerrado; si no, (4a) el Dispensador de Turnos en el juego con sus sprites ya hechos (luego 4b-4d), o (5b) las fases 1 y 2 de la Centralita con su sala (2c2), o las armas (6c1)-(6c2).",
+  "proximo": "M11 (5b): las fases 1 y 2 de la Centralita con su sala (2c2); o los enemigos (4a)–(4d), las armas (6c1)–(6c2) o la medida (7).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1068,7 +1074,7 @@
       "M9": 10,
       "M9b": 16,
       "M10": 0,
-      "M11": 20,
+      "M11": 19,
       "M12": 12,
       "M13": 14,
       "M14": 30,
@@ -1085,11 +1091,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-05 23:02",
-      "tarea": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y el final de la partida (src/sim/world.ts, src/render/GameScene.ts, src/data/texts.ts, tools/bot.ts, tools/medir-plantas.ts, tests/plantas.test.ts)",
-      "desde": "2026-11-05T23:02:00+01:00"
-    },
     {
       "sesion": "2026-11-06 00:28",
       "tarea": "M11 (6c2): el Megáfono de Reclamaciones (src/data/weapons.ts, src/data/types.ts, tools/sprites/, sonido en src/audio/synth.ts, una línea de lootDecks en src/sim/world.ts para que las armas de la planta 5 salgan solo allí, tests/armas.test.ts)",
