@@ -50,6 +50,8 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (b?.bounce) out.push({ text: `Rebota ${b.bounce} ${b.bounce === 1 ? 'vez' : 'veces'}`, good: true });
   if (b?.homing) out.push({ text: 'Balas que persiguen', good: true });
   if (b?.slow) out.push({ text: `Frena a quien toca un ${Math.round((1 - b.slow.mul) * 100)} % durante ${String(b.slow.time).replace('.', ',')} s`, good: true });
+  if (b?.last?.mul) out.push({ text: `La última bala del cargador: daño ×${b.last.mul}`, good: true });
+  if (b?.last?.pierce) out.push({ text: b.last.pierce >= 10 ? 'La última bala atraviesa a todos' : `La última bala atraviesa ${b.last.pierce} más`, good: true });
   if (b?.crit) out.push({ text: `${Math.round(b.crit.chance * 100)} % de balas con daño ×${String(b.crit.mul).replace('.', ',')}`, good: true });
   const k = m.perks;
   if (k?.charge) out.push({ text: `+${k.charge} ${k.charge === 1 ? 'pila' : 'pilas'} por sala limpia`, good: true });
@@ -57,6 +59,8 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (k?.rollClear) out.push({ text: 'La voltereta corta balas', good: true });
   if (k?.rush) out.push({ text: `Tras recargar: cadencia +${Math.round((k.rush.mul - 1) * 100)} % durante ${String(k.rush.time).replace('.', ',')} s`, good: true });
   if (k?.shrug) out.push({ text: `${Math.round(k.shrug * 100)} % de golpes que no hacen daño`, good: true });
+  if (k?.freeChests) out.push({ text: `${k.freeChests === 1 ? 'Un cofre' : `${k.freeChests} cofres`} por planta sin ticket`, good: true });
+  if (k?.hurtRing) out.push({ text: `Al recibir un golpe suelta ${k.hurtRing} balas en corro`, good: true });
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

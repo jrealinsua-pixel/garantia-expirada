@@ -64,6 +64,11 @@ export interface BulletBehaviour {
    * glitter): they skip one tick in every 1 / (1 − mul). The strongest wins.
    */
   slow?: { mul: number; time: number };
+  /**
+   * The last bullet of each magazine (Pegatina de Edición Limitada): `mul` times the damage (the
+   * biggest wins) and `pierce` more enemies to go through (they add up).
+   */
+  last?: { mul?: number; pierce?: number };
 }
 
 /**
@@ -82,6 +87,10 @@ export interface Perks {
   rush?: { mul: number; time: number };
   /** Chance (0–1) that a hit does nothing at all («Era solo la caja»). They add up, to 0.5 at most. */
   shrug?: number;
+  /** Chests per floor that open without a ticket (Llave Allen Sobrante). They add up. */
+  freeChests?: number;
+  /** When hurt, a ring of this many of its own bullets goes out from the toaster (the strongest wins). */
+  hurtRing?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

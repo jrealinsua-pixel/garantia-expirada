@@ -1,15 +1,16 @@
-// Los cinco primeros objetos de la planta 3 (M10 6a): Pilas No Incluidas, Muelle de Juguete, Bote
-// de Purpurina, Juguete del Menú Infantil y Caja de Cartón Vacía. Cada uno hace lo que dice su ficha.
+// Los objetos de la planta 3 (M10 6a y 6b1): Pilas No Incluidas, Muelle de Juguete, Bote de
+// Purpurina, Juguete del Menú Infantil, Caja de Cartón Vacía, Pegatina de Edición Limitada, Llave
+// Allen Sobrante y Mando con Vibración; y la sinergia Unboxing. Cada uno hace lo que dice su ficha.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { ITEMS, itemsUpTo } from '../src/data/items.ts';
 import { modifierLines } from '../src/data/describe.ts';
-import { createWorld, DT, giveItem, HAND_HEIGHT, hurtPlayer, NO_INPUT, spawnEnemy, step, worldHash, type Input, type World } from '../src/sim/world.ts';
+import { createWorld, DT, giveItem, HAND_HEIGHT, hurtPlayer, NO_INPUT, placeChest, spawnEnemy, step, worldHash, type Input, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
 const fireAt = (x: number, y: number): Input => ({ ...NO_INPUT, fire: true, aimX: x, aimY: y });
-const OWN = ['pilas-no-incluidas', 'muelle', 'purpurina', 'menu-infantil', 'caja-vacia'];
+const OWN = ['pilas-no-incluidas', 'muelle', 'purpurina', 'menu-infantil', 'caja-vacia', 'pegatina', 'llave-allen', 'mando-vibracion'];
 
 /** The test room with nothing in the way (as in objetos.test.ts). */
 function bare(seed: string, ...items: string[]): World {
@@ -160,12 +161,83 @@ test('Caja de Cartón Vacía: uno de cada cinco golpes no hace nada («Era solo 
   assert.ok(!b.events.some((e) => e.type === 'shrug'));
 });
 
-test('con los cinco a la vez la partida sigue siendo determinista', () => {
+test('con todos a la vez la partida sigue siendo determinista', () => {
   const run = (): string => {
-    const w = bare('cinco', ...OWN);
+    const w = bare('todos3', ...OWN);
     w.enemies.push(spawnEnemy(w.nextId++, ENEMIES.aspirador!, 400, 200));
     for (let i = 0; i < ticks(4); i++) step(w, { ...fireAt(400, 150), roll: i % 90 === 0, moveY: i % 120 < 60 ? 1 : -1 });
     return worldHash(w);
   };
   assert.equal(run(), run());
+});
+
+test('Pegatina de Edición Limitada: la última bala del cargador hace el triple, y con la caja (Unboxing) atraviesa a todos', () => {
+  const lastOf = (w: World): { damage: number; pierce: number; limited: boolean } => {
+    w.player.weapon.ammo = 1;
+    step(w, fireAt(w.player.x + 100, w.player.y - HAND_HEIGHT));
+    const b = w.bullets.filter((x) => x.owner === 'player').at(-1)!;
+    return { damage: b.damage, pierce: b.pierce ?? 0, limited: !!b.limited };
+  };
+  const plain = lastOf(bare('pegatina'));
+  const limited = lastOf(bare('pegatina', 'pegatina'));
+  assert.ok(Math.abs(limited.damage - plain.damage * 3) < 1e-9 && limited.limited && !plain.limited);
+  // The others are ordinary.
+  const w = bare('pegatina', 'pegatina');
+  step(w, fireAt(w.player.x + 100, w.player.y - HAND_HEIGHT));
+  const first = w.bullets.find((x) => x.owner === 'player')!;
+  assert.ok(!first.limited && Math.abs(first.damage - plain.damage) < 1e-9);
+  // Unboxing: the empty box and the sticker.
+  const both = bare('unboxing', 'caja-vacia', 'pegatina');
+  assert.ok(both.player.synergies.includes('unboxing'));
+  const u = lastOf(both);
+  assert.ok(u.pierce >= 10 && Math.abs(u.damage - plain.damage * 3) < 1e-9, JSON.stringify(u));
+});
+
+test('Llave Allen Sobrante: un cofre por planta se abre sin ticket (y antes que gastar uno)', () => {
+  const w = bare('allen', 'llave-allen');
+  w.player.tickets = 0;
+  const chests = [placeChest(w, 200, 120, false, 'carton'), placeChest(w, 320, 120, false, 'carton')];
+  const openAt = (c: (typeof chests)[number]): boolean => {
+    w.player.x = c.x;
+    w.player.y = c.y + 8;
+    for (let i = 0; i < 3; i++) step(w, { ...NO_INPUT, interact: i === 1 });
+    return !!c.chest!.open;
+  };
+  assert.ok(openAt(chests[0]!), 'el primero se abre sin ticket');
+  assert.ok(!openAt(chests[1]!), 'el segundo ya no');
+  w.player.tickets = 1;
+  assert.ok(openAt(chests[1]!) && w.player.tickets === 0, 'con ticket, sí');
+  // A new floor, a new spare key; and without the key a chest needs a ticket.
+  const f = createWorld({ seed: 'allen-planta', floor: true, level: 3 });
+  assert.equal(f.floor!.freeChests ?? 0, 0);
+});
+
+test('Mando con Vibración: cada golpe suelta un corro de diez balas propias', () => {
+  const w = bare('mando', 'mando-vibracion');
+  w.noDamage = false;
+  w.player.invulnerable = 0;
+  const before = w.bullets.filter((b) => b.owner === 'player').length;
+  assert.ok(hurtPlayer(w, 1, -1, 1, 0));
+  assert.ok(w.events.some((e) => e.type === 'hurtRing'));
+  step(w, NO_INPUT);
+  const ring = w.bullets.filter((b) => b.owner === 'player').length - before;
+  assert.equal(ring, 10);
+  // Hurt by a real bullet (in the middle of the bullet update), the ring still comes out.
+  const v = bare('mando-bala', 'mando-vibracion');
+  v.noDamage = false;
+  v.player.invulnerable = 0;
+  const p = v.player;
+  v.bullets.push({
+    id: v.nextId++, owner: 'enemy', x: p.x - 20, y: p.y - 9, vx: 140, vy: 0, r: 2.5, life: 3, damage: 1, knockback: 0,
+    color: 'red', age: 0, dir: 0, speed: 140, h: 9, by: 'microondas',
+  });
+  for (let i = 0; i < ticks(0.4); i++) step(v, NO_INPUT);
+  assert.ok(v.player.hp < v.player.def.maxHp, 'le da');
+  assert.ok(v.bullets.filter((b) => b.owner === 'player').length >= 8, 'y sale el corro');
+  // Without it, nothing.
+  const b = bare('mando');
+  b.noDamage = false;
+  b.player.invulnerable = 0;
+  hurtPlayer(b, 1, -1, 1, 0);
+  assert.equal(b.bullets.filter((x) => x.owner === 'player').length, 0);
 });

@@ -73,13 +73,18 @@ export function bulletBehaviour(mods: readonly Modifier[]): BulletBehaviour | nu
     // Critical hits: the chances add up (to 1 at most), the biggest multiplier wins.
     if (b.crit) out.crit = { chance: Math.min(1, (out.crit?.chance ?? 0) + b.crit.chance), mul: Math.max(out.crit?.mul ?? 1, b.crit.mul) };
     if (b.slow && (!out.slow || b.slow.mul < out.slow.mul)) out.slow = { ...b.slow };
+    if (b.last) {
+      const mul = Math.max(out.last?.mul ?? 1, b.last.mul ?? 1);
+      const pierce = (out.last?.pierce ?? 0) + (b.last.pierce ?? 0);
+      out.last = { ...(mul > 1 ? { mul } : {}), ...(pierce > 0 ? { pierce } : {}) };
+    }
   }
   return Object.keys(out).length ? out : null;
 }
 
 /** All the modifiers' perks added up (chances to 1 at most). */
 export function perksOf(mods: readonly Modifier[]): Required<Perks> {
-  const out: Required<Perks> = { charge: 0, coupons: 0, rollClear: false, revive: 0, rush: { mul: 1, time: 0 }, shrug: 0 };
+  const out: Required<Perks> = { charge: 0, coupons: 0, rollClear: false, revive: 0, rush: { mul: 1, time: 0 }, shrug: 0, freeChests: 0, hurtRing: 0 };
   for (const m of mods) {
     out.charge += m.perks?.charge ?? 0;
     out.coupons += m.perks?.coupons ?? 0;
@@ -88,6 +93,8 @@ export function perksOf(mods: readonly Modifier[]): Required<Perks> {
     const r = m.perks?.rush;
     if (r && r.mul > out.rush.mul) out.rush = { ...r };
     out.shrug += m.perks?.shrug ?? 0;
+    out.freeChests += m.perks?.freeChests ?? 0;
+    out.hurtRing = Math.max(out.hurtRing, m.perks?.hurtRing ?? 0);
   }
   out.coupons = Math.min(1, out.coupons);
   out.shrug = Math.min(SHRUG_MAX, out.shrug);

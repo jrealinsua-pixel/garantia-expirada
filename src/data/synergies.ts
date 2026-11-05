@@ -64,4 +64,13 @@ export const SYNERGIES: Record<string, SynergyDef> = {
     // The update's slow reload is cancelled out (1.6 × 0.625 = 1).
     mod: { id: 'conflicto', stats: [{ stat: 'reloadTime', mul: 0.625 }] },
   },
+  // M10 (6b1): the empty box and the limited-edition sticker.
+  unboxing: {
+    id: 'unboxing',
+    name: 'Unboxing',
+    text: 'Abrirlo le quita la mitad del valor. Grabarlo se lo devuelve.',
+    items: ['caja-vacia', 'pegatina'],
+    // The sticker's last bullet goes through everyone in its way.
+    mod: { id: 'unboxing', bullets: { last: { pierce: 99 } } },
+  },
 };

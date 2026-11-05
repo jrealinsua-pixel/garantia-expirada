@@ -286,6 +286,8 @@ export const CHEST_LOCKED_LINES: readonly string[] = [
   'Sin justificante no consta la compra',
   'Vuelva con el ticket. Y con paciencia',
 ];
+/** Llave Allen Sobrante (M10 6b1): a chest opened without a ticket. */
+export const ALLEN_LINE = 'Sobraba una pieza';
 export const CHEST_OPEN_LINES: readonly string[] = [
   'Devolución aceptada',
   'Reembolso en especie',

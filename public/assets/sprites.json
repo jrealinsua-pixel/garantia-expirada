@@ -814,5 +814,23 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-pegatina": {
+    "file": "objeto-pegatina.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-llave-allen": {
+    "file": "objeto-llave-allen.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-mando-vibracion": {
+    "file": "objeto-mando-vibracion.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

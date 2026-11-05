@@ -349,7 +349,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - 10 objetos nuevos, en partes:
     - [x] (6a) Cinco de cifras o casi: Pilas No Incluidas, Muelle de Juguete, Bote de Purpurina, Juguete
       del Menú Infantil y Caja de Cartón Vacía.
-    - [ ] (6b1) Tres con efectos nuevos: Pegatina de Edición Limitada, Llave Allen Sobrante y Mando
+    - [x] (6b1) Tres con efectos nuevos: Pegatina de Edición Limitada, Llave Allen Sobrante y Mando
       con Vibración; y la sinergia Unboxing (con la Caja de Cartón Vacía).
     - [ ] (6b2) Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades.
   - [ ] (7) La planta 3 medida con el bot y ajustada para que sea el muro: el bot con daño la

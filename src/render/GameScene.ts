@@ -33,6 +33,7 @@ import {
   ALERT_LINE,
   REVIVE_LINE,
   SHRUG_LINE,
+  ALLEN_LINE,
   TURBO_LINE,
   archiveHint,
   hubHint,
@@ -1770,6 +1771,11 @@ export class GameScene extends Phaser.Scene {
           this.shake(50, look?.shake ?? 0.0025, true);
           this.sound2.play(look?.sound ?? 'disparo', { detune: this.fx.range(-150, 150) });
           if (e.weapon === 'secador') this.sound2.play('disparoTono', { detune: this.fx.range(-100, 100) });
+          // The limited edition's last bullet: a collector's chime and a bigger kick.
+          if (e.limited) {
+            this.sound2.play('clinc', { detune: 700 });
+            this.gunKick = 5;
+          }
           if (e.weapon === 'plancha') {
             // A cloud of steam at the soleplate and a heavier kick.
             this.sound2.play('vaporGolpe');
@@ -1825,6 +1831,11 @@ export class GameScene extends Phaser.Scene {
           // Pilas No Incluidas: borrowed batteries in, a zap and a few sparks off the gun.
           this.sound2.play('pila', { detune: 500 });
           for (let i = 0; i < 6; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1, 0xf6c431);
+          break;
+        case 'hurtRing':
+          // Mando con Vibración: the toaster buzzes and its bullets go out all round.
+          this.sound2.play('zumbido', { detune: 400, volume: 0.6 });
+          this.shake(90, 0.005);
           break;
         case 'shrug':
           // Caja de Cartón Vacía: the blow lands on cardboard. A dull thud, scraps, and the line.
@@ -2120,9 +2131,10 @@ export class GameScene extends Phaser.Scene {
             this.sound2.play('sello');
             this.sound2.play('desbloquear');
             for (let i = 0; i < 16; i++) this.spark(e.x + this.fx.range(-8, 8), e.y - 14, -Math.PI / 2 + this.fx.range(-1.2, 1.2), this.fx.range(50, 130), 1);
-            this.floatText(e.x, e.y - 30, fontText(this.fx.pick(CHEST_OPEN_LINES)), 0xf6c431);
+            // With the spare Allen key, its own line (and no ticket swallowed).
+            this.floatText(e.x, e.y - 30, fontText(e.allen ? ALLEN_LINE : this.fx.pick(CHEST_OPEN_LINES)), 0xf6c431);
             this.shake(80, 0.004, true);
-            this.ticketPop = 0.3;
+            if (!e.allen) this.ticketPop = 0.3;
           } else {
             // Locked: a flat buzz, the light blinks and the ticket counter shakes.
             this.sound2.play('vacio');
@@ -3252,6 +3264,11 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'accessory' && b.owner === 'enemy') s.setFrame((b.id % 2) * 4 + (Math.floor(this.time.now / 75 + b.id) % 4));
       // The sale stickers turn a quarter at a time as they peel off.
       if (b.color === 'sticker' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 4);
+      // The limited edition's last bullet: bigger and gold, glinting.
+      if (b.limited) {
+        size *= 1.5;
+        s.setTint(Math.floor(this.time.now / 60) % 2 ? 0xf6c431 : 0xfff4a8);
+      }
       const sc = (b.life < 0.15 ? 0.6 : 1) * size;
       s.setScale(sc);
     }

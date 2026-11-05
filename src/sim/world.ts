@@ -227,6 +227,8 @@ export interface Bullet {
   weapon?: string;
   /** Player bullets: a critical hit (its damage is already multiplied). */
   crit?: boolean;
+  /** Player bullets: the last of the magazine with the limited-edition sticker (BulletBehaviour.last). */
+  limited?: boolean;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
   /**
@@ -417,7 +419,7 @@ export const BRICK_RADIUS = 5;
 export type SimEvent =
   /** The interact button at a station of the Mostrador: it talks (or opens its panel). */
   | { type: 'interact'; station: StationKind }
-  | { type: 'shot'; x: number; y: number; angle: number; weapon: string }
+  | { type: 'shot'; x: number; y: number; angle: number; weapon: string; limited?: boolean }
   | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number; crit?: boolean }
   | { type: 'bulletWall'; x: number; y: number; angle: number; bounced?: boolean }
   /** The player's modifiers changed (an item picked up or lost): its stats are recomputed. */
@@ -500,7 +502,9 @@ export type SimEvent =
   /** A cleared room left its reward: a ticket popped out, or a chest turned up. */
   | { type: 'reward'; reward: RoomReward; x: number; y: number; tier?: ChestTier }
   /** Walked into a shut chest: opened with a ticket (`item` is what came out), or locked (no ticket). */
-  | { type: 'chest'; x: number; y: number; opened: boolean; tickets: number; item?: string; tier?: ChestTier }
+  | { type: 'chest'; x: number; y: number; opened: boolean; tickets: number; item?: string; tier?: ChestTier; allen?: boolean }
+  /** Mando con Vibración: hurt, the toaster shakes out a ring of its own bullets. */
+  | { type: 'hurtRing'; x: number; y: number; count: number }
   /** Walked onto something for sale: bought it (`left` coupons after paying), or not (too poor, or a heart with all its life). */
   | { type: 'shop'; x: number; y: number; outcome: 'bought' | 'poor' | 'full'; good: PickupKind; price: number; left: number; item?: string }
   /** The active item was used (`effect` is its effect's type). */
@@ -589,6 +593,13 @@ export interface World {
   vacuum?: boolean;
   /** The Mostrador: the toaster stepped on the conveyor, the hub stands still and a run is due (see leaveHub). */
   leftHub: boolean;
+  /** A single room (no floor): chests opened without a ticket in it (see FloorRun.freeChests). */
+  freeChests?: number;
+  /**
+   * Bullets born in the middle of the bullet update (the Mando con Vibración's ring, when a bullet
+   * hurts the toaster): they join the others once it is over (see step).
+   */
+  pendingBullets?: Bullet[];
 }
 
 export interface Lift {
@@ -693,6 +704,8 @@ export interface FloorRun {
   items: string[];
   /** Active items still to be found on this floor (a seeded shuffle of FINDABLE_ACTIVES). */
   actives: string[];
+  /** Chests opened without a ticket on this floor (Perks.freeChests, the Allen key). */
+  freeChests?: number;
 }
 
 /** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
@@ -1586,6 +1599,8 @@ function updateWeapon(w: World, input: Input): void {
     w.events.push({ type: 'empty' }, { type: 'reloadStart', time: def.reloadTime });
     return;
   }
+  // The limited-edition sticker: the last bullet of the magazine (before it goes down).
+  const lastOne = ws.ammo === 1 && def.bullets?.last ? def.bullets.last : undefined;
   ws.ammo--;
   ws.cooldown = 1 / (def.fireRate * ((p.rushT ?? 0) > 0 ? playerPerks(p).rush.mul : 1));
   const pivot = gunPivot(p);
@@ -1616,10 +1631,16 @@ function updateWeapon(w: World, input: Input): void {
       ...shotBehaviour(def.bullets),
       ...(isCrit ? { crit: true } : {}),
     });
+    if (lastOne) {
+      const b = w.bullets[w.bullets.length - 1]!;
+      b.damage *= lastOne.mul ?? 1;
+      if (lastOne.pierce) b.pierce = (b.pierce ?? 0) + lastOne.pierce;
+      b.limited = true;
+    }
   }
   p.vx -= Math.cos(p.aim) * def.recoil;
   p.vy -= Math.sin(p.aim) * def.recoil;
-  w.events.push({ type: 'shot', x: mx, y: my, angle: p.aim, weapon: def.id });
+  w.events.push({ type: 'shot', x: mx, y: my, angle: p.aim, weapon: def.id, ...(lastOne ? { limited: true } : {}) });
   if (ws.ammo === 0) {
     ws.reload = def.reloadTime;
     w.events.push({ type: 'reloadStart', time: def.reloadTime });
@@ -2235,6 +2256,9 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
     else keep.push(b);
   }
   w.bullets = keep;
+  // Mando con Vibración: the blow shakes a ring of its own bullets out of the toaster.
+  const ring = playerPerks(p).hurtRing;
+  if (ring > 0 && p.hp > 0) hurtRing(w, ring);
   // A backup: once, instead of going down, the toaster is restored (and the backup is used up).
   const backup = p.hp <= 0 ? p.mods.find((m) => (m.perks?.revive ?? 0) > 0) : undefined;
   if (backup) {
@@ -2802,6 +2826,36 @@ function decksOf(w: World): { weapons: string[]; items: string[]; actives: strin
 }
 
 /**
+ * A ring of `n` of the toaster's own bullets (its weapon's damage, a short reach) from where it
+ * stands (Perks.hurtRing).
+ */
+function hurtRing(w: World, n: number): void {
+  const p = w.player;
+  const def = p.weapon.def;
+  const y = p.y - HAND_HEIGHT;
+  const off = w.rng.range(0, Math.PI * 2);
+  w.pendingBullets ??= [];
+  for (let i = 0; i < n; i++) {
+    const a = off + (i / n) * Math.PI * 2;
+    w.pendingBullets.push({
+      id: w.nextId++, owner: 'player', x: p.x, y, vx: Math.cos(a) * HURT_RING_SPEED, vy: Math.sin(a) * HURT_RING_SPEED,
+      r: def.bulletRadius, life: HURT_RING_LIFE, damage: def.damage, knockback: def.knockback, color: 'red', age: 0, dir: a,
+      speed: HURT_RING_SPEED, h: HAND_HEIGHT, weapon: def.id,
+    });
+  }
+  w.events.push({ type: 'hurtRing', x: p.x, y, count: n });
+}
+
+/** Speed (px/s) and life (s) of the Mando con Vibración's ring. */
+const HURT_RING_SPEED = 230;
+const HURT_RING_LIFE = 0.75;
+
+/** Chests that can still be opened without a ticket on this floor (Llave Allen Sobrante). */
+export function freeChestLeft(w: World): number {
+  return Math.max(0, playerPerks(w.player).freeChests - ((w.floor ?? w).freeChests ?? 0));
+}
+
+/**
  * The interact button at a shut chest: with a ticket it opens (the ticket is spent, the next
  * passive item, else the next active item, else the next weapon comes out in front of it with a
  * few coupons). Without a ticket it only complains.
@@ -2810,11 +2864,15 @@ function openChest(w: World, pr: PropInstance): void {
   const p = w.player;
   const c = pr.chest;
   if (!c || c.open) return;
-  if (p.tickets <= 0) {
+  // The spare Allen key goes first (it is only good on this floor); then a ticket.
+  const allen = freeChestLeft(w) > 0;
+  if (!allen && p.tickets <= 0) {
     w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: false, tickets: 0 });
     return;
   }
-  p.tickets--;
+  const keyring = w.floor ?? w;
+  if (allen) keyring.freeChests = (keyring.freeChests ?? 0) + 1;
+  else p.tickets--;
   c.open = true;
   const decks = decksOf(w);
   // Out in front (below) of the chest, or wherever there is room.
@@ -2854,7 +2912,7 @@ function openChest(w: World, pr: PropInstance): void {
     const sp = w.rng.range(50, 100);
     w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: out.x, y: out.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
   }
-  w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: true, tickets: p.tickets, item, tier: c.tier });
+  w.events.push({ type: 'chest', x: pr.x, y: pr.y, opened: true, tickets: p.tickets, item, tier: c.tier, ...(allen ? { allen: true } : {}) });
 }
 
 export function step(w: World, input: Input): void {
@@ -2896,6 +2954,10 @@ export function step(w: World, input: Input): void {
   if (!paused) updateEmitters(w);
   if (isRolling(w.player) && !w.over) rollCut(w);
   updateBullets(w, held, slowed ? HOLD_BOSS_SCALE : 1);
+  if (w.pendingBullets?.length) {
+    w.bullets.push(...w.pendingBullets);
+    w.pendingBullets = [];
+  }
   updateProps(w);
   if (!paused) updateFrost(w);
   reapEnemies(w);

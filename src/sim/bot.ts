@@ -3,7 +3,7 @@
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
-import { PLAYER_HURT_Y, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
+import { freeChestLeft, PLAYER_HURT_Y, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
@@ -205,8 +205,8 @@ export class Bot {
     // In the shop: buy what it can pay for (an item first, a heart if hurt, then a ticket).
     const buy = this.ignorePickups > 0 ? undefined : this.shopping(w);
     if (buy) return steer(w, { x: buy.x, y: buy.y }, r, blocked);
-    // A shut chest and a ticket to open it: walk into its front.
-    const chest = p.tickets > 0 && this.ignorePickups <= 0 ? w.room.props.find((pr) => pr.chest && !pr.chest.open) : undefined;
+    // A shut chest and a ticket (or the Allen key) to open it: walk into its front.
+    const chest = (p.tickets > 0 || freeChestLeft(w) > 0) && this.ignorePickups <= 0 ? w.room.props.find((pr) => pr.chest && !pr.chest.open) : undefined;
     if (chest) return steer(w, { x: chest.x, y: chest.y + 4 }, r, blocked);
     // The boss has fallen: down the goods lift, once there is nothing left to see on the floor.
     if (w.lift && nextDoor(w) === null) return steer(w, { x: w.lift.x, y: w.lift.y }, r, blocked);

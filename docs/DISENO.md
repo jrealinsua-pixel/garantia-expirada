@@ -275,8 +275,10 @@ golpes críticos (`bullets.crit`) y `perks` (pilas de más por sala, cupones de 
 voltereta que corta balas y vuelta de la baja).
 
 Objetos pasivos de la planta 3 (Juguetería, `level: 3`). Más raros que los de abajo: muchos
-cambian cómo se juega, no solo las cifras. Los cinco primeros ya están en el juego (M10 6a: Pilas No
-Incluidas, Muelle de Juguete, Bote de Purpurina, Juguete del Menú Infantil y Caja de Cartón Vacía);
+cambian cómo se juega, no solo las cifras. Ocho ya están en el juego (M10 6a: Pilas No Incluidas,
+Muelle de Juguete, Bote de Purpurina, Juguete del Menú Infantil y Caja de Cartón Vacía; 6b1:
+Pegatina de Edición Limitada, Llave Allen Sobrante y Mando con Vibración, con la sinergia Unboxing;
+la llave se usa antes que un ticket, porque solo vale en su planta);
 el Juguete del Menú Infantil sube la velocidad ×1,15 y la cadencia ×1,12 (no ×1,2 y ×1,15: en M9b
 los objetos se moderaron), y la voltereta larga del muelle es la velocidad de la voltereta
 (misma duración y mismos fotogramas invulnerables, más recorrido).

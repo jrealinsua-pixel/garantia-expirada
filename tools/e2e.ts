@@ -543,8 +543,17 @@ try {
   }
   if (!shrugged) throw new Error('La Caja de Cartón Vacía no ha parado ni un golpe en 25');
   await shot('39b-era-solo-la-caja.png');
+  // M10 (6b1): the vibrating pad shakes a ring of bullets out of the toaster when it is hit
+  // (the box taken away, so the hit lands).
+  await page.waitForTimeout(1200);
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; g.giveItem('mando-vibracion');
+    w.player.mods = w.player.mods.filter((m) => m.id !== 'caja-vacia'); w.player.hp = w.player.def.maxHp; w.player.invulnerable = 0; })()`);
+  await page.evaluate(bulletAt(24));
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player').length >= 10", undefined, { timeout: 3000 });
+  await page.waitForTimeout(260);
+  await shot('39c-mando-vibracion.png');
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
-  console.log('Planta 3: sus cinco primeros objetos en el inventario, y «Era solo la caja».');
+  console.log('Planta 3: sus cinco primeros objetos en el inventario, «Era solo la caja» y el corro del mando con vibración.');
 
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)

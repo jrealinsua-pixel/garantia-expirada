@@ -249,6 +249,33 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // Only good: one hit in five does nothing at all («Era solo la caja»).
     mod: { id: 'caja-vacia', perks: { shrug: 0.2 } },
   },
+  pegatina: {
+    id: 'pegatina',
+    name: 'Pegatina de Edición Limitada',
+    description: 'Solo se han fabricado diez millones.',
+    sprite: 'objeto-pegatina',
+    level: 3,
+    // The last bullet of every magazine hits three times as hard (M10 6b1).
+    mod: { id: 'pegatina', bullets: { last: { mul: 3 } } },
+  },
+  'llave-allen': {
+    id: 'llave-allen',
+    name: 'Llave Allen Sobrante',
+    description: 'Siempre sobra una pieza. Esta es la tuya.',
+    sprite: 'objeto-llave-allen',
+    level: 3,
+    // Once per floor, a chest opens without a ticket.
+    mod: { id: 'llave-allen', perks: { freeChests: 1 } },
+  },
+  'mando-vibracion': {
+    id: 'mando-vibracion',
+    name: 'Mando con Vibración',
+    description: 'Para notar cada golpe en la muñeca.',
+    sprite: 'objeto-mando-vibracion',
+    level: 3,
+    // Every hit taken shakes out a ring of ten of its own bullets.
+    mod: { id: 'mando-vibracion', perks: { hurtRing: 10 } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */
