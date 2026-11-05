@@ -934,5 +934,11 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": []
+  "en_curso": [
+    {
+      "sesion": "2026-11-05 08:30",
+      "tarea": "Nota del humano del 2026-11-05 (2.ª parte): los cupones ya no vuelan solos al limpiar la sala; hay que ir a recogerlos (world.ts, bot.ts, loot.test.ts)",
+      "desde": "2026-11-05T08:30:00+01:00"
+    }
+  ]
 }
