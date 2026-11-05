@@ -173,7 +173,8 @@ export const FLOOR_NAMES: Record<number, string> = {
   2: 'Planta 2: Informática. Cobertura limitada.',
   3: 'Planta 3: Juguetería. Edad recomendada: ninguna.',
 };
-export const WIN_RESULT = 'Jefa de planta dada de baja';
+/** Neutral on purpose: the boss of a floor may be the Nevera (she), the Router (he) or whoever comes next. */
+export const WIN_RESULT = 'Jefatura de planta dada de baja';
 
 /** «Siguiente: …» on the last floor there is (nothing upstairs yet). */
 export const WIN_NEXT: readonly string[] = [
@@ -188,7 +189,7 @@ export const WIN_NOTES: readonly string[] = [
   'Su esfuerzo ha sido registrado y no será recompensado.',
   'Enhorabuena: ha ascendido a becario sin sueldo.',
   'Esta victoria no incluye garantía.',
-  'Recuerde valorar a su jefa de planta con cinco estrellas.',
+  'Recuerde valorar a su jefatura de planta con cinco estrellas.',
   'Recoja su premio en la planta 7, ventanilla 3, de 9:00 a 9:05.',
   'La Dirección ha sido sustituida por otra idéntica. Gracias.',
 ];

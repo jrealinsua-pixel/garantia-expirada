@@ -97,3 +97,9 @@ test('el parte de planta superada anuncia la siguiente planta y cabe', () => {
   assert.ok(FLOOR_NAMES[2], 'la planta 2 tiene nombre');
   assert.ok(WIN_HINT_NEXT.length < 40);
 });
+
+test('el parte de planta superada no da por hecho si el jefe es jefa o jefe, y cabe', () => {
+  const r = winReport({ room: 'Sala de Redes', seconds: 60, kills: 1, coupons: 1 }, () => 0).find((l) => l.label === 'Resultado')!.text;
+  assert.doesNotMatch(r, /^Jef[ae] /, 'la Nevera es jefa y el Router, jefe');
+  assert.ok(textWidth(fontText(r)) <= 210);
+});

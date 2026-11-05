@@ -437,9 +437,8 @@ try {
     await shot(`33${'abcdef'[i]}-planta2-${['sala', 'entrada', 'jefe', 'tesoro', 'tienda', 'secreta'][i]}.png`);
   }
 
-  // M10 (1): floor 3 (Juguetería) has its own tiles, colour, obstacles and shutters. Until M10 (2)
-  // it borrows floor 1's room templates.
-  const p3 = ['sala=carga-descarga&profundidad=5', 'semilla=e2e-planta', 'sala=sala-pruebas', 'sala=jefe', 'sala=tienda', 'sala=secreta'];
+  // M10 (1, 2): floor 3 (Juguetería) has its own tiles, colour, obstacles, shutters and rooms.
+  const p3 = ['sala=circuito-ocasion&profundidad=5', 'sala=entrada-jugueteria', 'sala=sala-pruebas', 'sala=jefe-jugueteria', 'sala=tienda-jugueteria', 'sala=secreta-jugueteria'];
   for (const [i, q] of p3.entries()) {
     await page.goto(`${url}?semilla=e2e-p3-${i}&${q}&planta=3`);
     await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
