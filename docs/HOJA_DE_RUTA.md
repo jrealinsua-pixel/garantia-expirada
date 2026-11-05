@@ -382,9 +382,10 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - 10 objetos nuevos, en partes:
     - [x] (6a) Cinco de cifras o casi: Taza de Mejor Empleado, Corbata de Lunes, Café de Máquina,
       Silla con Ruedas y Bola Antiestrés.
-    - [ ] (6b) Pósit de Urgente, Tarjeta de Fichar, Responder a Todos, Contrato en Prácticas y
-      Acreditación de Visitante, y las sinergias Pausa para el Café y Cadena de Correos (si es
-      mucho, se parte como la (6b) de la planta 3).
+    - [ ] (6b1) Tres de economía y plazos: Tarjeta de Fichar, Contrato en Prácticas y Acreditación
+      de Visitante.
+    - [ ] (6b2) Pósit de Urgente y Responder a Todos, las sinergias Pausa para el Café y Cadena de
+      Correos, y las dos indirectas (Silla + Etiqueta A+++, Bola + Batería Hinchada), medidas.
   - [ ] (7) La planta 4 medida con el bot: el bot llega a ella en alguna partida, cada sala es
     algo más dura que las de la Juguetería, y aun así acaban menos partidas en la 4 que en la 3
     (porque llegan pocas).
