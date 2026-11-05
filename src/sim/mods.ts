@@ -91,6 +91,7 @@ export function perksOf(mods: readonly Modifier[]): Required<Perks> {
   const out: Required<Perks> = {
     charge: 0, coupons: 0, rollClear: false, revive: 0, rush: { mul: 1, time: 0 }, shrug: 0, freeChests: 0, hurtRing: 0,
     pet: { step: 0, max: 0 }, fullHpDamage: 1, grip: 1, hurtIframes: 1, punchIn: 0, trial: false, discount: 0,
+    urgent: 1, replyAll: { chance: 0, count: 0, mul: 0 }, chain: false, fullHpCharge: 0,
   };
   for (const m of mods) {
     out.charge += m.perks?.charge ?? 0;
@@ -110,6 +111,11 @@ export function perksOf(mods: readonly Modifier[]): Required<Perks> {
     out.punchIn = Math.max(out.punchIn, m.perks?.punchIn ?? 0);
     out.trial ||= !!m.perks?.trial;
     out.discount = Math.max(out.discount, m.perks?.discount ?? 0);
+    out.urgent = Math.max(out.urgent, m.perks?.urgent ?? 1);
+    const ra = m.perks?.replyAll;
+    if (ra && ra.chance > out.replyAll.chance) out.replyAll = { ...ra };
+    out.chain ||= !!m.perks?.chain;
+    out.fullHpCharge += m.perks?.fullHpCharge ?? 0;
   }
   out.coupons = Math.min(1, out.coupons);
   out.shrug = Math.min(SHRUG_MAX, out.shrug);

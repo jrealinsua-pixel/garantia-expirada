@@ -10,7 +10,7 @@ import { WEAPONS } from '../src/data/weapons.ts';
 import { CHARACTERS } from '../src/data/characters.ts';
 import { weaponProfile } from '../src/data/describe.ts';
 import { moddedCharacter, moddedWeapon } from '../src/sim/mods.ts';
-import { createWorld, DT, giveItem, NO_INPUT, spawnEnemy, step, type World } from '../src/sim/world.ts';
+import { createWorld, DT, giveItem, hurtPlayer, NO_INPUT, spawnEnemy, step, type World } from '../src/sim/world.ts';
 import { Rng } from '../src/sim/rng.ts';
 import type { StatKey } from '../src/data/types.ts';
 
@@ -26,6 +26,9 @@ function statWith(stat: StatKey, items: string[], weapon = 'secador'): number {
   return (moddedCharacter(c, mods) as unknown as Record<string, number>)[stat]!;
 }
 
+/** «tapa» pairs whose cover is not a stat: each has its own test below (sorted ids, joined by +). */
+const TAPA_MEASURED = new Set(['bola-antiestres+hinchada']);
+
 test('las parejas son de objetos que existen, distintas entre sí y ninguna es ya una sinergia', () => {
   const seen = new Set<string>();
   for (const c of COMPLEMENTS) {
@@ -39,13 +42,13 @@ test('las parejas son de objetos que existen, distintas entre sí y ninguna es y
       assert.ok(!(s.items.length === 2 && s.items.every((i) => c.items.includes(i))), `${key} ya es la sinergia ${s.id}`);
     }
     assert.ok(c.why.length > 20 && c.why.length < 140, `${key}: el texto`);
-    if (c.kind === 'tapa') assert.ok(c.stat, `${key}: «tapa» dice qué tapa`);
+    if (c.kind === 'tapa') assert.ok(c.stat || TAPA_MEASURED.has(key), `${key}: «tapa» dice qué tapa, o tiene su prueba aquí`);
   }
   assert.ok(COMPLEMENTS.length >= 8, 'al menos ocho parejas');
 });
 
 test('«tapa»: el segundo objeto devuelve casi todo lo que el primero quita, con todas las armas', () => {
-  for (const c of COMPLEMENTS.filter((x) => x.kind === 'tapa')) {
+  for (const c of COMPLEMENTS.filter((x) => x.kind === 'tapa' && x.stat)) {
     const stat = c.stat!;
     const weapons = WEAPON_KEYS.has(stat) ? Object.keys(WEAPONS) : ['secador'];
     for (const wp of weapons) {
@@ -168,4 +171,29 @@ test('Tarjeta con Manual o con Broca: juntas aciertan más que la suma de lo que
     console.log(`  tarjeta + ${other}: nada ${none}, tarjeta +${card}, ${other} +${alone}, juntas +${pair}`);
     assert.ok(pair > card + alone, `tarjeta + ${other}: +${pair} contra +${card} y +${alone}`);
   }
+});
+
+/** Seconds until the toaster goes down under a barrage that hits it as often as it can (every 0.3 s while it can be hurt). */
+function underFire(items: string[]): number {
+  const w = createWorld({ seed: 'aguante', noEnemies: true });
+  w.pickups = [];
+  for (const id of items) giveItem(w, id);
+  let t = 0;
+  for (let i = 0; i < ticks(60) && !w.over; i++) {
+    if (i % Math.round(0.3 / DT) === 0) hurtPlayer(w, 1, -1, 1, 0);
+    step(w, NO_INPUT);
+    t = i * DT;
+  }
+  assert.ok(w.over, 'acaba cayendo');
+  return t;
+}
+
+test('Bola Antiestrés y Batería Hinchada: con un corazón menos, juntas aguantan una lluvia de golpes más que sin nada', () => {
+  const none = underFire([]);
+  const swollen = underFire(['hinchada']);
+  const ball = underFire(['bola-antiestres']);
+  const pair = underFire(['hinchada', 'bola-antiestres']);
+  assert.ok(swollen < none * 0.8, `la batería quita aguante (${swollen.toFixed(1)} s frente a ${none.toFixed(1)} s)`);
+  assert.ok(ball > none * 1.5, `la bola lo da (${ball.toFixed(1)} s)`);
+  assert.ok(pair >= none, `juntas, al menos lo de antes (${pair.toFixed(1)} s frente a ${none.toFixed(1)} s)`);
 });

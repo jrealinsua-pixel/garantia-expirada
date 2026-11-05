@@ -73,6 +73,12 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (k?.punchIn) out.push({ text: `Sala limpia en menos de ${k.punchIn} s: un cupón más`, good: true });
   if (k?.trial) out.push({ text: 'Se acaba al subir de planta', good: false });
   if (k?.discount) out.push({ text: `La tienda cobra un ${Math.round(k.discount * 100)} % menos`, good: true });
+  if (k?.urgent) out.push({ text: `Tras cada voltereta, la siguiente bala: daño ×${String(k.urgent).replace('.', ',')}`, good: true });
+  if (k?.replyAll) {
+    out.push({ text: `${Math.round(k.replyAll.chance * 100)} % de aciertos se parten en ${k.replyAll.count} balas hacia otros`, good: true });
+  }
+  if (k?.chain) out.push({ text: 'La bala urgente siempre se parte, y sus trozos hacen el doble', good: true });
+  if (k?.fullHpCharge) out.push({ text: `Sala limpia con la vida llena: +${k.fullHpCharge} ${k.fullHpCharge === 1 ? 'pila' : 'pilas'}`, good: true });
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

@@ -21,7 +21,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
-| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y a la 4 le quedan dos objetos (6b2) y las medidas (7)) |
+| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre a las dos plantas solo les quedan las medidas (7)) |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
@@ -384,7 +384,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
       Silla con Ruedas y Bola Antiestrés.
     - [x] (6b1) Tres de economía y plazos: Tarjeta de Fichar, Contrato en Prácticas y Acreditación
       de Visitante.
-    - [ ] (6b2) Pósit de Urgente y Responder a Todos, las sinergias Pausa para el Café y Cadena de
+    - [x] (6b2) Pósit de Urgente y Responder a Todos, las sinergias Pausa para el Café y Cadena de
       Correos, y las dos indirectas (Silla + Etiqueta A+++, Bola + Batería Hinchada), medidas.
   - [ ] (7) La planta 4 medida con el bot: el bot llega a ella en alguna partida, cada sala es
     algo más dura que las de la Juguetería, y aun así acaban menos partidas en la 4 que en la 3

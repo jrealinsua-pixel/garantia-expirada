@@ -1036,5 +1036,17 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-posit-urgente": {
+    "file": "objeto-posit-urgente.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-responder-todos": {
+    "file": "objeto-responder-todos.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

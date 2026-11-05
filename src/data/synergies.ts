@@ -82,4 +82,21 @@ export const SYNERGIES: Record<string, SynergyDef> = {
     // The stuck blobs last longer and slow down whoever steps in them by half.
     mod: { id: 'manualidades', bullets: { stick: { time: 2.5, slow: { mul: 0.5, time: 1.5 } } } },
   },
+  // M10 planta 4 (6b2): the coffee and the mug; the reply-all and the sticky note.
+  'pausa-cafe': {
+    id: 'pausa-cafe',
+    name: 'Pausa del Café',
+    text: 'Diez minutos. Se descuentan de la nómina.',
+    items: ['cafe-maquina', 'taza-empleado'],
+    // A combat room cleared with full life gives one more battery.
+    mod: { id: 'pausa-cafe', perks: { fullHpCharge: 1 } },
+  },
+  'cadena-correos': {
+    id: 'cadena-correos',
+    name: 'Cadena de Correos',
+    text: 'Urgente, importante y para todos. Sin leer.',
+    items: ['responder-todos', 'posit-urgente'],
+    // The sticky note's bullet always splits, and its pieces keep the double damage.
+    mod: { id: 'cadena-correos', perks: { chain: true } },
+  },
 };

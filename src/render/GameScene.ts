@@ -1891,6 +1891,11 @@ export class GameScene extends Phaser.Scene {
             this.sound2.play('clinc', { detune: 700 });
             this.gunKick = 5;
           }
+          // Pósit de Urgente: the first shot after a roll, with a sharper click.
+          if (e.urgent) {
+            this.sound2.play('clinc', { detune: 200, volume: 0.7 });
+            this.gunKick = 4;
+          }
           if (e.weapon === 'plancha') {
             // A cloud of steam at the soleplate and a heavier kick.
             this.sound2.play('vaporGolpe');
@@ -1974,6 +1979,11 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('golpe', { detune: -700, volume: 0.6 });
           for (let i = 0; i < 6; i++) this.splinter(e.x + this.fx.range(-5, 5), e.y, this.fx.range(0, Math.PI * 2), 0xa96a3f);
           this.floatText(e.x, e.y - 18, fontText(SHRUG_LINE), 0xe9d9a8, 'shrug', -12, 1.1);
+          break;
+        case 'replyAll':
+          // Responder a Todos: the new-mail ping, and a spark down the way of each reply.
+          this.sound2.play('cupon', { detune: 900, volume: 0.45 });
+          for (const a of e.angles) for (let i = 0; i < 2; i++) this.spark(e.x, e.y, a + this.fx.range(-0.25, 0.25), this.fx.range(60, 110), e.urgent ? 0 : 1);
           break;
         case 'punch':
           // Tarjeta de Fichar: the clock-in machine's beep and the time stamped over the extra coupon.
@@ -3528,6 +3538,11 @@ export class GameScene extends Phaser.Scene {
         if (s.texture.key !== 'pegote-plastilina') s.setTexture('pegote-plastilina').setRotation(0).clearTint().setAlpha(1);
         s.setFrame((b.slow?.mul ?? 1) <= 0.5 ? 2 + (Math.floor(this.time.now / 140 + b.id) % 2) : Math.floor(this.time.now / 140 + b.id) % 2);
         size = Math.min(1, b.life / 0.25);
+      }
+      // Pósit de Urgente: the shot after a roll (and its reply-all pieces) flashes yellow and red.
+      if (b.urgent && b.owner === 'player' && !b.limited && !b.stuck) {
+        size *= b.reply ? 1.15 : 1.3;
+        s.setTint(Math.floor(this.time.now / 90 + b.id) % 2 ? 0xf6c431 : 0xe0453b);
       }
       // The limited edition's last bullet: bigger and gold, glinting.
       if (b.limited) {

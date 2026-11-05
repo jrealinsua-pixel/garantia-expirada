@@ -371,6 +371,25 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // Only good: the shop charges a quarter less (rounded).
     mod: { id: 'acreditacion', perks: { discount: 0.25 } },
   },
+  // M10 planta 4 (6b2).
+  'posit-urgente': {
+    id: 'posit-urgente',
+    name: 'Pósit de Urgente',
+    description: 'Pone «Urgente». Nadie recuerda de qué.',
+    sprite: 'objeto-posit-urgente',
+    level: 4,
+    // After each roll, the next shot does double damage (a yellow bullet).
+    mod: { id: 'posit-urgente', perks: { urgent: 2 } },
+  },
+  'responder-todos': {
+    id: 'responder-todos',
+    name: 'Responder a Todos',
+    description: 'Una pregunta. Cuarenta respuestas. Ninguna tuya.',
+    sprite: 'objeto-responder-todos',
+    level: 4,
+    // A quarter of the bullets that hit split in two small ones (half the damage) towards other enemies.
+    mod: { id: 'responder-todos', perks: { replyAll: { chance: 0.25, count: 2, mul: 0.5 } } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

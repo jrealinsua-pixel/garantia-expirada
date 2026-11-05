@@ -842,6 +842,46 @@ export const ITEM_GRIDS: Record<string, readonly string[]> = {
     '....KKKKKKKK....',
     '................',
   ],
+  // The «urgent» sticky note (M10 planta 4 6b2): yellow, a corner curling up, «URGENTE» scrawled
+  // in red, underlined twice and with an exclamation that nobody remembers writing.
+  'posit-urgente': [
+    '................',
+    '................',
+    '..KKKKKKKKKKK...',
+    '..KYYYYYYYYYYK..',
+    '..KYRYRYRRYRYK..',
+    '..KYRYRYRYYRYK..',
+    '..KYRRRYRYYYYK..',
+    '..KYYYYYYYYRYK..',
+    '..KYRRRRRRYYYK..',
+    '..KYYYYYYYYRYK..',
+    '..KYRRRRRYYYyK..',
+    '..KYYYYYYYYyWK..',
+    '..KYYYYYYYywKK..',
+    '..KyyyyyyyKKK...',
+    '...KKKKKKK......',
+    '................',
+  ],
+  // Reply all (M10 planta 4 6b2): a white envelope under the blue double arrow of «reply all»,
+  // and the red bubble of forty unread replies.
+  'responder-todos': [
+    '..K..K......KKK.',
+    '.KBKKBKKKKKKRRRK',
+    'KBKKBBBBBBBKRWRK',
+    '.KBKKBKKKKBBKRRK',
+    '..K..K....KBKKK.',
+    '..........KBK...',
+    '.KKKKKKKKKKBKKK.',
+    '.KWwWWWWWWWBWwK.',
+    '.KWWwWWWWWwWwWK.',
+    '.KWWWwWWWwWWWWK.',
+    '.KWWWWwwwWWWWWK.',
+    '.KWWWWWWWWWWWWK.',
+    '.KwwwwwwwwwwwwK.',
+    '.KKKKKKKKKKKKKK.',
+    '................',
+    '................',
+  ],
 };
 
 export function makeItem(name: string): Canvas {

@@ -1,15 +1,21 @@
 // Los objetos de la planta 4 (M10 planta 4 6a): Taza de Mejor Empleado, Corbata de Lunes, Café de
 // Máquina, Silla con Ruedas y Bola Antiestrés; y (6b1) Tarjeta de Fichar, Contrato en Prácticas y
-// Acreditación de Visitante. Cada uno hace lo que dice su ficha.
+// Acreditación de Visitante; y (6b2) Pósit de Urgente y Responder a Todos, con las sinergias Pausa
+// para el Café y Cadena de Correos. Cada uno hace lo que dice su ficha.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ITEMS, itemsUpTo } from '../src/data/items.ts';
 import { modifierLines } from '../src/data/describe.ts';
 import { SHOP_PRICES } from '../src/data/shop.ts';
-import { createWorld, DT, enterRoom, giveItem, HAND_HEIGHT, HURT_IFRAMES, hurtPlayer, nextFloor, NO_INPUT, shopPrice, step, type Input, type SimEvent, type World } from '../src/sim/world.ts';
+import { ENEMIES } from '../src/data/enemies.ts';
+import { addModifier, createWorld, DT, enterRoom, giveActive, giveItem, spawnEnemy, HAND_HEIGHT, HURT_IFRAMES } from '../src/sim/world.ts';
+import { hurtPlayer, nextFloor, NO_INPUT, shopPrice, step, type Input, type SimEvent, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
-const OWN = ['taza-empleado', 'corbata-lunes', 'cafe-maquina', 'silla-ruedas', 'bola-antiestres', 'tarjeta-fichar', 'contrato-practicas', 'acreditacion'];
+const OWN = [
+  'taza-empleado', 'corbata-lunes', 'cafe-maquina', 'silla-ruedas', 'bola-antiestres', 'tarjeta-fichar', 'contrato-practicas', 'acreditacion',
+  'posit-urgente', 'responder-todos',
+];
 
 /** The test room with nothing in the way (as in objetos.test.ts). */
 function bare(seed: string, ...items: string[]): World {
@@ -228,4 +234,130 @@ test('Acreditación de Visitante: la tienda cobra un 25 % menos, redondeado y nu
   assert.ok(buy && buy.type === 'shop' && buy.outcome === 'bought' && buy.price === 8, JSON.stringify(buy));
   assert.equal(w.player.coupons, 12);
   assert.equal(w.player.tickets, tickets + 1);
+});
+
+/** Rolls once (and waits for the roll to end), so the Pósit charges the next shot. */
+function rollOnce(w: World): void {
+  w.player.rollCooldown = 0;
+  step(w, { ...NO_INPUT, roll: true, moveX: 0, moveY: 1 });
+  for (let i = 0; i < ticks(1); i++) step(w, NO_INPUT);
+}
+
+test('Pósit de Urgente: tras una voltereta, la siguiente bala hace el doble; la de después, lo normal', () => {
+  const plain = bare('posit-0');
+  const base = nextBulletDamage(plain);
+  const w = bare('posit', 'posit-urgente');
+  assert.equal(nextBulletDamage(w), base, 'sin rodar, nada');
+  rollOnce(w);
+  assert.ok(w.player.urgent, 'la voltereta la carga');
+  const before = new Set(w.bullets.map((b) => b.id));
+  assert.equal(nextBulletDamage(w), base * 2);
+  const urgent = w.bullets.find((b) => b.owner === 'player' && !before.has(b.id))!;
+  assert.ok(urgent.urgent, 'marcada para dibujarla en amarillo');
+  assert.equal(nextBulletDamage(w), base, 'solo una');
+  // Rolling without the item charges nothing.
+  rollOnce(plain);
+  assert.ok(!plain.player.urgent);
+  assert.equal(nextBulletDamage(plain), base);
+  const line = modifierLines(ITEMS['posit-urgente']!.mod).map((l) => l.text);
+  assert.ok(line.includes('Tras cada voltereta, la siguiente bala: daño ×2'), line.join(' / '));
+});
+
+/** The test room with two vacuums standing still in a row in front of the toaster, and the far one behind the near one. */
+function twoTargets(seed: string, ...items: string[]): { w: World; near: number; far: number } {
+  const w = bare(seed, ...items);
+  const mk = (x: number, y: number): number => {
+    const en = spawnEnemy(w.nextId++, ENEMIES['aspirador']!, x, y);
+    en.state = 'idle';
+    en.until = 999;
+    w.enemies.push(en);
+    return en.id;
+  };
+  const near = mk(w.player.x + 50, w.player.y);
+  const far = mk(w.player.x + 50, w.player.y + 90);
+  return { w, near, far };
+}
+
+/** Fires one shot at the near vacuum and plays it out; the replies and the damage each vacuum took. */
+function shootNear(w: World, near: number): { replies: SimEvent[]; took: Map<number, number> } {
+  const target = w.enemies.find((e) => e.id === near)!;
+  w.player.weapon.cooldown = 0;
+  w.player.weapon.def = { ...w.player.weapon.def, spreadDeg: 0 };
+  const replies: SimEvent[] = [];
+  step(w, { ...NO_INPUT, fire: true, aimX: target.x, aimY: target.y - 16 });
+  replies.push(...w.events.filter((e) => e.type === 'replyAll'));
+  for (let i = 0; i < ticks(1.2); i++) {
+    step(w, NO_INPUT);
+    replies.push(...w.events.filter((e) => e.type === 'replyAll'));
+  }
+  return { replies, took: new Map(w.enemies.map((e) => [e.id, e.damageTaken])) };
+}
+
+test('Responder a Todos: una de cada cuatro balas que aciertan se parte en dos, a la mitad, hacia los demás', () => {
+  assert.deepEqual(ITEMS['responder-todos']!.mod.perks?.replyAll, { chance: 0.25, count: 2, mul: 0.5 });
+  // Every bullet splits (the same item, sure of itself): the mechanics.
+  const { w, near, far } = twoTargets('responder');
+  addModifier(w, { id: 'responder-seguro', perks: { replyAll: { chance: 1, count: 2, mul: 0.5 } } });
+  const dmg = w.player.weapon.def.damage;
+  const r = shootNear(w, near);
+  assert.equal(r.replies.length, 1, 'se parte una vez: los trozos no se vuelven a partir');
+  const ev = r.replies[0]!;
+  assert.ok(ev.type === 'replyAll' && ev.angles.length === 2);
+  assert.ok(Math.abs(r.took.get(near)! - dmg) < 1e-9, 'el primero se lleva la bala entera, y solo esa');
+  assert.ok(Math.abs(r.took.get(far)! - dmg) < 1e-9, `el otro, los dos trozos a la mitad (${r.took.get(far)})`);
+  // Nobody else in the room: no reply.
+  const alone = bare('responder-solo');
+  addModifier(alone, { id: 'responder-seguro', perks: { replyAll: { chance: 1, count: 2, mul: 0.5 } } });
+  const en = spawnEnemy(alone.nextId++, ENEMIES['aspirador']!, alone.player.x + 50, alone.player.y);
+  en.state = 'idle';
+  en.until = 999;
+  alone.enemies.push(en);
+  assert.equal(shootNear(alone, en.id).replies.length, 0);
+  // With the real item, about a quarter of the hits.
+  let splits = 0;
+  const n = 120;
+  for (let i = 0; i < n; i++) {
+    const t = twoTargets(`responder-${i}`, 'responder-todos');
+    if (shootNear(t.w, t.near).replies.length) splits++;
+  }
+  assert.ok(splits > n * 0.15 && splits < n * 0.35, `${splits} de ${n}`);
+});
+
+test('Cadena de Correos: la bala urgente siempre se parte, y sus trozos también hacen el doble', () => {
+  const { w, near, far } = twoTargets('cadena', 'posit-urgente', 'responder-todos');
+  assert.ok(w.player.synergies.includes('cadena-correos'));
+  const dmg = w.player.weapon.def.damage;
+  for (let k = 0; k < 4; k++) {
+    rollOnce(w);
+    // Everyone back where they started (the roll and the knockback move them).
+    w.player.x = 120;
+    w.player.y = 200;
+    w.enemies.forEach((e, i) => Object.assign(e, { x: 170, y: i === 0 ? 200 : 290, vx: 0, vy: 0, damageTaken: 0 }));
+    const r = shootNear(w, near);
+    assert.equal(r.replies.length, 1, `tanda ${k}: se parte siempre`);
+    assert.ok(Math.abs(r.took.get(near)! - dmg * 2) < 1e-9);
+    assert.ok(Math.abs(r.took.get(far)! - dmg * 2) < 1e-9, `tanda ${k}: dos trozos de la mitad del doble (${r.took.get(far)})`);
+  }
+});
+
+test('Pausa del Café: limpiar una sala con la vida llena da una pila más; sin la vida llena, la de siempre', () => {
+  const batteries = (full: boolean, ...items: string[]): number => {
+    const w = createWorld({ seed: 'cafe', floor: true, level: 4 });
+    w.noDamage = true;
+    for (const id of items) giveItem(w, id);
+    giveActive(w, 'espera', 0);
+    if (!full) w.player.hp = w.player.def.maxHp - 1;
+    const fr = w.floor!.layout.rooms.find((r) => r.kind === 'combat')!;
+    enterRoom(w, fr.id, fr.doors[0]!.dir);
+    for (let i = 0; i < ticks(4) && w.doorsShut; i++) {
+      for (const en of w.enemies) en.damageTaken = en.def.hp;
+      step(w, NO_INPUT);
+    }
+    assert.ok(!w.doorsShut);
+    return w.player.active!.charge;
+  };
+  assert.equal(batteries(true), 1);
+  assert.equal(batteries(true, 'cafe-maquina'), 1);
+  assert.equal(batteries(true, 'cafe-maquina', 'taza-empleado'), 2);
+  assert.equal(batteries(false, 'cafe-maquina', 'taza-empleado'), 1);
 });

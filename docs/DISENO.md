@@ -333,13 +333,20 @@ Ninguno sube una estadística más de un 30 % (la regla de M9b, que vigila `test
 | Acreditación de Visitante | Abre todas las puertas menos la que buscas. | La tienda cobra un 25 % menos (solo bueno) |
 | Bola Antiestrés | Llevas tres. Ninguna ha funcionado. | Tras un golpe, la invulnerabilidad dura el doble; cadencia ×0,9 |
 
-Dos sinergias nuevas: **Pausa para el Café** (Café de Máquina + Taza de Mejor Empleado: «Diez
-minutos. Se descuentan de la nómina.»; limpiar una sala con la vida llena da una pila más) y
+Dos sinergias nuevas: **Pausa del Café** (Café de Máquina + Taza de Mejor Empleado: «Diez
+minutos. Se descuentan de la nómina.»; limpiar una sala con la vida llena da una pila más; el
+nombre perdió el «para» porque las sinergias se llaman con tres palabras como mucho) y
 **Cadena de Correos** (Responder a Todos + Pósit de Urgente: «Urgente, importante y para todos. Sin
 leer.»; la bala doble del pósit siempre se parte, y sus trozos también hacen el doble).
-Indirectas que salen solas (para `src/data/complements.ts`, a medir): la Silla con Ruedas con la
-Etiqueta A+++ (multiplica la velocidad y el resbalón, a gusto de quien sepa frenar) y la Bola
-Antiestrés con la Batería Hinchada (tapa: los golpes que llegan duelen menos de seguido).
+El Pósit carga con cada voltereta y la gasta el siguiente disparo (todas sus balas, si es de
+varias), que sale en amarillo y rojo. Responder a Todos parte la bala en dos trozos de la mitad de
+daño, uno hacia cada uno de los dos enemigos más cercanos (los dos al mismo si solo queda otro);
+sin nadie más en la sala no se parte, y los trozos no se vuelven a partir.
+Indirectas (en `src/data/complements.ts`, medidas): la Bola Antiestrés con la Batería Hinchada
+(tapa: con un corazón menos, una lluvia de golpes tarda más en tumbar a la pareja que a la
+tostadora sin nada). La Silla con Ruedas con la Etiqueta A+++ se descartó: sus velocidades solo se
+multiplican, como las de dos objetos de velocidad cualesquiera, y con el bot la pareja salía peor
+que la etiqueta sola.
 
 Las Oficinas se ven a la primera (M10 planta 4 (1), detalle en `docs/ESTILO_ARTE.md`): moqueta gris en losetas, con manchas de café y las
 rodadas de las sillas; pasillos de moqueta más oscura entre cubículos; pared de atrás de pladur

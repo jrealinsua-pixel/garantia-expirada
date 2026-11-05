@@ -21,7 +21,11 @@ import type { StatKey } from './types.ts';
 export interface ComplementDef {
   items: readonly [string, string];
   kind: 'tapa' | 'multiplica';
-  /** For «tapa»: the number items[0] makes worse and items[1] gives back. */
+  /**
+   * For «tapa»: the number items[0] makes worse and items[1] gives back. Unset when what is given
+   * back is not a number but how long the toaster lasts (the Bola Antiestrés with the Batería
+   * Hinchada): then tests/complementos.test.ts measures it in its own test.
+   */
   stat?: StatKey;
   why: string;
 }
@@ -83,5 +87,15 @@ export const COMPLEMENTS: readonly ComplementDef[] = [
     kind: 'tapa',
     stat: 'rollCooldown',
     why: 'El modo avión corta todo lo que tocas rodando; la etiqueta te deja rodar casi tan a menudo como antes.',
+  },
+  // M10 planta 4 (6b2). The swollen battery takes a heart; the stress ball doubles the breather
+  // after each hit, so the hearts that are left last longer under fire: a barrage that hits as
+  // often as it can takes longer to put the pair down than to put down the toaster with nothing.
+  // (The Silla con Ruedas with the Etiqueta A+++ was also proposed: their speeds just multiply,
+  // like any two speed items, and with the bot the pair did worse than the label alone. Left out.)
+  {
+    items: ['hinchada', 'bola-antiestres'],
+    kind: 'tapa',
+    why: 'La batería se lleva un corazón; la bola hace que los que quedan tarden el doble en irse.',
   },
 ];

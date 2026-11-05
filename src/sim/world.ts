@@ -91,6 +91,8 @@ export interface Player {
    */
   pet?: number;
   petHurt?: boolean;
+  /** Pósit de Urgente: a roll has charged the next shot (it does Perks.urgent times the damage). */
+  urgent?: boolean;
   /** The character as its modifiers leave it (see refreshPlayer); `base` is the untouched one. */
   def: CharacterDef;
   base: { def: CharacterDef };
@@ -229,6 +231,10 @@ export interface Bullet {
   crit?: boolean;
   /** Player bullets: the last of the magazine with the limited-edition sticker (BulletBehaviour.last). */
   limited?: boolean;
+  /** Player bullets: fired right after a roll with the Pósit de Urgente (its damage is already multiplied). */
+  urgent?: boolean;
+  /** Player bullets: a piece of one that split (Responder a Todos); it never splits again. */
+  reply?: boolean;
   /** Player bullets with Plastilina Mezclada: they stick where they hit (BulletBehaviour.stick)... */
   stick?: NonNullable<BulletBehaviour['stick']>;
   /** ...and this one is stuck: it stays put and hurts every enemy that walks into it. */
@@ -466,7 +472,9 @@ export const BRICK_RADIUS = 5;
 export type SimEvent =
   /** The interact button at a station of the Mostrador: it talks (or opens its panel). */
   | { type: 'interact'; station: StationKind }
-  | { type: 'shot'; x: number; y: number; angle: number; weapon: string; limited?: boolean }
+  | { type: 'shot'; x: number; y: number; angle: number; weapon: string; limited?: boolean; urgent?: boolean }
+  /** Responder a Todos: a bullet split at (x, y) into pieces flying off at `angles`. */
+  | { type: 'replyAll'; x: number; y: number; angles: number[]; urgent?: boolean }
   | { type: 'hit'; x: number; y: number; angle: number; damage: number; target: number; crit?: boolean }
   | { type: 'bulletWall'; x: number; y: number; angle: number; bounced?: boolean }
   /** The player's modifiers changed (an item picked up or lost): its stats are recomputed. */
@@ -1279,10 +1287,14 @@ export function useActive(w: World): boolean {
 
 /** One battery into the active item (a combat room has been cleared). */
 function chargeActive(w: World): void {
-  const a = w.player.active;
+  const p = w.player;
+  const a = p.active;
   const def = a ? ACTIVE_ITEMS[a.id] : undefined;
   if (!a || !def || a.charge >= def.charges) return;
-  a.charge = Math.min(def.charges, a.charge + 1 + playerPerks(w.player).charge);
+  const perks = playerPerks(p);
+  // Pausa del Café: cleared with full life, one more.
+  const coffee = p.hp >= p.def.maxHp ? perks.fullHpCharge : 0;
+  a.charge = Math.min(def.charges, a.charge + 1 + perks.charge + coffee);
   w.events.push({ type: 'battery', item: a.id, charge: a.charge, needs: def.charges });
 }
 
@@ -1644,6 +1656,8 @@ function updatePlayer(w: World, input: Input): void {
     p.rollDirY = dir.y;
     p.invulnerable = d.rollIframes;
     w.events.push({ type: 'roll', x: p.x, y: p.y, dirX: dir.x, dirY: dir.y });
+    // Pósit de Urgente: the next shot is urgent.
+    if (playerPerks(p).urgent > 1) p.urgent = true;
   }
 
   if (isRolling(p)) {
@@ -1811,6 +1825,9 @@ function updateWeapon(w: World, input: Input): void {
   const mx = pivot.x + Math.cos(p.aim) * MUZZLE;
   const my = pivot.y + Math.sin(p.aim) * MUZZLE;
   const crit = def.bullets?.crit;
+  // Pósit de Urgente: the first shot after a roll (every pellet of it).
+  const urgent = p.urgent ? playerPerks(p).urgent : 1;
+  delete p.urgent;
   for (let i = 0; i < def.pellets; i++) {
     const a = p.aim + ((w.rng.range(-1, 1) * def.spreadDeg) / 180) * Math.PI;
     // A critical hit is decided when the bullet leaves the barrel (no roll without the item).
@@ -1835,6 +1852,11 @@ function updateWeapon(w: World, input: Input): void {
       ...shotBehaviour(def.bullets),
       ...(isCrit ? { crit: true } : {}),
     });
+    if (urgent > 1) {
+      const b = w.bullets[w.bullets.length - 1]!;
+      b.damage *= urgent;
+      b.urgent = true;
+    }
     if (lastOne) {
       const b = w.bullets[w.bullets.length - 1]!;
       b.damage *= lastOne.mul ?? 1;
@@ -1844,7 +1866,7 @@ function updateWeapon(w: World, input: Input): void {
   }
   p.vx -= Math.cos(p.aim) * def.recoil;
   p.vy -= Math.sin(p.aim) * def.recoil;
-  w.events.push({ type: 'shot', x: mx, y: my, angle: p.aim, weapon: def.id, ...(lastOne ? { limited: true } : {}) });
+  w.events.push({ type: 'shot', x: mx, y: my, angle: p.aim, weapon: def.id, ...(lastOne ? { limited: true } : {}), ...(urgent > 1 ? { urgent: true } : {}) });
   if (ws.ammo === 0) {
     ws.reload = def.reloadTime;
     w.events.push({ type: 'reloadStart', time: def.reloadTime });
@@ -1853,6 +1875,8 @@ function updateWeapon(w: World, input: Input): void {
 
 function updateBullets(w: World, held = false, enemyScale = 1): void {
   const keep: Bullet[] = [];
+  // Pieces of bullets that split this tick (Responder a Todos): they fly from the next one.
+  const born: Bullet[] = [];
   for (const b of w.bullets) {
     if (b.cut) continue;
     // On hold, enemy bullets hang in the air (and hurt nobody) until the music stops.
@@ -1952,6 +1976,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             en.vx += Math.cos(angle) * k;
             en.vy += Math.sin(angle) * k;
             w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage, target: en.id, ...(b.crit && damage > 0 ? { crit: true } : {}) });
+            if (damage > 0) replyAll(w, b, en, born);
             if (pierces(b, en.id)) continue;
             alive = false;
             break;
@@ -1990,7 +2015,65 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
     }
     if (alive) keep.push(b);
   }
-  w.bullets = keep.filter((b) => !b.cut);
+  w.bullets = [...keep, ...born].filter((b) => !b.cut);
+}
+
+/** Reply-all pieces fly for this long (s), at the bullet's speed, and are this size next to it. */
+const REPLY_LIFE = 0.7;
+const REPLY_SIZE = 0.65;
+/** Radians between reply-all pieces that go to the same enemy. */
+const REPLY_FAN = 0.08;
+
+/**
+ * Responder a Todos: player bullet `b` has just hit `en`. With the perk's chance (always, for the
+ * Pósit's urgent bullet with Cadena de Correos) it splits into the perk's `count` small bullets,
+ * each with `mul` of its damage (already doubled if it was urgent), towards the nearest other
+ * enemies (the nearest again, a little apart, if there are fewer); nobody else to reply to, no
+ * split. The pieces go into `born` (they fly from the next tick) and never split again.
+ */
+function replyAll(w: World, b: Bullet, en: Enemy, born: Bullet[]): void {
+  if (b.reply) return;
+  const perks = playerPerks(w.player);
+  const ra = perks.replyAll;
+  if (ra.chance <= 0 || ra.count <= 0) return;
+  const others = w.enemies
+    .filter((o) => o !== en && !isDead(o) && o.state !== 'gone' && o.state !== 'lurk' && !b.hits?.includes(o.id))
+    .map((o) => ({ o, d: Math.hypot(o.x - b.x, o.y - 16 - b.y) }))
+    .sort((a, c) => a.d - c.d);
+  if (others.length === 0) return;
+  if (!(b.urgent && perks.chain) && !w.rng.chance(ra.chance)) return;
+  // One piece per enemy, nearest first; with fewer enemies than pieces, the ones that go to the
+  // same enemy fan out a little round it (REPLY_FAN apart), all still on it.
+  const angles: number[] = [];
+  const per = Math.ceil(ra.count / others.length);
+  for (let i = 0; i < ra.count; i++) {
+    const t = others[i % others.length]!.o;
+    const k = Math.floor(i / others.length);
+    const shared = Math.min(per, Math.floor((ra.count - 1 - (i % others.length)) / others.length) + 1);
+    angles.push(Math.atan2(t.y - 16 - b.y, t.x - b.x) + (k - (shared - 1) / 2) * REPLY_FAN);
+  }
+  for (const a of angles) {
+    const piece: Bullet = {
+      ...b,
+      id: w.nextId++,
+      vx: Math.cos(a) * b.speed,
+      vy: Math.sin(a) * b.speed,
+      dir: a,
+      r: Math.max(1.5, b.r * REPLY_SIZE),
+      life: REPLY_LIFE,
+      age: 0,
+      damage: b.damage * ra.mul,
+      knockback: b.knockback * ra.mul,
+      hits: [...(b.hits ?? []), en.id],
+      pierce: 0,
+      bounce: 0,
+      reply: true,
+    };
+    delete piece.limited;
+    delete piece.seekFrom;
+    born.push(piece);
+  }
+  w.events.push({ type: 'replyAll', x: b.x, y: b.y, angles, ...(b.urgent ? { urgent: true } : {}) });
 }
 
 /**

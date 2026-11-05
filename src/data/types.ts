@@ -118,6 +118,18 @@ export interface Perks {
   trial?: boolean;
   /** Acreditación de Visitante: the shop charges this much less (0–1; the biggest wins). */
   discount?: number;
+  /** Pósit de Urgente: after each roll, the next shot does this many times its damage (the strongest wins). */
+  urgent?: number;
+  /**
+   * Responder a Todos: a bullet that hits an enemy has `chance` (0–1) of splitting into `count`
+   * small bullets with `mul` of its damage, each towards another enemy (the biggest chance wins).
+   * The pieces never split again.
+   */
+  replyAll?: { chance: number; count: number; mul: number };
+  /** Cadena de Correos: the Pósit's bullet always splits (Responder a Todos), and its pieces keep its double damage. */
+  chain?: boolean;
+  /** Pausa del Café: a combat room cleared with full life gives this many more batteries. They add up. */
+  fullHpCharge?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

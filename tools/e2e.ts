@@ -644,6 +644,32 @@ try {
   await shot('51c-acreditacion-tienda.png');
   console.log('Planta 4: la Acreditación de Visitante rebaja los precios del Economato.');
 
+  // M10 planta 4 (6b2): Pósit de Urgente and Responder a Todos (Cadena de Correos): after a roll,
+  // the urgent shot (yellow and red) hits and splits towards the others, its pieces urgent too.
+  await page.goto(`${url}?semilla=e2e-correos&sala=oficina-diafana&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.holdT = 30;
+    g.giveItem('posit-urgente'); g.giveItem('responder-todos'); })()`);
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.player.synergies.includes('cadena-correos')"))) throw new Error('No salta la sinergia Cadena de Correos');
+  await page.waitForTimeout(1200);
+  const mailTarget = await page.evaluate<{ x: number; y: number }>(`(() => { const w = window.__GE__.scene.world; const p = w.player;
+    const e = w.enemies.filter((o) => o.state !== 'lurk').sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+    return { x: e.x, y: e.y - 16 }; })()`);
+  await aimAt(mailTarget.x, mailTarget.y);
+  await page.keyboard.press('Space');
+  await page.waitForFunction('window.__GE__.scene.world.player.urgent === true', undefined, { timeout: 2000 });
+  await page.waitForTimeout(500);
+  const mailAim = await page.evaluate<{ x: number; y: number }>(`(() => { const w = window.__GE__.scene.world; const p = w.player;
+    const e = w.enemies.filter((o) => o.state !== 'lurk').sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+    return { x: e.x, y: e.y - 16 }; })()`);
+  await aimAt(mailAim.x, mailAim.y);
+  await page.mouse.down();
+  await page.waitForTimeout(40);
+  await page.mouse.up();
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.reply && b.urgent && b.age > 0.06)", undefined, { timeout: 3000 });
+  await shot('51d-cadena-correos.png');
+  console.log('Planta 4: el Pósit de Urgente y Responder a Todos: la bala urgente se parte hacia los demás (Cadena de Correos).');
+
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
   await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);
