@@ -1078,5 +1078,11 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": []
+  "en_curso": [
+    {
+      "sesion": "2026-11-05 23:02",
+      "tarea": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y el final de la partida (src/sim/world.ts, src/render/GameScene.ts, src/data/texts.ts, tools/bot.ts, tools/medir-plantas.ts, tests/plantas.test.ts)",
+      "desde": "2026-11-05T23:02:00+01:00"
+    }
+  ]
 }
