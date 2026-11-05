@@ -22,12 +22,12 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
 | M10 · Plantas 3 y 4 | hecho | Terminado el 5 de noviembre (34 tareas cerradas; se estimaron 24 sesiones) |
-| M11 · Planta 5 | 13 | Una planta más dos armas |
+| M11 · Planta 5 | 22 | Partida en 22 tareas como M10 (que necesitó 34 para dos plantas) |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
 | M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
 | M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
-| **Total** | **122** | **~159 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+| **Quedan** (5 de noviembre) | **83** | **~108 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
 
 En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
 medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
@@ -407,12 +407,48 @@ llega a la 4 (y la gana) en algunas. Hecho: M10 terminado.
 
 ## M11 · Planta 5: Atención al Cliente
 
-- [ ] Juego de casillas (centralita, cubículos, colas con cinta) y color propio.
-- [ ] 4 enemigos nuevos y un jefe propio (La Centralita: te pasa de un departamento a otro).
-- [ ] 10 objetos nuevos y 2 armas nuevas.
+Diseño en `docs/DISENO.md` (enemigos de la quinta planta, la Centralita, objetos, armas y
+aspecto). En partes, como M10:
+
+- [x] (0) El diseño de la planta 5 y esta lista de tareas.
+- [ ] (1) Juego de casillas y color propio (`src/art/atencion.ts`, se ve con `?planta=5`): linóleo
+  azul con la línea amarilla, postes con cinta, sillas de espera atornilladas, mostradores de
+  ventanilla con mampara, dispensadores de agua, pared con el cartel de la estrella y relojes, y
+  persianas con «Ventanilla cerrada».
+- [ ] (2a) Seis plantillas de combate propias de la planta 5, cada una con su idea y sus grupos.
+- [ ] (2b) Seis plantillas de combate más.
+- [ ] (2c) Las salas especiales propias (Coja Número, Objetos Perdidos, Repuestos Originales,
+  Grabaciones con Fines de Calidad con su registro de llamadas, y la sala de la Centralita).
+- [ ] (3) Encadenar y cerrar: tras el Director se sube a la planta 5 con todo lo que se lleva
+  (`LAST_LEVEL` = 5); hasta que llegue la Centralita, el Director pelea en su sala. Vencer al jefe
+  de la planta 5 acaba la partida con victoria («Su incidencia ha sido cerrada») y vuelta al
+  Mostrador, sin montacargas.
+- 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
+  - [ ] (4a) Dispensador de Turnos (llama turnos: hay que llegar al círculo a tiempo).
+  - [ ] (4b) Postes de Cola (dos postes con una cinta que no se cruza y te hace la cola).
+  - [ ] (4c) Asistente Virtual (aprende: se escuda del lado desde el que le das).
+  - [ ] (4d) Teléfono de Recepción (le pasa con un compañero: se cambia de sitio con otro).
+- Jefa: La Centralita. En partes:
+  - [ ] (5a) Sprites: el cuadro de conexiones (reposo, arrastrarse, hablar, sin clavijas, muda),
+    las clavijas, las notas, los mostradores bajos y las zonas del menú de voz.
+  - [ ] (5b) Fases 1 y 2 (el menú de voz, la música de espera, pasar a la tostadora de
+    departamento), cartel y sonidos.
+  - [ ] (5c) Fase 3 (los cables que barren, muda a ratos) y su documento para el archivador.
+- 10 objetos nuevos y 2 armas, en partes:
+  - [ ] (6a) Cinco de cifras o casi: Formulario en Línea, Tecla Almohadilla, Tiempo de Espera
+    Estimado, Código Promocional Caducado y Cable de Teléfono Rizado.
+  - [ ] (6b1) Tres con efectos nuevos: Número de Turno, Contestador Automático y Llamada Grabada.
+  - [ ] (6b2) Hoja de Reclamaciones y Valoración de Cinco Estrellas, las sinergias Ticket de
+    Incidencia y Buzón Lleno, y la indirecta (Número de Turno + Formulario), medidas.
+  - [ ] (6c1) Arma: la Etiquetadora de Precios (sprite, etiquetas que se pegan, «Rebajado»).
+  - [ ] (6c2) Arma: el Megáfono de Reclamaciones (arco de ondas que atraviesa y empuja).
+- [ ] (7) La planta 5 medida con `npm run plantas`: sus salas, algo más duras que las de las
+  Oficinas; la gana más gente de la que gana la 3 (sigue siendo el muro); y el bot completa la
+  partida entera alguna vez llegando con lo de abajo.
 
 **Criterios de aceptación:** una partida normal tiene 5 plantas y termina al vencer al jefe de
-la quinta; el bot completa la partida entera alguna vez.
+la quinta; el bot completa la partida entera alguna vez (medido con `npm run plantas`, como en
+M10: llegando a la 5 con lo que se recoge en las de abajo).
 
 ## M12 · El Servicio Técnico (piso final secreto)
 
