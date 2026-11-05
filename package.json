@@ -19,6 +19,7 @@
     "armas": "node tools/armas.ts",
     "objetos": "node tools/objetos.ts",
     "enemigos": "node tools/enemigos.ts",
-    "rendimiento": "node tools/rendimiento.ts"
+    "rendimiento": "node tools/rendimiento.ts",
+    "plantas": "node tools/medir-plantas.ts"
   }
 }

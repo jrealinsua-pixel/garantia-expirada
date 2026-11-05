@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf } from '../data/rooms.ts';
+import { floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, toughened } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -1392,7 +1392,9 @@ const PACK_OFFSETS: readonly (readonly [number, number])[] = [[-22, 14], [22, 14
 
 /** Puts the room's enemies (and their escorts and packs) at their spawn points. */
 function spawnRoomEnemies(w: World): void {
-  for (const s of w.room.enemySpawns) {
+  for (const s0 of w.room.enemySpawns) {
+    // The floor's toughness (FLOOR_TOUGHNESS): the pack and the copies share the tougher def.
+    const s = { ...s0, def: toughened(s0.def, w.level) };
     const en = spawnEnemy(w.nextId++, s.def, s.x, s.y);
     w.enemies.push(en);
     // Packs: the rest of the group around the spawn point, each on clear floor.
@@ -1407,7 +1409,7 @@ function spawnRoomEnemies(w: World): void {
       const edef = ENEMIES[s.def.escort];
       if (!edef) throw new Error(`Unknown escort ${s.def.escort}`);
       const at = freeSpot(w, s.x + 18, s.y - 4, edef.footRadius);
-      const esc = spawnEnemy(w.nextId++, edef, at.x, at.y);
+      const esc = spawnEnemy(w.nextId++, toughened(edef, w.level), at.x, at.y);
       esc.owner = en.id;
       w.enemies.push(esc);
     }

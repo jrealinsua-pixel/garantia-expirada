@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { Bot, crossHub } from '../src/sim/bot.ts';
 import { checkInvariants, createWorld, DT, frostSlow, LAST_LEVEL, nextFloor, step, worldHash, type World } from '../src/sim/world.ts';
 import { ROOT } from './lib/deps.ts';
+import { FLOOR_TOUGHNESS } from '../src/data/rooms.ts';
 
 export interface BotReport {
   partidas: number;
@@ -382,6 +383,11 @@ export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level =
   };
 }
 
+/** Time for a whole floor above the first: half as much again as the first, times its toughness. */
+export function upperTime(maxSeconds: number, level: number): number {
+  return level === 1 ? maxSeconds : maxSeconds * 1.5 * (FLOOR_TOUGHNESS[level] ?? 1);
+}
+
 export function runFloors(floors: number, maxSeconds = 600): { report: FloorReport; errors: string[]; failed: number } {
   const errors: string[] = [];
   let failed = 0;
@@ -416,9 +422,10 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
-    // The floors above are half as big again (and their enemies tougher): the same 1.5 times the time as their full runs below.
+    // The floors above are half as big again (and their enemies tougher): the same 1.5 times the time as their full runs below,
+    // and more for a floor whose enemies take more breaking (FLOOR_TOUGHNESS).
     for (const [l, t] of up) {
-      const a2 = playFloor(`planta-${i}`, maxSeconds * 1.5, true, false, l);
+      const a2 = playFloor(`planta-${i}`, upperTime(maxSeconds, l), true, false, l);
       if (a2.explored) t.walked++;
       if (a2.errors.length) {
         failed++;
@@ -464,8 +471,8 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       if (!next) break;
       t.reached++;
       t.life += next.player.hp;
-      // The floors above have more enemies per room: half as much time again.
-      const c = playFloor(`planta-${i}`, maxSeconds * 1.5, false, true, l, next);
+      // The floors above have more enemies per room: half as much time again (and their toughness).
+      const c = playFloor(`planta-${i}`, upperTime(maxSeconds, l), false, true, l, next);
       if (c.won) t.won++;
       if (c.down) t.down++;
       if (c.downAtBoss) t.downAtBoss++;

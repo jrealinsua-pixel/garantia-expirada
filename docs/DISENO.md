@@ -104,7 +104,10 @@ mezclados con los de la planta 1.
 
 La planta 3 es el muro de la partida (nota del humano: pasar de ella tiene que ser difícil de
 verdad). Sus enemigos no pegan más fuerte: castigan quedarse quieto y no mirar el suelo. Salen
-desde la planta 3, mezclados con los de las plantas de abajo. Juguetes gastados, nunca monos:
+desde la planta 3, mezclados con los de las plantas de abajo. Lo que sí cambia es lo que aguantan:
+en la Juguetería todos los enemigos de las salas (también los de abajo) tienen un 30 % más de vida
+(«juguetes homologados para resistir a un niño de tres años»; los jefes, aparte, conservan la suya),
+y en las Oficinas un 50 % (`FLOOR_TOUGHNESS` en `src/data/rooms.ts`, medido en M10 (7)). Juguetes gastados, nunca monos:
 caras de cansancio y de rencor, pintura saltada, pegatinas de oferta a medio despegar (la regla
 de `docs/ESTILO_ARTE.md` de nada de estética infantil vale aquí más que en ningún sitio).
 

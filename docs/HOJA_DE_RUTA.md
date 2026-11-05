@@ -21,7 +21,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
-| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre a las dos plantas solo les quedan las medidas (7)) |
+| M10 · Plantas 3 y 4 | hecho | Terminado el 5 de noviembre (34 tareas cerradas; se estimaron 24 sesiones) |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
@@ -322,9 +322,9 @@ repartido en M12–M14.
 pasando sin bloqueos; el juego es más difícil que antes según el bot (menos victorias contra los
 jefes y menos plantas ganadas), y los números están en la bitácora.
 
-## M10 · Plantas 3 y 4
+## M10 · Plantas 3 y 4 (hecho)
 
-- [ ] Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda)
+- [x] Planta 3: Juguetería, con su juego de casillas, 4 enemigos nuevos, un jefe (El Muñeco de Moda)
   y 10 objetos. Diseño en `docs/DISENO.md` (enemigos, jefe, objetos y aspecto). En partes:
   - [x] (0) El diseño de la planta 3 y esta lista de tareas.
   - [x] (1) Juego de casillas y color propio (`src/art/jugueteria.ts`, se ve con `?planta=3`):
@@ -352,9 +352,10 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [x] (6b1) Tres con efectos nuevos: Pegatina de Edición Limitada, Llave Allen Sobrante y Mando
       con Vibración; y la sinergia Unboxing (con la Caja de Cartón Vacía).
     - [x] (6b2) Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades.
-  - [ ] (7) La planta 3 medida con el bot y ajustada para que sea el muro: el bot con daño la
-    supera menos de una vez de cada cuatro, y es donde más partidas acaban.
-- [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de
+  - [x] (7) La planta 3 medida con el bot y ajustada para que sea el muro: el bot con daño la
+    supera menos de una vez de cada cuatro, y es donde más partidas acaban. Medido con
+    `npm run plantas` (ver los criterios): la gana el 5 % de los que llegan, la que menos.
+- [x] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de
   Recursos Inhumanos) y 10 objetos. Diseño en `docs/DISENO.md` (enemigos, jefe, objetos y aspecto).
   En partes:
   - [x] (0) El diseño de la planta 4 y esta lista de tareas.
@@ -386,14 +387,23 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
       de Visitante.
     - [x] (6b2) Pósit de Urgente y Responder a Todos, las sinergias Pausa para el Café y Cadena de
       Correos, y las dos indirectas (Silla + Etiqueta A+++, Bola + Batería Hinchada), medidas.
-  - [ ] (7) La planta 4 medida con el bot: el bot llega a ella en alguna partida, cada sala es
+  - [x] (7) La planta 4 medida con el bot: el bot llega a ella en alguna partida, cada sala es
     algo más dura que las de la Juguetería, y aun así acaban menos partidas en la 4 que en la 3
-    (porque llegan pocas).
+    (porque llegan pocas). Medido a la vez que la de la planta 3.
 
 **Criterios de aceptación:** se puede jugar de la planta 1 a la 4 seguidas; cada planta se
 distingue a la primera en una captura; el bot llega a la planta 4 en alguna partida. Pasar de la
 planta 3 tiene que ser difícil de verdad (nota del humano): el bot con daño la supera menos de
 una vez de cada cuatro, y la planta 3 es donde más partidas acaban.
+
+**Cómo se miden (2026-11-05):** desde M9b (el juego más difícil que pidió el humano) el bot gana
+la planta 1 una vez de cada cinco o seis, así que en las partidas enteras de `npm run bot` no
+llega nunca a la 3 y esos criterios no se pueden medir así. Se miden con `npm run plantas`: en
+cada partida, las plantas de abajo se juegan sin daño (el bot recoge armas, objetos y cupones
+como un jugador que las pasa) y cada planta se juega con daño desde esa llegada, con la vida
+llena. «La planta 3 es donde más partidas acaban» = es la planta que menos gana quien llega a
+ella. Con 80 partidas: la 1 la gana el 19 %, la 2 el 9 %, **la 3 el 5 %** y la 4 el 8 %; el bot
+llega a la 4 (y la gana) en algunas. Hecho: M10 terminado.
 
 ## M11 · Planta 5: Atención al Cliente
 
