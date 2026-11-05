@@ -168,8 +168,6 @@ export interface Pickup {
   doc?: string;
   /** Put down just now under the toaster: it cannot be picked up until the toaster has stepped off it. */
   stepOff?: boolean;
-  /** Seconds it has been flying to the toaster after its room was cleared (World.vacuum). */
-  vac?: number;
   /** For sale on a shop shelf: its price in coupons (the interact button buys it, if it can be paid). */
   price?: number;
 }
@@ -183,10 +181,6 @@ const WEAPON_GRAB = 12;
 export const PICKUP_DELAY = 0.45;
 /** Pickups closer than this to the player fly towards it (px). */
 export const PICKUP_MAGNET = 44;
-/** How fast the coupons of a cleared room fly to the toaster (px/s). */
-const VACUUM_SPEED = 260;
-/** Seconds a coupon of a cleared room may take to get there before it is simply counted. */
-const VACUUM_GIVE_UP = 1.5;
 const PICKUP_GRAB = 8;
 const PICKUP_FRICTION = 260;
 const PICKUP_RADIUS = 2;
@@ -603,8 +597,6 @@ export interface World {
   won: boolean;
   /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
   holdT: number;
-  /** The room was cleared: its coupons fly to the toaster on their own (nota del humano del 2026-10-30). */
-  vacuum?: boolean;
   /** The Mostrador: the toaster stepped on the conveyor, the hub stands still and a run is due (see leaveHub). */
   leftHub: boolean;
   /** A single room (no floor): chests opened without a ticket in it (see FloorRun.freeChests). */
@@ -1062,7 +1054,6 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.lift = st.lift ?? null;
   st.lift = null;
   w.emptyT = 0;
-  w.vacuum = false;
   const p = w.player;
   const at = entrySpot(w.room, via);
   p.x = at.x;
@@ -2598,20 +2589,7 @@ function updatePickups(w: World): void {
       w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total });
       continue;
     }
-    if (w.vacuum && k.kind === 'cupon' && k.age >= PICKUP_DELAY && !w.over) {
-      // The room is clear: every coupon in it flies to the toaster, sliding round what is in the
-      // way; one that stays stuck behind something a while is counted anyway.
-      k.vac = (k.vac ?? 0) + DT;
-      if (k.vac > VACUUM_GIVE_UP) {
-        p.coupons += k.value;
-        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: p.coupons });
-        continue;
-      }
-      const sp = Math.min(VACUUM_SPEED, d / DT);
-      k.vx = (dx / d) * sp;
-      k.vy = (dy / d) * sp;
-      slide(w, k, PICKUP_RADIUS, k.vx * DT, k.vy * DT);
-    } else if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
+    if (wanted && k.age >= PICKUP_DELAY && d < PICKUP_MAGNET) {
       // Pulled in faster the closer it gets; it slides round pillars and boxes instead of
       // flying through them.
       const sp = 90 + (1 - d / PICKUP_MAGNET) * 160;
@@ -2683,7 +2661,6 @@ function updateDoors(w: World): void {
     w.events.push({ type: 'doors', shut: false });
     chargeActive(w);
     feedPet(w);
-    w.vacuum = true;
     // The turbo lasts until the next combat room is cleared (this one, if it was already on).
     if (w.player.turbo) {
       w.player.turbo = false;

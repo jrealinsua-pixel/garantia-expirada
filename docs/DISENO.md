@@ -206,7 +206,9 @@ de inventario («Activo n.º 00412»), cables con bridas y pósits que nadie qui
     cargadores, deja a medias a un aspirador y a un jefe apenas le hace cosquillas). «Subida de
     tensión · daños no cubiertos». Uno como mucho.
 - **Los objetos nunca están sueltos** por una sala: solo salen de cofres o de la tienda.
-- **Los cupones se recogen solos** al limpiar una sala: vuelan hacia la tostadora. Los enemigos
+- **Los cupones hay que ir a recogerlos** (nota del humano del 2026-11-05, que aclara la del
+  30 de octubre): al limpiar la sala se quedan donde cayeron, y el imán solo los atrae de cerca;
+  el minimapa marca las salas en las que se quedaron. Los enemigos
   sueltan la mitad que antes (0–1 casi todos; los jefes, 5–9): una planta da unos 20.
 - **La tienda** (Tienda del Personal): la atiende la **Caja de Autocobro**, una caja de
   autopago que se quedó sola después de que despidieran a las demás. Tres baldas: el siguiente
@@ -496,7 +498,7 @@ Están repartidas como tareas en `docs/HOJA_DE_RUTA.md` (M6, M7, M8 y M10).
   al limpiar salas. Cofres de calidades: el normal da cosas flojas, el raro solo cosas buenas.
 - Un botón de interactuar para hablar, comprar, abrir cofres y volcar muebles como cobertura;
   objetos del escenario que explotan o hacen otras cosas.
-- Los cupones se recogen solos al limpiar la sala. Sin números de daño ni textos al matar.
+- ~~Los cupones se recogen solos al limpiar la sala~~ (corregido el 2026-11-05: hay que recogerlos, y el minimapa avisa de los que quedan). Sin números de daño ni textos al matar.
 - (2026-11-05) Lo que se queda en una sala por coger o abrir (cofres, tickets, corazones, armas u
   objetos, cupones) se marca en el minimapa, una sola marca por tipo, como en otros juegos del género.
 - Corazones que suben y bajan con objetos; un escudo temporal ligado a la trama; corazones

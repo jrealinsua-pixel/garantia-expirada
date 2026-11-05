@@ -202,6 +202,16 @@ export class Bot {
     // A weapon or an item on a pedestal: go and get it (unless it got stuck going for something).
     const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => (k.kind === 'arma' || k.kind === 'objeto') && k.price === undefined);
     if (arm) return steer(w, { x: arm.x, y: arm.y }, r, blocked);
+    // Coupons and tickets left lying about: they no longer fly over on their own (nota del humano
+    // del 2026-11-05), so it goes for the nearest before leaving.
+    let loose: (typeof w.pickups)[number] | undefined;
+    if (this.ignorePickups <= 0) {
+      for (const k of w.pickups) {
+        if ((k.kind !== 'cupon' && k.kind !== 'ticket') || k.price !== undefined) continue;
+        if (!loose || Math.hypot(k.x - p.x, k.y - p.y) < Math.hypot(loose.x - p.x, loose.y - p.y)) loose = k;
+      }
+    }
+    if (loose) return steer(w, { x: loose.x, y: loose.y }, r, blocked);
     // In the shop: buy what it can pay for (an item first, a heart if hurt, then a ticket).
     const buy = this.ignorePickups > 0 ? undefined : this.shopping(w);
     if (buy) return steer(w, { x: buy.x, y: buy.y }, r, blocked);

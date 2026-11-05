@@ -187,8 +187,8 @@ test('el imán de cupones no los mete dentro de una columna', () => {
   }
 });
 
-test('al limpiar una sala, sus cupones van solos a la tostadora (nota del humano del 2026-10-30)', async () => {
-  const { createWorld: cw, enterRoom: er, step: st, NO_INPUT: NI, DT: dt } = await import('../src/sim/world.ts');
+test('al limpiar una sala, sus cupones se quedan en el suelo hasta ir a por ellos (nota del humano del 2026-11-05)', async () => {
+  const { createWorld: cw, enterRoom: er, step: st, NO_INPUT: NI, DT: dt, isClear: free } = await import('../src/sim/world.ts');
   const w = cw({ seed: 'aspiradora', floor: true });
   w.noDamage = true;
   const f = w.floor!;
@@ -196,13 +196,40 @@ test('al limpiar una sala, sus cupones van solos a la tostadora (nota del humano
   er(w, fr.id, fr.doors[0]!.dir);
   assert.ok(w.doorsShut);
   // Coupons lying about in the far corner, and the toaster standing still on the other side.
-  for (let i = 0; i < 4; i++) w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: w.room.w - 60, y: w.room.h - 50, vx: 0, vy: 0, age: 1 });
+  // A strip of free floor in the far half: the coupons at its right end.
+  let cx = 0;
+  let cy = 0;
+  search: for (let y = w.room.h - 50; y > 60; y -= 4) {
+    for (let x = w.room.w - 60; x > w.room.w / 2; x -= 4) {
+      let ok = true;
+      for (let t = 0; t <= 30 && ok; t += 3) ok = free(w, x - t, y, 8);
+      if (ok) {
+        cx = x;
+        cy = y;
+        break search;
+      }
+    }
+  }
+  assert.ok(cx > 0);
+  const mine: number[] = [];
+  for (let i = 0; i < 4; i++) {
+    mine.push(w.nextId);
+    w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: cx, y: cy, vx: 0, vy: 0, age: 1 });
+  }
   w.player.x = 60;
   w.player.y = 80;
   for (const en of w.enemies) en.damageTaken = en.def.hp;
   const before = w.player.coupons;
   for (let i = 0; i < Math.ceil(3 / dt); i++) st(w, NI);
   assert.ok(!w.doorsShut);
-  assert.equal(w.pickups.filter((k) => k.kind === 'cupon').length, 0, 'quedan cupones en el suelo');
+  // Those in the corner are still there, where they were (the enemies' own may have dropped nearby).
+  const left = w.pickups.filter((k) => mine.includes(k.id));
+  assert.equal(left.length, 4, 'los cupones han volado solos');
+  for (const k of left) assert.ok(Math.hypot(k.x - cx, k.y - cy) < 2);
+  // Standing next to them, the magnet brings them in.
+  w.player.x = cx - 24;
+  w.player.y = cy;
+  for (let i = 0; i < Math.ceil(1 / dt); i++) st(w, NI);
+  assert.equal(w.pickups.filter((k) => mine.includes(k.id)).length, 0);
   assert.ok(w.player.coupons >= before + 4);
 });
