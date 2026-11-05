@@ -65,4 +65,15 @@ export const LORE: readonly LoreDoc[] = [
       'Resistencia de tostadora, reacondicionada: 0,40. Puerta de microondas, reacondicionada: 0,15. Gracias por su visita.',
     ],
   },
+  {
+    id: 'catalogo-1',
+    kind: 'Catálogo de Navidad',
+    title: 'Edición interna · No distribuir',
+    source: { secret: 3 },
+    pages: [
+      'Novedad de la temporada: Robot de Cuerda «Segunda Vida». Muelle de tostadora, chapa de microondas y engranajes de batidora. Todo de la última planta.',
+      'Garantía: la que les quedara a las piezas. Nota del departamento: no les quedaba ninguna. Por eso sale tan barato.',
+      'Edad recomendada: 3+. Edad de las piezas: no pregunte.',
+    ],
+  },
 ];

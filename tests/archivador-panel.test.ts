@@ -62,10 +62,10 @@ test('el panel enseña la lista, lo nuevo, la hoja abierta, y vacío lo dice', (
   const a = archive(two!);
   const L = archiveLayout(a, firstCursor(a), hint);
   const tt = L.texts.map((t) => t.text);
-  assert.ok(tt.includes('2/4'));
+  assert.ok(tt.includes(`2/${LORE.length}`));
   assert.equal(L.texts.filter((t) => t.role === 'new').map((t) => t.text).join(), ARCHIVE_NEW, 'solo el manual es nuevo');
   assert.equal(L.texts.find((t) => t.role === 'open')?.text, 'Manual de procedimiento · Página 1 de 400');
-  assert.equal(L.texts.filter((t) => t.role === 'missing').length, 2);
+  assert.equal(L.texts.filter((t) => t.role === 'missing').length, LORE.length - 2);
   assert.ok(tt.some((t) => t.startsWith('Paso 1: reciba el aparato')));
   assert.ok(tt.includes('Hoja 1 de 2') && tt.includes(hint));
   assert.equal(LORE_MISSING, a[2]!.heading);

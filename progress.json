@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T02:58:00+01:00",
+  "actualizado": "2026-11-05T03:09:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 2,
     "armas": 3,
     "objetos": 25,
-    "plantillas_sala": 49,
+    "plantillas_sala": 54,
     "tests": 522,
     "tests_ok": 522,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 18694
+    "lineas_codigo": 18810
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T03:09:00+01:00",
+      "hito": "M10",
+      "resumen": "Las salas especiales de la Juguetería: el rellano de entrada, el tesoro (encargos de Reyes que nadie recogió), la tienda de juguetes educativos que enseñan a pagar, la secreta de juguetes retirados con su documento (un catálogo de Navidad interno: ya se sabe adónde van las piezas) y el Escaparate de Novedades del jefe.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T02:58:00+01:00",
       "hito": "M10",
@@ -806,6 +812,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/jugueteria-secreta.png",
+      "pie": "La sala secreta de la Juguetería, llena de juguetes retirados, con su documento en el suelo: un catálogo de Navidad interno"
+    },
+    {
       "archivo": "capturas/sala-castillo.png",
       "pie": "Castillo Hinchable (Desinflado por Seguridad): un castillo de estanterías con la puerta hacia abajo; a veces tiene ventanas"
     },
@@ -818,19 +828,15 @@
       "pie": "Urbanización de Casitas (Hipoteca a 40 Años): un corral de casitas de muñecas con huecos en los cuatro lados"
     },
     {
-      "archivo": "capturas/sobre-salta.png",
-      "pie": "Sobres Sorpresa en la Juguetería: uno da un saltito (con su sombra en el suelo) y el otro escupe un abanico corto de confeti de papel de regalo"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     },
     {
       "archivo": "capturas/jugueteria-entrada.png",
-      "pie": "La entrada de la Juguetería: felpudo «A JUGAR», caballitos de balancín, papel de nubes y banderines; cada planta se distingue a la primera"
+      "pie": "Rellano de la Juguetería (Prohibido Correr): felpudo «A JUGAR», caballitos de balancín, casitas de muñecas y papel de nubes"
     }
   ],
-  "proximo": "M10 (2c), las salas especiales propias de la Juguetería (entrada, tesoro, tienda, secreta con su documento y el Escaparate de Novedades); después (3), encadenar la planta 3 tras el Router.",
+  "proximo": "M10 (3), encadenar la planta 3 tras el Router (el Router pelea en el Escaparate hasta que llegue el Muñeco); después (5a), los sprites del Muñeco de Moda.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",

@@ -403,7 +403,8 @@ no al acercarse (nota del humano del 2026-10-30).
 - **El archivador «Reclamaciones sin Resolver»**: los documentos de historia encontrados
   (albaranes, correos internos, manuales de procedimiento del Servicio Técnico), uno por jefe
   vencido por primera vez y alguno en salas secretas. Leídos en orden cuentan, poco a poco, que
-  el Servicio Técnico no repara nada.
+  el Servicio Técnico no repara nada. El de la secreta de la Juguetería (un catálogo de Navidad
+  interno) deja ver adónde van las piezas: a los juguetes de la temporada siguiente.
 - **La cinta de entrada al almacén**: una cinta transportadora con cortinas de tiras de
   plástico en una pared, bajo el cartel «Mercancía devuelta». Pisarla empieza la partida en la
   planta 1 (como un producto más que vuelve al almacén).

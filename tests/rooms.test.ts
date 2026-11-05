@@ -236,21 +236,30 @@ test('salas especiales de la planta 2: lo mismo que las del almacén donde impor
   }
 });
 
-test('plantillas de la planta 3: doce salas de combate suyas, y las especiales todavía las del almacén', () => {
+test('plantillas de la planta 3: doce salas de combate y las especiales, todas suyas', () => {
   const three = templatesOf('combat', 3);
   assert.ok(three.length >= 12, `${three.length} salas de combate en la planta 3`);
   for (const t of three) assert.equal(t.level, 3, t.id);
   // Nothing of floor 3 leaks into the floors below.
   for (const level of [1, 2]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 3), `planta ${level}`);
-  // Until M10 (2c) the special rooms of floor 3 are the warehouse's.
-  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 3), templatesOf(k), k);
+  // Its special rooms are its own too, and match the warehouse's where the code counts on it.
+  const count = (t: RoomTemplate, ch: string): number => [...t.rows.join('')].filter((x) => x === ch).length;
+  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) {
+    const [one] = templatesOf(k);
+    assert.ok(templatesOf(k, 3).length >= 1, k);
+    for (const t of templatesOf(k, 3)) {
+      assert.equal(t.level, 3, `${k}: ${t.id}`);
+      for (const ch of ['*', 's', '$', 'J', 'e', 'P']) assert.equal(count(t, ch), count(one!, ch), `${t.id}: «${ch}»`);
+      assert.deepEqual([t.rows[0]!.length, t.rows.length], [one!.rows[0]!.length, one!.rows.length], `${t.id}: tamaño`);
+    }
+  }
   // A generated floor 3 fights only in its own rooms, and its toys come out of their slots.
   const toys = new Set(['Q', 'V', 'U', 'Y']);
   let withToys = 0;
   for (let i = 0; i < 10; i++) {
     const w = createWorld({ seed: `juguetes-${i}`, floor: true, level: 3 });
+    for (const r of w.floor!.rooms) assert.equal(r.template.level, 3, r.template.id);
     for (const r of w.floor!.rooms.filter((x) => x.template.kind === 'combat')) {
-      assert.equal(r.template.level, 3, r.template.id);
       if ([...r.template.rows.join('')].some((ch) => toys.has(ch))) withToys++;
     }
   }
