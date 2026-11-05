@@ -2,7 +2,7 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
-import { checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
+import { brickUnder, checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
 import { PLAYER_HURT_Y, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
@@ -104,9 +104,11 @@ export function dodge(w: World): Dodge {
     const dx = p.x - f.x;
     const dy = (p.y - f.y) / FROST_FLAT;
     const d = Math.hypot(dx, dy) || 1;
-    const reach = f.r + 8;
+    // Building pieces on the floor: step round them (they hurt), and well clear of where they fall.
+    const piece = f.brick !== undefined;
+    const reach = f.r + (piece ? 14 : 8);
     if (d > reach) continue;
-    const k = (1 - d / reach) * (f.t < 0 ? 0.9 : 0.5);
+    const k = (1 - d / reach) * (f.t < 0 ? 0.9 : piece ? 1.2 : 0.5);
     out.x += (dx / d) * k;
     out.y += (dy / d) * k;
   }
@@ -341,6 +343,14 @@ export class Bot {
     if (dg?.roll) {
       // The roll goes where the stick points.
       return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false, swap, useItem, interact };
+    }
+    // About to walk onto a building piece: roll over it (as a player would), if the roll is ready.
+    if (!isRolling(p) && p.rollCooldown <= 0 && w.frost.length > 0) {
+      const ux = tx / l;
+      const uy = ty / l;
+      if (brickUnder(w, p.x + ux * 7, p.y + uy * 7) || brickUnder(w, p.x + ux * 12, p.y + uy * 12)) {
+        return { moveX: ux, moveY: uy, aimX, aimY, fire, roll: true, reload: false, swap, useItem, interact };
+      }
     }
     return {
       useItem,

@@ -10,7 +10,8 @@ import {
   ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
 } from './characters.ts';
 import { narrowPoseCycle, poseCycle } from './pose.ts';
-import { makeBatidoraFrames, makeCargadorFrames, makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames } from './enemies.ts';
+import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas,
+  makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
@@ -55,6 +56,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'robot-cuerda': { canvas: strip(makeRobotFrames()), frameW: 27, frameH: 31 },
     // 0-1 idling, 2-3 driving, 4 revving to ram, 5 overturned, 6 batteries out.
     'coche-teledirigido': { canvas: strip(makeRcCarFrames()), frameW: 32, frameH: 22 },
+    // 0-1 standing, 2-5 waddling, 6 lid up (about to throw); and the pieces it throws (4 kinds).
+    'cubo-piezas': { canvas: strip(makeCuboFrames()), frameW: 27, frameH: 31 },
+    pieza: { canvas: strip(makePiezas()), frameW: 10, frameH: 8 },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
     'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
     // Floor 2's boss: 0-5 awake (rest, breathing, walking), 6-11 rebooting with 0 to 5 LEDs lit.

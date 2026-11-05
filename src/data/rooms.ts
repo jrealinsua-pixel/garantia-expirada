@@ -867,12 +867,13 @@ export const SLOT_ENEMIES_2: readonly SlotEnemy[] = [
 
 /**
  * Floor 3 (Juguetería): floor 2's and its own toys (Q: the wind-up robot; V: the remote-control
- * car). Its other two enemies join as they are made (M10 4c-4d).
+ * car; U: the bucket of pieces). Its last enemy joins when it is made (M10 4d).
  */
 export const SLOT_ENEMIES_3: readonly SlotEnemy[] = [
   ...SLOT_ENEMIES_2,
   { ch: 'Q', cost: 3, weight: 4, max: 2 },
   { ch: 'V', cost: 3, weight: 3, max: 2 },
+  { ch: 'U', cost: 3, weight: 3, max: 2 },
 ];
 
 /** What can fill an `e` slot on floor `level`. */

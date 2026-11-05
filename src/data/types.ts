@@ -626,7 +626,32 @@ export interface RcCarBrain {
   stall: { every: [number, number]; time: number };
 }
 
-export type EnemyBrain = RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
+/**
+ * A bucket of building pieces: a slow turret that keeps about `keep` px from the player (walking at
+ * `speed`). Every `interval` s (random in the range), with the player closer than `range`, it lifts
+ * its lid (`telegraph` s, standing still) and lobs `count` pieces in an arc (`flight` s each): one
+ * where the player is heading, the rest up to `spread` px around. Each lands where a mark shows and
+ * stays on the floor `life` s: stepping on one walking hurts (`damage`) and uses it up; rolling over
+ * it does nothing, and a player bullet sweeps it away. `muzzleY`: height of its lid.
+ */
+export interface LobberBrain {
+  kind: 'lobber';
+  speed: number;
+  keep: number;
+  range: number;
+  interval: [number, number];
+  telegraph: number;
+  count: number;
+  spread: number;
+  flight: number;
+  life: number;
+  damage: number;
+  muzzleY: number;
+}
+
+export type EnemyBrain =
+  | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
   id: string;

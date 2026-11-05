@@ -40,6 +40,9 @@ export const WIND_DOWN_LINE = 'Cuerda agotada';
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
 
+/** Over the toaster when it steps on a building piece. */
+export const BRICK_LINE = 'Pieza pisada';
+
 /** Over a webcam when it starts recording, when it loses you, and when it tells the others. */
 export const REC_LINE = 'Grabando';
 export const REC_LOST_LINE = 'Conexión perdida';
@@ -70,6 +73,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   webcam: { bullet: 'Foto subida sin consentimiento', contact: 'Videollamada sorpresa' },
   'robot-cuerda': { bullet: 'Tuerca suelta de un juguete de segunda mano', contact: 'Atropello por juguete sin frenos' },
   'coche-teledirigido': { contact: 'Atropello por un coche sin carné' },
+  'cubo-piezas': { contact: 'Pieza pisada descalzo de madrugada' },
   'router-wifi': { bullet: 'Exceso de cobertura', contact: 'Reinicio forzoso' },
   repetidor: { bullet: 'Señal repetida', contact: 'Tropiezo con un repetidor' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T01:20:00+01:00",
+  "actualizado": "2026-11-05T02:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 13,
+    "enemigos": 14,
     "jefes": 2,
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 508,
-    "tests_ok": 508,
+    "tests": 515,
+    "tests_ok": 515,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 17848
+    "lineas_codigo": 18124
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T02:45:00+01:00",
+      "hito": "M10",
+      "resumen": "El Cubo de Piezas, tercer enemigo de la Juguetería: guarda las distancias, levanta la tapa y lanza piezas de construcción en parábola que se quedan 6 s en el suelo. Pisarlas andando quita medio corazón; rodando no pasa nada y una bala las barre.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T01:20:00+01:00",
       "hito": "M10",
@@ -782,6 +788,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/cubo-lanza.png",
+      "pie": "El Cubo de Piezas levanta la tapa y lanza un puñado de piezas: las cruces amarillas marcan dónde caerán, alrededor de la tostadora"
+    },
+    {
+      "archivo": "capturas/cubo-piezas.png",
+      "pie": "Las piezas se quedan 6 s en el suelo de la Juguetería: pisarlas andando quita medio corazón; rodando por encima, nada, y una bala las barre"
+    },
+    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     },
@@ -796,17 +810,9 @@
     {
       "archivo": "capturas/robot-rebote.png",
       "pie": "El Robot de Cuerda rebota en la pared y suelta su abanico de tres tuercas hacia la tostadora"
-    },
-    {
-      "archivo": "capturas/robot-agotado.png",
-      "pie": "«Cuerda agotada»: se para en seco con la llave quieta y durante 2 s recibe el doble de daño"
-    },
-    {
-      "archivo": "capturas/mesa-cubre.png",
-      "pie": "Tras la Mesa de Saldos volcada: las balas que bajan hacia ella se quedan en la tapa y la van astillando; las de la tostadora pasan por encima"
     }
   ],
-  "proximo": "M10 (2a), las seis primeras plantillas de combate de la planta 3 (ya tiene su aspecto: ?planta=3); o (4c) el Cubo de Piezas.",
+  "proximo": "M10 (4d) el Sobre Sorpresa, último enemigo de la planta 3; o (2a), las seis primeras plantillas de combate de la Juguetería.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -832,11 +838,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 01:25",
-      "tarea": "M10 (4c) Cubo de Piezas",
-      "desde": "2026-11-05T00:25:00Z"
-    }
-  ]
+  "en_curso": []
 }

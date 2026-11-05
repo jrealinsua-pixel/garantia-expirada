@@ -217,10 +217,13 @@ export function glitter(S: Canvas, rng: Rng, cx: number, cy: number, r: number):
   }
 }
 
-/** A loose building brick (you step on it once). */
+/**
+ * A loose building brick (you step on it once), flat and faded into the mat: half the size of the
+ * pieces a Cubo de Piezas throws and without their outline and shadow, so it never passes for one.
+ */
 export function brick(S: Canvas, rng: Rng, x: number, y: number): void {
   const c = hx(rng.pick(['#9a3a36', '#3f66a6', '#c2a23a', '#3f7a42', '#d3d8e4']));
-  const a: RGBA = [c[0], c[1], c[2], 190];
+  const a: RGBA = [c[0], c[1], c[2], 120];
   S.rect(x, y, 4, 3, a);
   S.set(x + 1, y, shade(a, 30));
   S.set(x + 3, y, shade(a, 30));

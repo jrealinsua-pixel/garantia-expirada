@@ -370,6 +370,16 @@ export interface Frost {
    * it bursts where it lands and leaves no patch (`life` is 0).
    */
   product?: number;
+  /**
+   * Not frost but a building piece a bucket lobs (its frame in the `pieza` sheet): it lies on the
+   * floor until `life`; stepping on it walking hurts (`damage`) and uses it up; a player bullet
+   * sweeps it away (`swept`); rolling over it does nothing. It never slows anyone down.
+   */
+  brick?: number;
+  damage?: number;
+  swept?: boolean;
+  /** A piece that lands under the player's feet does nothing until the player has stepped off it. */
+  armed?: boolean;
   /** Who threw it (enemy id, and its kind for the sick-leave report). */
   source: number;
   by: string;
@@ -379,6 +389,10 @@ export interface Frost {
 export const FROST_FLAT = 0.6;
 /** No more patches than this at once: the oldest melts. */
 export const MAX_FROST = 8;
+/** No more building pieces on the floor than this: the oldest is tidied away. */
+export const MAX_BRICKS = 12;
+/** Building pieces hurt within this radius of the player's feet (and are swept by bullets within it). */
+export const BRICK_RADIUS = 5;
 
 export type SimEvent =
   /** The interact button at a station of the Mostrador: it talks (or opens its panel). */
@@ -423,7 +437,9 @@ export type SimEvent =
   | { type: 'blinkIn'; x: number; y: number; source: number }
   /** A boss throws a ball of frost from (x, y) to land at (tx, ty) in `flight` s; then it lands. */
   | { type: 'frostThrow'; x: number; y: number; tx: number; ty: number; flight: number; source: number }
-  | { type: 'frostLand'; x: number; y: number; r: number; product?: number }
+  | { type: 'frostLand'; x: number; y: number; r: number; product?: number; brick?: number }
+  /** A building piece is stepped on (it hurt) or swept away by a bullet. */
+  | { type: 'brickStep' | 'brickSwept'; x: number; y: number; brick: number; angle?: number }
   /** A boss starts a new phase of its fight. */
   | { type: 'bossPhase'; boss: number; phase: number; name: string; reboot?: string }
   /** A boss plants a relay (the Router's repeaters), and marks dropped connections on the floor. */
@@ -1270,6 +1286,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'relay') {
     state = 'idle';
     until = Infinity;
+  } else if (b.kind === 'lobber') {
+    state = 'idle';
+    until = b.interval[0] * 0.6;
   } else if (b.kind === 'windup') {
     // It comes in winding itself up: a moment to see it before it sets off.
     state = 'jam';
@@ -1660,6 +1679,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
           }
         }
         if (!alive) break;
+        sweepBricks(w, b.x, fy, b.r, angle);
         for (const d of w.dummies) {
           if (b.hits?.includes(d.id)) continue;
           const hb = dummyHurtBox(d);
@@ -1939,6 +1959,11 @@ export function activeWarnings(w: World): Warning[] {
       out.push({ x: lx, y: ly, k: Math.min(1, en.t / en.until), aim: Math.atan2(w.player.y - HAND_HEIGHT - ly, w.player.x - lx), aimed: true, color: 'red', bullets: true, source: en.id, reach });
       continue;
     }
+    if (b.kind === 'lobber') {
+      // The lid comes up: the pieces will fly out of the top of the bucket.
+      out.push({ x: en.x, y: en.y - b.muzzleY, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: 'red', bullets: true, source: en.id });
+      continue;
+    }
     if (b.kind === 'lagger' && en.dest) {
       // Where the frozen mouse will appear and click: a ring closing in on that spot.
       out.push({ x: en.dest.x, y: en.dest.y - b.muzzleY, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: 'red', bullets: true, source: en.id });
@@ -2016,6 +2041,8 @@ export interface FrostOptions {
   flight: number;
   shatter?: string;
   product?: number;
+  brick?: number;
+  damage?: number;
   source: number;
   by: string;
 }
@@ -2024,6 +2051,10 @@ export function throwFrost(w: World, x: number, y: number, h: number, tx: number
   const f: Frost = { id: w.nextId++, x: tx, y: ty, r: opts.r, t: -opts.flight, life: opts.life, slow: opts.slow, fromX: x, fromY: y, fromH: h, flight: opts.flight, source: opts.source, by: opts.by };
   if (opts.shatter) f.shatter = opts.shatter;
   if (opts.product !== undefined) f.product = opts.product;
+  if (opts.brick !== undefined) {
+    f.brick = opts.brick;
+    f.damage = opts.damage ?? 1;
+  }
   w.frost.push(f);
   w.events.push({ type: 'frostThrow', x, y: y - h, tx, ty, flight: opts.flight, source: opts.source });
   return f;
@@ -2031,7 +2062,7 @@ export function throwFrost(w: World, x: number, y: number, h: number, tx: number
 
 /** Whether (x, y) is inside a landed frost patch. */
 export function inFrost(f: Frost, x: number, y: number): boolean {
-  if (f.t < 0) return false;
+  if (f.t < 0 || f.brick !== undefined) return false;
   const dx = (x - f.x) / f.r;
   const dy = (y - f.y) / (f.r * FROST_FLAT);
   return dx * dx + dy * dy <= 1;
@@ -2050,18 +2081,62 @@ function updateFrost(w: World): void {
     const was = f.t;
     f.t += DT;
     if (was < 0 && f.t >= 0) {
-      w.events.push(f.product !== undefined ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, product: f.product } : { type: 'frostLand', x: f.x, y: f.y, r: f.r });
+      w.events.push(
+        f.product !== undefined
+          ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, product: f.product }
+          : f.brick !== undefined
+            ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, brick: f.brick }
+            : { type: 'frostLand', x: f.x, y: f.y, r: f.r },
+      );
       // It shatters into splinters, unless whoever threw it is gone already.
       const def = f.shatter ? PATTERNS[f.shatter] : undefined;
       if (def && !w.over && w.enemies.some((en) => en.id === f.source)) {
         firePattern(w, def, f.x, f.y - 3, Math.atan2(w.player.y - f.y, w.player.x - f.x), { by: f.by, height: 3 });
       }
     }
-    if (f.t < f.life) keep.push(f);
+    if (f.t < f.life && !f.swept) keep.push(f);
   }
-  // Too much frost: the oldest patches on the floor melt first.
-  while (keep.filter((f) => f.t >= 0).length > MAX_FROST) keep.splice(keep.findIndex((f) => f.t >= 0), 1);
+  // Too much frost: the oldest patches on the floor melt first (and the oldest pieces are tidied away).
+  const landed = (brick: boolean) => (f: Frost): boolean => f.t >= 0 && (f.brick !== undefined) === brick;
+  while (keep.filter(landed(false)).length > MAX_FROST) keep.splice(keep.findIndex(landed(false)), 1);
+  while (keep.filter(landed(true)).length > MAX_BRICKS) keep.splice(keep.findIndex(landed(true)), 1);
   w.frost = keep;
+  stepOnBricks(w);
+}
+
+const onBrick = (f: Frost, x: number, y: number): boolean => Math.hypot(x - f.x, (y - f.y) / FROST_FLAT) <= BRICK_RADIUS + 2;
+
+/** The building piece under the player's feet that would hurt, if any (landed, armed and not swept). */
+export function brickUnder(w: World, x: number, y: number): Frost | undefined {
+  return w.frost.find((f) => f.brick !== undefined && f.t >= 0 && f.armed && !f.swept && onBrick(f, x, y));
+}
+
+/**
+ * Walking onto a building piece hurts (like stepping on one barefoot) and uses it up; rolling over
+ * it does nothing. Only while the player can be hurt: during the blink it is not used up either.
+ */
+function stepOnBricks(w: World): void {
+  const p = w.player;
+  // Landing on the toaster's feet is not stepping on it: it arms once they are off it.
+  for (const f of w.frost) if (f.brick !== undefined && f.t >= 0 && !f.armed && !onBrick(f, p.x, p.y)) f.armed = true;
+  if (isRolling(p) || !canBeHurt(w)) return;
+  const f = brickUnder(w, p.x, p.y);
+  if (!f) return;
+  f.swept = true;
+  w.frost = w.frost.filter((o) => o !== f);
+  w.events.push({ type: 'brickStep', x: f.x, y: f.y, brick: f.brick! });
+  const d = normalize(p.vx, p.vy);
+  hurtPlayer(w, f.damage ?? 1, f.source, -d.x, -d.y, { by: f.by, how: 'contact' });
+}
+
+/** A player bullet passing over building pieces on the floor sweeps them away (it flies on). */
+function sweepBricks(w: World, x: number, floorY: number, r: number, angle: number): void {
+  for (const f of w.frost) {
+    if (f.brick === undefined || f.t < 0 || f.swept) continue;
+    if (Math.hypot(x - f.x, (floorY - f.y) / FROST_FLAT) > BRICK_RADIUS + r) continue;
+    f.swept = true;
+    w.events.push({ type: 'brickSwept', x: f.x, y: f.y, brick: f.brick, angle });
+  }
 }
 
 /** Rolling (its i-frames) and the blink after a hit protect the player. */
@@ -2128,7 +2203,7 @@ export function clearEnemyFire(w: World): void {
   for (const b of w.bullets) if (b.owner === 'enemy') points.push({ x: b.x, y: b.y, color: b.color });
   w.bullets = w.bullets.filter((b) => b.owner !== 'enemy');
   w.emitters = [];
-  for (const f of w.frost) if (f.t < 0) points.push({ x: f.x, y: f.y, color: f.product !== undefined ? 'red' : 'ice' });
+  for (const f of w.frost) if (f.t < 0) points.push({ x: f.x, y: f.y, color: f.product !== undefined || f.brick !== undefined ? 'red' : 'ice' });
   w.frost = w.frost.filter((f) => f.t >= 0);
   w.events.push({ type: 'fireCleared', points });
 }

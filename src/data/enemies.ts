@@ -2,6 +2,9 @@
 // src/sim/enemies.ts.
 import type { EnemyDef } from './types.ts';
 
+/** Kinds of building piece a bucket throws (frames of the `pieza` sheet). */
+export const BRICK_KINDS = 4;
+
 export const ENEMIES: Record<string, EnemyDef> = {
   aspirador: {
     id: 'aspirador',
@@ -349,6 +352,36 @@ export const ENEMIES: Record<string, EnemyDef> = {
       recover: 0.45,
       brake: 700,
       stall: { every: [3.5, 6], time: 0.8 },
+    },
+  },
+  'cubo-piezas': {
+    id: 'cubo-piezas',
+    name: 'Cubo de Piezas',
+    description: 'Más de mil piezas, compatibles con casi nada. Las instrucciones están en el fondo del cubo, debajo de todas las piezas.',
+    hp: 16,
+    sprite: 'cubo-piezas',
+    anchor: { x: 14, y: 31 },
+    hurt: { x: -10, y: -27, w: 20, h: 25 },
+    footRadius: 6,
+    contactPush: 180,
+    contactDamage: 1,
+    knockbackScale: 0.35,
+    loot: { coupons: [0, 1] },
+    // 0-1 standing, 2-5 walking, 6 lid up (about to throw).
+    anim: { idle: [0, 1], idleMs: 520, walk: [2, 3, 4, 5], stepPx: 5, warn: 6 },
+    brain: {
+      kind: 'lobber',
+      speed: 38,
+      keep: 140,
+      range: 260,
+      interval: [2.6, 3.6],
+      telegraph: 0.55,
+      count: 3,
+      spread: 32,
+      flight: 0.85,
+      life: 6,
+      damage: 1,
+      muzzleY: 26,
     },
   },
   'router-wifi': {

@@ -1,9 +1,9 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
 import type {
-  BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain,
+  BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
 } from '../data/types.ts';
-import { ENEMIES } from '../data/enemies.ts';
+import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
@@ -78,6 +78,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'rccar':
         updateRcCar(w, en, en.def.brain);
+        break;
+      case 'lobber':
+        updateLobber(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1181,6 +1184,74 @@ export function bossWarnSpot(en: Enemy, b: BossBrain, a: BossAttack): { x: numbe
 }
 
 /** Height its bullets come out at: `muzzleY` above the feet, lower if a wall is right above it. */
+/**
+ * The bucket of pieces: keeps its distance like a walking turret; when its wait is over and the
+ * player is in range it stops, lifts its lid (the warning) and lobs a handful of pieces: the first
+ * where the player is heading, the rest scattered round it, where it would step to dodge.
+ */
+function updateLobber(w: World, en: Enemy, b: LobberBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+  let walkX = 0;
+  let walkY = 0;
+  switch (en.state) {
+    case 'warn':
+      if (en.t >= en.until) {
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        const sx = en.x + 2 * en.facing;
+        for (let k = 0; k < b.count; k++) {
+          const lead = k === 0 ? 0.3 : 0.15;
+          const ang = w.rng.range(0, Math.PI * 2);
+          const d = k === 0 ? 0 : b.spread * (0.45 + 0.55 * Math.sqrt(w.rng.next()));
+          let tx = p.x + p.vx * lead + Math.cos(ang) * d;
+          let ty = p.y + p.vy * lead + Math.sin(ang) * d * 0.75;
+          if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
+          throwFrost(w, sx, en.y, mh, tx, ty, {
+            r: 7, life: b.life, slow: 1, flight: b.flight * w.rng.range(0.85, 1.15),
+            brick: w.rng.int(0, BRICK_KINDS - 1), damage: b.damage, source: en.id, by: en.def.id,
+          });
+        }
+        enter(en, 'fire', 0.35);
+      }
+      break;
+    case 'fire':
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+      break;
+    default: {
+      if (en.state !== 'idle') enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
+      if (en.t >= en.until && dist < b.range) {
+        enter(en, 'warn', b.telegraph);
+        break;
+      }
+      // Keeps its distance, backing off sideways (as the walking turrets do).
+      const sign = dist > b.keep + 24 ? 1 : dist < b.keep - 24 ? -1 : 0;
+      const side = sign < 0 ? (en.phase >= 0 ? 0.8 : -0.8) : 0;
+      const ux = dx / dist;
+      const uy = dy / dist;
+      const mx = ux * sign - uy * side;
+      const my = uy * sign + ux * side;
+      const ml = Math.hypot(mx, my) || 1;
+      if (sign !== 0) {
+        walkX = (mx / ml) * b.speed;
+        walkY = (my / ml) * b.speed;
+      }
+    }
+  }
+  approach(en, walkX, walkY, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    const moved = Math.hypot(en.x - ox, en.y - oy);
+    en.moved += moved;
+    if ((hit.hitX || hit.hitY) && moved < b.speed * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
+  }
+}
+
 function muzzleHeight(w: World, en: Enemy, muzzleY: number): number {
   let h = 0;
   while (h < muzzleY && !isWallAt(w.room, en.x, en.y - h - 3)) h++;

@@ -755,3 +755,137 @@ export function makeRcCar(spin = 0, bob = 0, mood: 0 | 1 | 2 | 3 = 0): Canvas {
 export function makeRcCarFrames(): Canvas[] {
   return [makeRcCar(0, 0), makeRcCar(0, 1), makeRcCar(1, 0), makeRcCar(0, 1), makeRcCar(0, 0, 1), makeRcCar(0, 0, 2), makeRcCar(0, 0, 3)];
 }
+
+/** Shiny red bucket plastic, and the lid's yellow; the piece that fits nothing is green. */
+const BKT = ramp('#ff8a70', '#e0453b', '#a42f37', '#6a1d2a');
+const BKT_LIP = ramp('#ffb09a', '#ff8a70', '#e0453b', '#a42f37');
+const LIME = ramp('#b8ec8c', '#58b45a', '#3d8a45', '#285f33');
+
+/** One stud seen from above-right: a light dot over its base and a dark rim below. */
+function stud(cv: Canvas, x: number, y: number, R: Ramp): void {
+  cv.rect(x, y, 2, 1, R[0]!);
+  cv.rect(x, y + 1, 2, 1, R[2]!);
+}
+
+/**
+ * Cubo de Piezas: a red plastic bucket of building pieces, wider at the top, with its yellow
+ * studded lid worn as a cap (the peak to the right) and its handle down under the chin as the
+ * cap's strap. Its eyes are two round pieces (white, dark centre); a wrong green piece that fits
+ * nothing is stuck on its forehead. Jokes: the «1000+» label, a crack mended with a plaster, the
+ * shoes two blue bricks. `lid` lifts the lid by that many px (about to throw: a fistful of pieces
+ * shows inside and it glares); `jx` shakes it. 27x31.
+ */
+export function makeCubo(pose: Pose = { xb: CUBO_LEGS[0], xf: CUBO_LEGS[1], bob: 0 }, lid = 0): Canvas {
+  const legs = new Canvas(26, 30);
+  const cv = new Canvas(26, 30);
+  poseFeet(legs, pose, 24, { L: 3, leg: DSTEEL, shoe: BLUE });
+  hand(cv, 1, 17, YEL);
+  // The bucket: a cone cut short, x0..x1 per row from the rim (y 10) to the bottom (y 24), lit
+  // from the top left: a dark band round the back, one bright streak, a shadow on the front edge.
+  for (let y = 10; y <= 24; y++) {
+    const k = (y - 10) / 14;
+    const x0 = Math.round(3 + 3.4 * k);
+    const x1 = Math.round(22 - 3.4 * k);
+    for (let x = x0; x <= x1; x++) {
+      const u = (x - x0) / (x1 - x0);
+      const c = u < 0.1 ? BKT[3]! : u < 0.24 ? BKT[2]! : u < 0.32 ? BKT[0]! : u > 0.92 ? BKT[2]! : BKT[1]!;
+      cv.set(x, y, y >= 23 ? BKT[y === 24 ? 3 : 2]! : c);
+    }
+  }
+  clear(cv, [[6, 24], [19, 24]]);
+  // The rim: a lip one px wider all round.
+  cv.rect(2, 10, 22, 2, BKT_LIP[1]!);
+  cv.rect(2, 11, 22, 1, BKT_LIP[2]!);
+  cv.rect(2, 10, 3, 2, BKT[2]!);
+  // Inside, when the lid is up: a fistful of pieces of every colour, and a dark mouth.
+  if (lid > 0) {
+    cv.rect(4, 9, 18, 1, K);
+    const bits: Array<[number, Ramp]> = [[5, BLUE], [8, YEL], [11, LIME], [14, BLUE], [17, YEL], [20, LIME]];
+    for (const [x, R] of bits) {
+      cv.rect(x, 8, 2, 2, R[1]!);
+      cv.set(x, 8, R[0]!);
+    }
+  }
+  // The lid, worn as a cap: a flat studded disc, the peak sticking out to the right.
+  const ly = 6 - lid;
+  cv.rect(3, ly + 1, 20, 3, YEL[1]!);
+  cv.rect(4, ly, 18, 1, YEL[0]!);
+  cv.rect(3, ly + 3, 20, 1, YEL[2]!);
+  cv.rect(3, ly + 1, 2, 3, YEL[2]!);
+  cv.rect(21, ly + 3, 5, 1, YEL[2]!);
+  cv.rect(21, ly + 2, 5, 1, YEL[1]!);
+  cv.set(25, ly + 3, YEL[3]!);
+  for (const x of [6, 10, 14, 18]) stud(cv, x, ly - 1, YEL);
+  // A wrong piece on its forehead: a green brick stuck on askew, its two studs out of line.
+  cv.rect(14, 13, 5, 2, LIME[1]!);
+  cv.rect(14, 14, 5, 1, LIME[2]!);
+  cv.set(18, 13, LIME[2]!);
+  cv.set(15, 12, LIME[0]!);
+  cv.set(18, 12, LIME[0]!);
+  cv.set(13, 14, LIME[3]!);
+  // Eyes: two round white pieces with dark centres, looking right; heavy brows sloping inward.
+  const eye = (x: number, y: number): void => {
+    cv.rect(x, y, 3, 3, WHITE);
+    cv.set(x, y, CREAM[1]!);
+    cv.set(x + 2, y + 2, CREAM[2]!);
+    cv.rect(x + 1, y + 1, 2, 2, K);
+  };
+  eye(11, 16);
+  eye(17, 16);
+  const brows: Pt[] = lid > 0
+    ? [[10, 15], [11, 15], [12, 16], [13, 16], [17, 16], [18, 16], [19, 15], [20, 15]]
+    : [[11, 15], [12, 15], [13, 15], [17, 15], [18, 15], [19, 15]];
+  for (const [x, y] of brows) cv.set(x, y, K);
+  // Mouth: tight and sour (open when it throws).
+  cv.rect(15, 20, 3, lid > 0 ? 2 : 1, K);
+  cv.set(14, 21, K);
+  // The handle, down round the chin as the cap's strap: grey wire from the rim to under the mouth.
+  const strap: Pt[] = [[4, 12], [5, 14], [6, 16], [7, 18], [8, 20], [9, 21], [10, 22], [11, 22], [12, 22], [13, 22], [14, 22]];
+  for (const [x, y] of strap) cv.set(x, y, DSTEEL[0]!);
+  for (const [x, y] of [[19, 22], [20, 21], [21, 19], [22, 16], [22, 13]] as Pt[]) cv.set(x, y, DSTEEL[1]!);
+  cv.rect(15, 22, 4, 1, DSTEEL[0]!);
+  // Its back: a «1000+» sticker (white, a red burst) and a plaster over a crack.
+  cv.rect(5, 17, 3, 3, WHITE);
+  cv.set(6, 18, RED[1]!);
+  cv.set(5, 17, CREAM[1]!);
+  cv.rect(17, 11, 1, 1, BKT[3]!);
+  hand(cv, 22, lid > 0 ? 11 : 18, YEL);
+  const out = new Canvas(27, 31);
+  out.blit(joinPose(legs, cv, pose), 1, 1);
+  return outline(out);
+}
+
+export const CUBO_LEGS = [8, 14] as const;
+
+/** The bucket's frames: 0-1 standing, 2-5 a heavy waddle, 6 lid up (about to throw). */
+export function makeCuboFrames(): Canvas[] {
+  return [...narrowPoseCycle(CUBO_LEGS[0], CUBO_LEGS[1], 1).map((f) => makeCubo(f.pose)), makeCubo(undefined, 3)];
+}
+
+/**
+ * The building pieces it throws, seen from above-right as they lie on the floor: a red 2x2, a blue
+ * 2x3, a yellow 1x2 and a green corner. Each 10x8.
+ */
+export function makePiezas(): Canvas[] {
+  // A block `cols` x `rows` studs (each 3 px wide, 2 deep on top), 2 px of front face; `skip`: an
+  // empty cell (the corner piece).
+  const piece = (cols: number, rows: number, R: Ramp, skip?: Pt): Canvas => {
+    const cv = new Canvas(10, 8);
+    const ox = 5 - Math.ceil((cols * 3) / 2);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (skip && skip[0] === c && skip[1] === r) continue;
+        const x = ox + c * 3;
+        const y = 1 + r * 2;
+        cv.rect(x, y, 3, 2, R[1]!);
+        // The front face, under the front row (or under a cell with nothing in front of it).
+        const front = r === rows - 1 || (skip && skip[0] === c && skip[1] === r + 1);
+        if (front) cv.rect(x, y + 2, 3, 2, R[2]!);
+        cv.set(x + 1, y, R[0]!);
+        cv.set(x + 1, y + 1, R[3]!);
+      }
+    }
+    return outline(cv);
+  };
+  return [piece(2, 2, RED), piece(3, 1, BLUE), piece(2, 1, YEL), piece(2, 2, LIME, [1, 0])];
+}

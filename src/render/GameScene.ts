@@ -26,6 +26,7 @@ import {
   JAM_LINE,
   WIND_DOWN_LINE,
   STALL_LINE,
+  BRICK_LINE,
   REVEAL_LINE,
   REC_LINE,
   REC_LOST_LINE,
@@ -2205,7 +2206,24 @@ export class GameScene extends Phaser.Scene {
         case 'frostThrow':
           this.sound2.play('lanzar', { detune: this.fx.range(-200, 200) });
           break;
+        case 'brickStep':
+          // Stepped on: the worst pain known to anyone with feet.
+          this.sound2.play('chapa', { detune: 700, volume: 0.8 });
+          this.brickBits(e.x, e.y, e.brick, 0);
+          this.floatText(e.x, e.y - 30, fontText(BRICK_LINE), 0xf6c431, 'brick', -14, 0.8);
+          break;
+        case 'brickSwept':
+          // A bullet sweeps the piece away: it skids off where the bullet was going.
+          this.sound2.play('clinc', { detune: this.fx.range(-500, 0), volume: 0.7 });
+          this.brickBits(e.x, e.y, e.brick, e.angle ?? 0, true);
+          break;
         case 'frostLand': {
+          if (e.brick !== undefined) {
+            // A piece lands: a plastic clack and a little dust.
+            this.sound2.play('clinc', { detune: this.fx.range(-900, -500), volume: 0.6 });
+            this.puff(e.x, e.y, 0.25);
+            break;
+          }
           if (e.product !== undefined) {
             // An expired product bursts: a wet splat and green bits flying.
             this.sound2.play('chof', { detune: this.fx.range(-300, 300) });
@@ -2365,6 +2383,20 @@ export class GameScene extends Phaser.Scene {
     const a = this.fx.range(0, Math.PI * 2);
     const sp = this.fx.range(20, 60);
     this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.6, z: 2, vz: this.fx.range(40, 90), life: 0.9, maxLife: 0.9, gravity: true, spin: 0, fade: true, hw: 1, hh: 1 });
+  }
+
+  /**
+   * A building piece leaves the floor: swept by a bullet it skids off along `angle` and spins; stepped
+   * on it just jumps (and a few chips of its colour fly).
+   */
+  private brickBits(x: number, y: number, brick: number, angle: number, swept = false): void {
+    const s = this.add.image(x, y - 2, 'pieza', brick);
+    const sp = swept ? this.fx.range(110, 160) : 20;
+    const a = swept ? angle + this.fx.range(-0.3, 0.3) : this.fx.range(0, Math.PI * 2);
+    const vz = this.fx.range(60, 110);
+    this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.6, z: 2, vz, life: 0.6, maxLife: 0.6, gravity: true, spin: this.fx.range(-14, 14), fade: true, fadeTime: 0.2 });
+    const tint = [0xe0453b, 0x5f93d4, 0xf6c431, 0x58b45a][brick] ?? 0xf4f1e8;
+    for (let i = 0; i < 3; i++) this.spark(x, y - 2, this.fx.range(0, Math.PI * 2), this.fx.range(25, 60), 2, tint);
   }
 
   /** A splinter of ice that jumps out and bounces on the floor. */
@@ -3240,7 +3272,12 @@ export class GameScene extends Phaser.Scene {
       alive.add(f.id);
       let v = this.frostViews.get(f.id);
       if (!v) {
-        const ball = f.product !== undefined ? this.add.image(f.fromX, f.fromY, 'producto-caducado', f.product) : this.add.image(f.fromX, f.fromY, 'bola-escarcha');
+        const ball =
+          f.product !== undefined
+            ? this.add.image(f.fromX, f.fromY, 'producto-caducado', f.product)
+            : f.brick !== undefined
+              ? this.add.image(f.fromX, f.fromY, 'pieza', f.brick)
+              : this.add.image(f.fromX, f.fromY, 'bola-escarcha');
         v = { ball, shadow: this.add.image(f.fromX, f.fromY, shadowTexture(this, 4, 2)).setDepth(-50000), patch: null };
         this.frostViews.set(f.id, v);
       }
@@ -3249,9 +3286,22 @@ export class GameScene extends Phaser.Scene {
         const x = f.fromX + (f.x - f.fromX) * k;
         const y = f.fromY + (f.y - f.fromY) * k;
         const h = f.fromH * (1 - k) + Math.sin(Math.PI * k) * 46;
-        v.ball.setPosition(Math.round(x), Math.round(y - h)).setDepth(y + 30).setRotation(k * (f.product !== undefined ? 4 : 6));
+        const spin = f.brick !== undefined ? (Math.floor(k * 8 + f.id) % 4) * (Math.PI / 2) : k * (f.product !== undefined ? 4 : 6);
+        v.ball.setPosition(Math.round(x), Math.round(y - h)).setDepth(y + 30).setRotation(spin);
         v.shadow.setPosition(Math.round(x), Math.round(y));
-        // Where it will land: a cold ring that closes in, over a dark ellipse.
+        // Where it will land: a cold ring that closes in, over a dark ellipse (a small cross for a piece).
+        if (f.brick !== undefined) {
+          const fx = Math.round(f.x);
+          const fy = Math.round(f.y);
+          const s2 = Math.round(5 - 2 * k);
+          g.fillStyle(0x0e0c16, 0.25 + 0.25 * k).fillEllipse(fx, fy, 10, 6);
+          if (k < 0.85 || Math.floor(this.time.now / 60) % 2 === 0) {
+            g.fillStyle(0xf6c431, 1);
+            g.fillRect(fx - s2, fy, s2 * 2 + 1, 1);
+            g.fillRect(fx, fy - Math.ceil(s2 * FROST_FLAT), 1, Math.ceil(s2 * FROST_FLAT) * 2 + 1);
+          }
+          continue;
+        }
         const rx = Math.round(f.r * (1.35 - 0.35 * k));
         const ry = Math.round(rx * FROST_FLAT);
         g.fillStyle(0x0e0c16, 0.18 + 0.2 * k).fillEllipse(Math.round(f.x), Math.round(f.y), f.r * 2, f.r * 2 * FROST_FLAT);
@@ -3262,10 +3312,22 @@ export class GameScene extends Phaser.Scene {
       }
       if (v.ball.visible) {
         v.ball.setVisible(false);
-        v.shadow.setVisible(false);
+        // A piece keeps its shadow under it, so it stands out on the busy mats.
+        if (f.brick !== undefined) v.shadow.setPosition(Math.round(f.x), Math.round(f.y) + 1).setScale(1.4, 1.2).setDepth(-59500);
+        else v.shadow.setVisible(false);
+      }
+      const left = f.life - f.t;
+      if (f.brick !== undefined) {
+        // A piece on the floor: it bounces once as it lands, and blinks before it is tidied away.
+        if (!v.patch) v.patch = this.add.sprite(Math.round(f.x), Math.round(f.y) - 2, 'pieza', f.brick).setDepth(-59000);
+        const hop = f.t < 0.25 ? Math.round(Math.sin((f.t / 0.25) * Math.PI) * 3) : 0;
+        v.patch.setY(Math.round(f.y) - 2 - hop);
+        const a = left < 1 ? (Math.floor(this.time.now / 90) % 2 === 0 ? 0.35 : 0.9) : 1;
+        v.patch.setAlpha(a);
+        v.shadow.setAlpha(a);
+        continue;
       }
       if (!v.patch) v.patch = this.add.sprite(Math.round(f.x), Math.round(f.y), 'escarcha', 0).setDepth(-60000);
-      const left = f.life - f.t;
       const pop = Math.min(1, f.t / 0.12);
       v.patch.setScale(0.5 + 0.5 * pop).setFrame(Math.floor(this.time.now / 420 + f.id) % 2);
       // Melting: it blinks for its last second.

@@ -338,7 +338,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
     - [x] (4a) Robot de Cuerda (rebota como una bola de billar; sin cuerda, quieto y frágil).
     - [x] (4b) Coche Teledirigido (arcos derrapando, embestida, vuelca contra la pared).
-    - [ ] (4c) Cubo de Piezas (siembra el suelo de piezas que hacen daño al andar, no al rodar).
+    - [x] (4c) Cubo de Piezas (siembra el suelo de piezas que hacen daño al andar, no al rodar).
     - [ ] (4d) Sobre Sorpresa (al romperlo, sorpresa: repetidos, cupones o el Muñequito Dorado).
   - Jefe: El Muñeco de Moda. En partes:
     - [ ] (5a) Sprites: con caja (reposo, andar, posar), las etiquetas de rebaja, la caja rota y

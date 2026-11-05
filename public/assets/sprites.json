@@ -77,6 +77,18 @@
     "frameH": 22,
     "frames": 7
   },
+  "cubo-piezas": {
+    "file": "cubo-piezas.png",
+    "frameW": 27,
+    "frameH": 31,
+    "frames": 7
+  },
+  "pieza": {
+    "file": "pieza.png",
+    "frameW": 10,
+    "frameH": 8,
+    "frames": 4
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,
