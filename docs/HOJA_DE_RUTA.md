@@ -331,7 +331,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     suelo de goma EVA, pared de nubes, estanterías de cajas, obstáculos de los huecos `o` y
     persianas propias.
   - [x] (2a) Seis plantillas de combate propias de la planta 3, cada una con su idea y sus grupos.
-  - [ ] (2b) Seis plantillas de combate más.
+  - [x] (2b) Seis plantillas de combate más.
   - [ ] (2c) Las salas especiales propias (entrada, tesoro, tienda, secreta con su documento de
     historia, y el Escaparate de Novedades del jefe).
   - [ ] (3) Encadenar: tras el Router se baja en el montacargas a la planta 3, con todo lo que se

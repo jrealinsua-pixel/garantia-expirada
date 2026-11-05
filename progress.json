@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T02:46:00+01:00",
+  "actualizado": "2026-11-05T02:58:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 2,
     "armas": 3,
     "objetos": 25,
-    "plantillas_sala": 43,
+    "plantillas_sala": 49,
     "tests": 522,
     "tests_ok": 522,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 18555
+    "lineas_codigo": 18694
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T02:58:00+01:00",
+      "hito": "M10",
+      "resumen": "Seis salas de combate más en la Juguetería, ya son doce: una maqueta de tren con tres carriles, un castillo hinchable con alguien dentro, un laberinto de canicas en molinillo, una fiesta de cumpleaños con mesas que se vuelcan y bombonas de helio, los regalos devueltos del 26 de diciembre y unos probadores de disfraces.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T02:46:00+01:00",
       "hito": "M10",
@@ -800,6 +806,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sala-castillo.png",
+      "pie": "Castillo Hinchable (Desinflado por Seguridad): un castillo de estanterías con la puerta hacia abajo; a veces tiene ventanas"
+    },
+    {
       "archivo": "capturas/sala-circuito.png",
       "pie": "Circuito de Coches de Ocasión: una isla de estanterías a la que se da vueltas; el Coche Teledirigido derrapa a su lado"
     },
@@ -812,10 +822,6 @@
       "pie": "Sobres Sorpresa en la Juguetería: uno da un saltito (con su sombra en el suelo) y el otro escupe un abanico corto de confeti de papel de regalo"
     },
     {
-      "archivo": "capturas/sobre-sorpresa.png",
-      "pie": "Al romper los sobres sale la sorpresa: «Repetidos», dos muñequitos que persiguen y muerden (a veces, cupones; muy pocas, el Muñequito Dorado Ultrarraro)"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     },
@@ -824,7 +830,7 @@
       "pie": "La entrada de la Juguetería: felpudo «A JUGAR», caballitos de balancín, papel de nubes y banderines; cada planta se distingue a la primera"
     }
   ],
-  "proximo": "M10 (2b), seis plantillas más y las salas especiales propias de la Juguetería; después (3), encadenar la planta 3 tras el Router.",
+  "proximo": "M10 (2c), las salas especiales propias de la Juguetería (entrada, tesoro, tienda, secreta con su documento y el Escaparate de Novedades); después (3), encadenar la planta 3 tras el Router.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -850,11 +856,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 02:25",
-      "tarea": "M10 (2b) seis plantillas más de la Juguetería",
-      "desde": "2026-11-05T01:50:00Z"
-    }
-  ]
+  "en_curso": []
 }

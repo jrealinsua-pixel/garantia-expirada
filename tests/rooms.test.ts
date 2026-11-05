@@ -236,13 +236,13 @@ test('salas especiales de la planta 2: lo mismo que las del almacén donde impor
   }
 });
 
-test('plantillas de la planta 3: seis salas de combate suyas, y las especiales todavía las del almacén', () => {
+test('plantillas de la planta 3: doce salas de combate suyas, y las especiales todavía las del almacén', () => {
   const three = templatesOf('combat', 3);
-  assert.ok(three.length >= 6, `${three.length} salas de combate en la planta 3`);
+  assert.ok(three.length >= 12, `${three.length} salas de combate en la planta 3`);
   for (const t of three) assert.equal(t.level, 3, t.id);
   // Nothing of floor 3 leaks into the floors below.
   for (const level of [1, 2]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 3), `planta ${level}`);
-  // Until M10 (2b) the special rooms of floor 3 are the warehouse's.
+  // Until M10 (2c) the special rooms of floor 3 are the warehouse's.
   for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 3), templatesOf(k), k);
   // A generated floor 3 fights only in its own rooms, and its toys come out of their slots.
   const toys = new Set(['Q', 'V', 'U', 'Y']);
