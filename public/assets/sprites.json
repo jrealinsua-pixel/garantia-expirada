@@ -89,6 +89,24 @@
     "frameH": 8,
     "frames": 4
   },
+  "sobre-sorpresa": {
+    "file": "sobre-sorpresa.png",
+    "frameW": 24,
+    "frameH": 28,
+    "frames": 5
+  },
+  "munequito-repetido": {
+    "file": "munequito-repetido.png",
+    "frameW": 18,
+    "frameH": 20,
+    "frames": 7
+  },
+  "munequito-dorado": {
+    "file": "munequito-dorado.png",
+    "frameW": 18,
+    "frameH": 20,
+    "frames": 6
+  },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
     "frameW": 72,
@@ -267,6 +285,12 @@
     "file": "bala-tuerca.png",
     "frameW": 9,
     "frameH": 9,
+    "frames": 2
+  },
+  "bala-confeti": {
+    "file": "bala-confeti.png",
+    "frameW": 7,
+    "frameH": 7,
     "frames": 2
   },
   "producto-caducado": {

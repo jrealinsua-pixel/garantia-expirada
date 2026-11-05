@@ -1375,3 +1375,15 @@ export function makeTableFrames(level: 1 | 2 | 3): Canvas[] {
   const east = tableEast(L);
   return [tableStanding(L), tableNorth(L), tableSouth(L), east, mirror(east)];
 }
+
+/** The envelope's confetti: a square of red gift wrap with a yellow ribbon, fluttering (2 frames, 7x7). */
+export function makeConfetti(): Canvas {
+  const frames: Array<readonly string[]> = [
+    ['.00000.', '0221120', '0233320', '0123210', '0113110', '0111110', '.00000.'],
+    ['.......', '.00000.', '0223320', '0133310', '0111110', '.00000.', '.......'],
+  ];
+  const cols: Record<string, RGBA> = { '0': RED[3]!, '1': RED[1]!, '2': RED[0]!, '3': YEL[1]! };
+  const sheet = new Canvas(7 * frames.length, 7);
+  frames.forEach((rows, f) => paintGrid(sheet, f * 7, 0, rows, cols));
+  return sheet;
+}

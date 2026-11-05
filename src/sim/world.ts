@@ -5,7 +5,7 @@ import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
-import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, WeaponDef } from '../data/types.ts';
+import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, isRunDown, updateEnemies } from './enemies.ts';
@@ -410,6 +410,9 @@ export type SimEvent =
   | { type: 'jam'; x: number; y: number; source: number }
   /** A wind-up toy sets off, bounces off something, runs down, or starts winding itself up. */
   | { type: 'windGo' | 'windBounce' | 'windDown' | 'windUp'; x: number; y: number; source: number }
+  /** A surprise envelope takes off or lands; or it breaks and `what` comes out (its SurpriseDef line). */
+  | { type: 'hop' | 'hopLand'; x: number; y: number; source: number }
+  | { type: 'surprise'; x: number; y: number; line: string; spawned: number[]; coupons: number }
   /** A remote-control car overturns against something, rights itself, or its batteries give out. */
   | { type: 'carFlip' | 'carRight' | 'carStall'; x: number; y: number; source: number }
   | { type: 'reveal'; x: number; y: number; source: number }
@@ -1286,6 +1289,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'relay') {
     state = 'idle';
     until = Infinity;
+  } else if (b.kind === 'hopper') {
+    state = 'idle';
+    until = b.rest[1];
   } else if (b.kind === 'lobber') {
     state = 'idle';
     until = b.interval[0] * 0.6;
@@ -1299,7 +1305,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
 
 /** Pixels above the ground an enemy is drawn (and hit) at: only flying ones are off the floor. */
 export function enemyAltitude(en: Enemy): number {
-  return en.def.brain.kind === 'moth' ? en.def.brain.altitude : 0;
+  const b = en.def.brain;
+  if (b.kind === 'hopper') return en.state === 'charge' ? Math.sin(Math.PI * Math.min(1, en.t / en.until)) * b.hopHeight : 0;
+  return b.kind === 'moth' ? b.altitude : 0;
 }
 
 /** Brains whose own 'warn' state is a telegraph (the turret's comes from its emitter). */
@@ -1317,7 +1325,9 @@ export function playerFeetBox(p: { x: number; y: number }, r: number): Rect {
 }
 
 export function dummyHurtBox(d: Dummy | Enemy): Rect {
-  return { x: d.x + d.def.hurt.x, y: d.y + d.def.hurt.y, w: d.def.hurt.w, h: d.def.hurt.h };
+  // A hopping envelope is hit where it is drawn, up in the air.
+  const up = 'brain' in d.def && d.def.brain.kind === 'hopper' ? enemyAltitude(d as Enemy) : 0;
+  return { x: d.x + d.def.hurt.x, y: d.y + d.def.hurt.y - up, w: d.def.hurt.w, h: d.def.hurt.h };
 }
 
 function solidsNear(w: World, box: Rect): Rect[] {
@@ -2263,6 +2273,7 @@ function reapEnemies(w: World): void {
       const sp = w.rng.range(50, 110);
       w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: spot.x, y: spot.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
     }
+    if (en.def.surprise) openSurprise(w, en, en.def.surprise, keep);
     for (let i = 0; i < (en.def.loot.hearts ?? 0); i++) {
       // Spare hearts roll out slowly towards the player, so they are easy to see.
       const a = Math.atan2(w.player.y - en.y, w.player.x - en.x) + w.rng.range(-0.5, 0.5);
@@ -2272,6 +2283,43 @@ function reapEnemies(w: World): void {
     }
   }
   w.enemies = keep;
+}
+
+/**
+ * A surprise envelope breaks: one of its surprises (by weight) comes out. Spawned enemies pop out
+ * sideways from where it was (into `keep`, the enemies that stay), each on clear floor; extra
+ * coupons burst out all round.
+ */
+function openSurprise(w: World, en: Enemy, table: readonly SurpriseDef[], keep: Enemy[]): void {
+  let r = w.rng.range(0, table.reduce((t, s) => t + s.weight, 0));
+  const pick = table.find((s) => (r -= s.weight) < 0) ?? table[table.length - 1]!;
+  const spawned: number[] = [];
+  if (pick.spawn) {
+    const def = ENEMIES[pick.spawn.id];
+    if (!def) throw new Error(`Unknown enemy ${pick.spawn.id}`);
+    for (let i = 0; i < pick.spawn.count; i++) {
+      const a = en.lastHit + Math.PI / 2 + (i / pick.spawn.count) * Math.PI * 2 + w.rng.range(-0.4, 0.4);
+      const at = freeSpot(w, en.x + Math.cos(a) * 6, en.y + Math.sin(a) * 4, def.footRadius);
+      const kid = spawnEnemy(w.nextId++, def, at.x, at.y);
+      // Out it pops, sliding a little, and only then goes for you.
+      kid.vx = Math.cos(a) * 160;
+      kid.vy = Math.sin(a) * 100;
+      if (def.brain.kind === 'chaser') {
+        kid.state = 'brake';
+        kid.until = 0.45;
+      }
+      keep.push(kid);
+      spawned.push(kid.id);
+    }
+  }
+  const n = pick.coupons ?? 0;
+  for (let i = 0; i < n; i++) {
+    const a = ((i + w.rng.range(0.2, 0.8)) / n) * Math.PI * 2;
+    const sp = w.rng.range(70, 120);
+    const at = freeSpot(w, en.x, en.y, PICKUP_RADIUS);
+    w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: at.x, y: at.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+  }
+  w.events.push({ type: 'surprise', x: en.x, y: en.y, line: pick.line, spawned, coupons: n });
 }
 
 /** Raises the goods lift on clear floor as close to (x, y) as possible. */

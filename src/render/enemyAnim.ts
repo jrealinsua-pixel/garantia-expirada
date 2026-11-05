@@ -39,6 +39,10 @@ export function enemyFrame(en: Enemy, now: number): number {
   if (a.off !== undefined && !bulbLit(en, now)) return a.off;
   // Rebooting: its lights come on one by one over the reboot.
   if (a.reboot && en.state === 'roar') return a.reboot[Math.min(a.reboot.length - 1, Math.floor((en.t / en.until) * a.reboot.length))]!;
+  // A hopper: in the air, crouching just before a hop, and puffed up while it spits confetti.
+  if (a.jump !== undefined && en.state === 'charge') return a.jump;
+  if (a.jump !== undefined && en.state === 'fire' && a.warn !== undefined) return a.warn;
+  if (a.crouch !== undefined && en.state === 'idle' && en.until - en.t < 0.12) return a.crouch;
   // Frozen while it warns (the wireless mouse without signal).
   if (a.warn !== undefined && en.state === 'warn') return a.warn;
   // A mimic lying in wait, and jumping up when found out.

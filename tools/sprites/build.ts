@@ -10,7 +10,7 @@ import {
   ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
 } from './characters.ts';
 import { narrowPoseCycle, poseCycle } from './pose.ts';
-import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas,
+import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
   makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -59,6 +59,10 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // 0-1 standing, 2-5 waddling, 6 lid up (about to throw); and the pieces it throws (4 kinds).
     'cubo-piezas': { canvas: strip(makeCuboFrames()), frameW: 27, frameH: 31 },
     pieza: { canvas: strip(makePiezas()), frameW: 10, frameH: 8 },
+    // 0-1 standing, 2 crouching, 3 in the air, 4 about to spit; and what comes out of it.
+    'sobre-sorpresa': { canvas: strip(makeSobreFrames()), frameW: 24, frameH: 28 },
+    'munequito-repetido': { canvas: strip(makeMunequitoFrames(false)), frameW: 18, frameH: 20 },
+    'munequito-dorado': { canvas: strip(makeMunequitoFrames(true)), frameW: 18, frameH: 20 },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
     'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
     // Floor 2's boss: 0-5 awake (rest, breathing, walking), 6-11 rebooting with 0 to 5 LEDs lit.
@@ -95,6 +99,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-tarjeta': { canvas: P.makeLoyaltyCard(), frameW: 10, frameH: 8 },
     'bala-factura': { canvas: P.makeInvoice(), frameW: 10, frameH: 10 },
     'bala-tuerca': { canvas: P.makeNut(), frameW: 9, frameH: 9 },
+    'bala-confeti': { canvas: P.makeConfetti(), frameW: 7, frameH: 7 },
     'producto-caducado': { canvas: P.makeExpiredProducts(), frameW: 12, frameH: 14 },
     escarcha: { canvas: P.makeFrostPatch(), frameW: 46, frameH: 28 },
     fogonazo: { canvas: P.makeMuzzle(), frameW: 12, frameH: 10 },

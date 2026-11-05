@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T02:45:00+01:00",
+  "actualizado": "2026-11-05T03:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 14,
+    "enemigos": 17,
     "jefes": 2,
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 37,
-    "tests": 515,
-    "tests_ok": 515,
+    "tests": 521,
+    "tests_ok": 521,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 18124
+    "lineas_codigo": 18409
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T03:55:00+01:00",
+      "hito": "M10",
+      "resumen": "El Sobre Sorpresa, cuarto y último enemigo de la Juguetería: da saltitos, escupe confeti y al romperlo sale una sorpresa al azar: dos Muñequitos Repetidos que muerden (75 %), cuatro cupones (20 %) o el Muñequito Dorado Ultrarraro, que dispara anillos y vale cinco cupones (5 %). Las probabilidades, en letra pequeña.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T02:45:00+01:00",
       "hito": "M10",
@@ -788,12 +794,16 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/cubo-lanza.png",
-      "pie": "El Cubo de Piezas levanta la tapa y lanza un puñado de piezas: las cruces amarillas marcan dónde caerán, alrededor de la tostadora"
+      "archivo": "capturas/sobre-salta.png",
+      "pie": "Sobres Sorpresa en la Juguetería: uno da un saltito (con su sombra en el suelo) y el otro escupe un abanico corto de confeti de papel de regalo"
     },
     {
-      "archivo": "capturas/cubo-piezas.png",
-      "pie": "Las piezas se quedan 6 s en el suelo de la Juguetería: pisarlas andando quita medio corazón; rodando por encima, nada, y una bala las barre"
+      "archivo": "capturas/sobre-sorpresa.png",
+      "pie": "Al romper los sobres sale la sorpresa: «Repetidos», dos muñequitos que persiguen y muerden (a veces, cupones; muy pocas, el Muñequito Dorado Ultrarraro)"
+    },
+    {
+      "archivo": "capturas/cubo-lanza.png",
+      "pie": "El Cubo de Piezas levanta la tapa y lanza un puñado de piezas: las cruces amarillas marcan dónde caerán, alrededor de la tostadora"
     },
     {
       "archivo": "capturas/jugueteria-sala.png",
@@ -806,13 +816,9 @@
     {
       "archivo": "capturas/coche-apunta.png",
       "pie": "El Coche Teledirigido frena, pone los faros en rojo y apunta la embestida; detrás, las marcas de sus derrapes"
-    },
-    {
-      "archivo": "capturas/robot-rebote.png",
-      "pie": "El Robot de Cuerda rebota en la pared y suelta su abanico de tres tuercas hacia la tostadora"
     }
   ],
-  "proximo": "M10 (4d) el Sobre Sorpresa, último enemigo de la planta 3; o (2a), las seis primeras plantillas de combate de la Juguetería.",
+  "proximo": "M10 (2a), las seis primeras plantillas de combate de la Juguetería (ya tiene su aspecto y sus cuatro enemigos); después (2b) y (3), encadenar la planta 3 tras el Router.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -838,11 +844,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 02:50",
-      "tarea": "M10 (4d) Sobre Sorpresa",
-      "desde": "2026-11-05T01:50:00Z"
-    }
-  ]
+  "en_curso": []
 }

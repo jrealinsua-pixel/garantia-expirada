@@ -2,7 +2,9 @@
 // heads looking right, floating 3x3 hands, short legs with their own shoes, 1 px outline.
 import { Canvas } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
-import { BLUE, BURNT, CREAM, type Ramp, CYAN, DSTEEL, K, OFFICE, PANTL, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, hand, outline, pad, ramp } from '../../src/art/lib.ts';
+import {
+  BLUE, BURNT, CREAM, type Ramp, CYAN, DSTEEL, K, OFFICE, PANTL, PINK, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, feet, hand, outline, pad, ramp,
+} from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
 
@@ -888,4 +890,175 @@ export function makePiezas(): Canvas[] {
     return outline(cv);
   };
   return [piece(2, 2, RED), piece(3, 1, BLUE), piece(2, 1, YEL), piece(2, 2, LIME, [1, 0])];
+}
+
+/** Cheap metallic foil, magenta, shinier on top. */
+const FOIL = ramp('#ffd6f2', '#e070c8', '#a8459a', '#6e2a68');
+
+/**
+ * Sobre Sorpresa: a sealed packet of collectable stickers, crimped at the top and bottom, with a
+ * big yellow star on the front (a «?» in it) and a greedy face over it. Jokes: the dotted «tear
+ * here» line across the top with its little scissors, and the back covered in tiny print (the
+ * odds). `squash`: crouching to hop (shorter, wider); `air`: legs tucked up in a hop; `puff`:
+ * cheeks blown out and mouth open, confetti showing (about to spit); `jx` shakes it. 24x28.
+ */
+export function makeSobre(squash = 0, air = false, puff = false, jx = 0): Canvas {
+  const legs = new Canvas(23, 27);
+  const cv = new Canvas(23, 27);
+  if (!air) feet(legs, 7, 12, 22, { L: 3, leg: DSTEEL, shoe: RED });
+  else {
+    legs.rect(8, 22, 4, 2, RED[2]!);
+    legs.rect(13, 22, 4, 2, RED[1]!);
+  }
+  const top = 2 + squash * 2;
+  const x0 = 3 - squash + jx;
+  const x1 = 19 + squash + jx;
+  // The packet: side face on the left, foil front with a light streak, crimped top and bottom.
+  for (let y = top; y <= 21; y++) {
+    for (let x = x0; x <= x1; x++) {
+      const c = x <= x0 + 1 ? FOIL[3]! : x === x0 + 3 ? FOIL[0]! : x === x1 ? FOIL[2]! : FOIL[1]!;
+      cv.set(x, y, c);
+    }
+  }
+  for (let x = x0; x <= x1; x++) {
+    cv.set(x, top, (x - x0) % 2 === 0 ? FOIL[0]! : FOIL[2]!);
+    cv.set(x, top + 1, FOIL[2]!);
+    cv.set(x, 20, FOIL[2]!);
+    cv.set(x, 21, (x - x0) % 2 === 0 ? FOIL[3]! : FOIL[1]!);
+  }
+  clear(cv, [[x0, top], [x1, top], [x0, 21], [x1, 21]]);
+  // «Tear here»: a dotted line under the crimp, with the scissors at its start.
+  for (let x = x0 + 5; x <= x1 - 1; x += 2) cv.set(x, top + 3, WHITE);
+  cv.set(x0 + 3, top + 2, WHITE);
+  cv.set(x0 + 3, top + 4, WHITE);
+  // Tiny print down the side (the odds, unreadable).
+  for (let y = top + 5; y <= 18; y += 2) cv.rect(x0 + 1, y, 1, 1, FOIL[1]!);
+  // Its face: greedy eyes under brows, a grin (puffed and open when it spits).
+  const fy = top + 5;
+  const ex = 11 + jx;
+  cv.rect(ex, fy, 2, 3, K);
+  cv.rect(ex + 5, fy, 2, 3, K);
+  cv.set(ex + 1, fy, WHITE);
+  cv.set(ex + 6, fy, WHITE);
+  const brows: Pt[] = [[ex - 1, fy - 1], [ex, fy - 1], [ex + 1, fy], [ex + 5, fy], [ex + 6, fy - 1], [ex + 7, fy - 1]];
+  for (const [x, y] of brows) cv.set(x, y, K);
+  if (puff) {
+    cv.rect(ex + 1, fy + 4, 5, 3, K);
+    cv.set(ex + 2, fy + 5, YEL[1]!);
+    cv.set(ex + 4, fy + 4, RED[1]!);
+    cv.set(ex + 3, fy + 6, CYAN);
+    cv.set(ex - 1, fy + 4, FOIL[0]!);
+    cv.set(ex + 7, fy + 4, FOIL[0]!);
+  } else {
+    cv.rect(ex + 1, fy + 4, 5, 1, K);
+    cv.set(ex, fy + 3, K);
+    cv.set(ex + 6, fy + 3, K);
+    for (const x of [ex + 2, ex + 4]) cv.set(x, fy + 4, WHITE);
+  }
+  // The star on its belly, a «?» in it.
+  const sx = 13 + jx;
+  const sy = 16;
+  const star: Pt[] = [[sx, sy - 3], [sx - 1, sy - 2], [sx, sy - 2], [sx + 1, sy - 2], [sx - 3, sy - 1], [sx + 3, sy - 1]];
+  cv.rect(sx - 2, sy - 1, 5, 3, YEL[1]!);
+  for (const [x, y] of star) cv.set(x, y, YEL[1]!);
+  cv.set(sx - 2, sy + 2, YEL[2]!);
+  cv.set(sx + 2, sy + 2, YEL[2]!);
+  cv.rect(sx - 1, sy - 2, 2, 1, YEL[0]!);
+  cv.set(sx, sy - 1, K);
+  cv.set(sx + 1, sy, K);
+  cv.set(sx, sy + 1, K);
+  hand(cv, x0 - 2, 14 + squash, PINK);
+  hand(cv, x1, 15 + squash, PINK);
+  const out = new Canvas(24, 28);
+  out.blit(legs, 1, 1);
+  out.blit(cv, 1, 1);
+  return outline(out);
+}
+
+/** The envelope's frames: 0-1 standing (it trembles with impatience), 2 crouching, 3 in the air, 4 about to spit confetti. */
+export function makeSobreFrames(): Canvas[] {
+  return [makeSobre(), makeSobre(0, false, false, 1), makeSobre(1), makeSobre(0, true), makeSobre(0, false, true)];
+}
+
+/** Off-the-mould vinyl: the figurine's skin, its painted clothes, and the gold of the ultra-rare one. */
+const VINYL = ramp('#f2d9b8', '#d9b48a', '#a8825c', '#6e5238');
+const PAINT = ramp('#8fd0c8', '#4f9e96', '#33706c', '#204a48');
+const GOLD = ramp('#fff1a8', '#f6c431', '#c8902a', '#7a5418');
+const BROWN_HAIR = ramp('#a8744a', '#7a4f30', '#55351f', '#3a2414');
+
+/**
+ * Muñequito Repetido: a little mass-produced vinyl figure, all head, the mould seam running down
+ * its face, the smile painted on a pixel off its mouth (cheap printing) and a «x3» sticker on its
+ * chest. `gold` makes it the Muñequito Dorado Ultrarraro (all gold, a sparkle, a smug face);
+ * `bite`: mouth wide open. 18x20.
+ */
+export function makeMunequito(pose: Pose = { xb: 5, xf: 9, bob: 0 }, gold = false, bite = false): Canvas {
+  const legs = new Canvas(17, 19);
+  const cv = new Canvas(17, 19);
+  const skin = gold ? GOLD : VINYL;
+  const cloth = gold ? GOLD : PAINT;
+  poseFeet(legs, pose, 15, { L: 2, leg: cloth, shoe: gold ? GOLD : DSTEEL });
+  // Body: a small block of painted clothes.
+  cv.rect(5, 11, 7, 5, cloth[1]!);
+  cv.rect(5, 11, 2, 5, cloth[2]!);
+  cv.rect(5, 15, 7, 1, cloth[3]!);
+  // Head: big and round-cornered, light from the top left.
+  cv.rect(3, 1, 11, 10, skin[1]!);
+  cv.rect(4, 0, 9, 1, skin[0]!);
+  cv.rect(3, 1, 2, 10, skin[2]!);
+  cv.rect(4, 1, 8, 1, skin[0]!);
+  cv.rect(3, 10, 11, 1, skin[2]!);
+  clear(cv, [[3, 1], [13, 1], [3, 10], [13, 10]]);
+  // Painted hair (a flat cap of colour) on the plain ones; the gold one shines.
+  if (!gold) {
+    cv.rect(4, 0, 9, 2, BROWN_HAIR[1]!);
+    cv.rect(4, 0, 4, 1, BROWN_HAIR[0]!);
+    cv.set(12, 2, BROWN_HAIR[2]!);
+  } else {
+    cv.set(6, 2, WHITE);
+    cv.set(5, 3, WHITE);
+    cv.set(7, 3, skin[0]!);
+  }
+  // The mould seam down the side of its head.
+  for (let y = 2; y <= 9; y += 2) cv.set(5, y, skin[3]!);
+  // Eyes: two dots looking right (half-lidded and smug if gold).
+  cv.rect(8, 4, 2, 2, K);
+  cv.rect(11, 4, 2, 2, K);
+  if (gold) {
+    cv.rect(8, 4, 2, 1, skin[2]!);
+    cv.rect(11, 4, 2, 1, skin[2]!);
+  } else {
+    cv.set(8, 4, WHITE);
+    cv.set(11, 4, WHITE);
+    // Painted-on smile, real anger: brows sloping down to the middle.
+    for (const [x, y] of [[7, 2], [8, 2], [9, 3], [11, 3], [12, 2], [13, 2]] as Pt[]) cv.set(x, y, K);
+  }
+  // Mouth: printed a pixel off (the smile lands on its cheek); open wide to bite.
+  if (bite) {
+    cv.rect(9, 7, 4, 3, K);
+    cv.set(10, 7, WHITE);
+    cv.set(12, 7, WHITE);
+  } else {
+    cv.rect(10, 8, 3, 1, K);
+    cv.set(9, 7, K);
+    cv.set(13, 7, K);
+  }
+  // «x3» sticker on its chest (the plain ones), a star on the gold one.
+  if (!gold) {
+    cv.rect(8, 12, 3, 2, WHITE);
+    cv.set(9, 12, RED[1]!);
+    cv.set(10, 13, RED[1]!);
+  } else cv.set(9, 13, WHITE);
+  hand(cv, 2, 11, skin);
+  hand(cv, 12, 12, skin);
+  const out = new Canvas(18, 20);
+  out.blit(joinPose(legs, cv, pose), 1, 1);
+  return outline(out);
+}
+
+
+/** The figurines' frames: 0-1 standing, 2-5 running, 6 biting (the plain ones). */
+export function makeMunequitoFrames(gold: boolean): Canvas[] {
+  const cyc = narrowPoseCycle(5, 9, 1).map((f) => makeMunequito(f.pose, gold));
+  return gold ? cyc : [...cyc, makeMunequito(undefined, false, true)];
 }

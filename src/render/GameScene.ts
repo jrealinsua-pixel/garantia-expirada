@@ -2206,6 +2206,22 @@ export class GameScene extends Phaser.Scene {
         case 'frostThrow':
           this.sound2.play('lanzar', { detune: this.fx.range(-200, 200) });
           break;
+        case 'hop':
+          this.sound2.play('saltar', { detune: this.fx.range(500, 800), volume: 0.35 });
+          break;
+        case 'hopLand':
+          this.puff(e.x, e.y, 0.25);
+          break;
+        case 'surprise': {
+          // The envelope tears open: a burst of gift-wrap confetti, and what came out says so.
+          const ultra = e.line === 'Ultrarraro';
+          this.sound2.play(ultra ? 'desbloquear' : 'desmontar', { detune: ultra ? 0 : this.fx.range(200, 500) });
+          if (ultra) this.shake(200, 0.008, true);
+          const tints = ultra ? [0xf6c431, 0xfff1a8, 0xf4f1e8] : [0xe0453b, 0xf6c431, 0xe070c8, 0x69dbd8, 0xf4f1e8];
+          for (let i = 0; i < 16; i++) this.spark(e.x, e.y - 12, this.fx.range(0, Math.PI * 2), this.fx.range(40, 110), 2, this.fx.pick(tints));
+          this.floatText(e.x, e.y - 34, fontText(e.line), ultra ? 0xf6c431 : 0xf4f1e8, `surprise:${e.x},${e.y}`, -14, ultra ? 1.6 : 1.1);
+          break;
+        }
         case 'brickStep':
           // Stepped on: the worst pain known to anyone with feet.
           this.sound2.play('chapa', { detune: 700, volume: 0.8 });
@@ -3135,6 +3151,8 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'invoice' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 110 + b.id) % 4);
       // Nuts spin.
       if (b.color === 'nut' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 60 + b.id) % 2);
+      // Confetti flutters.
+      if (b.color === 'confetti' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
       const sc = (b.life < 0.15 ? 0.6 : 1) * size;
       s.setScale(sc);
     }
@@ -3775,7 +3793,9 @@ const PLAYER_BULLET_R = 3;
 /** Tyre marks on the floor at once, at most (each is two dashes). */
 const SKID_MAX = 120;
 
-const BULLET_TEXTURES: Record<BulletColor, string> = { red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca' };
+const BULLET_TEXTURES: Record<BulletColor, string> = {
+  red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca', confetti: 'bala-confeti',
+};
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
 const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number; frameDy?: Record<number, number> }> = {

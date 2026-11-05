@@ -75,6 +75,22 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.15, pattern: { kind: 'fan', count: 4, spreadDeg: 30, speed: 105, color: 'red' } },
     ],
   },
+  // Sobre Sorpresa: short fans of gift-wrap confetti (they flutter and die out in a couple of metres).
+  'sobre-confeti': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 70, speed: 120, accel: -90, life: 1.1, color: 'confetti' } },
+      { at: 0.18, pattern: { kind: 'fan', count: 4, spreadDeg: 50, speed: 110, accel: -90, life: 1.1, color: 'confetti' } },
+    ],
+  },
+  // Muñequito Dorado Ultrarraro: rings of golden confetti, the second one turned to fill the gaps.
+  'dorado-anillos': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 10, speed: 85, color: 'confetti' } },
+      { at: 0.3, pattern: { kind: 'ring', count: 10, speed: 85, offsetDeg: 18, color: 'confetti' } },
+    ],
+  },
   // Robot de Cuerda: on every bounce, a fan of three nuts at you.
   'robot-tuercas': { kind: 'fan', count: 3, spreadDeg: 30, speed: 105, color: 'nut' },
   // El Router del Wifi. «Cobertura total»: two rings of waves, each with a hole that has moved on a little.

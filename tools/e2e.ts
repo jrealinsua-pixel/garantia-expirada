@@ -613,6 +613,24 @@ try {
   await shot('35u-cubo-piezas.png');
   console.log('Cubo de Piezas: levanta la tapa, lanza piezas en parábola y se quedan en el suelo.');
 
+  // M10 (4d): the surprise envelope, on floor 3: hopping and spitting confetti, then torn open
+  // (what comes out pops out sideways, with its line).
+  await page.goto(`${url}?semilla=e2e-sobre&sala=taller-expres&planta=3`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; p.y -= 50; g.spawnIdle('sobre-sorpresa', p.x + 100, p.y - 10); g.spawnIdle('sobre-sorpresa', p.x - 90, p.y + 20);
+    for (const e of w.enemies) { e.until = 0.3; } w.enemies[1].volleys = 0; })()`);
+  await page.waitForFunction(
+    "(() => { const w = window.__GE__.scene.world; return w.enemies[0].state === 'charge' && w.enemies[0].t > 0.15 && w.bullets.length > 3; })()",
+    undefined,
+    { timeout: 8000 },
+  );
+  await shot('35v-sobre-salta.png');
+  await page.evaluate("(() => { const w = window.__GE__.scene.world; w.bullets = []; for (const e of w.enemies) e.damageTaken = 99; })()");
+  await page.waitForTimeout(260);
+  await shot('35w-sobre-sorpresa.png');
+  console.log('Sobre Sorpresa: salta, escupe confeti y al romperse sale la sorpresa.');
+
   // M8: el Router del Wifi, floor 2's boss: its card, the waves with their holes from it and its
   // repeaters, the reboot at half life and the dropped connections of phase 2.
   await page.goto(`${url}?semilla=e2e-router&sala=jefe-informatica&planta=2`);

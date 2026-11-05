@@ -627,6 +627,37 @@ export interface RcCarBrain {
 }
 
 /**
+ * A surprise envelope: hops about (`hopTime` s in the air, up to `hopHeight` px, `hopDist` px a
+ * hop, random in the range) trying to stay about `keep` px from the player, resting `rest` s on the
+ * floor between hops. Every `volleyEvery` hops, if the player is closer than `range`, it fires
+ * `pattern` from `muzzleY` with `telegraph` s of warning instead of hopping.
+ */
+export interface HopperBrain {
+  kind: 'hopper';
+  hopTime: number;
+  hopHeight: number;
+  hopDist: [number, number];
+  keep: number;
+  rest: [number, number];
+  volleyEvery: number;
+  range: number;
+  telegraph: number;
+  pattern: string;
+  muzzleY: number;
+}
+
+/**
+ * What comes out when it breaks (EnemyDef.surprise): one of these, by `weight`. `spawn`: `count`
+ * enemies of that kind pop out; `coupons`: that many more coupons fly out. `line` floats over it.
+ */
+export interface SurpriseDef {
+  weight: number;
+  spawn?: { id: string; count: number };
+  coupons?: number;
+  line: string;
+}
+
+/**
  * A bucket of building pieces: a slow turret that keeps about `keep` px from the player (walking at
  * `speed`). Every `interval` s (random in the range), with the player closer than `range`, it lifts
  * its lid (`telegraph` s, standing still) and lobs `count` pieces in an arc (`flight` s each): one
@@ -650,7 +681,7 @@ export interface LobberBrain {
 }
 
 export type EnemyBrain =
-  | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
@@ -675,6 +706,8 @@ export interface EnemyDef {
   loot: LootDef;
   /** Enemy id that always comes with this one (spawned next to it, owned by it). */
   escort?: string;
+  /** When it breaks, one of these comes out (the surprise envelope). */
+  surprise?: readonly SurpriseDef[];
   /** How many of it one spawn point brings (they come in groups). Default 1. */
   pack?: number;
   /** Bosses: the name card and motto of their entrance (shown big, in «Letra Pequeña»), and the line over the name. */
@@ -704,6 +737,9 @@ export interface EnemyAnim {
   /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */
   lurk?: number;
   reveal?: number;
+  /** Hoppers: the frame crouching before a hop, and the one in the air. */
+  crouch?: number;
+  jump?: number;
   /** Frame shown while stunned or run down (the wind-up robot with its key still). */
   stun?: number;
   /** Jammed turrets: frames cycled every `jamMs` while it shakes. */

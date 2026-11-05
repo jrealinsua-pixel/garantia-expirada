@@ -2,6 +2,7 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
+  HopperBrain,
 } from '../data/types.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
@@ -81,6 +82,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'lobber':
         updateLobber(w, en, en.def.brain);
+        break;
+      case 'hopper':
+        updateHopper(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1184,6 +1188,76 @@ export function bossWarnSpot(en: Enemy, b: BossBrain, a: BossAttack): { x: numbe
 }
 
 /** Height its bullets come out at: `muzzleY` above the feet, lower if a wall is right above it. */
+/**
+ * The surprise envelope: rests on the floor a moment, then hops (state `charge`, `until` the length
+ * of the hop; enemyAltitude lifts it) to a spot about `keep` px from the player, with a random
+ * swerve; every `volleyEvery` hops it spits its confetti instead (state `fire`, its pattern warns).
+ * A hop that hits a wall or a prop just ends there.
+ */
+function updateHopper(w: World, en: Enemy, b: HopperBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  switch (en.state) {
+    case 'charge': {
+      const ox = en.x;
+      const oy = en.y;
+      slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+      en.moved += Math.hypot(en.x - ox, en.y - oy);
+      if (en.t >= en.until) {
+        en.vx = 0;
+        en.vy = 0;
+        enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+        en.volleys = (en.volleys ?? b.volleyEvery) - 1;
+        w.events.push({ type: 'hopLand', x: en.x, y: en.y, source: en.id });
+      }
+      return;
+    }
+    case 'fire':
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+      break;
+    default: {
+      if (en.state !== 'idle') enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+      if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+      if (en.t < en.until || w.over) break;
+      if ((en.volleys ?? b.volleyEvery) <= 0 && dist < b.range) {
+        const def = PATTERNS[b.pattern];
+        if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), dx), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
+        enter(en, 'fire', b.telegraph + patternDuration(def));
+        en.volleys = b.volleyEvery;
+        break;
+      }
+      // Hop: towards (or away from) its distance from the player, swerving to one side or the other.
+      const sign = dist > b.keep + 20 ? 1 : dist < b.keep - 20 ? -1 : 0;
+      const swerve = w.rng.range(-1, 1) * (sign === 0 ? 1.6 : 0.9);
+      const ux = dx / dist;
+      const uy = dy / dist;
+      const d = normalize(ux * sign - uy * swerve, uy * sign + ux * swerve);
+      const len = w.rng.range(b.hopDist[0], b.hopDist[1]);
+      en.dirX = d.x;
+      en.dirY = d.y;
+      en.vx = (d.x * len) / b.hopTime;
+      en.vy = (d.y * len) / b.hopTime;
+      if (Math.abs(d.x) > 0.2) en.facing = d.x > 0 ? 1 : -1;
+      enter(en, 'charge', b.hopTime);
+      w.events.push({ type: 'hop', x: en.x, y: en.y, source: en.id });
+      return;
+    }
+  }
+  // On the floor: bullets may nudge it, friction stops it.
+  approach(en, 0, 0, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+}
+
 /**
  * The bucket of pieces: keeps its distance like a walking turret; when its wait is over and the
  * player is in range it stops, lifts its lid (the warning) and lobs a handful of pieces: the first

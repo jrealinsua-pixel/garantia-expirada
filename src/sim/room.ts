@@ -118,6 +118,7 @@ const ENEMY_CHARS: Record<string, string> = {
   Q: 'robot-cuerda',
   V: 'coche-teledirigido',
   U: 'cubo-piezas',
+  Y: 'sobre-sorpresa',
 };
 
 /**
