@@ -380,7 +380,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
       cartel y sonidos.
     - [ ] (5c) Fase 3 (la silla suelta que embiste y la línea de recortes).
   - 10 objetos nuevos, en partes:
-    - [ ] (6a) Cinco de cifras o casi: Taza de Mejor Empleado, Corbata de Lunes, Café de Máquina,
+    - [x] (6a) Cinco de cifras o casi: Taza de Mejor Empleado, Corbata de Lunes, Café de Máquina,
       Silla con Ruedas y Bola Antiestrés.
     - [ ] (6b) Pósit de Urgente, Tarjeta de Fichar, Responder a Todos, Contrato en Prácticas y
       Acreditación de Visitante, y las sinergias Pausa para el Café y Cadena de Correos (si es

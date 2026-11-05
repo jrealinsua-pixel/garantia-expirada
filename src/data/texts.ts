@@ -34,6 +34,8 @@ export const petFedLine = (level: number, max: number): string => (level >= max 
 export const PET_DEAD_LINE = 'Tu mascota ha muerto. Otra vez';
 /** Caja de Cartón Vacía (M10 6a): over the toaster when a hit does nothing. */
 export const SHRUG_LINE = 'Era solo la caja';
+/** Taza de Mejor Empleado (M10 planta 4 6a): over the toaster when the first hit takes its bonus away. */
+export const MUG_LOST_LINE = 'Empleado del mes: otro';
 /** Over a printer when it jams. */
 export const JAM_LINE = 'Atasco de papel';
 /** Over a fake charger when it jumps up. */

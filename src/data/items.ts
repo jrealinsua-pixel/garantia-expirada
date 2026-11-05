@@ -297,6 +297,52 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // hit and it starts again (M10 6b2).
     mod: { id: 'mascota-virtual', perks: { pet: { step: 0.1, max: 3 } } },
   },
+  // Floor 4, las Oficinas (M10 planta 4 6a): work, streaks, deadlines and rewards that do not make up for it.
+  'taza-empleado': {
+    id: 'taza-empleado',
+    name: 'Taza de Mejor Empleado',
+    description: 'Te la dieron el año que no hubo subida.',
+    sprite: 'objeto-taza-empleado',
+    level: 4,
+    // ×1.2 damage, but only while the life is full: the first hit and it is just a mug again.
+    mod: { id: 'taza-empleado', perks: { fullHpDamage: 1.2 } },
+  },
+  'corbata-lunes': {
+    id: 'corbata-lunes',
+    name: 'Corbata de Lunes',
+    description: 'Aprieta lo justo para recordar quién manda.',
+    sprite: 'objeto-corbata-lunes',
+    level: 4,
+    // More damage, a little slower on your feet.
+    mod: { id: 'corbata-lunes', stats: [{ stat: 'damage', mul: 1.2 }, { stat: 'speed', mul: 0.92 }] },
+  },
+  'cafe-maquina': {
+    id: 'cafe-maquina',
+    name: 'Café de Máquina',
+    description: 'Sabe a vaso. Pero despierta.',
+    sprite: 'objeto-cafe-maquina',
+    level: 4,
+    // Faster trigger and reload, but the hand shakes (+5° of spread).
+    mod: { id: 'cafe-maquina', stats: [{ stat: 'fireRate', mul: 1.15 }, { stat: 'reloadTime', mul: 0.85 }, { stat: 'spreadDeg', add: 5 }] },
+  },
+  'silla-ruedas': {
+    id: 'silla-ruedas',
+    name: 'Silla con Ruedas',
+    description: 'Ergonómica para otra espalda.',
+    sprite: 'objeto-silla-ruedas',
+    level: 4,
+    // Faster, but it slides: it takes a long time to stop and to turn (rolling still stops dead).
+    mod: { id: 'silla-ruedas', stats: [{ stat: 'speed', mul: 1.15 }], perks: { grip: 0.3 } },
+  },
+  'bola-antiestres': {
+    id: 'bola-antiestres',
+    name: 'Bola Antiestrés',
+    description: 'Llevas tres. Ninguna ha funcionado.',
+    sprite: 'objeto-bola-antiestres',
+    level: 4,
+    // After a hit, twice the breather; the trigger finger is a bit slower.
+    mod: { id: 'bola-antiestres', stats: [{ stat: 'fireRate', mul: 0.9 }], perks: { hurtIframes: 2 } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

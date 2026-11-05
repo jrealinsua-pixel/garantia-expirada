@@ -460,6 +460,8 @@ export type SimEvent =
   | { type: 'rush'; x: number; y: number; time: number }
   /** Caja de Cartón Vacía: a hit that did nothing («Era solo la caja»). */
   | { type: 'shrug'; x: number; y: number }
+  /** Taza de Mejor Empleado: the first hit from full life, and the mug's bonus is gone until healed. */
+  | { type: 'mugLost'; x: number; y: number }
   | { type: 'empty' }
   | { type: 'charge'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'brake'; x: number; y: number; source: number }
@@ -1479,7 +1481,9 @@ function updatePlayer(w: World, input: Input): void {
     const dvx = tx - p.vx;
     const dvy = ty - p.vy;
     const dl = Math.hypot(dvx, dvy);
-    const maxStep = (ml > 0.05 ? d.accel : d.friction) * DT;
+    // Silla con Ruedas: less grip, so it takes longer to get going, to turn and above all to stop.
+    const grip = playerPerks(p).grip;
+    const maxStep = (ml > 0.05 ? d.accel * Math.sqrt(grip) : d.friction * grip) * DT;
     if (dl <= maxStep) {
       p.vx = tx;
       p.vy = ty;
@@ -1631,7 +1635,7 @@ function updateWeapon(w: World, input: Input): void {
       vy: Math.sin(a) * def.bulletSpeed,
       r: def.bulletRadius,
       life: def.bulletLife,
-      damage: (isCrit ? def.damage * crit.mul : def.damage) * (p.turbo ? TURBO_DAMAGE : 1) * petScale(p),
+      damage: (isCrit ? def.damage * crit.mul : def.damage) * (p.turbo ? TURBO_DAMAGE : 1) * petScale(p) * fullHpScale(p),
       knockback: def.knockback,
       color: 'red',
       age: 0,
@@ -1824,6 +1828,11 @@ function stickBullet(w: World, b: Bullet, dt: number): void {
 
 /** A stuck bullet goes through (nearly) everyone. */
 const STUCK_PIERCE = 99;
+
+/** Taza de Mejor Empleado: its damage multiplier while the toaster's life is full (1 otherwise). */
+export function fullHpScale(p: Player): number {
+  return p.hp >= p.def.maxHp ? playerPerks(p).fullHpDamage : 1;
+}
 
 /** Mascota Virtual: the damage multiplier its level gives (1 without it or hungry). */
 export function petScale(p: Player): number {
@@ -2307,7 +2316,7 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
   // «Era solo la caja»: some hits do nothing at all (but the toaster still gets its breather).
   const shrug = playerPerks(p).shrug;
   if (shrug > 0 && w.rng.chance(shrug)) {
-    p.invulnerable = HURT_IFRAMES;
+    p.invulnerable = HURT_IFRAMES * playerPerks(p).hurtIframes;
     w.events.push({ type: 'shrug', x: p.x, y: p.y - PLAYER_HURT_Y });
     return true;
   }
@@ -2316,8 +2325,10 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
   p.surge -= bySurge;
   const covered = bySurge + Math.min(p.shield, damage - bySurge);
   p.shield -= covered - bySurge;
+  const wasFull = p.hp >= p.def.maxHp;
   p.hp = Math.max(0, p.hp - (damage - covered));
-  p.invulnerable = HURT_IFRAMES;
+  p.invulnerable = HURT_IFRAMES * playerPerks(p).hurtIframes;
+  if (wasFull && p.hp < p.def.maxHp && p.hp > 0 && playerPerks(p).fullHpDamage > 1) w.events.push({ type: 'mugLost', x: p.x, y: p.y - PLAYER_HURT_Y });
   const extra = covered > 0 ? { covered, shield: p.shield, ...(bySurge > 0 ? { surge: p.surge } : {}) } : {};
   w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...extra });
   // Mascota Virtual: a hit and it is back to square one (and this room will not feed it).

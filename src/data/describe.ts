@@ -67,6 +67,9 @@ export function modifierLines(m: Modifier): EffectLine[] {
     out.push({ text: `Sala limpia sin golpes: daño +${Math.round(k.pet.step * 100)} % (hasta +${Math.round(k.pet.step * k.pet.max * 100)} %)`, good: true });
     out.push({ text: 'Un golpe y vuelve a tener hambre', good: false });
   }
+  if (k?.fullHpDamage) out.push({ text: `Con la vida llena: daño +${Math.round((k.fullHpDamage - 1) * 100)} %`, good: true });
+  if (k?.grip) out.push({ text: 'Resbala: tarda en frenar y en girar', good: false });
+  if (k?.hurtIframes) out.push({ text: `Tras un golpe, invulnerable ×${String(k.hurtIframes).replace('.', ',')} de tiempo`, good: true });
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

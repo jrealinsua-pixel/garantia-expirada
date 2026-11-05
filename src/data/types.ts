@@ -103,6 +103,15 @@ export interface Perks {
    * strongest wins.
    */
   pet?: { step: number; max: number };
+  /** Taza de Mejor Empleado: the player's bullets do this many times their damage while its life is full (the strongest wins). */
+  fullHpDamage?: number;
+  /**
+   * Silla con Ruedas: walking grips the floor this much (0–1 of the normal acceleration and braking;
+   * the slipperiest wins). It takes longer to stop and to turn.
+   */
+  grip?: number;
+  /** Bola Antiestrés: the blink after a hit lasts this many times longer (the strongest wins). */
+  hurtIframes?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

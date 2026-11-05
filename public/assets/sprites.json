@@ -904,5 +904,35 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-taza-empleado": {
+    "file": "objeto-taza-empleado.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-corbata-lunes": {
+    "file": "objeto-corbata-lunes.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-cafe-maquina": {
+    "file": "objeto-cafe-maquina.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-silla-ruedas": {
+    "file": "objeto-silla-ruedas.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-bola-antiestres": {
+    "file": "objeto-bola-antiestres.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

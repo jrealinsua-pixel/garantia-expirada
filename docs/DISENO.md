@@ -322,9 +322,9 @@ Ninguno sube una estadística más de un 30 % (la regla de M9b, que vigila `test
 
 | Objeto | Descripción | Efecto |
 | --- | --- | --- |
-| Taza de Mejor Empleado | Te la dieron el año que no hubo subida. | Daño ×1,2 mientras la vida esté llena |
+| Taza de Mejor Empleado | Te la dieron el año que no hubo subida. | Daño ×1,2 mientras la vida esté llena; al primer golpe, «Empleado del mes: otro» |
 | Pósit de Urgente | Pone «Urgente». Nadie recuerda de qué. | Tras cada voltereta, la siguiente bala hace el doble de daño |
-| Silla con Ruedas | Ergonómica para otra espalda. | Velocidad ×1,15, pero se frena tarde (resbala, como en la escarcha) |
+| Silla con Ruedas | Ergonómica para otra espalda. | Velocidad ×1,15, pero resbala: agarra el suelo un 30 % (tarda en frenar y en girar; la voltereta, igual) |
 | Corbata de Lunes | Aprieta lo justo para recordar quién manda. | Daño ×1,2, velocidad ×0,92 |
 | Café de Máquina | Sabe a vaso. Pero despierta. | Cadencia ×1,15, recarga ×0,85, +5° de dispersión (tiembla el pulso) |
 | Tarjeta de Fichar | Apunta cuándo entras. Cuándo sales, no tanto. | Las salas limpiadas en menos de 25 s sueltan un cupón más |

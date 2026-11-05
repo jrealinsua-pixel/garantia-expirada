@@ -34,6 +34,7 @@ import {
   ALERT_LINE,
   REVIVE_LINE,
   SHRUG_LINE,
+  MUG_LOST_LINE,
   PET_DEAD_LINE,
   petFedLine,
   ALLEN_LINE,
@@ -1878,6 +1879,11 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('golpe', { detune: -700, volume: 0.6 });
           for (let i = 0; i < 6; i++) this.splinter(e.x + this.fx.range(-5, 5), e.y, this.fx.range(0, Math.PI * 2), 0xa96a3f);
           this.floatText(e.x, e.y - 18, fontText(SHRUG_LINE), 0xe9d9a8, 'shrug', -12, 1.1);
+          break;
+        case 'mugLost':
+          // Taza de Mejor Empleado: no longer the best. A small sad clink and the line, in grey.
+          this.sound2.play('vacio', { detune: -300, volume: 0.7 });
+          this.floatText(e.x, e.y - 30, fontText(MUG_LOST_LINE), 0xc3c9d6, 'mug', -10, 1.2);
           break;
         case 'empty':
           this.sound2.play('vacio');
