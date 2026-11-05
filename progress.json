@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T09:40:00+01:00",
+  "actualizado": "2026-11-05T09:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 35,
     "plantillas_sala": 71,
-    "tests": 563,
-    "tests_ok": 563,
+    "tests": 564,
+    "tests_ok": 564,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 20834
+    "lineas_codigo": 20839
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T09:55:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (3): tras la Juguetería se sube a las Oficinas con la misma tostadora; hasta que llegue el Director, el Muñeco de Moda repite en la Sala de Juntas. Ya se juega de la planta 1 a la 4 seguidas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T09:40:00+01:00",
       "hito": "M10",
@@ -902,6 +908,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/cadena-planta4.png",
+      "pie": "Planta 3 superada: el parte anuncia la siguiente, «Planta 4: Oficinas. Horario flexible: siempre.», y se sube con la misma tostadora"
+    },
+    {
       "archivo": "capturas/oficinas-secreta.png",
       "pie": "Papeles para Destruir (Confidencial), la sala secreta de las Oficinas: archivadores hasta el techo y, en el claro, un acta del Comité de Dirección"
     },
@@ -918,15 +928,11 @@
       "pie": "Recursos Humanos (Su Queja Es Importante), una de las seis salas nuevas de las Oficinas: una pecera de mamparas con los de dentro cubiertos tras el cristal"
     },
     {
-      "archivo": "capturas/oficinas-reunion.png",
-      "pie": "Sala de Reuniones (Esto Podía Ser un Correo), una de las seis salas nuevas de las Oficinas: dos filas de mesas que se vuelcan para hacer trinchera"
-    },
-    {
       "archivo": "capturas/oficinas-sala.png",
       "pie": "Las Oficinas (planta 4): moqueta gris, mamparas de cubículo con el calendario del año pasado, un archivador, un ficus de plástico, termos de café que explotan y la pizarra de objetivos bajando"
     }
   ],
-  "proximo": "M10 planta 4 (3): encadenar la planta 4 tras el Muñeco de Moda. O M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro.",
+  "proximo": "M10 planta 4 (4a): la Destructora de Documentos. O M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -952,11 +958,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 09:40",
-      "tarea": "M10 planta 4 (3): encadenar la planta 4 tras el Muñeco",
-      "desde": "2026-11-05T08:42:58.804Z"
-    }
-  ]
+  "en_curso": []
 }

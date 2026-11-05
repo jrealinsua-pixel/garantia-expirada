@@ -61,6 +61,7 @@ export interface FloorReport {
   segundosMostrador: number;
   planta2?: Floor2Report;
   planta3?: Floor2Report;
+  planta4?: Floor2Report;
   /** Floors whose every room (but the secret one) the bot walks into, with nothing able to hurt it: must be 100 %. */
   recorridoSinDanio: number;
   /** Mean seconds to walk the whole floor that way. */
@@ -512,6 +513,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
       segundosMostrador: crossed ? one(hubT / crossed) : 0,
       planta2: upper(2),
       planta3: upper(3),
+      planta4: upper(4),
       recorridoSinDanio: pct(walked),
       segundosRecorrido: one(walkT / floors),
       recorridoConDanio: pct(explored),
@@ -645,7 +647,7 @@ if (import.meta.main) {
     );
     console.log(`Mostrador · el bot pasa por todo y coge la cinta en el ${pl.cruzaMostrador} % de las partidas, en ${pl.segundosMostrador} s`);
   }
-  for (const [n, p2] of [[2, pl.planta2], [3, pl.planta3]] as const) {
+  for (const [n, p2] of [[2, pl.planta2], [3, pl.planta3], [4, pl.planta4]] as const) {
     if (!pl.plantas || !p2) continue;
     console.log(
       `Planta ${n} · sin daño la recorre entera el ${p2.recorridoSinDanio} % · llegan ${p2.llegan} de ${pl.plantas} partidas, con ${p2.vidaAlLlegar} medios corazones · ` +

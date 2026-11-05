@@ -178,6 +178,7 @@ export const WIN_HINT_NEXT = 'R o clic: siguiente planta';
 export const FLOOR_NAMES: Record<number, string> = {
   2: 'Planta 2: Informática. Cobertura limitada.',
   3: 'Planta 3: Juguetería. Edad recomendada: ninguna.',
+  4: 'Planta 4: Oficinas. Horario flexible: siempre.',
 };
 /** Neutral on purpose: the boss of a floor may be the Nevera (she), the Router (he) or whoever comes next. */
 export const WIN_RESULT = 'Jefatura de planta dada de baja';

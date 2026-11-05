@@ -365,7 +365,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - [x] (2b) Seis plantillas de combate más.
   - [x] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Papeles para
     Destruir con su acta de reunión, y la Sala de Juntas del jefe).
-  - [ ] (3) Encadenar: tras el Muñeco se baja a la planta 4, con todo lo que se lleva; hasta que
+  - [x] (3) Encadenar: tras el Muñeco se sube a la planta 4, con todo lo que se lleva; hasta que
     llegue el Director, el Muñeco pelea en la Sala de Juntas.
   - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
     - [ ] (4a) Destructora de Documentos (siempre de cara, se traga las balas de frente).

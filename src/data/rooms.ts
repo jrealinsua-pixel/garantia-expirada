@@ -1626,7 +1626,11 @@ export const ROOMS: Record<string, RoomTemplate> = {
 export const FLOOR_BOSS_1 = 'N';
 /** Floor 2's: X, el Router del Wifi. */
 export const FLOOR_BOSS_2 = 'X';
-/** Floor 3's: D (doll), el Muñeco de Moda (M10 5b), in its Escaparate de Novedades (M is the dummy). */
+/**
+ * Floor 3's: D (doll), el Muñeco de Moda (M10 5b), in its Escaparate de Novedades (M is the dummy).
+ * Floor 4 has no boss of its own yet (El Director de Recursos Inhumanos, M10 planta 4 (5)): until
+ * it comes, the Muñeco fights again in the Sala de Juntas.
+ */
 export const FLOOR_BOSS_3 = 'D';
 
 /** Template letter of the boss of floor `level`. */
