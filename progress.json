@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T06:13:00+01:00",
+  "actualizado": "2026-11-05T06:32:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -137,6 +137,12 @@
     "lineas_codigo": 19597
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T06:32:00+01:00",
+      "hito": "M10",
+      "resumen": "Diseñada la planta 4, las Oficinas: cuatro enemigos (la Destructora que se traga las balas de frente, la Fotocopiadora que copia a otros enemigos, el Sello de Denegado que no deja rodar y el Climatizador que empuja), el Director de Recursos Inhumanos con tres fases, diez objetos y dos sinergias; la planta, partida en 18 tareas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T06:13:00+01:00",
       "hito": "M10",
@@ -881,7 +887,7 @@
     "hitos": {
       "M9": 10,
       "M9b": 16,
-      "M10": 24,
+      "M10": 21,
       "M11": 13,
       "M12": 12,
       "M13": 14,
@@ -903,11 +909,6 @@
       "sesion": "2026-11-05T06:14:00+01:00",
       "tarea": "M10 (6b1): Pegatina, Llave Allen, Mando con Vibración y Unboxing",
       "desde": "2026-11-05T06:14:00+01:00"
-    },
-    {
-      "sesion": "2026-11-05T06:25:00+01:00",
-      "tarea": "M10 planta 4 (0): diseño de las Oficinas y el hito partido en tareas (solo docs/DISENO.md y docs/HOJA_DE_RUTA.md)",
-      "desde": "2026-11-05T06:25:00+01:00"
     }
   ]
 }

@@ -21,7 +21,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
-| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 |
+| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y la 4 está partida en 18 tareas: quedan unas 21) |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
@@ -354,7 +354,40 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [ ] (6b2) Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades.
   - [ ] (7) La planta 3 medida con el bot y ajustada para que sea el muro: el bot con daño la
     supera menos de una vez de cada cuatro, y es donde más partidas acaban.
-- [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de Recursos Inhumanos) y 10 objetos. (Se parte en tareas al acabar la planta 3.)
+- [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de
+  Recursos Inhumanos) y 10 objetos. Diseño en `docs/DISENO.md` (enemigos, jefe, objetos y aspecto).
+  En partes:
+  - [x] (0) El diseño de la planta 4 y esta lista de tareas.
+  - [ ] (1) Juego de casillas y color propio (`src/art/oficinas.ts`, se ve con `?planta=4`):
+    moqueta gris azulada con manchas de café, pared de pladur con vinilos de valores, mesas de
+    cubículo, archivadores, plantas de plástico, fuentes sin garrafa, mamparas y persianas con
+    «Reunión en curso».
+  - [ ] (2a) Seis plantillas de combate propias de la planta 4, cada una con su idea y sus grupos.
+  - [ ] (2b) Seis plantillas de combate más.
+  - [ ] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Archivo Muerto
+    con su acta de reunión, y la Sala de Juntas del jefe).
+  - [ ] (3) Encadenar: tras el Muñeco se baja a la planta 4, con todo lo que se lleva; hasta que
+    llegue el Director, el Muñeco pelea en la Sala de Juntas.
+  - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
+    - [ ] (4a) Destructora de Documentos (siempre de cara, se traga las balas de frente).
+    - [ ] (4b) Fotocopiadora de Planta (copia a otro enemigo de la sala).
+    - [ ] (4c) Sello de Denegado (estampa tinta donde no se puede rodar).
+    - [ ] (4d) Climatizador Portátil (cono de aire que empuja y tuerce las balas).
+  - Jefe: El Director de Recursos Inhumanos. En partes:
+    - [ ] (5a) Sprites: en la silla (reposo, impulso, lanzar), de pie (andar, girar), la silla
+      sola, las tarjetas, las cartas de despido y las mamparas que se mueven.
+    - [ ] (5b) Fases 1 y 2 (cartas de despido, tarjetas, reestructuración de mamparas, sellos),
+      cartel y sonidos.
+    - [ ] (5c) Fase 3 (la silla suelta que embiste y la línea de recortes).
+  - 10 objetos nuevos, en partes:
+    - [ ] (6a) Cinco de cifras o casi: Taza de Mejor Empleado, Corbata de Lunes, Café de Máquina,
+      Silla con Ruedas y Bola Antiestrés.
+    - [ ] (6b) Pósit de Urgente, Tarjeta de Fichar, Responder a Todos, Contrato en Prácticas y
+      Acreditación de Visitante, y las sinergias Pausa para el Café y Cadena de Correos (si es
+      mucho, se parte como la (6b) de la planta 3).
+  - [ ] (7) La planta 4 medida con el bot: el bot llega a ella en alguna partida, cada sala es
+    algo más dura que las de la Juguetería, y aun así acaban menos partidas en la 4 que en la 3
+    (porque llegan pocas).
 
 **Criterios de aceptación:** se puede jugar de la planta 1 a la 4 seguidas; cada planta se
 distingue a la primera en una captura; el bot llega a la planta 4 en alguna partida. Pasar de la
