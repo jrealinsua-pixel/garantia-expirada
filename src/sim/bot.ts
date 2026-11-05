@@ -77,7 +77,7 @@ export function dodge(w: World): Dodge {
     const d = Math.hypot(dx, dy) || 1;
     // The locked line of a charge or a lunge: get off it, roll if it is already coming.
     const kind = en.def.brain.kind;
-    if (((en.state === 'warn' && en.t >= BOT_REACTION) || en.state === 'charge') && (kind === 'charger' || kind === 'chaser' || kind === 'rccar')) {
+    if (((en.state === 'warn' && en.t >= BOT_REACTION) || en.state === 'charge') && (kind === 'charger' || kind === 'chaser' || kind === 'rccar' || kind === 'shredder')) {
       const along = dx * en.dirX + dy * en.dirY;
       const side = dx * -en.dirY + dy * en.dirX;
       if (along > -8 && Math.abs(side) < 22) {
@@ -143,6 +143,36 @@ export function dodge(w: World): Dodge {
       out.rollX = -out.rollX;
       out.rollY = -out.rollY;
     }
+  }
+  return out;
+}
+
+/** Whether the toaster stands in front of a shredder (EnemyDef brain `shredder`): its shots there are swallowed. */
+function facesShredder(w: World, en: World['enemies'][number]): boolean {
+  if (en.def.brain.kind !== 'shredder') return false;
+  const dx = w.player.x - en.x;
+  const dy = w.player.y - en.y;
+  const d = Math.hypot(dx, dy) || 1;
+  return (dx * en.dirX + dy * en.dirY) / d > 0.5;
+}
+
+/**
+ * Walking round a shredder that has the toaster in front, as a player would: sideways to where it
+ * faces, and closing in (close up, it cannot turn as fast as the toaster goes round it).
+ */
+function flank(w: World): { x: number; y: number } {
+  const p = w.player;
+  const out = { x: 0, y: 0 };
+  for (const en of w.enemies) {
+    if (en.state !== 'walk' || !facesShredder(w, en)) continue;
+    const dx = p.x - en.x;
+    const dy = p.y - en.y;
+    const d = Math.hypot(dx, dy) || 1;
+    if (d > 200) continue;
+    const sgn = dx * -en.dirY + dy * en.dirX >= 0 ? 1 : -1;
+    const close = d > 60 ? 0.5 : 0;
+    out.x += -en.dirY * sgn * 0.8 - (dx / d) * close;
+    out.y += en.dirX * sgn * 0.8 - (dy / d) * close;
   }
   return out;
 }
@@ -335,15 +365,17 @@ export class Bot {
     // Mix where it wants to go with getting out of the way; danger wins.
     const dg = this.dodges ? dodge(w) : null;
     const u = dg ? dg.urgency : 0;
-    const tx = (gx / gl) * (1 - u) + (dg ? dg.x : 0) * 2;
-    const ty = (gy / gl) * (1 - u) + (dg ? dg.y : 0) * 2;
+    const fl = flank(w);
+    const tx = (gx / gl) * (1 - u) + (dg ? dg.x : 0) * 2 + fl.x;
+    const ty = (gy / gl) * (1 - u) + (dg ? dg.y : 0) * 2 + fl.y;
     const l = Math.hypot(tx, ty) || 1;
     // Aim at the nearest target, with a little wobble.
     let aimX = p.x + 50;
     let aimY = p.y - HAND_HEIGHT;
     let best = Infinity;
     // Enemies first; the dummies only when the room is empty.
-    const targets = w.enemies.length ? w.enemies.filter((e) => e.state !== 'gone').map((e) => ({ x: e.x, y: e.y, k: 1 })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
+    // A shredder with the toaster in front counts as further away: better to shoot the others meanwhile.
+    const targets = w.enemies.length ? w.enemies.filter((e) => e.state !== 'gone').map((e) => ({ x: e.x, y: e.y, k: facesShredder(w, e) ? 3 : 1 })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
     for (const d of targets) {
       const dd = Math.hypot(d.x - p.x, d.y - p.y) * d.k;
       if (dd < best) {

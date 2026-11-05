@@ -41,6 +41,8 @@ export const REVEAL_LINE = 'No homologado';
 
 /** Over a wind-up robot when it runs down. */
 export const WIND_DOWN_LINE = 'Cuerda agotada';
+/** Over a shredder about to lunge. */
+export const SHRED_JAM_LINE = 'Atasco';
 
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
@@ -78,6 +80,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   webcam: { bullet: 'Foto subida sin consentimiento', contact: 'Videollamada sorpresa' },
   'robot-cuerda': { bullet: 'Tuerca suelta de un juguete de segunda mano', contact: 'Atropello por juguete sin frenos' },
   'coche-teledirigido': { contact: 'Atropello por un coche sin carné' },
+  destructora: { bullet: 'Papeleo devuelto sin leer', contact: 'Triturado por error' },
   'sobre-sorpresa': { bullet: 'Confeti de papel de regalo en el ojo', contact: 'Sobre abierto con los dientes' },
   'munequito-repetido': { contact: 'Mordisco de un repetido' },
   'munequito-dorado': { bullet: 'Fiebre del coleccionista', contact: 'Edición limitada en la cara' },

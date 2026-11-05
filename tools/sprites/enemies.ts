@@ -3,7 +3,7 @@
 import { Canvas } from '../../src/art/canvas.ts';
 import { joinPose, narrowPoseCycle, poseCycle, poseFeet, type Pose } from './pose.ts';
 import {
-  BLUE, BURNT, CREAM, type Ramp, CYAN, DSTEEL, K, OFFICE, PANTL, PINK, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, feet, hand, outline, pad, ramp,
+  BLUE, BURNT, CREAM, type Ramp, CYAN, GREEN, DSTEEL, K, OFFICE, PANTL, PINK, RED, RUBBER, RUSTR, SMOKE, STEEL, WHITE, YEL, box, clear, cube, ellipse, feet, hand, outline, pad, ramp,
 } from '../../src/art/lib.ts';
 
 type Pt = readonly [number, number];
@@ -1061,4 +1061,134 @@ export function makeMunequito(pose: Pose = { xb: 5, xf: 9, bob: 0 }, gold = fals
 export function makeMunequitoFrames(gold: boolean): Canvas[] {
   const cyc = narrowPoseCycle(5, 9, 1).map((f) => makeMunequito(f.pose, gold));
   return gold ? cyc : [...cyc, makeMunequito(undefined, false, true)];
+}
+
+// ---------- Floor 4 (Oficinas) ----------
+
+/** Office beige plastic, gone a little yellow under the fluorescents. */
+const SHRED = ramp('#ece2c6', '#d3c49e', '#ab9a73', '#7b6c4e');
+const SHRED_SIDE = ramp('#ab9a73', '#958560', '#77694b', '#544a36');
+const SHRED_TOP = ramp('#f8f1dc', '#ece2c6', '#d3c49e', '#ab9a73');
+/** The see-through waste bin, with what shows through it. */
+const BIN = ramp('#d5e3ea', '#a9c0cc', '#7f98a8', '#566b7a');
+
+/** Shredded paper seen through the bin (or spilling over it): wavy white strips with grey edges. */
+function strips(cv: Canvas, x: number, y: number, w: number, h: number): void {
+  for (let i = 0; i < w; i += 2) {
+    for (let j = 0; j < h; j++) {
+      const wob = ((j + i) >> 1) % 2;
+      cv.set(x + i + wob, y + j, (i + j) % 5 === 0 ? CREAM[1]! : WHITE);
+    }
+  }
+}
+
+/** The blades' mouth: a dark slot with a row of teeth along its top (red when it is about to lunge). */
+function bladeSlot(cv: Canvas, x: number, y: number, w: number, red: boolean): void {
+  cv.rect(x, y, w, 3, K);
+  for (let i = 1; i < w - 1; i += 2) cv.set(x + i, y + 1, red ? RED[1]! : STEEL[1]!);
+  for (let i = 2; i < w - 1; i += 2) cv.set(x + i, y + 2, red ? RED[2]! : STEEL[3]!);
+}
+
+/** The post-it stuck over its mouth: «Confidencial» in three red scribbles. */
+function confidentialNote(cv: Canvas, x: number, y: number): void {
+  cv.rect(x, y, 5, 4, YEL[1]!);
+  cv.rect(x, y, 5, 1, YEL[0]!);
+  cv.set(x + 4, y + 3, YEL[2]!);
+  cv.rect(x + 1, y + 1, 3, 1, RED[2]!);
+  cv.set(x + 1, y + 2, RED[2]!);
+}
+
+/** The red-and-white «No introducir la mano» sticker: a white square, red border, a red slash. */
+function noHandSticker(cv: Canvas, x: number, y: number): void {
+  cv.rect(x, y, 4, 4, RED[1]!);
+  cv.rect(x + 1, y + 1, 2, 2, WHITE);
+  cv.set(x + 2, y + 1, RED[1]!);
+  cv.set(x + 1, y + 2, RED[1]!);
+}
+
+/**
+ * Destructora de Documentos (M10 planta 4 (4a)): an office paper shredder in beige plastic, the
+ * blade slot for a mouth and its see-through bin, full to bursting with strips, on its back. Always
+ * facing its target, so it is drawn from three sides: `side` (facing right, the bin behind it on
+ * the left), `front` (facing the camera: eyes and blades, strips poking up behind) and `back`
+ * (facing away: all bin). A post-it saying «Confidencial» stuck over the mouth, the «No introducir
+ * la mano» sticker, office shoes. `red`: the blades red and the eyes narrowed (about to lunge, or
+ * chewing). 34x32, like the printer.
+ */
+export function makeDestructora(pose: Pose = { xb: SHREDDER_LEGS[0], xf: SHREDDER_LEGS[1], bob: 0 }, view: 'side' | 'front' | 'back' = 'side', red = false): Canvas {
+  const legs = new Canvas(34, 30);
+  const cv = new Canvas(34, 30);
+  poseFeet(legs, pose, 23, { L: 4, leg: PANTL, shoe: OFFICE });
+  const eyes = (lx: number, rx: number, y: number): void => {
+    for (const x of [lx, rx]) {
+      cv.rect(x, y, 3, 3, K);
+      if (!red) cv.set(x + 1, y + 1, WHITE);
+      // Heavy lids, lower still when it means it.
+      cv.rect(x, y, 3, red ? 2 : 1, SHRED[2]!);
+    }
+    // Brows down to the middle: a document is a document.
+    const brows: Pt[] = [[lx - 1, y - 2], [lx, y - 2], [lx + 1, y - 1], [lx + 2, y - 1], [rx, y - 1], [rx + 1, y - 1], [rx + 2, y - 2], [rx + 3, y - 2]];
+    for (const [x, yy] of brows) cv.set(x, yy, K);
+  };
+  if (view === 'side') {
+    hand(cv, 3, 15, SHRED);
+    // The bin on its back: see-through plastic with the strips pressed against it, and more spilling over the top.
+    cv.rect(1, 7, 10, 15, BIN[1]!);
+    strips(cv, 2, 9, 8, 12);
+    cv.rect(1, 7, 10, 1, BIN[0]!);
+    cv.rect(1, 21, 10, 1, BIN[3]!);
+    cv.rect(1, 8, 1, 13, BIN[2]!);
+    strips(cv, 2, 4, 7, 3);
+    cube(cv, 7, 3, 24, 20, 6, 4, SHRED, SHRED_SIDE, SHRED_TOP);
+    // The paper slot along the top, and the switch.
+    cv.rect(15, 5, 12, 1, SHRED[3]!);
+    cv.set(28, 8, red ? RED[1]! : GREEN);
+    eyes(17, 23, 9);
+    bladeSlot(cv, 14, 15, 16, red);
+    confidentialNote(cv, 24, 13);
+    noHandSticker(cv, 8, 12);
+    // Wear: a scuff on the top and a coffee ring on the side.
+    cv.set(22, 6, SHRED[3]!);
+    cv.set(10, 18, SHRED_SIDE[3]!);
+    hand(cv, 29, 16, SHRED);
+  } else if (view === 'front') {
+    hand(cv, 3, 15, SHRED);
+    // Strips poking up from the bin behind it.
+    strips(cv, 9, 0, 16, 4);
+    cube(cv, 5, 3, 25, 20, 3, 4, SHRED, SHRED_SIDE, SHRED_TOP);
+    cv.rect(11, 5, 14, 1, SHRED[3]!);
+    eyes(13, 20, 9);
+    bladeSlot(cv, 10, 15, 17, red);
+    confidentialNote(cv, 21, 13);
+    cv.set(26, 8, red ? RED[1]! : GREEN);
+    noHandSticker(cv, 23, 18);
+    hand(cv, 29, 15, SHRED);
+  } else {
+    hand(cv, 3, 15, SHRED);
+    cube(cv, 5, 3, 25, 20, 3, 4, SHRED, SHRED_SIDE, SHRED_TOP);
+    // All bin: see-through, packed with strips, a bulge of them over the top and the sticker on it.
+    cv.rect(9, 6, 18, 16, BIN[1]!);
+    strips(cv, 10, 8, 16, 13);
+    cv.rect(9, 6, 18, 1, BIN[0]!);
+    cv.rect(9, 21, 18, 1, BIN[3]!);
+    cv.rect(9, 7, 1, 14, BIN[2]!);
+    cv.rect(26, 7, 1, 14, BIN[2]!);
+    strips(cv, 11, 2, 14, 4);
+    noHandSticker(cv, 20, 15);
+    hand(cv, 29, 15, SHRED);
+  }
+  return pad(outline(joinPose(legs, cv, pose)), 2);
+}
+
+export const SHREDDER_LEGS = [11, 18] as const;
+
+/**
+ * The shredder's frames, seven per view (side, then front, then back): 0-1 humming, 2-5 a steady
+ * shuffle, 6 blades red (warning, or chewing a bullet).
+ */
+export function makeDestructoraFrames(): Canvas[] {
+  return (['side', 'front', 'back'] as const).flatMap((v) => [
+    ...poseCycle(SHREDDER_LEGS[0], SHREDDER_LEGS[1]).map((f) => makeDestructora(f.pose, v)),
+    makeDestructora(undefined, v, true),
+  ]);
 }

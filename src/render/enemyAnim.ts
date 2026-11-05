@@ -35,8 +35,25 @@ function busy(en: Enemy): boolean {
  * warning frame included); a boss spinning on the spot goes round its `spin` frames.
  */
 export function enemyFrame(en: Enemy, now: number): number {
+  return sideFrame(en, now) + viewShift(en);
+}
+
+/**
+ * Which way an enemy drawn from three sides (EnemyAnim.views) is seen: its side view while it
+ * faces more across than up or down (mirrored by `facing`, like any other), its front facing down
+ * the screen and its back facing up. The frame shift of that view.
+ */
+export function viewShift(en: Enemy): number {
+  const v = en.def.anim?.views;
+  if (!v || Math.abs(en.dirX) >= Math.abs(en.dirY)) return 0;
+  return en.dirY > 0 ? v.front : v.back;
+}
+
+function sideFrame(en: Enemy, now: number): number {
   const a = en.def.anim;
   if (!a) return 0;
+  // Chewing a bullet it swallowed: the blades show red for a moment.
+  if (a.warn !== undefined && (en.chompT ?? 0) > 0) return a.warn;
   const own = phaseFrameShift(en);
   const shift = own ?? (a.phaseShift !== undefined && (en.bossPhase ?? 0) >= 1 ? a.phaseShift : 0);
   if (a.spin && isSpinning(en)) return a.spin[spinStep(en) % a.spin.length]!;

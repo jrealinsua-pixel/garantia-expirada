@@ -2,7 +2,7 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain,
+  HopperBrain, ShredderBrain,
 } from '../data/types.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
@@ -93,6 +93,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'hopper':
         updateHopper(w, en, en.def.brain);
+        break;
+      case 'shredder':
+        updateShredder(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -445,6 +448,116 @@ function updateRcCar(w: World, en: Enemy, b: RcCarBrain): void {
     if (hit.hitX) en.dirX = -en.dirX;
     if (hit.hitY) en.dirY = -en.dirY;
     en.legSpin = -en.legSpin;
+  }
+}
+
+/**
+ * Where a player bullet flying at `angle` (rad) hits a shredder: `front` if it comes at it within
+ * frontDeg / 2 of where it faces (swallowed), `back` if within the same of its back (backMul), else
+ * `side`. Anything that is not a shredder is always hit on the `side` (normal damage).
+ */
+export function shredSide(en: Enemy, angle: number): 'front' | 'side' | 'back' {
+  const b = en.def.brain;
+  if (b.kind !== 'shredder') return 'side';
+  // The bullet travels along `angle`: it comes from the opposite way.
+  const along = Math.cos(angle) * en.dirX + Math.sin(angle) * en.dirY;
+  const cone = Math.cos((b.frontDeg / 2) * DEG);
+  if (-along >= cone) return 'front';
+  if (along >= cone) return 'back';
+  return 'side';
+}
+
+/**
+ * A shredder swallows a bullet that came at it from the front: it chews (the blades show red for a
+ * moment) and every `spitEvery` bullets it spits a fan of paper strips back at the player.
+ */
+export function shredBullet(w: World, en: Enemy, x: number, y: number): void {
+  const b = en.def.brain;
+  if (b.kind !== 'shredder') return;
+  en.swallowed = (en.swallowed ?? 0) + 1;
+  en.chompT = 0.18;
+  w.events.push({ type: 'shred', x, y, source: en.id });
+  if (en.swallowed % b.spitEvery !== 0) return;
+  const def = PATTERNS[b.pattern];
+  if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+  const p = w.player;
+  const mh = muzzleHeight(w, en, b.muzzleY);
+  firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - en.x), { telegraph: 0, source: en.id, by: en.def.id, height: mh });
+  w.events.push({ type: 'shredSpit', x: en.x, y: en.y - mh, source: en.id });
+}
+
+/**
+ * Destructora de Documentos: plods towards the toaster always facing it (turning slowly), swallows
+ * what is shot at its front and now and then lunges to swallow the toaster too. See ShredderBrain.
+ */
+function updateShredder(w: World, en: Enemy, b: ShredderBrain): void {
+  const p = w.player;
+  const toX = p.x - en.x;
+  const toY = p.y - en.y;
+  const dist = Math.hypot(toX, toY) || 1;
+  en.t += DT;
+  en.chompT = Math.max(0, (en.chompT ?? 0) - DT);
+  if (en.swallowed === undefined) {
+    // Just switched on: it already faces the toaster, and waits a while before its first lunge.
+    en.swallowed = 0;
+    en.dirX = toX / dist;
+    en.dirY = toY / dist;
+    enter(en, 'walk', w.rng.range(b.lungeEvery[0], b.lungeEvery[1]));
+  }
+  switch (en.state) {
+    case 'walk': {
+      const head = turnTowards(Math.atan2(en.dirY, en.dirX), Math.atan2(toY, toX), b.turnDeg * DEG * DT);
+      en.dirX = Math.cos(head);
+      en.dirY = Math.sin(head);
+      // It walks where it faces, but not into the toaster's face.
+      const pace = dist > 26 ? b.speed : 0;
+      approach(en, en.dirX * pace, en.dirY * pace, KNOCK_FRICTION);
+      const ahead = (en.dirX * toX + en.dirY * toY) / dist >= Math.cos((b.frontDeg / 2) * DEG);
+      if (en.t >= en.until && dist < b.range && ahead) {
+        const d = normalize(toX, toY);
+        en.dirX = d.x;
+        en.dirY = d.y;
+        enter(en, 'warn', b.telegraph);
+        w.events.push({ type: 'telegraph', x: en.x, y: en.y - 2, time: b.telegraph, aim: Math.atan2(d.y, d.x), aimed: true, color: 'red', source: en.id });
+        w.events.push({ type: 'shredJam', x: en.x, y: en.y, source: en.id });
+      }
+      break;
+    }
+    case 'warn':
+      approach(en, 0, 0, b.brake);
+      if (en.t >= en.until) {
+        enter(en, 'charge', b.lungeTime);
+        en.vx = en.dirX * b.lungeSpeed;
+        en.vy = en.dirY * b.lungeSpeed;
+        w.events.push({ type: 'charge', x: en.x, y: en.y, dirX: en.dirX, dirY: en.dirY, source: en.id });
+      }
+      break;
+    case 'charge':
+      en.vx = en.dirX * b.lungeSpeed;
+      en.vy = en.dirY * b.lungeSpeed;
+      if (en.t >= en.until) {
+        enter(en, 'brake', b.recover);
+        w.events.push({ type: 'brake', x: en.x, y: en.y, source: en.id });
+      }
+      break;
+    case 'brake':
+      approach(en, 0, 0, b.brake);
+      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.lungeEvery[0], b.lungeEvery[1]));
+      break;
+    default:
+      enter(en, 'walk', w.rng.range(b.lungeEvery[0], b.lungeEvery[1]));
+  }
+  if (Math.abs(en.dirX) > 0.2) en.facing = en.dirX >= 0 ? 1 : -1;
+  const ox = en.x;
+  const oy = en.y;
+  const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+  en.moved += Math.hypot(en.x - ox, en.y - oy);
+  // A lunge into a wall or a prop ends there.
+  if (en.state === 'charge' && ((hit.hitX && Math.abs(en.dirX) > 0.3) || (hit.hitY && Math.abs(en.dirY) > 0.3))) {
+    w.events.push({ type: 'bonk', x: en.x + en.dirX * en.def.footRadius, y: en.y - 6, dirX: en.dirX, dirY: en.dirY, source: en.id });
+    enter(en, 'brake', b.recover);
+    en.vx = -en.dirX * 40;
+    en.vy = -en.dirY * 40;
   }
 }
 

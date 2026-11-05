@@ -825,6 +825,26 @@ export function makeNut(): Canvas {
 }
 
 /**
+ * The shredder's paper strips (M10 planta 4 (4a)): an enemy bullet the same 9x9 as the round ones,
+ * a wavy strip of white paper with a red edge (the saturated rim of every enemy bullet). 2 frames:
+ * the wave one way and the other (it wriggles as it flies).
+ */
+export function makeShredStrip(): Canvas {
+  const frames: Array<readonly string[]> = [
+    ['..rrr..', '..rwr..', '...rwr.', '...rwr.', '..rwr..', '..rwr..', '...rwr.', '...rrr.'],
+    ['...rrr.', '...rwr.', '..rwr..', '..rwr..', '...rwr.', '...rwr.', '..rwr..', '..rrr..'],
+  ];
+  const cols: Record<string, RGBA> = { r: RED[1]!, w: WHITE };
+  const sheet = new Canvas(9 * frames.length, 9);
+  frames.forEach((rows, f) => {
+    const cv = new Canvas(9, 9);
+    paintGrid(cv, 0, 0, rows, cols);
+    sheet.blit(outline(cv), f * 9, 0);
+  });
+  return sheet;
+}
+
+/**
  * What the fridge spits in its second phase (see EXPIRED_PRODUCTS): 3 frames of 12x14.
  * A yogurt with its lid swollen and green, a milk carton with a mouldy stain and a dented can.
  */

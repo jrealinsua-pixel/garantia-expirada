@@ -25,6 +25,7 @@ import {
   CRIT_LINE,
   JAM_LINE,
   WIND_DOWN_LINE,
+  SHRED_JAM_LINE,
   STALL_LINE,
   BRICK_LINE,
   REVEAL_LINE,
@@ -1981,6 +1982,20 @@ export class GameScene extends Phaser.Scene {
         case 'windGo':
           for (let i = 0; i < 3; i++) this.puff(e.x - this.fx.range(4, 8), e.y + this.fx.range(-2, 1), 0.3);
           break;
+        case 'shred':
+          // A bullet into the blades: a grind and a few white flecks of paper.
+          this.sound2.play('triturar', { detune: this.fx.range(-150, 150), volume: 0.7 });
+          for (let i = 0; i < 3; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), 0, 0xf4f1e8);
+          break;
+        case 'shredSpit':
+          this.sound2.play('escupir', { detune: this.fx.range(-100, 100), volume: 0.8 });
+          for (let i = 0; i < 4; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 0, 0xf4f1e8);
+          break;
+        case 'shredJam':
+          // About to lunge: the blades whirr up, and it says so.
+          this.sound2.play('triturar', { detune: -500, volume: 0.9 });
+          this.floatText(e.x, e.y - 34, fontText(SHRED_JAM_LINE), 0xe0453b, `shred:${e.source}`, -16, 0.6);
+          break;
         case 'windBounce':
           // Tin against the wall: a clank and a couple of sparks.
           this.sound2.play('chapa', { detune: this.fx.range(-200, 200), volume: 0.7 });
@@ -3311,6 +3326,7 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'nut' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 60 + b.id) % 2);
       // Confetti flutters.
       if (b.color === 'confetti' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
+      if (b.color === 'strip' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
       // The Muñeco's shoes and handbags spin a quarter turn at a time (half are shoes, half bags).
       if (b.color === 'accessory' && b.owner === 'enemy') s.setFrame((b.id % 2) * 4 + (Math.floor(this.time.now / 75 + b.id) % 4));
       // The sale stickers turn a quarter at a time as they peel off.
@@ -4014,7 +4030,7 @@ const SKID_MAX = 120;
 
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
-  confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina',
+  confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

@@ -698,6 +698,32 @@ export interface RcCarBrain {
 }
 
 /**
+ * A paper shredder (M10 planta 4 (4a)): walks at `speed` along where it faces, turning towards the
+ * player at most `turnDeg` °/s. Player bullets that come at it within `frontDeg` / 2 of its front
+ * are swallowed (no damage) and every `spitEvery` swallowed it fires `pattern` back at the player;
+ * within `frontDeg` / 2 of its back they hit `backMul` times as hard. Every `lungeEvery` s (random
+ * in the range), with the player closer than `range` and in front, it warns `telegraph` s and lunges
+ * `lungeTime` s at `lungeSpeed` towards it, then brakes `recover` s.
+ */
+export interface ShredderBrain {
+  kind: 'shredder';
+  speed: number;
+  turnDeg: number;
+  frontDeg: number;
+  backMul: number;
+  spitEvery: number;
+  pattern: string;
+  muzzleY: number;
+  lungeEvery: [number, number];
+  range: number;
+  telegraph: number;
+  lungeSpeed: number;
+  lungeTime: number;
+  recover: number;
+  brake: number;
+}
+
+/**
  * A surprise envelope: hops about (`hopTime` s in the air, up to `hopHeight` px, `hopDist` px a
  * hop, random in the range) trying to stay about `keep` px from the player, resting `rest` s on the
  * floor between hops. Every `volleyEvery` hops, if the player is closer than `range`, it fires
@@ -752,7 +778,7 @@ export interface LobberBrain {
 }
 
 export type EnemyBrain =
-  | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
@@ -825,6 +851,11 @@ export interface EnemyAnim {
   jump?: number;
   /** Frame shown while stunned or run down (the wind-up robot with its key still). */
   stun?: number;
+  /**
+   * Enemies drawn from three sides (the shredder): the frames above are its side view, and the
+   * same layout `front` frames on faces the camera (heading down) and `back` frames on faces away.
+   */
+  views?: { front: number; back: number };
   /** Jammed turrets: frames cycled every `jamMs` while it shakes. */
   jam?: readonly number[];
   jamMs?: number;

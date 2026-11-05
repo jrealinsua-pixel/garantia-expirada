@@ -168,6 +168,10 @@ export const SFX: Record<string, SfxParams> = {
   // tin clank of a bounce.
   cuerda: { wave: 'square', freq: 1100, freqEnd: 1500, attack: 0.001, sustain: 0.4, decay: 0.08, volume: 0.1, duty: 0.2, crush: 3, vibrato: 0.6, vibratoSpeed: 32 },
   agotado: { wave: 'saw', freq: 520, freqEnd: 70, attack: 0.005, sustain: 0.3, decay: 0.3, volume: 0.13, lowpass: 0.45, vibrato: 0.35, vibratoSpeed: 11 },
+  // The shredder: blades grinding paper (a bullet swallowed, or winding up to lunge), and the
+  // flurry of strips it spits back.
+  triturar: { wave: 'noise', freq: 600, freqEnd: 380, attack: 0.002, sustain: 0.12, decay: 0.08, volume: 0.2, lowpass: 0.4, vibrato: 0.5, vibratoSpeed: 40 },
+  escupir: { wave: 'noise', freq: 3000, freqEnd: 1200, attack: 0.004, sustain: 0.05, decay: 0.16, volume: 0.24, lowpass: 0.6 },
   chapa: { wave: 'square', freq: 820, freqEnd: 430, attack: 0.001, sustain: 0.02, decay: 0.09, volume: 0.15, duty: 0.3, crush: 3 },
   // El Muñeco de Moda (M10 5b): the pricing gun stamping a new tag (a dry double clack)...
   rebaja: { wave: 'square', freq: 1500, freqEnd: 380, attack: 0.001, sustain: 0.025, decay: 0.07, volume: 0.17, duty: 0.25, crush: 3 },

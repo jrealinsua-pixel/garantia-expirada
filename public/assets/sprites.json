@@ -95,6 +95,12 @@
     "frameH": 28,
     "frames": 5
   },
+  "destructora": {
+    "file": "destructora.png",
+    "frameW": 34,
+    "frameH": 32,
+    "frames": 21
+  },
   "munequito-repetido": {
     "file": "munequito-repetido.png",
     "frameW": 18,
@@ -339,6 +345,12 @@
     "file": "bala-confeti.png",
     "frameW": 7,
     "frameH": 7,
+    "frames": 2
+  },
+  "bala-tira": {
+    "file": "bala-tira.png",
+    "frameW": 9,
+    "frameH": 9,
     "frames": 2
   },
   "bala-accesorio": {

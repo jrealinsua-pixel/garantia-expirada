@@ -686,6 +686,29 @@ try {
   await shot('35p-robot-cuerda.png');
   console.log('Robot de Cuerda: rebota soltando tuercas, se le acaba la cuerda y se la da solo.');
 
+  // M10 planta 4 (4a): the shredder. Shot from the front it swallows the bullets (no damage) and
+  // spits strips of paper back; then, close and in front, it warns with its blades red and lunges.
+  await page.goto(`${url}?semilla=e2e-destructora&sala=planta-diafana&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; p.weapon.ammo = p.weapon.def.magazine; p.weapon.reload = 0; g.spawnIdle('destructora', p.x + 150, p.y - 10); })()`);
+  await page.waitForTimeout(700);
+  const shred = await page.evaluate<{ x: number; y: number }>(`(() => { const e = window.__GE__.scene.world.enemies[0]; e.until = 99; return { x: e.x, y: e.y - 14 }; })()`);
+  await aimAt(shred.x, shred.y);
+  await page.mouse.down();
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.color === 'strip')", undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('La destructora no escupe tiras de papel al tragarse balas'); });
+  await page.mouse.up();
+  await page.waitForTimeout(160);
+  await shot('50p-destructora-tiras.png');
+  const swallowed = await page.evaluate<{ hurt: number; n: number }>('(() => { const e = window.__GE__.scene.world.enemies[0]; return { hurt: e.damageTaken, n: e.swallowed }; })()');
+  if (swallowed.hurt !== 0 || swallowed.n < 4) throw new Error(`De frente no debería hacerle daño: ${JSON.stringify(swallowed)}`);
+  await page.evaluate("(() => { const w = window.__GE__.scene.world; w.bullets = []; const e = w.enemies[0]; e.until = e.t + 0.1; })()");
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.state === 'warn' && e.t > 0.2)", undefined, { timeout: 6000 })
+    .catch(() => { throw new Error('La destructora no avisa antes de lanzarse'); });
+  await shot('50q-destructora-atasco.png');
+  console.log('Destructora: se traga las balas de frente, escupe tiras y avisa antes de lanzarse.');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);

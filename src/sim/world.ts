@@ -8,7 +8,7 @@ import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
 import type { BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
 import { SYNERGIES } from '../data/synergies.ts';
-import { bossWarnSpot, isRunDown, updateEnemies } from './enemies.ts';
+import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
@@ -369,6 +369,9 @@ export interface Enemy {
   runVia?: { x: number; y: number };
   runGap?: number;
   runStuck?: number;
+  /** Shredders: bullets swallowed so far, and seconds left of chewing the last one (blades red). */
+  swallowed?: number;
+  chompT?: number;
 }
 
 /**
@@ -441,6 +444,8 @@ export type SimEvent =
   | { type: 'surprise'; x: number; y: number; line: string; spawned: number[]; coupons: number }
   /** A remote-control car overturns against something, rights itself, or its batteries give out. */
   | { type: 'carFlip' | 'carRight' | 'carStall'; x: number; y: number; source: number }
+  /** A shredder: a bullet swallowed from the front, a fan of strips spat back, a lunge coming. */
+  | { type: 'shred' | 'shredSpit' | 'shredJam'; x: number; y: number; source: number }
   | { type: 'reveal'; x: number; y: number; source: number }
   | { type: 'lagJump'; x: number; y: number; tx: number; ty: number; source: number }
   /** A webcam starts recording, loses the player, or shares its screen (`told` enemies attack now). */
@@ -1731,8 +1736,16 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
           if (isDead(en) || en.state === 'gone' || b.hits?.includes(en.id)) continue;
           const hb = dummyHurtBox(en);
           if (b.x + b.r > hb.x && b.x - b.r < hb.x + hb.w && b.y + b.r > hb.y && b.y - b.r < hb.y + hb.h) {
-            // A boss between phases shrugs bullets off (they still stop on it).
-            const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en);
+            // A shredder swallows what comes at its front: no damage, no knockback, the bullet is gone.
+            const side = shredSide(en, angle);
+            if (side === 'front' && en.state !== 'dying') {
+              shredBullet(w, en, b.x, b.y);
+              alive = false;
+              break;
+            }
+            // A boss between phases shrugs bullets off (they still stop on it); a shredder's bin takes double.
+            const back = side === 'back' && en.def.brain.kind === 'shredder' ? en.def.brain.backMul : 1;
+            const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en) * back;
             en.hitT = damage > 0 ? 0.12 : 0.04;
             en.damageTaken += damage;
             en.lastHit = angle;
