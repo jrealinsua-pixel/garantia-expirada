@@ -52,6 +52,8 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (b?.slow) out.push({ text: `Frena a quien toca un ${Math.round((1 - b.slow.mul) * 100)} % durante ${String(b.slow.time).replace('.', ',')} s`, good: true });
   if (b?.last?.mul) out.push({ text: `La última bala del cargador: daño ×${b.last.mul}`, good: true });
   if (b?.last?.pierce) out.push({ text: b.last.pierce >= 10 ? 'La última bala atraviesa a todos' : `La última bala atraviesa ${b.last.pierce} más`, good: true });
+  if (b?.stick) out.push({ text: `Las balas se quedan pegadas ${String(b.stick.time).replace('.', ',')} s donde chocan`, good: true });
+  if (b?.stick?.slow) out.push({ text: `Los pegotes frenan un ${Math.round((1 - b.stick.slow.mul) * 100)} % a quien los pisa`, good: true });
   if (b?.crit) out.push({ text: `${Math.round(b.crit.chance * 100)} % de balas con daño ×${String(b.crit.mul).replace('.', ',')}`, good: true });
   const k = m.perks;
   if (k?.charge) out.push({ text: `+${k.charge} ${k.charge === 1 ? 'pila' : 'pilas'} por sala limpia`, good: true });
@@ -61,6 +63,10 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (k?.shrug) out.push({ text: `${Math.round(k.shrug * 100)} % de golpes que no hacen daño`, good: true });
   if (k?.freeChests) out.push({ text: `${k.freeChests === 1 ? 'Un cofre' : `${k.freeChests} cofres`} por planta sin ticket`, good: true });
   if (k?.hurtRing) out.push({ text: `Al recibir un golpe suelta ${k.hurtRing} balas en corro`, good: true });
+  if (k?.pet) {
+    out.push({ text: `Sala limpia sin golpes: daño +${Math.round(k.pet.step * 100)} % (hasta +${Math.round(k.pet.step * k.pet.max * 100)} %)`, good: true });
+    out.push({ text: 'Un golpe y vuelve a tener hambre', good: false });
+  }
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

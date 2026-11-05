@@ -73,4 +73,13 @@ export const SYNERGIES: Record<string, SynergyDef> = {
     // The sticker's last bullet goes through everyone in its way.
     mod: { id: 'unboxing', bullets: { last: { pierce: 99 } } },
   },
+  // M10 (6b2): the mixed plasticine and the glitter.
+  manualidades: {
+    id: 'manualidades',
+    name: 'Manualidades',
+    text: 'Nadie sabe qué es, pero la nevera de casa lo va a lucir igual.',
+    items: ['plastilina', 'purpurina'],
+    // The stuck blobs last longer and slow down whoever steps in them by half.
+    mod: { id: 'manualidades', bullets: { stick: { time: 2.5, slow: { mul: 0.5, time: 1.5 } } } },
+  },
 };

@@ -104,6 +104,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'mesa-3': { canvas: strip(P.makeTableFrames(3)), frameW: 28, frameH: 28 },
     'mesa-4': { canvas: strip(P.makeTableFrames(4)), frameW: 28, frameH: 28 },
     'bala-jugador': one(P.makeShot()),
+    // Plastilina Mezclada: a stuck bullet (0-1 wobbling, 2-3 with glitter for Manualidades).
+    'pegote-plastilina': { canvas: strip(P.makePegoteFrames()), frameW: 12, frameH: 10 },
     'bala-roja': one(P.enemyBulletRed()),
     'bala-cian': one(P.enemyBulletCyan()),
     'bala-cubito': one(P.makeIceCube()),

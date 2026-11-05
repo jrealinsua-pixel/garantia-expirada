@@ -69,6 +69,12 @@ export interface BulletBehaviour {
    * biggest wins) and `pierce` more enemies to go through (they add up).
    */
   last?: { mul?: number; pierce?: number };
+  /**
+   * Plastilina Mezclada: a bullet that hits a wall or a prop (and has no bounce left) stays stuck
+   * there for `time` s, and hurts every enemy that walks into it (each one once); with `slow`, it
+   * slows them too (Manualidades). The longest time and the strongest slow win.
+   */
+  stick?: { time: number; slow?: { mul: number; time: number } };
 }
 
 /**
@@ -91,6 +97,12 @@ export interface Perks {
   freeChests?: number;
   /** When hurt, a ring of this many of its own bullets goes out from the toaster (the strongest wins). */
   hurtRing?: number;
+  /**
+   * Mascota Virtual: each combat room cleared without being hurt feeds it one level (up to `max`);
+   * each level is `step` more damage (×(1 + step × level)); a hit takes it back to zero. The
+   * strongest wins.
+   */
+  pet?: { step: number; max: number };
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

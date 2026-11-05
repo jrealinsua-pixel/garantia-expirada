@@ -33,6 +33,8 @@ import {
   ALERT_LINE,
   REVIVE_LINE,
   SHRUG_LINE,
+  PET_DEAD_LINE,
+  petFedLine,
   ALLEN_LINE,
   TURBO_LINE,
   archiveHint,
@@ -1837,6 +1839,23 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('zumbido', { detune: 400, volume: 0.6 });
           this.shake(90, 0.005);
           break;
+        case 'stick':
+          // Plastilina Mezclada: a wet squelch and a couple of crumbs (glitter with Manualidades).
+          this.sound2.play('chof', { detune: 600 + this.fx.range(-200, 200), volume: 0.35 });
+          for (let i = 0; i < 3; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(15, 35), 1, e.slows ? 0xea93a8 : 0x8a7a6a);
+          break;
+        case 'pet':
+          if (e.level > 0) {
+            // Mascota Virtual fed: a happy beep, little hearts and its level.
+            this.sound2.play('clinc', { detune: 900 + 200 * e.level });
+            for (let i = 0; i < 4 + 2 * e.level; i++) this.spark(e.x, e.y - 6, -Math.PI / 2 + this.fx.range(-1, 1), this.fx.range(30, 70), 1, 0xea93a8);
+            this.floatText(e.x, e.y - 18, fontText(petFedLine(e.level, e.max)), 0xea93a8, 'pet', -14, 1.1);
+          } else {
+            // Starved by a hit: the sad descending beep of a dead pixel pet.
+            this.sound2.play('apagar', { detune: 300 });
+            this.floatText(e.x, e.y - 30, fontText(PET_DEAD_LINE), 0x8a92a8, 'pet', -10, 1.3);
+          }
+          break;
         case 'shrug':
           // Caja de Cartón Vacía: the blow lands on cardboard. A dull thud, scraps, and the line.
           this.sound2.play('golpe', { detune: -700, volume: 0.6 });
@@ -3264,6 +3283,13 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'accessory' && b.owner === 'enemy') s.setFrame((b.id % 2) * 4 + (Math.floor(this.time.now / 75 + b.id) % 4));
       // The sale stickers turn a quarter at a time as they peel off.
       if (b.color === 'sticker' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 4);
+      // Plastilina Mezclada: a stuck bullet turns into a blob of mixed plasticine that wobbles
+      // (pink-flecked with Manualidades), and shrinks away at the end.
+      if (b.stuck) {
+        if (s.texture.key !== 'pegote-plastilina') s.setTexture('pegote-plastilina').setRotation(0).clearTint().setAlpha(1);
+        s.setFrame((b.slow?.mul ?? 1) <= 0.5 ? 2 + (Math.floor(this.time.now / 140 + b.id) % 2) : Math.floor(this.time.now / 140 + b.id) % 2);
+        size = Math.min(1, b.life / 0.25);
+      }
       // The limited edition's last bullet: bigger and gold, glinting.
       if (b.limited) {
         size *= 1.5;

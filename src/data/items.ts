@@ -276,6 +276,27 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // Every hit taken shakes out a ring of ten of its own bullets.
     mod: { id: 'mando-vibracion', perks: { hurtRing: 10 } },
   },
+  plastilina: {
+    id: 'plastilina',
+    name: 'Plastilina Mezclada',
+    description: 'Era de cuatro colores. Ahora es de uno, y no tiene nombre.',
+    sprite: 'objeto-plastilina',
+    level: 3,
+    // Bullets that hit a wall or a prop stay stuck there 1.5 s and hurt whoever walks into them;
+    // they fly ×0.85 slower (M10 6b2).
+    mod: { id: 'plastilina', stats: [{ stat: 'bulletSpeed', mul: 0.85 }], bullets: { stick: { time: 1.5 } } },
+  },
+  'mascota-virtual': {
+    id: 'mascota-virtual',
+    quality: 'buena',
+    name: 'Mascota Virtual',
+    description: 'Había que darle de comer cada cinco minutos.',
+    sprite: 'objeto-mascota-virtual',
+    level: 3,
+    // Only good, but fragile: each combat room cleared unhurt is ×1.1 damage more, up to ×1.3; a
+    // hit and it starts again (M10 6b2).
+    mod: { id: 'mascota-virtual', perks: { pet: { step: 0.1, max: 3 } } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

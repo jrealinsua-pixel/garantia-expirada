@@ -275,10 +275,16 @@ golpes críticos (`bullets.crit`) y `perks` (pilas de más por sala, cupones de 
 voltereta que corta balas y vuelta de la baja).
 
 Objetos pasivos de la planta 3 (Juguetería, `level: 3`). Más raros que los de abajo: muchos
-cambian cómo se juega, no solo las cifras. Ocho ya están en el juego (M10 6a: Pilas No Incluidas,
+cambian cómo se juega, no solo las cifras. Ocho llegaron primero (M10 6a: Pilas No Incluidas,
 Muelle de Juguete, Bote de Purpurina, Juguete del Menú Infantil y Caja de Cartón Vacía; 6b1:
 Pegatina de Edición Limitada, Llave Allen Sobrante y Mando con Vibración, con la sinergia Unboxing;
-la llave se usa antes que un ticket, porque solo vale en su planta);
+la llave se usa antes que un ticket, porque solo vale en su planta). Los diez están ya en el juego
+(6b2: Plastilina Mezclada y Mascota Virtual, con la sinergia Manualidades). Los pegotes de plastilina
+se forman donde la bala choca con una pared o un obstáculo (no en los enemigos), dañan una sola vez
+a cada enemigo que los toca y no empujan; con Manualidades duran 2,5 s y frenan a la mitad 1,5 s. La
+Mascota Virtual no da +1 de daño por nivel sino ×1,1 (hasta ×1,3): un +1 fijo era casi doblar el
+daño del Ventilador y, tras moderar los objetos en M9b, un 30 % sostenido ya pide jugar sin un rasguño;
+la sala que se limpia tras un golpe no la alimenta;
 el Juguete del Menú Infantil sube la velocidad ×1,15 y la cadencia ×1,12 (no ×1,2 y ×1,15: en M9b
 los objetos se moderaron), y la voltereta larga del muelle es la velocidad de la voltereta
 (misma duración y mismos fotogramas invulnerables, más recorrido).
@@ -294,7 +300,7 @@ los objetos se moderaron), y la voltereta larga del muelle es la velocidad de la
 | Caja de Cartón Vacía | El niño jugó con la caja. El juguete sigue sin abrir. | Un 20 % de los golpes no hacen daño («Era solo la caja») (solo bueno) |
 | Bote de Purpurina | Se queda para siempre. En todo. | Los enemigos tocados van ×0,8 más lentos 2 s; balas un poco más pequeñas |
 | Juguete del Menú Infantil | Venía con la comida. Duró menos que la comida. | Velocidad ×1,2 y cadencia ×1,15, −1 corazón |
-| Mascota Virtual | Había que darle de comer cada cinco minutos. | Cada sala limpia sin recibir daño, +1 de daño (hasta +3); un golpe lo pone a cero |
+| Mascota Virtual | Había que darle de comer cada cinco minutos. | Cada sala limpia sin recibir daño, daño ×1,1 más (hasta ×1,3); un golpe lo pone a cero (solo bueno) |
 
 Dos sinergias nuevas: **Unboxing** (Caja de Cartón Vacía + Pegatina de Edición Limitada: «Abrirlo
 le quita la mitad del valor. Grabarlo se lo devuelve.»; la bala de la pegatina atraviesa a todos) y

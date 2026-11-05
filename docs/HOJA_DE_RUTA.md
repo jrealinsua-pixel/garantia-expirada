@@ -21,7 +21,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
-| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y la 4 está partida en 18 tareas: quedan unas 21) |
+| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y la 4 está partida en 18 tareas: quedan unas 20) |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
@@ -351,7 +351,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
       del Menú Infantil y Caja de Cartón Vacía.
     - [x] (6b1) Tres con efectos nuevos: Pegatina de Edición Limitada, Llave Allen Sobrante y Mando
       con Vibración; y la sinergia Unboxing (con la Caja de Cartón Vacía).
-    - [ ] (6b2) Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades.
+    - [x] (6b2) Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades.
   - [ ] (7) La planta 3 medida con el bot y ajustada para que sea el muro: el bot con daño la
     supera menos de una vez de cada cuatro, y es donde más partidas acaban.
 - [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de

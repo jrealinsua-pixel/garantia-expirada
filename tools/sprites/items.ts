@@ -6,6 +6,8 @@ const PAL: Record<string, string> = {
   R: '#e0453b', r: '#962d35', Y: '#f6c431', y: '#c28f1c', O: '#ec8a2c', B: '#4a86d8',
   b: '#2c4f94', C: '#69dbd8', c: '#3a9ea6', N: '#58b45a', n: '#2f7a41', P: '#ea93a8',
   T: '#a96a3f', t: '#6b4128', M: '#b8a07a', L: '#e9d9a8',
+  // Mixed plasticine (M10 6b2): the mauve-brown of four colours kneaded together.
+  V: '#8a7680', v: '#5a4a54', U: '#b3a3aa',
 };
 
 export const ITEM_GRIDS: Record<string, readonly string[]> = {
@@ -649,6 +651,44 @@ export const ITEM_GRIDS: Record<string, readonly string[]> = {
     '.W.W........W.W.',
     'W...W......W...W',
     '................',
+  ],
+  // Mixed plasticine: one lump the colour of nothing, with streaks of the four it used to be.
+  'plastilina': [
+    '................',
+    '................',
+    '................',
+    '......KKKK......',
+    '....KKUUVVKK....',
+    '...KUUVVRRVVK...',
+    '..KUVVRRVVVVVK..',
+    '..KVVVVVVBBVVK..',
+    '.KVVNVVVBBVVVvK.',
+    '.KVVNNVVVVVRVvK.',
+    '.KVVVNNVVRRVVvK.',
+    '..KVVVVVRVVvvK..',
+    '..KvVVBBVVvvvK..',
+    '...KKvvvvvvKK...',
+    '.....KKKKKK.....',
+    '................',
+  ],
+  // A virtual pet keychain egg: its little screen with the pixel creature and its three buttons.
+  'mascota-virtual': [
+    '................',
+    '.......KK.......',
+    '......KWWK......',
+    '.....KKKKKK.....',
+    '...KKPPPPPPKK...',
+    '..KPPPPPPPPPPK..',
+    '..KPKKKKKKKKPK..',
+    '.KPPKCCCCCCKPPK.',
+    '.KPPKCKCCKCKPPK.',
+    '.KPPKCCKKCCKPPK.',
+    '.KPPKCKKKKCKPPK.',
+    '.KPPKKKKKKKKPPK.',
+    '..KPPYPPYPPYPK..',
+    '..KrPPPPPPPPrK..',
+    '...KKrrrrrrKK...',
+    '.....KKKKKK.....',
   ],
 };
 

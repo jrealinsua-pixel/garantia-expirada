@@ -287,6 +287,12 @@
     "frameH": 8,
     "frames": 1
   },
+  "pegote-plastilina": {
+    "file": "pegote-plastilina.png",
+    "frameW": 12,
+    "frameH": 10,
+    "frames": 4
+  },
   "bala-roja": {
     "file": "bala-roja.png",
     "frameW": 9,
@@ -871,6 +877,18 @@
   },
   "objeto-mando-vibracion": {
     "file": "objeto-mando-vibracion.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-plastilina": {
+    "file": "objeto-plastilina.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-mascota-virtual": {
+    "file": "objeto-mascota-virtual.png",
     "frameW": 16,
     "frameH": 16,
     "frames": 1

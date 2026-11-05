@@ -67,12 +67,12 @@ function reach(w: World): number {
 
 // ---------- The items as content ----------
 
-test('hay 30 objetos pasivos (11 de la planta 1, 11 de la 2 y 8 de la 3, de momento) con nombre corto, descripción en el tono del juego y sprite', () => {
+test('hay 32 objetos pasivos (11 de la planta 1, 11 de la 2 y 10 de la 3) con nombre corto, descripción en el tono del juego y sprite', () => {
   const keys = new Set(Object.keys(JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as object));
   const defs = Object.values(ITEMS);
-  assert.equal(defs.length, 30);
+  assert.equal(defs.length, 32);
   assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 11);
-  assert.equal(defs.filter((d) => d.level === 3).length, 8);
+  assert.equal(defs.filter((d) => d.level === 3).length, 10);
   assert.deepEqual([...FINDABLE_ITEMS].sort(), Object.keys(ITEMS).sort());
   const names = new Set<string>();
   for (const d of defs) {

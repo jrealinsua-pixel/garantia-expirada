@@ -85,6 +85,12 @@ export interface WeaponState {
 export interface Player {
   /** Pilas No Incluidas (Perks.rush): seconds left of firing faster after a reload. */
   rushT?: number;
+  /**
+   * Mascota Virtual (Perks.pet): how fed it is (0 to its max), and whether the toaster has been hurt
+   * since the last combat room was cleared (then clearing one does not feed it).
+   */
+  pet?: number;
+  petHurt?: boolean;
   /** The character as its modifiers leave it (see refreshPlayer); `base` is the untouched one. */
   def: CharacterDef;
   base: { def: CharacterDef };
@@ -229,6 +235,10 @@ export interface Bullet {
   crit?: boolean;
   /** Player bullets: the last of the magazine with the limited-edition sticker (BulletBehaviour.last). */
   limited?: boolean;
+  /** Player bullets with Plastilina Mezclada: they stick where they hit (BulletBehaviour.stick)... */
+  stick?: NonNullable<BulletBehaviour['stick']>;
+  /** ...and this one is stuck: it stays put and hurts every enemy that walks into it. */
+  stuck?: boolean;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
   /**
@@ -503,6 +513,10 @@ export type SimEvent =
   | { type: 'reward'; reward: RoomReward; x: number; y: number; tier?: ChestTier }
   /** Walked into a shut chest: opened with a ticket (`item` is what came out), or locked (no ticket). */
   | { type: 'chest'; x: number; y: number; opened: boolean; tickets: number; item?: string; tier?: ChestTier; allen?: boolean }
+  /** Plastilina Mezclada: a bullet stuck where it hit (`slows`: with Manualidades). */
+  | { type: 'stick'; x: number; y: number; slows: boolean }
+  /** Mascota Virtual: fed one level (`level` up to `max`), or starved back to 0 by a hit (`was` the level it had). */
+  | { type: 'pet'; level: number; max: number; x: number; y: number; was?: number }
   /** Mando con Vibración: hurt, the toaster shakes out a ring of its own bullets. */
   | { type: 'hurtRing'; x: number; y: number; count: number }
   /** Walked onto something for sale: bought it (`left` coupons after paying), or not (too poor, or a heart with all its life). */
@@ -1495,6 +1509,7 @@ function shotBehaviour(b: BulletBehaviour | undefined): Partial<Bullet> {
   if (b.bounce) out.bounce = b.bounce;
   if (b.homing) out.seek = b.homing;
   if (b.slow) out.slow = b.slow;
+  if (b.stick) out.stick = b.stick;
   return out;
 }
 
@@ -1620,7 +1635,7 @@ function updateWeapon(w: World, input: Input): void {
       vy: Math.sin(a) * def.bulletSpeed,
       r: def.bulletRadius,
       life: def.bulletLife,
-      damage: (isCrit ? def.damage * crit.mul : def.damage) * (p.turbo ? TURBO_DAMAGE : 1),
+      damage: (isCrit ? def.damage * crit.mul : def.damage) * (p.turbo ? TURBO_DAMAGE : 1) * petScale(p),
       knockback: def.knockback,
       color: 'red',
       age: 0,
@@ -1669,7 +1684,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
     let homing = !!b.homing && b.age < b.homing.time && !w.over;
     if (homing) turnTowards(b, w.player.x, w.player.y - PLAYER_HURT_Y, b.homing!.turnDeg);
     // A player bullet that seeks (an item): towards the nearest enemy in range it has not hit yet.
-    if (b.seek && b.age - (b.seekFrom ?? 0) < b.seek.time) {
+    if (b.seek && !b.stuck && b.age - (b.seekFrom ?? 0) < b.seek.time) {
       const t = seekTarget(w, b);
       if (t) {
         turnTowards(b, t.x, t.y, b.seek.turnDeg);
@@ -1689,7 +1704,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
       const angle = Math.atan2(b.vy, b.vx);
       const fy = b.y + b.h;
       const prop = isWallAt(w.room, b.x, fy) ? null : bulletProp(w, b.x, fy, b.vx, b.vy);
-      if (prop || isWallAt(w.room, b.x, fy)) {
+      if (!b.stuck && (prop || isWallAt(w.room, b.x, fy))) {
         // A prop that can blow up takes the hit (an enemy bullet counts for little); so does a tipped table.
         const hit = b.owner === 'player' ? b.damage : ENEMY_PROP_DAMAGE;
         if (prop?.def.hp) damageProp(w, prop, hit);
@@ -1700,6 +1715,11 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
           continue;
         }
         w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle });
+        // Plastilina Mezclada: it stays stuck where it hit (just outside the wall).
+        if (b.owner === 'player' && b.stick) {
+          stickBullet(w, b, dt);
+          break;
+        }
         alive = false;
         break;
       }
@@ -1772,6 +1792,53 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
     if (alive) keep.push(b);
   }
   w.bullets = keep.filter((b) => !b.cut);
+}
+
+/**
+ * Plastilina Mezclada: the bullet stops just short of what it hit and stays there for its stick
+ * time, going through every enemy that walks into it (each one once) with no push; with
+ * Manualidades it slows them too.
+ */
+function stickBullet(w: World, b: Bullet, dt: number): void {
+  const st = b.stick!;
+  b.x -= (b.vx * dt) / 2;
+  b.y -= (b.vy * dt) / 2;
+  b.vx = 0;
+  b.vy = 0;
+  b.speed = 0;
+  delete b.wave;
+  delete b.accel;
+  delete b.seek;
+  b.bounce = 0;
+  b.knockback = 0;
+  b.pierce = STUCK_PIERCE;
+  b.life = st.time;
+  b.stuck = true;
+  if (st.slow && (!b.slow || st.slow.mul < b.slow.mul)) b.slow = { ...st.slow };
+  w.events.push({ type: 'stick', x: b.x, y: b.y, slows: !!st.slow });
+}
+
+/** A stuck bullet goes through (nearly) everyone. */
+const STUCK_PIERCE = 99;
+
+/** Mascota Virtual: the damage multiplier its level gives (1 without it or hungry). */
+export function petScale(p: Player): number {
+  const pet = playerPerks(p).pet;
+  return 1 + pet.step * Math.min(p.pet ?? 0, pet.max);
+}
+
+/**
+ * Mascota Virtual, at a combat room cleared: fed if the toaster went through it unhurt (one more
+ * level, up to its max). Either way the count starts again for the next room.
+ */
+function feedPet(w: World): void {
+  const p = w.player;
+  const pet = playerPerks(p).pet;
+  const hurt = !!p.petHurt;
+  p.petHurt = false;
+  if (pet.max <= 0 || hurt || (p.pet ?? 0) >= pet.max) return;
+  p.pet = (p.pet ?? 0) + 1;
+  w.events.push({ type: 'pet', level: p.pet, max: pet.max, x: p.x, y: p.y - PLAYER_HURT_Y });
 }
 
 /** Turns a bullet's direction towards (x, y), at most `turnDeg` degrees per second. */
@@ -2249,6 +2316,12 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
   p.invulnerable = HURT_IFRAMES;
   const extra = covered > 0 ? { covered, shield: p.shield, ...(bySurge > 0 ? { surge: p.surge } : {}) } : {};
   w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...extra });
+  // Mascota Virtual: a hit and it is back to square one (and this room will not feed it).
+  p.petHurt = true;
+  if ((p.pet ?? 0) > 0) {
+    w.events.push({ type: 'pet', level: 0, max: playerPerks(p).pet.max, x: p.x, y: p.y - PLAYER_HURT_Y, was: p.pet });
+    p.pet = 0;
+  }
   if (bySurge > 0 && p.surge === 0) surgeShock(w);
   const keep: Bullet[] = [];
   for (const b of w.bullets) {
@@ -2599,6 +2672,7 @@ function updateRestock(w: World): void {
     w.events.push({ type: 'restock' });
     // Emptying the test room counts as clearing a room.
     chargeActive(w);
+    feedPet(w);
   }
 }
 
@@ -2608,6 +2682,7 @@ function updateDoors(w: World): void {
     w.doorsShut = false;
     w.events.push({ type: 'doors', shut: false });
     chargeActive(w);
+    feedPet(w);
     w.vacuum = true;
     // The turbo lasts until the next combat room is cleared (this one, if it was already on).
     if (w.player.turbo) {
@@ -3013,7 +3088,7 @@ export function checkInvariants(w: World): string[] {
 export function worldHash(w: World): string {
   const p = w.player;
   const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills];
-  parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield, p.surge, p.turbo ? 1 : 0, w.room.props.length);
+  parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield, p.surge, p.turbo ? 1 : 0, w.room.props.length, p.pet ?? 0);
   for (const pr of w.room.props) if (pr.damage || pr.tipped) parts.push(pr.damage ?? 0, pr.fuse ?? -1, pr.tipped ?? '-');
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);

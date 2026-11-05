@@ -6,11 +6,11 @@ import assert from 'node:assert/strict';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { ITEMS, itemsUpTo } from '../src/data/items.ts';
 import { modifierLines } from '../src/data/describe.ts';
-import { createWorld, DT, giveItem, HAND_HEIGHT, hurtPlayer, NO_INPUT, placeChest, spawnEnemy, step, worldHash, type Input, type World } from '../src/sim/world.ts';
+import { createWorld, DT, giveItem, HAND_HEIGHT, hurtPlayer, NO_INPUT, placeChest, spawnEnemy, step, worldHash, type Bullet, type Enemy, type Input, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
 const fireAt = (x: number, y: number): Input => ({ ...NO_INPUT, fire: true, aimX: x, aimY: y });
-const OWN = ['pilas-no-incluidas', 'muelle', 'purpurina', 'menu-infantil', 'caja-vacia', 'pegatina', 'llave-allen', 'mando-vibracion'];
+const OWN = ['pilas-no-incluidas', 'muelle', 'purpurina', 'menu-infantil', 'caja-vacia', 'pegatina', 'llave-allen', 'mando-vibracion', 'plastilina', 'mascota-virtual'];
 
 /** The test room with nothing in the way (as in objetos.test.ts). */
 function bare(seed: string, ...items: string[]): World {
@@ -240,4 +240,104 @@ test('Mando con Vibración: cada golpe suelta un corro de diez balas propias', (
   b.player.invulnerable = 0;
   hurtPlayer(b, 1, -1, 1, 0);
   assert.equal(b.bullets.filter((x) => x.owner === 'player').length, 0);
+});
+
+/** Keeps an enemy standing on a blob (the middle of its body box on it). */
+function onBlob(en: Enemy, b: Bullet): void {
+  en.x = b.x - (en.def.hurt.x + en.def.hurt.w / 2);
+  en.y = b.y - (en.def.hurt.y + en.def.hurt.h / 2);
+  en.vx = 0;
+  en.vy = 0;
+}
+
+/** Fires one shot west, into the wall, and lets it fly until it sticks (or is gone). */
+function shootWall(w: World): Bullet | undefined {
+  step(w, fireAt(0, w.player.y - HAND_HEIGHT));
+  for (let i = 0; i < ticks(1.2); i++) {
+    step(w, NO_INPUT);
+    const b = w.bullets.find((x) => x.owner === 'player' && x.stuck);
+    if (b) return b;
+  }
+  return undefined;
+}
+
+test('Plastilina Mezclada: las balas que chocan se quedan pegadas 1,5 s y dañan una vez a cada enemigo que pasa', () => {
+  const w = bare('plastilina', 'plastilina');
+  const plain = bare('plastilina');
+  assert.ok(Math.abs(w.player.weapon.def.bulletSpeed - plain.player.weapon.def.bulletSpeed * 0.85) < 1e-9, 'más lentas');
+  const b = shootWall(w);
+  assert.ok(b, 'se queda pegada');
+  assert.ok(b.vx === 0 && b.vy === 0 && Math.abs(b.life - 1.5) < 0.05, JSON.stringify({ vx: b.vx, life: b.life }));
+  // It stays put...
+  const at = { x: b.x, y: b.y };
+  step(w, NO_INPUT);
+  assert.deepEqual({ x: b.x, y: b.y }, at);
+  // ...and an enemy that walks into it gets hurt once (not every tick).
+  const en = spawnEnemy(w.nextId++, ENEMIES.microondas!, b.x, b.y);
+  w.enemies.push(en);
+  for (let i = 0; i < 20 && w.bullets.includes(b); i++) {
+    onBlob(en, b);
+    step(w, NO_INPUT);
+  }
+  assert.ok(en.damageTaken > 0, 'le hace daño');
+  assert.ok(Math.abs(en.damageTaken - b.damage) < 1e-9, `una sola vez (${en.damageTaken} frente a ${b.damage})`);
+  // And after its time, the blob is gone.
+  for (let i = 0; i < ticks(1.6); i++) step(w, NO_INPUT);
+  assert.ok(!w.bullets.some((x) => x.stuck));
+  // Without the plasticine, a bullet that hits the wall is just gone.
+  assert.equal(shootWall(plain), undefined);
+});
+
+test('Manualidades (Plastilina + Purpurina): los pegotes duran más y frenan a la mitad', () => {
+  const w = bare('manualidades', 'plastilina', 'purpurina');
+  assert.ok(w.player.synergies.includes('manualidades'));
+  const b = shootWall(w);
+  assert.ok(b && Math.abs(b.life - 2.5) < 0.05 && b.slow?.mul === 0.5, JSON.stringify(b?.slow));
+  const en = spawnEnemy(w.nextId++, ENEMIES.microondas!, b.x, b.y);
+  w.enemies.push(en);
+  for (let i = 0; i < 10; i++) {
+    onBlob(en, b);
+    step(w, NO_INPUT);
+  }
+  assert.equal(en.slowMul, 0.5);
+  // Plasticine alone: they stick, but do not slow.
+  const p = shootWall(bare('solo-plastilina', 'plastilina'));
+  assert.ok(p && !p.slow);
+});
+
+test('Mascota Virtual: cada sala limpia sin golpes, +10 % de daño (hasta +30 %); un golpe la deja a cero', () => {
+  const w = createWorld({ seed: 'mascota' });
+  w.noDamage = true;
+  giveItem(w, 'mascota-virtual');
+  const base = w.player.weapon.def.damage;
+  const shotDamage = (): number => {
+    w.player.weapon.ammo = Math.max(2, w.player.weapon.ammo);
+    w.player.weapon.cooldown = 0;
+    w.player.weapon.reload = 0;
+    step(w, fireAt(w.player.x + 100, w.player.y - HAND_HEIGHT));
+    return w.bullets.filter((x) => x.owner === 'player').at(-1)!.damage;
+  };
+  assert.ok(Math.abs(shotDamage() - base) < 1e-9, 'con hambre, nada');
+  // Emptying the test room counts as a room cleared (it restocks).
+  const clear = (): void => {
+    w.enemies = [];
+    w.events = [];
+    for (let i = 0; i < ticks(w.room.restock + 0.2) && !w.events.some((e) => e.type === 'restock'); i++) step(w, NO_INPUT);
+  };
+  for (let lvl = 1; lvl <= 4; lvl++) {
+    clear();
+    assert.equal(w.player.pet, Math.min(3, lvl), `nivel tras ${lvl} salas`);
+  }
+  assert.ok(Math.abs(shotDamage() - base * 1.3) < 1e-9, 'hasta +30 %');
+  // A hit: back to zero, and the room it happened in does not feed it.
+  w.noDamage = false;
+  w.player.invulnerable = 0;
+  hurtPlayer(w, 1, -1, 1, 0);
+  assert.equal(w.player.pet, 0);
+  assert.ok(w.events.some((e) => e.type === 'pet' && e.level === 0));
+  w.noDamage = true;
+  clear();
+  assert.equal(w.player.pet ?? 0, 0, 'la sala del golpe no cuenta');
+  clear();
+  assert.equal(w.player.pet, 1, 'la siguiente sí');
 });

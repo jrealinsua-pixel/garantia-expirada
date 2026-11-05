@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T06:55:00+01:00",
+  "actualizado": "2026-11-05T07:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -128,15 +128,21 @@
     "enemigos": 17,
     "jefes": 3,
     "armas": 3,
-    "objetos": 33,
+    "objetos": 35,
     "plantillas_sala": 54,
-    "tests": 558,
-    "tests_ok": 558,
+    "tests": 561,
+    "tests_ok": 561,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 20204
+    "lineas_codigo": 20358
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T07:55:00+01:00",
+      "hito": "M10",
+      "resumen": "Los dos últimos objetos de la Juguetería: la Plastilina Mezclada (las balas se quedan pegadas donde chocan y dañan a quien pase) y la Mascota Virtual (más daño por cada sala limpia sin golpes, hasta que te dan); y la sinergia Manualidades, con la purpurina, que hace que los pegotes frenen.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T06:55:00+01:00",
       "hito": "M10",
@@ -866,6 +872,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/plastilina-manualidades.png",
+      "pie": "Plastilina Mezclada con Bote de Purpurina (sinergia Manualidades): las balas se quedan pegadas en la pared 2,5 s como pegotes con purpurina que dañan y frenan a quien pase"
+    },
+    {
       "archivo": "capturas/oficinas-sala.png",
       "pie": "Las Oficinas (planta 4): moqueta gris, mamparas de cubículo con el calendario del año pasado, un archivador, un ficus de plástico, termos de café que explotan y la pizarra de objetivos bajando"
     },
@@ -882,15 +892,11 @@
       "pie": "Fin de existencias: el Muñeco, ya sin caja, gira sobre sí mismo soltando espirales de pegatinas de oferta que persiguen un poco; su caja rota se queda en la sala y para balas"
     },
     {
-      "archivo": "capturas/muneco-sin-caja.png",
-      "pie": "Al 25 % rompe la caja y sale gritando «¡Todo debe desaparecer! Yo también.»: la fase 3"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     }
   ],
-  "proximo": "M10 (6b2): Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades. En paralelo, sin pisarse: M10 planta 4 (2a), seis plantillas de combate de las Oficinas.",
+  "proximo": "M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro. En paralelo, sin pisarse: M10 planta 4 (2a), seis plantillas de combate de las Oficinas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -916,11 +922,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 07:25",
-      "tarea": "M10 (6b2): Plastilina Mezclada, Mascota Virtual y la sinergia Manualidades",
-      "desde": "2026-11-05T07:25:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

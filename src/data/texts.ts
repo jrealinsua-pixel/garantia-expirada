@@ -29,6 +29,9 @@ export const TURBO_LINE = 'Turbo';
 export const CRIT_LINE = 'Doble clic';
 /** When the backup brings the toaster back. */
 export const REVIVE_LINE = 'Restaurando copia del martes';
+/** Mascota Virtual (M10 6b2): fed after a clean room (with its level), and dead of a hit. */
+export const petFedLine = (level: number, max: number): string => (level >= max ? 'Mascota feliz (de momento)' : `Mascota alimentada ${level}/${max}`);
+export const PET_DEAD_LINE = 'Tu mascota ha muerto. Otra vez';
 /** Caja de Cartón Vacía (M10 6a): over the toaster when a hit does nothing. */
 export const SHRUG_LINE = 'Era solo la caja';
 /** Over a printer when it jams. */

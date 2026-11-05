@@ -1563,3 +1563,29 @@ export function makeSticker(): Canvas {
   frames.forEach((rows, f) => paintGrid(sheet, f * 9, 0, rows, cols));
   return sheet;
 }
+
+/**
+ * Plastilina Mezclada (M10 6b2): a stuck bullet, a blob of plasticine that was four colours and is
+ * now one, with streaks of what it used to be. 12x10, frames 0-1 wobbling; 2-3 the same with
+ * glitter in it (Manualidades).
+ */
+export function makePegoteFrames(): Canvas[] {
+  const shapes = [
+    ['............', '....0000....', '..00333300..', '.0332222330.', '.0324452220.', '022225562220', '.0226662210.', '.0122222110.', '..00111100..', '....0000....'],
+    ['............', '............', '..00000000..', '.0333223330.', '032244522230', '022225566220', '.0122666210.', '..01111110..', '...000000...', '............'],
+  ];
+  const cols: Record<string, RGBA> = {
+    '0': K, '1': hx('#5a4a54'), '2': hx('#8a7680'), '3': hx('#b3a3aa'), '4': hx('#e0453b'), '5': hx('#4a86d8'), '6': hx('#58b45a'),
+  };
+  const glitter: [number, number][][] = [[[3, 3], [7, 4], [5, 6], [9, 5]], [[3, 4], [7, 3], [8, 6], [4, 6]]];
+  const out: Canvas[] = [];
+  for (const sparkly of [false, true]) {
+    shapes.forEach((pat, f) => {
+      const cv = new Canvas(12, 10);
+      pat.forEach((row, j) => [...row].forEach((ch, i) => ch !== '.' && cv.set(i, j, cols[ch]!)));
+      if (sparkly) for (const [x, y] of glitter[f]!) cv.set(x, y, (x + y) % 2 ? hx('#ea93a8') : hx('#f4f1e8'));
+      out.push(cv);
+    });
+  }
+  return out;
+}

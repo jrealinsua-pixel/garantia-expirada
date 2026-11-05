@@ -567,6 +567,30 @@ try {
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
   console.log('Planta 3: sus cinco primeros objetos en el inventario, «Era solo la caja» y el corro del mando con vibración.');
 
+  // M10 (6b2): mixed plasticine and glitter (Manualidades): the bullets stick to the wall in
+  // glittery blobs. Then the virtual pet is fed when the test room is emptied.
+  await page.goto(`${url}?semilla=e2e-plastilina&sala=sala-pruebas&planta=3`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.enemies = [];
+    for (const id of ['plastilina', 'purpurina', 'mascota-virtual']) g.giveItem(id); w.player.x = 110; w.player.y = 200; })()`);
+  await page.waitForTimeout(1600);
+  await page.mouse.down();
+  for (const y of [110, 160, 210, 260, 310]) {
+    await aimAt(0, y);
+    await page.waitForTimeout(260);
+  }
+  await page.mouse.up();
+  await page.waitForTimeout(150);
+  const stuck = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.stuck).length");
+  if (stuck < 2) throw new Error(`La Plastilina Mezclada no deja pegotes (${stuck})`);
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.player.synergies.includes('manualidades')"))) throw new Error('No salta la sinergia Manualidades');
+  await shot('39d-plastilina.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.petHurt = false; w.emptyT = w.room.restock - 0.05; })()`);
+  await page.waitForFunction('(window.__GE__.scene.world.player.pet ?? 0) === 1', undefined, { timeout: 3000 });
+  await page.waitForTimeout(350);
+  await shot('39e-mascota.png');
+  console.log('Planta 3: los pegotes de plastilina con purpurina (Manualidades) y la mascota virtual alimentada.');
+
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
   await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);
