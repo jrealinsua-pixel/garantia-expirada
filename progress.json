@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T05:47:00+01:00",
+  "actualizado": "2026-11-05T06:13:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -128,15 +128,21 @@
     "enemigos": 17,
     "jefes": 3,
     "armas": 3,
-    "objetos": 25,
+    "objetos": 30,
     "plantillas_sala": 54,
-    "tests": 545,
-    "tests_ok": 545,
+    "tests": 552,
+    "tests_ok": 552,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 19470
+    "lineas_codigo": 19597
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T06:13:00+01:00",
+      "hito": "M10",
+      "resumen": "Cinco objetos nuevos en la Juguetería: Pilas No Incluidas (racha de cadencia tras recargar), Muelle de Juguete (voltereta más larga y balas que rebotan), Bote de Purpurina (lo que tocas va más lento), Juguete del Menú Infantil (más rápido, un corazón menos) y Caja de Cartón Vacía (a veces el golpe era solo la caja).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T05:47:00+01:00",
       "hito": "M10",
@@ -842,6 +848,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/era-solo-la-caja.png",
+      "pie": "Objetos de la Juguetería: con la Caja de Cartón Vacía, uno de cada cinco golpes no hace nada («Era solo la caja»); abajo, los cinco nuevos"
+    },
+    {
       "archivo": "capturas/muneco-pegatinas.png",
       "pie": "Fin de existencias: el Muñeco, ya sin caja, gira sobre sí mismo soltando espirales de pegatinas de oferta que persiguen un poco; su caja rota se queda en la sala y para balas"
     },
@@ -858,15 +868,11 @@
       "pie": "Rebajas al −50 %: anillos de zapatos y bolsos con un hueco, y los Muñequitos Repetidos que ha llamado persiguiendo a la tostadora"
     },
     {
-      "archivo": "capturas/muneco-rebajas.png",
-      "pie": "Empiezan las rebajas: la etiqueta de su caja pasa al −30 %, grita «¡Ahora con más accesorios!» y salen dos repetidos"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     }
   ],
-  "proximo": "M10 (6a), los cinco primeros objetos de la planta 3: Pilas No Incluidas, Muelle de Juguete, Purpurina, Juguete del Menú Infantil y Caja de Cartón Vacía.",
+  "proximo": "M10 (6b): Pegatina de Edición Limitada, Plastilina Mezclada, Llave Allen Sobrante, Mando con Vibración y Mascota Virtual, y las sinergias Unboxing y Manualidades.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -892,11 +898,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05T05:48:00+01:00",
-      "tarea": "M10 (6a): cinco objetos de la planta 3",
-      "desde": "2026-11-05T05:48:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

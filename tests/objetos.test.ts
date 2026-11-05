@@ -67,11 +67,12 @@ function reach(w: World): number {
 
 // ---------- The items as content ----------
 
-test('hay 22 objetos pasivos (11 de la planta 1 y 11 de la 2) con nombre corto, descripción en el tono del juego y sprite', () => {
+test('hay 27 objetos pasivos (11 de la planta 1, 11 de la 2 y 5 de la 3, de momento) con nombre corto, descripción en el tono del juego y sprite', () => {
   const keys = new Set(Object.keys(JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as object));
   const defs = Object.values(ITEMS);
-  assert.equal(defs.length, 22);
+  assert.equal(defs.length, 27);
   assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 11);
+  assert.equal(defs.filter((d) => d.level === 3).length, 5);
   assert.deepEqual([...FINDABLE_ITEMS].sort(), Object.keys(ITEMS).sort());
   const names = new Set<string>();
   for (const d of defs) {
@@ -341,7 +342,9 @@ test('ningún objeto es obligatorio: ninguno multiplica el daño por segundo de 
   for (const it of Object.values(ITEMS)) {
     const gains = Object.values(WEAPONS).map((wd) => weaponProfile(moddedWeapon(wd, [it.mod])).dps / weaponProfile(wd).dps);
     assert.ok(Math.min(...gains) <= 1.6, `${it.id}: ×${gains.map((g) => g.toFixed(2)).join(' ×')}`);
-    // And none is worse for every weapon (pellets aside, which paper cannot weigh against spread).
+    // And none is worse for every weapon (pellets aside, which paper cannot weigh against spread;
+    // nor the rush after a reload of Pilas No Incluidas, measured in objetos-planta3.test.ts).
+    if (it.mod.perks?.rush) continue;
     assert.ok(Math.max(...gains) >= 0.99, `${it.id} empeora todas las armas`);
   }
 });
@@ -351,7 +354,8 @@ test('los objetos de la planta 2 solo salen desde la planta 2; la planta 1 repar
   const own = Object.values(ITEMS).filter((d) => d.level === 2).map((d) => d.id);
   assert.equal(own.length, 11);
   assert.deepEqual(itemsUpTo(1).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) === 1).map((d) => d.id).sort());
-  assert.deepEqual(itemsUpTo(2).sort(), Object.keys(ITEMS).sort());
+  assert.deepEqual(itemsUpTo(2).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) <= 2).map((d) => d.id).sort());
+  assert.deepEqual(itemsUpTo(3).sort(), Object.keys(ITEMS).sort());
   for (let i = 0; i < 20; i++) {
     const f1 = createWorld({ seed: `mazo-${i}`, floor: true }).floor!;
     for (const id of own) assert.ok(!f1.items.includes(id), `${id} en la planta 1`);

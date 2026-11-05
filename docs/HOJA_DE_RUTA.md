@@ -347,7 +347,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [x] (5b) Fases 1 y 2 en la simulación (pasarela, rebajas y repetidos), cartel y sonidos.
     - [x] (5c) Fase 3 (liquidación: la caja rota se queda como obstáculo, espirales de pegatinas).
   - 10 objetos nuevos, en partes:
-    - [ ] (6a) Cinco de cifras o casi: Pilas No Incluidas, Muelle de Juguete, Purpurina, Juguete
+    - [x] (6a) Cinco de cifras o casi: Pilas No Incluidas, Muelle de Juguete, Bote de Purpurina, Juguete
       del Menú Infantil y Caja de Cartón Vacía.
     - [ ] (6b) Cinco con efectos nuevos: Pegatina de Edición Limitada, Plastilina Mezclada, Llave
       Allen Sobrante, Mando con Vibración y Mascota Virtual; y las sinergias Unboxing y

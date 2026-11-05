@@ -59,6 +59,11 @@ export interface BulletBehaviour {
   homing?: { turnDeg: number; time: number; range: number };
   /** Each bullet has `chance` (0–1) of dealing `mul` times its damage (a critical hit). */
   crit?: { chance: number; mul: number };
+  /**
+   * The enemies it hits go at `mul` of their speed (and think that much slower) for `time` s (the
+   * glitter): they skip one tick in every 1 / (1 − mul). The strongest wins.
+   */
+  slow?: { mul: number; time: number };
 }
 
 /**
@@ -73,6 +78,10 @@ export interface Perks {
   rollClear?: boolean;
   /** Once, instead of going down, the toaster gets this much life back; the item that gives it is used up. */
   revive?: number;
+  /** After each reload the weapon fires `mul` times faster for `time` s (the strongest wins). */
+  rush?: { mul: number; time: number };
+  /** Chance (0–1) that a hit does nothing at all («Era solo la caja»). They add up, to 0.5 at most. */
+  shrug?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */
@@ -90,7 +99,8 @@ export type StatKey =
   | 'pellets'
   | 'speed'
   | 'maxHp'
-  | 'rollCooldown';
+  | 'rollCooldown'
+  | 'rollSpeed';
 
 /** One change to a stat: `add` first (all modifiers summed), then `mul` (all multiplied). */
 export interface StatChange {

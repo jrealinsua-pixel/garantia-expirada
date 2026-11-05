@@ -784,5 +784,35 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-pilas-no": {
+    "file": "objeto-pilas-no.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-muelle": {
+    "file": "objeto-muelle.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-purpurina": {
+    "file": "objeto-purpurina.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-menu-infantil": {
+    "file": "objeto-menu-infantil.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-caja-vacia": {
+    "file": "objeto-caja-vacia.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

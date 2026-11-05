@@ -44,6 +44,13 @@ export function updateEnemies(w: World): void {
       en.vy = 0;
       continue;
     }
+    // Glitter (BulletBehaviour.slow): it skips one tick in every 1 / (1 − mul), walking, waiting
+    // and attacking that much slower.
+    if (en.slowT && en.slowT > 0) {
+      en.slowT = Math.max(0, en.slowT - DT);
+      const every = Math.max(2, Math.round(1 / Math.max(0.01, 1 - (en.slowMul ?? 1))));
+      if ((w.tick + en.id) % every === 0) continue;
+    }
     switch (en.def.brain.kind) {
       case 'charger':
         updateCharger(w, en, en.def.brain);

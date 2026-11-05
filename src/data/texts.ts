@@ -29,6 +29,8 @@ export const TURBO_LINE = 'Turbo';
 export const CRIT_LINE = 'Doble clic';
 /** When the backup brings the toaster back. */
 export const REVIVE_LINE = 'Restaurando copia del martes';
+/** Caja de Cartón Vacía (M10 6a): over the toaster when a hit does nothing. */
+export const SHRUG_LINE = 'Era solo la caja';
 /** Over a printer when it jams. */
 export const JAM_LINE = 'Atasco de papel';
 /** Over a fake charger when it jumps up. */

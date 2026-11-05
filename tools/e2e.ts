@@ -522,6 +522,30 @@ try {
   if (await page.evaluate<boolean>('window.__GE__.state().over')) throw new Error('La Copia de Seguridad no ha evitado la baja');
   console.log('Planta 2: sus objetos pasivos, en el tesoro y en el inventario; el doble clic del ratón y la copia de seguridad.');
 
+  // M10 (6a): floor 3's first five passive items in the inventory, and the empty box shrugging a hit off.
+  const own3 = ['pilas-no-incluidas', 'muelle', 'purpurina', 'menu-infantil', 'caja-vacia'];
+  await page.goto(`${url}?semilla=e2e-objetos3&sala=sala-pruebas&planta=3`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.enemies = [];
+    for (const id of ${JSON.stringify(own3)}) g.giveItem(id); })()`);
+  await page.waitForTimeout(300);
+  await tapKeys('Escape', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(200);
+  await shot('39a-planta3-inventario.png');
+  await tapKeys('Escape', 'Escape');
+  await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  let shrugged = false;
+  for (let i = 0; i < 25 && !shrugged; i++) {
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.hp = w.player.def.maxHp; w.player.invulnerable = 0; w.player.rollT = -1; })()`);
+    await page.evaluate(bulletAt(24));
+    await page.waitForTimeout(200);
+    shrugged = await page.evaluate<boolean>('(() => { const w = window.__GE__.scene.world; return w.player.hp === w.player.def.maxHp && w.player.invulnerable > 0; })()');
+  }
+  if (!shrugged) throw new Error('La Caja de Cartón Vacía no ha parado ni un golpe en 25');
+  await shot('39b-era-solo-la-caja.png');
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  console.log('Planta 3: sus cinco primeros objetos en el inventario, y «Era solo la caja».');
+
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
   await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);

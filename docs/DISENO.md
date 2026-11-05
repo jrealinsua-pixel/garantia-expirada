@@ -259,7 +259,11 @@ golpes críticos (`bullets.crit`) y `perks` (pilas de más por sala, cupones de 
 voltereta que corta balas y vuelta de la baja).
 
 Objetos pasivos de la planta 3 (Juguetería, `level: 3`). Más raros que los de abajo: muchos
-cambian cómo se juega, no solo las cifras.
+cambian cómo se juega, no solo las cifras. Los cinco primeros ya están en el juego (M10 6a: Pilas No
+Incluidas, Muelle de Juguete, Bote de Purpurina, Juguete del Menú Infantil y Caja de Cartón Vacía);
+el Juguete del Menú Infantil sube la velocidad ×1,15 y la cadencia ×1,12 (no ×1,2 y ×1,15: en M9b
+los objetos se moderaron), y la voltereta larga del muelle es la velocidad de la voltereta
+(misma duración y mismos fotogramas invulnerables, más recorrido).
 
 | Objeto | Descripción | Efecto |
 | --- | --- | --- |
@@ -270,13 +274,13 @@ cambian cómo se juega, no solo las cifras.
 | Llave Allen Sobrante | Siempre sobra una pieza. Esta es la tuya. | Una vez por planta, un cofre se abre sin ticket |
 | Mando con Vibración | Para notar cada golpe en la muñeca. | Al recibir daño, suelta un anillo de 10 balas |
 | Caja de Cartón Vacía | El niño jugó con la caja. El juguete sigue sin abrir. | Un 20 % de los golpes no hacen daño («Era solo la caja») (solo bueno) |
-| Purpurina | Se queda para siempre. En todo. | Los enemigos tocados van ×0,8 más lentos 2 s; balas un poco más pequeñas |
+| Bote de Purpurina | Se queda para siempre. En todo. | Los enemigos tocados van ×0,8 más lentos 2 s; balas un poco más pequeñas |
 | Juguete del Menú Infantil | Venía con la comida. Duró menos que la comida. | Velocidad ×1,2 y cadencia ×1,15, −1 corazón |
 | Mascota Virtual | Había que darle de comer cada cinco minutos. | Cada sala limpia sin recibir daño, +1 de daño (hasta +3); un golpe lo pone a cero |
 
 Dos sinergias nuevas: **Unboxing** (Caja de Cartón Vacía + Pegatina de Edición Limitada: «Abrirlo
 le quita la mitad del valor. Grabarlo se lo devuelve.»; la bala de la pegatina atraviesa a todos) y
-**Manualidades** (Plastilina + Purpurina: «Nadie sabe qué es, pero la nevera de casa lo va a lucir
+**Manualidades** (Plastilina + Bote de Purpurina: «Nadie sabe qué es, pero la nevera de casa lo va a lucir
 igual.»; los charcos de plastilina también frenan).
 
 La Juguetería se ve a la primera: suelo de goma EVA de puzle (losetas de colores primarios

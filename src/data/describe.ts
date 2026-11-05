@@ -25,6 +25,7 @@ const STATS: Record<StatKey, { name: string; more: boolean }> = {
   speed: { name: 'Velocidad', more: true },
   maxHp: { name: 'Vida máxima', more: true },
   rollCooldown: { name: 'Espera entre volteretas', more: false },
+  rollSpeed: { name: 'Largo de voltereta', more: true },
 };
 
 const signed = (n: number): string => (n > 0 ? `+${n}` : `${n}`);
@@ -48,11 +49,14 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (b?.pierce) out.push({ text: `Atraviesa ${b.pierce} ${b.pierce === 1 ? 'enemigo' : 'enemigos'}`, good: true });
   if (b?.bounce) out.push({ text: `Rebota ${b.bounce} ${b.bounce === 1 ? 'vez' : 'veces'}`, good: true });
   if (b?.homing) out.push({ text: 'Balas que persiguen', good: true });
+  if (b?.slow) out.push({ text: `Frena a quien toca un ${Math.round((1 - b.slow.mul) * 100)} % durante ${String(b.slow.time).replace('.', ',')} s`, good: true });
   if (b?.crit) out.push({ text: `${Math.round(b.crit.chance * 100)} % de balas con daño ×${String(b.crit.mul).replace('.', ',')}`, good: true });
   const k = m.perks;
   if (k?.charge) out.push({ text: `+${k.charge} ${k.charge === 1 ? 'pila' : 'pilas'} por sala limpia`, good: true });
   if (k?.coupons) out.push({ text: `${Math.round(k.coupons * 100)} % de bajas con un cupón más`, good: true });
   if (k?.rollClear) out.push({ text: 'La voltereta corta balas', good: true });
+  if (k?.rush) out.push({ text: `Tras recargar: cadencia +${Math.round((k.rush.mul - 1) * 100)} % durante ${String(k.rush.time).replace('.', ',')} s`, good: true });
+  if (k?.shrug) out.push({ text: `${Math.round(k.shrug * 100)} % de golpes que no hacen daño`, good: true });
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

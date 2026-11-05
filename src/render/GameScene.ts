@@ -32,6 +32,7 @@ import {
   REC_LOST_LINE,
   ALERT_LINE,
   REVIVE_LINE,
+  SHRUG_LINE,
   TURBO_LINE,
   archiveHint,
   hubHint,
@@ -1820,6 +1821,17 @@ export class GameScene extends Phaser.Scene {
         case 'reloadEnd':
           this.sound2.play('recargado');
           break;
+        case 'rush':
+          // Pilas No Incluidas: borrowed batteries in, a zap and a few sparks off the gun.
+          this.sound2.play('pila', { detune: 500 });
+          for (let i = 0; i < 6; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 1, 0xf6c431);
+          break;
+        case 'shrug':
+          // Caja de Cartón Vacía: the blow lands on cardboard. A dull thud, scraps, and the line.
+          this.sound2.play('golpe', { detune: -700, volume: 0.6 });
+          for (let i = 0; i < 6; i++) this.splinter(e.x + this.fx.range(-5, 5), e.y, this.fx.range(0, Math.PI * 2), 0xa96a3f);
+          this.floatText(e.x, e.y - 18, fontText(SHRUG_LINE), 0xe9d9a8, 'shrug', -12, 1.1);
+          break;
         case 'empty':
           this.sound2.play('vacio');
           break;
@@ -3165,6 +3177,12 @@ export class GameScene extends Phaser.Scene {
         if (this.fx.chance(0.2)) this.puff(en.x + this.fx.range(-24, 24), en.y - this.fx.range(10, 60), 0.7);
       }
       if (en.state === 'dying') this.dyingFx(en, v, dt);
+      // Glitter on it (Bote de Purpurina): it sheds pink and gold specks as it goes.
+      if ((en.slowT ?? 0) > 0 && this.fx.chance(0.25)) {
+        const hb = en.def.hurt;
+        const tint = this.fx.pick([0xea93a8, 0xf6c431, 0xf4f1e8]);
+        this.spark(en.x + this.fx.range(hb.x, hb.x + hb.w), en.y + this.fx.range(hb.y, hb.y + hb.h), this.fx.range(0, Math.PI * 2), this.fx.range(5, 20), 0, tint);
+      }
       if (v.badge) this.drawBadge(en, v, frame);
       // In TURBO the mixer shakes and throws sparks and batter.
       if (en.turbo) {

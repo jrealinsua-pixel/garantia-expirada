@@ -83,6 +83,8 @@ export interface WeaponState {
 }
 
 export interface Player {
+  /** Pilas No Incluidas (Perks.rush): seconds left of firing faster after a reload. */
+  rushT?: number;
   /** The character as its modifiers leave it (see refreshPlayer); `base` is the untouched one. */
   def: CharacterDef;
   base: { def: CharacterDef };
@@ -212,6 +214,8 @@ export interface Bullet {
   /** the enemies (and dummies) it already hit, and how it seeks the nearest enemy. */
   hits?: number[];
   seek?: NonNullable<BulletBehaviour['homing']>;
+  /** Glitter: what it does to the speed of the enemies it hits (BulletBehaviour.slow). */
+  slow?: NonNullable<BulletBehaviour['slow']>;
   /**
    * Age (s) at which its seeking last started: 0 when fired, and again every time it bounces or
    * goes through an enemy (M9b (14): the card and the manual or the drill complement each other).
@@ -332,6 +336,9 @@ export interface Enemy {
   rush?: { t: number; scale: number };
   /** Remote-control cars: seconds before its batteries next give out (see RcCarBrain.stall). */
   stallT?: number;
+  /** Glitter (BulletBehaviour.slow): seconds left of going at `slowMul` of its speed. */
+  slowT?: number;
+  slowMul?: number;
   /** Turrets that jam: volleys left before the next jam. */
   volleys?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
@@ -438,6 +445,10 @@ export type SimEvent =
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
   | { type: 'reloadEnd' }
+  /** Pilas No Incluidas: a fresh magazine fires faster for `time` s. */
+  | { type: 'rush'; x: number; y: number; time: number }
+  /** Caja de Cartón Vacía: a hit that did nothing («Era solo la caja»). */
+  | { type: 'shrug'; x: number; y: number }
   | { type: 'empty' }
   | { type: 'charge'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'brake'; x: number; y: number; source: number }
@@ -1470,6 +1481,7 @@ function shotBehaviour(b: BulletBehaviour | undefined): Partial<Bullet> {
   if (b.pierce) out.pierce = b.pierce;
   if (b.bounce) out.bounce = b.bounce;
   if (b.homing) out.seek = b.homing;
+  if (b.slow) out.slow = b.slow;
   return out;
 }
 
@@ -1547,12 +1559,19 @@ function updateWeapon(w: World, input: Input): void {
   const ws = p.weapon;
   const def = ws.def;
   ws.cooldown = Math.max(0, ws.cooldown - DT);
+  if (p.rushT) p.rushT = Math.max(0, p.rushT - DT);
   if (ws.reload > 0) {
     ws.reload -= DT;
     if (ws.reload <= 0) {
       ws.reload = 0;
       ws.ammo = def.magazine;
       w.events.push({ type: 'reloadEnd' });
+      // Pilas No Incluidas: a fresh magazine goes faster for a while.
+      const rush = playerPerks(p).rush;
+      if (rush.time > 0) {
+        p.rushT = rush.time;
+        w.events.push({ type: 'rush', x: p.x, y: p.y - PLAYER_HURT_Y, time: rush.time });
+      }
     }
     return;
   }
@@ -1568,7 +1587,7 @@ function updateWeapon(w: World, input: Input): void {
     return;
   }
   ws.ammo--;
-  ws.cooldown = 1 / def.fireRate;
+  ws.cooldown = 1 / (def.fireRate * ((p.rushT ?? 0) > 0 ? playerPerks(p).rush.mul : 1));
   const pivot = gunPivot(p);
   const mx = pivot.x + Math.cos(p.aim) * MUZZLE;
   const my = pivot.y + Math.sin(p.aim) * MUZZLE;
@@ -1685,6 +1704,10 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             en.hitT = damage > 0 ? 0.12 : 0.04;
             en.damageTaken += damage;
             en.lastHit = angle;
+            if (b.slow && damage > 0) {
+              en.slowMul = (en.slowT ?? 0) > 0 ? Math.min(en.slowMul ?? 1, b.slow.mul) : b.slow.mul;
+              en.slowT = Math.max(en.slowT ?? 0, b.slow.time);
+            }
             const k = b.knockback * en.def.knockbackScale;
             en.vx += Math.cos(angle) * k;
             en.vy += Math.sin(angle) * k;
@@ -2189,6 +2212,13 @@ export const canBeHurt = (w: World): boolean => !w.over && !w.noDamage && w.play
 export function hurtPlayer(w: World, damage: number, source: number, dirX: number, dirY: number, cause: DownCause = { by: 'desconocido', how: 'contact' }): boolean {
   if (!canBeHurt(w) || damage <= 0) return false;
   const p = w.player;
+  // «Era solo la caja»: some hits do nothing at all (but the toaster still gets its breather).
+  const shrug = playerPerks(p).shrug;
+  if (shrug > 0 && w.rng.chance(shrug)) {
+    p.invulnerable = HURT_IFRAMES;
+    w.events.push({ type: 'shrug', x: p.x, y: p.y - PLAYER_HURT_Y });
+    return true;
+  }
   // The surge heart pays first, then the provisional warranty (what they cover is gone for good).
   const bySurge = Math.min(p.surge, damage);
   p.surge -= bySurge;

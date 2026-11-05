@@ -202,6 +202,53 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // Once, instead of going down, the toaster gets a heart back; then the backup is gone.
     mod: { id: 'copia', perks: { revive: 2 } },
   },
+  // Floor 3, la Juguetería (M10 6a): rarer, and most of them change how you play, not just the numbers.
+  'pilas-no-incluidas': {
+    id: 'pilas-no-incluidas',
+    name: 'Pilas No Incluidas',
+    description: 'Funciona de maravilla. Con otras pilas.',
+    sprite: 'objeto-pilas-no',
+    level: 3,
+    // A fresh magazine goes much faster for a moment; the rest of the time, a bit slower.
+    mod: { id: 'pilas-no-incluidas', stats: [{ stat: 'fireRate', mul: 0.9 }], perks: { rush: { mul: 1.4, time: 3 } } },
+  },
+  muelle: {
+    id: 'muelle',
+    name: 'Muelle de Juguete',
+    description: 'Salta. No se sabe hacia dónde.',
+    sprite: 'objeto-muelle',
+    level: 3,
+    // A longer roll and bullets that bounce once, but they go wherever they like.
+    mod: { id: 'muelle', stats: [{ stat: 'rollSpeed', mul: 1.3 }, { stat: 'spreadDeg', add: 4 }], bullets: { bounce: 1 } },
+  },
+  purpurina: {
+    id: 'purpurina',
+    name: 'Bote de Purpurina',
+    description: 'Se queda para siempre. En todo.',
+    sprite: 'objeto-purpurina',
+    level: 3,
+    // Whatever it hits goes slower for two seconds; the bullets come out a little smaller.
+    mod: { id: 'purpurina', stats: [{ stat: 'bulletRadius', mul: 0.85 }], bullets: { slow: { mul: 0.8, time: 2 } } },
+  },
+  'menu-infantil': {
+    id: 'menu-infantil',
+    name: 'Juguete del Menú Infantil',
+    description: 'Venía con la comida. Duró menos que la comida.',
+    sprite: 'objeto-menu-infantil',
+    level: 3,
+    // Quicker on your feet and on the trigger, one heart less.
+    mod: { id: 'menu-infantil', stats: [{ stat: 'speed', mul: 1.15 }, { stat: 'fireRate', mul: 1.12 }, { stat: 'maxHp', add: -2 }] },
+  },
+  'caja-vacia': {
+    id: 'caja-vacia',
+    quality: 'buena',
+    name: 'Caja de Cartón Vacía',
+    description: 'El niño jugó con la caja. El juguete sigue sin abrir.',
+    sprite: 'objeto-caja-vacia',
+    level: 3,
+    // Only good: one hit in five does nothing at all («Era solo la caja»).
+    mod: { id: 'caja-vacia', perks: { shrug: 0.2 } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

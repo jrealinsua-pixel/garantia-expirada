@@ -20,10 +20,12 @@ const LIMITS: Record<StatKey, { min: number; max?: number; int?: boolean }> = {
   speed: { min: 40, max: 260 },
   maxHp: { min: 2, max: 24, int: true },
   rollCooldown: { min: 0.05 },
+  // Faster over the same time: a longer roll.
+  rollSpeed: { min: 120, max: 560 },
 };
 
 const WEAPON_STATS = ['damage', 'fireRate', 'magazine', 'reloadTime', 'spreadDeg', 'bulletSpeed', 'bulletLife', 'bulletRadius', 'knockback', 'recoil', 'pellets'] as const;
-const CHARACTER_STATS = ['speed', 'maxHp', 'rollCooldown'] as const;
+const CHARACTER_STATS = ['speed', 'maxHp', 'rollCooldown', 'rollSpeed'] as const;
 
 /** `base` changed by every modifier: all the additions first, then all the multipliers, then the limits. */
 export function modStat(stat: StatKey, base: number, mods: readonly Modifier[]): number {
@@ -70,22 +72,30 @@ export function bulletBehaviour(mods: readonly Modifier[]): BulletBehaviour | nu
     if (b.homing && (!out.homing || b.homing.turnDeg > out.homing.turnDeg)) out.homing = { ...b.homing };
     // Critical hits: the chances add up (to 1 at most), the biggest multiplier wins.
     if (b.crit) out.crit = { chance: Math.min(1, (out.crit?.chance ?? 0) + b.crit.chance), mul: Math.max(out.crit?.mul ?? 1, b.crit.mul) };
+    if (b.slow && (!out.slow || b.slow.mul < out.slow.mul)) out.slow = { ...b.slow };
   }
   return Object.keys(out).length ? out : null;
 }
 
 /** All the modifiers' perks added up (chances to 1 at most). */
 export function perksOf(mods: readonly Modifier[]): Required<Perks> {
-  const out = { charge: 0, coupons: 0, rollClear: false, revive: 0 };
+  const out: Required<Perks> = { charge: 0, coupons: 0, rollClear: false, revive: 0, rush: { mul: 1, time: 0 }, shrug: 0 };
   for (const m of mods) {
     out.charge += m.perks?.charge ?? 0;
     out.coupons += m.perks?.coupons ?? 0;
     out.rollClear ||= !!m.perks?.rollClear;
     out.revive = Math.max(out.revive, m.perks?.revive ?? 0);
+    const r = m.perks?.rush;
+    if (r && r.mul > out.rush.mul) out.rush = { ...r };
+    out.shrug += m.perks?.shrug ?? 0;
   }
   out.coupons = Math.min(1, out.coupons);
+  out.shrug = Math.min(SHRUG_MAX, out.shrug);
   return out;
 }
+
+/** «Era solo la caja» never covers more than half the hits. */
+export const SHRUG_MAX = 0.5;
 
 /** The synergies that `mods` (by id: an item's modifier has the item's id) and `weapons` (ids) switch on, in table order. */
 export function activeSynergies(mods: readonly Modifier[], weapons: readonly string[]): SynergyDef[] {
