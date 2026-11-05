@@ -909,6 +909,11 @@
       "sesion": "2026-11-05T06:14:00+01:00",
       "tarea": "M10 (6b1): Pegatina, Llave Allen, Mando con Vibración y Unboxing",
       "desde": "2026-11-05T06:14:00+01:00"
+    },
+    {
+      "sesion": "2026-11-05T06:25:00+01:00",
+      "tarea": "M10 planta 4 (1): juego de casillas de las Oficinas (src/art/oficinas.ts, src/art/room.ts, tools/sprites/props.ts)",
+      "desde": "2026-11-05T06:36:00+01:00"
     }
   ]
 }
