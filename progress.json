@@ -1071,6 +1071,11 @@
       "sesion": "2026-11-05 21:25",
       "tarea": "M11 (6b2): Hoja de Reclamaciones, Valoración de Cinco Estrellas, sinergias Ticket de Incidencia y Buzón Lleno, indirecta Turno + Formulario (src/data/items.ts, src/data/synergies.ts, src/sim/world.ts)",
       "desde": "2026-11-05T21:25:00+01:00"
+    },
+    {
+      "sesion": "2026-11-05 22:26",
+      "tarea": "M11 (5a): sprites de la Centralita, sus clavijas, notas, mostradores bajos y zonas del menú de voz (tools/sprites/centralita.ts, tools/sprites/build.ts, src/data/props.ts, public/assets/)",
+      "desde": "2026-11-05T22:26:00+01:00"
     }
   ]
 }
