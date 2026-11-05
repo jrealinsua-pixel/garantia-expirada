@@ -109,6 +109,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-confeti': { canvas: P.makeConfetti(), frameW: 7, frameH: 7 },
     // The Muñeco de Moda's accessories: a shoe and a handbag, spinning (M10 5b).
     'bala-accesorio': { canvas: P.makeAccessory(), frameW: 9, frameH: 9 },
+    // Its sale stickers, out of the box (M10 5c).
+    'bala-pegatina': { canvas: P.makeSticker(), frameW: 9, frameH: 9 },
     'producto-caducado': { canvas: P.makeExpiredProducts(), frameW: 12, frameH: 14 },
     escarcha: { canvas: P.makeFrostPatch(), frameW: 46, frameH: 28 },
     fogonazo: { canvas: P.makeMuzzle(), frameW: 12, frameH: 10 },

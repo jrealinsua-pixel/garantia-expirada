@@ -173,5 +173,9 @@ export const SFX: Record<string, SfxParams> = {
   rebaja: { wave: 'square', freq: 1500, freqEnd: 380, attack: 0.001, sustain: 0.025, decay: 0.07, volume: 0.17, duty: 0.25, crush: 3 },
   // ...and off down the catwalk: a camera flash charging up, the whine climbing.
   pasarela: { wave: 'triangle', freq: 900, freqEnd: 3400, attack: 0.02, sustain: 0.32, decay: 0.12, volume: 0.12, vibrato: 0.04, vibratoSpeed: 30 },
+  // The Muñeco breaks out of its box: cardboard tearing (M10 5c)...
+  carton: { wave: 'noise', freq: 1800, freqEnd: 300, attack: 0.002, sustain: 0.18, decay: 0.25, volume: 0.3, lowpass: 0.5, crush: 2, vibrato: 0.35, vibratoSpeed: 38 },
+  // ...and the sale stickers peeling off as it spins: a quick rising rip.
+  pegatina: { wave: 'noise', freq: 600, freqEnd: 2600, attack: 0.004, sustain: 0.09, decay: 0.08, volume: 0.16, lowpass: 0.7, vibrato: 0.2, vibratoSpeed: 50 },
   espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
 };

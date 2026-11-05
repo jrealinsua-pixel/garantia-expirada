@@ -6,13 +6,14 @@ import type {
 } from '../data/types.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
-import { EXPIRED_PRODUCTS } from '../data/props.ts';
+import { EXPIRED_PRODUCTS, PROPS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { isWallAt, TILE, wallRectsNear } from './room.ts';
 import {
   BOSS_PHASE_BREAK,
   clearEnemyFire,
+  isDead,
   DT,
   firePattern,
   freeSpot,
@@ -1006,6 +1007,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       delete en.runTo;
       delete en.runVia;
       enter(en, 'roar', next.reboot?.time ?? BOSS_PHASE_BREAK);
+      if (next.shed) shedShell(w, en, next.shed.prop);
       if (next.summon) summonHelpers(w, en, next.summon);
     }
     en.relayT = 0;
@@ -1172,7 +1174,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     }
     case 'fire':
       // Once the warning is over it drifts on while its bullets stream out (they follow it).
-      if (en.t > bossWarnTime(phase, en)) ({ x: walkX, y: walkY } = bossRoam(w, en, b, phase.walkSpeed * rage * b.drift, phase.keep));
+      // (Spinning on the spot it stays put: BossPatternAttack.spin.)
+      if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) ({ x: walkX, y: walkY } = bossRoam(w, en, b, phase.walkSpeed * rage * b.drift, phase.keep));
       if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
       break;
     case 'roar':
@@ -1189,6 +1192,18 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
+}
+
+/**
+ * Whether a boss is spinning on the spot (BossPatternAttack.spin): firing such an attack, its
+ * warning over. The render turns it round meanwhile.
+ */
+export function isSpinning(en: Enemy): boolean {
+  const b = en.def.brain;
+  if (b.kind !== 'boss' || en.state !== 'fire' || en.attack === undefined) return false;
+  const phase = b.phases[en.bossPhase ?? 0];
+  const a = phase?.attacks[en.attack];
+  return !!a && a.kind === 'pattern' && !!a.spin && en.t > a.telegraph;
 }
 
 /** Height a dropped connection bursts at (px above the floor). */
@@ -1220,6 +1235,62 @@ export function runwayEnd(w: World, en: Enemy): { x: number; y: number } {
   }
   const x = en.x < (cols * TILE) / 2 ? x1 : x0;
   return { x, y: best ?? Math.max(TILE * 2 + r, Math.min((rows - 1) * TILE - r, w.player.y)) };
+}
+
+/**
+ * A boss breaks out of its shell (BossPhase.shed): the prop `id` is left where it stood, snapped to
+ * the tiles like the props of the templates (the bot's paths go round whole tiles), on the nearest
+ * spot where it touches no wall, prop or the toaster; whoever stands on it (the boss first) steps
+ * out towards the player.
+ */
+function shedShell(w: World, en: Enemy, id: string): void {
+  const def = PROPS[id];
+  if (!def) throw new Error(`Unknown prop ${id}`);
+  const p = w.player;
+  const boxAt = (x: number, y: number): Rect => ({ x: x + def.box.x, y: y + def.box.y, w: def.box.w, h: def.box.h });
+  const fits = (x: number, y: number): boolean => {
+    const box = boxAt(x, y);
+    const pad = { x: box.x - 4, y: box.y - 4, w: box.w + 8, h: box.h + 8 };
+    if (overlaps(pad, playerFeetBox(p, p.def.footRadius + 6))) return false;
+    if (w.room.props.some((pr) => overlaps(pr.box, pad))) return false;
+    const walls: Rect[] = [];
+    wallRectsNear(w.room, pad, walls);
+    return !walls.some((r) => overlaps(r, pad));
+  };
+  // Two tiles wide: its middle on the tile edge nearest the boss's feet.
+  const c0 = Math.round(en.x / TILE);
+  const r0 = Math.floor(en.y / TILE);
+  let at: { x: number; y: number } | null = null;
+  search: for (let d = 0; d <= 4; d++) {
+    for (let dr = -d; dr <= d; dr++) {
+      for (let dc = -d; dc <= d; dc++) {
+        if (Math.max(Math.abs(dr), Math.abs(dc)) !== d) continue;
+        const x = (c0 + dc) * TILE;
+        const y = (r0 + dr + 1) * TILE - 2;
+        if (fits(x, y)) {
+          at = { x, y };
+          break search;
+        }
+      }
+    }
+  }
+  // Nowhere to leave it (it never happens in its own room): it just breaks out.
+  if (!at) return;
+  const box = boxAt(at.x, at.y);
+  w.room.props.push({ def, x: at.x, y: at.y, box });
+  // Out of the box, towards the toaster: the boss and anyone else caught under it.
+  const d = normalize(p.x - at.x, p.y - at.y);
+  for (const o of w.enemies) {
+    if (isDead(o)) continue;
+    const feet = playerFeetBox(o, o.def.footRadius);
+    if (!overlaps(feet, box)) continue;
+    const out = freeSpot(w, at.x + d.x * (def.box.w / 2 + o.def.footRadius), at.y + d.y * 14 + (d.y >= 0 ? 6 : -def.box.h), o.def.footRadius);
+    o.x = out.x;
+    o.y = out.y;
+    o.vx = 0;
+    o.vy = 0;
+  }
+  w.events.push({ type: 'shed', boss: en.id, x: at.x, y: at.y, prop: id });
 }
 
 /**

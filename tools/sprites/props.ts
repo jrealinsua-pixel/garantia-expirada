@@ -1414,3 +1414,28 @@ export function makeAccessory(): Canvas {
   frames.forEach((rows, f) => paintGrid(sheet, f * 9, 0, rows, cols));
   return sheet;
 }
+
+/**
+ * The Muñeco de Moda's sale stickers (phase 3, M10 5c): a round yellow price sticker, red-rimmed (it is a bullet, not a coupon), with a red
+ * «%», its top-left lit; four quarter turns, so it turns as it flies. 4 frames of 9x9.
+ */
+export function makeSticker(): Canvas {
+  const g = [
+    '..00000..',
+    '.0221110.',
+    '023111310',
+    '011113110',
+    '011131110',
+    '011311110',
+    '013111310',
+    '.0111110.',
+    '..00000..',
+  ];
+  const frames: string[][] = [[...g]];
+  for (let i = 1; i < 4; i++) frames.push(quarterTurn(frames[i - 1]!));
+  const Y = ramp('#fff4a8', '#f6c431', '#c98a1a', '#4a2a10');
+  const cols: Record<string, RGBA> = { '0': RED[3]!, '1': Y[1]!, '2': Y[0]!, '3': RED[1]! };
+  const sheet = new Canvas(9 * frames.length, 9);
+  frames.forEach((rows, f) => paintGrid(sheet, f * 9, 0, rows, cols));
+  return sheet;
+}

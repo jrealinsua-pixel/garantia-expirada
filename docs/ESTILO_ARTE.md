@@ -173,6 +173,11 @@ rosa en menor medida; paredes ciruela `#291d2b`), igual de oscuro que las otras 
   espaldas (la etiqueta «made in» asomando del cuello) y de frente con las manos abiertas.
 - **Caja rota** (56×64): vacía, sin ventana (trozos de plástico en el marco), el troquel con la
   silueta del muñeco enseñando el cartón marrón, los alambres cortados colgando y el −70 % puesto.
+- **Pegatinas de oferta** (`bala-pegatina`, en `tools/sprites/props.ts`, 9×9, 4 fotogramas): las
+  balas de la fase 3. Pegatina redonda amarilla con un «%» rojo y el borde granate (no marrón:
+  es una bala y no puede confundirse con un cupón), con brillo arriba a la izquierda; cuatro
+  cuartos de vuelta para que giren al volar. Al girar, el Muñeco enseña de frente (15), de lado
+  (7), de espaldas (14) y del otro lado (7 en espejo).
 - **Accesorios** (`bala-accesorio`, 8 fotogramas de 9×9 en `tools/sprites/props.ts`): sus balas.
   Un zapato de salón de plástico rosa (puntera, hueco oscuro, talón y tacón de aguja) y un bolsito
   con asa y cierre blanco, cada uno en sus cuatro giros de un cuarto de vuelta: en vuelo, la mitad

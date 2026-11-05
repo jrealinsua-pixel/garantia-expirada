@@ -345,7 +345,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [x] (5a) Sprites: con caja (reposo, andar, posar), las etiquetas de rebaja, la caja rota y
       sin ella; y los Muñequitos Repetidos.
     - [x] (5b) Fases 1 y 2 en la simulación (pasarela, rebajas y repetidos), cartel y sonidos.
-    - [ ] (5c) Fase 3 (liquidación: la caja rota se queda como obstáculo, espirales de pegatinas).
+    - [x] (5c) Fase 3 (liquidación: la caja rota se queda como obstáculo, espirales de pegatinas).
   - 10 objetos nuevos, en partes:
     - [ ] (6a) Cinco de cifras o casi: Pilas No Incluidas, Muelle de Juguete, Purpurina, Juguete
       del Menú Infantil y Caja de Cartón Vacía.

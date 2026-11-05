@@ -176,6 +176,28 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.44, pattern: { kind: 'fan', count: 6, spreadDeg: 66, speed: 124, color: 'accessory' } },
     ],
   },
+  // Phase 3, «Fin de existencias» (M10 5c): out of its box it spins on the spot and the sale
+  // stickers peel off in spirals that bend a little towards you for their first moment (slower
+  // than you, and they turn wide: a sidestep shakes them off). The second has two arms each way.
+  'muneco-pegatinas': {
+    kind: 'spiral', arms: 4, steps: 16, stepDeg: 13, interval: 0.085, speed: 78,
+    homing: { turnDeg: 50, time: 0.9 }, color: 'sticker',
+  },
+  'muneco-pegatinas-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'spiral', arms: 2, steps: 16, stepDeg: 16, interval: 0.08, speed: 80, homing: { turnDeg: 45, time: 0.8 }, color: 'sticker' } },
+      { at: 0, pattern: { kind: 'spiral', arms: 2, steps: 16, stepDeg: -16, interval: 0.08, speed: 80, offsetDeg: 90, homing: { turnDeg: 45, time: 0.8 }, color: 'sticker' } },
+    ],
+  },
+  // Out of the box the accessories still come, fewer and quicker.
+  'muneco-accesorios-3': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 60, speed: 132, color: 'accessory' }, turnDeg: -7 },
+      { at: 0.2, pattern: { kind: 'fan', count: 5, spreadDeg: 60, speed: 132, color: 'accessory' }, turnDeg: 7 },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

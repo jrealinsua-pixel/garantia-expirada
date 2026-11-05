@@ -1,5 +1,6 @@
 // Which frame of its sprite sheet an enemy shows (pure: tests use it without Phaser).
 import type { Enemy, EnemyState } from '../sim/world.ts';
+import { isSpinning } from '../sim/enemies.ts';
 
 /** States in which it stands planted: no breathing, no steps (stunned, braking, dying...). */
 const PLANTED: ReadonlySet<EnemyState> = new Set<EnemyState>(['brake', 'stun', 'dying', 'roar', 'blink', 'gone']);
@@ -30,12 +31,15 @@ function busy(en: Enemy): boolean {
  * The sheet frame for `en` at time `now` (ms), from its `anim` data: the off frame while a bulb
  * flickers on; a stride frame per `stepPx` px moved while it walks (so the feet do not slide), at
  * most MAX_STEP_FPS; otherwise its idle cycle in time, each enemy out of step with the rest. The
- * boss's second phase uses the same layout `phaseShift` frames on.
+ * boss's second phase uses the same layout `phaseShift` frames on (or a phase's own `frameShift`,
+ * warning frame included); a boss spinning on the spot goes round its `spin` frames.
  */
 export function enemyFrame(en: Enemy, now: number): number {
   const a = en.def.anim;
   if (!a) return 0;
-  const shift = a.phaseShift !== undefined && (en.bossPhase ?? 0) >= 1 ? a.phaseShift : 0;
+  const own = phaseFrameShift(en);
+  const shift = own ?? (a.phaseShift !== undefined && (en.bossPhase ?? 0) >= 1 ? a.phaseShift : 0);
+  if (a.spin && isSpinning(en)) return a.spin[spinStep(en) % a.spin.length]!;
   if (a.off !== undefined && !bulbLit(en, now)) return a.off;
   // Rebooting: its lights come on one by one over the reboot.
   if (a.reboot && en.state === 'roar') return a.reboot[Math.min(a.reboot.length - 1, Math.floor((en.t / en.until) * a.reboot.length))]!;
@@ -44,7 +48,7 @@ export function enemyFrame(en: Enemy, now: number): number {
   if (a.jump !== undefined && en.state === 'fire' && a.warn !== undefined) return a.warn;
   if (a.crouch !== undefined && en.state === 'idle' && en.until - en.t < 0.12) return a.crouch;
   // Frozen while it warns (the wireless mouse without signal).
-  if (a.warn !== undefined && en.state === 'warn') return a.warn;
+  if (a.warn !== undefined && en.state === 'warn') return a.warn + (own ?? 0);
   // A mimic lying in wait, and jumping up when found out.
   if (a.lurk !== undefined && en.state === 'lurk') return a.lurk;
   if (a.reveal !== undefined && en.state === 'reveal') return a.reveal;
@@ -61,4 +65,26 @@ export function enemyFrame(en: Enemy, now: number): number {
   }
   const ms = busy(en) && a.busyMs ? a.busyMs : a.idleMs;
   return a.idle[Math.floor(now / ms + en.id * 0.5) % a.idle.length]! + shift;
+}
+
+/** The frame shift of the boss's current phase (BossPhase.frameShift), the last one that set it. */
+function phaseFrameShift(en: Enemy): number | undefined {
+  const b = en.def.brain;
+  if (b.kind !== 'boss') return undefined;
+  let out: number | undefined;
+  for (let i = 0; i <= (en.bossPhase ?? 0) && i < b.phases.length; i++) out = b.phases[i]!.frameShift ?? out;
+  return out;
+}
+
+/** Steps of the spin so far (one per `spinMs`, counted from when the warning ended). */
+function spinStep(en: Enemy): number {
+  const ms = en.def.anim?.spinMs ?? 80;
+  return Math.max(0, Math.floor((en.t * 1000) / ms));
+}
+
+/** Whether the spinning boss is drawn mirrored now (the second half of its `spin` frames). */
+export function spinMirrored(en: Enemy): boolean {
+  const sp = en.def.anim?.spin;
+  if (!sp || !isSpinning(en)) return false;
+  return spinStep(en) % sp.length >= sp.length / 2;
 }

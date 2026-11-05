@@ -546,14 +546,17 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [7, 10], hearts: 1 },
-    // 0-1 breathing in its box, 2-5 the walk, 6 posing (it warns before the catwalk). 7-15, out of
-    // the box, are phase 3's (M10 5c).
+    // 0-1 breathing in its box, 2-5 the walk, 6 posing (it warns before the catwalk). Out of the
+    // box (phase 3, frameShift 7) the same layout seven frames on, and it spins: front, side,
+    // back, other side.
     anim: {
       idle: [0, 1],
       idleMs: 520,
       walk: [2, 3, 4, 5],
       stepPx: 8,
       warn: 6,
+      spin: [15, 7, 14, 7],
+      spinMs: 70,
       badge: { sprite: 'etiqueta-rebaja', x: 16, y: 48, w: 22, upTo: 7, frameDy: { 6: -1 } },
     },
     brain: {
@@ -625,6 +628,27 @@ export const ENEMIES: Record<string, EnemyDef> = {
             { kind: 'pattern', pattern: 'muneco-rebaja-70', telegraph: 0.6, weight: 3 },
             { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.5, weight: 2 },
             { kind: 'runway', speed: 195, gap: 32, fuse: 0.5, pattern: 'muneco-flash', telegraph: 0.5, weight: 1.5 },
+          ],
+        },
+        {
+          // Phase 3 (M10 5c). The design called it «Liquidación total», but that is already the
+          // stamp of a fallen boss (BOSS_DOWN_STAMP). It breaks out of its box, which stays as an
+          // obstacle; out of it, it spins on the spot peeling off spirals of sale stickers, is the
+          // quickest it has been and takes a quarter more damage (no box).
+          name: 'Fin de existencias',
+          from: 0.25,
+          stage: 3,
+          walkSpeed: 60,
+          keep: 115,
+          rest: [0.5, 0.75],
+          line: '¡Todo debe desaparecer! Yo también.',
+          shed: { prop: 'caja-muneco' },
+          taken: 1.25,
+          frameShift: 7,
+          attacks: [
+            { kind: 'pattern', pattern: 'muneco-pegatinas', telegraph: 0.55, weight: 3, spin: true },
+            { kind: 'pattern', pattern: 'muneco-pegatinas-2', telegraph: 0.5, weight: 2, spin: true },
+            { kind: 'pattern', pattern: 'muneco-accesorios-3', telegraph: 0.45, weight: 1.5 },
           ],
         },
       ],

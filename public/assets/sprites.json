@@ -317,6 +317,12 @@
     "frameH": 9,
     "frames": 8
   },
+  "bala-pegatina": {
+    "file": "bala-pegatina.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 4
+  },
   "producto-caducado": {
     "file": "producto-caducado.png",
     "frameW": 12,

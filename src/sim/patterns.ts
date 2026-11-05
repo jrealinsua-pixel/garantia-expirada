@@ -9,8 +9,9 @@ import type { Rng } from './rng.ts';
  * sheets with a thick red border, fluttering. `nut` are the wind-up robot's hex nuts: red with a
  * white core like `red`, spinning. `confetti` is the surprise envelope's gift wrap: red paper with a
  * yellow ribbon, fluttering. `accessory` are the Muñeco de Moda's pink plastic shoes and handbags, spinning.
+ * `sticker` are its sale stickers out of the box: round, yellow, with a red «%», turning.
  */
-export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory';
+export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker';
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {

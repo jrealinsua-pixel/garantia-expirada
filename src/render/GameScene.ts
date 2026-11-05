@@ -80,7 +80,8 @@ import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
 import { profile, saveFloor, saveRun } from './save.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
-import type { StationKind, TipSide } from '../sim/room.ts';
+import type { PropInstance, StationKind, TipSide } from '../sim/room.ts';
+import { isSpinning } from '../sim/enemies.ts';
 import { rosterBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
 import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
@@ -102,7 +103,7 @@ import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis, scrollRange } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
 import { cardLayout, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
-import { bulbLit, enemyFrame } from './enemyAnim.ts';
+import { bulbLit, enemyFrame, spinMirrored } from './enemyAnim.ts';
 
 export const VIEW_W = 480;
 
@@ -539,6 +540,7 @@ export class GameScene extends Phaser.Scene {
 
     for (const pr of room.props) {
       const key = pr.def.id;
+      this.drawnProps.add(pr);
       if (room.kind === 'hub' && this.makeHubProp(pr)) continue;
       // Chests change (they open), so drawChests keeps them; here only their shadow.
       if (pr.chest) {
@@ -558,11 +560,7 @@ export class GameScene extends Phaser.Scene {
         this.tableViews.set(`${pr.x},${pr.y}`, { s, shadow, x: pr.x, y: pr.y, jolt: 0, tip: 0, side: pr.tipped });
         continue;
       }
-      const look = this.levelKey(key);
-      const tex = this.textures.get(look).getSourceImage();
-      const shadow = this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
-      const img = this.add.image(pr.x, pr.y, look).setOrigin(0.5, 1).setDepth(pr.y);
-      if (pr.def.hp) this.drumViews.set(`${pr.x},${pr.y}`, { s: img, shadow, x: pr.x, jolt: 0, smoke: 0 });
+      this.makePropView(pr);
     }
     if (room.kind === 'hub') this.makeHub();
     if (room.kind === 'shop') {
@@ -1051,6 +1049,28 @@ export class GameScene extends Phaser.Scene {
       return true;
     }
     return false;
+  }
+
+  /** An ordinary prop: its sprite (the floor's look, if it has one) and its shadow. */
+  private makePropView(pr: PropInstance): Phaser.GameObjects.Image {
+    const look = this.levelKey(pr.def.id);
+    const tex = this.textures.get(look).getSourceImage();
+    const shadow = this.add.image(pr.x, pr.y + 1, shadowTexture(this, Math.max(6, Math.floor(tex.width / 2) - 3), 3)).setDepth(-50000);
+    const img = this.add.image(pr.x, pr.y, look).setOrigin(0.5, 1).setDepth(pr.y);
+    if (pr.def.hp) this.drumViews.set(`${pr.x},${pr.y}`, { s: img, shadow, x: pr.x, jolt: 0, smoke: 0 });
+    return img;
+  }
+
+  /** Props already drawn; any other one turned up during the fight (the Muñeco's broken box). */
+  private drawnProps = new WeakSet<PropInstance>();
+
+  /** Props that turn up in the middle of a room (not chests, which drawChests keeps): drawn when they do. */
+  private drawLateProps(): void {
+    for (const pr of this.world.room.props) {
+      if (pr.chest || this.drawnProps.has(pr)) continue;
+      this.drawnProps.add(pr);
+      this.makePropView(pr);
+    }
   }
 
   private hubPending: { turnos?: Phaser.GameObjects.Image; chatarrero?: Phaser.GameObjects.Image } = {};
@@ -1854,6 +1874,9 @@ export class GameScene extends Phaser.Scene {
             for (let i = 0; i < 5; i++) this.spark(k.x, k.y - 10, this.fx.range(-Math.PI, 0), this.fx.range(40, 90), 2, this.fx.pick([0xe0453b, 0xf6c431, 0xe070c8]));
           }
           break;
+        case 'shed':
+          this.shellShed(e);
+          break;
         case 'runway':
           // Off down the catwalk: a fanfare of flashes going off at once.
           this.sound2.play('pasarela');
@@ -2562,6 +2585,21 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * A boss breaks out of its shell (the Muñeco's box, BossPhase.shed): cardboard tearing, a jolt,
+   * scraps of magenta cardboard and plastic window, and dust where it lands.
+   */
+  private shellShed(e: Extract<SimEvent, { type: 'shed' }>): void {
+    this.sound2.play('carton');
+    this.sound2.play('derrumbe', { volume: 0.45, detune: 700 });
+    this.shake(200, 0.009, true);
+    for (let i = 0; i < 16; i++) {
+      const tint = this.fx.pick([0xd0559c, 0xa83c7e, 0xe9d3e4, 0x9fd8e8, 0xf6c431]);
+      this.splinter(e.x + this.fx.range(-22, 22), e.y - this.fx.range(10, 50), this.fx.range(0, Math.PI * 2), tint);
+    }
+    for (let i = 0; i < 7; i++) this.puff(e.x + this.fx.range(-24, 24), e.y - this.fx.range(0, 8), this.fx.range(0.5, 0.9));
+  }
+
   /** A splinter of the table (or something that was on it) that jumps and falls. */
   private splinter(x: number, y: number, a: number, tint?: number): void {
     const sp = this.fx.range(30, 80);
@@ -3062,7 +3100,13 @@ export class GameScene extends Phaser.Scene {
       // Flyers bob up and down; the moth flaps fast, faster when it dives.
       const fly = alt > 0 ? Math.round(Math.sin(this.time.now / 160 + en.id) * 1.5) : 0;
       s.setPosition(Math.round(en.x) + shiver, Math.round(en.y) + bob - alt + fly).setDepth(en.y + (alt > 0 ? 1 : 0));
-      s.setScale(en.facing, 1);
+      // A boss spinning on the spot shows its other side half the time (EnemyAnim.spin), and the
+      // stickers peel off with a rip as it starts.
+      const spinning = isSpinning(en);
+      if (spinning && !v.spinning) this.sound2.play('pegatina');
+      v.spinning = spinning;
+      const face = spinMirrored(en) ? -en.facing : en.facing;
+      s.setScale(face, 1);
       // Breathing, steps, the bulb flickering on, the beaters, the Nevera's open door: enemyFrame.
       const frame = enemyFrame(en, this.time.now);
       s.setFrame(frame);
@@ -3075,7 +3119,7 @@ export class GameScene extends Phaser.Scene {
       s.setRotation(rot);
       // The remote switches off like an old TV (squashed to a line, then to a dot) and back on.
       const tv = tvScale(en, v.onAt === undefined ? 1 : (this.time.now - v.onAt) / 1000);
-      s.setScale(en.facing * tv.x, tv.y);
+      s.setScale(face * tv.x, tv.y);
       s.setVisible(tv.x > 0 && tv.y > 0);
       v.shadow.setVisible(en.state !== 'gone');
       const gl = SPRITE_GLOWS[en.def.sprite];
@@ -3147,6 +3191,7 @@ export class GameScene extends Phaser.Scene {
     this.drawStatic();
     this.drawFrost(dt);
     this.drawChests(dt);
+    this.drawLateProps();
     this.drawDrums(dt);
     this.drawTables(dt);
     this.drawPickups();
@@ -3187,6 +3232,8 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'confetti' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
       // The Muñeco's shoes and handbags spin a quarter turn at a time (half are shoes, half bags).
       if (b.color === 'accessory' && b.owner === 'enemy') s.setFrame((b.id % 2) * 4 + (Math.floor(this.time.now / 75 + b.id) % 4));
+      // The sale stickers turn a quarter at a time as they peel off.
+      if (b.color === 'sticker' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 4);
       const sc = (b.life < 0.15 ? 0.6 : 1) * size;
       s.setScale(sc);
     }
@@ -3873,7 +3920,8 @@ const PLAYER_BULLET_R = 3;
 const SKID_MAX = 120;
 
 const BULLET_TEXTURES: Record<BulletColor, string> = {
-  red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca', confetti: 'bala-confeti', accessory: 'bala-accesorio',
+  red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
+  confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
@@ -3914,6 +3962,8 @@ interface EnemyView {
   glow?: Phaser.GameObjects.Graphics;
   /** A sheet drawn over the body (EnemyAnim.badge): the Muñeco's sale tag. */
   badge?: Phaser.GameObjects.Image;
+  /** It was spinning on the spot last frame (EnemyAnim.spin). */
+  spinning?: boolean;
 }
 
 /**

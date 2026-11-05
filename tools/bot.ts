@@ -294,6 +294,10 @@ export interface BossReport {
   segundoFase2: number;
   heridasFase1: number;
   heridasFase2: number;
+  /** The same for a third phase (on the card: the Muñeco out of its box), if the boss has one. */
+  llegaFase3: number;
+  segundoFase3: number;
+  heridasFase3: number;
   /** Fights won that end with the toaster going down the goods lift (%). */
   montacargas: number;
 }
@@ -305,7 +309,8 @@ export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level =
   let hurts = 0;
   let frostT = 0;
   const phase2At: number[] = [];
-  const phaseHurts = [0, 0];
+  const phase3At: number[] = [];
+  const phaseHurts = [0, 0, 0];
   let lifted = 0;
   for (let i = 0; i < fights; i++) {
     const seed = `jefe-${i}`;
@@ -319,13 +324,18 @@ export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level =
         for (const e of w.events) {
           if (e.type === 'hurt') {
             hurts++;
-            phaseHurts[Math.min(1, phase)]!++;
+            phaseHurts[Math.min(2, phase)]!++;
           }
           // The fight is won when her life runs out; she then takes BOSS_DEATH s to come apart.
           if (e.type === 'bossDying') won.push(t * DT);
           if (e.type === 'bossPhase' && e.phase >= 1 && phase === 0) {
             phase = 1;
             phase2At.push(t * DT);
+          }
+          // The number on the card: the three sales are all phase 2.
+          if (e.type === 'bossPhase' && (e.stage ?? e.phase + 1) >= 3 && phase < 2) {
+            phase = 2;
+            phase3At.push(t * DT);
           }
         }
         if (frostSlow(w, w.player.x, w.player.y) < 1) frostT += DT;
@@ -360,6 +370,9 @@ export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level =
       segundoFase2: phase2At.length ? one(phase2At.reduce((a, b) => a + b, 0) / phase2At.length) : 0,
       heridasFase1: Math.round((phaseHurts[0]! / fights) * 100) / 100,
       heridasFase2: Math.round((phaseHurts[1]! / fights) * 100) / 100,
+      llegaFase3: one((phase3At.length / fights) * 100),
+      segundoFase3: phase3At.length ? one(phase3At.reduce((a, b) => a + b, 0) / phase3At.length) : 0,
+      heridasFase3: Math.round((phaseHurts[2]! / fights) * 100) / 100,
       montacargas: won.length ? one((lifted / won.length) * 100) : 0,
     },
     errors,
@@ -661,8 +674,8 @@ if (import.meta.main) {
   if (m?.combates) {
     console.log(
       `${m.combates} combates contra el Muñeco · gana el ${m.gana} % en ${m.segundos} s (${m.minimo}–${m.maximo} s) · ` +
-        `${m.heridas} heridas por combate (${m.heridasFase1} en la fase 1, ${m.heridasFase2} en las rebajas) · ` +
-        `llega a las rebajas el ${m.llegaFase2} %, a los ${m.segundoFase2} s`,
+        `${m.heridas} heridas por combate (${m.heridasFase1} en la fase 1, ${m.heridasFase2} en las rebajas, ${m.heridasFase3} sin caja) · ` +
+        `llega a las rebajas el ${m.llegaFase2} %, a los ${m.segundoFase2} s; sale de la caja el ${m.llegaFase3} %, a los ${m.segundoFase3} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

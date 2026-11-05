@@ -726,7 +726,21 @@ try {
   await shot('38f-muneco-anillos.png');
   const helpers = await page.evaluate<number>("window.__GE__.scene.world.enemies.filter((e) => e.def.id === 'munequito-repetido').length");
   if (helpers < 2) throw new Error(`Las rebajas no traen repetidos: ${helpers}`);
-  console.log('Muñeco de Moda: cartel, accesorios, pasarela con destellos, rebajas con su etiqueta y sus repetidos.');
+  // M10 (5c): «Fin de existencias». It breaks out of its box (left behind as an obstacle) and
+  // spins on the spot, peeling off spirals of sale stickers.
+  await page.evaluate(`(() => { const b = ${munecoJs}; b.damageTaken = Math.ceil(b.def.hp * 0.78); })()`);
+  await page.waitForFunction(`${munecoJs}.bossPhase === 4`, undefined, { timeout: 3000 });
+  await page.waitForTimeout(450);
+  await shot('38g-muneco-sin-caja.png');
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.room.props.some((p) => p.def.id === 'caja-muneco')"))) throw new Error('El Muñeco no deja su caja');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'sticker' && b.age > 0.25 && v.contains(b.x, b.y)).length >= 18; })()`,
+    undefined,
+    { timeout: 25000 },
+  );
+  await shot('38h-muneco-pegatinas.png');
+  console.log('Muñeco de Moda: cartel, accesorios, pasarela con destellos, rebajas con su etiqueta y sus repetidos, y sin caja con sus pegatinas.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

@@ -29,6 +29,9 @@ export const PROPS: Record<string, PropDef> = {
   chatarrero: { id: 'chatarrero', name: 'El Chatarrero', box: { x: -12, y: -12, w: 24, h: 10 }, blocksBullets: true },
   // The queue's posts: the tape between them is only drawn (the toaster ducks under it).
   poste: { id: 'poste', name: 'Poste de la Cola', box: { x: -3, y: -5, w: 6, h: 4 }, blocksBullets: false },
+  // Not placed by templates: El Muñeco de Moda leaves it behind when it breaks out (BossPhase.shed, M10 5c).
+  // Two tiles wide, it stops bullets from both sides: cover for the toaster, and for the Muñeco.
+  'caja-muneco': { id: 'caja-muneco', name: 'Caja de la Temporada Pasada', box: { x: -24, y: -22, w: 48, h: 20 }, blocksBullets: true },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 

@@ -51,7 +51,8 @@ test('el Muñeco es el jefe de la planta 3, con su cartel, su causa de baja y su
   assert.ok(room.template.rows.join('').includes('D'));
   // Its sheet: boxed frames first (0-6), the tag drawn on top of them in the phase's price.
   assert.equal(def.anim?.badge?.sprite, 'etiqueta-rebaja');
-  assert.deepEqual(brain.phases.map((p) => p.badge), [0, 1, 2, 3]);
+  // (Out of the box, phase 3, there is no tag: see muneco-fase3.test.ts.)
+  assert.deepEqual(brain.phases.map((p) => p.badge), [0, 1, 2, 3, undefined]);
 });
 
 test('los accesorios son zapatos y bolsos rosas; los anillos de las rebajas tienen su hueco y son cada vez más densos', () => {
@@ -151,7 +152,7 @@ test('rebajas: la etiqueta baja tres veces, cada una con su grito y dos repetido
   // Each sale makes it hurry.
   const speeds = brain.phases.map((p) => p.walkSpeed);
   for (let i = 1; i < speeds.length; i++) assert.ok(speeds[i]! > speeds[i - 1]!);
-  const runs = brain.phases.map((p) => p.attacks.find((a) => a.kind === 'runway')!).map((a) => (a.kind === 'runway' ? a.speed : 0));
+  const runs = brain.phases.flatMap((p) => p.attacks).flatMap((a) => (a.kind === 'runway' ? [a.speed] : []));
   for (let i = 1; i < runs.length; i++) assert.ok(runs[i]! > runs[i - 1]!);
 });
 

@@ -458,6 +458,8 @@ export type SimEvent =
   | { type: 'brickStep' | 'brickSwept'; x: number; y: number; brick: number; angle?: number }
   /** A boss starts a new phase of its fight. */
   | { type: 'bossPhase'; boss: number; phase: number; name: string; reboot?: string; line?: string; stage?: number }
+  /** A boss breaks out of its shell (BossPhase.shed): the prop is left at (x, y) (bottom-centre). */
+  | { type: 'shed'; boss: number; x: number; y: number; prop: string }
   /** A boss calls its helpers (BossPhase.summon): they pop out next to it. */
   | { type: 'summon'; boss: number; x: number; y: number; spawned: number[] }
   /** The catwalk starts (the boss sets off) and each camera flash is left on the floor. */
@@ -2227,7 +2229,10 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
 
 /** How much of a hit an enemy takes: a run-down wind-up toy takes its `exposed` times. */
 export function takenScale(en: Enemy): number {
-  return isRunDown(en) && en.def.brain.kind === 'windup' ? en.def.brain.exposed : 1;
+  const b = en.def.brain;
+  // A boss out of its box (BossPhase.taken).
+  if (b.kind === 'boss') return b.phases[en.bossPhase ?? 0]?.taken ?? 1;
+  return isRunDown(en) && b.kind === 'windup' ? b.exposed : 1;
 }
 
 export const isDead = (en: Enemy): boolean => en.damageTaken >= en.def.hp;

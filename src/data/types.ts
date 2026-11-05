@@ -404,6 +404,8 @@ export interface BossPatternAttack {
   weight: number;
   /** Its relays (see BossPhase.relays) fire this pattern at the same time, from where they stand. */
   relay?: string;
+  /** It spins on the spot while the bullets stream out (EnemyAnim.spin), instead of drifting. */
+  spin?: boolean;
 }
 
 /**
@@ -505,6 +507,18 @@ export interface BossPhase {
   stage?: number;
   /** Frame of the boss's badge (EnemyAnim.badge) in this phase: the price on the Muñeco's box. */
   badge?: number;
+  /**
+   * It sheds its shell when the phase starts: `prop` (a PropDef id) is left where it stood, as an
+   * obstacle, and the boss steps out of it towards the player (the Muñeco's broken box).
+   */
+  shed?: { prop: string };
+  /** It takes this many times the damage in this phase (1 if unset): out of its box, 1.25. */
+  taken?: number;
+  /**
+   * From this phase on its frames are the same layout this many frames on (idle, walk and warn),
+   * instead of EnemyAnim.phaseShift: the Muñeco out of its box.
+   */
+  frameShift?: number;
 }
 
 /**
@@ -764,6 +778,12 @@ export interface EnemyAnim {
    * below `upTo`, `frameDy` px lower on some of them. Its frame is the phase's `badge`.
    */
   badge?: { sprite: string; x: number; y: number; w: number; upTo: number; frameDy?: Readonly<Record<number, number>> };
+  /**
+   * A boss spinning on the spot (BossPatternAttack.spin): these frames in turn, `spinMs` each, the
+   * second half of them mirrored (front, side, back, other side).
+   */
+  spin?: readonly number[];
+  spinMs?: number;
   /** Frames of a reboot (BossPhase.reboot), spread evenly over it. */
   reboot?: readonly number[];
   /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */
