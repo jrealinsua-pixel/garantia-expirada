@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T17:40:00+01:00",
+  "actualizado": "2026-11-05T17:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -138,7 +138,7 @@
   },
   "sesiones": [
     {
-      "fecha": "2026-11-05T17:40:00+01:00",
+      "fecha": "2026-11-05T17:30:00+01:00",
       "hito": "M11",
       "resumen": "M11 (0): el diseño de la planta 5, Atención al Cliente: cuatro enemigos que atacan esconderse, ir por el camino corto, disparar siempre desde el mismo sitio y fijar a uno (Dispensador de Turnos, Postes de Cola, Asistente Virtual y Teléfono de Recepción), la Centralita como jefa con su menú de voz, diez objetos, dos armas y el aspecto; M11 partido en 22 tareas.",
       "commit": ""
@@ -1009,7 +1009,7 @@
   "estimacion": {
     "fecha": "2026-11-05",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:29: M8 terminado en unas 14 sesiones (estimadas 13). Revisada el 5 de noviembre a las 17:40: M10 terminado (34 tareas para las dos plantas, estimadas 24 sesiones); M11 partido en 22 tareas como M10, quedan 21.",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:29: M8 terminado en unas 14 sesiones (estimadas 13). Revisada el 5 de noviembre a las 17:30: M10 terminado (34 tareas para las dos plantas, estimadas 24 sesiones); M11 partido en 22 tareas como M10, quedan 21.",
     "hitos": {
       "M9": 10,
       "M9b": 16,
