@@ -311,6 +311,12 @@
     "frameH": 7,
     "frames": 2
   },
+  "bala-accesorio": {
+    "file": "bala-accesorio.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 8
+  },
   "producto-caducado": {
     "file": "producto-caducado.png",
     "frameW": 12,

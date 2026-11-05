@@ -529,6 +529,108 @@ export const ENEMIES: Record<string, EnemyDef> = {
     },
     boss: { title: 'El Router del Wifi', motto: 'Cobertura total. En la otra habitación.', subtitle: 'Jefe de planta · Informática' },
   },
+  'muneco-moda': {
+    id: 'muneco-moda',
+    name: 'El Muñeco de Moda',
+    description:
+      'El juguete del año pasado, todavía en su caja de escaparate. Sonríe como en el anuncio; ' +
+      'los ojos no se han enterado de que el anuncio terminó.',
+    // M10 (5b). The toughest yet (docs/DISENO.md said 300 before the weapons lost damage in M9b;
+    // 220 measured with the bot: see the log of 2026-11-05).
+    hp: 220,
+    sprite: 'muneco-moda',
+    anchor: { x: 36, y: 74 },
+    hurt: { x: -26, y: -68, w: 52, h: 58 },
+    footRadius: 16,
+    contactPush: 260,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [7, 10], hearts: 1 },
+    // 0-1 breathing in its box, 2-5 the walk, 6 posing (it warns before the catwalk). 7-15, out of
+    // the box, are phase 3's (M10 5c).
+    anim: {
+      idle: [0, 1],
+      idleMs: 520,
+      walk: [2, 3, 4, 5],
+      stepPx: 8,
+      warn: 6,
+      badge: { sprite: 'etiqueta-rebaja', x: 16, y: 48, w: 22, upTo: 7, frameDy: { 6: -1 } },
+    },
+    brain: {
+      kind: 'boss',
+      roam: { leg: [0.5, 1.2], burst: [0.6, 1.4], spread: 50 },
+      drift: 0.35,
+      rage: 0.5,
+      // The hands, out in front of the box: the accessories come out of there.
+      muzzle: { x: 22, y: 38 },
+      phases: [
+        {
+          name: 'Lanzamiento',
+          from: 1,
+          walkSpeed: 42,
+          keep: 135,
+          rest: [0.85, 1.2],
+          badge: 0,
+          attacks: [
+            { kind: 'pattern', pattern: 'muneco-accesorios', telegraph: 0.7, weight: 3 },
+            // The catwalk: from side to side posing, leaving camera flashes that go off behind it.
+            { kind: 'runway', speed: 150, gap: 38, fuse: 0.6, pattern: 'muneco-flash', telegraph: 0.7, weight: 1.2 },
+          ],
+        },
+        {
+          // «Rebajas»: the tag on its box comes down three times; with each discount it hurries,
+          // its rings get denser and it brings two Muñequitos Repetidos.
+          name: 'Rebajas: -30 %',
+          from: 0.6,
+          stage: 2,
+          walkSpeed: 46,
+          keep: 130,
+          rest: [0.75, 1.05],
+          badge: 1,
+          line: '¡Ahora con más accesorios!',
+          summon: { id: 'munequito-repetido', count: 2, max: 4 },
+          attacks: [
+            { kind: 'pattern', pattern: 'muneco-rebaja-30', telegraph: 0.7, weight: 3 },
+            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.6, weight: 2 },
+            { kind: 'runway', speed: 165, gap: 36, fuse: 0.6, pattern: 'muneco-flash', telegraph: 0.6, weight: 1.5 },
+          ],
+        },
+        {
+          name: 'Rebajas: -50 %',
+          from: 0.47,
+          stage: 2,
+          walkSpeed: 50,
+          keep: 125,
+          rest: [0.65, 0.95],
+          badge: 2,
+          line: '¡Ahora con más accesorios!',
+          summon: { id: 'munequito-repetido', count: 2, max: 4 },
+          attacks: [
+            { kind: 'pattern', pattern: 'muneco-rebaja-50', telegraph: 0.65, weight: 3 },
+            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.55, weight: 2 },
+            { kind: 'runway', speed: 180, gap: 34, fuse: 0.55, pattern: 'muneco-flash', telegraph: 0.55, weight: 1.5 },
+          ],
+        },
+        {
+          name: 'Rebajas: -70 %',
+          from: 0.34,
+          stage: 2,
+          walkSpeed: 54,
+          keep: 120,
+          rest: [0.55, 0.8],
+          badge: 3,
+          line: '¡Ahora con más accesorios!',
+          summon: { id: 'munequito-repetido', count: 2, max: 4 },
+          attacks: [
+            { kind: 'pattern', pattern: 'muneco-rebaja-70', telegraph: 0.6, weight: 3 },
+            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.5, weight: 2 },
+            { kind: 'runway', speed: 195, gap: 32, fuse: 0.5, pattern: 'muneco-flash', telegraph: 0.5, weight: 1.5 },
+          ],
+        },
+      ],
+    },
+    boss: { title: 'El Muñeco de Moda', motto: 'Pasado de moda. Como tú.', subtitle: 'Jefe de planta · Juguetería' },
+  },
   repetidor: {
     id: 'repetidor',
     name: 'Repetidor de Señal',

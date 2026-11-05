@@ -1179,14 +1179,14 @@ const FLOOR_3: RoomTemplate[] = [
       '#c......................c#',
       '#........................#',
       '#...........J............#',
+      '#...##..............##...#',
+      '#...##..............##...#',
       '#........................#',
-      '#.....##..........##.....#',
-      '#.....##..........##.....#',
       '#........................#',
       '#........................#',
-      '#.....##..........##.....#',
-      '#.....##..........##.....#',
       '#........................#',
+      '#...##..............##...#',
+      '#...##..............##...#',
       '#........................#',
       '#b......................b#',
       '##########################',
@@ -1229,13 +1229,12 @@ export const ROOMS: Record<string, RoomTemplate> = {
 export const FLOOR_BOSS_1 = 'N';
 /** Floor 2's: X, el Router del Wifi. */
 export const FLOOR_BOSS_2 = 'X';
+/** Floor 3's: D (doll), el Muñeco de Moda (M10 5b), in its Escaparate de Novedades (M is the dummy). */
+export const FLOOR_BOSS_3 = 'D';
 
-/**
- * Template letter of the boss of floor `level`. Floor 3 has no boss of its own yet (El Muñeco de
- * Moda, M10 5): until it comes, the Router fights again in its Escaparate de Novedades.
- */
+/** Template letter of the boss of floor `level`. */
 export function floorBossOf(level: number): string {
-  return level >= 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
+  return level >= 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
 }
 
 /**

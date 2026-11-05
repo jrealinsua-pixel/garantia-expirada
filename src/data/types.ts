@@ -454,7 +454,22 @@ export interface BossDropAttack {
   weight: number;
 }
 
-export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack;
+/**
+ * «La pasarela»: it poses (`telegraph` s), then crosses the room from side to side at `speed` px/s,
+ * along the clear lane nearest the player, and every `gap` px it walks it leaves a camera flash on
+ * the floor that bursts into `pattern` `fuse` s later.
+ */
+export interface BossRunwayAttack {
+  kind: 'runway';
+  speed: number;
+  gap: number;
+  fuse: number;
+  pattern: string;
+  telegraph: number;
+  weight: number;
+}
+
+export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack;
 
 /** A stage of a boss fight, with its own attacks. */
 export interface BossPhase {
@@ -479,6 +494,17 @@ export interface BossPhase {
    * no damage, its relays fall and `line` comes up over it.
    */
   reboot?: { time: number; line: string };
+  /** What it shouts when the phase starts (over its head). */
+  line?: string;
+  /**
+   * Helpers (enemy `id`) it calls when the phase starts: `count` of them, but never more than `max`
+   * of its own standing at once. They come out next to it and fall when it falls.
+   */
+  summon?: { id: string; count: number; max: number };
+  /** The number on the phase card, if not its place in the list (three sales, all of them phase 2). */
+  stage?: number;
+  /** Frame of the boss's badge (EnemyAnim.badge) in this phase: the price on the Muñeco's box. */
+  badge?: number;
 }
 
 /**
@@ -732,6 +758,12 @@ export interface EnemyAnim {
   phaseShift?: number;
   /** Frame shown while it warns (the wireless mouse frozen without signal). */
   warn?: number;
+  /**
+   * A small sheet drawn over the body (the Muñeco's sale tag): its top-left at (x, y) of the frame,
+   * mirrored with the body (the sheet itself is not flipped, so its text reads), on the frames
+   * below `upTo`, `frameDy` px lower on some of them. Its frame is the phase's `badge`.
+   */
+  badge?: { sprite: string; x: number; y: number; w: number; upTo: number; frameDy?: Readonly<Record<number, number>> };
   /** Frames of a reboot (BossPhase.reboot), spread evenly over it. */
   reboot?: readonly number[];
   /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */

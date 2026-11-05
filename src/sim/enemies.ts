@@ -999,9 +999,14 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       // reboot), and the phase's name, before the new attacks.
       const ev: SimEvent = { type: 'bossPhase', boss: en.id, phase: phaseIdx, name: next.name };
       if (next.reboot) ev.reboot = next.reboot.line;
+      if (next.line) ev.line = next.line;
+      if (next.stage !== undefined) ev.stage = next.stage;
       w.events.push(ev);
       clearEnemyFire(w);
+      delete en.runTo;
+      delete en.runVia;
       enter(en, 'roar', next.reboot?.time ?? BOSS_PHASE_BREAK);
+      if (next.summon) summonHelpers(w, en, next.summon);
     }
     en.relayT = 0;
     if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
@@ -1062,6 +1067,14 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           }
           w.events.push({ type: 'drops', boss: en.id, count: a.count });
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.4);
+        } else if (a.kind === 'runway') {
+          // It strikes a pose (warning by itself, see activeWarnings) before setting off; the lane
+          // is picked now, so the warning can show it: first straight up or down onto it, then along it.
+          en.runTo = runwayEnd(w, en);
+          en.runVia = { x: en.x, y: en.runTo.y };
+          en.dirX = en.runTo.x > en.x ? 1 : -1;
+          en.dirY = 0;
+          enter(en, 'warn', a.telegraph);
         } else {
           // Frost and spit warn by themselves (see activeWarnings): the ring closes on the dispenser
           // (or on the open door).
@@ -1100,10 +1113,62 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             const product = w.rng.int(0, EXPIRED_PRODUCTS.length - 1);
             throwFrost(w, sx, en.y, sh, tx, ty, { r: 12, life: 0, slow: 1, flight: a.flight * w.rng.range(0.75, 1.25), shatter: a.burst, product, source: en.id, by: en.def.id });
           }
+        } else if (a.kind === 'runway') {
+          // Off down the catwalk it picked when it struck the pose.
+          en.runTo ??= runwayEnd(w, en);
+          en.runVia ??= { x: en.x, y: en.runTo.y };
+          en.runGap = 0;
+          en.runStuck = 0;
+          en.facing = en.runTo.x > en.x ? 1 : -1;
+          w.events.push({ type: 'runway', boss: en.id, x: en.x, y: en.y });
+          enter(en, 'charge', Math.hypot(en.runTo.x - en.x, en.runTo.y - en.y) / a.speed + 1.5);
+          break;
         }
         enter(en, 'fire', 0.5);
       }
       break;
+    }
+    case 'charge': {
+      // On the catwalk: straight to the end, a flash on the floor every `gap` px, posing all the way.
+      const a = phase.attacks[en.attack ?? 0];
+      const to = en.runTo;
+      if (!a || a.kind !== 'runway' || !to) {
+        enter(en, 'idle', 0.4);
+        break;
+      }
+      const step = a.speed * DT;
+      // First onto its lane, then down it.
+      if (en.runVia && Math.hypot(en.runVia.x - en.x, en.runVia.y - en.y) <= step) delete en.runVia;
+      const goal = en.runVia ?? to;
+      const dx = goal.x - en.x;
+      const dy = goal.y - en.y;
+      const d = Math.hypot(dx, dy);
+      if ((!en.runVia && d <= step) || en.t >= en.until || (en.runStuck ?? 0) > 0.3) {
+        delete en.runTo;
+        delete en.runVia;
+        en.vx = 0;
+        en.vy = 0;
+        enter(en, 'fire', a.fuse + 0.3);
+        break;
+      }
+      if (Math.abs(dx) > 1) en.facing = dx >= 0 ? 1 : -1;
+      en.vx = (dx / d) * a.speed;
+      en.vy = (dy / d) * a.speed;
+      const ox = en.x;
+      const oy = en.y;
+      slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+      const moved = Math.hypot(en.x - ox, en.y - oy);
+      en.moved += moved;
+      en.runStuck = moved < step * 0.3 ? (en.runStuck ?? 0) + DT : 0;
+      if (!en.runVia) en.runGap = (en.runGap ?? 0) - moved;
+      if (!en.runVia && en.runGap !== undefined && en.runGap <= 0) {
+        en.runGap += a.gap;
+        const def = PATTERNS[a.pattern];
+        if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
+        firePattern(w, def, en.x, en.y - DROP_HEIGHT, w.rng.range(0, Math.PI * 2), { telegraph: a.fuse, by: en.def.id, height: DROP_HEIGHT, mark: 'flash' });
+        w.events.push({ type: 'flash', x: en.x, y: en.y });
+      }
+      return;
     }
     case 'fire':
       // Once the warning is over it drifts on while its bullets stream out (they follow it).
@@ -1128,6 +1193,62 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
 
 /** Height a dropped connection bursts at (px above the floor). */
 const DROP_HEIGHT = 3;
+
+/** How far in from the side walls the catwalk ends (px): the boss's body has to fit. */
+const RUNWAY_MARGIN = TILE * 2.5;
+/** How far above or below the player it likes its catwalk (px). */
+const RUNWAY_ASIDE = 40;
+
+/**
+ * The end of a catwalk: the far side of the room from where the boss stands, on the horizontal lane
+ * clear from wall to wall that passes closest to RUNWAY_ASIDE px above or below the player. Without
+ * one, level with the player.
+ */
+export function runwayEnd(w: World, en: Enemy): { x: number; y: number } {
+  const { cols, rows } = w.room;
+  const x0 = RUNWAY_MARGIN;
+  const x1 = cols * TILE - RUNWAY_MARGIN;
+  const r = en.def.footRadius;
+  const py = w.player.y;
+  // Beside the player, not over them: the flashes are the threat, not being trodden on.
+  const off = (y: number): number => Math.abs(Math.abs(y - py) - RUNWAY_ASIDE);
+  let best: number | undefined;
+  for (let y = TILE * 2 + r; y <= (rows - 1) * TILE - r; y += 4) {
+    let clear = true;
+    for (let x = x0; x <= x1 && clear; x += 8) clear = isClear(w, x, y, r);
+    if (clear && (best === undefined || off(y) < off(best) || (off(y) === off(best) && w.rng.next() < 0.5))) best = y;
+  }
+  const x = en.x < (cols * TILE) / 2 ? x1 : x0;
+  return { x, y: best ?? Math.max(TILE * 2 + r, Math.min((rows - 1) * TILE - r, w.player.y)) };
+}
+
+/**
+ * A boss calls `count` helpers (enemy `id`) next to it, never more than `max` of its own standing:
+ * they pop out to its sides and slide a little before they go for the player. They are its own
+ * (owner), and fall with it.
+ */
+function summonHelpers(w: World, boss: Enemy, s: { id: string; count: number; max: number }): void {
+  const def = ENEMIES[s.id];
+  if (!def) throw new Error(`Unknown enemy ${s.id}`);
+  const standing = w.enemies.filter((o) => o.owner === boss.id && o.def.id === s.id && o.damageTaken < o.def.hp).length;
+  const n = Math.max(0, Math.min(s.count, s.max - standing));
+  const spawned: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const side = i % 2 === 0 ? 1 : -1;
+    const at = freeSpot(w, boss.x + side * (boss.def.footRadius + 14), boss.y + 6, def.footRadius + 1);
+    const kid = spawnEnemy(w.nextId++, def, at.x, at.y);
+    kid.owner = boss.id;
+    kid.vx = side * 150;
+    kid.vy = w.rng.range(-40, 60);
+    if (def.brain.kind === 'chaser') {
+      kid.state = 'brake';
+      kid.until = 0.5;
+    }
+    w.enemies.push(kid);
+    spawned.push(kid.id);
+  }
+  if (spawned.length) w.events.push({ type: 'summon', boss: boss.id, x: boss.x, y: boss.y, spawned });
+}
 
 /** The relays a boss has planted that are still standing. */
 export function relaysOf(w: World, boss: Enemy): Enemy[] {

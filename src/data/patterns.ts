@@ -131,6 +131,51 @@ export const PATTERNS: Record<string, PatternDef> = {
   'repetidor-onda': { kind: 'ring', count: 12, speed: 64, color: 'cyan', gaps: { widthDeg: 80, atDeg: [40] } },
   // A dropped connection bursts out of the floor: a short ring.
   'router-caida': { kind: 'ring', count: 8, speed: 72, life: 0.7, color: 'cyan' },
+  // El Muñeco de Moda (M10 5b). «Lanzamiento»: the season's accessories, three fans of pink shoes
+  // and handbags, the outer ones turned so there is a gap to step into.
+  'muneco-accesorios': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 112, color: 'accessory' }, turnDeg: -10 },
+      { at: 0.28, pattern: { kind: 'fan', count: 7, spreadDeg: 70, speed: 108, color: 'accessory' } },
+      { at: 0.56, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 112, color: 'accessory' }, turnDeg: 10 },
+    ],
+  },
+  // A camera flash left on the catwalk goes off: a short ring of sparks (the photo is never good).
+  'muneco-flash': { kind: 'ring', count: 6, speed: 62, life: 0.95, color: 'red' },
+  // «Rebajas»: rings of accessories with a hole, denser with every discount, the hole a bit further round each time.
+  'muneco-rebaja-30': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 16, speed: 74, color: 'accessory', gaps: { widthDeg: 56, atDeg: [20] } } },
+      { at: 0.42, pattern: { kind: 'ring', count: 16, speed: 74, color: 'accessory', gaps: { widthDeg: 56, atDeg: [50] } } },
+    ],
+  },
+  'muneco-rebaja-50': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 20, speed: 80, color: 'accessory', gaps: { widthDeg: 50, atDeg: [20] } } },
+      { at: 0.38, pattern: { kind: 'ring', count: 20, speed: 80, color: 'accessory', gaps: { widthDeg: 50, atDeg: [50] } } },
+      { at: 0.76, pattern: { kind: 'ring', count: 20, speed: 80, color: 'accessory', gaps: { widthDeg: 50, atDeg: [80] } } },
+    ],
+  },
+  'muneco-rebaja-70': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 26, speed: 86, color: 'accessory', gaps: { widthDeg: 46, atDeg: [20, -160] } } },
+      { at: 0.34, pattern: { kind: 'ring', count: 26, speed: 86, color: 'accessory', gaps: { widthDeg: 46, atDeg: [50, -130] } } },
+      { at: 0.68, pattern: { kind: 'ring', count: 26, speed: 86, color: 'accessory', gaps: { widthDeg: 46, atDeg: [80, -100] } } },
+    ],
+  },
+  // In the sales the accessories come faster and wider.
+  'muneco-accesorios-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 6, spreadDeg: 66, speed: 124, color: 'accessory' }, turnDeg: -8 },
+      { at: 0.22, pattern: { kind: 'fan', count: 6, spreadDeg: 66, speed: 118, color: 'accessory' }, turnDeg: 8 },
+      { at: 0.44, pattern: { kind: 'fan', count: 6, spreadDeg: 66, speed: 124, color: 'accessory' } },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

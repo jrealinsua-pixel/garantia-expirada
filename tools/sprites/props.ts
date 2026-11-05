@@ -1387,3 +1387,30 @@ export function makeConfetti(): Canvas {
   frames.forEach((rows, f) => paintGrid(sheet, f * 7, 0, rows, cols));
   return sheet;
 }
+
+/** Rotates a square grid a quarter turn clockwise. */
+function quarterTurn(rows: readonly string[]): string[] {
+  const n = rows.length;
+  return rows.map((_, r) => Array.from({ length: n }, (_, c) => rows[n - 1 - c]![r]!).join(''));
+}
+
+/**
+ * The Muñeco de Moda's accessories (M10 5b): a pink plastic court shoe and a little handbag with
+ * its clasp, each in four quarter turns so they spin as they fly. 8 frames of 9x9: 0-3 the shoe,
+ * 4-7 the bag.
+ */
+export function makeAccessory(): Canvas {
+  const shoe = ['.........', '.........', '......00.', '.....0230', '0000.0110', '022200110', '011111110', '000000010', '.......00'];
+  const bag = ['...000...', '..0...0..', '..0...0..', '.0000000.', '.0222210.', '.0211110.', '.0113110.', '.0111110.', '.0000000.'];
+  const turns = (g: readonly string[]): string[][] => {
+    const out: string[][] = [[...g]];
+    for (let i = 1; i < 4; i++) out.push(quarterTurn(out[i - 1]!));
+    return out;
+  };
+  const frames = [...turns(shoe), ...turns(bag)];
+  const P = ramp('#ffd6ec', '#f07cc0', '#c0468e', '#4a1838');
+  const cols: Record<string, RGBA> = { '0': P[3]!, '1': P[1]!, '2': P[0]!, '3': WHITE };
+  const sheet = new Canvas(9 * frames.length, 9);
+  frames.forEach((rows, f) => paintGrid(sheet, f * 9, 0, rows, cols));
+  return sheet;
+}

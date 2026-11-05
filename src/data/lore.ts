@@ -76,4 +76,15 @@ export const LORE: readonly LoreDoc[] = [
       'Edad recomendada: 3+. Edad de las piezas: no pregunte.',
     ],
   },
+  {
+    id: 'inventario-1',
+    kind: 'Hoja de inventario',
+    title: 'Juguetería · Fin de temporada',
+    source: { boss: 'muneco-moda' },
+    pages: [
+      'Muñecos de Moda sin vender: 4.000. Destino: Servicio Técnico, última planta. Motivo: «reacondicionar».',
+      'Muñecos reacondicionados devueltos a la tienda: 0. Recibido a cambio: 8.000 ojos de cristal, «para los robots de la próxima temporada».',
+      'Firmado: El Muñeco de Moda, jefe de planta. Debajo, a rotulador y con otra letra: «el siguiente es usted».',
+    ],
+  },
 ];

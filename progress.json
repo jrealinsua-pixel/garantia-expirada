@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T04:20:00+01:00",
+  "actualizado": "2026-11-05T04:56:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -126,17 +126,23 @@
   "metricas": {
     "personajes": 1,
     "enemigos": 17,
-    "jefes": 2,
+    "jefes": 3,
     "armas": 3,
     "objetos": 25,
     "plantillas_sala": 54,
-    "tests": 523,
-    "tests_ok": 523,
+    "tests": 537,
+    "tests_ok": 537,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 18814
+    "lineas_codigo": 19253
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T04:56:00+01:00",
+      "hito": "M10",
+      "resumen": "El Muñeco de Moda ya pelea en el Escaparate de Novedades: lanza zapatos y bolsos rosas que giran, cruza la sala por su pasarela dejando destellos de flash que estallan, y en las rebajas la etiqueta de su caja baja del −30 % al −70 %, va cada vez más deprisa, suelta anillos más densos y llama a los Muñequitos Repetidos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T04:20:00+01:00",
       "hito": "M10",
@@ -830,8 +836,16 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/muneco-moda.png",
-      "pie": "El Muñeco de Moda (jefe de la planta 3), aún sin programar: en su caja con las etiquetas de rebaja, fuera de ella, girando, y la caja rota que deja; al lado, el Router a la misma escala"
+      "archivo": "capturas/muneco-pasarela.png",
+      "pie": "La pasarela del Muñeco de Moda: cruza el Escaparate posando y por donde pasa deja destellos de flash que se cargan en el suelo y estallan en chispas"
+    },
+    {
+      "archivo": "capturas/muneco-anillos.png",
+      "pie": "Rebajas al −50 %: anillos de zapatos y bolsos con un hueco, y los Muñequitos Repetidos que ha llamado persiguiendo a la tostadora"
+    },
+    {
+      "archivo": "capturas/muneco-rebajas.png",
+      "pie": "Empiezan las rebajas: la etiqueta de su caja pasa al −30 %, grita «¡Ahora con más accesorios!» y salen dos repetidos"
     },
     {
       "archivo": "capturas/cadena-planta3.png",
@@ -842,19 +856,11 @@
       "pie": "La sala secreta de la Juguetería, llena de juguetes retirados, con su documento en el suelo: un catálogo de Navidad interno"
     },
     {
-      "archivo": "capturas/sala-circuito.png",
-      "pie": "Circuito de Coches de Ocasión: una isla de estanterías a la que se da vueltas; el Coche Teledirigido derrapa a su lado"
-    },
-    {
-      "archivo": "capturas/sala-urbanizacion.png",
-      "pie": "Urbanización de Casitas (Hipoteca a 40 Años): un corral de casitas de muñecas con huecos en los cuatro lados"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     }
   ],
-  "proximo": "M10 (5b), las fases 1 y 2 del Muñeco de Moda en la simulación (pasarela, rebajas y repetidos), con su cartel y sonidos.",
+  "proximo": "M10 (5c), la fase 3 del Muñeco de Moda: «Liquidación total» desde el 25 %: rompe la caja (se queda como obstáculo), gira soltando espirales de pegatinas y recibe un 25 % más de daño.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -880,11 +886,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 cloud",
-      "tarea": "M10 (5b) Muñeco de Moda fases 1 y 2",
-      "desde": "2026-11-05T03:24:00Z"
-    }
-  ]
+  "en_curso": []
 }

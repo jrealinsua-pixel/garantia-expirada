@@ -173,3 +173,11 @@ rosa en menor medida; paredes ciruela `#291d2b`), igual de oscuro que las otras 
   espaldas (la etiqueta «made in» asomando del cuello) y de frente con las manos abiertas.
 - **Caja rota** (56×64): vacía, sin ventana (trozos de plástico en el marco), el troquel con la
   silueta del muñeco enseñando el cartón marrón, los alambres cortados colgando y el −70 % puesto.
+- **Accesorios** (`bala-accesorio`, 8 fotogramas de 9×9 en `tools/sprites/props.ts`): sus balas.
+  Un zapato de salón de plástico rosa (puntera, hueco oscuro, talón y tacón de aguja) y un bolsito
+  con asa y cierre blanco, cada uno en sus cuatro giros de un cuarto de vuelta: en vuelo, la mitad
+  son zapatos y la mitad bolsos, y van girando. Contorno ciruela oscuro, como el muñeco.
+- **En el juego**: la etiqueta se pinta encima (`EnemyAnim.badge`) en el sitio del fotograma,
+  reflejada con el cuerpo pero sin voltearla (el precio se lee siempre), con el mismo tinte. Los
+  destellos de la pasarela se marcan en el suelo con un anillo rosa que se cierra y una chispa de
+  cuatro puntas que crece y se pone blanca al final.

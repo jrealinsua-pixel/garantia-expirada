@@ -258,6 +258,8 @@ export interface Emitter {
   color: BulletColor;
   /** It comes out of enemy `id`, (dx, dy) px from its feet, wherever that enemy walks (a boss drifting while it fires). */
   follow?: { id: number; dx: number; dy: number };
+  /** How its warning looks, if not the usual closing ring: a camera flash charging on the floor. */
+  mark?: 'flash';
 }
 
 /** Default warning for enemy attacks (s). Enough to react, short enough to stay tense. */
@@ -270,6 +272,8 @@ export interface FireOptions {
   by?: string;
   /** Height of the muzzle above the floor (px, default 0). */
   height?: number;
+  /** How its warning looks (Emitter.mark). */
+  mark?: 'flash';
 }
 
 export interface Dummy {
@@ -343,6 +347,15 @@ export interface Enemy {
   legPace?: number;
   legSpin?: number;
   legKeep?: number;
+  /**
+   * Bosses on the catwalk (BossRunwayAttack): where it is walking to, px left before the next
+   * flash, and seconds it has gone without getting anywhere (it gives up on a blocked catwalk).
+   */
+  runTo?: { x: number; y: number };
+  /** The turn onto the catwalk: it first walks straight up or down to its lane, with no flashes. */
+  runVia?: { x: number; y: number };
+  runGap?: number;
+  runStuck?: number;
 }
 
 /**
@@ -444,7 +457,12 @@ export type SimEvent =
   /** A building piece is stepped on (it hurt) or swept away by a bullet. */
   | { type: 'brickStep' | 'brickSwept'; x: number; y: number; brick: number; angle?: number }
   /** A boss starts a new phase of its fight. */
-  | { type: 'bossPhase'; boss: number; phase: number; name: string; reboot?: string }
+  | { type: 'bossPhase'; boss: number; phase: number; name: string; reboot?: string; line?: string; stage?: number }
+  /** A boss calls its helpers (BossPhase.summon): they pop out next to it. */
+  | { type: 'summon'; boss: number; x: number; y: number; spawned: number[] }
+  /** The catwalk starts (the boss sets off) and each camera flash is left on the floor. */
+  | { type: 'runway'; boss: number; x: number; y: number }
+  | { type: 'flash'; x: number; y: number }
   /** A boss plants a relay (the Router's repeaters), and marks dropped connections on the floor. */
   | { type: 'relayPlant'; x: number; y: number; source: number }
   | { type: 'drops'; boss: number; count: number }
@@ -1905,6 +1923,7 @@ export function firePattern(w: World, def: PatternDef, x: number, y: number, aim
   };
   if (opts.source !== undefined) e.source = opts.source;
   if (opts.by !== undefined) e.by = opts.by;
+  if (opts.mark) e.mark = opts.mark;
   w.emitters.push(e);
   if (telegraph > 0) {
     const ev: SimEvent = { type: 'telegraph', x, y, time: telegraph, aim, aimed: e.aimed, color: e.color };
@@ -1941,6 +1960,8 @@ export interface Warning {
   source?: number;
   /** Length of the aimed line, when it reaches a point (a webcam's line of sight to the player). */
   reach?: number;
+  /** A camera flash charging on the floor instead of the closing ring (Emitter.mark). */
+  mark?: 'flash';
 }
 
 export function activeWarnings(w: World): Warning[] {
@@ -1950,6 +1971,7 @@ export function activeWarnings(w: World): Warning[] {
     if (k < 0) continue;
     const wn: Warning = { x: e.x, y: e.y, k, aim: e.aim, aimed: e.aimed, color: e.color, bullets: true };
     if (e.source !== undefined) wn.source = e.source;
+    if (e.mark) wn.mark = e.mark;
     out.push(wn);
   }
   for (const en of w.enemies) {
@@ -1958,7 +1980,13 @@ export function activeWarnings(w: World): Warning[] {
     if (b.kind === 'boss') {
       const a = b.phases[en.bossPhase ?? 0]?.attacks[en.attack ?? 0];
       const at = a ? bossWarnSpot(en, b, a) : { x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y };
-      out.push({ x: at.x, y: at.y, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: a?.kind === 'spit' ? 'red' : 'ice', bullets: true, source: en.id });
+      const k = Math.min(1, en.t / en.until);
+      out.push({ x: at.x, y: at.y, k, aim: 0, aimed: false, color: a?.kind === 'spit' || a?.kind === 'runway' ? 'red' : 'ice', bullets: true, source: en.id });
+      // The catwalk: its whole lane, from where it turns onto it to the far end.
+      if (a?.kind === 'runway' && en.runTo && en.runVia) {
+        const v = en.runVia;
+        out.push({ x: v.x, y: v.y, k, aim: Math.atan2(en.runTo.y - v.y, en.runTo.x - v.x), aimed: true, color: 'red', bullets: false, reach: Math.hypot(en.runTo.x - v.x, en.runTo.y - v.y) });
+      }
       continue;
     }
     if (b.kind === 'watcher') {
@@ -2238,6 +2266,8 @@ function reapEnemies(w: World): void {
         en.vx = 0;
         en.vy = 0;
         clearEnemyFire(w);
+        // The helpers it called (BossPhase.summon) go down with it.
+        for (const o of w.enemies) if (o.owner === en.id && o.def.brain.kind !== 'relay' && !isDead(o)) o.damageTaken = o.def.hp;
         w.events.push({ type: 'bossDying', boss: en.id, x: en.x, y: en.y, duration: BOSS_DEATH, enemy: en.def.id });
       }
       keep.push(en);

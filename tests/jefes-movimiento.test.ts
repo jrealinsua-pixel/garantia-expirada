@@ -10,16 +10,24 @@ import { createWorld, DT, NO_INPUT, step, type Enemy, type World } from '../src/
 const ticks = (s: number): number => Math.ceil(s / DT);
 const BOSSES = Object.values(ENEMIES).filter((d) => d.brain.kind === 'boss');
 
+/** Each boss in its own room, on its own floor. */
+const ARENAS: Record<string, { room: string; level: number }> = {
+  'nevera-suprema': { room: 'jefe', level: 1 },
+  'router-wifi': { room: 'jefe-informatica', level: 2 },
+  'muneco-moda': { room: 'jefe-jugueteria', level: 3 },
+};
+
 function fight(id: string, seed: string): { w: World; boss: Enemy } {
-  const w = createWorld({ seed, room: id === 'router-wifi' ? 'jefe-informatica' : 'jefe', level: id === 'router-wifi' ? 2 : 1 });
+  const w = createWorld({ seed, ...ARENAS[id]! });
   w.intro = null;
   w.noDamage = true;
   const boss = w.enemies.find((e) => e.def.id === id)!;
   return { w, boss };
 }
 
-test('los dos jefes son de los que se mueven', () => {
-  assert.ok(BOSSES.length >= 2);
+test('los jefes son de los que se mueven', () => {
+  assert.ok(BOSSES.length >= 3);
+  for (const d of BOSSES) assert.ok(ARENAS[d.id], `${d.id}: falta su sala en ARENAS`);
   for (const d of BOSSES) {
     const b = d.brain as BossBrain;
     assert.ok(b.roam.leg[0] > 0 && b.roam.leg[0] < b.roam.leg[1], d.id);

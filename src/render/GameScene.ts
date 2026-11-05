@@ -728,6 +728,8 @@ export class GameScene extends Phaser.Scene {
     const v: EnemyView = { s, shadow };
     if (SPRITE_BLINKS[en.def.sprite]) v.blink = this.add.graphics();
     if (SPRITE_GLOWS[en.def.sprite]) v.glow = this.add.graphics().setBlendMode(Phaser.BlendModes.ADD);
+    const badge = en.def.anim?.badge;
+    if (badge) v.badge = this.add.image(en.x, en.y, badge.sprite, 0).setOrigin(0, 0);
     this.enemySprites.set(en.id, v);
     return v;
   }
@@ -739,6 +741,7 @@ export class GameScene extends Phaser.Scene {
     v.shadow.destroy();
     v.blink?.destroy();
     v.glow?.destroy();
+    v.badge?.destroy();
     this.enemySprites.delete(id);
   }
 
@@ -1493,12 +1496,12 @@ export class GameScene extends Phaser.Scene {
    * The phase card over the boss's life bar: a dark band slides in with «Fase n · …» and the
    * phase's name, big, in its colour; it stays while the boss stops (BOSS_PHASE_BREAK).
    */
-  private showPhaseCard(phase: number, title: string): void {
+  private showPhaseCard(phase: number, title: string, stage = phase + 1): void {
     const color = phase >= 1 ? 0xe0453b : 0x69dbd8;
     const y = BOSS_BAR_Y - 46;
     const band = this.hud(this.add.rectangle(0, y, VIEW_W, 32, 0x0e0c16, 0.62).setOrigin(0, 0)).setDepth(95000);
     const edge = this.hud(this.add.rectangle(0, y + 32, VIEW_W, 1, color, 1).setOrigin(0, 0)).setDepth(95000);
-    const sub = this.hud(this.add.bitmapText(VIEW_W / 2, y + 3, FONT, fontText(bossPhaseLabel(phase + 1)), 8).setOrigin(0.5, 0)).setDepth(95001);
+    const sub = this.hud(this.add.bitmapText(VIEW_W / 2, y + 3, FONT, fontText(bossPhaseLabel(stage)), 8).setOrigin(0.5, 0)).setDepth(95001);
     sub.setTint(0x858ea8);
     const name = this.hud(this.add.bitmapText(VIEW_W / 2, y + 13, FONT, fontText(title), 16).setOrigin(0.5, 0)).setDepth(95001);
     name.setTint(color).setScale(1.5);
@@ -1840,6 +1843,25 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('saltar', { detune: -300 });
           for (let i = 0; i < 4; i++) this.puff(e.x + this.fx.range(-6, 6), e.y + this.fx.range(-2, 2), 0.4);
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 14, this.fx.range(-Math.PI, 0), this.fx.range(30, 60), 0);
+          break;
+        case 'summon':
+          // Its helpers pop out of nowhere (out of stock, always): a hop, dust and gift-wrap bits.
+          this.sound2.play('saltar', { detune: 600 });
+          for (const id of e.spawned) {
+            const k = this.world.enemies.find((en) => en.id === id);
+            if (!k) continue;
+            for (let i = 0; i < 4; i++) this.puff(k.x + this.fx.range(-5, 5), k.y + this.fx.range(-2, 2), 0.4);
+            for (let i = 0; i < 5; i++) this.spark(k.x, k.y - 10, this.fx.range(-Math.PI, 0), this.fx.range(40, 90), 2, this.fx.pick([0xe0453b, 0xf6c431, 0xe070c8]));
+          }
+          break;
+        case 'runway':
+          // Off down the catwalk: a fanfare of flashes going off at once.
+          this.sound2.play('pasarela');
+          this.sound2.play('obturador', { volume: 0.8 });
+          break;
+        case 'flash':
+          // Each flash left behind: a click, and it starts charging.
+          this.sound2.play('obturador', { detune: this.fx.range(300, 900), volume: 0.35 });
           break;
         case 'drops':
           this.sound2.play('apagar', { detune: 400, volume: 0.7 });
@@ -2280,11 +2302,19 @@ export class GameScene extends Phaser.Scene {
             // The Router reboots: everything goes dark and its line comes up over it.
             this.sound2.play('apagar');
             this.floatText(boss.x, boss.y + 18, fontText(e.reboot), 0xb7bed0, `reboot:${boss.id}`, -1, 4.6);
+          } else if (e.line && boss) {
+            // A sale: the pricing gun clacks a new tag on its box, a shower of price-tag confetti,
+            // and the advert line, shouted.
+            this.sound2.play('rebaja');
+            this.time.delayedCall(140, () => this.sound2.play('rebaja', { detune: -300 }));
+            const top = boss.y - 74;
+            for (let i = 0; i < 14; i++) this.spark(boss.x, top + 30, this.fx.range(-Math.PI, 0), this.fx.range(50, 120), 2, this.fx.pick([0xe0453b, 0xf6c431, 0xe070c8, 0xf4f1e8]));
+            this.floatText(boss.x, top - 6, fontText(e.line), 0xf6c431, `line:${boss.id}`, -10, 2.2);
           } else if (e.phase >= 1 && boss) {
             this.sound2.play('portazo');
             for (let i = 0; i < 10; i++) this.puff(boss.x + this.fx.range(-14, 22) * boss.facing, boss.y - this.fx.range(8, 40), this.fx.range(0.6, 1.1));
           }
-          this.showPhaseCard(e.phase, e.name);
+          this.showPhaseCard(e.phase, e.name, e.stage);
           if (this.bossBar) this.bossBar.flash = 0.5;
           break;
         }
@@ -3038,7 +3068,8 @@ export class GameScene extends Phaser.Scene {
       s.setFrame(frame);
       let rot = 0;
       if (en.def.brain.kind === 'moth') rot = en.state === 'charge' ? 0.3 * en.facing : 0;
-      else if (en.state === 'charge') rot = 0.18 * en.facing;
+      // A boss on its catwalk keeps its pose (a slight lean, chin up); the rest lean into the charge.
+      else if (en.state === 'charge') rot = (en.def.boss ? 0.05 : 0.18) * en.facing;
       else if (en.state === 'brake') rot = -0.12 * en.facing * (1 - en.t / en.until);
       else if (en.state === 'stun') rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
       s.setRotation(rot);
@@ -3090,6 +3121,7 @@ export class GameScene extends Phaser.Scene {
         if (this.fx.chance(0.2)) this.puff(en.x + this.fx.range(-24, 24), en.y - this.fx.range(10, 60), 0.7);
       }
       if (en.state === 'dying') this.dyingFx(en, v, dt);
+      if (v.badge) this.drawBadge(en, v, frame);
       // In TURBO the mixer shakes and throws sparks and batter.
       if (en.turbo) {
         s.setX(s.x + (Math.floor(this.time.now / 45) % 2 === 0 ? 1 : 0));
@@ -3153,6 +3185,8 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'nut' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 60 + b.id) % 2);
       // Confetti flutters.
       if (b.color === 'confetti' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
+      // The Muñeco's shoes and handbags spin a quarter turn at a time (half are shoes, half bags).
+      if (b.color === 'accessory' && b.owner === 'enemy') s.setFrame((b.id % 2) * 4 + (Math.floor(this.time.now / 75 + b.id) % 4));
       const sc = (b.life < 0.15 ? 0.6 : 1) * size;
       s.setScale(sc);
     }
@@ -3399,6 +3433,10 @@ export class GameScene extends Phaser.Scene {
       const col = wn.color === 'red' ? 0xe0453b : 0x69dbd8;
       const x = Math.round(wn.x);
       const y = Math.round(wn.y);
+      if (wn.mark === 'flash') {
+        this.drawFlashMark(g, x, y, k);
+        continue;
+      }
       // Bullets: a ring closes in on the muzzle; when it reaches it, they come out.
       if (wn.bullets) {
         const r = Math.round(4 + 16 * (1 - k));
@@ -3424,6 +3462,47 @@ export class GameScene extends Phaser.Scene {
       g.fillStyle(0x0e0c16, 1).fillRect(bx - 2, by - 1, 4, 10);
       g.fillStyle(0xf6c431, 1).fillRect(bx - 1, by, 2, 5).fillRect(bx - 1, by + 6, 2, 2);
     }
+  }
+
+  /**
+   * The sheet stuck on a body (EnemyAnim.badge, the Muñeco's sale tag): on its spot of the frame,
+   * mirrored with the body but never flipped (the price reads), with the body's tint; the phase
+   * picks its frame (BossPhase.badge). Hidden on frames that have no box to stick it to.
+   */
+  private drawBadge(en: Enemy, v: EnemyView, frame: number): void {
+    const bd = en.def.anim?.badge;
+    const t = v.badge!;
+    const s = v.s;
+    if (!bd || frame >= bd.upTo || !s.visible) {
+      t.setVisible(false);
+      return;
+    }
+    const b = en.def.brain;
+    const tag = b.kind === 'boss' ? (b.phases[en.bossPhase ?? 0]?.badge ?? 0) : 0;
+    const fx = en.facing === 1 ? bd.x : en.def.anchor.x * 2 - bd.x - bd.w;
+    t.setVisible(true).setFrame(tag);
+    t.setPosition(Math.round(s.x - en.def.anchor.x + fx), Math.round(s.y - en.def.anchor.y + bd.y + (bd.frameDy?.[frame] ?? 0)));
+    t.setDepth(s.depth + 0.05);
+    if (s.isTinted && s.tintFill) t.setTintFill(s.tintTopLeft);
+    else if (s.isTinted) t.setTint(s.tintTopLeft);
+    else t.clearTint();
+  }
+
+  /**
+   * A camera flash left on the catwalk, charging: a small pink ring on the floor that closes in
+   * and a four-pointed glint over it that grows (white at the end), blinking faster as it goes.
+   */
+  private drawFlashMark(g: Phaser.GameObjects.Graphics, x: number, y: number, k: number): void {
+    const r = Math.round(3 + 7 * (1 - k));
+    pixelRing(g, x, y, r + 1, 0x0e0c16);
+    pixelRing(g, x, y, r, 0xe070c8);
+    if (!this.warnOn(k)) return;
+    const col = this.warnColor(k);
+    const arm = 2 + Math.round(4 * k);
+    const cy = y - 4;
+    g.fillStyle(0x0e0c16, 1).fillRect(x - arm - 1, cy - 1, arm * 2 + 3, 3).fillRect(x - 1, cy - arm - 1, 3, arm * 2 + 3);
+    g.fillStyle(col, 1).fillRect(x - arm, cy, arm * 2 + 1, 1).fillRect(x, cy - arm, 1, arm * 2 + 1);
+    g.fillStyle(0xffffff, 1).fillRect(x - 1, cy - 1, 3, 3);
   }
 
   /** Whether the floor point (x, y) is a wall or inside a prop (where debris cannot lie). */
@@ -3794,7 +3873,7 @@ const PLAYER_BULLET_R = 3;
 const SKID_MAX = 120;
 
 const BULLET_TEXTURES: Record<BulletColor, string> = {
-  red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca', confetti: 'bala-confeti',
+  red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca', confetti: 'bala-confeti', accessory: 'bala-accesorio',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
@@ -3833,6 +3912,8 @@ interface EnemyView {
   shadow: Phaser.GameObjects.Image;
   blink?: Phaser.GameObjects.Graphics;
   glow?: Phaser.GameObjects.Graphics;
+  /** A sheet drawn over the body (EnemyAnim.badge): the Muñeco's sale tag. */
+  badge?: Phaser.GameObjects.Image;
 }
 
 /**

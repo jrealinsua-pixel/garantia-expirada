@@ -169,5 +169,9 @@ export const SFX: Record<string, SfxParams> = {
   cuerda: { wave: 'square', freq: 1100, freqEnd: 1500, attack: 0.001, sustain: 0.4, decay: 0.08, volume: 0.1, duty: 0.2, crush: 3, vibrato: 0.6, vibratoSpeed: 32 },
   agotado: { wave: 'saw', freq: 520, freqEnd: 70, attack: 0.005, sustain: 0.3, decay: 0.3, volume: 0.13, lowpass: 0.45, vibrato: 0.35, vibratoSpeed: 11 },
   chapa: { wave: 'square', freq: 820, freqEnd: 430, attack: 0.001, sustain: 0.02, decay: 0.09, volume: 0.15, duty: 0.3, crush: 3 },
+  // El Muñeco de Moda (M10 5b): the pricing gun stamping a new tag (a dry double clack)...
+  rebaja: { wave: 'square', freq: 1500, freqEnd: 380, attack: 0.001, sustain: 0.025, decay: 0.07, volume: 0.17, duty: 0.25, crush: 3 },
+  // ...and off down the catwalk: a camera flash charging up, the whine climbing.
+  pasarela: { wave: 'triangle', freq: 900, freqEnd: 3400, attack: 0.02, sustain: 0.32, decay: 0.12, volume: 0.12, vibrato: 0.04, vibratoSpeed: 30 },
   espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
 };

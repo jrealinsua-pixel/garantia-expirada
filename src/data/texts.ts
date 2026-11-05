@@ -78,6 +78,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   'munequito-dorado': { bullet: 'Fiebre del coleccionista', contact: 'Edición limitada en la cara' },
   'cubo-piezas': { contact: 'Pieza pisada descalzo de madrugada' },
   'router-wifi': { bullet: 'Exceso de cobertura', contact: 'Reinicio forzoso' },
+  'muneco-moda': { bullet: 'Tacón de la temporada pasada', contact: 'Atropello en plena pasarela' },
   repetidor: { bullet: 'Señal repetida', contact: 'Tropiezo con un repetidor' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },

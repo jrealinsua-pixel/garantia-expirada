@@ -31,6 +31,8 @@ export interface BotReport {
   jefe?: BossReport;
   /** The same against floor 2's boss, el Router del Wifi, in its Sala de Redes. */
   router?: BossReport;
+  /** And against floor 3's, el Muñeco de Moda, in its Escaparate de Novedades. */
+  muneco?: BossReport;
   /** Whole floors (M3 criterion): see FloorReport. */
   plantas: FloorReport;
   errores: string[];
@@ -578,6 +580,9 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const router = runBoss(bosses, 240, 'jefe-informatica', 2);
   failed += router.errors.length;
   errors.push(...router.errors);
+  const muneco = runBoss(bosses, 240, 'jefe-jugueteria', 3);
+  failed += muneco.errors.length;
+  errors.push(...muneco.errors);
   return {
     partidas: games,
     fallos: failed,
@@ -597,6 +602,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     plantas: fl.report,
     jefe: boss.report,
     router: router.report,
+    muneco: muneco.report,
     errores: errors.slice(0, 20),
   };
 }
@@ -649,6 +655,14 @@ if (import.meta.main) {
       `${r.combates} combates contra el Router · gana el ${r.gana} % en ${r.segundos} s (${r.minimo}–${r.maximo} s) · ` +
         `${r.heridas} heridas por combate (${r.heridasFase1} en la fase 1, ${r.heridasFase2} en la 2) · ` +
         `llega a la fase 2 el ${r.llegaFase2} %, a los ${r.segundoFase2} s`,
+    );
+  }
+  const m = report.muneco;
+  if (m?.combates) {
+    console.log(
+      `${m.combates} combates contra el Muñeco · gana el ${m.gana} % en ${m.segundos} s (${m.minimo}–${m.maximo} s) · ` +
+        `${m.heridas} heridas por combate (${m.heridasFase1} en la fase 1, ${m.heridasFase2} en las rebajas) · ` +
+        `llega a las rebajas el ${m.llegaFase2} %, a los ${m.segundoFase2} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

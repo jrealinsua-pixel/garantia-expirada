@@ -41,7 +41,7 @@ test('encadenar plantas: tras ganar la planta 1 se sigue en la 2 con la misma to
   assert.equal(nextFloor(w)!.floor!.rooms.map((r) => r.template.id).join(), n.floor!.rooms.map((r) => r.template.id).join());
 });
 
-test('encadenar plantas: tras ganar la planta 2 se sube a la Juguetería, con el Router en el Escaparate', () => {
+test('encadenar plantas: tras ganar la planta 2 se sube a la Juguetería, con el Muñeco de Moda en el Escaparate', () => {
   const w = createWorld({ seed: 'cadena-3', floor: true, level: 2 });
   w.player.coupons = 12;
   w.won = true;
@@ -50,10 +50,11 @@ test('encadenar plantas: tras ganar la planta 2 se sube a la Juguetería, con el
   assert.equal(n.level, 3);
   assert.equal(n.player.coupons, 12);
   for (const st of n.floor!.rooms) assert.equal(ROOMS[st.template.id]!.level, 3, st.template.id);
-  // Until El Muñeco de Moda comes (M10 5), its boss room holds the Router.
+  // Its boss room holds El Muñeco de Moda (M10 5b), not the Router any more.
   const boss = n.floor!.rooms.find((st) => st.template.kind === 'boss')!;
   assert.equal(boss.template.id, 'jefe-jugueteria');
-  assert.ok(boss.template.rows.join('').includes('X'), 'el Router espera en el Escaparate');
+  assert.ok(boss.template.rows.join('').includes('D'), 'el Muñeco espera en el Escaparate');
+  assert.ok(!boss.template.rows.join('').includes('X'), 'el Router se queda en Informática');
   assert.ok(FLOOR_NAMES[3], 'la planta 3 tiene nombre');
   for (let i = 0; i < 3 / DT; i++) step(n, { ...NO_INPUT, moveX: i % 120 < 60 ? 1 : -1, fire: true });
   assert.deepEqual(checkInvariants(n), []);

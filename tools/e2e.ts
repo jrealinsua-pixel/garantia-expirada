@@ -680,6 +680,54 @@ try {
   await shot('36d-router-caidas.png');
   console.log('Router del Wifi: cartel, ondas con hueco y repetidores, reinicio y caídas de conexión.');
 
+  // M10 (5b): el Muñeco de Moda, floor 3's boss: its card, the accessories, the catwalk with its
+  // flashes, and the sales (the tag on its box comes down and the repeated dolls come out).
+  await page.goto(`${url}?semilla=e2e-muneco&sala=jefe-jugueteria&planta=3`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const munecoJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'muneco-moda')";
+  if (!(await page.evaluate<boolean>(`!!${munecoJs} && !!window.__GE__.scene.world.intro`))) throw new Error('El Muñeco no está en el Escaparate o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('38a-muneco-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'accessory' && b.age > 0.3 && v.contains(b.x, b.y)).length >= 8; })()`,
+    undefined,
+    { timeout: 25000 },
+  );
+  await shot('38b-muneco-accesorios.png');
+  // The catwalk: posing over its lane, then down it with the flashes going off behind.
+  await page.waitForFunction(`(() => { const b = ${munecoJs}; return b.state === 'warn' && !!b.runTo && b.t > 0.3; })()`, undefined, { timeout: 40000 });
+  await shot('38c-muneco-pose.png');
+  await page.waitForFunction(
+    `(() => { const w = window.__GE__.scene.world; return w.emitters.some((e) => e.mark === 'flash') &&
+      w.bullets.filter((b) => b.by === 'muneco-moda' && b.color === 'red').length >= 12; })()`,
+    undefined,
+    { timeout: 6000 },
+  );
+  await shot('38d-muneco-pasarela.png');
+  // The sales: down to −50 %, with its repeated dolls out.
+  await page.evaluate(`(() => { const b = ${munecoJs}; b.damageTaken = Math.ceil(b.def.hp * 0.42); })()`);
+  await page.waitForFunction(`${munecoJs}.bossPhase === 1`, undefined, { timeout: 3000 });
+  await page.waitForTimeout(700);
+  await shot('38e-muneco-rebajas.png');
+  await page.evaluate(`(() => { const b = ${munecoJs}; b.damageTaken = Math.ceil(b.def.hp * 0.55); })()`);
+  await page.waitForFunction(`${munecoJs}.bossPhase === 2`, undefined, { timeout: 3000 });
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'accessory' && b.age > 0.4 && v.contains(b.x, b.y)).length >= 14; })()`,
+    undefined,
+    { timeout: 25000 },
+  );
+  await shot('38f-muneco-anillos.png');
+  const helpers = await page.evaluate<number>("window.__GE__.scene.world.enemies.filter((e) => e.def.id === 'munequito-repetido').length");
+  if (helpers < 2) throw new Error(`Las rebajas no traen repetidos: ${helpers}`);
+  console.log('Muñeco de Moda: cartel, accesorios, pasarela con destellos, rebajas con su etiqueta y sus repetidos.');
+
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

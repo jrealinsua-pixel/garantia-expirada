@@ -92,6 +92,23 @@ export function dodge(w: World): Dodge {
         }
       }
     }
+    // A boss on (or about to take) its catwalk: off its lane, rolling if it is already coming.
+    if (kind === 'boss' && en.runTo && (en.state === 'charge' || (en.state === 'warn' && en.t >= BOT_REACTION))) {
+      const lane = en.runTo.y;
+      const side = p.y - lane;
+      const ahead = (p.x - (en.runVia?.x ?? en.x)) * en.dirX;
+      const reach = en.def.footRadius + 14;
+      if (ahead > -12 && Math.abs(side) < reach) {
+        const sgn = side >= 0 ? 1 : -1;
+        out.y += sgn * (en.state === 'charge' ? 1.5 : 1);
+        const along = (p.x - en.x) * en.dirX;
+        if (en.state === 'charge' && !en.runVia && along > 0 && along < 80 && along / 200 < soonest) {
+          soonest = along / 200;
+          out.rollX = 0;
+          out.rollY = sgn;
+        }
+      }
+    }
     // A little personal space from everything that bumps.
     if (d < 46) {
       out.x += (dx / d) * (1 - d / 46) * 0.8;
