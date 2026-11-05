@@ -49,13 +49,13 @@ test('el Director: dieciocho fotogramas de jefe, en la silla los nueve primeros 
 
 test('la silla sola, las balas y las cartas de despido', () => {
   const chairs = makeChairFrames();
-  assert.equal(chairs.length, 4);
+  assert.equal(chairs.length, 7);
   for (const c of chairs) {
     assert.deepEqual([c.w, c.h], [CHAIR_W, CHAIR_H]);
     assert.ok(count(c, LEATHER[1]!) > 150);
     assert.equal(count(c, SUIT[1]!), 0, 'vacía');
   }
-  assert.equal(new Set(chairs.map((c) => JSON.stringify(c.p))).size, 4, 'las ruedas giran y avisa antes de embestir');
+  assert.equal(new Set(chairs.map((c) => JSON.stringify(c.p))).size, 7, 'las ruedas giran, la etiqueta se mueve y avisa antes de embestir');
   assert.deepEqual([makeBusinessCard().w, makeBusinessCard().h], [40, 8]);
   assert.deepEqual([makeDismissalLetter().w, makeDismissalLetter().h], [24, 10]);
   assert.deepEqual([makeSlide().w, makeSlide().h], [18, 9]);

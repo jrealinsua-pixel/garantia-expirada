@@ -13,10 +13,11 @@ import type { Rng } from './rng.ts';
  * are the shredder's strips of paper: white with a red edge, wriggling. `sheet` are the
  * photocopier's sheets: white with toner lines and a red rim, tumbling. `ink` are the DENEGADO
  * stamp's drops: red, with a white glint, wobbling. `bizcard` are the Director's business cards: white
- * with a cyan edge, spinning; `slide` his slides: a red frame round a chart going down, turning.
+ * with a cyan edge, spinning; `slide` his slides: a red frame round a chart going down, turning; `cut` his line of
+ * cuts: red with a white core and an arrow pointing down.
  */
 export type BulletColor =
-  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide';
+  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut';
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {
@@ -70,6 +71,12 @@ export interface SpiralDef extends Common {
   stepDeg: number;
   interval: number;
   offsetDeg?: number;
+  /**
+   * Holes that turn with the arms, to follow round (the Director's «línea de recortes»): the spiral
+   * is then aimed (its arms start from the aim, turned `offsetDeg`) and no arm fires within
+   * `widthDeg` / 2 of the aim turned by each of `atDeg` and by the turn so far.
+   */
+  gaps?: { widthDeg: number; atDeg: number[] };
 }
 
 /** `count` aimed shots one every `interval` s, each with up to `jitterDeg` of random spread. */
@@ -143,9 +150,14 @@ export function expandPattern(def: PatternDef, aim: number, rng: Rng): ShotSpec[
       break;
     }
     case 'spiral': {
-      const base = (def.offsetDeg ?? 0) * DEG;
+      const base = (def.gaps ? aim : 0) + (def.offsetDeg ?? 0) * DEG;
       for (let s = 0; s < def.steps; s++) {
-        for (let a = 0; a < def.arms; a++) out.push(shot(def, s * def.interval, base + s * def.stepDeg * DEG + (a * 2 * Math.PI) / def.arms));
+        const turn = s * def.stepDeg * DEG;
+        for (let a = 0; a < def.arms; a++) {
+          const ang = base + turn + (a * 2 * Math.PI) / def.arms;
+          if (def.gaps && def.gaps.atDeg.some((g) => angleGap(ang, aim + turn + g * DEG) < (def.gaps!.widthDeg * DEG) / 2)) continue;
+          out.push(shot(def, s * def.interval, ang));
+        }
       }
       break;
     }
@@ -188,7 +200,7 @@ export function isAimed(def: PatternDef): boolean {
     case 'burst':
       return true;
     case 'spiral':
-      return false;
+      return def.gaps !== undefined;
     case 'sequence':
       return def.parts.some((p) => isAimed(p.pattern));
   }

@@ -60,7 +60,8 @@ function sideFrame(en: Enemy, now: number): number {
   if (a.off !== undefined && !bulbLit(en, now)) return a.off;
   // A boss clapping (the Director's «Reestructuración»), or striking its attack's pose while it
   // warns and throws (a card in his hand, his stamp up).
-  if (a.clap !== undefined && en.state === 'roar') return a.clap;
+  // (Not once a phase has its own frames: the Director gets up in phase 3 and his clap is seated.)
+  if (a.clap !== undefined && en.state === 'roar' && own === undefined) return a.clap;
   const pose = attackPose(en);
   if (pose !== undefined) return pose;
   // Rebooting: its lights come on one by one over the reboot.

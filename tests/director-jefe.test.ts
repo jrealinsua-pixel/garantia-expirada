@@ -55,7 +55,7 @@ test('el Director es el jefe de la planta 4, con su cartel, su causa de baja y s
   const room = f4.rooms.find((r) => r.template.kind === 'boss')!;
   assert.equal(room.template.id, 'jefe-oficinas');
   assert.ok(room.template.rows.join('').includes('E'));
-  assert.deepEqual(brain.phases.map((p) => p.name), ['Somos una familia', 'Reestructuración']);
+  assert.deepEqual(brain.phases.map((p) => p.name), ['Somos una familia', 'Reestructuración', 'Despido procedente']);
   assert.equal(brain.phases[1]!.from, 0.6);
 });
 

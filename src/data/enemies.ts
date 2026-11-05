@@ -802,8 +802,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
     knockbackScale: 0,
     loot: { coupons: [8, 11], hearts: 1 },
     // tools/sprites/director.ts DIRECTOR_FRAMES: 0-1 in his chair breathing, 2-5 pushing off with
-    // his feet and rolling (his walk), 6 throwing, 7 the clap, 8 up with his own stamp.
-    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, warn: 6, clap: 7 },
+    // his feet and rolling (his walk), 6 throwing, 7 the clap, 8 up with his own stamp. On his feet
+    // (phase 3, frameShift 9) the same layout: 9-10 breathing, 11-14 walking, 15 throwing; he
+    // spins the line of cuts front, side, back, other side.
+    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, warn: 6, clap: 7, spin: [17, 15, 16, 15], spinMs: 90 },
     brain: {
       kind: 'boss',
       // On wheels: pushes of the feet in short legs, now a glide, now a lurch.
@@ -852,9 +854,63 @@ export const ENEMIES: Record<string, EnemyDef> = {
             },
           ],
         },
+        {
+          // «Despido procedente» (from 25 %, M10 planta 4 5c): he gets up. His chair goes off
+          // rolling round the room on its own and rams the toaster when it has it in front; he,
+          // on his feet and slower, turns on the spot streaming the line of cuts (a spiral with a
+          // hole to follow round him), and throws cards. The partitions stay where they were left.
+          name: 'Despido procedente',
+          from: 0.25,
+          stage: 3,
+          walkSpeed: 34,
+          keep: 120,
+          rest: [0.8, 1.1],
+          line: 'No es nada personal. Es todo.',
+          summon: { id: 'silla-director', count: 1, max: 1 },
+          frameShift: 9,
+          attacks: [
+            { kind: 'pattern', pattern: 'director-recortes', telegraph: 0.7, weight: 2, spin: true },
+            { kind: 'pattern', pattern: 'director-recortes-2', telegraph: 0.7, weight: 2, spin: true },
+            { kind: 'pattern', pattern: 'director-tarjetas-3', telegraph: 0.55, weight: 2.5, pose: 15 },
+          ],
+        },
       ],
     },
     boss: { title: 'El Director de Recursos Inhumanos', motto: 'Aquí nadie es imprescindible. Usted tampoco.', subtitle: 'Jefe de planta · Oficinas' },
+  },
+  'silla-director': {
+    id: 'silla-director',
+    name: 'Silla Ergonómica de Dirección',
+    description:
+      'Polipiel granate, respaldo lumbar y cinco ruedas: cuesta lo que un sueldo y nadie más se ' +
+      'sienta en ella. Ahora rueda sola, todavía caliente.',
+    // M10 planta 4 (5c): the Director's chair, let loose in phase 3 (BossPhase.summon). It rolls
+    // after the toaster and rams it in a straight line; against a wall or the table it stops dead.
+    // It can be broken (it is in the way, not the point), and it falls with him.
+    hp: 30,
+    sprite: 'silla-director',
+    anchor: { x: 22, y: 50 },
+    hurt: { x: -19, y: -46, w: 38, h: 44 },
+    footRadius: 12,
+    contactPush: 240,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [0, 0] },
+    // tools/sprites/director.ts makeChairFrames: 0 and 4 still (the tag on the seat stirs), 1-2
+    // and 5-6 rolling (the wheels turn, the tag blown back), 3 about to ram (dust).
+    anim: { idle: [0, 4], idleMs: 700, walk: [1, 2, 5, 6], stepPx: 6, warn: 3 },
+    brain: {
+      kind: 'charger',
+      walkSpeed: 30,
+      range: 220,
+      walkTime: [1.4, 2.2],
+      telegraph: 0.6,
+      chargeSpeed: 240,
+      chargeTime: 0.8,
+      brake: 500,
+      recover: 0.6,
+      stun: 1.2,
+    },
   },
   repetidor: {
     id: 'repetidor',

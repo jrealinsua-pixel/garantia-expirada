@@ -238,6 +238,26 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.54, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 126, color: 'bizcard' }, turnDeg: 16 },
     ],
   },
+  // Phase 3, «Despido procedente»: the line of cuts. On his feet he turns on the spot and the
+  // cuts stream out in a spiral of fourteen arms with a hole that starts on the toaster and turns
+  // with them (about 30° a second, half the toaster's walk at two tiles): you follow the hole
+  // round him. One each way.
+  'director-recortes': {
+    kind: 'spiral', arms: 14, steps: 12, stepDeg: 6.5, interval: 0.22, speed: 72, color: 'cut',
+    gaps: { widthDeg: 80, atDeg: [0] },
+  },
+  'director-recortes-2': {
+    kind: 'spiral', arms: 14, steps: 12, stepDeg: -6.5, interval: 0.22, speed: 72, color: 'cut',
+    gaps: { widthDeg: 80, atDeg: [0] },
+  },
+  // Standing, the cards come in two quick fans, a little apart.
+  'director-tarjetas-3': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 52, speed: 130, color: 'bizcard' }, turnDeg: -9 },
+      { at: 0.2, pattern: { kind: 'fan', count: 5, spreadDeg: 52, speed: 130, color: 'bizcard' }, turnDeg: 9 },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

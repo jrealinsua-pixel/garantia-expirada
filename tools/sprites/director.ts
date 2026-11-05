@@ -445,19 +445,36 @@ export const CHAIR_H = 52;
 /**
  * The empty chair (phase 3, «Despido procedente»): it rolls round the room on its own and rams
  * the toaster when it has it in front. 0 standing still, 1-2 rolling (the wheels turn), 3 about to
- * ram: dust kicked up behind it (the game makes it flash too). 44x52.
+ * ram: dust kicked up behind it (the game makes it flash too); 4 still, the shop tag on the seat
+ * stirring (its idle); 5-6 rolling on, the tag blown back (its four-step roll is 1, 2, 5, 6). 44x52.
  */
 export function makeChairFrames(): Canvas[] {
-  return [0, 1, 2, 3].map((f) => {
+  const looks: Array<{ spin: number; dust?: boolean; blown?: boolean }> = [
+    { spin: 0 }, { spin: 1 }, { spin: 2 }, { spin: 0, dust: true },
+    { spin: 0, blown: true }, { spin: 0, blown: true }, { spin: 1, blown: true },
+  ];
+  // Frame 4 is the idle one: the tag only lifts at one corner.
+  return looks.map((l, f) => {
     const cv = new Canvas(CHAIR_W, CHAIR_H);
-    chair(cv, 2, 2, { spin: f === 1 || f === 2 ? f : 0 });
+    chair(cv, 2, 2, { spin: l.spin });
     // Still warm: the dent he left in the seat, and his jacket's shop tag fallen on it.
     cv.rect(16, 32, 14, 1, LEATHER[2]!);
-    cv.rect(30, 30, 3, 3, WHITE);
-    cv.set(31, 31, SHEET_RED);
+    if (f === 4) {
+      cv.rect(30, 30, 3, 3, WHITE);
+      cv.set(33, 30, WHITE);
+      cv.set(31, 31, SHEET_RED);
+    } else if (l.blown) {
+      // Blown back as it rolls: the tag flat out behind, by its string.
+      cv.rect(26, 30, 4, 2, WHITE);
+      cv.set(27, 30, SHEET_RED);
+      cv.set(30, 31, WHITE);
+    } else {
+      cv.rect(30, 30, 3, 3, WHITE);
+      cv.set(31, 31, SHEET_RED);
+    }
     const out = outline(cv);
     // About to ram: puffs of carpet dust kicked up behind the back wheel.
-    if (f === 3) for (const [x, y] of [[1, 47], [2, 46], [0, 44], [3, 43], [1, 41]] as Pt[]) out.set(x, y, hx('#c3c9d6'));
+    if (l.dust) for (const [x, y] of [[1, 47], [2, 46], [0, 44], [3, 43], [1, 41]] as Pt[]) out.set(x, y, hx('#c3c9d6'));
     return out;
   });
 }

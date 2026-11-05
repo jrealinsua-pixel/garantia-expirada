@@ -152,6 +152,12 @@ export function dodge(w: World): Dodge {
     out.x += -en.dirY * side * 0.7;
     out.y += en.dirX * side * 0.7;
   }
+  // A spiral with a hole that turns (the Director's line of cuts): into the hole and round with it.
+  const hole = followHole(w);
+  if (hole) {
+    out.x += hole.x;
+    out.y += hole.y;
+  }
   const ink = inkUnder(w, p.x, p.y);
   if (ink) {
     const dx = p.x - ink.x;
@@ -176,6 +182,65 @@ export function dodge(w: World): Dodge {
     }
   }
   return out;
+}
+
+/** Steps at least this many in a pattern, and its hole this many times its usual spacing, to count as a hole to follow. */
+const HOLE_STEPS = 6;
+const HOLE_WIDER = 1.8;
+
+/**
+ * Following the hole of a spiral round its source, as a player would read it: for an enemy
+ * pattern of HOLE_STEPS steps or more whose shots leave one gap much wider than the rest, where
+ * that gap will be at the toaster's distance a moment from now (the shots there left the source
+ * `r / speed` s ago); a pull towards that spot, round the source, at 60-130 px. Only spirals with
+ * a hole (the Director's line of cuts): rings and plain spirals are left to the usual dodging.
+ */
+function followHole(w: World): { x: number; y: number } | null {
+  const p = w.player;
+  for (const e of w.emitters) {
+    if (e.owner !== 'enemy' || e.shots.length === 0) continue;
+    const steps = new Map<number, number[]>();
+    for (const s of e.shots) {
+      const k = Math.round(s.delay * 1000);
+      const list = steps.get(k);
+      if (list) list.push(s.angle);
+      else steps.set(k, [s.angle]);
+    }
+    if (steps.size < HOLE_STEPS) continue;
+    const dx = p.x - e.x;
+    const dy = p.y - PLAYER_HURT_Y - e.y;
+    const r = Math.hypot(dx, dy) || 1;
+    const speed = e.shots[0]!.speed;
+    // The step whose shots will be at the toaster's distance a little from now.
+    const when = e.t - r / speed + 0.25;
+    const keys = [...steps.keys()].sort((a, b) => a - b);
+    let key = keys[0]!;
+    for (const k of keys) if (k / 1000 <= when) key = k;
+    const angles = steps.get(key)!.map((a) => ((a % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)).sort((a, b) => a - b);
+    if (angles.length < 3) continue;
+    let widest = 0;
+    let centre = 0;
+    const gaps: number[] = [];
+    for (let i = 0; i < angles.length; i++) {
+      const a = angles[i]!;
+      const b = i + 1 < angles.length ? angles[i + 1]! : angles[0]! + 2 * Math.PI;
+      gaps.push(b - a);
+      if (b - a > widest) {
+        widest = b - a;
+        centre = a + (b - a) / 2;
+      }
+    }
+    const usual = gaps.sort((a, b) => a - b)[Math.floor(gaps.length / 2)]!;
+    if (widest < usual * HOLE_WIDER) continue;
+    const want = Math.max(60, Math.min(130, r));
+    const tx = e.x + Math.cos(centre) * want - p.x;
+    const ty = e.y + Math.sin(centre) * want + PLAYER_HURT_Y - p.y;
+    const d = Math.hypot(tx, ty);
+    if (d < 4) return { x: 0, y: 0 };
+    const k = Math.min(1.2, d / 30);
+    return { x: (tx / d) * k, y: (ty / d) * k };
+  }
+  return null;
 }
 
 /** Whether the toaster stands in front of a shredder (EnemyDef brain `shredder`): its shots there are swallowed. */

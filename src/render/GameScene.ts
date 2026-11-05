@@ -4333,7 +4333,7 @@ const SKID_MAX = 120;
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
-  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva',
+  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

@@ -690,8 +690,8 @@ if (import.meta.main) {
   if (d?.combates) {
     console.log(
       `${d.combates} combates contra el Director · gana el ${d.gana} % en ${d.segundos} s (${d.minimo}–${d.maximo} s) · ` +
-        `${d.heridas} heridas por combate (${d.heridasFase1} en la fase 1, ${d.heridasFase2} en la reestructuración) · ` +
-        `llega a la reestructuración el ${d.llegaFase2} %, a los ${d.segundoFase2} s`,
+        `${d.heridas} heridas por combate (${d.heridasFase1} en la fase 1, ${d.heridasFase2} en la reestructuración, ${d.heridasFase3} de pie) · ` +
+        `llega a la reestructuración el ${d.llegaFase2} %, a los ${d.segundoFase2} s; se levanta el ${d.llegaFase3} %, a los ${d.segundoFase3} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

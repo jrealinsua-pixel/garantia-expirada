@@ -997,7 +997,27 @@ try {
   await shot('39h-director-sello.png');
   await page.waitForFunction(`window.__GE__.scene.world.ink.some((k) => k.source === ${directorJs}.id && k.t > 0.3)`, undefined, { timeout: 3000 });
   await shot('39i-director-tinta.png');
-  console.log('Director de Recursos Inhumanos: cartel, tarjetas, cartas de despido y sus folios, reestructuración de mamparas, diapositivas y su sello.');
+  // M10 planta 4 (5c): «Despido procedente». He gets up, his chair rolls off on its own and rams;
+  // on his feet he spins the line of cuts (a spiral with a hole to follow).
+  await page.evaluate(`(() => { const b = ${directorJs}; b.damageTaken = Math.ceil(b.def.hp * 0.78); })()`);
+  await page.waitForFunction(`${directorJs}.bossPhase === 2`, undefined, { timeout: 3000 });
+  await page.waitForTimeout(450);
+  await shot('39j-director-de-pie.png');
+  const chairJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'silla-director')";
+  if (!(await page.evaluate<boolean>(`!!${chairJs}`))) throw new Error('La silla del Director no sale rodando');
+  await page.waitForFunction(`${chairJs} && ${chairJs}.state === 'warn'`, undefined, { timeout: 25000 });
+  await shot('39k-director-silla.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'cut' && b.age > 0.8 && v.contains(b.x, b.y)).length >= 16; })()`,
+    undefined,
+    { timeout: 40000 },
+  );
+  await shot('39l-director-recortes.png');
+  console.log(
+    'Director de Recursos Inhumanos: cartel, tarjetas, cartas de despido y sus folios, reestructuración de mamparas, ' +
+      'diapositivas, su sello, y de pie con la silla suelta y la línea de recortes.',
+  );
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

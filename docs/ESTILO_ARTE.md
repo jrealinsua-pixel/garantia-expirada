@@ -244,9 +244,11 @@ arriba a la izquierda, manos grandes de 7 × 7 sin brazos), pero todo gris menos
   Denegado en alto; 9–14 de pie (reposo, respiración y el paso levantando el pie, sin cruzar);
   15 lanzando de pie; 16–17 girando la línea de recortes, de espaldas y con las manos abiertas.
   Todos pisan la misma línea (las ruedas sentado, los zapatos de pie).
-- **La silla sola** (`silla-director`, 44 × 52, 4): quieta, rodando en dos tiempos y a punto de
+- **La silla sola** (`silla-director`, 44 × 52, 7): quieta, rodando en dos tiempos y a punto de
   embestir (polvo de moqueta detrás de la rueda). Con la marca de él en el asiento y la etiqueta
-  de su chaqueta caída encima.
+  de su chaqueta caída encima. En la fase 3 (M10 planta 4 5c) se añadieron tres: quieta con la
+  etiqueta levantando una esquina (su respiración) y rodando con la etiqueta echada hacia atrás,
+  para que ruede en cuatro pasos distintos (1, 2, 5, 6).
 - **Balas**: tarjetas de visita (`bala-tarjeta-visita`, 10 × 8, 4 giros) blancas con el borde
   **cian**, para no confundirlas con las tarjetas rojas de la Nevera; cartas de despido
   (`carta-despido`, 12 × 10, 2: el sobre con el lacre rojo y el dorso con la línea roja de
