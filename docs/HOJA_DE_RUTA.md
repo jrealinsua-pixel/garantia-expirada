@@ -349,9 +349,9 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - 10 objetos nuevos, en partes:
     - [x] (6a) Cinco de cifras o casi: Pilas No Incluidas, Muelle de Juguete, Bote de Purpurina, Juguete
       del Menú Infantil y Caja de Cartón Vacía.
-    - [ ] (6b) Cinco con efectos nuevos: Pegatina de Edición Limitada, Plastilina Mezclada, Llave
-      Allen Sobrante, Mando con Vibración y Mascota Virtual; y las sinergias Unboxing y
-      Manualidades.
+    - [ ] (6b1) Tres con efectos nuevos: Pegatina de Edición Limitada, Llave Allen Sobrante y Mando
+      con Vibración; y la sinergia Unboxing (con la Caja de Cartón Vacía).
+    - [ ] (6b2) Plastilina Mezclada y Mascota Virtual, y la sinergia Manualidades.
   - [ ] (7) La planta 3 medida con el bot y ajustada para que sea el muro: el bot con daño la
     supera menos de una vez de cada cuatro, y es donde más partidas acaban.
 - [ ] Planta 4: Oficinas, con su juego de casillas, 4 enemigos nuevos, un jefe (El Director de Recursos Inhumanos) y 10 objetos. (Se parte en tareas al acabar la planta 3.)
