@@ -1041,6 +1041,11 @@
       "sesion": "2026-11-05 18:57",
       "tarea": "M11 (2a): seis plantillas de combate de la planta 5 (src/data/rooms.ts)",
       "desde": "2026-11-05T18:57:00+01:00"
+    },
+    {
+      "sesion": "2026-11-05 19:27",
+      "tarea": "M11 (6a): cinco objetos de la planta 5 (src/data/items.ts, tools/sprites/items.ts)",
+      "desde": "2026-11-05T19:27:00+01:00"
     }
   ]
 }
