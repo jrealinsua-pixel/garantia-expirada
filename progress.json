@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T07:55:00+01:00",
+  "actualizado": "2026-11-05T08:35:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 3,
     "armas": 3,
     "objetos": 35,
-    "plantillas_sala": 54,
-    "tests": 561,
-    "tests_ok": 561,
+    "plantillas_sala": 60,
+    "tests": 562,
+    "tests_ok": 562,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 20358
+    "lineas_codigo": 20509
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T08:35:00+01:00",
+      "hito": "M10",
+      "resumen": "Seis salas de combate propias de las Oficinas (planta 4): el Espacio Diáfano con sus islas de cubículos, la Sala de Reuniones que pudo ser un correo, el Pasillo de Despachos, la Cola de Impresión, el Office de los tápers y la Planta en Reforma con mamparas que van y vienen.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T07:55:00+01:00",
       "hito": "M10",
@@ -872,6 +878,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/oficinas-reunion.png",
+      "pie": "Sala de Reuniones (Esto Podía Ser un Correo), una de las seis salas nuevas de las Oficinas: dos filas de mesas que se vuelcan para hacer trinchera"
+    },
+    {
       "archivo": "capturas/plastilina-manualidades.png",
       "pie": "Plastilina Mezclada con Bote de Purpurina (sinergia Manualidades): las balas se quedan pegadas en la pared 2,5 s como pegotes con purpurina que dañan y frenan a quien pase"
     },
@@ -888,15 +898,11 @@
       "pie": "Objetos de la Juguetería: con la Caja de Cartón Vacía, uno de cada cinco golpes no hace nada («Era solo la caja»); abajo, los cinco nuevos"
     },
     {
-      "archivo": "capturas/muneco-pegatinas.png",
-      "pie": "Fin de existencias: el Muñeco, ya sin caja, gira sobre sí mismo soltando espirales de pegatinas de oferta que persiguen un poco; su caja rota se queda en la sala y para balas"
-    },
-    {
       "archivo": "capturas/jugueteria-sala.png",
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     }
   ],
-  "proximo": "M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro. En paralelo, sin pisarse: M10 planta 4 (2a), seis plantillas de combate de las Oficinas.",
+  "proximo": "M10 planta 4 (2b): seis plantillas de combate más de las Oficinas. O M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -922,11 +928,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 07:58",
-      "tarea": "M10 planta 4 (2a): seis plantillas de combate de las Oficinas",
-      "desde": "2026-11-05T07:58:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

@@ -1194,6 +1194,151 @@ const FLOOR_3: RoomTemplate[] = [
   },
 ];
 
+/**
+ * Floor 4 (Oficinas, M10 planta 4 (2a)): combat rooms of the offices over the shop floors. Its inner
+ * walls are drawn as cubicle partitions (src/art/oficinas.ts), `c` as filing cabinets, `b` as coffee
+ * urns (they blow up like the drums), `k` as plastic ficus and `v` as office desks that tip over.
+ */
+const FLOOR_4: RoomTemplate[] = [
+  {
+    id: 'open-space',
+    kind: 'combat',
+    level: 4,
+    name: 'Espacio Diáfano (Colaborativo, Sin Ventanas)',
+    idea: 'Cuatro islas de cubículos con sus mamparas: se pelea por los pasillos entre ellas, cada isla tapa media sala y a veces le falta una pared y se puede entrar a cubrirse dentro.',
+    rows: [
+      '########################',
+      '########################',
+      '#..e................e..#',
+      '#......................#',
+      '#..###1###....###2###..#',
+      '#..#.....#....#.....#..#',
+      '#....e.....o.....e.....#',
+      '#......................#',
+      '#......................#',
+      '#..#.....#....#.....#..#',
+      '#..###3###....###4###..#',
+      '#......................#',
+      '#b..e....o.....o...e..b#',
+      '#......................#',
+      '########################',
+    ],
+  },
+  {
+    id: 'reunion-correo',
+    kind: 'combat',
+    level: 4,
+    name: 'Sala de Reuniones (Esto Podía Ser un Correo)',
+    idea: 'Dos filas de mesas de oficina que se vuelcan: quien las vuelca primero tiene su trinchera, y entre las dos filas queda un pasillo largo donde todo el mundo dispara a todo el mundo.',
+    rows: [
+      '####################',
+      '####################',
+      '#.e..............e.#',
+      '#..................#',
+      '#..k............k..#',
+      '#....v.v.v.v.v.....#',
+      '#..................#',
+      '#...11.e....e.22...#',
+      '#..................#',
+      '#....v.v.v.v.v.....#',
+      '#..o............o..#',
+      '#b................b#',
+      '####################',
+    ],
+  },
+  {
+    id: 'pasillo-despachos',
+    kind: 'combat',
+    level: 4,
+    name: 'Pasillo de Despachos (Mi Puerta Está Abierta)',
+    idea: 'Cuatro despachos al fondo con la puerta abierta o cerrada según el día: los que esperan dentro disparan desde el hueco, y abajo un pasillo ancho con archivadores para cubrirse.',
+    rows: [
+      '##########################',
+      '##########################',
+      '#e..#...e#......#e..#..e.#',
+      '#...#....#......#...#....#',
+      '#11.#.22.#......#.33#.44.#',
+      '#........................#',
+      '#..o..................o..#',
+      '#........................#',
+      '#...e................e...#',
+      '#.....c..c......c..c.....#',
+      '#.b.....................b#',
+      '#.................e......#',
+      '##########################',
+    ],
+  },
+  {
+    id: 'cola-impresion',
+    kind: 'combat',
+    level: 4,
+    name: 'Cola de Impresión (Documento 1 de 48)',
+    idea: 'Pequeña y apretada: archivadores en las cuatro esquinas y dos bancadas de mamparas en el medio que están o no; da vueltas alrededor de ellas o se queda sin sitio.',
+    rows: [
+      '##################',
+      '##################',
+      '#...e........e...#',
+      '#................#',
+      '#..cc..1111..cc..#',
+      '#................#',
+      '#.....o....o.....#',
+      '#................#',
+      '#..cc..2222..cc..#',
+      '#...e........e...#',
+      '#b..............b#',
+      '##################',
+    ],
+  },
+  {
+    id: 'office-nevera',
+    kind: 'combat',
+    level: 4,
+    name: 'Office (Etiqueta Tu Táper)',
+    idea: 'La cocina de la planta: dos rincones de mamparas en forma de ese, una mesa en el centro y termos de café por todas partes que explotan en cadena si alguien dispara donde no debe.',
+    rows: [
+      '################',
+      '################',
+      '#bk..........kb#',
+      '#..............#',
+      '#..11......11..#',
+      '#..#........#..#',
+      '#....e....e....#',
+      '#......vv......#',
+      '#..............#',
+      '#..#..o..o..#..#',
+      '#..22......22..#',
+      '#..............#',
+      '#e....b..b....e#',
+      '################',
+    ],
+  },
+  {
+    id: 'planta-diafana',
+    kind: 'combat',
+    level: 4,
+    name: 'Planta en Reforma (Mamparas Móviles)',
+    idea: 'Casi vacía y grande, con seis tramos de mampara que la semilla pone o quita: unas veces es un campo abierto y otras un laberinto a medio montar.',
+    rows: [
+      '######################',
+      '######################',
+      '#e..................e#',
+      '#....................#',
+      '#...11..........11...#',
+      '#........2222........#',
+      '#..o..............o..#',
+      '#....e..........e....#',
+      '#.........e..........#',
+      '#........2222........#',
+      '#...33...........33..#',
+      '#....................#',
+      '#..k..............k..#',
+      '#b..................b#',
+      '#.e................e.#',
+      '######################',
+    ],
+  },
+];
+
 export const ROOMS: Record<string, RoomTemplate> = {
   // 26 x 16 tiles of 24 px: a bit bigger than the screen, so the camera has to move.
   'sala-pruebas': {
@@ -1223,6 +1368,7 @@ export const ROOMS: Record<string, RoomTemplate> = {
   ...Object.fromEntries(FLOOR_1.map((t) => [t.id, t])),
   ...Object.fromEntries(FLOOR_2.map((t) => [t.id, t])),
   ...Object.fromEntries(FLOOR_3.map((t) => [t.id, t])),
+  ...Object.fromEntries(FLOOR_4.map((t) => [t.id, t])),
 };
 
 /** Template letter of floor 1's boss (src/sim/room.ts ENEMY_CHARS): La Nevera Suprema. */
@@ -1275,10 +1421,16 @@ export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
   return level >= 3 ? SLOT_ENEMIES_3 : level === 2 ? SLOT_ENEMIES_2 : SLOT_ENEMIES_1;
 }
 
-/** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses floor 1's. */
+/** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses the nearest floor's below. */
 export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1): RoomTemplate[] {
-  const own = (level >= 3 ? FLOOR_3 : level === 2 ? FLOOR_2 : FLOOR_1).filter((t) => t.kind === kind);
-  return own.length > 0 ? own : FLOOR_1.filter((t) => t.kind === kind);
+  // The nearest floor below that has its own (floor 4 borrows the Juguetería's special rooms until
+  // it has its own, M10 planta 4 (2c)).
+  const floors = [FLOOR_1, FLOOR_2, FLOOR_3, FLOOR_4];
+  for (let l = Math.min(level, floors.length); l >= 1; l--) {
+    const own = floors[l - 1]!.filter((t) => t.kind === kind);
+    if (own.length > 0) return own;
+  }
+  return [];
 }
 
 /**
@@ -1307,3 +1459,5 @@ export const HUB: RoomTemplate = {
     '##################',
   ],
 };
+
+

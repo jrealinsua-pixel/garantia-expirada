@@ -21,7 +21,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
-| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y la 4 está partida en 18 tareas: quedan unas 20) |
+| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y la 4 está partida en 18 tareas: quedan unas 19) |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
@@ -361,7 +361,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - [x] (1) Juego de casillas y color propio (`src/art/oficinas.ts`, se ve con `?planta=4`):
     moqueta gris con manchas de café, mamparas de cubículo, pared de pladur con vinilos de valores,
     archivadores, termos de café, ficus de plástico, mesas de oficina y persianas con «Reunión».
-  - [ ] (2a) Seis plantillas de combate propias de la planta 4, cada una con su idea y sus grupos.
+  - [x] (2a) Seis plantillas de combate propias de la planta 4, cada una con su idea y sus grupos.
   - [ ] (2b) Seis plantillas de combate más.
   - [ ] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Papeles para
     Destruir con su acta de reunión, y la Sala de Juntas del jefe).

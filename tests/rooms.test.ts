@@ -122,7 +122,7 @@ test('rellenar: el presupuesto crece con la profundidad y respeta los máximos',
 });
 
 test('plantillas: el bot juega 25 s en cada sala de combate rellena sin romper nada', () => {
-  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3)]) {
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3), ...templatesOf('combat', 4)]) {
     for (const depth of [1, 6]) {
       const seed = `bot:${t.id}:${depth}`;
       const tpl = fillTemplate(t, new Rng(seed), { depth, pool: slotEnemiesOf(t.level ?? 1) });
@@ -159,7 +159,7 @@ test('plantillas: no hay rendijas por las que solo quepan los pies (cada hueco �
 });
 
 test('plantillas: cada sala de combate tiene su idea de combate escrita', () => {
-  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3)]) assert.ok((t.idea ?? '').length > 20, `${t.id}: sin idea`);
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3), ...templatesOf('combat', 4)]) assert.ok((t.idea ?? '').length > 20, `${t.id}: sin idea`);
 });
 
 test('variantes: los grupos de estanterías salen y no salen con la semilla, y la sala se puede reflejar', () => {
@@ -195,7 +195,7 @@ test('variantes: los grupos de estanterías salen y no salen con la semilla, y l
 });
 
 test('variantes: una sala reflejada sigue teniendo las puertas en su sitio y despejadas', () => {
-  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3)]) {
+  for (const t of [...templatesOf('combat'), ...templatesOf('combat', 2), ...templatesOf('combat', 3), ...templatesOf('combat', 4)]) {
     const m: RoomTemplate = { ...t, rows: t.rows.map((r) => [...r].reverse().join('')) };
     const cols = t.rows[0]!.length;
     const rows = t.rows.length;
@@ -264,4 +264,20 @@ test('plantillas de la planta 3: doce salas de combate y las especiales, todas s
     }
   }
   assert.ok(withToys > 30, `${withToys} salas con juguetes`);
+});
+
+test('plantillas de la planta 4: seis salas de combate suyas (las especiales, de la Juguetería hasta la (2c))', () => {
+  const four = templatesOf('combat', 4);
+  assert.ok(four.length >= 6, `${four.length} salas de combate en la planta 4`);
+  for (const t of four) assert.equal(t.level, 4, t.id);
+  for (const level of [1, 2, 3]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 4), `planta ${level}`);
+  // Until it has its own, its special rooms are the floor below's.
+  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 4), templatesOf(k, 3), k);
+  // Each room has groups of partitions that come and go with the seed.
+  for (const t of four) assert.ok(/[1-9]/.test(t.rows.join('')), `${t.id}: sin grupos`);
+  // A generated floor 4 fights only in its own rooms.
+  for (let i = 0; i < 10; i++) {
+    const w = createWorld({ seed: `oficinas-${i}`, floor: true, level: 4 });
+    for (const r of w.floor!.rooms.filter((x) => x.template.kind === 'combat')) assert.equal(r.template.level, 4, r.template.id);
+  }
 });
