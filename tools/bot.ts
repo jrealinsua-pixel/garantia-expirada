@@ -3,7 +3,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Bot, crossHub } from '../src/sim/bot.ts';
-import { checkInvariants, createWorld, DT, frostSlow, nextFloor, step, worldHash, type World } from '../src/sim/world.ts';
+import { checkInvariants, createWorld, DT, frostSlow, LAST_LEVEL, nextFloor, step, worldHash, type World } from '../src/sim/world.ts';
 import { ROOT } from './lib/deps.ts';
 
 export interface BotReport {
@@ -36,14 +36,14 @@ export interface BotReport {
   errores: string[];
 }
 
-/** Floor 2 (Informática), as part of the same runs: see runFloors. */
+/** A floor above the first (2: Informática, 3: Juguetería), as part of the same runs: see runFloors. */
 export interface Floor2Report {
   /** Floor 2 walked whole with nothing able to hurt the bot (%; must be 100), on its own. */
   recorridoSinDanio: number;
-  /** Runs that won floor 1 and so went on to floor 2, and the half hearts they arrived with. */
+  /** Runs that won the floor below and so went on to this one, and the half hearts they arrived with. */
   llegan: number;
   vidaAlLlegar: number;
-  /** Of those: floor 2 won (its boss beaten, down the lift), went down (%), and went down in the boss room (%). */
+  /** Of those: the floor won (its boss beaten, down the lift), went down (%), and went down in the boss room (%). */
   gana: number;
   caidas: number;
   caeEnElJefe: number;
@@ -58,6 +58,7 @@ export interface FloorReport {
   cruzaMostrador: number;
   segundosMostrador: number;
   planta2?: Floor2Report;
+  planta3?: Floor2Report;
   /** Floors whose every room (but the secret one) the bot walks into, with nothing able to hurt it: must be 100 %. */
   recorridoSinDanio: number;
   /** Mean seconds to walk the whole floor that way. */
@@ -389,26 +390,22 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   let buys = 0;
   let spent = 0;
   // Floor 2: walked on its own without damage, and played on from floor 1 when the run gets there.
-  let walked2 = 0;
-  let reached2 = 0;
-  let life2 = 0;
-  let won2 = 0;
-  let down2 = 0;
-  let downAtBoss2 = 0;
-  let cleared2 = 0;
-  let hurts2 = 0;
-  const rooms2: number[] = [];
+  // The floors above the first, tallied on their own (the run goes on up while it keeps winning).
+  const up = new Map<number, { walked: number; reached: number; life: number; won: number; down: number; downAtBoss: number; cleared: number; hurts: number; rooms: number[] }>();
+  for (let l = 2; l <= LAST_LEVEL; l++) up.set(l, { walked: 0, reached: 0, life: 0, won: 0, down: 0, downAtBoss: 0, cleared: 0, hurts: 0, rooms: [] });
   let crossed = 0;
   let hubT = 0;
   for (let i = 0; i < floors; i++) {
     const a = playFloor(`planta-${i}`, maxSeconds, true);
     if (a.explored) walked++;
-    // Floor 2 is half as big again (and its enemies tougher): the same 1.5 times the time as its full run below.
-    const a2 = playFloor(`planta-${i}`, maxSeconds * 1.5, true, false, 2);
-    if (a2.explored) walked2++;
-    if (a2.errors.length) {
-      failed++;
-      errors.push(...a2.errors);
+    // The floors above are half as big again (and their enemies tougher): the same 1.5 times the time as their full runs below.
+    for (const [l, t] of up) {
+      const a2 = playFloor(`planta-${i}`, maxSeconds * 1.5, true, false, l);
+      if (a2.explored) t.walked++;
+      if (a2.errors.length) {
+        failed++;
+        errors.push(...a2.errors);
+      }
     }
     walkT += a.seconds;
     // The whole run starts in the Mostrador, as in the game (half of them with the Chatarrero there).
@@ -443,22 +440,25 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     buys += b.buys;
     spent += b.spent;
     items += b.items ? b.items.split('+').length : 0;
-    const next = b.won ? nextFloor(b.world) : null;
-    if (next) {
-      reached2++;
-      life2 += next.player.hp;
-      // Floor 2 has more enemies per room: half as much time again.
-      const c = playFloor(`planta-${i}`, maxSeconds * 1.5, false, true, 2, next);
-      if (c.won) won2++;
-      if (c.down) down2++;
-      if (c.downAtBoss) downAtBoss2++;
-      cleared2 += c.cleared;
-      hurts2 += c.hurts;
-      rooms2.push(...c.roomSeconds);
+    let below = b;
+    for (const [l, t] of up) {
+      const next = below.won ? nextFloor(below.world) : null;
+      if (!next) break;
+      t.reached++;
+      t.life += next.player.hp;
+      // The floors above have more enemies per room: half as much time again.
+      const c = playFloor(`planta-${i}`, maxSeconds * 1.5, false, true, l, next);
+      if (c.won) t.won++;
+      if (c.down) t.down++;
+      if (c.downAtBoss) t.downAtBoss++;
+      t.cleared += c.cleared;
+      t.hurts += c.hurts;
+      t.rooms.push(...c.roomSeconds);
       if (c.errors.length) {
         failed++;
         errors.push(...c.errors);
       }
+      below = c;
     }
     for (const r of [a, b]) {
       if (r.errors.length) {
@@ -475,24 +475,28 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
   }
   const pct = (n: number): number => Math.round((n / floors) * 1000) / 10;
   const one = (n: number): number => Math.round(n * 10) / 10;
-  const of2 = (n: number): number => (reached2 ? Math.round((n / reached2) * 1000) / 10 : 0);
-  const planta2: Floor2Report = {
-    recorridoSinDanio: pct(walked2),
-    llegan: reached2,
-    vidaAlLlegar: reached2 ? one(life2 / reached2) : 0,
-    gana: of2(won2),
-    caidas: of2(down2),
-    caeEnElJefe: of2(downAtBoss2),
-    salasLimpias: reached2 ? one(cleared2 / reached2) : 0,
-    segundosPorSala: rooms2.length ? one(rooms2.reduce((t, v) => t + v, 0) / rooms2.length) : 0,
-    heridasPorSala: rooms2.length ? Math.round((hurts2 / Math.max(1, cleared2)) * 100) / 100 : 0,
+  const upper = (l: number): Floor2Report => {
+    const t = up.get(l)!;
+    const of = (n: number): number => (t.reached ? Math.round((n / t.reached) * 1000) / 10 : 0);
+    return {
+      recorridoSinDanio: pct(t.walked),
+      llegan: t.reached,
+      vidaAlLlegar: t.reached ? one(t.life / t.reached) : 0,
+      gana: of(t.won),
+      caidas: of(t.down),
+      caeEnElJefe: of(t.downAtBoss),
+      salasLimpias: t.reached ? one(t.cleared / t.reached) : 0,
+      segundosPorSala: t.rooms.length ? one(t.rooms.reduce((a, v) => a + v, 0) / t.rooms.length) : 0,
+      heridasPorSala: t.rooms.length ? Math.round((t.hurts / Math.max(1, t.cleared)) * 100) / 100 : 0,
+    };
   };
   return {
     report: {
       plantas: floors,
       cruzaMostrador: pct(crossed),
       segundosMostrador: crossed ? one(hubT / crossed) : 0,
-      planta2,
+      planta2: upper(2),
+      planta3: upper(3),
       recorridoSinDanio: pct(walked),
       segundosRecorrido: one(walkT / floors),
       recorridoConDanio: pct(explored),
@@ -622,11 +626,11 @@ if (import.meta.main) {
     );
     console.log(`Mostrador · el bot pasa por todo y coge la cinta en el ${pl.cruzaMostrador} % de las partidas, en ${pl.segundosMostrador} s`);
   }
-  const p2 = pl.planta2;
-  if (pl.plantas && p2) {
+  for (const [n, p2] of [[2, pl.planta2], [3, pl.planta3]] as const) {
+    if (!pl.plantas || !p2) continue;
     console.log(
-      `Planta 2 · sin daño la recorre entera el ${p2.recorridoSinDanio} % · llegan ${p2.llegan} de ${pl.plantas} partidas, con ${p2.vidaAlLlegar} medios corazones · ` +
-        `la gana el ${p2.gana} % y cae el ${p2.caidas} % (${p2.caeEnElJefe} % ante el Router) · ` +
+      `Planta ${n} · sin daño la recorre entera el ${p2.recorridoSinDanio} % · llegan ${p2.llegan} de ${pl.plantas} partidas, con ${p2.vidaAlLlegar} medios corazones · ` +
+        `la gana el ${p2.gana} % y cae el ${p2.caidas} % (${p2.caeEnElJefe} % ante el jefe) · ` +
         `${p2.salasLimpias} salas de combate limpias · ${p2.segundosPorSala} s y ${p2.heridasPorSala} heridas por sala de combate`,
     );
   }

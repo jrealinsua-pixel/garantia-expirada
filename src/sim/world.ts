@@ -856,8 +856,8 @@ function updateBelt(w: World): void {
 /** How many rooms deeper each floor of the store starts (see planFloor): the enemy budget grows with it. */
 export const LEVEL_DEPTH = 3;
 
-/** The floors of the store that exist so far (1: the warehouse, 2: Informática). */
-export const LAST_LEVEL = 2;
+/** The floors of the store that exist so far (1: the warehouse, 2: Informática, 3: Juguetería). */
+export const LAST_LEVEL = 3;
 
 /**
  * The next floor of the same run, once this one is won (the toaster went down the lift): a new

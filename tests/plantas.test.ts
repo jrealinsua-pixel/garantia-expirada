@@ -41,6 +41,24 @@ test('encadenar plantas: tras ganar la planta 1 se sigue en la 2 con la misma to
   assert.equal(nextFloor(w)!.floor!.rooms.map((r) => r.template.id).join(), n.floor!.rooms.map((r) => r.template.id).join());
 });
 
+test('encadenar plantas: tras ganar la planta 2 se sube a la Juguetería, con el Router en el Escaparate', () => {
+  const w = createWorld({ seed: 'cadena-3', floor: true, level: 2 });
+  w.player.coupons = 12;
+  w.won = true;
+  const n = nextFloor(w)!;
+  assert.ok(n, 'la planta 2 ganada lleva a la 3');
+  assert.equal(n.level, 3);
+  assert.equal(n.player.coupons, 12);
+  for (const st of n.floor!.rooms) assert.equal(ROOMS[st.template.id]!.level, 3, st.template.id);
+  // Until El Muñeco de Moda comes (M10 5), its boss room holds the Router.
+  const boss = n.floor!.rooms.find((st) => st.template.kind === 'boss')!;
+  assert.equal(boss.template.id, 'jefe-jugueteria');
+  assert.ok(boss.template.rows.join('').includes('X'), 'el Router espera en el Escaparate');
+  assert.ok(FLOOR_NAMES[3], 'la planta 3 tiene nombre');
+  for (let i = 0; i < 3 / DT; i++) step(n, { ...NO_INPUT, moveX: i % 120 < 60 ? 1 : -1, fire: true });
+  assert.deepEqual(checkInvariants(n), []);
+});
+
 test('encadenar plantas: la última planta no tiene siguiente, y una sala suelta tampoco', () => {
   const last = createWorld({ seed: 'ultima', floor: true, level: LAST_LEVEL });
   last.won = true;

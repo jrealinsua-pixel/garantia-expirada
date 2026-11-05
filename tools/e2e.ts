@@ -466,7 +466,20 @@ try {
   if (chain.coupons !== 37 || chain.kind !== 'start') throw new Error(`La planta 2 no sigue con la misma tostadora: ${JSON.stringify(chain)}`);
   await page.waitForTimeout(600);
   await shot('34b-cadena-planta2.png');
-  console.log('Plantas encadenadas: tras la planta 1, la 2 con la misma tostadora.');
+  // And from floor 2 up to the Juguetería (M10 3), the same way.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.lift = { x: w.player.x, y: w.player.y, t: 10 }; })()`);
+  await page.waitForFunction('window.__GE__.state().won && window.__GE__.state().report.length > 0', undefined, { timeout: 8000 });
+  await page.waitForTimeout(900);
+  const chainReport3 = (await state()).report.join(' | ');
+  if (!chainReport3.includes('Juguetería')) throw new Error(`El parte no anuncia la planta 3: ${chainReport3}`);
+  await page.waitForTimeout(400);
+  await page.keyboard.press('r');
+  await page.waitForFunction('window.__GE__.state().ready && !window.__GE__.state().won && window.__GE__.scene.world.level === 3', undefined, { timeout: 8000 });
+  const chain3 = await page.evaluate<{ coupons: number; kind: string }>('(() => { const w = window.__GE__.scene.world; return { coupons: w.player.coupons, kind: w.room.kind }; })()');
+  if (chain3.coupons !== 37 || chain3.kind !== 'start') throw new Error(`La planta 3 no sigue con la misma tostadora: ${JSON.stringify(chain3)}`);
+  await page.waitForTimeout(600);
+  await shot('34c-cadena-planta3.png');
+  console.log('Plantas encadenadas: tras la planta 1, la 2, y tras la 2, la 3, con la misma tostadora.');
 
   // M8: floor 2's own passive items, on a treasure pedestal and in the inventory.
   await page.goto(`${url}?semilla=e2e-objetos2&sala=tesoro&planta=2`);

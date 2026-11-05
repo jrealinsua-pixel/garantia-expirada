@@ -171,6 +171,7 @@ export const WIN_HINT_NEXT = 'R o clic: siguiente planta';
 /** «Siguiente: …» when there is a next floor, by its number. */
 export const FLOOR_NAMES: Record<number, string> = {
   2: 'Planta 2: Informática. Cobertura limitada.',
+  3: 'Planta 3: Juguetería. Edad recomendada: ninguna.',
 };
 export const WIN_RESULT = 'Jefa de planta dada de baja';
 

@@ -334,7 +334,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
   - [x] (2b) Seis plantillas de combate más.
   - [x] (2c) Las salas especiales propias (entrada, tesoro, tienda, secreta con su documento de
     historia, y el Escaparate de Novedades del jefe).
-  - [ ] (3) Encadenar: tras el Router se baja en el montacargas a la planta 3, con todo lo que se
+  - [x] (3) Encadenar: tras el Router se baja en el montacargas a la planta 3, con todo lo que se
     lleva; hasta que llegue el Muñeco, el Router pelea en el Escaparate.
   - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
     - [x] (4a) Robot de Cuerda (rebota como una bola de billar; sin cuerda, quieto y frágil).
