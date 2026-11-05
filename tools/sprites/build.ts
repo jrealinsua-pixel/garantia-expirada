@@ -19,6 +19,7 @@ import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
 import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
+import * as CL from './clientela.ts';
 import * as H from './mostrador.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
@@ -108,6 +109,22 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'mostrador-bajo-v': one(CT.makeLowCounterV()),
     // The voice menu's zones on the floor: 0-2 «Pulse 1-3» waiting, 3-5 the same with bullets coming.
     'zona-menu': { canvas: strip(CT.makeMenuZoneFrames()), frameW: CT.ZONE_W, frameH: CT.ZONE_H },
+    // Floor 5's enemies (M11 4s): clientela.ts names each sheet's frames (DISP_FRAMES, POST_FRAMES, AV_FRAMES, PHONE_FRAMES).
+    'dispensador-turnos': { canvas: strip(CL.makeDispensadorFrames()), frameW: CL.DISP_W, frameH: CL.DISP_H },
+    // Its tickets (0 flat, 1 fluttering) and the turn circle on the floor (0 called, 1 attended, 2 lost).
+    'tique-turno': { canvas: strip(CL.makeTicketBullets()), frameW: 9, frameH: 7 },
+    'circulo-turno': { canvas: strip(CL.makeTurnCircleFrames()), frameW: CL.TURN_SIZE, frameH: CL.TURN_SIZE },
+    // 0-7 the clean post, 8-15 the one with the chipped foot (the same frames).
+    'poste-cola': { canvas: strip([...CL.makePosteFrames(false), ...CL.makePosteFrames(true)]), frameW: CL.POST_W, frameH: CL.POST_H },
+    'cinta-poste': { canvas: strip(CL.makeBeltFrames()), frameW: CL.BELT_W, frameH: CL.BELT_H },
+    'bola-acero': one(CL.makeSteelBall()),
+    'asistente-virtual': { canvas: strip(CL.makeAsistenteFrames()), frameW: CL.AV_W, frameH: CL.AV_H },
+    // Its speech bubbles (0 flying, 1 «…»), the FAQ shield (0 up, 1 fading) and «¿Le he ayudado?» (0 SÍ, 1 NO).
+    bocadillo: { canvas: strip(CL.makeBubbleFrames()), frameW: 11, frameH: 9 },
+    'escudo-faq': { canvas: strip(CL.makeFaqShieldFrames()), frameW: CL.FAQ_W, frameH: CL.FAQ_H },
+    'boton-ayuda': { canvas: strip(CL.makeHelpButtons()), frameW: 13, frameH: 10 },
+    'telefono-recepcion': { canvas: strip(CL.makeTelefonoFrames()), frameW: CL.PHONE_W, frameH: CL.PHONE_H },
+    'bala-llamada': { canvas: strip(CL.makeCallBullets()), frameW: 13, frameH: 13 },
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
     'arma-grapadora': one(miniStapler()),

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T22:58:00+01:00",
+  "actualizado": "2026-11-05T23:58:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 55,
     "plantillas_sala": 87,
-    "tests": 667,
-    "tests_ok": 667,
+    "tests": 675,
+    "tests_ok": 675,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 24586
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T23:58:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (4s): los sprites de los cuatro enemigos de Atención al Cliente (el Dispensador de Turnos con su «087» y la lengua de papel, los Postes de Cola con su cinta, el Asistente Virtual con su sonrisa que no cambia y el Teléfono de Recepción con el auricular colgando), sus balas, el círculo del turno y el escudo de preguntas frecuentes.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T22:58:00+01:00",
       "hito": "M11",
@@ -1028,6 +1034,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/clientela-sala.png",
+      "pie": "Los cuatro enemigos de Atención al Cliente en la Cola Preferente: el Dispensador llama un turno y escupe tiques, los Postes tienden la cinta, el Asistente se escuda con sus preguntas frecuentes y el Teléfono suena; en el suelo, un círculo de turno llamado y otro atendido"
+    },
+    {
+      "archivo": "capturas/clientela-sprites.png",
+      "pie": "Las hojas de los cuatro: el Dispensador de Turnos (andar, llamar, escupir), los dos Postes de Cola (uno desconchado), el Asistente Virtual escribiendo y el Teléfono de Recepción saltando y sonando; abajo, sus balas, la cinta y el escudo"
+    },
+    {
       "archivo": "capturas/centralita-sala.png",
       "pie": "La Centralita en Atención al Cliente: habla («Para reclamaciones, pulse 3»), lanza clavijas y notas de la música de espera; en el suelo, las zonas del menú de voz (la 1 en espera, la 2 y la 3 con las balas encima) y los mostradores bajos de los departamentos"
     },
@@ -1042,17 +1056,9 @@
     {
       "archivo": "capturas/atencion-secreta.png",
       "pie": "Grabaciones con Fines de Calidad, la secreta de la planta 5: en el suelo, el Registro de llamadas (todas acaban en la extensión 0)"
-    },
-    {
-      "archivo": "capturas/atencion-contestador.png",
-      "pie": "Planta 5: el enemigo que te ha herido queda grabado (parpadea en rojo), el Número de Turno avanza («Van por el 13») y el Contestador repite el disparo, más tenue"
-    },
-    {
-      "archivo": "capturas/atencion-objetos.png",
-      "pie": "Cable de Teléfono Rizado: las balas van en tirabuzón hacia los maniquíes; y donde debía haber un cofre, «Promoción caducada». Abajo, los cinco primeros objetos de la planta 5"
     }
   ],
-  "proximo": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y acabar la partida al vencer a su jefe; o (5b) las fases 1 y 2 de la Centralita con su sala (2c2); o los enemigos (4a)–(4d) o las armas (6c1)–(6c2).",
+  "proximo": "M11 (3) si la otra sesión no la ha cerrado; si no, (4a) el Dispensador de Turnos en el juego con sus sprites ya hechos (luego 4b-4d), o (5b) las fases 1 y 2 de la Centralita con su sala (2c2), o las armas (6c1)-(6c2).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1083,11 +1089,6 @@
       "sesion": "2026-11-05 23:02",
       "tarea": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y el final de la partida (src/sim/world.ts, src/render/GameScene.ts, src/data/texts.ts, tools/bot.ts, tools/medir-plantas.ts, tests/plantas.test.ts)",
       "desde": "2026-11-05T23:02:00+01:00"
-    },
-    {
-      "sesion": "2026-11-05 23:26",
-      "tarea": "M11 (4s): sprites de los cuatro enemigos de la planta 5 y sus balas (solo tools/sprites/, public/assets/, tests/ nuevos, docs/ESTILO_ARTE.md)",
-      "desde": "2026-11-05T23:26:00+01:00"
     }
   ]
 }

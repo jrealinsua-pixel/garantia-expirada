@@ -251,6 +251,78 @@
     "frameH": 48,
     "frames": 6
   },
+  "dispensador-turnos": {
+    "file": "dispensador-turnos.png",
+    "frameW": 30,
+    "frameH": 35,
+    "frames": 8
+  },
+  "tique-turno": {
+    "file": "tique-turno.png",
+    "frameW": 9,
+    "frameH": 7,
+    "frames": 2
+  },
+  "circulo-turno": {
+    "file": "circulo-turno.png",
+    "frameW": 82,
+    "frameH": 82,
+    "frames": 3
+  },
+  "poste-cola": {
+    "file": "poste-cola.png",
+    "frameW": 22,
+    "frameH": 34,
+    "frames": 16
+  },
+  "cinta-poste": {
+    "file": "cinta-poste.png",
+    "frameW": 24,
+    "frameH": 6,
+    "frames": 2
+  },
+  "bola-acero": {
+    "file": "bola-acero.png",
+    "frameW": 7,
+    "frameH": 7,
+    "frames": 1
+  },
+  "asistente-virtual": {
+    "file": "asistente-virtual.png",
+    "frameW": 27,
+    "frameH": 36,
+    "frames": 8
+  },
+  "bocadillo": {
+    "file": "bocadillo.png",
+    "frameW": 11,
+    "frameH": 9,
+    "frames": 2
+  },
+  "escudo-faq": {
+    "file": "escudo-faq.png",
+    "frameW": 8,
+    "frameH": 30,
+    "frames": 2
+  },
+  "boton-ayuda": {
+    "file": "boton-ayuda.png",
+    "frameW": 13,
+    "frameH": 10,
+    "frames": 2
+  },
+  "telefono-recepcion": {
+    "file": "telefono-recepcion.png",
+    "frameW": 36,
+    "frameH": 30,
+    "frames": 7
+  },
+  "bala-llamada": {
+    "file": "bala-llamada.png",
+    "frameW": 13,
+    "frameH": 13,
+    "frames": 2
+  },
   "maniqui": {
     "file": "maniqui.png",
     "frameW": 32,

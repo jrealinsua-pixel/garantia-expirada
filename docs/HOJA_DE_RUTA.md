@@ -336,7 +336,9 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     historia, y el Escaparate de Novedades del jefe).
   - [x] (3) Encadenar: tras el Router se baja en el montacargas a la planta 3, con todo lo que se
     lleva; hasta que llegue el Muñeco, el Router pelea en el Escaparate.
-  - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
+  - 4 enemigos nuevos, uno por tarea (simulación, tests y captura; los sprites, juntos en la (4s)):
+  - [x] (4s) Los sprites de los cuatro, con sus balas y lo que dejan en el suelo (el círculo del
+    turno, la cinta de los postes, el escudo de preguntas frecuentes).
     - [x] (4a) Robot de Cuerda (rebota como una bola de billar; sin cuerda, quieto y frágil).
     - [x] (4b) Coche Teledirigido (arcos derrapando, embestida, vuelca contra la pared).
     - [x] (4c) Cubo de Piezas (siembra el suelo de piezas que hacen daño al andar, no al rodar).
@@ -368,7 +370,9 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     Destruir con su acta de reunión, y la Sala de Juntas del jefe).
   - [x] (3) Encadenar: tras el Muñeco se sube a la planta 4, con todo lo que se lleva; hasta que
     llegue el Director, el Muñeco pelea en la Sala de Juntas.
-  - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
+  - 4 enemigos nuevos, uno por tarea (simulación, tests y captura; los sprites, juntos en la (4s)):
+  - [x] (4s) Los sprites de los cuatro, con sus balas y lo que dejan en el suelo (el círculo del
+    turno, la cinta de los postes, el escudo de preguntas frecuentes).
     - [x] (4a) Destructora de Documentos (siempre de cara, se traga las balas de frente).
     - [x] (4b) Fotocopiadora de Planta (copia a otro enemigo de la sala).
     - [x] (4c) Sello de Denegado (estampa tinta donde no se puede rodar).
@@ -426,7 +430,9 @@ aspecto). En partes, como M10:
   (`LAST_LEVEL` = 5); hasta que llegue la Centralita, el Director pelea en su sala. Vencer al jefe
   de la planta 5 acaba la partida con victoria («Su incidencia ha sido cerrada») y vuelta al
   Mostrador, sin montacargas.
-- 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
+- 4 enemigos nuevos, uno por tarea (simulación, tests y captura; los sprites, juntos en la (4s)):
+  - [x] (4s) Los sprites de los cuatro, con sus balas y lo que dejan en el suelo (el círculo del
+    turno, la cinta de los postes, el escudo de preguntas frecuentes).
   - [ ] (4a) Dispensador de Turnos (llama turnos: hay que llegar al círculo a tiempo).
   - [ ] (4b) Postes de Cola (dos postes con una cinta que no se cruza y te hace la cola).
   - [ ] (4c) Asistente Virtual (aprende: se escuda del lado desde el que le das).

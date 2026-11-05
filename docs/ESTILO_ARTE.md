@@ -344,3 +344,52 @@ lleva **los dos cables largos del pupitre como brazos**, con una clavija gorda e
   **zonas del menú de voz** (`zona-menu`, 72 × 48, 6): rectángulos de esquinas redondeadas
   translúcidos con «PULSE» y el número grande; 0–2 en espera (azul pálido, borde a trazos), 3–5 con
   las balas encima (rojo, rayado en diagonal, borde continuo).
+
+### Los enemigos de la planta 5 (`tools/sprites/clientela.ts`)
+
+Las mismas reglas que los demás enemigos (cabeza de cubo en tres cuartos mirando a la derecha,
+manos flotantes del material de la carcasa, piernas cortas con zapato de oficina, contorno de 1 px),
+y cada uno con un color que se despega del linóleo azul petróleo: **rojo**, **cromo**, **blanco** y
+**beis**. Los nombres de los fotogramas están en `DISP_FRAMES`, `POST_FRAMES`, `AV_FRAMES` y
+`PHONE_FRAMES`.
+
+- **Dispensador de Turnos** (`dispensador-turnos`, 30 × 35, 8): una caja roja de «coja número»
+  (más oscura y parda que las balas, para que un tique no se pierda encima) sobre un poste cromado y
+  un pie de hierro redondo, con sus piernas debajo. En la frente, la pantalla de LED con **«087»**,
+  que no cambia nunca; debajo, ojos de funcionario aburrido; la ranura es la boca y el **rollo de
+  papel le cuelga como una lengua**. En el lateral, la ventanita con el rollo; encima, el cartel
+  «Respete su turno» torcido. 0–1 reposo, 2–5 andar, 6 **llama** (el número al blanco, las cejas
+  arriba, las manos arriba, un tique a medio salir), 7 **escupe** («turno perdido»: furioso, la
+  lengua larga y rota, tiques volando). Sus balas, los tiques (`tique-turno`, 9 × 7, 2: plano y
+  doblado, para los que planean), rojos con núcleo blanco. El **círculo del turno**
+  (`circulo-turno`, 82 × 82, radio 40, translúcido, con doce marcas de pegatina por dentro): 0
+  llamado (amarillo, borde a trazos; el número lo escribe el juego encima), 1 atendido (verde,
+  continuo), 2 perdido (rojo rayado).
+- **Postes de Cola** (`poste-cola`, 22 × 34, 16): un poste separador cromado cuya cabeza es el
+  tambor de la cinta, con ojos de portero que te ha visto intentar colarte y el enganche azul de la
+  cinta asomando por delante. Andan con las piernas juntas (`narrowPoseCycle`). 0–1 reposo, 2–5
+  andar, 6 dispara (cejas en V, destellos en la tapa), 7 suelta la cinta (sin enganche, la boca
+  abierta); 8–15, los mismos con **la base desconchada** hasta el óxido (el otro de la pareja). La
+  **cinta** (`cinta-poste`, 24 × 6, 2, opaca, para repetir a lo largo): azul vivo, más clara que el
+  suelo, con «HAGA COLA AQUÍ» al revés en blanco; 1 tensa (más clara, empuja). No confundir con
+  `cinta-cola`, la de la cola del Mostrador. Sus balas, las bolas de acero (`bola-acero`, 7 × 7) con
+  brillo cian y núcleo blanco.
+- **Asistente Virtual** (`asistente-virtual`, 27 × 36, 8): un tótem blanco de pantalla táctil
+  sobre un pie estrecho. La cara es **el dibujo de la pantalla**: dos ojos de punto y una sonrisa
+  grande que **no cambia en ningún fotograma** (lo vigila el test). La pantalla, con huellas de
+  dedos y «¿En qué puedo ayudarle?» quemado arriba; en el lateral, el papel «Si no le entiende,
+  hable más despacio». 0–1 reposo, 2–5 andar, 6–7 escribiendo (los tres puntitos bajo la sonrisa,
+  la mano levantada). Balas: **bocadillos** (`bocadillo`, 11 × 9, 2: volando y parado con «…»),
+  cian con núcleo blanco. El **escudo de preguntas frecuentes** (`escudo-faq`, 8 × 30, 2: puesto y
+  desvaneciéndose): una pila curva de bocadillos translúcidos con una línea de texto cada uno,
+  dibujado a la izquierda (el juego lo gira hacia los disparos). Al romperse, «¿Le he ayudado?»:
+  los botones (`boton-ayuda`, 13 × 10, 2) **SÍ** en cian y **NO** en rojo, de cara blanca.
+- **Teléfono de Recepción** (`telefono-recepcion`, 36 × 30, 7): un teléfono de mesa beis, bajo y
+  ancho, con demasiadas teclas. La horquilla de arriba está **vacía**: el auricular le cuelga por
+  detrás del cable rizado. Ojos de recepcionista cansada sobre el teclado, la luz roja de **mensaje
+  en espera siempre encendida** y un pósit amarillo encima («Ext. 0»). Va a saltos: 0–1 reposo, 2
+  agachado, 3 en el aire (piernas recogidas, el auricular sube), 4–5 sonando (tiembla, ojos
+  apretados, boca abierta, arcos de timbre en dos colores), 6 «le paso con un compañero» (mira de
+  reojo con media sonrisa). Su llamada (`bala-llamada`, 13 × 13, 2: el anillo late), roja con
+  núcleo blanco y un auricular dibujado; los anillos de timbre y la espera usan `bala-roja` y
+  `nota-espera`.
