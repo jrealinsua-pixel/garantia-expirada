@@ -188,6 +188,46 @@ lo vigila). La planta más apagada a propósito: aquí el color lo ponen los ene
   encima) y una **mesa de oficina** gris con una taza y un pósit. Las persianas, grises, con un
   cartel plastificado colgado: «REUNIÓN» (en las laterales, que no caben letras, una tarjeta roja).
 
+### Planta 5: Atención al Cliente (`src/art/atencion.ts`)
+
+Color dominante: **azul petróleo** (`#2d4a5e`), más verde y algo más claro que el añil del almacén
+(`tests/roomart.test.ts` pide azul sobre rojo por 30 y verde sobre rojo por 16, distinto de las otras
+cuatro e igual de oscuro); paredes azul noche `#1b2531`.
+
+- **Linóleo institucional en rollos** de dos casillas de ancho, dos tintes que se alternan rollo a
+  rollo, con vetas jaspeadas a lo largo del rollo y el cordón de soldadura entre rollos. Variantes:
+  marcas negras de tacón, quemadura de cigarro de antes de la prohibición (más en la secreta),
+  burbuja levantada, remiendo recortado en otro azul y pegatina de pies amarilla «espere aquí» con
+  un talón despegado.
+- **Suelo**: los remolinos de la pulidora, rayas de tacón, tiques de turno tirados y conos de papel
+  del dispensador (en lugar de tornillos), la **línea amarilla «Siga la línea»** que entra desde una
+  pared, gira una o dos veces y acaba con una flecha en mitad del suelo (en lugar de las rodadas; en
+  la entrada, siempre), zonas de «ESPERE AQUÍ / COLA / NO PASAR» y letras en amarillo gastado
+  («HORARIO: NUNCA», «VENTANILLA 0», «GRACIAS POR ESPERAR»…). Las líneas de seguridad, en azul gris.
+- **Paredes**: las de dentro son **mostradores de ventanilla**: encimera de laminado con la mampara
+  de metacrilato encima (un brillo claro con agujeros para hablar) y, delante, el frontal azul con el
+  número de ventanilla, un cartel de «cerrada» o un folletero. La del fondo, pintura a dos tonos con
+  zócalo oscuro, una fila de **sillas de espera en bancada** (a una le falta el asiento: quedan los
+  tornillos), avisos A4 pegados con celo, el vinilo **«SU SATISFACCIÓN ES NUESTRA PRIORIDAD»** con
+  su valoración (una estrella de cinco) cuando cabe, y **relojes que marcan cada uno su hora**.
+  El turno es una pantalla que siempre dice «A047» en la ventanilla «0». Techo acústico de placas
+  grandes con rejillas y paneles cuadrados de luz fría azulada. Folleteros en las laterales (todos
+  vacíos menos uno) y el aviso de «hojas de reclamaciones a su disposición» en vez de pósters;
+  rodapié de linóleo subido a la pared con su perfil metálico.
+- Salas: entrada con felpudo «COJA NÚMERO» y cartel «PLANTA 5 · ATENCIÓN» (el nombre entero no
+  cabe junto a la puerta de arriba); tienda «REPUESTOS ORIGINALES» con alfombra granate; tesoro «NO
+  SE DEVUELVEN»; secreta «GRABACIONES» con cinta magnética sacada de los casetes y polvo gris
+  azulado; jefe «CENTRALITA» con cables de teléfono rizados que salen de la pared del fondo.
+- En la pared del fondo nada se pisa: en la planta 5 los sitios se reservan por tramos enteros
+  (cartel, eslogan, pantalla, relojes) y lejos de la puerta de arriba.
+- Obstáculos (`caja-5`, `barril-5`, `carrito-5`, `mesa-5`): dos **sillas de espera** de plástico
+  azul atornilladas a su viga (con un chicle), el **buzón rojo de reclamaciones** lleno a reventar
+  y con candado (rojo con la etiqueta amarilla: explota igual), el **cubo de fregar con el cartel
+  amarillo de «suelo mojado»** (bajo: las balas pasan por encima) y la **mesita baja de la sala de
+  espera**, haya clara sobre cromo, con revistas del año pasado. Las persianas, azul acero con el
+  rodapié de linóleo y un cartel pegado con celo: «CERRADA» y una flecha a la ventanilla de al lado
+  (en las laterales, solo la flecha) (`persiana-*-5`).
+
 ### El Muñeco de Moda, jefe de la planta 3 (`tools/sprites/muneco.ts`)
 
 - **Con caja** (fotogramas 0–6): caja de escaparate magenta desvaído en tres cuartos (cara

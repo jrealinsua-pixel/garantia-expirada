@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T17:30:00+01:00",
+  "actualizado": "2026-11-05T18:54:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -91,7 +91,7 @@
       "id": "M11",
       "nombre": "Planta 5: Atención al Cliente",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 7
     },
     {
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 45,
     "plantillas_sala": 71,
-    "tests": 641,
-    "tests_ok": 641,
+    "tests": 645,
+    "tests_ok": 645,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 23115
+    "lineas_codigo": 23676
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T18:54:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (1): el aspecto de Atención al Cliente (?planta=5): linóleo azul petróleo en rollos, la línea amarilla «Siga la línea» que acaba en mitad del suelo, mostradores de ventanilla con mampara, sillas de espera, el eslogan con una estrella de cinco, relojes que no se ponen de acuerdo, la pantalla que siempre dice A047; buzón de reclamaciones, cubo de «suelo mojado», mesita de revistas y persianas «Cerrada».",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T17:30:00+01:00",
       "hito": "M11",
@@ -980,6 +986,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/atencion-sala.png",
+      "pie": "Atención al Cliente (planta 5): linóleo azul petróleo, mostradores de ventanilla con mampara y número, la mesita de revistas, el buzón de reclamaciones y el cubo con «suelo mojado»"
+    },
+    {
+      "archivo": "capturas/atencion-entrada.png",
+      "pie": "La entrada de la planta 5: «Coja número», la línea amarilla que no lleva a ninguna parte, sillas de espera atornilladas y la pantalla que siempre dice A047"
+    },
+    {
       "archivo": "capturas/cadena-correos.png",
       "pie": "Cadena de Correos (Pósit de Urgente + Responder a Todos): tras una voltereta, la bala urgente acierta y se parte en dos trozos hacia los demás enemigos"
     },
@@ -994,17 +1008,9 @@
     {
       "archivo": "capturas/director-de-pie.png",
       "pie": "Fase 3: «No es nada personal. Es todo.» Se levanta de la silla"
-    },
-    {
-      "archivo": "capturas/director-reestructuracion.png",
-      "pie": "«Reestructuración»: el Director da una palmada y las siluetas discontinuas marcan durante un segundo adónde van a ir las cuatro mamparas"
-    },
-    {
-      "archivo": "capturas/director-mamparas.png",
-      "pie": "Las mamparas de cristal esmerilado ya se han deslizado a su sitio nuevo: la cobertura nunca está donde estaba"
     }
   ],
-  "proximo": "M11 (1): el juego de casillas de Atención al Cliente (src/art/atencion.ts, ?planta=5).",
+  "proximo": "M11 (2a): seis plantillas de combate propias de la planta 5.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1030,11 +1036,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 18:26",
-      "tarea": "M11 (1): juego de casillas de Atención al Cliente (src/art/atencion.ts)",
-      "desde": "2026-11-05T18:26:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

@@ -411,7 +411,7 @@ Diseño en `docs/DISENO.md` (enemigos de la quinta planta, la Centralita, objeto
 aspecto). En partes, como M10:
 
 - [x] (0) El diseño de la planta 5 y esta lista de tareas.
-- [ ] (1) Juego de casillas y color propio (`src/art/atencion.ts`, se ve con `?planta=5`): linóleo
+- [x] (1) Juego de casillas y color propio (`src/art/atencion.ts`, se ve con `?planta=5`): linóleo
   azul con la línea amarilla, postes con cinta, sillas de espera atornilladas, mostradores de
   ventanilla con mampara, dispensadores de agua, pared con el cartel de la estrella y relojes, y
   persianas con «Ventanilla cerrada».

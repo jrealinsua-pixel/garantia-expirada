@@ -119,11 +119,16 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'caja-4': one(P.makeFilingCabinet()),
     'barril-4': one(P.makeCoffeeUrn()),
     'carrito-4': one(P.makeOfficePlant()),
+    // Floor 5 (Atención al Cliente): bolted waiting chairs, the complaints box, the wet floor sign.
+    'caja-5': one(P.makeWaitingChairs()),
+    'barril-5': one(P.makeComplaintsBox()),
+    'carrito-5': one(P.makeWetFloorSign()),
     // M9b (13b): the table that tips over: 0 standing, tipped to face 1 N, 2 S, 3 E, 4 W.
     mesa: { canvas: strip(P.makeTableFrames(1)), frameW: 28, frameH: 28 },
     'mesa-2': { canvas: strip(P.makeTableFrames(2)), frameW: 28, frameH: 28 },
     'mesa-3': { canvas: strip(P.makeTableFrames(3)), frameW: 28, frameH: 28 },
     'mesa-4': { canvas: strip(P.makeTableFrames(4)), frameW: 28, frameH: 28 },
+    'mesa-5': { canvas: strip(P.makeTableFrames(5)), frameW: 28, frameH: 28 },
     'bala-jugador': one(P.makeShot()),
     // Plastilina Mezclada: a stuck bullet (0-1 wobbling, 2-3 with glitter for Manualidades).
     'pegote-plastilina': { canvas: strip(P.makePegoteFrames()), frameW: 12, frameH: 10 },
@@ -171,6 +176,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'persiana-n-4': { canvas: P.makeShutterFrames(48, 33, 4), frameW: 48, frameH: 33 },
     'persiana-s-4': { canvas: P.makeShutterFrames(48, 24, 4), frameW: 48, frameH: 24 },
     'persiana-v-4': { canvas: P.makeShutterFrames(24, 48, 4), frameW: 24, frameH: 48 },
+    'persiana-n-5': { canvas: P.makeShutterFrames(48, 33, 5), frameW: 48, frameH: 33 },
+    'persiana-s-5': { canvas: P.makeShutterFrames(48, 24, 5), frameW: 48, frameH: 24 },
+    'persiana-v-5': { canvas: P.makeShutterFrames(24, 48, 5), frameW: 24, frameH: 48 },
     montacargas: { canvas: P.makeGoodsLift(), frameW: 44, frameH: 34 },
     'corazon-suelo': { canvas: P.makeSpareHeart(), frameW: 13, frameH: 12 },
     'garantia-provisional': { canvas: P.makeShieldPickup(), frameW: 13, frameH: 12 },

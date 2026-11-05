@@ -527,8 +527,8 @@ export class GameScene extends Phaser.Scene {
       this.runBefore = { seconds: 0, kills: 0 };
     }
     // ?planta=2: floor 2 (Informática): its look, its rooms and its loot. ?planta=3: the Juguetería. ?planta=4: the
-    // Oficinas (its look; until M10 planta 4 (2) and (3) it borrows the Juguetería's rooms and boss).
-    const level = Math.max(1, Math.min(4, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
+    // Oficinas. ?planta=5: Atención al Cliente (its look; until M11 (2) and (3) it borrows the Oficinas' rooms and boss).
+    const level = Math.max(1, Math.min(5, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
     if (carried) {
       // Walked through a door: same run, next room. The controls hint was read already.
       this.world = carried;
@@ -2840,7 +2840,8 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < 12; i++) this.splinter(e.x + this.fx.range(-9, 9), e.y - this.fx.range(4, 14), this.fx.range(0, Math.PI * 2));
     for (let i = 0; i < 5; i++) this.puff(e.x + this.fx.range(-10, 10), e.y - this.fx.range(2, 10), this.fx.range(0.4, 0.8));
     // A few planks stay on the floor.
-    const wood = this.world.level >= 4 ? 0x84838c : this.world.level >= 3 ? 0xb08a2a : this.world.level > 1 ? 0xa99b74 : 0x7d5a36;
+    const lv = this.world.level;
+    const wood = lv >= 5 ? 0xa08458 : lv >= 4 ? 0x84838c : lv >= 3 ? 0xb08a2a : lv > 1 ? 0xa99b74 : 0x7d5a36;
     for (let i = 0; i < 3; i++) {
       this.add.rectangle(e.x + this.fx.range(-10, 10), e.y - this.fx.range(1, 9), this.fx.int(4, 7), 2, wood, 1).setAngle(this.fx.pick([0, 0, 90, 30, -30])).setDepth(-48990);
     }
@@ -2864,7 +2865,9 @@ export class GameScene extends Phaser.Scene {
   /** A splinter of the table (or something that was on it) that jumps and falls. */
   private splinter(x: number, y: number, a: number, tint?: number): void {
     const sp = this.fx.range(30, 80);
-    const s = this.add.image(x, y, 'chispas', this.fx.int(1, 2)).setTint(tint ?? (this.world.level >= 4 ? 0xa8a7b0 : this.world.level >= 3 ? 0xe0b23c : this.world.level > 1 ? 0xd4c79f : 0xa77c4c));
+    const lv = this.world.level;
+    const wood = lv >= 5 ? 0xc8a874 : lv >= 4 ? 0xa8a7b0 : lv >= 3 ? 0xe0b23c : lv > 1 ? 0xd4c79f : 0xa77c4c;
+    const s = this.add.image(x, y, 'chispas', this.fx.int(1, 2)).setTint(tint ?? wood);
     const vz = this.fx.range(40, 90);
     this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.5, z: 4, vz, life: 0.6, maxLife: 0.6, gravity: true, spin: this.fx.range(-10, 10), fade: true, fadeTime: 0.2 });
   }

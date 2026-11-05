@@ -285,6 +285,93 @@ export function makeOfficePlant(): Canvas {
   return outline(cv);
 }
 
+// Floor 5 (Atención al Cliente) versions of the three obstacles: same footprint and collision box again.
+
+const SEAT = ramp('#7aa8e0', '#3f66a6', '#2a4a7a', '#1f3456');
+const BEAM = ramp('#b7bed0', '#858ea8', '#5a627c', '#3a4058');
+
+/** «Caja» on floor 5: two moulded waiting-room chairs on their steel beam, bolted to the floor. */
+export function makeWaitingChairs(): Canvas {
+  const cv = new Canvas(24, 24);
+  // The beam and its two feet, with the bolts.
+  cv.rect(1, 17, 22, 2, BEAM[1]!);
+  cv.rect(1, 17, 22, 1, BEAM[0]!);
+  for (const x of [3, 19]) {
+    cv.rect(x, 19, 2, 4, BEAM[2]!);
+    cv.rect(x - 1, 22, 4, 1, BEAM[3]!);
+    cv.set(x - 1, 22, BEAM[0]!);
+  }
+  // Two seats, each a back and a seat in one shell; the right one has a chewing gum and a crack.
+  for (const x of [1, 12]) {
+    cv.rect(x, 3, 11, 8, SEAT[1]!);
+    cv.rect(x, 3, 11, 1, SEAT[0]!);
+    cv.rect(x + 1, 5, 9, 1, SEAT[2]!);
+    cv.rect(x, 11, 11, 5, SEAT[2]!);
+    cv.rect(x, 11, 11, 1, SEAT[1]!);
+    cv.rect(x, 15, 11, 1, SEAT[3]!);
+    cv.rect(x + 10, 3, 1, 13, SEAT[3]!);
+    // The hand holes at the top of the back.
+    cv.rect(x + 4, 4, 3, 1, SEAT[3]!);
+  }
+  cv.set(16, 13, hx('#e88fa4'));
+  cv.set(6, 7, SEAT[3]!);
+  cv.set(7, 8, SEAT[3]!);
+  cv.set(7, 9, SEAT[3]!);
+  return outline(cv);
+}
+
+/** «Barril» on floor 5: the red complaints box, full to bursting (it goes up the same: red, the yellow label). */
+export function makeComplaintsBox(): Canvas {
+  const cv = new Canvas(16, 24);
+  // The post it stands on.
+  cv.rect(7, 18, 2, 4, DSTEEL[1]!);
+  cv.rect(5, 21, 6, 1, DSTEEL[2]!);
+  // The box: red sheet metal with a rounded top and the slot, sheets sticking out of it.
+  box(cv, 2, 4, 12, 14, RED);
+  cv.rect(3, 3, 10, 1, RED[0]!);
+  cv.rect(4, 6, 8, 1, K);
+  cv.rect(5, 4, 2, 3, WHITE);
+  cv.rect(8, 3, 2, 4, CREAM[0]!);
+  cv.set(11, 5, WHITE);
+  cv.rect(2, 9, 12, 1, RED[3]!);
+  // «Reclamaciones»: the yellow label, and the padlock nobody has the key to.
+  cv.rect(4, 11, 8, 3, YEL[1]!);
+  cv.rect(5, 12, 6, 1, K);
+  cv.rect(7, 15, 2, 2, STEEL[1]!);
+  cv.set(7, 15, STEEL[0]!);
+  return outline(cv);
+}
+
+/** «Carrito» on floor 5: the mop bucket and its yellow «suelo mojado» sign (low: bullets go over it). */
+export function makeWetFloorSign(): Canvas {
+  const cv = new Canvas(28, 24);
+  // The bucket: blue plastic on castors, the wringer on top, the mop leaning out.
+  box(cv, 3, 14, 11, 7, ramp('#7aa8e0', '#3f66a6', '#2a4a7a', '#1f3456'));
+  cv.rect(4, 15, 9, 2, hx('#5a7a6a'));
+  cv.rect(5, 12, 7, 2, hx('#e0b23c'));
+  cv.rect(5, 12, 7, 1, hx('#f6dc7a'));
+  for (const x of [4, 12]) cv.set(x, 21, K);
+  for (let j = 0; j < 10; j++) cv.set(10 - Math.floor(j / 3), 3 + j, BROWN[1]!);
+  cv.rect(6, 1, 3, 3, CREAM[1]!);
+  // The A-frame sign: yellow, the figure slipping, the bottom scuffed.
+  const Y = ramp('#fff1a8', '#f6c431', '#d9932a', '#8f5a1c');
+  for (let j = 0; j < 14; j++) {
+    const half = 2 + Math.floor(j / 3);
+    cv.rect(21 - half, 7 + j, half * 2 + 1, 1, j === 0 ? Y[0]! : Y[1]!);
+  }
+  cv.rect(17, 20, 9, 1, Y[3]!);
+  cv.rect(21, 7, 1, 14, Y[2]!);
+  // The slipping figure, in black.
+  cv.set(19, 11, K);
+  cv.rect(19, 12, 1, 3, K);
+  cv.set(18, 15, K);
+  cv.set(20, 15, K);
+  cv.set(20, 12, K);
+  cv.set(17, 13, K);
+  cv.rect(17, 17, 4, 1, K);
+  return outline(cv);
+}
+
 /** Player shot: 8x8 orange ball with a yellow core (build2.shot8). */
 export function makeShot(): Canvas {
   const cv = new Canvas(8, 8);
@@ -501,7 +588,9 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
   // across it, every bulb fused but one. On floor 4, office grey and a laminated «Reunión» card
   // hanging over it.
   const [slat, groove, a, b] =
-    level === 4
+    level === 5
+      ? ['#3a5266', '#2a3c4c', '#8aa0b0', '#263e50']
+      : level === 4
       ? ['#4a4952', '#36353c', '#6a6974', '#3a3940']
       : level === 3
         ? ['#4a3a50', '#36293c', '#8a5a5c', '#5a5a3c']
@@ -517,6 +606,7 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
     f.rect(0, h - 2, w, 2, K);
     if (level === 3) fairLights(f, w, h);
     if (level === 4) meetingSign(f, w, h);
+    if (level === 5) closedSign(f, w, h);
     out.blit(f, i * w, 0);
   });
   return out;
@@ -544,6 +634,43 @@ function meetingSign(f: Canvas, w: number, h: number): void {
   f.rect(x + 1, y, tw + 4, 7, hx('#d8d6ce'));
   f.rect(x + 1, y, tw + 4, 1, WHITE);
   stencil(f, x + 3, y + 3, word, RED[2]!);
+}
+
+/**
+ * «Ventanilla cerrada. Diríjase a la ventanilla de al lado.»: a card taped on the shutter with
+ * an arrow pointing to the next one (which is also closed).
+ */
+function closedSign(f: Canvas, w: number, h: number): void {
+  const word = 'CERRADA';
+  const tw = stencilWidth(word);
+  if (tw + 6 > w - 4 || h < 22) {
+    // Side shutters: a white card with the arrow only.
+    const x = Math.floor(w / 2) - 5;
+    const y = Math.min(h - 16, 14);
+    f.rect(x, y, 10, 9, K);
+    f.rect(x + 1, y + 1, 8, 7, hx('#d8dee6'));
+    f.rect(x + 2, y + 2, 6, 1, RED[1]!);
+    f.rect(x + 2, y + 5, 4, 1, hx('#2f4a6a'));
+    f.set(x + 6, y + 4, hx('#2f4a6a'));
+    f.set(x + 6, y + 6, hx('#2f4a6a'));
+    f.set(x + 7, y + 5, hx('#2f4a6a'));
+    return;
+  }
+  const x = Math.floor((w - tw) / 2) - 3;
+  const y = Math.min(h - 17, 11);
+  f.rect(x, y - 1, tw + 6, 13, K);
+  f.rect(x + 1, y, tw + 4, 11, hx('#d8dee6'));
+  f.rect(x + 1, y, tw + 4, 1, WHITE);
+  stencil(f, x + 3, y + 3, word, RED[2]!);
+  // The arrow: «diríjase a la de al lado».
+  const ay = y + 8;
+  f.rect(x + 3, ay, tw - 2, 1, hx('#2f4a6a'));
+  f.set(x + tw, ay - 1, hx('#2f4a6a'));
+  f.set(x + tw, ay + 1, hx('#2f4a6a'));
+  f.set(x + tw + 1, ay, hx('#2f4a6a'));
+  // The tape at the corners.
+  f.rect(x, y - 1, 2, 2, [230, 226, 200, 200]);
+  f.rect(x + tw + 4, y - 1, 2, 2, [230, 226, 200, 200]);
 }
 
 /** A sagging string of fair lights across a shutter; all fused but one, which glows a faded pink. */
@@ -1368,7 +1495,7 @@ interface TableLook {
   tag: (cv: Canvas, x: number, y: number) => void;
 }
 
-const TABLE_LOOKS: Record<1 | 2 | 3 | 4, TableLook> = {
+const TABLE_LOOKS: Record<1 | 2 | 3 | 4 | 5, TableLook> = {
   1: {
     top: ramp('#c99e6a', '#a77c4c', '#7d5a36', '#553c24'),
     under: ramp('#8f6c40', '#6e5232', '#523c24', '#3a2a1a'),
@@ -1443,6 +1570,26 @@ const TABLE_LOOKS: Record<1 | 2 | 3 | 4, TableLook> = {
     tag: (cv, x, y) => {
       cv.rect(x, y, 5, 3, YEL[1]!);
       cv.rect(x + 1, y + 1, 3, 1, K);
+    },
+  },
+  // Floor 5: the low table of a waiting room, beech laminate on chrome, last year's magazines.
+  5: {
+    top: ramp('#e6cfa0', '#c8a874', '#a08458', '#74603e'),
+    under: ramp('#a08458', '#806a46', '#605034', '#423826'),
+    leg: STEEL,
+    dress: (cv, edgeY) => {
+      // A fan of old magazines (one with a crossword done in pen) and a leaflet.
+      cv.rect(5, edgeY - 6, 7, 5, hx('#a42f37'));
+      cv.rect(6, edgeY - 5, 7, 4, hx('#3f66a6'));
+      cv.rect(7, edgeY - 4, 4, 1, WHITE);
+      cv.rect(15, edgeY - 5, 5, 4, CREAM[0]!);
+      cv.rect(16, edgeY - 4, 3, 1, hx('#2f4a6a'));
+      cv.rect(19, edgeY, 4, 3, BLUE[1]!);
+      cv.rect(20, edgeY + 1, 2, 1, WHITE);
+    },
+    tag: (cv, x, y) => {
+      cv.rect(x, y, 5, 3, BLUE[1]!);
+      cv.rect(x + 1, y + 1, 3, 1, WHITE);
     },
   },
 };
@@ -1535,7 +1682,7 @@ function mirror(cv: Canvas): Canvas {
   return out;
 }
 
-export function makeTableFrames(level: 1 | 2 | 3 | 4): Canvas[] {
+export function makeTableFrames(level: 1 | 2 | 3 | 4 | 5): Canvas[] {
   const L = TABLE_LOOKS[level];
   const east = tableEast(L);
   return [tableStanding(L), tableNorth(L), tableSouth(L), east, mirror(east)];

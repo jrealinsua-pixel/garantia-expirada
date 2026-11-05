@@ -311,6 +311,96 @@ test('arte de sala, planta 4: la decoración no tapa los huecos de las puertas y
   const room = buildRoom(ROOMS['carga-descarga']!);
   assert.notDeepEqual(paint4(room, 'x').canvas.p, paint3(room, 'x').canvas.p);
   assert.deepEqual(paint4(room, 'x').canvas.p, paint4(room, 'x').canvas.p);
-  // Higher levels (until they have their own look) paint as the offices.
-  assert.deepEqual(paintRoom({ ...room, level: 5 }, 'x').canvas.p, paintRoom({ ...room, level: 4 }, 'x').canvas.p);
+});
+
+// Floor 5 (Atención al Cliente): linoleum, service counters, its own colour and decoration (src/art/atencion.ts).
+function paint5(room: Room, seed: string) {
+  const tiles = room.tiles.slice();
+  for (const d of room.doors) for (const c of doorCells(room.cols, room.rows, d.dir)) tiles[c.r * room.cols + c.c] = 1;
+  return paintRoom({ ...room, tiles, level: 5 }, seed);
+}
+
+test('arte de sala, planta 5: azul petróleo (más verde que el añil del almacén), distinto de las otras cuatro e igual de oscuro', () => {
+  const lum = (c: number[]): number => 0.3 * c[0]! + 0.59 * c[1]! + 0.11 * c[2]!;
+  for (const t of floorTemplates) {
+    const room = buildRoom(t);
+    const five = floorMean(paint5(room, 'c'), room);
+    const one = floorMean(paint(room, 'c'), room);
+    // Blue, and greener than the warehouse: blue over red by a lot, green over red too.
+    assert.ok(five[2] > five[0] + 30 && five[1] > five[0] + 16, `${t.id}: la planta 5 debería ser azul petróleo (${five.map(Math.round)})`);
+    for (const other of [one, floorMean(paint2(room, 'c'), room), floorMean(paint3(room, 'c'), room), floorMean(paint4(room, 'c'), room)]) {
+      const d = Math.hypot(five[0] - other[0], five[1] - other[1], five[2] - other[2]);
+      assert.ok(d > 12, `${t.id}: la planta 5 se parece demasiado a otra (${five.map(Math.round)} frente a ${other.map(Math.round)})`);
+    }
+    assert.ok(Math.abs(lum(one) - lum(five)) < 14, `${t.id}: brillo ${lum(one).toFixed(1)} frente a ${lum(five).toFixed(1)}`);
+  }
+});
+
+test('arte de sala, planta 5: cada tipo de sala tiene su cartel, su decoración y sus casillas propias', () => {
+  const own: Record<string, string[]> = {
+    start: ['cartel:PLANTA 5 · ATENCIÓN', 'felpudo', 'linea'],
+    shop: ['cartel:REPUESTOS ORIGINALES', 'alfombra', 'etiquetas'],
+    treasure: ['cartel:NO SE DEVUELVEN'],
+    secret: ['cartel:GRABACIONES', 'telarañas', 'polvo', 'cinta'],
+    boss: ['cartel:CENTRALITA', 'cables'],
+  };
+  for (const t of floorTemplates) {
+    for (const seed of ['a', 'b', 'c']) {
+      const f = paint5(buildRoom(t), seed).features;
+      for (const want of own[t.kind!] ?? []) assert.ok(f.includes(want), `${t.id} (${seed}): falta ${want} en ${f.join(', ')}`);
+      if (t.kind === 'combat') assert.ok(f.some((x) => x.startsWith('cartel:')), `${t.id}: sin cartel`);
+      assert.ok(f.some((x) => x.startsWith('letrero:')), `${t.id} (${seed}): sin letras en el suelo`);
+      assert.ok(f.includes('basura') && f.includes('pared'), `${t.id}: sin basura o sin nada en las paredes`);
+      // Nothing of the floors below.
+      const below = ['rodadas', 'muelle', 'turno', 'escarcha', 'chapa', 'cubrecables', 'expositor', 'progreso', 'interferencias'];
+      below.push('carretera', 'zona-juego', 'precios', 'confeti', 'pasillo', 'puesto-libre', 'objetivos', 'moqueta-juntas', 'tiras');
+      below.push('casilla:cracked', 'casilla:grate', 'casilla:lifted', 'casilla:grommet', 'casilla:missing', 'casilla:letter', 'casilla:chewed');
+      below.push('casilla:stain', 'casilla:worn', 'casilla:patch', 'casilla:gum', 'casilla:curled');
+      for (const no of below) assert.ok(!f.includes(no), `${t.id} (${seed}): ${no} en la planta 5`);
+    }
+  }
+  const kinds = new Set<string>();
+  const extras = new Set<string>();
+  for (const t of floorTemplates.filter((x) => x.kind === 'combat')) {
+    for (const seed of ['1', '2', '3', '4']) {
+      for (const x of paint5(buildRoom(t), seed).features) (x.startsWith('casilla:') ? kinds : extras).add(x);
+    }
+  }
+  for (const v of ['casilla:scuff', 'casilla:burn', 'casilla:bubble', 'casilla:mended', 'casilla:feet']) assert.ok(kinds.has(v), `nunca sale ${v}`);
+  for (const v of ['linea', 'zona-espera', 'pantalla', 'eslogan', 'reloj']) assert.ok(extras.has(v), `nunca sale ${v}`);
+});
+
+test('arte de sala, planta 5: lo de la pared del fondo no se pisa ni tapa la puerta de arriba', () => {
+  // The slogan is wide: it never shares wall with the sign, the queue screen or the clocks, nor sits over the north door.
+  for (const t of floorTemplates) {
+    for (const seed of ['a', 'b', 'c', 'd']) {
+      const room = buildRoom(t);
+      const art = paint5(room, seed);
+      if (!art.features.includes('eslogan')) continue;
+      const north = art.doors.find((d) => d.dir === 'N');
+      // The first star of the rating (the filled one) is the only #fff1a8 at that height: the slogan is centred 24 px right of it.
+      let starX = -1;
+      for (let x = 0; x < art.canvas.w && starX < 0; x++) for (let y = 23; y < 25; y++) if (art.canvas.get(x, y).join() === hx('#fff1a8').join()) starX = x;
+      assert.ok(starX >= 0, `${t.id} (${seed}): eslogan sin estrella`);
+      const cx = starX + 24;
+      if (north) assert.ok(cx + 70 < north.x || cx - 70 > north.x + north.w, `${t.id} (${seed}): el eslogan pisa la puerta de arriba`);
+    }
+  }
+});
+
+test('arte de sala, planta 5: la decoración no tapa los huecos de las puertas y no son las Oficinas', () => {
+  const hole = hx('#0b0a12').join();
+  for (const t of floorTemplates) {
+    const art = paint5(buildRoom(t), 'puertas');
+    for (const d of art.doors) {
+      for (let y = d.y; y < d.y + d.h; y++) {
+        for (let x = d.x; x < d.x + d.w; x++) assert.equal(art.canvas.get(x, y).join(), hole, `${t.id}: puerta ${d.dir} pintada en (${x}, ${y})`);
+      }
+    }
+  }
+  const room = buildRoom(ROOMS['carga-descarga']!);
+  assert.notDeepEqual(paint5(room, 'x').canvas.p, paint4(room, 'x').canvas.p);
+  assert.deepEqual(paint5(room, 'x').canvas.p, paint5(room, 'x').canvas.p);
+  // Higher levels (the secret floor, until it has its own look) paint as floor 5.
+  assert.deepEqual(paintRoom({ ...room, level: 6 }, 'x').canvas.p, paintRoom({ ...room, level: 5 }, 'x').canvas.p);
 });

@@ -424,7 +424,10 @@ Atención al Cliente se ve a la primera (M11 (1)): linóleo azul institucional c
 amarilla pintada en el suelo («Siga la línea») que no lleva a ninguna parte, colas de postes con
 cinta, filas de sillas de espera atornilladas al suelo como obstáculos, mostradores de ventanilla
 con mampara de metacrilato con agujeros, una pantalla de turnos que siempre dice el mismo número,
-dispensadores de agua sin vasos y plantas de plástico. Pared de atrás con el cartel «Su
+el buzón rojo de reclamaciones lleno a reventar y el cubo de fregar con su cartel de «suelo mojado»
+(los dispensadores de agua y las plantas de plástico se quedaron fuera: ya eran la fuente de
+Informática y el ficus de las Oficinas; los postes con cinta, también, para no confundirlos con el
+enemigo Postes de Cola). Pared de atrás con el cartel «Su
 satisfacción es nuestra prioridad» con una estrella de cinco, y relojes que marcan horas
 distintas. Persianas con «Ventanilla cerrada. Diríjase a la ventanilla de al lado». Sus salas
 especiales: **Coja Número (Espere a Ser Llamado)**, la entrada; **Objetos Perdidos (No Se
