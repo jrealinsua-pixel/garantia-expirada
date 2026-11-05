@@ -396,14 +396,14 @@ cambian cómo se juega y ninguno sube una estadística más de un 30 %.
 | --- | --- | --- |
 | Número de Turno | Van por el 12. Tú tienes el 87. | Daño ×0,9 al entrar en una sala; +5 % cada 5 s que sigas en ella (hasta ×1,25) |
 | Contestador Automático | Deje su mensaje después de la señal. Nadie lo escuchará. | Cada 4 s, el siguiente disparo se repite solo 0,5 s después (eco más flojo, ×0,6) |
-| Cable de Teléfono Rizado | Se enreda solo. Nunca se desenreda. | Las balas avanzan en tirabuzón (ondulan) y hacen ×1,15 de daño; alcance ×0,9 |
+| Cable de Teléfono Rizado | Se enreda solo. Nunca se desenreda. | Las balas avanzan en tirabuzón (ondulan 5 px a cada lado de su línea, tres veces por segundo) y hacen ×1,15 de daño; alcance ×0,9 |
 | Llamada Grabada | Esta llamada podrá ser grabada con fines de calidad. | El enemigo que te hiere queda marcado 6 s y recibe ×1,5 de daño (solo bueno) |
 | Hoja de Reclamaciones | Por triplicado. La copia rosa no la lee nadie. | Tras recibir un golpe, las tres balas siguientes persiguen al que te ha dado |
 | Formulario en Línea | Todos los campos son obligatorios. Otra vez. | Cargador ×1,4, recarga ×1,25 más lenta |
-| Tecla Almohadilla | Para volver al menú principal, pulse almohadilla. | El objeto activo se carga ×1,5 más deprisa |
+| Tecla Almohadilla | Para volver al menú principal, pulse almohadilla. | El objeto activo se carga ×1,5 más deprisa (pila y media por sala; la media pila espera a la siguiente) |
 | Valoración de Cinco Estrellas | Obligatoria para cobrar. | Cada sala limpia sin daño da una estrella; con cinco, +1 corazón y vuelta a cero; un golpe borra las estrellas (solo bueno) |
 | Tiempo de Espera Estimado | Menos de un minuto. Desde hace una hora. | Espera entre volteretas ×0,75, velocidad ×0,95 |
-| Código Promocional Caducado | Válido hasta ayer, como todos. | Los enemigos sueltan un cupón más una de cada cuatro veces; los cofres de premio, un poco menos |
+| Código Promocional Caducado | Válido hasta ayer, como todos. | Los enemigos sueltan un cupón más una de cada cuatro veces; 3 de cada 10 cofres de premio (los de las salas de combate) han caducado y no salen («Promoción caducada») |
 
 Sinergias de la planta 5 (a medir en la (6b)): **Ticket de Incidencia** (Hoja de Reclamaciones +
 Llamada Grabada: «Su caso ha sido escalado. Muy arriba. Sin respuesta.»; las balas que persiguen

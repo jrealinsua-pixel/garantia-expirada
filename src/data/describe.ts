@@ -55,6 +55,7 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (b?.stick) out.push({ text: `Las balas se quedan pegadas ${String(b.stick.time).replace('.', ',')} s donde chocan`, good: true });
   if (b?.stick?.slow) out.push({ text: `Los pegotes frenan un ${Math.round((1 - b.stick.slow.mul) * 100)} % a quien los pisa`, good: true });
   if (b?.crit) out.push({ text: `${Math.round(b.crit.chance * 100)} % de balas con daño ×${String(b.crit.mul).replace('.', ',')}`, good: true });
+  if (b?.wave) out.push({ text: 'Las balas van en tirabuzón', good: true });
   const k = m.perks;
   if (k?.charge) out.push({ text: `+${k.charge} ${k.charge === 1 ? 'pila' : 'pilas'} por sala limpia`, good: true });
   if (k?.coupons) out.push({ text: `${Math.round(k.coupons * 100)} % de bajas con un cupón más`, good: true });
@@ -79,6 +80,8 @@ export function modifierLines(m: Modifier): EffectLine[] {
   }
   if (k?.chain) out.push({ text: 'La bala urgente siempre se parte, y sus trozos hacen el doble', good: true });
   if (k?.fullHpCharge) out.push({ text: `Sala limpia con la vida llena: +${k.fullHpCharge} ${k.fullHpCharge === 1 ? 'pila' : 'pilas'}`, good: true });
+  if (k?.chargeMul) out.push({ text: `El objeto activo se carga un ${Math.round((k.chargeMul - 1) * 100)} % más deprisa`, good: true });
+  if (k?.expiredChests) out.push({ text: `${Math.round(k.expiredChests * 10)} de cada 10 cofres de premio han caducado`, good: false });
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

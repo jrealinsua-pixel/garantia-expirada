@@ -685,6 +685,31 @@ try {
   await shot('51d-cadena-correos.png');
   console.log('Planta 4: el Pósit de Urgente y Responder a Todos: la bala urgente se parte hacia los demás (Cadena de Correos).');
 
+  // M11 (6a): floor 5's first five passive items in the inventory, the curly cord's corkscrew
+  // bullets on their way to the dummies, and the expired promo code's stamp where a chest should be.
+  const own5 = ['formulario-linea', 'tecla-almohadilla', 'tiempo-espera', 'codigo-caducado', 'cable-rizado'];
+  await page.goto(`${url}?semilla=e2e-objetos5&sala=sala-pruebas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.enemies = [];
+    for (const id of ${JSON.stringify(own5)}) g.giveItem(id); w.player.x = 110; w.player.y = 210; })()`);
+  await page.waitForTimeout(300);
+  await tapKeys('Escape', 'ArrowDown', 'Enter');
+  await page.waitForTimeout(200);
+  await shot('52a-planta5-inventario.png');
+  await tapKeys('Escape', 'Escape');
+  await page.waitForFunction('!window.__GE__.scene.scene.isPaused()', undefined, { timeout: 3000 });
+  const dummy5 = await page.evaluate<{ x: number; y: number }>('(() => { const d = window.__GE__.scene.world.dummies[0]; return { x: d.x, y: d.y - 14 }; })()');
+  await aimAt(dummy5.x, dummy5.y);
+  await page.mouse.down();
+  await page.waitForTimeout(420);
+  await page.mouse.up();
+  const waving = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player' && b.wave).length");
+  if (waving < 1) throw new Error('El Cable de Teléfono Rizado no ondula las balas');
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const p = s.world.player; s.handleEvents([{ type: 'expired', x: p.x + 40, y: p.y + 10 }]); })()`);
+  await page.waitForTimeout(250);
+  await shot('52b-cable-rizado-caducado.png');
+  console.log('Planta 5: sus cinco primeros objetos en el inventario, las balas en tirabuzón y la promoción caducada.');
+
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
   await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);

@@ -390,6 +390,52 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // A quarter of the bullets that hit split in two small ones (half the damage) towards other enemies.
     mod: { id: 'responder-todos', perks: { replyAll: { chance: 0.25, count: 2, mul: 0.5 } } },
   },
+  // Floor 5, Atención al Cliente (M11 6a): waiting, forms, menus and promises that someone will call back.
+  'formulario-linea': {
+    id: 'formulario-linea',
+    name: 'Formulario en Línea',
+    description: 'Todos los campos son obligatorios. Otra vez.',
+    sprite: 'objeto-formulario-linea',
+    level: 5,
+    // A bigger magazine, and a longer wait to fill it in again.
+    mod: { id: 'formulario-linea', stats: [{ stat: 'magazine', mul: 1.4 }, { stat: 'reloadTime', mul: 1.25 }] },
+  },
+  'tecla-almohadilla': {
+    id: 'tecla-almohadilla',
+    name: 'Tecla Almohadilla',
+    description: 'Para volver al menú principal, pulse almohadilla.',
+    sprite: 'objeto-tecla-almohadilla',
+    level: 5,
+    // The active item charges half as fast again (a battery and a half per room; the half waits).
+    mod: { id: 'tecla-almohadilla', perks: { chargeMul: 1.5 } },
+  },
+  'tiempo-espera': {
+    id: 'tiempo-espera',
+    name: 'Tiempo de Espera Estimado',
+    description: 'Menos de un minuto. Desde hace una hora.',
+    sprite: 'objeto-tiempo-espera',
+    level: 5,
+    // Rolls come back sooner; walking, a little slower.
+    mod: { id: 'tiempo-espera', stats: [{ stat: 'rollCooldown', mul: 0.75 }, { stat: 'speed', mul: 0.95 }] },
+  },
+  'codigo-caducado': {
+    id: 'codigo-caducado',
+    name: 'Código Promocional Caducado',
+    description: 'Válido hasta ayer, como todos.',
+    sprite: 'objeto-codigo-caducado',
+    level: 5,
+    // One kill in four drops one more coupon; three prize chests in ten have expired.
+    mod: { id: 'codigo-caducado', perks: { coupons: 0.25, expiredChests: 0.3 } },
+  },
+  'cable-rizado': {
+    id: 'cable-rizado',
+    name: 'Cable de Teléfono Rizado',
+    description: 'Se enreda solo. Nunca se desenreda.',
+    sprite: 'objeto-cable-rizado',
+    level: 5,
+    // The bullets corkscrew (they weave 5 px either way, three times a second) and hit harder; they reach less far.
+    mod: { id: 'cable-rizado', stats: [{ stat: 'damage', mul: 1.15 }, { stat: 'bulletLife', mul: 0.9 }], bullets: { wave: { amp: 5, freq: 3 } } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

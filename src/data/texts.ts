@@ -39,6 +39,8 @@ export const MUG_LOST_LINE = 'Empleado del mes: otro';
 /** Contrato en Prácticas (M10 planta 4 6b1): on the next floor, when the contract ends. */
 export const TRIAL_END_LINE = 'Contrato no renovado';
 /** Tarjeta de Fichar (M10 planta 4 6b1): the time stamped when a room is cleared fast enough. */
+/** Código Promocional Caducado (M11 6a): where the prize chest should have turned up. */
+export const EXPIRED_LINE = 'Promoción caducada';
 export const punchLine = (secs: number): string => `Fichado: 0:${String(Math.floor(secs)).padStart(2, '0')}`;
 /** Over a printer when it jams. */
 export const JAM_LINE = 'Atasco de papel';

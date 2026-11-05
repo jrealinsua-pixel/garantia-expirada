@@ -1090,5 +1090,35 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-formulario-linea": {
+    "file": "objeto-formulario-linea.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-tecla-almohadilla": {
+    "file": "objeto-tecla-almohadilla.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-tiempo-espera": {
+    "file": "objeto-tiempo-espera.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-codigo-caducado": {
+    "file": "objeto-codigo-caducado.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-cable-rizado": {
+    "file": "objeto-cable-rizado.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

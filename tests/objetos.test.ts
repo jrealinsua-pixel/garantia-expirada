@@ -67,13 +67,14 @@ function reach(w: World): number {
 
 // ---------- The items as content ----------
 
-test('hay 42 objetos pasivos (11 de la planta 1, 11 de la 2, 10 de la 3 y 10 de la 4) con nombre corto, descripción en el tono del juego y sprite', () => {
+test('hay 47 objetos pasivos (11 de la planta 1, 11 de la 2, 10 de la 3, 10 de la 4 y, por ahora, 5 de la 5) con nombre corto, descripción en el tono del juego y sprite', () => {
   const keys = new Set(Object.keys(JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as object));
   const defs = Object.values(ITEMS);
-  assert.equal(defs.length, 42);
+  assert.equal(defs.length, 47);
   assert.equal(defs.filter((d) => (d.level ?? 1) === 2).length, 11);
   assert.equal(defs.filter((d) => d.level === 3).length, 10);
   assert.equal(defs.filter((d) => d.level === 4).length, 10);
+  assert.equal(defs.filter((d) => d.level === 5).length, 5);
   assert.deepEqual([...FINDABLE_ITEMS].sort(), Object.keys(ITEMS).sort());
   const names = new Set<string>();
   for (const d of defs) {
@@ -358,7 +359,8 @@ test('los objetos de la planta 2 solo salen desde la planta 2; la planta 1 repar
   assert.deepEqual(itemsUpTo(1).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) === 1).map((d) => d.id).sort());
   assert.deepEqual(itemsUpTo(2).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) <= 2).map((d) => d.id).sort());
   assert.deepEqual(itemsUpTo(3).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) <= 3).map((d) => d.id).sort());
-  assert.deepEqual(itemsUpTo(4).sort(), Object.keys(ITEMS).sort());
+  assert.deepEqual(itemsUpTo(4).sort(), Object.values(ITEMS).filter((d) => (d.level ?? 1) <= 4).map((d) => d.id).sort());
+  assert.deepEqual(itemsUpTo(5).sort(), Object.keys(ITEMS).sort());
   for (let i = 0; i < 20; i++) {
     const f1 = createWorld({ seed: `mazo-${i}`, floor: true }).floor!;
     for (const id of own) assert.ok(!f1.items.includes(id), `${id} en la planta 1`);

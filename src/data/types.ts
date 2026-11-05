@@ -75,6 +75,11 @@ export interface BulletBehaviour {
    * slows them too (Manualidades). The longest time and the strongest slow win.
    */
   stick?: { time: number; slow?: { mul: number; time: number } };
+  /**
+   * Cable de Teléfono Rizado: the bullet weaves from side to side as it flies, `amp` px either
+   * way, `freq` times a second (the widest wins).
+   */
+  wave?: { amp: number; freq: number };
 }
 
 /**
@@ -130,6 +135,16 @@ export interface Perks {
   chain?: boolean;
   /** Pausa del Café: a combat room cleared with full life gives this many more batteries. They add up. */
   fullHpCharge?: number;
+  /**
+   * Tecla Almohadilla: the batteries a cleared room gives the active item are multiplied by this
+   * (the halves are kept for the next room; the strongest wins).
+   */
+  chargeMul?: number;
+  /**
+   * Código Promocional Caducado: chance (0–1) that the chest a cleared combat room would leave has
+   * expired and does not turn up (the biggest wins).
+   */
+  expiredChests?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

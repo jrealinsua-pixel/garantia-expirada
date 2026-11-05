@@ -139,8 +139,11 @@ export interface Player {
   tickets: number;
   /** Ids of the passive items it carries (src/data/items.ts), in the order they were picked up. */
   items: string[];
-  /** The active item it carries (one at most) and the batteries it has stored. */
-  active: { id: string; charge: number } | null;
+  /**
+   * The active item it carries (one at most) and the batteries it has stored; `rest`, the part of
+   * a battery the Tecla Almohadilla has left for the next room.
+   */
+  active: { id: string; charge: number; rest?: number } | null;
 }
 
 /**
@@ -529,6 +532,8 @@ export type SimEvent =
   | { type: 'mugLost'; x: number; y: number }
   /** Tarjeta de Fichar: the room was cleared in `secs` s, under its limit, and one more coupon pops out at (x, y). */
   | { type: 'punch'; x: number; y: number; secs: number }
+  /** Código Promocional Caducado: the chest this room would have left has expired. */
+  | { type: 'expired'; x: number; y: number }
   /** Contrato en Prácticas: up a floor, and the contract is over (the item has left the inventory). */
   | { type: 'trialEnd'; item: string; x: number; y: number }
   | { type: 'empty' }
@@ -1294,7 +1299,12 @@ function chargeActive(w: World): void {
   const perks = playerPerks(p);
   // Pausa del Café: cleared with full life, one more.
   const coffee = p.hp >= p.def.maxHp ? perks.fullHpCharge : 0;
-  a.charge = Math.min(def.charges, a.charge + 1 + perks.charge + coffee);
+  // Tecla Almohadilla: half as many again; the half battery waits for the next room.
+  const gain = (1 + perks.charge + coffee) * perks.chargeMul + (a.rest ?? 0);
+  const whole = Math.floor(gain + 1e-9);
+  if (gain - whole > 1e-9) a.rest = gain - whole;
+  else delete a.rest;
+  a.charge = Math.min(def.charges, a.charge + whole);
   w.events.push({ type: 'battery', item: a.id, charge: a.charge, needs: def.charges });
 }
 
@@ -1715,6 +1725,7 @@ function shotBehaviour(b: BulletBehaviour | undefined): Partial<Bullet> {
   if (b.homing) out.seek = b.homing;
   if (b.slow) out.slow = b.slow;
   if (b.stick) out.stick = b.stick;
+  if (b.wave) out.wave = b.wave;
   return out;
 }
 
@@ -2298,7 +2309,14 @@ function bounceBullet(w: World, b: Bullet): void {
   if (flipY) b.vy = -b.vy;
   b.x = px;
   b.y = py;
-  b.dir = Math.atan2(b.vy, b.vx);
+  // A weaving bullet (Cable de Teléfono Rizado) mirrors the line it weaves along, not its sway.
+  if (b.wave) {
+    let dx = Math.cos(b.dir);
+    let dy = Math.sin(b.dir);
+    if (flipX) dx = -dx;
+    if (flipY) dy = -dy;
+    b.dir = Math.atan2(dy, dx);
+  } else b.dir = Math.atan2(b.vy, b.vx);
   b.bounce!--;
   if (b.seek) b.seekFrom = b.age;
 }
@@ -3162,7 +3180,7 @@ function updateDoors(w: World): void {
       const st = w.floor.rooms[w.floor.current]!;
       st.cleared = true;
       if (st.reward === 'ticket') dropTicket(w, ...roomMiddle(w));
-      else if (st.reward === 'chest') placeChest(w, ...roomMiddle(w));
+      else if (st.reward === 'chest') prizeChest(w);
       else if (st.reward === 'heart') dropHeart(w, ...roomMiddle(w));
       else if (st.reward === 'shield') dropHeart(w, ...roomMiddle(w), 'garantia');
       else if (st.reward === 'turbo') dropHeart(w, ...roomMiddle(w), 'turbo');
@@ -3170,6 +3188,20 @@ function updateDoors(w: World): void {
     }
     setDoorTiles(w, true);
   }
+}
+
+/**
+ * The chest a cleared combat room leaves, unless the Código Promocional Caducado has it expire
+ * (then nothing but the «caducado» stamp; the die is only rolled with the item).
+ */
+function prizeChest(w: World): void {
+  const [x, y] = roomMiddle(w);
+  const expired = playerPerks(w.player).expiredChests;
+  if (expired > 0 && w.rng.chance(expired)) {
+    w.events.push({ type: 'expired', x, y });
+    return;
+  }
+  placeChest(w, x, y);
 }
 
 /** Tarjeta de Fichar: a combat room cleared fast enough leaves one more coupon in its middle. */

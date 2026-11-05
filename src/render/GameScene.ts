@@ -42,6 +42,7 @@ import {
   MUG_LOST_LINE,
   TRIAL_END_LINE,
   punchLine,
+  EXPIRED_LINE,
   PET_DEAD_LINE,
   petFedLine,
   ALLEN_LINE,
@@ -1989,6 +1990,11 @@ export class GameScene extends Phaser.Scene {
           // Tarjeta de Fichar: the clock-in machine's beep and the time stamped over the extra coupon.
           this.sound2.play('cupon', { detune: 500, volume: 0.8 });
           this.floatText(e.x, e.y - 14, fontText(punchLine(e.secs)), 0x69dbd8, 'punch', -12, 1.2);
+          break;
+        case 'expired':
+          // Código Promocional Caducado: no chest here. A flat buzz and the stamp, in tired red.
+          this.sound2.play('vacio', { detune: -300, volume: 0.6 });
+          this.floatText(e.x, e.y - 14, fontText(EXPIRED_LINE), 0xe0453b, 'expired', -10, 1.4);
           break;
         case 'trialEnd':
           // Contrato en Prácticas: not renewed. The item leaves the inventory with a line.
