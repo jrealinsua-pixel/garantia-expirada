@@ -1053,6 +1053,11 @@
       "sesion": "2026-11-05 20:01",
       "tarea": "M11 (6b1): Número de Turno, Contestador Automático y Llamada Grabada (src/data/items.ts, src/sim/world.ts)",
       "desde": "2026-11-05T20:01:00+01:00"
+    },
+    {
+      "sesion": "2026-11-05 20:25",
+      "tarea": "M11 (2b): seis plantillas de combate más de la planta 5 (src/data/rooms.ts, tests/rooms.test.ts)",
+      "desde": "2026-11-05T20:25:00+01:00"
     }
   ]
 }
