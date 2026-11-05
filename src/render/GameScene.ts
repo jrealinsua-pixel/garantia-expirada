@@ -26,6 +26,8 @@ import {
   JAM_LINE,
   WIND_DOWN_LINE,
   SHRED_JAM_LINE,
+  COPY_LINE,
+  TONER_OUT_LINE,
   STALL_LINE,
   BRICK_LINE,
   REVEAL_LINE,
@@ -377,6 +379,8 @@ export class GameScene extends Phaser.Scene {
   private reloadBar!: Phaser.GameObjects.Graphics;
   /** Attack warnings: shrinking ring, aim dots and «!», redrawn every frame from the emitters. */
   private warn!: Phaser.GameObjects.Graphics;
+  /** Enemies a photocopier is scanning (from last frame's warnings): they glow green. */
+  private scanned = new Set<number>();
   private warnings = 0;
   private charges = 0;
   /** The controls hint (one or two lines, bottom left) for the first seconds of a run. */
@@ -746,7 +750,9 @@ export class GameScene extends Phaser.Scene {
     const big = en.def.footRadius > 10;
     const shadow = this.add.image(en.x, en.y, flying ? shadowTexture(this, 4, 2) : big ? shadowTexture(this, en.def.footRadius + 8, 5) : shadowTexture(this, 10, 3)).setDepth(-50000);
     const sheet = this.textures.get(en.def.sprite);
-    const s = this.add.image(en.x, en.y, en.def.sprite, sheet.frameTotal > 2 ? 0 : undefined);
+    // A photocopy is drawn from a grey, toner-streaked copy of its original's sheet.
+    const key = en.copyOf !== undefined ? this.photocopyOf(en.def.sprite) : en.def.sprite;
+    const s = this.add.image(en.x, en.y, key, sheet.frameTotal > 2 ? 0 : undefined);
     s.setOrigin(en.def.anchor.x / s.width, en.def.anchor.y / s.height);
     const v: EnemyView = { s, shadow };
     if (SPRITE_BLINKS[en.def.sprite]) v.blink = this.add.graphics();
@@ -766,6 +772,46 @@ export class GameScene extends Phaser.Scene {
     v.glow?.destroy();
     v.badge?.destroy();
     this.enemySprites.delete(id);
+  }
+
+  /**
+   * A photocopy of a sprite sheet (the photocopier's copies, M10 planta 4 (4b)): grey, a little
+   * washed out, every fourth row darker (the toner streaks) and a few specks of toner, with the same
+   * frames. Made once per sheet.
+   */
+  private photocopyOf(key: string): string {
+    const tex = `${key}-fotocopia`;
+    if (this.textures.exists(tex)) return tex;
+    const src = this.textures.get(key);
+    const img = src.getSourceImage() as HTMLImageElement | HTMLCanvasElement;
+    const ct = this.textures.createCanvas(tex, img.width, img.height);
+    if (!ct) return key;
+    const ctx = ct.getContext();
+    ctx.drawImage(img as CanvasImageSource, 0, 0);
+    const im = ctx.getImageData(0, 0, img.width, img.height);
+    const d = im.data;
+    for (let y = 0; y < img.height; y++) {
+      for (let x = 0; x < img.width; x++) {
+        const i = (y * img.width + x) * 4;
+        if (d[i + 3]! === 0) continue;
+        const lum = 0.3 * d[i]! + 0.59 * d[i + 1]! + 0.11 * d[i + 2]!;
+        // Outlines stay black; the rest goes to a flat office grey, lighter than the original.
+        let g = lum < 30 ? lum : 70 + lum * 0.62;
+        if (y % 4 === 2) g *= 0.78;
+        // Toner specks, always on the same pixels (no randomness: the copy flickers otherwise).
+        if (((x * 7 + y * 13) % 29) === 0) g *= 0.55;
+        d[i] = g * 0.97;
+        d[i + 1] = g;
+        d[i + 2] = Math.min(255, g * 1.05);
+      }
+    }
+    ctx.putImageData(im, 0, 0);
+    for (const name of src.getFrameNames()) {
+      const fr = src.get(name);
+      ct.add(name, 0, fr.cutX, fr.cutY, fr.cutWidth, fr.cutHeight);
+    }
+    ct.refresh();
+    return tex;
   }
 
   /**
@@ -2009,6 +2055,18 @@ export class GameScene extends Phaser.Scene {
         case 'shredSpit':
           this.sound2.play('escupir', { detune: this.fx.range(-100, 100), volume: 0.8 });
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(30, 70), 0, 0xf4f1e8);
+          break;
+        case 'copyScan':
+          // The lid comes up and the lamp hums across the glass.
+          this.sound2.play('escanear', { detune: e.target < 0 ? -300 : 0, volume: 0.8 });
+          break;
+        case 'copyMade':
+          this.sound2.play('copia', { detune: this.fx.range(-100, 100), volume: 0.9 });
+          for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), 0, 0xf4f1e8);
+          this.floatText(e.x, e.y - 30, fontText(COPY_LINE), 0xb7bed0, `copy:${e.copy}`, -16, 0.9);
+          break;
+        case 'tonerOut':
+          this.floatText(e.x, e.y - 40, fontText(TONER_OUT_LINE), 0xb8f07a, `toner:${e.source}`, -12, 1.1);
           break;
         case 'shredJam':
           // About to lunge: the blades whirr up, and it says so.
@@ -3265,7 +3323,10 @@ export class GameScene extends Phaser.Scene {
       else if (warnK >= 0 && this.warnOn(warnK)) {
         if (en.def.boss) s.setTint(warnK > 0.75 ? 0xffe9a8 : 0xffc870);
         else this.warnFill(s, warnK);
-      } else s.clearTint();
+      } else if (this.scanned.has(en.id)) s.setTint(0xd8ffb0);
+      else s.clearTint();
+      // A copy whose photocopier broke fades out, flickering like a bad print.
+      if (en.fadeT !== undefined) s.setAlpha(Math.max(0.1, en.fadeT) * (Math.floor(this.time.now / 60) % 2 === 0 ? 1 : 0.6));
       if (en.state === 'roar' && en.def.anim?.reboot) {
         // Rebooting: still and dark, a spark from the lights now and then as they come on.
         if (this.fx.chance(0.06)) this.spark(en.x + this.fx.range(-14, 10) * en.facing, en.y - 30, this.fx.range(-Math.PI, 0), this.fx.range(20, 40), 0);
@@ -3347,6 +3408,8 @@ export class GameScene extends Phaser.Scene {
       // Confetti flutters.
       if (b.color === 'confetti' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
       if (b.color === 'strip' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
+      // The photocopier's sheets tumble over and over.
+      if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Muñeco's shoes and handbags spin a quarter turn at a time (half are shoes, half bags).
       if (b.color === 'accessory' && b.owner === 'enemy') s.setFrame((b.id % 2) * 4 + (Math.floor(this.time.now / 75 + b.id) % 4));
       // The sale stickers turn a quarter at a time as they peel off.
@@ -3610,9 +3673,28 @@ export class GameScene extends Phaser.Scene {
   private drawWarnings(): void {
     const g = this.warn;
     g.clear();
+    this.scanned.clear();
     for (const wn of activeWarnings(this.world)) {
       const k = wn.k;
-      const col = wn.color === 'red' ? 0xe0453b : 0x69dbd8;
+      // A photocopier's scan is the green of its light, not a threat colour.
+      const col = wn.scan !== undefined ? 0xb8f07a : wn.color === 'red' ? 0xe0453b : 0x69dbd8;
+      if (wn.scan !== undefined) {
+        this.scanned.add(wn.scan);
+        // Corner brackets round whoever is being copied, closing in over the scan.
+        const tgt = this.world.enemies.find((o) => o.id === wn.scan);
+        if (tgt) {
+          const hb = tgt.def.hurt;
+          const pad = Math.round(2 + 6 * (1 - k));
+          const x0 = Math.round(tgt.x + hb.x) - pad;
+          const y0 = Math.round(tgt.y + hb.y) - pad;
+          const x1 = Math.round(tgt.x + hb.x + hb.w) + pad;
+          const y1 = Math.round(tgt.y + hb.y + hb.h) + pad;
+          for (const [cx, cy, sx, sy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]] as const) {
+            g.fillStyle(0x0e0c16, 1).fillRect(Math.min(cx, cx + sx * 4) - 1, cy - 1, 6, 3).fillRect(cx - 1, Math.min(cy, cy + sy * 4) - 1, 3, 6);
+            g.fillStyle(col, 1).fillRect(Math.min(cx, cx + sx * 3), cy, 4, 1).fillRect(cx, Math.min(cy, cy + sy * 3), 1, 4);
+          }
+        }
+      }
       const x = Math.round(wn.x);
       const y = Math.round(wn.y);
       if (wn.mark === 'flash') {
@@ -4056,7 +4138,7 @@ const SKID_MAX = 120;
 
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
-  confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira',
+  confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

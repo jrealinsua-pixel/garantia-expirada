@@ -10,9 +10,10 @@ import type { Rng } from './rng.ts';
  * white core like `red`, spinning. `confetti` is the surprise envelope's gift wrap: red paper with a
  * yellow ribbon, fluttering. `accessory` are the Muñeco de Moda's pink plastic shoes and handbags, spinning.
  * `sticker` are its sale stickers out of the box: round, yellow, with a red «%», turning. `strip`
- * are the shredder's strips of paper: white with a red edge, wriggling.
+ * are the shredder's strips of paper: white with a red edge, wriggling. `sheet` are the
+ * photocopier's sheets: white with toner lines and a red rim, tumbling.
  */
-export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip';
+export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet';
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {

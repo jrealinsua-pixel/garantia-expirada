@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T11:02:00+01:00",
+  "actualizado": "2026-11-05T11:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 18,
+    "enemigos": 19,
     "jefes": 3,
     "armas": 3,
     "objetos": 43,
     "plantillas_sala": 71,
-    "tests": 581,
-    "tests_ok": 581,
+    "tests": 591,
+    "tests_ok": 591,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 21292
+    "lineas_codigo": 21625
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T11:50:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (4b): la Fotocopiadora de Planta, que escanea al enemigo más cercano y saca copias grises con la mitad de vida, más lentas y sin cupones (como mucho tres); sin nadie a quien copiar imprime folios, y al romperla sus copias se destiñen.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T11:02:00+01:00",
       "hito": "M10",
@@ -926,6 +932,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/fotocopiadora-escanea.png",
+      "pie": "La Fotocopiadora de Planta levanta la tapa: la luz verde cruza el cristal y una raya marca al aspirador que va a copiar"
+    },
+    {
+      "archivo": "capturas/fotocopiadora-copias.png",
+      "pie": "«Copia no compulsada»: copias grises y con rayas de tóner, con la mitad de vida, más lentas y sin cupones"
+    },
+    {
       "archivo": "capturas/oficinas-acreditacion.png",
       "pie": "El Economato con la Acreditación de Visitante: todo un 25 % más barato (el ticket, por 8 cupones en vez de 10)"
     },
@@ -940,17 +954,9 @@
     {
       "archivo": "capturas/destructora-atasco.png",
       "pie": "«Atasco»: cerca y de frente, la destructora pone las cuchillas en rojo y se lanza a tragarse a la tostadora"
-    },
-    {
-      "archivo": "capturas/cadena-planta4.png",
-      "pie": "Planta 3 superada: el parte anuncia la siguiente, «Planta 4: Oficinas. Horario flexible: siempre.», y se sube con la misma tostadora"
-    },
-    {
-      "archivo": "capturas/oficinas-secreta.png",
-      "pie": "Papeles para Destruir (Confidencial), la sala secreta de las Oficinas: archivadores hasta el techo y, en el claro, un acta del Comité de Dirección"
     }
   ],
-  "proximo": "M10 planta 4 (4b): la Fotocopiadora de Planta; o (6b2): Pósit de Urgente, Responder a Todos y sus dos sinergias; o M10 (7): medir la planta 3 con el bot.",
+  "proximo": "M10 planta 4 (4c): el Sello de Denegado; o (6b2): Pósit de Urgente, Responder a Todos y sus sinergias; o M10 (7): medir la planta 3 con el bot.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -976,11 +982,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 11:25",
-      "tarea": "M10 planta 4 (4b): la Fotocopiadora de Planta",
-      "desde": "2026-11-05T11:25:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

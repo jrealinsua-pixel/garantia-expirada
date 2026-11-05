@@ -11,7 +11,7 @@ import {
 } from './characters.ts';
 import { narrowPoseCycle, poseCycle } from './pose.ts';
 import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
-  makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames } from './enemies.ts';
+  makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
@@ -64,6 +64,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'sobre-sorpresa': { canvas: strip(makeSobreFrames()), frameW: 24, frameH: 28 },
     // Floor 4 (Oficinas): seven frames a side (side, front, back): 0-1 humming, 2-5 shuffling, 6 blades red.
     destructora: { canvas: strip(makeDestructoraFrames()), frameW: 34, frameH: 32 },
+    // 0-1 humming, 2-5 shuffling, 6-8 lid up and the green light crossing the glass, 9 a copy coming out.
+    fotocopiadora: { canvas: strip(makeFotocopiadoraFrames()), frameW: 38, frameH: 38 },
     'munequito-repetido': { canvas: strip(makeMunequitoFrames(false)), frameW: 18, frameH: 20 },
     'munequito-dorado': { canvas: strip(makeMunequitoFrames(true)), frameW: 18, frameH: 20 },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
@@ -117,6 +119,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-tuerca': { canvas: P.makeNut(), frameW: 9, frameH: 9 },
     'bala-confeti': { canvas: P.makeConfetti(), frameW: 7, frameH: 7 },
     'bala-tira': { canvas: P.makeShredStrip(), frameW: 9, frameH: 9 },
+    'bala-folio': { canvas: P.makeSheet(), frameW: 9, frameH: 9 },
     // The Muñeco de Moda's accessories: a shoe and a handbag, spinning (M10 5b).
     'bala-accesorio': { canvas: P.makeAccessory(), frameW: 9, frameH: 9 },
     // Its sale stickers, out of the box (M10 5c).

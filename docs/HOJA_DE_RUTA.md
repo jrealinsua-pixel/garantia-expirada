@@ -369,7 +369,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     llegue el Director, el Muñeco pelea en la Sala de Juntas.
   - 4 enemigos nuevos, uno por tarea (sprite, simulación, tests y captura):
     - [x] (4a) Destructora de Documentos (siempre de cara, se traga las balas de frente).
-    - [ ] (4b) Fotocopiadora de Planta (copia a otro enemigo de la sala).
+    - [x] (4b) Fotocopiadora de Planta (copia a otro enemigo de la sala).
     - [ ] (4c) Sello de Denegado (estampa tinta donde no se puede rodar).
     - [ ] (4d) Climatizador Portátil (cono de aire que empuja y tuerce las balas).
   - Jefe: El Director de Recursos Inhumanos. En partes:

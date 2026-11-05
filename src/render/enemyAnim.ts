@@ -64,6 +64,9 @@ function sideFrame(en: Enemy, now: number): number {
   if (a.jump !== undefined && en.state === 'charge') return a.jump;
   if (a.jump !== undefined && en.state === 'fire' && a.warn !== undefined) return a.warn;
   if (a.crouch !== undefined && en.state === 'idle' && en.until - en.t < 0.12) return a.crouch;
+  // Scanning: the light crosses the glass over the warning (the photocopier); then the copy comes out.
+  if (a.scan && en.state === 'warn') return a.scan[Math.min(a.scan.length - 1, Math.floor((en.t / Math.max(en.until, 1e-6)) * a.scan.length))]!;
+  if (a.out !== undefined && en.state === 'brake') return a.out;
   // Frozen while it warns (the wireless mouse without signal).
   if (a.warn !== undefined && en.state === 'warn') return a.warn + (own ?? 0);
   // A mimic lying in wait, and jumping up when found out.

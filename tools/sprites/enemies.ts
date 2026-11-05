@@ -1192,3 +1192,126 @@ export function makeDestructoraFrames(): Canvas[] {
     makeDestructora(undefined, v, true),
   ]);
 }
+
+/** Photocopier grey: colder than the beige of the printers, the colour of every office corridor. */
+const COPIER = ramp('#e6e8ec', '#c4c9d1', '#959ba8', '#666c7a');
+const COPIER_SIDE = ramp('#959ba8', '#7f8594', '#676d7b', '#4a4f5c');
+const COPIER_TOP = ramp('#f6f7f9', '#e6e8ec', '#c4c9d1', '#959ba8');
+/** The lid: charcoal plastic, with the white pad underneath. */
+const LID = ramp('#7a8090', '#565b6a', '#3d414e', '#282b36');
+/** The glass under the lid, and the green scanning light. */
+const GLASS = ramp('#4c6f78', '#30474f', '#223338', '#162226');
+const SCAN = ramp('#f0ffd8', '#b8f07a', '#6fcf4a', '#3f8f32');
+/** The error display, amber on black. */
+const AMBER = ramp('#ffe1a0', '#f0a83a', '#a8641e', '#5a3412');
+
+/** «Averiada, no tocar»: a sheet taped on with two strips of yellowed tape, three red scribbled lines. */
+function brokenSign(cv: Canvas, x: number, y: number): void {
+  cv.rect(x, y, 6, 7, WHITE);
+  cv.rect(x, y + 6, 6, 1, CREAM[1]!);
+  cv.set(x - 1, y, YEL[0]!);
+  cv.set(x, y - 1, YEL[0]!);
+  cv.set(x + 6, y, YEL[0]!);
+  cv.set(x + 5, y - 1, YEL[0]!);
+  cv.rect(x + 1, y + 1, 4, 1, RED[1]!);
+  cv.rect(x + 1, y + 3, 3, 1, RED[2]!);
+  cv.rect(x + 1, y + 5, 4, 1, RED[2]!);
+}
+
+/**
+ * Fotocopiadora de Planta (M10 planta 4 (4b)): a big square office photocopier in corridor grey,
+ * the charcoal lid on top, the output tray for a mouth with a jammed sheet hanging out of it like
+ * a tongue, and a little amber display stuck on «E-04». A «Averiada, no tocar» sign taped to its
+ * side that nobody remembers putting there; office shoes. `lid`: 0 shut; 1-3 lifted, the green
+ * light at the back, middle or front of the glass (it is copying someone: the eyes go wide);
+ * `out`: lid shut and a fresh copy sliding out of the tray (the tongue is a whole sheet). 38x36.
+ */
+export function makeFotocopiadora(pose: Pose = { xb: COPIER_LEGS[0], xf: COPIER_LEGS[1], bob: 0 }, lid = 0, out = false): Canvas {
+  const legs = new Canvas(38, 36);
+  const cv = new Canvas(38, 36);
+  poseFeet(legs, pose, 29, { L: 4, leg: PANTL, shoe: OFFICE });
+  hand(cv, 1, 20, COPIER);
+  if (lid > 0) {
+    // The lid up and leaning back: we see its white pad, and the glass below it lit by the scan.
+    cv.rect(6, 0, 26, 8, LID[1]!);
+    cv.rect(7, 1, 24, 6, CREAM[0]!);
+    cv.rect(7, 6, 24, 1, CREAM[2]!);
+    cv.rect(6, 0, 26, 1, LID[0]!);
+  }
+  cube(cv, 3, 7, 31, 22, 8, 4, COPIER, COPIER_SIDE, COPIER_TOP);
+  if (lid > 0) {
+    // Glass along the top face, the scanning bar across it.
+    for (let j = 0; j < 3; j++) cv.rect(9 + Math.floor((3 - j) / 2), 8 + j, 22 - Math.floor((3 - j) / 2), 1, GLASS[j === 0 ? 0 : 1]!);
+    const bx = [0, 11, 18, 25][lid]!;
+    cv.rect(bx - 1, 7, 3, 4, SCAN[1]!);
+    cv.rect(bx, 7, 1, 4, SCAN[0]!);
+    cv.rect(bx + 2, 8, 1, 3, SCAN[2]!);
+  } else {
+    // The lid shut: a charcoal slab on the top face, with its handle on the front edge.
+    for (let j = 0; j < 3; j++) cv.rect(5 + Math.floor((3 - j) / 2), 7 + j, 28 - Math.floor((3 - j) / 2), 1, j === 0 ? LID[0]! : LID[1]!);
+    cv.rect(5, 10, 28, 1, LID[2]!);
+    cv.rect(26, 10, 5, 1, LID[3]!);
+  }
+  // Eyes on the front: tired, the lids half down; wide open while it copies.
+  const wide = lid > 0;
+  for (const x of [16, 23]) {
+    cv.rect(x, 15, 3, 3, K);
+    cv.set(x + 1, 16, WHITE);
+    if (!wide) cv.rect(x, 15, 3, 1, COPIER[2]!);
+  }
+  if (!wide) {
+    const brows: Pt[] = [[15, 14], [16, 14], [17, 14], [23, 14], [24, 14], [25, 14]];
+    for (const [x, y] of brows) cv.set(x, y, K);
+  } else {
+    // Brows shot up: someone is being duplicated.
+    const brows: Pt[] = [[16, 13], [17, 13], [18, 13], [23, 13], [24, 13], [25, 13]];
+    for (const [x, y] of brows) cv.set(x, y, K);
+  }
+  // The display: E-04 in four dark-amber marks.
+  cv.rect(27, 15, 6, 4, K);
+  cv.rect(28, 16, 4, 2, AMBER[1]!);
+  cv.set(28, 16, AMBER[3]!);
+  cv.set(30, 16, AMBER[3]!);
+  cv.set(31, 17, AMBER[3]!);
+  // Output tray: the mouth, a dark slot, and the sheet hanging out of it.
+  cv.rect(13, 22, 19, 2, K);
+  cv.rect(14, 23, 17, 1, COPIER_SIDE[3]!);
+  if (out) {
+    // A whole fresh copy coming out, grey with toner lines.
+    cv.rect(15, 23, 15, 6, WHITE);
+    cv.rect(15, 28, 15, 1, CREAM[1]!);
+    for (const y of [24, 26]) cv.rect(17, y, 10, 1, COPIER[2]!);
+    cv.set(28, 25, K);
+    cv.set(19, 27, COPIER[3]!);
+  } else {
+    // The jammed sheet, crumpled at the corner, hanging like a tongue.
+    cv.rect(20, 23, 6, 4, WHITE);
+    cv.rect(21, 27, 4, 1, WHITE);
+    cv.rect(20, 26, 1, 1, CREAM[1]!);
+    cv.set(25, 26, CREAM[2]!);
+    cv.rect(22, 24, 2, 1, CREAM[2]!);
+  }
+  brokenSign(cv, 4, 15);
+  // Wear: a coffee ring on the top, a scuff on the side, a dent by the tray.
+  if (lid === 0) cv.set(14, 8, LID[2]!);
+  cv.set(9, 26, COPIER_SIDE[3]!);
+  cv.set(32, 25, RUSTR[1]!);
+  hand(cv, 34, 20, COPIER);
+  return pad(outline(joinPose(legs, cv, pose)), 2);
+}
+
+export const COPIER_LEGS = [12, 21] as const;
+
+/**
+ * The photocopier's frames: 0-1 humming, 2-5 shuffling, 6-8 lid up with the light at the back,
+ * middle and front of the glass (copying), 9 a copy sliding out of the tray.
+ */
+export function makeFotocopiadoraFrames(): Canvas[] {
+  return [
+    ...poseCycle(COPIER_LEGS[0], COPIER_LEGS[1]).map((f) => makeFotocopiadora(f.pose)),
+    makeFotocopiadora(undefined, 1),
+    makeFotocopiadora(undefined, 2),
+    makeFotocopiadora(undefined, 3),
+    makeFotocopiadora(undefined, 0, true),
+  ];
+}

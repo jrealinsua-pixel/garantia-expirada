@@ -93,6 +93,8 @@ export const PATTERNS: Record<string, PatternDef> = {
   },
   // Robot de Cuerda: on every bounce, a fan of three nuts at you.
   // The shredder gives back what it was fed from the front: five strips of paper.
+  // The photocopier with nobody to copy prints three sheets at you.
+  'fotocopiadora-folios': { kind: 'fan', count: 3, spreadDeg: 34, speed: 100, color: 'sheet' },
   'destructora-tiras': { kind: 'fan', count: 5, spreadDeg: 50, speed: 115, color: 'strip' },
   'robot-tuercas': { kind: 'fan', count: 3, spreadDeg: 30, speed: 105, color: 'nut' },
   // El Router del Wifi. «Cobertura total»: two rings of waves, each with a hole that has moved on a little.

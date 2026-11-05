@@ -741,6 +741,28 @@ try {
   await shot('50q-destructora-atasco.png');
   console.log('Destructora: se traga las balas de frente, escupe tiras y avisa antes de lanzarse.');
 
+  // M10 planta 4 (4b): the photocopier. Lid up, the green light and the line to the vacuum it
+  // copies; the grey copy beside its original; and, broken, its copies fading out.
+  await page.goto(`${url}?semilla=e2e-fotocopiadora&sala=planta-diafana&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('aspirador', p.x + 90, p.y - 40); g.spawnIdle('batidora', p.x + 70, p.y + 45); g.spawnIdle('fotocopiadora', p.x + 170, p.y + 5); })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'fotocopiadora' && e.state === 'warn' && e.t > 0.55)", undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('La fotocopiadora no se pone a copiar'); });
+  await shot('50r-fotocopiadora-escanea.png');
+  await page.waitForFunction('window.__GE__.scene.world.enemies.filter((e) => e.copyOf !== undefined).length >= 2', undefined, { timeout: 12000 })
+    .catch(() => { throw new Error('La fotocopiadora no saca copias'); });
+  await page.waitForTimeout(500);
+  await shot('50s-fotocopiadora-copias.png');
+  await page.evaluate("(() => { const w = window.__GE__.scene.world; const e = w.enemies.find((o) => o.def.id === 'fotocopiadora'); e.damageTaken = e.def.hp; })()");
+  await page.waitForTimeout(450);
+  await shot('50t-fotocopiadora-sin-toner.png');
+  const copiesLeft = await page.evaluate<number>('window.__GE__.scene.world.enemies.length');
+  await page.waitForTimeout(900);
+  const copiesAfter = await page.evaluate<number>('window.__GE__.scene.world.enemies.length');
+  if (copiesAfter !== 2) throw new Error(`Al romperla, sus copias tenían que caer: quedaban ${copiesLeft} y luego ${copiesAfter}`);
+  console.log('Fotocopiadora: escanea, saca copias grises y sin tóner se destiñen.');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);

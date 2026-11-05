@@ -4,7 +4,7 @@ import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
 import { freeChestLeft, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
-import type { Input, World } from './world.ts';
+import type { Enemy, Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
 
@@ -375,7 +375,9 @@ export class Bot {
     let best = Infinity;
     // Enemies first; the dummies only when the room is empty.
     // A shredder with the toaster in front counts as further away: better to shoot the others meanwhile.
-    const targets = w.enemies.length ? w.enemies.filter((e) => e.state !== 'gone').map((e) => ({ x: e.x, y: e.y, k: facesShredder(w, e) ? 3 : 1 })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
+    // A photocopier counts as nearer: every second it lives fills the room (a player goes for it first).
+    const weight = (e: Enemy): number => (facesShredder(w, e) ? 3 : e.def.brain.kind === 'copier' ? 0.6 : 1);
+    const targets = w.enemies.length ? w.enemies.filter((e) => e.state !== 'gone').map((e) => ({ x: e.x, y: e.y, k: weight(e) })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
     for (const d of targets) {
       const dd = Math.hypot(d.x - p.x, d.y - p.y) * d.k;
       if (dd < best) {

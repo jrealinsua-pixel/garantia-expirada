@@ -845,6 +845,26 @@ export function makeShredStrip(): Canvas {
 }
 
 /**
+ * The photocopier's sheets (M10 planta 4 (4b)): an enemy bullet the same 9x9 as the round ones, a
+ * little white sheet with two grey toner lines and the red rim of every enemy bullet. 2 frames:
+ * upright and tipped over (it tumbles as it flies).
+ */
+export function makeSheet(): Canvas {
+  const frames: Array<readonly string[]> = [
+    ['.rrrrr.', '.rwwwr.', '.rggwr.', '.rwwwr.', '.rgggr.', '.rwwwr.', '.rrrrr.'],
+    ['rrrrrrr', 'rwgwgwr', 'rwgwgwr', 'rwwwgwr', 'rrrrrrr'],
+  ];
+  const cols: Record<string, RGBA> = { r: RED[1]!, w: WHITE, g: hx('#959ba8') };
+  const sheet = new Canvas(9 * frames.length, 9);
+  frames.forEach((rows, f) => {
+    const cv = new Canvas(9, 9);
+    paintGrid(cv, 1, Math.floor((9 - rows.length) / 2), rows, cols);
+    sheet.blit(outline(cv), f * 9, 0);
+  });
+  return sheet;
+}
+
+/**
  * What the fridge spits in its second phase (see EXPIRED_PRODUCTS): 3 frames of 12x14.
  * A yogurt with its lid swollen and green, a milk carton with a mouldy stain and a dented can.
  */

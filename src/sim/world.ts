@@ -372,6 +372,14 @@ export interface Enemy {
   /** Shredders: bullets swallowed so far, and seconds left of chewing the last one (blades red). */
   swallowed?: number;
   chompT?: number;
+  /** A photocopy (CopierBrain): the id of the photocopier that made it. Copies drop nothing. */
+  copyOf?: number;
+  /** Share of its pace it goes at (a copy: slower at everything, walking, waiting and attacking). */
+  pace?: number;
+  /** A copy fading out (its photocopier broke): seconds left before it falls. */
+  fadeT?: number;
+  /** Photocopiers: the enemy it is scanning (its id), or -1 when it will print sheets instead. */
+  copyTarget?: number;
 }
 
 /**
@@ -446,6 +454,13 @@ export type SimEvent =
   | { type: 'carFlip' | 'carRight' | 'carStall'; x: number; y: number; source: number }
   /** A shredder: a bullet swallowed from the front, a fan of strips spat back, a lunge coming. */
   | { type: 'shred' | 'shredSpit' | 'shredJam'; x: number; y: number; source: number }
+  /**
+   * A photocopier lifts its lid to copy `target` (-1: nobody, it will print sheets); a copy
+   * (`copy`, the new enemy's id) slides out of its tray; or it broke and its copies fade out.
+   */
+  | { type: 'copyScan'; x: number; y: number; target: number; source: number }
+  | { type: 'copyMade'; x: number; y: number; copy: number; enemy: string; source: number }
+  | { type: 'tonerOut'; x: number; y: number; source: number }
   | { type: 'reveal'; x: number; y: number; source: number }
   | { type: 'lagJump'; x: number; y: number; tx: number; ty: number; source: number }
   /** A webcam starts recording, loses the player, or shares its screen (`told` enemies attack now). */
@@ -1370,6 +1385,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'lobber') {
     state = 'idle';
     until = b.interval[0] * 0.6;
+  } else if (b.kind === 'copier') {
+    // Its first copy comes a little sooner than the next ones.
+    until = b.interval[0] * 0.6;
   } else if (b.kind === 'windup') {
     // It comes in winding itself up: a moment to see it before it sets off.
     state = 'jam';
@@ -2113,6 +2131,8 @@ export interface Warning {
   reach?: number;
   /** A camera flash charging on the floor instead of the closing ring (Emitter.mark). */
   mark?: 'flash';
+  /** A photocopier scanning this enemy: the line is the green of its light, and the enemy glows. */
+  scan?: number;
 }
 
 export function activeWarnings(w: World): Warning[] {
@@ -2146,6 +2166,21 @@ export function activeWarnings(w: World): Warning[] {
       const ly = en.y - b.muzzleY;
       const reach = Math.max(0, Math.hypot(w.player.x - lx, w.player.y - HAND_HEIGHT - ly) - 8);
       out.push({ x: lx, y: ly, k: Math.min(1, en.t / en.until), aim: Math.atan2(w.player.y - HAND_HEIGHT - ly, w.player.x - lx), aimed: true, color: 'red', bullets: true, source: en.id, reach });
+      continue;
+    }
+    if (b.kind === 'copier') {
+      // Scanning: a green line from the glass to whoever it is copying (or aimed at the player, to print).
+      const lx = en.x;
+      const ly = en.y - b.muzzleY - 14;
+      const k = Math.min(1, en.t / en.until);
+      const tgt = w.enemies.find((o) => o.id === en.copyTarget && !isDead(o));
+      if (tgt) {
+        const ty = tgt.y - Math.max(6, -tgt.def.hurt.y / 2) - enemyAltitude(tgt);
+        const reach = Math.max(0, Math.hypot(tgt.x - lx, ty - ly) - 8);
+        out.push({ x: lx, y: ly, k, aim: Math.atan2(ty - ly, tgt.x - lx), aimed: true, color: 'red', bullets: false, source: en.id, reach, scan: tgt.id });
+      } else {
+        out.push({ x: en.x, y: en.y - b.muzzleY, k, aim: Math.atan2(w.player.y - HAND_HEIGHT - (en.y - b.muzzleY), w.player.x - en.x), aimed: true, color: 'red', bullets: true, source: en.id });
+      }
       continue;
     }
     if (b.kind === 'lobber') {
@@ -2450,11 +2485,17 @@ function reapEnemies(w: World): void {
     w.emitters = w.emitters.filter((e) => e.source !== en.id);
     const alt = enemyAltitude(en);
     w.events.push({ type: 'death', x: en.x, y: en.y, alt, angle: en.lastHit, enemy: en.def.id, source: en.id });
+    // A photocopier's copies fade with it.
+    if (en.def.brain.kind === 'copier') {
+      for (const o of w.enemies) if (o.copyOf === en.id && !isDead(o) && o.fadeT === undefined) o.fadeT = en.def.brain.fade;
+      if (w.enemies.some((o) => o.copyOf === en.id)) w.events.push({ type: 'tonerOut', x: en.x, y: en.y, source: en.id });
+    }
+    const copy = en.copyOf !== undefined;
     const [lo, hi] = en.def.loot.coupons;
-    let n = w.rng.int(lo, hi);
+    let n = copy ? 0 : w.rng.int(lo, hi);
     // Third-party cookies: now and then, one more coupon (no roll without the item).
     const extra = en.def.boss ? 0 : playerPerks(w.player).coupons;
-    if (extra > 0 && w.rng.chance(extra)) n++;
+    if (!copy && extra > 0 && w.rng.chance(extra)) n++;
     // Loot starts on clear floor: right under the enemy, or the nearest free spot if it flew
     // over a box or stood with its feet against a wall.
     const spot = n > 0 ? freeSpot(w, en.x, en.y, PICKUP_RADIUS) : { x: en.x, y: en.y };
@@ -2475,8 +2516,8 @@ function reapEnemies(w: World): void {
       const sp = w.rng.range(50, 110);
       w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: spot.x, y: spot.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
     }
-    if (en.def.surprise) openSurprise(w, en, en.def.surprise, keep);
-    for (let i = 0; i < (en.def.loot.hearts ?? 0); i++) {
+    if (en.def.surprise && !copy) openSurprise(w, en, en.def.surprise, keep);
+    for (let i = 0; i < (copy ? 0 : en.def.loot.hearts ?? 0); i++) {
       // Spare hearts roll out slowly towards the player, so they are easy to see.
       const a = Math.atan2(w.player.y - en.y, w.player.x - en.x) + w.rng.range(-0.5, 0.5);
       const sp = w.rng.range(40, 60);

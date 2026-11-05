@@ -2,7 +2,7 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain,
+  HopperBrain, ShredderBrain, CopierBrain,
 } from '../data/types.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
@@ -51,6 +51,19 @@ export function updateEnemies(w: World): void {
       const every = Math.max(2, Math.round(1 / Math.max(0.01, 1 - (en.slowMul ?? 1))));
       if ((w.tick + en.id) % every === 0) continue;
     }
+    // A copy fading out (its photocopier broke): it falls when the toner is gone.
+    if (en.fadeT !== undefined) {
+      en.fadeT -= DT;
+      if (en.fadeT <= 0) {
+        en.damageTaken = en.def.hp;
+        continue;
+      }
+    }
+    // A photocopy is slower at everything: it skips one tick in every 1 / (1 − pace).
+    if (en.pace !== undefined && en.pace < 1) {
+      const every = Math.max(2, Math.round(1 / (1 - en.pace)));
+      if ((w.tick + en.id + 2) % every === 0) continue;
+    }
     switch (en.def.brain.kind) {
       case 'charger':
         updateCharger(w, en, en.def.brain);
@@ -96,6 +109,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'shredder':
         updateShredder(w, en, en.def.brain);
+        break;
+      case 'copier':
+        updateCopier(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1626,6 +1642,128 @@ function updateLobber(w: World, en: Enemy, b: LobberBrain): void {
         walkY = (my / ml) * b.speed;
       }
     }
+  }
+  approach(en, walkX, walkY, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    const moved = Math.hypot(en.x - ox, en.y - oy);
+    en.moved += moved;
+    if ((hit.hitX || hit.hitY) && moved < b.speed * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
+  }
+}
+
+/** Whether a photocopier can copy this enemy: alive, not a boss, a relay, a copier or a copy itself, and in sight (not lying in wait or vanished). */
+export function copiable(en: Enemy): boolean {
+  const k = en.def.brain.kind;
+  if (k === 'boss' || k === 'relay' || k === 'copier' || en.def.boss) return false;
+  return en.copyOf === undefined && !isDead(en) && en.state !== 'dying' && en.state !== 'lurk' && en.state !== 'gone';
+}
+
+/** The copies of photocopier `id` still standing. */
+export function copiesOf(w: World, id: number): number {
+  let n = 0;
+  for (const o of w.enemies) if (o.copyOf === id && !isDead(o)) n++;
+  return n;
+}
+
+/** What a photocopier would copy now: the nearest copiable enemy, or none (-1) if full up or alone. */
+function copyPick(w: World, en: Enemy, b: CopierBrain): number {
+  if (copiesOf(w, en.id) >= b.maxCopies) return -1;
+  let best = -1;
+  let bestD = Infinity;
+  for (const o of w.enemies) {
+    if (o === en || !copiable(o)) continue;
+    const d = Math.hypot(o.x - en.x, o.y - en.y);
+    if (d < bestD) {
+      bestD = d;
+      best = o.id;
+    }
+  }
+  return best;
+}
+
+/**
+ * A photocopy of `src` slides out of the copier's tray: the same enemy, with `copyLife` of its
+ * life and `copyPace` of its pace, dropping nothing. Pushed onto `w.enemies`.
+ */
+export function makeCopy(w: World, en: Enemy, src: Enemy, b: CopierBrain): Enemy {
+  const at = freeSpot(w, en.x + en.facing * 12, en.y + 3, src.def.footRadius);
+  const c = spawnEnemy(w.nextId++, src.def, at.x, at.y);
+  c.copyOf = en.id;
+  c.pace = b.copyPace;
+  c.damageTaken = Math.floor(src.def.hp * (1 - b.copyLife));
+  c.facing = en.facing;
+  // Out of the tray it slides, and only then gets going.
+  c.vx = en.facing * 110;
+  c.vy = w.rng.range(-20, 20);
+  if (src.def.brain.kind === 'chaser') {
+    c.state = 'brake';
+    c.until = 0.45;
+  }
+  w.enemies.push(c);
+  w.events.push({ type: 'copyMade', x: c.x, y: c.y, copy: c.id, enemy: src.def.id, source: en.id });
+  return c;
+}
+
+function updateCopier(w: World, en: Enemy, b: CopierBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  let walkX = 0;
+  let walkY = 0;
+  switch (en.state) {
+    case 'warn': {
+      // Lid up, standing still, the light crossing the glass; it faces whoever it copies.
+      const tgt = w.enemies.find((o) => o.id === en.copyTarget);
+      const fx = tgt ? tgt.x - en.x : dx;
+      if (Math.abs(fx) > 2) en.facing = fx > 0 ? 1 : -1;
+      if (en.t >= en.until) {
+        if (tgt && copiable(tgt) && copiesOf(w, en.id) < b.maxCopies) makeCopy(w, en, tgt, b);
+        else {
+          // Nobody left to copy: it prints at you instead.
+          const def = PATTERNS[b.pattern];
+          if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+          const mh = muzzleHeight(w, en, b.muzzleY);
+          if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+          firePattern(w, def, en.x + en.facing * 8, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - en.x - en.facing * 8), { telegraph: 0, source: en.id, by: en.def.id, height: mh });
+        }
+        en.copyTarget = -1;
+        enter(en, 'brake', b.recover);
+      }
+      break;
+    }
+    case 'brake':
+      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.interval[0], b.interval[1]));
+      break;
+    case 'walk': {
+      if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+      if (en.t >= en.until && !w.over) {
+        en.copyTarget = copyPick(w, en, b);
+        enter(en, 'warn', b.telegraph);
+        w.events.push({ type: 'copyScan', x: en.x, y: en.y - b.muzzleY, target: en.copyTarget, source: en.id });
+        break;
+      }
+      // Keeps its distance, backing off sideways (as the walking turrets do).
+      const sign = dist > b.keep + 24 ? 1 : dist < b.keep - 24 ? -1 : 0;
+      const side = sign < 0 ? (en.phase >= 0 ? 0.8 : -0.8) : 0;
+      const ux = dx / dist;
+      const uy = dy / dist;
+      const mx = ux * sign - uy * side;
+      const my = uy * sign + ux * side;
+      const ml = Math.hypot(mx, my) || 1;
+      if (sign !== 0) {
+        walkX = (mx / ml) * b.speed;
+        walkY = (my / ml) * b.speed;
+      }
+      break;
+    }
+    default:
+      // Its first copy comes a little sooner than the next ones.
+      enter(en, 'walk', w.rng.range(b.interval[0], b.interval[1]) * 0.6);
   }
   approach(en, walkX, walkY, KNOCK_FRICTION);
   if (en.vx !== 0 || en.vy !== 0) {

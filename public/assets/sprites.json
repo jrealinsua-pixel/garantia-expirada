@@ -101,6 +101,12 @@
     "frameH": 32,
     "frames": 21
   },
+  "fotocopiadora": {
+    "file": "fotocopiadora.png",
+    "frameW": 38,
+    "frameH": 38,
+    "frames": 10
+  },
   "munequito-repetido": {
     "file": "munequito-repetido.png",
     "frameW": 18,
@@ -349,6 +355,12 @@
   },
   "bala-tira": {
     "file": "bala-tira.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 2
+  },
+  "bala-folio": {
+    "file": "bala-folio.png",
     "frameW": 9,
     "frameH": 9,
     "frames": 2

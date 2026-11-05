@@ -792,8 +792,32 @@ export interface LobberBrain {
   muzzleY: number;
 }
 
+/**
+ * A floor photocopier (M10 planta 4 (4b)): a support enemy that keeps about `keep` px from the
+ * player (walking at `speed`). Every `interval` s (random in the range) it lifts its lid and scans
+ * (`telegraph` s, standing still, a green line to whom it copies: the nearest enemy that is not a
+ * copy, a boss or another copier) and slides a copy of it out of its tray: the same enemy with
+ * `copyLife` of its life, `copyPace` of its pace and no loot. At most `maxCopies` of its copies at
+ * once; with nobody to copy (or full up) it prints `pattern` at the player instead. When it
+ * breaks, its copies fade out and fall in `fade` s. `muzzleY`: height of its tray.
+ */
+export interface CopierBrain {
+  kind: 'copier';
+  speed: number;
+  keep: number;
+  interval: [number, number];
+  telegraph: number;
+  maxCopies: number;
+  copyLife: number;
+  copyPace: number;
+  fade: number;
+  pattern: string;
+  muzzleY: number;
+  recover: number;
+}
+
 export type EnemyBrain =
-  | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
@@ -844,6 +868,10 @@ export interface EnemyAnim {
   phaseShift?: number;
   /** Frame shown while it warns (the wireless mouse frozen without signal). */
   warn?: number;
+  /** Frames spread over its warning instead (the photocopier's light crossing the glass and back). */
+  scan?: readonly number[];
+  /** Frame shown while it recovers after attacking (the photocopier's copy sliding out). */
+  out?: number;
   /**
    * A small sheet drawn over the body (the Muñeco's sale tag): its top-left at (x, y) of the frame,
    * mirrored with the body (the sheet itself is not flipped, so its text reads), on the frames

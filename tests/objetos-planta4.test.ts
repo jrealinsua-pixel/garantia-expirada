@@ -163,8 +163,9 @@ function clearAfter(secs: number, ...items: string[]): { events: SimEvent[]; cou
   for (let i = 0; i < ticks(secs); i++) step(w, NO_INPUT);
   const events: SimEvent[] = [];
   w.pickups = w.pickups.filter((k) => k.kind !== 'cupon');
-  for (const en of w.enemies) en.damageTaken = en.def.hp;
   for (let i = 0; i < ticks(4) && w.doorsShut; i++) {
+    // Whatever is left falls (also what pops out of a surprise envelope).
+    for (const en of w.enemies) en.damageTaken = en.def.hp;
     step(w, NO_INPUT);
     events.push(...w.events);
   }
