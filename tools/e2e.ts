@@ -763,6 +763,28 @@ try {
   if (copiesAfter !== 2) throw new Error(`Al romperla, sus copias tenían que caer: quedaban ${copiesLeft} y luego ${copiesAfter}`);
   console.log('Fotocopiadora: escanea, saca copias grises y sin tóner se destiñen.');
 
+  // M10 planta 4 (4c): the DENEGADO stamp. Up in the air with its square shadow over the toaster;
+  // the ink on the floor; and a roll denied on it («Solicitud denegada»).
+  await page.goto(`${url}?semilla=e2e-sello&sala=planta-diafana&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('sello', p.x + 80, p.y + 10); g.spawnIdle('sello', p.x - 90, p.y - 30);
+    w.enemies.forEach((e, i) => { e.until = 0.4 + i * 0.5; e.volleys = 1 + i; }); })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'sello' && e.state === 'warn' && e.t > 0.3)", undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('El sello no sube a estampar'); });
+  await shot('50u-sello-aviso.png');
+  await page.waitForFunction('window.__GE__.scene.world.ink.length >= 2', undefined, { timeout: 10000 })
+    .catch(() => { throw new Error('El sello no deja tinta'); });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.ink[w.ink.length - 1]; w.player.x = k.x + 12; w.player.y = k.y + 8; w.player.rollCooldown = 0; w.bullets = []; })()`);
+  await page.keyboard.down('d');
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(160);
+  await page.keyboard.up('d');
+  const rolled = await page.evaluate<boolean>('window.__GE__.scene.world.player.rollT >= 0');
+  if (rolled) throw new Error('En la tinta no se tenía que poder rodar');
+  await shot('50v-sello-denegado.png');
+  console.log('Sello: sube con su sombra, estampa tinta y en ella la voltereta se deniega.');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);

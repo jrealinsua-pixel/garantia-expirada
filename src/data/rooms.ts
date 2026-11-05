@@ -1673,13 +1673,15 @@ export const SLOT_ENEMIES_3: readonly SlotEnemy[] = [
 
 /**
  * Floor 4 (Oficinas): floor 3's and its own office machines as they are made (S: the shredder,
- * M10 planta 4 (4a); K: the photocopier, (4b); the other two join in (4c)-(4d)).
+ * M10 planta 4 (4a); K: the photocopier, (4b); G: the stamp, (4c); the air conditioner joins in (4d)).
  */
 export const SLOT_ENEMIES_4: readonly SlotEnemy[] = [
   ...SLOT_ENEMIES_3,
   { ch: 'S', cost: 3, weight: 4, max: 2 },
   // K (C is the Caja of the Mostrador): the photocopier, at most one: it fills the room with copies of the others.
   { ch: 'K', cost: 4, weight: 3, max: 1 },
+  // G: the DENEGADO stamp (M10 planta 4 (4c)); two at most, or the floor is all ink.
+  { ch: 'G', cost: 3, weight: 4, max: 2 },
 ];
 
 /** What can fill an `e` slot on floor `level`. */

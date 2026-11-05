@@ -1315,3 +1315,110 @@ export function makeFotocopiadoraFrames(): Canvas[] {
     makeFotocopiadora(undefined, 0, true),
   ];
 }
+
+/** Varnished beech, gone dark where it is held, for the stamp's handle and mount. */
+const BEECH = ramp('#e2b277', '#b9844c', '#8a5c33', '#5c3a22');
+const BEECH_SIDE = ramp('#8a5c33', '#74492a', '#5c3a22', '#3e2616');
+const BEECH_TOP = ramp('#f2cf96', '#e2b277', '#b9844c', '#8a5c33');
+/** Red rubber, worn pink at the edges from so much denying. */
+const STAMP_RUBBER = ramp('#d9675a', '#a8323a', '#7a2230', '#521624');
+
+/**
+ * Sello de Denegado (M10 planta 4 (4c)): a rubber stamp. A round wooden knob on top (two tooth
+ * marks bitten into it), a short neck and the mount as a 3/4 cube with a tired, contemptuous face
+ * on its front; under it the red rubber, worn, with the edge of a backwards «D» showing; a dried
+ * ink pad hanging off the neck on a string. `squash`: crouching (to hop, or just stamped);
+ * `air`: legs tucked up; `slam`: coming down to stamp (stretched, legs up, the face furious);
+ * `jx` shakes it. 26x34.
+ */
+export function makeSello(squash = 0, air = false, slam = false, jx = 0): Canvas {
+  const legs = new Canvas(25, 33);
+  const cv = new Canvas(25, 33);
+  const stretch = slam ? 2 : 0;
+  // Rubber bottom at y = 26 standing (feet below); squashing lowers everything above it.
+  const by = 26 - (air || slam ? 2 : 0);
+  if (!air && !slam) feet(legs, 8, 13, 27, { L: 2, leg: PANTL, shoe: OFFICE });
+  else {
+    legs.rect(9, by + 1, 4, 2, OFFICE[2]!);
+    legs.rect(14, by + 1, 4, 2, OFFICE[1]!);
+  }
+  const x0 = 4 + jx;
+  // The rubber: a slab a pixel wider than the mount, worn at the corners, the backwards «D» peeking.
+  const rubTop = by - 3;
+  cv.rect(x0, rubTop, 18, 3, STAMP_RUBBER[1]!);
+  cv.rect(x0, rubTop, 18, 1, STAMP_RUBBER[0]!);
+  cv.rect(x0, rubTop + 2, 18, 1, STAMP_RUBBER[2]!);
+  cv.rect(x0, rubTop, 3, 3, STAMP_RUBBER[2]!);
+  clear(cv, [[x0, rubTop + 2], [x0 + 17, rubTop + 2]]);
+  cv.set(x0 + 12, rubTop + 2, STAMP_RUBBER[3]!);
+  cv.set(x0 + 13, rubTop + 1, STAMP_RUBBER[3]!);
+  cv.set(x0 + 14, rubTop + 2, STAMP_RUBBER[3]!);
+  // The mount: the head, a varnished block in 3/4 view.
+  const mh = 11 - squash + stretch;
+  const my = rubTop - mh;
+  cube(cv, x0 + 1, my, 16, mh, 4, 3, BEECH, BEECH_SIDE, BEECH_TOP);
+  // Grain on the side, a dark band where it meets the rubber.
+  cv.set(x0 + 2, my + 6, BEECH_SIDE[3]!);
+  cv.set(x0 + 3, my + 8 - squash, BEECH_SIDE[3]!);
+  cv.rect(x0 + 5, rubTop - 1, 12, 1, BEECH[3]!);
+  // The face: half-shut eyes that have seen every form, brows down; furious when it slams.
+  const ey = my + 4;
+  const ex = x0 + 8;
+  for (const x of [ex, ex + 5]) {
+    cv.rect(x, ey, 3, 3, K);
+    if (!slam) cv.set(x + 1, ey + 1, WHITE);
+    cv.rect(x, ey, 3, slam ? 2 : 1, BEECH[2]!);
+  }
+  const brows: Pt[] = slam
+    ? [[ex - 1, ey - 2], [ex, ey - 2], [ex + 1, ey - 1], [ex + 2, ey - 1], [ex + 5, ey - 1], [ex + 6, ey - 1], [ex + 7, ey - 2], [ex + 8, ey - 2]]
+    : [[ex, ey - 1], [ex + 1, ey - 1], [ex + 2, ey - 1], [ex + 5, ey - 1], [ex + 6, ey - 1], [ex + 7, ey - 1]];
+  for (const [x, y] of brows) cv.set(x, y, K);
+  // Mouth: a flat line, turned down at the end (gritted teeth when it comes down).
+  if (slam) {
+    // Gritted teeth.
+    cv.rect(ex + 1, ey + 4, 6, 3, K);
+    cv.rect(ex + 2, ey + 5, 4, 1, WHITE);
+    cv.set(ex + 4, ey + 5, K);
+  } else if (mh >= 9) {
+    cv.rect(ex + 2, ey + 5, 4, 1, K);
+    cv.set(ex + 6, ey + 6, K);
+  }
+  // Neck and knob: the handle, with two tooth marks bitten into the knob.
+  const ny = my - 3 - stretch;
+  cv.rect(x0 + 8, ny, 4, 4 + stretch, BEECH[1]!);
+  cv.rect(x0 + 8, ny, 1, 4 + stretch, BEECH[2]!);
+  cv.set(x0 + 11, ny + 1, BEECH[0]!);
+  const ky = ny - 6;
+  cv.rect(x0 + 6, ky + 1, 8, 5, BEECH[1]!);
+  cv.rect(x0 + 7, ky, 6, 1, BEECH_TOP[0]!);
+  cv.rect(x0 + 6, ky + 1, 2, 5, BEECH[2]!);
+  cv.rect(x0 + 7, ky + 5, 6, 1, BEECH[3]!);
+  cv.set(x0 + 10, ky + 1, BEECH_TOP[0]!);
+  cv.set(x0 + 11, ky + 2, BEECH_TOP[0]!);
+  clear(cv, [[x0 + 6, ky + 1], [x0 + 13, ky + 1], [x0 + 6, ky + 5], [x0 + 13, ky + 5]]);
+  // Tooth marks: two little dents on the right of the knob.
+  cv.set(x0 + 12, ky + 3, BEECH[3]!);
+  cv.set(x0 + 12, ky + 4, BEECH[3]!);
+  cv.set(x0 + 10, ky + 4, BEECH[3]!);
+  // The dried ink pad on a string, hanging off the back of the neck (it swings up when it falls).
+  const sy = slam ? ny - 1 : ny + 1;
+  cv.set(x0 + 7, sy, CREAM[2]!);
+  cv.set(x0 + 6, sy + 1, CREAM[2]!);
+  cv.set(x0 + 5, sy + 2, CREAM[2]!);
+  const py = sy + 3;
+  cv.rect(x0 + 1, py, 5, 3, DSTEEL[2]!);
+  cv.rect(x0 + 2, py + 1, 3, 1, STAMP_RUBBER[3]!);
+  cv.set(x0 + 1, py, DSTEEL[1]!);
+  // Hands: floating either side of the mount, in the same varnished wood.
+  hand(cv, x0 - 3, my + 5 + (slam ? -3 : 0), BEECH);
+  hand(cv, x0 + 18, my + 6 + (slam ? -3 : 0), BEECH);
+  const out = new Canvas(26, 34);
+  out.blit(legs, 1, 1);
+  out.blit(cv, 1, 1);
+  return outline(out);
+}
+
+/** The stamp's frames: 0-1 standing (it shakes with impatience), 2 crouching, 3 in the air, 4 coming down to stamp, 5 just stamped (squashed). */
+export function makeSelloFrames(): Canvas[] {
+  return [makeSello(), makeSello(0, false, false, 1), makeSello(2), makeSello(0, true), makeSello(0, false, true), makeSello(3)];
+}

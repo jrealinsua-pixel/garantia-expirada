@@ -11,9 +11,10 @@ import type { Rng } from './rng.ts';
  * yellow ribbon, fluttering. `accessory` are the Muñeco de Moda's pink plastic shoes and handbags, spinning.
  * `sticker` are its sale stickers out of the box: round, yellow, with a red «%», turning. `strip`
  * are the shredder's strips of paper: white with a red edge, wriggling. `sheet` are the
- * photocopier's sheets: white with toner lines and a red rim, tumbling.
+ * photocopier's sheets: white with toner lines and a red rim, tumbling. `ink` are the DENEGADO
+ * stamp's drops: red, with a white glint, wobbling.
  */
-export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet';
+export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink';
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {

@@ -27,6 +27,8 @@ import {
   WIND_DOWN_LINE,
   SHRED_JAM_LINE,
   COPY_LINE,
+  ROLL_DENIED_LINE,
+  STAMP_LINE,
   TONER_OUT_LINE,
   STALL_LINE,
   BRICK_LINE,
@@ -305,6 +307,8 @@ export class GameScene extends Phaser.Scene {
   private swapHinted = false;
   /** Frost thrown by a boss: the ball and its shadow while it flies, then the patch on the floor. */
   private frostViews = new Map<number, { ball: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; patch: Phaser.GameObjects.Sprite | null }>();
+  /** The squares of DENEGADO ink on the floor, by Ink id. */
+  private inkViews = new Map<number, Phaser.GameObjects.Image>();
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
   private pieces = new Map<string, SpritePiece[]>();
   private couponIcon!: Phaser.GameObjects.Image;
@@ -496,6 +500,7 @@ export class GameScene extends Phaser.Scene {
     this.hubHeard = {};
     this.talkAt = null;
     this.frostViews = new Map();
+    this.inkViews = new Map();
     this.particles = [];
     this.mapG = null;
     this.floats = [];
@@ -2065,6 +2070,28 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 8, this.fx.range(0, Math.PI * 2), this.fx.range(20, 50), 0, 0xf4f1e8);
           this.floatText(e.x, e.y - 30, fontText(COPY_LINE), 0xb7bed0, `copy:${e.copy}`, -16, 0.9);
           break;
+        case 'stampRise':
+          // Up it goes, to stamp: a creak of the handle.
+          this.sound2.play('saltar', { detune: -300, volume: 0.5 });
+          break;
+        case 'stamp': {
+          // Down: a heavy thud, the floor shakes, ink splashes and it says what it is.
+          this.sound2.play('estampar', { detune: this.fx.range(-100, 100) });
+          this.shake(110, e.hit ? 0.009 : 0.005, true);
+          for (let i = 0; i < 10; i++) {
+            const a = this.fx.range(0, Math.PI * 2);
+            this.spark(e.x + Math.cos(a) * e.w * 0.4, e.y + Math.sin(a) * e.h * 0.4, a, this.fx.range(20, 60), 0, 0xe0453b);
+          }
+          for (let i = 0; i < 4; i++) this.puff(e.x + this.fx.range(-e.w / 2, e.w / 2), e.y + this.fx.range(-2, 2), 0.3);
+          this.floatText(e.x, e.y - 40, fontText(STAMP_LINE), 0xe0453b, `stamp:${e.source}`, -14, 0.7);
+          break;
+        }
+        case 'rollDenied':
+          // No roll on the ink: a buzzer, a stumble and the form letter.
+          this.sound2.play('denegado');
+          for (let i = 0; i < 3; i++) this.puff(e.x - e.dirX * 4 + this.fx.range(-3, 3), e.y, 0.25);
+          this.floatText(e.x, e.y - 40, fontText(ROLL_DENIED_LINE), 0xe0453b, 'rollDenied', -16, 0.9);
+          break;
         case 'tonerOut':
           this.floatText(e.x, e.y - 40, fontText(TONER_OUT_LINE), 0xb8f07a, `toner:${e.source}`, -12, 1.1);
           break;
@@ -3367,6 +3394,7 @@ export class GameScene extends Phaser.Scene {
     this.drawWarnings();
     this.drawStatic();
     this.drawFrost(dt);
+    this.drawInk();
     this.drawChests(dt);
     this.drawLateProps();
     this.drawDrums(dt);
@@ -3410,6 +3438,8 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'strip' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
+      // The stamp's drops of ink wobble.
+      if (b.color === 'ink' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
       // The Muñeco's shoes and handbags spin a quarter turn at a time (half are shoes, half bags).
       if (b.color === 'accessory' && b.owner === 'enemy') s.setFrame((b.id % 2) * 4 + (Math.floor(this.time.now / 75 + b.id) % 4));
       // The sale stickers turn a quarter at a time as they peel off.
@@ -3558,6 +3588,31 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * DENEGADO ink: the square lands a little too big and settles (the thud of the stamp), lies on the
+   * floor, and blinks for its last second before it dries.
+   */
+  private drawInk(): void {
+    const alive = new Set<number>();
+    for (const k of this.world.ink) {
+      alive.add(k.id);
+      let v = this.inkViews.get(k.id);
+      if (!v) {
+        v = this.add.image(Math.round(k.x), Math.round(k.y), 'tinta-denegado').setDepth(-60500);
+        this.inkViews.set(k.id, v);
+      }
+      const pop = Math.min(1, k.t / 0.1);
+      v.setScale(1.2 - 0.2 * pop, 1.2 - 0.2 * pop);
+      const left = k.life - k.t;
+      v.setAlpha(left < 1 ? (Math.floor(this.time.now / 90) % 2 === 0 ? 0.3 : 0.75) : 0.92);
+    }
+    for (const [id, v] of this.inkViews) {
+      if (alive.has(id)) continue;
+      v.destroy();
+      this.inkViews.delete(id);
+    }
+  }
+
+  /**
    * Frost: a ball flies in an arc while a ring closes on where it will land (and its shadow
    * slides there); then the patch lies on the floor, sparkling, and blinks before it melts.
    * The toaster walking on it is tinted cold and kicks up rime.
@@ -3701,6 +3756,10 @@ export class GameScene extends Phaser.Scene {
         this.drawFlashMark(g, x, y, k);
         continue;
       }
+      if (wn.mark === 'stamp' && wn.size) {
+        this.drawStampShadow(g, x, y, wn.size.w, wn.size.h, k);
+        continue;
+      }
       // Bullets: a ring closes in on the muzzle; when it reaches it, they come out.
       if (wn.bullets) {
         const r = Math.round(4 + 16 * (1 - k));
@@ -3750,6 +3809,24 @@ export class GameScene extends Phaser.Scene {
     if (s.isTinted && s.tintFill) t.setTintFill(s.tintTopLeft);
     else if (s.isTinted) t.setTint(s.tintTopLeft);
     else t.clearTint();
+  }
+
+  /**
+   * A stamp coming down: its square shadow on the floor, growing to the size of the ink and darker
+   * as it comes, with a red frame that blinks faster at the end.
+   */
+  private drawStampShadow(g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number, k: number): void {
+    const s = 0.55 + 0.45 * k;
+    const sw = Math.round(w * s);
+    const sh = Math.round(h * s);
+    const x0 = x - Math.floor(sw / 2);
+    const y0 = y - Math.floor(sh / 2);
+    g.fillStyle(0x0e0c16, 0.3 + 0.4 * k).fillRect(x0, y0, sw, sh);
+    // The frame: red, flashing brighter faster and faster; thicker corners, like the stamp's own.
+    const blink = k < 0.6 ? Math.floor(this.time.now / 120) % 2 === 0 : Math.floor(this.time.now / 50) % 2 === 0;
+    g.fillStyle(blink ? 0xff8a70 : 0xe0453b, 1);
+    g.fillRect(x0, y0, sw, 1).fillRect(x0, y0 + sh - 1, sw, 1).fillRect(x0, y0, 1, sh).fillRect(x0 + sw - 1, y0, 1, sh);
+    for (const [cx, cy] of [[x0, y0], [x0 + sw - 4, y0], [x0, y0 + sh - 2], [x0 + sw - 4, y0 + sh - 2]] as const) g.fillRect(cx, cy, 4, 2);
   }
 
   /**
@@ -4138,7 +4215,7 @@ const SKID_MAX = 120;
 
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
-  confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio',
+  confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

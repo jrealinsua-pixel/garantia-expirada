@@ -422,6 +422,21 @@ export interface Frost {
   by: string;
 }
 
+/**
+ * A square of red ink a DENEGADO stamp leaves on the floor (M10 planta 4 (4c)): `w` × `h` px centred
+ * on (x, y), for `life` s (`t` counts up). Inside it the player cannot roll.
+ */
+export interface Ink {
+  id: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  t: number;
+  life: number;
+  source: number;
+}
+
 /** Frost patches are flattened ellipses, as seen in three-quarter view. */
 export const FROST_FLAT = 0.6;
 /** No more patches than this at once: the oldest melts. */
@@ -449,6 +464,11 @@ export type SimEvent =
   | { type: 'windGo' | 'windBounce' | 'windDown' | 'windUp'; x: number; y: number; source: number }
   /** A surprise envelope takes off or lands; or it breaks and `what` comes out (its SurpriseDef line). */
   | { type: 'hop' | 'hopLand'; x: number; y: number; source: number }
+  /** A DENEGADO stamp: it rises to stamp (`tx`, `ty`), it lands and inks the floor (`hit`: the player was under it). */
+  | { type: 'stampRise'; x: number; y: number; tx: number; ty: number; source: number }
+  | { type: 'stamp'; x: number; y: number; w: number; h: number; hit: boolean; source: number }
+  /** The player tried to roll on ink: a clumsy step instead, no invulnerability. */
+  | { type: 'rollDenied'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'surprise'; x: number; y: number; line: string; spawned: number[]; coupons: number }
   /** A remote-control car overturns against something, rights itself, or its batteries give out. */
   | { type: 'carFlip' | 'carRight' | 'carStall'; x: number; y: number; source: number }
@@ -592,6 +612,8 @@ export interface World {
   looseDecks?: { weapons: string[]; items: string[]; actives: string[] };
   /** Frost thrown by a boss: in the air or lying on the floor. */
   frost: Frost[];
+  /** Squares of DENEGADO ink on the floor (Ink). */
+  ink: Ink[];
   events: SimEvent[];
   nextId: number;
   /** Enemies taken apart so far. */
@@ -847,6 +869,7 @@ export function createWorld(opts: WorldOptions): World {
     emitters: [],
     pickups: [],
     frost: [],
+    ink: [],
     events: [],
     nextId,
     kills: 0,
@@ -1087,6 +1110,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.bullets = [];
   w.emitters = [];
   w.frost = [];
+  w.ink = [];
   w.enemies = [];
   w.dummies = [];
   w.pickups = st.pickups;
@@ -1379,7 +1403,7 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'relay') {
     state = 'idle';
     until = Infinity;
-  } else if (b.kind === 'hopper') {
+  } else if (b.kind === 'hopper' || b.kind === 'stamper') {
     state = 'idle';
     until = b.rest[1];
   } else if (b.kind === 'lobber') {
@@ -1400,6 +1424,14 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
 export function enemyAltitude(en: Enemy): number {
   const b = en.def.brain;
   if (b.kind === 'hopper') return en.state === 'charge' ? Math.sin(Math.PI * Math.min(1, en.t / en.until)) * b.hopHeight : 0;
+  if (b.kind === 'stamper') {
+    const k = Math.min(1, en.t / Math.max(en.until, 1e-6));
+    if (en.state === 'charge') return Math.sin(Math.PI * k) * b.hopHeight;
+    // Up to stamp: it rises fast and hangs; then it drops, faster and faster.
+    if (en.state === 'warn') return b.slamHeight * (1 - (1 - k) * (1 - k));
+    if (en.state === 'fire') return b.slamHeight * (1 - k * k);
+    return 0;
+  }
   return b.kind === 'moth' ? b.altitude : 0;
 }
 
@@ -1418,8 +1450,8 @@ export function playerFeetBox(p: { x: number; y: number }, r: number): Rect {
 }
 
 export function dummyHurtBox(d: Dummy | Enemy): Rect {
-  // A hopping envelope is hit where it is drawn, up in the air.
-  const up = 'brain' in d.def && d.def.brain.kind === 'hopper' ? enemyAltitude(d as Enemy) : 0;
+  // A hopping envelope (or stamp) is hit where it is drawn, up in the air.
+  const up = 'brain' in d.def && (d.def.brain.kind === 'hopper' || d.def.brain.kind === 'stamper') ? enemyAltitude(d as Enemy) : 0;
   return { x: d.x + d.def.hurt.x, y: d.y + d.def.hurt.y - up, w: d.def.hurt.w, h: d.def.hurt.h };
 }
 
@@ -1467,6 +1499,36 @@ export function slide(w: World, b: { x: number; y: number; vx: number; vy: numbe
   return { hitX, hitY };
 }
 
+/** A roll denied on ink: a lurch of this many times the walking speed, and this much longer to try again. */
+const DENIED_LURCH = 1.4;
+const DENIED_PAUSE = 0.25;
+
+/** The square of ink under (x, y), if any (the newest). */
+export function inkUnder(w: World, x: number, y: number): Ink | undefined {
+  for (let i = w.ink.length - 1; i >= 0; i--) {
+    const k = w.ink[i]!;
+    if (Math.abs(x - k.x) <= k.w / 2 && Math.abs(y - k.y) <= k.h / 2) return k;
+  }
+  return undefined;
+}
+
+/** Stamps a square of ink at (x, y) for `source`, which keeps at most `max` of its own (the oldest goes). */
+export function stampInk(w: World, x: number, y: number, ink: { w: number; h: number; life: number; max: number }, source: number): Ink {
+  const own = w.ink.filter((k) => k.source === source);
+  if (own.length >= ink.max) {
+    const drop = new Set(own.slice(0, own.length - ink.max + 1));
+    w.ink = w.ink.filter((k) => !drop.has(k));
+  }
+  const k: Ink = { id: w.nextId++, x, y, w: ink.w, h: ink.h, t: 0, life: ink.life, source };
+  w.ink.push(k);
+  return k;
+}
+
+function updateInk(w: World): void {
+  for (const k of w.ink) k.t += DT;
+  if (w.ink.some((k) => k.t >= k.life)) w.ink = w.ink.filter((k) => k.t < k.life);
+}
+
 function updatePlayer(w: World, input: Input): void {
   const p = w.player;
   const d = p.def;
@@ -1487,7 +1549,14 @@ function updatePlayer(w: World, input: Input): void {
     my /= ml;
   }
 
-  if (input.roll && !isRolling(p) && p.rollCooldown <= 0) {
+  if (input.roll && !isRolling(p) && p.rollCooldown <= 0 && inkUnder(w, p.x, p.y)) {
+    // «Solicitud denegada»: on ink the roll is a clumsy lurch, with no invulnerability.
+    const dir = ml > 0.1 ? normalize(mx, my) : { x: Math.cos(p.aim), y: Math.sin(p.aim) };
+    p.vx = dir.x * d.speed * DENIED_LURCH;
+    p.vy = dir.y * d.speed * DENIED_LURCH;
+    p.rollCooldown = d.rollCooldown + DENIED_PAUSE;
+    w.events.push({ type: 'rollDenied', x: p.x, y: p.y, dirX: dir.x, dirY: dir.y });
+  } else if (input.roll && !isRolling(p) && p.rollCooldown <= 0) {
     const dir = ml > 0.1 ? normalize(mx, my) : { x: Math.cos(p.aim), y: Math.sin(p.aim) };
     p.rollT = 0;
     p.rollDirX = dir.x;
@@ -2129,8 +2198,9 @@ export interface Warning {
   source?: number;
   /** Length of the aimed line, when it reaches a point (a webcam's line of sight to the player). */
   reach?: number;
-  /** A camera flash charging on the floor instead of the closing ring (Emitter.mark). */
-  mark?: 'flash';
+  /** A camera flash charging on the floor instead of the closing ring (Emitter.mark); or the square shadow of a stamp coming down (`size`). */
+  mark?: 'flash' | 'stamp';
+  size?: { w: number; h: number };
   /** A photocopier scanning this enemy: the line is the green of its light, and the enemy glows. */
   scan?: number;
 }
@@ -2181,6 +2251,11 @@ export function activeWarnings(w: World): Warning[] {
       } else {
         out.push({ x: en.x, y: en.y - b.muzzleY, k, aim: Math.atan2(w.player.y - HAND_HEIGHT - (en.y - b.muzzleY), w.player.x - en.x), aimed: true, color: 'red', bullets: true, source: en.id });
       }
+      continue;
+    }
+    if (b.kind === 'stamper' && en.dest) {
+      // Up in the air: a square shadow on the floor where it will stamp.
+      out.push({ x: en.dest.x, y: en.dest.y, k: Math.min(1, en.t / en.until), aim: 0, aimed: false, color: 'red', bullets: false, source: en.id, mark: 'stamp', size: { w: b.ink.w, h: b.ink.h } });
       continue;
     }
     if (b.kind === 'lobber') {
@@ -3121,6 +3196,7 @@ export function step(w: World, input: Input): void {
   }
   updateProps(w);
   if (!paused) updateFrost(w);
+  if (!paused) updateInk(w);
   reapEnemies(w);
   updateDummies(w);
   if (!paused) updateEnemies(w);
@@ -3179,6 +3255,7 @@ export function worldHash(w: World): string {
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));
+  for (const k of w.ink) parts.push(k.x.toFixed(2), k.y.toFixed(2), k.t.toFixed(3));
   if (w.lift) parts.push(w.lift.x.toFixed(2), w.lift.y.toFixed(2), w.won ? 'won' : 'lift');
   return parts.join('|');
 }

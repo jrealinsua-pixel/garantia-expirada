@@ -107,6 +107,12 @@
     "frameH": 38,
     "frames": 10
   },
+  "sello": {
+    "file": "sello.png",
+    "frameW": 26,
+    "frameH": 34,
+    "frames": 6
+  },
   "munequito-repetido": {
     "file": "munequito-repetido.png",
     "frameW": 18,
@@ -364,6 +370,18 @@
     "frameW": 9,
     "frameH": 9,
     "frames": 2
+  },
+  "bala-tinta": {
+    "file": "bala-tinta.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 2
+  },
+  "tinta-denegado": {
+    "file": "tinta-denegado.png",
+    "frameW": 40,
+    "frameH": 26,
+    "frames": 1
   },
   "bala-accesorio": {
     "file": "bala-accesorio.png",

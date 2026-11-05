@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T11:50:00+01:00",
+  "actualizado": "2026-11-05T13:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 19,
+    "enemigos": 20,
     "jefes": 3,
     "armas": 3,
     "objetos": 43,
     "plantillas_sala": 71,
-    "tests": 591,
-    "tests_ok": 591,
+    "tests": 602,
+    "tests_ok": 602,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 21625
+    "lineas_codigo": 21976
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T13:05:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (4c): el Sello de Denegado, que avanza a saltos y cada tercero estampa: una sombra cuadrada avisa, cae y deja un cuadro de tinta roja donde la voltereta se deniega («Solicitud denegada»).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T11:50:00+01:00",
       "hito": "M10",
@@ -932,6 +938,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sello-aviso.png",
+      "pie": "El Sello de Denegado sube a estampar: en el suelo, una sombra cuadrada con el marco rojo marca dónde caerá la tinta"
+    },
+    {
+      "archivo": "capturas/sello-denegado.png",
+      "pie": "«Solicitud denegada»: en la tinta de los sellos la voltereta se queda en un paso torpe, sin invulnerabilidad"
+    },
+    {
       "archivo": "capturas/fotocopiadora-escanea.png",
       "pie": "La Fotocopiadora de Planta levanta la tapa: la luz verde cruza el cristal y una raya marca al aspirador que va a copiar"
     },
@@ -946,17 +960,9 @@
     {
       "archivo": "capturas/oficinas-objetos.png",
       "pie": "Los cinco primeros objetos de las Oficinas en el inventario: Taza de Mejor Empleado, Corbata de Lunes, Café de Máquina, Silla con Ruedas y Bola Antiestrés"
-    },
-    {
-      "archivo": "capturas/destructora-tiras.png",
-      "pie": "La Destructora de Documentos se traga las balas que le entran de frente y, cada cuatro, escupe un abanico de tiras de papel: hay que rodearla"
-    },
-    {
-      "archivo": "capturas/destructora-atasco.png",
-      "pie": "«Atasco»: cerca y de frente, la destructora pone las cuchillas en rojo y se lanza a tragarse a la tostadora"
     }
   ],
-  "proximo": "M10 planta 4 (4c): el Sello de Denegado; o (6b2): Pósit de Urgente, Responder a Todos y sus sinergias; o M10 (7): medir la planta 3 con el bot.",
+  "proximo": "M10 planta 4 (4d): el Climatizador Portátil; o (6b2): Pósit de Urgente, Responder a Todos y sus sinergias; o M10 (7): medir las plantas 3 y 4 con el bot.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -982,11 +988,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 12:26 (hora peninsular)",
-      "tarea": "M10 planta 4 (4c): el Sello de Denegado",
-      "desde": "2026-11-05T11:26:00Z"
-    }
-  ]
+  "en_curso": []
 }

@@ -175,6 +175,9 @@ export const SFX: Record<string, SfxParams> = {
   // The photocopier: the lamp humming across the glass, and the copy sliding out of the tray.
   escanear: { wave: 'triangle', freq: 220, freqEnd: 330, attack: 0.05, sustain: 0.8, decay: 0.15, volume: 0.1, vibrato: 0.08, vibratoSpeed: 50 },
   copia: { wave: 'noise', freq: 1800, freqEnd: 700, attack: 0.01, sustain: 0.2, decay: 0.1, volume: 0.18, lowpass: 0.5, crush: 2 },
+  // The DENEGADO stamp: a heavy rubber thud on the floor, and the buzzer of a roll denied on its ink.
+  estampar: { wave: 'noise', freq: 180, freqEnd: 60, attack: 0.001, sustain: 0.05, decay: 0.2, volume: 0.32, lowpass: 0.25 },
+  denegado: { wave: 'square', freq: 140, freqEnd: 120, attack: 0.002, sustain: 0.16, decay: 0.06, volume: 0.13, duty: 0.4, crush: 2 },
   chapa: { wave: 'square', freq: 820, freqEnd: 430, attack: 0.001, sustain: 0.02, decay: 0.09, volume: 0.15, duty: 0.3, crush: 3 },
   // El Muñeco de Moda (M10 5b): the pricing gun stamping a new tag (a dry double clack)...
   rebaja: { wave: 'square', freq: 1500, freqEnd: 380, attack: 0.001, sustain: 0.025, decay: 0.07, volume: 0.17, duty: 0.25, crush: 3 },

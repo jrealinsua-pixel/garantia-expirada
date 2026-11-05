@@ -816,8 +816,34 @@ export interface CopierBrain {
   recover: number;
 }
 
+/**
+ * A DENEGADO rubber stamp (M10 planta 4 (4c)): hops towards the player like the envelope
+ * (`hopTime` s in the air, up to `hopHeight` px, `hopDist` px a hop, resting `rest` s between), and
+ * every `stampEvery` hops it stamps instead: it rises `slamHeight` px and glides over the player's
+ * spot (no further than `reach` px) for `telegraph` s while a square shadow warns, drops in `drop`
+ * s and leaves a square of ink (`ink.w` × `ink.h` px on the floor, `ink.life` s; at most `ink.max`
+ * of its own at once). Caught under it: `damage`, and the stamp always splashes `pattern`. Inside
+ * the ink the player cannot roll. Then `recover` s on the floor.
+ */
+export interface StamperBrain {
+  kind: 'stamper';
+  hopTime: number;
+  hopHeight: number;
+  hopDist: [number, number];
+  rest: [number, number];
+  stampEvery: number;
+  reach: number;
+  telegraph: number;
+  slamHeight: number;
+  drop: number;
+  ink: { w: number; h: number; life: number; max: number };
+  damage: number;
+  pattern: string;
+  recover: number;
+}
+
 export type EnemyBrain =
-  | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {

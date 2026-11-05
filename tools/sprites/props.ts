@@ -2,6 +2,7 @@
 import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
 import { BLUE, BROWN, BURNT, CARD, CREAM, DSTEEL, FRT, GLOVE, GLOW, GLOW2, GREEN, ICE, K, RED, RUSTR, STEEL, TOASTC, WHITE, YEL } from '../../src/art/lib.ts';
 import { stencil, stencilWidth } from '../../src/art/warehouse.ts';
+import { GLYPHS, textWidth } from '../../src/art/font.ts';
 import { box, cube, ellipse, hand, OFFICE, outline, ramp, type Ramp } from '../../src/art/lib.ts';
 
 export function makeCaja(): Canvas {
@@ -1628,4 +1629,60 @@ export function makePegoteFrames(): Canvas[] {
     });
   }
   return out;
+}
+
+/**
+ * The DENEGADO stamp's drops of ink (M10 planta 4 (4c)): an enemy bullet the same 9x9 as the round
+ * ones, a red drop with a white glint (the saturated colour and white core of every enemy bullet).
+ * 2 frames: round and stretched (it wobbles as it flies).
+ */
+export function makeInkDrop(): Canvas {
+  const frames: Array<readonly string[]> = [
+    ['..000..', '.01110.', '0122210', '0123210', '0122210', '.01110.', '..000..'],
+    ['...0...', '..010..', '.01210.', '0122210', '0123210', '.01210.', '..000..'],
+  ];
+  const cols: Record<string, RGBA> = { '0': RED[3]!, '1': RED[1]!, '2': RED[0]!, '3': WHITE };
+  const sheet = new Canvas(9 * frames.length, 9);
+  frames.forEach((rows, f) => paintGrid(sheet, f * 9 + 1, 1, rows, cols));
+  return sheet;
+}
+
+/**
+ * The square of ink a DENEGADO stamp leaves on the floor: 40x26 (a 40 px square seen in 3/4).
+ * A worn double frame in stamp red with gaps where the rubber is bald, «DENEGADO» across the middle
+ * in «Letra Pequeña», and a thin wash of ink inside so the area reads on any floor.
+ */
+export function makeInkSquare(): Canvas {
+  const W = 40;
+  const H = 26;
+  const cv = new Canvas(W, H);
+  const INK = RED[1]!;
+  const DARK = RED[2]!;
+  const wash: RGBA = [RED[2]![0], RED[2]![1], RED[2]![2], 110];
+  for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) cv.put(x, y, wash);
+  // Outer frame, 2 px, bald in a few places (a stamp never inks evenly).
+  cv.rect(0, 0, W, 2, INK);
+  cv.rect(0, H - 2, W, 2, INK);
+  cv.rect(0, 0, 2, H, INK);
+  cv.rect(W - 2, 0, 2, H, INK);
+  for (const [x, y] of [[7, 0], [8, 0], [23, 1], [31, H - 1], [32, H - 1], [0, 11], [W - 1, 17], [15, H - 2]] as const) cv.put(x, y, wash);
+  // Inner frame, 1 px.
+  cv.rect(4, 4, W - 8, 1, DARK);
+  cv.rect(4, H - 5, W - 8, 1, DARK);
+  cv.rect(4, 4, 1, H - 8, DARK);
+  cv.rect(W - 5, 4, 1, H - 8, DARK);
+  // The word, centred.
+  const word = 'DENEGADO';
+  let x = Math.floor((W - textWidth(word)) / 2);
+  const y = Math.floor((H - 5) / 2);
+  for (const ch of word) {
+    const g = GLYPHS.get(ch)!;
+    g.rows.slice(2, 7).forEach((row, ry) => [...row].forEach((p, rx) => p === '#' && cv.set(x + rx, y + ry, INK)));
+    x += g.w + 1;
+  }
+  // A splash and a smear: too much ink on one corner.
+  cv.rect(W - 4, H - 4, 2, 2, INK);
+  cv.set(W - 3, H - 5, INK);
+  cv.set(3, 3, INK);
+  return cv;
 }

@@ -2,7 +2,7 @@
 // Used by `npm run bot` and by tests to measure balance and detect hangs.
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
-import { brickUnder, checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
+import { brickUnder, checkInvariants, inkUnder, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
 import { freeChestLeft, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
@@ -129,6 +129,26 @@ export function dodge(w: World): Dodge {
     out.x += (dx / d) * k;
     out.y += (dy / d) * k;
   }
+  // A stamp coming down: off its square shadow (once it has seen it). Ink on the floor: walk out of
+  // it, it is no place to have to dodge from.
+  for (const en of w.enemies) {
+    const b = en.def.brain;
+    if (b.kind !== 'stamper' || en.state !== 'warn' || !en.dest || en.t < BOT_REACTION) continue;
+    const dx = p.x - en.dest.x;
+    const dy = p.y - en.dest.y;
+    if (Math.abs(dx) > b.ink.w / 2 + 10 || Math.abs(dy) > b.ink.h / 2 + 8) continue;
+    const d = Math.hypot(dx, dy) || 1;
+    out.x += (dx / d) * 1.2;
+    out.y += (dy / d) * 1.2;
+  }
+  const ink = inkUnder(w, p.x, p.y);
+  if (ink) {
+    const dx = p.x - ink.x;
+    const dy = (p.y - ink.y) * 1.5;
+    const d = Math.hypot(dx, dy) || 1;
+    out.x += (dx / d) * 0.4;
+    out.y += (dy / d) * 0.4;
+  }
   // Do not dodge into a wall.
   const ahead = 18;
   const l = Math.hypot(out.x, out.y);
@@ -137,7 +157,7 @@ export function dodge(w: World): Dodge {
     else if (!isWallAt(w.room, p.x, p.y + (out.y / l) * ahead)) out.x = 0;
   }
   out.urgency = Math.min(1, Math.hypot(out.x, out.y));
-  if (soonest < 0.2 && !isRolling(p) && p.rollCooldown <= 0) {
+  if (soonest < 0.2 && !isRolling(p) && p.rollCooldown <= 0 && !ink) {
     out.roll = true;
     if (isWallAt(w.room, p.x + out.rollX * 40, p.y + out.rollY * 40)) {
       out.rollX = -out.rollX;

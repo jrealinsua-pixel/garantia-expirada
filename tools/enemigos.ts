@@ -1,7 +1,7 @@
 // Measures floor 2's enemies by pairs: for each pair of template letters given (e.g. `OO WO RR`),
 // 60 combat rooms of floor 2 with just those two enemies, played by the bot with the starting
-// weapon. Prints wounds and seconds per room, the webcam's alerts and lost recordings, and the
-// photocopier's copies.
+// weapon. Prints wounds and seconds per room, the webcam's alerts and lost recordings, the
+// photocopier's copies, and the stamp's stamps (how many caught the toaster) and rolls denied.
 //   npm run enemigos -- OO WO II WI
 import { templatesOf } from '../src/data/rooms.ts';
 import { fillTemplate } from '../src/sim/room.ts';
@@ -19,6 +19,9 @@ for (const pair of process.argv.slice(2)) {
   let alerts = 0;
   let lost = 0;
   let copies = 0;
+  let stamps = 0;
+  let stampHits = 0;
+  let denied = 0;
   for (let i = 0; i < ROOMS; i++) {
     // Each letter costs half the budget at depth 3, so exactly the two of them come.
     const pool = [...new Set(pair)].map((ch) => ({ ch, cost: 4, weight: 1, max: pair.split(ch).length - 1 }));
@@ -33,6 +36,10 @@ for (const pair of process.argv.slice(2)) {
         else if (e.type === 'alert') alerts++;
         else if (e.type === 'recLost') lost++;
         else if (e.type === 'copyMade') copies++;
+        else if (e.type === 'stamp') {
+          stamps++;
+          if (e.hit) stampHits++;
+        } else if (e.type === 'rollDenied') denied++;
       }
       if (w.over) {
         downs++;
@@ -43,6 +50,7 @@ for (const pair of process.argv.slice(2)) {
     secs += k * DT;
   }
   const f = (n: number): string => (n / ROOMS).toFixed(2);
-  const extra = `webcam: ${f(alerts)} avisos y ${f(lost)} grabaciones perdidas · fotocopiadora: ${f(copies)} copias`;
+  const stamp = `sello: ${f(stamps)} sellos (${f(stampHits)} aciertan), ${f(denied)} volteretas denegadas`;
+  const extra = `webcam: ${f(alerts)} avisos y ${f(lost)} grabaciones perdidas · fotocopiadora: ${f(copies)} copias · ${stamp}`;
   console.log(`${pair}: ${f(hurts)} heridas y ${(secs / ROOMS).toFixed(1)} s por sala · ${downs} bajas · ${extra}`);
 }

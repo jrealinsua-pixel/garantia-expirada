@@ -2,7 +2,7 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain, CopierBrain,
+  HopperBrain, ShredderBrain, CopierBrain, StamperBrain,
 } from '../data/types.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
@@ -24,6 +24,7 @@ import {
   playerFeetBox,
   slide,
   spawnEnemy,
+  stampInk,
   throwFrost,
   type Enemy,
   type SimEvent,
@@ -112,6 +113,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'copier':
         updateCopier(w, en, en.def.brain);
+        break;
+      case 'stamper':
+        updateStamper(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1587,6 +1591,115 @@ function updateHopper(w: World, en: Enemy, b: HopperBrain): void {
 }
 
 /**
+ * The DENEGADO stamp: hops towards the player (state `charge`, like the envelope) and every
+ * `stampEvery` hops it stamps: it rises over the player's spot (state `warn`, gliding there while a
+ * square shadow warns; `dest` is the spot), drops (`fire`) and inks the floor; whoever is under it
+ * is hurt, and a ring of ink splashes out. Then it sits a moment (`brake`).
+ */
+function updateStamper(w: World, en: Enemy, b: StamperBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  switch (en.state) {
+    case 'charge': {
+      const ox = en.x;
+      const oy = en.y;
+      slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+      en.moved += Math.hypot(en.x - ox, en.y - oy);
+      if (en.t >= en.until) {
+        en.vx = 0;
+        en.vy = 0;
+        enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+        en.volleys = (en.volleys ?? b.stampEvery) - 1;
+        w.events.push({ type: 'hopLand', x: en.x, y: en.y, source: en.id });
+      }
+      return;
+    }
+    case 'warn': {
+      // Gliding over to where it will come down, so it is right above it when the warning ends.
+      const d = en.dest ?? { x: en.x, y: en.y };
+      const left = Math.max(DT, en.until - en.t + DT);
+      const ox = en.x;
+      const oy = en.y;
+      slide(w, en, en.def.footRadius, ((d.x - en.x) / left) * DT, ((d.y - en.y) / left) * DT);
+      en.moved += Math.hypot(en.x - ox, en.y - oy);
+      if (en.t >= en.until) {
+        en.dest = { x: en.x, y: en.y };
+        enter(en, 'fire', b.drop);
+      }
+      return;
+    }
+    case 'fire': {
+      if (en.t < en.until) return;
+      // Down: the square of ink, and whoever was under it.
+      const x = en.x;
+      const y = en.y;
+      stampInk(w, x, y, b.ink, en.id);
+      const under = Math.abs(p.x - x) <= b.ink.w / 2 && Math.abs(p.y - y) <= b.ink.h / 2;
+      let hit = false;
+      if (under && !w.over) {
+        const d = normalize(dx, dy);
+        hit = hurtPlayer(w, b.damage, en.id, d.x, d.y, { by: en.def.id, how: 'contact' });
+      }
+      const def = PATTERNS[b.pattern];
+      if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+      firePattern(w, def, x, y - 2, Math.atan2(dy, dx), { source: en.id, by: en.def.id, height: 2 });
+      w.events.push({ type: 'stamp', x, y, w: b.ink.w, h: b.ink.h, hit, source: en.id });
+      delete en.dest;
+      en.volleys = b.stampEvery;
+      enter(en, 'brake', b.recover);
+      return;
+    }
+    case 'brake':
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+      break;
+    default: {
+      if (en.state !== 'idle') enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+      if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+      if (en.t < en.until || w.over) break;
+      if ((en.volleys ?? b.stampEvery) <= 1 && dist < b.reach * 1.6) {
+        // Its stamping hop: up over where the player stands (or as far as it reaches that way).
+        const k = Math.min(1, b.reach / dist);
+        let tx = en.x + dx * k;
+        let ty = en.y + dy * k;
+        if (!isClear(w, tx, ty, en.def.footRadius)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, en.def.footRadius, { x: en.x, y: en.y }));
+        en.dest = { x: tx, y: ty };
+        en.vx = 0;
+        en.vy = 0;
+        if (Math.abs(tx - en.x) > 2) en.facing = tx > en.x ? 1 : -1;
+        enter(en, 'warn', b.telegraph);
+        w.events.push({ type: 'stampRise', x: en.x, y: en.y, tx, ty, source: en.id });
+        return;
+      }
+      // An ordinary hop, straight at the player with a little swerve (never past it).
+      const swerve = w.rng.range(-0.5, 0.5);
+      const ux = dx / dist;
+      const uy = dy / dist;
+      const d = normalize(ux - uy * swerve, uy + ux * swerve);
+      const len = Math.min(w.rng.range(b.hopDist[0], b.hopDist[1]), Math.max(8, dist - 18));
+      en.dirX = d.x;
+      en.dirY = d.y;
+      en.vx = (d.x * len) / b.hopTime;
+      en.vy = (d.y * len) / b.hopTime;
+      if (Math.abs(d.x) > 0.2) en.facing = d.x > 0 ? 1 : -1;
+      enter(en, 'charge', b.hopTime);
+      w.events.push({ type: 'hop', x: en.x, y: en.y, source: en.id });
+      return;
+    }
+  }
+  // On the floor: bullets may nudge it, friction stops it.
+  approach(en, 0, 0, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+}
+
+/**
  * The bucket of pieces: keeps its distance like a walking turret; when its wait is over and the
  * player is in range it stops, lifts its lid (the warning) and lobs a handful of pieces: the first
  * where the player is heading, the rest scattered round it, where it would step to dodge.
@@ -1870,6 +1983,8 @@ function contact(w: World, en: Enemy): void {
   if (d.x === 0 && d.y === 0) d = { x: en.dirX, y: en.dirY };
   const push = en.state === 'charge' ? en.def.contactPush : en.def.contactPush * 0.5;
   if (en.def.brain.kind === 'moth' && en.state !== 'charge') return; // it only bumps into you when it dives
+  // A stamp up in the air to stamp hurts by stamping (updateStamper), not by brushing past.
+  if (en.def.brain.kind === 'stamper' && (en.state === 'warn' || en.state === 'fire')) return;
   p.vx += d.x * push;
   p.vy += d.y * push;
   en.contactCooldown = 0.5;
