@@ -266,9 +266,9 @@ test('plantillas de la planta 3: doce salas de combate y las especiales, todas s
   assert.ok(withToys > 30, `${withToys} salas con juguetes`);
 });
 
-test('plantillas de la planta 4: seis salas de combate suyas (las especiales, de la Juguetería hasta la (2c))', () => {
+test('plantillas de la planta 4: doce salas de combate suyas (las especiales, de la Juguetería hasta la (2c))', () => {
   const four = templatesOf('combat', 4);
-  assert.ok(four.length >= 6, `${four.length} salas de combate en la planta 4`);
+  assert.ok(four.length >= 12, `${four.length} salas de combate en la planta 4`);
   for (const t of four) assert.equal(t.level, 4, t.id);
   for (const level of [1, 2, 3]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 4), `planta ${level}`);
   // Until it has its own, its special rooms are the floor below's.

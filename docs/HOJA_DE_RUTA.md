@@ -362,7 +362,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     moqueta gris con manchas de café, mamparas de cubículo, pared de pladur con vinilos de valores,
     archivadores, termos de café, ficus de plástico, mesas de oficina y persianas con «Reunión».
   - [x] (2a) Seis plantillas de combate propias de la planta 4, cada una con su idea y sus grupos.
-  - [ ] (2b) Seis plantillas de combate más.
+  - [x] (2b) Seis plantillas de combate más.
   - [ ] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Papeles para
     Destruir con su acta de reunión, y la Sala de Juntas del jefe).
   - [ ] (3) Encadenar: tras el Muñeco se baja a la planta 4, con todo lo que se lleva; hasta que

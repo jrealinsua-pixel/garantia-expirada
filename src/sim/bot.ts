@@ -317,7 +317,9 @@ export class Bot {
       if (!wantsPickup(w, k)) continue;
       if (k.price !== undefined || (k.kind === 'activo' && p.active)) continue;
       const d = Math.hypot(k.x - p.x, k.y - p.y);
-      if (d < near) {
+      // With the room clear, only in a straight line: one behind a partition is floorGoal's, which
+      // steers round (in a fight the detour stays as it was, to keep the bot's numbers comparable).
+      if (d < near && (w.enemies.length > 0 || clearLine(w, p, k, p.def.footRadius))) {
         near = d;
         goal = { x: k.x, y: k.y };
       }

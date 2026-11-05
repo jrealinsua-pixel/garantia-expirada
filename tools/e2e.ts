@@ -448,17 +448,21 @@ try {
     await shot(`37${'abcdef'[i]}-planta3-${['sala', 'entrada', 'pruebas', 'jefe', 'tienda', 'secreta'][i]}.png`);
   }
 
-  // M10 planta 4 (1, 2a): floor 4 (Oficinas) has its own tiles, colour, obstacles, shutters and
+  // M10 planta 4 (1, 2a, 2b): floor 4 (Oficinas) has its own tiles, colour, obstacles, shutters and
   // combat rooms. Until M10 planta 4 (2c) and (3) it borrows the Juguetería's special rooms (and its boss).
   const p4 = ['sala=open-space&profundidad=5', 'sala=entrada-jugueteria', 'sala=jefe-jugueteria', 'sala=tienda-jugueteria', 'sala=secreta-jugueteria',
-    'sala=reunion-correo&profundidad=5', 'sala=office-nevera&profundidad=5', 'sala=planta-diafana&profundidad=6'];
+    'sala=reunion-correo&profundidad=5', 'sala=office-nevera&profundidad=5', 'sala=planta-diafana&profundidad=6',
+    // (2b): six more combat rooms.
+    'sala=hilera-cubiculos&profundidad=5', 'sala=curso-prevencion&profundidad=5', 'sala=comedor-empresa&profundidad=5',
+    'sala=recursos-humanos&profundidad=5', 'sala=cabinas-concentracion&profundidad=5', 'sala=hot-desking&profundidad=6'];
   for (const [i, q] of p4.entries()) {
     await page.goto(`${url}?semilla=e2e-p4-${i}&${q}&planta=4`);
     await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
     await page.evaluate('window.__GE__.scene.world.noDamage = true');
     if ((await page.evaluate<number>('window.__GE__.scene.world.level')) !== 4) throw new Error(`?planta=4 no pone la planta 4 (${q})`);
     await page.waitForTimeout(i === 2 ? 4200 : 1600);
-    await shot(`50${'abcdefgh'[i]}-planta4-${['sala', 'entrada', 'jefe', 'tienda', 'secreta', 'reunion', 'office', 'reforma'][i]}.png`);
+    const names = ['sala', 'entrada', 'jefe', 'tienda', 'secreta', 'reunion', 'office', 'reforma', 'cubiculos', 'formacion', 'comedor', 'rrhh', 'cabinas', 'compartidos'];
+    await shot(`50${'abcdefghijklmn'[i]}-planta4-${names[i]}.png`);
   }
 
   // M8: floors in a row. A floor won (here, a lift under the toaster's feet at the entrance) and

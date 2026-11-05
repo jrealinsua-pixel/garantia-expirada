@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T08:45:00+01:00",
+  "actualizado": "2026-11-05T09:25:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 3,
     "armas": 3,
     "objetos": 35,
-    "plantillas_sala": 60,
+    "plantillas_sala": 66,
     "tests": 563,
     "tests_ok": 563,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 20571
+    "lineas_codigo": 20712
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T09:25:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (2b): seis salas de combate más de las Oficinas (Hilera de Cubículos, Sala de Formación, Comedor de Empresa, Recursos Humanos, Cabinas de Concentración y Puestos Compartidos); ya son doce.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T08:45:00+01:00",
       "hito": "M10",
@@ -894,6 +900,10 @@
       "pie": "El minimapa marca lo que queda en cada sala: cofre, ticket, corazón, objeto o cupones, una marca por tipo aunque haya varios"
     },
     {
+      "archivo": "capturas/oficinas-rrhh.png",
+      "pie": "Recursos Humanos (Su Queja Es Importante), una de las seis salas nuevas de las Oficinas: una pecera de mamparas con los de dentro cubiertos tras el cristal"
+    },
+    {
       "archivo": "capturas/oficinas-reunion.png",
       "pie": "Sala de Reuniones (Esto Podía Ser un Correo), una de las seis salas nuevas de las Oficinas: dos filas de mesas que se vuelcan para hacer trinchera"
     },
@@ -908,13 +918,9 @@
     {
       "archivo": "capturas/mando-vibracion.png",
       "pie": "Mando con Vibración: cada golpe que recibe la tostadora suelta un corro de diez balas suyas"
-    },
-    {
-      "archivo": "capturas/jugueteria-sala.png",
-      "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     }
   ],
-  "proximo": "M10 planta 4 (2b): seis plantillas de combate más de las Oficinas. O M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro.",
+  "proximo": "M10 planta 4 (2c): las salas especiales propias de las Oficinas. O M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -940,11 +946,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 08:50",
-      "tarea": "M10 planta 4 (2b): seis plantillas de combate más de las Oficinas (src/data/rooms.ts, tests/rooms.test.ts, tools/e2e.ts)",
-      "desde": "2026-11-05T08:50:00+01:00"
-    }
-  ]
+  "en_curso": []
 }
