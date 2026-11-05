@@ -3,7 +3,7 @@
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
-import { freeChestLeft, PLAYER_HURT_Y, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
+import { freeChestLeft, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Input, World } from './world.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
@@ -290,7 +290,7 @@ export class Bot {
       k.kind === 'corazon' ? (p.hp <= p.def.maxHp - 2 ? 1 : -1) : k.kind === 'ticket' ? 2 : k.kind === 'activo' && p.active ? -1 : 0;
     let best: (typeof w.pickups)[number] | undefined;
     for (const k of w.pickups) {
-      if (k.price === undefined || k.price > p.coupons || rank(k) < 0) continue;
+      if (k.price === undefined || shopPrice(p, k.price) > p.coupons || rank(k) < 0) continue;
       if (!best || rank(k) < rank(best)) best = k;
     }
     return best;

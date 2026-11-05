@@ -90,7 +90,7 @@ export function bulletBehaviour(mods: readonly Modifier[]): BulletBehaviour | nu
 export function perksOf(mods: readonly Modifier[]): Required<Perks> {
   const out: Required<Perks> = {
     charge: 0, coupons: 0, rollClear: false, revive: 0, rush: { mul: 1, time: 0 }, shrug: 0, freeChests: 0, hurtRing: 0,
-    pet: { step: 0, max: 0 }, fullHpDamage: 1, grip: 1, hurtIframes: 1,
+    pet: { step: 0, max: 0 }, fullHpDamage: 1, grip: 1, hurtIframes: 1, punchIn: 0, trial: false, discount: 0,
   };
   for (const m of mods) {
     out.charge += m.perks?.charge ?? 0;
@@ -107,6 +107,9 @@ export function perksOf(mods: readonly Modifier[]): Required<Perks> {
     out.fullHpDamage = Math.max(out.fullHpDamage, m.perks?.fullHpDamage ?? 1);
     out.grip = Math.min(out.grip, m.perks?.grip ?? 1);
     out.hurtIframes = Math.max(out.hurtIframes, m.perks?.hurtIframes ?? 1);
+    out.punchIn = Math.max(out.punchIn, m.perks?.punchIn ?? 0);
+    out.trial ||= !!m.perks?.trial;
+    out.discount = Math.max(out.discount, m.perks?.discount ?? 0);
   }
   out.coupons = Math.min(1, out.coupons);
   out.shrug = Math.min(SHRUG_MAX, out.shrug);

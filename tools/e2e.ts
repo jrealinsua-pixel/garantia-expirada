@@ -632,6 +632,18 @@ try {
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
   console.log('Planta 4: sus cinco primeros objetos en el inventario, y la taza perdida al primer golpe.');
 
+  // M10 planta 4 (6b1): the Economato with the visitor's pass: every price a quarter off.
+  await page.goto(`${url}?semilla=e2e-acreditacion&sala=tienda&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.player.coupons = 12;
+    g.giveItem('acreditacion'); const k = w.pickups.find((q) => q.kind === 'ticket' && q.price !== undefined); w.player.x = k.x; w.player.y = k.y + 16; })()`);
+  await page.waitForTimeout(900);
+  const priceShown = await page.evaluate<string>(`(() => { const s = window.__GE__.scene;
+    const k = s.world.pickups.find((q) => q.kind === 'ticket' && q.price !== undefined); return s.pickupSprites.get(k.id).price.text; })()`);
+  if (priceShown !== '8') throw new Error(`Con la Acreditación el ticket debería costar 8 y pone ${priceShown}`);
+  await shot('51c-acreditacion-tienda.png');
+  console.log('Planta 4: la Acreditación de Visitante rebaja los precios del Economato.');
+
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
   await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);

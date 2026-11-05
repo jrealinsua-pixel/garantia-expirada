@@ -70,6 +70,9 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (k?.fullHpDamage) out.push({ text: `Con la vida llena: daño +${Math.round((k.fullHpDamage - 1) * 100)} %`, good: true });
   if (k?.grip) out.push({ text: 'Resbala: tarda en frenar y en girar', good: false });
   if (k?.hurtIframes) out.push({ text: `Tras un golpe, invulnerable ×${String(k.hurtIframes).replace('.', ',')} de tiempo`, good: true });
+  if (k?.punchIn) out.push({ text: `Sala limpia en menos de ${k.punchIn} s: un cupón más`, good: true });
+  if (k?.trial) out.push({ text: 'Se acaba al subir de planta', good: false });
+  if (k?.discount) out.push({ text: `La tienda cobra un ${Math.round(k.discount * 100)} % menos`, good: true });
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

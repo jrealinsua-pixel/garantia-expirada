@@ -934,5 +934,23 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-tarjeta-fichar": {
+    "file": "objeto-tarjeta-fichar.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-contrato-practicas": {
+    "file": "objeto-contrato-practicas.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-acreditacion": {
+    "file": "objeto-acreditacion.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

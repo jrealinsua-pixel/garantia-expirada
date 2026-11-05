@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T10:50:00+01:00",
+  "actualizado": "2026-11-05T11:02:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -128,15 +128,21 @@
     "enemigos": 18,
     "jefes": 3,
     "armas": 3,
-    "objetos": 40,
+    "objetos": 43,
     "plantillas_sala": 71,
-    "tests": 578,
-    "tests_ok": 578,
+    "tests": 581,
+    "tests_ok": 581,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 21186
+    "lineas_codigo": 21292
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T11:02:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (6b1): Tarjeta de Fichar (un cupón más por sala limpia en menos de 25 s), Contrato en Prácticas (×1,1 a todo hasta subir de planta) y Acreditación de Visitante (la tienda, un 25 % más barata).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T10:50:00+01:00",
       "hito": "M10",
@@ -920,6 +926,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/oficinas-acreditacion.png",
+      "pie": "El Economato con la Acreditación de Visitante: todo un 25 % más barato (el ticket, por 8 cupones en vez de 10)"
+    },
+    {
       "archivo": "capturas/oficinas-objetos.png",
       "pie": "Los cinco primeros objetos de las Oficinas en el inventario: Taza de Mejor Empleado, Corbata de Lunes, Café de Máquina, Silla con Ruedas y Bola Antiestrés"
     },
@@ -938,13 +948,9 @@
     {
       "archivo": "capturas/oficinas-secreta.png",
       "pie": "Papeles para Destruir (Confidencial), la sala secreta de las Oficinas: archivadores hasta el techo y, en el claro, un acta del Comité de Dirección"
-    },
-    {
-      "archivo": "capturas/oficinas-entrada.png",
-      "pie": "Recepción (Firme Aquí, y Aquí, y Aquí), la entrada de las Oficinas: archivadores de impresos, ficus de plástico y dos mesas de visitas"
     }
   ],
-  "proximo": "M10 planta 4 (4b): la Fotocopiadora de Planta; o (6b), los otros cinco objetos y sus dos sinergias; o M10 (7): medir la planta 3 con el bot.",
+  "proximo": "M10 planta 4 (4b): la Fotocopiadora de Planta; o (6b2): Pósit de Urgente, Responder a Todos y sus dos sinergias; o M10 (7): medir la planta 3 con el bot.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -970,11 +976,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 10:55",
-      "tarea": "M10 planta 4 (6b1): Tarjeta de Fichar, Contrato en Prácticas y Acreditación de Visitante",
-      "desde": "2026-11-05T09:48:44.000Z"
-    }
-  ]
+  "en_curso": []
 }

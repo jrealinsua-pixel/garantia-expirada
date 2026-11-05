@@ -1,13 +1,15 @@
 // Los objetos de la planta 4 (M10 planta 4 6a): Taza de Mejor Empleado, Corbata de Lunes, Café de
-// Máquina, Silla con Ruedas y Bola Antiestrés. Cada uno hace lo que dice su ficha.
+// Máquina, Silla con Ruedas y Bola Antiestrés; y (6b1) Tarjeta de Fichar, Contrato en Prácticas y
+// Acreditación de Visitante. Cada uno hace lo que dice su ficha.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ITEMS, itemsUpTo } from '../src/data/items.ts';
 import { modifierLines } from '../src/data/describe.ts';
-import { createWorld, DT, giveItem, HAND_HEIGHT, HURT_IFRAMES, hurtPlayer, NO_INPUT, step, type Input, type World } from '../src/sim/world.ts';
+import { SHOP_PRICES } from '../src/data/shop.ts';
+import { createWorld, DT, enterRoom, giveItem, HAND_HEIGHT, HURT_IFRAMES, hurtPlayer, nextFloor, NO_INPUT, shopPrice, step, type Input, type SimEvent, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
-const OWN = ['taza-empleado', 'corbata-lunes', 'cafe-maquina', 'silla-ruedas', 'bola-antiestres'];
+const OWN = ['taza-empleado', 'corbata-lunes', 'cafe-maquina', 'silla-ruedas', 'bola-antiestres', 'tarjeta-fichar', 'contrato-practicas', 'acreditacion'];
 
 /** The test room with nothing in the way (as in objetos.test.ts). */
 function bare(seed: string, ...items: string[]): World {
@@ -54,8 +56,10 @@ test('son de la planta 4: solo salen desde la planta 4, y su ficha dice lo que h
   assert.ok(line('taza-empleado').includes('Con la vida llena: daño +20 %'), line('taza-empleado').join(' / '));
   assert.ok(line('silla-ruedas').includes('Resbala: tarda en frenar y en girar'), line('silla-ruedas').join(' / '));
   assert.ok(line('bola-antiestres').includes('Tras un golpe, invulnerable ×2 de tiempo'), line('bola-antiestres').join(' / '));
-  // Every one but the mug has a bad side written on its card (the mug's is losing it at the first hit).
-  for (const id of ['corbata-lunes', 'cafe-maquina', 'silla-ruedas', 'bola-antiestres']) {
+  // The pass is only good, so only the premium chest (and the shop) has it.
+  assert.equal(ITEMS.acreditacion!.quality, 'buena');
+  // Every one but the mug, the card and the pass has a bad side written on its card (the mug's is losing it at the first hit).
+  for (const id of ['corbata-lunes', 'cafe-maquina', 'silla-ruedas', 'bola-antiestres', 'contrato-practicas']) {
     assert.ok(modifierLines(ITEMS[id]!.mod).some((l) => !l.good), `${id}: su pega está en la ficha`);
   }
 });
@@ -142,4 +146,85 @@ test('Bola Antiestrés: tras un golpe el respiro dura el doble, y dispara un poc
   assert.ok(!hurtPlayer(w, 1, -1, 1, 0), 'a los 1,3 s todavía no le pueden dar');
   for (let i = 0; i < ticks(HURT_IFRAMES); i++) step(w, NO_INPUT);
   assert.ok(hurtPlayer(w, 1, -1, 1, 0), 'pasado el doble, sí');
+});
+
+/**
+ * Clears the first combat room of a floor 4 after `secs` s with the shutters down (its enemies
+ * fall at once); returns the events of the clearing and the coupons lying in the room.
+ */
+function clearAfter(secs: number, ...items: string[]): { events: SimEvent[]; coupons: number } {
+  const w = createWorld({ seed: 'fichar', floor: true, level: 4 });
+  w.noDamage = true;
+  for (const id of items) giveItem(w, id);
+  const f = w.floor!;
+  const fr = f.layout.rooms.find((r) => r.kind === 'combat')!;
+  enterRoom(w, fr.id, fr.doors[0]!.dir);
+  assert.ok(w.doorsShut);
+  for (let i = 0; i < ticks(secs); i++) step(w, NO_INPUT);
+  const events: SimEvent[] = [];
+  w.pickups = w.pickups.filter((k) => k.kind !== 'cupon');
+  for (const en of w.enemies) en.damageTaken = en.def.hp;
+  for (let i = 0; i < ticks(4) && w.doorsShut; i++) {
+    step(w, NO_INPUT);
+    events.push(...w.events);
+  }
+  assert.ok(!w.doorsShut, 'la sala se ha limpiado');
+  return { events, coupons: w.pickups.filter((k) => k.kind === 'cupon').length };
+}
+
+test('Tarjeta de Fichar: una sala limpia en menos de 25 s suelta un cupón más; pasado el plazo, nada', () => {
+  const none = clearAfter(5);
+  const fast = clearAfter(5, 'tarjeta-fichar');
+  const punch = fast.events.find((e) => e.type === 'punch');
+  assert.ok(punch && punch.type === 'punch' && punch.secs < 25, 'ficha');
+  assert.equal(fast.coupons, none.coupons + 1);
+  const slow = clearAfter(26, 'tarjeta-fichar');
+  assert.ok(!slow.events.some((e) => e.type === 'punch'), 'a los 26 s ya no ficha');
+  assert.equal(slow.coupons, clearAfter(26).coupons);
+});
+
+test('Contrato en Prácticas: ×1,1 a todo en su planta; al subir, se acaba y sale del inventario', () => {
+  const w = createWorld({ seed: 'practicas', floor: true, level: 3 });
+  const base = { damage: w.player.weapon.def.damage, fireRate: w.player.weapon.def.fireRate, speed: w.player.def.speed };
+  giveItem(w, 'contrato-practicas');
+  giveItem(w, 'corbata-lunes');
+  assert.ok(Math.abs(w.player.weapon.def.fireRate - base.fireRate * 1.1) < 1e-9);
+  assert.ok(Math.abs(w.player.def.speed - base.speed * 1.1 * 0.92) < 1e-9);
+  w.won = true;
+  const n = nextFloor(w)!;
+  assert.deepEqual(n.player.items, ['corbata-lunes'], 'la corbata sigue; el contrato, no');
+  assert.ok(!n.player.mods.some((m) => m.id === 'contrato-practicas'));
+  assert.ok(Math.abs(n.player.def.speed - base.speed * 0.92) < 1e-9);
+  assert.ok(Math.abs(n.player.weapon.def.fireRate - base.fireRate) < 1e-9);
+  // The old floor is left as it was (the report still shows what it carried).
+  assert.ok(w.player.items.includes('contrato-practicas'));
+  // Said on the new floor's first tick.
+  step(n, NO_INPUT);
+  assert.ok(n.events.some((e) => e.type === 'trialEnd' && e.item === 'contrato-practicas'));
+  step(n, NO_INPUT);
+  assert.ok(!n.events.some((e) => e.type === 'trialEnd'), 'solo una vez');
+});
+
+test('Acreditación de Visitante: la tienda cobra un 25 % menos, redondeado y nunca gratis', () => {
+  const w = createWorld({ seed: 'acreditacion', room: 'tienda' });
+  w.noDamage = true;
+  assert.equal(shopPrice(w.player, SHOP_PRICES.objeto), SHOP_PRICES.objeto);
+  giveItem(w, 'acreditacion');
+  assert.equal(shopPrice(w.player, 15), 11);
+  assert.equal(shopPrice(w.player, 10), 8);
+  assert.equal(shopPrice(w.player, 1), 1);
+  const ticket = w.pickups.find((k) => k.kind === 'ticket' && k.price !== undefined)!;
+  w.player.coupons = 20;
+  const tickets = w.player.tickets;
+  w.player.x = ticket.x;
+  w.player.y = ticket.y + 14;
+  const events: SimEvent[] = [];
+  for (let i = 0; i < ticks(0.4); i++) {
+    step(w, { ...NO_INPUT, moveY: i < 8 ? -1 : 0, interact: i === 12 });
+    events.push(...w.events);
+  }
+  const buy = events.find((e) => e.type === 'shop');
+  assert.ok(buy && buy.type === 'shop' && buy.outcome === 'bought' && buy.price === 8, JSON.stringify(buy));
+  assert.equal(w.player.coupons, 12);
+  assert.equal(w.player.tickets, tickets + 1);
 });

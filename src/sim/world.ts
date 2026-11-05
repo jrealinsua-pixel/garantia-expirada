@@ -462,6 +462,10 @@ export type SimEvent =
   | { type: 'shrug'; x: number; y: number }
   /** Taza de Mejor Empleado: the first hit from full life, and the mug's bonus is gone until healed. */
   | { type: 'mugLost'; x: number; y: number }
+  /** Tarjeta de Fichar: the room was cleared in `secs` s, under its limit, and one more coupon pops out at (x, y). */
+  | { type: 'punch'; x: number; y: number; secs: number }
+  /** Contrato en Prácticas: up a floor, and the contract is over (the item has left the inventory). */
+  | { type: 'trialEnd'; item: string; x: number; y: number }
   | { type: 'empty' }
   | { type: 'charge'; x: number; y: number; dirX: number; dirY: number; source: number }
   | { type: 'brake'; x: number; y: number; source: number }
@@ -581,6 +585,10 @@ export interface World {
   docs: string[];
   /** Seconds the room has been empty, counting towards its restock. */
   emptyT: number;
+  /** Contrato en Prácticas: the contracts that ended on the way up to this floor, to be announced on its first tick. */
+  trialEnded?: string[];
+  /** The tick the shutters came down in this room (Tarjeta de Fichar times the fight from it). */
+  shutTick: number;
   /** Whether this world spawns the room's enemies at all. */
   spawnsEnemies: boolean;
   /** The player is down: input is ignored and nothing can hurt it any more. */
@@ -829,6 +837,7 @@ export function createWorld(opts: WorldOptions): World {
     kills: 0,
     docs: [],
     emptyT: 0,
+    shutTick: 0,
     spawnsEnemies: !opts.noEnemies,
     over: false,
     noDamage: false,
@@ -936,6 +945,15 @@ export function nextFloor(w: World): World | null {
   f.items = f.items.filter((id) => !owned.has(id));
   f.actives = f.actives.filter((id) => !owned.has(id));
   n.docs = [...w.docs];
+  // Contrato en Prácticas: the floor is over, and so is the contract (said on the new floor's first tick).
+  n.player.items = [...p.items];
+  n.player.mods = [...p.mods];
+  for (const id of p.items) {
+    if (!ITEMS[id]?.mod.perks?.trial) continue;
+    n.player.items.splice(n.player.items.lastIndexOf(id), 1);
+    removeModifier(n, id);
+    n.trialEnded = [...(n.trialEnded ?? []), id];
+  }
   return n;
 }
 
@@ -1086,6 +1104,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   if (first && kind === 'secret') placeStoryDoc(w);
   if (first && kind === 'shop') stockShop(w, f);
   w.doorsShut = !st.cleared;
+  w.shutTick = w.tick;
   setDoorTiles(w, !w.doorsShut);
   w.events.push({ type: 'room', id, via });
   if (w.doorsShut) w.events.push({ type: 'doors', shut: true });
@@ -1828,6 +1847,12 @@ function stickBullet(w: World, b: Bullet, dt: number): void {
 
 /** A stuck bullet goes through (nearly) everyone. */
 const STUCK_PIERCE = 99;
+
+/** What a good with list price `base` costs the toaster (Acreditación de Visitante: a share off, rounded, never free). */
+export function shopPrice(p: Player, base: number): number {
+  const off = playerPerks(p).discount;
+  return off > 0 ? Math.max(1, Math.round(base * (1 - off))) : base;
+}
 
 /** Taza de Mejor Empleado: its damage multiplier while the toaster's life is full (1 otherwise). */
 export function fullHpScale(p: Player): number {
@@ -2685,6 +2710,7 @@ function updateDoors(w: World): void {
     w.events.push({ type: 'doors', shut: false });
     chargeActive(w);
     feedPet(w);
+    punchOut(w);
     // The turbo lasts until the next combat room is cleared (this one, if it was already on).
     if (w.player.turbo) {
       w.player.turbo = false;
@@ -2702,6 +2728,19 @@ function updateDoors(w: World): void {
     }
     setDoorTiles(w, true);
   }
+}
+
+/** Tarjeta de Fichar: a combat room cleared fast enough leaves one more coupon in its middle. */
+function punchOut(w: World): void {
+  const limit = playerPerks(w.player).punchIn;
+  if (limit <= 0) return;
+  const secs = (w.tick - w.shutTick) * DT;
+  if (secs >= limit) return;
+  const [x, y] = roomMiddle(w);
+  const at = freeSpot(w, x, y, PICKUP_RADIUS);
+  const a = w.rng.range(0, Math.PI * 2);
+  w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: at.x, y: at.y, vx: Math.cos(a) * 60, vy: Math.sin(a) * 60, age: 0 });
+  w.events.push({ type: 'punch', x: at.x, y: at.y, secs });
 }
 
 /** The middle of the room's floor (below the back wall), where rewards turn up. */
@@ -2862,13 +2901,14 @@ function buy(w: World, k: Pickup): void {
   if (k.price === undefined) return;
   const good = k.kind;
   const item = k.item ?? k.weapon;
-  const refuse = good === 'corazon' && p.hp >= p.def.maxHp ? 'full' : p.coupons < k.price ? 'poor' : null;
+  const price = shopPrice(p, k.price);
+  const refuse = good === 'corazon' && p.hp >= p.def.maxHp ? 'full' : p.coupons < price ? 'poor' : null;
   if (refuse) {
-    w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: refuse, good, price: k.price, left: p.coupons, item });
+    w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: refuse, good, price, left: p.coupons, item });
     return;
   }
-  p.coupons -= k.price;
-  w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: 'bought', good, price: k.price, left: p.coupons, item });
+  p.coupons -= price;
+  w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: 'bought', good, price, left: p.coupons, item });
   delete k.price;
   w.pickups = w.pickups.filter((o) => o !== k);
   grab(w, k);
@@ -2993,6 +3033,10 @@ function openChest(w: World, pr: PropInstance): void {
 
 export function step(w: World, input: Input): void {
   w.events = [];
+  if (w.trialEnded) {
+    for (const item of w.trialEnded) w.events.push({ type: 'trialEnd', item, x: w.player.x, y: w.player.y - PLAYER_HURT_Y });
+    delete w.trialEnded;
+  }
   // Gone down the lift (or onto the hub's conveyor): nothing moves any more.
   if (w.won || w.leftHub) {
     w.tick++;

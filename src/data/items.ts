@@ -343,6 +343,34 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // After a hit, twice the breather; the trigger finger is a bit slower.
     mod: { id: 'bola-antiestres', stats: [{ stat: 'fireRate', mul: 0.9 }], perks: { hurtIframes: 2 } },
   },
+  'tarjeta-fichar': {
+    id: 'tarjeta-fichar',
+    name: 'Tarjeta de Fichar',
+    description: 'Apunta cuándo entras. Cuándo sales, no tanto.',
+    sprite: 'objeto-tarjeta-fichar',
+    level: 4,
+    // A combat room cleared in under 25 s (from the shutters coming down) drops one more coupon (M10 planta 4 6b1).
+    mod: { id: 'tarjeta-fichar', perks: { punchIn: 25 } },
+  },
+  'contrato-practicas': {
+    id: 'contrato-practicas',
+    name: 'Contrato en Prácticas',
+    description: 'Seis meses de prueba. Renovables hasta la jubilación.',
+    sprite: 'objeto-contrato-practicas',
+    level: 4,
+    // A bit of everything, for this floor only: going up the lift ends it and it leaves the inventory.
+    mod: { id: 'contrato-practicas', stats: [{ stat: 'damage', mul: 1.1 }, { stat: 'fireRate', mul: 1.1 }, { stat: 'speed', mul: 1.1 }], perks: { trial: true } },
+  },
+  acreditacion: {
+    id: 'acreditacion',
+    quality: 'buena',
+    name: 'Acreditación de Visitante',
+    description: 'Abre todas las puertas menos la que buscas.',
+    sprite: 'objeto-acreditacion',
+    level: 4,
+    // Only good: the shop charges a quarter less (rounded).
+    mod: { id: 'acreditacion', perks: { discount: 0.25 } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

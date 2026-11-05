@@ -35,6 +35,8 @@ import {
   REVIVE_LINE,
   SHRUG_LINE,
   MUG_LOST_LINE,
+  TRIAL_END_LINE,
+  punchLine,
   PET_DEAD_LINE,
   petFedLine,
   ALLEN_LINE,
@@ -55,6 +57,7 @@ import {
   nearStation,
   LIFT_READY,
   nextFloor,
+  shopPrice,
   PICKUP_DELAY,
   DT,
   enemyAltitude,
@@ -1880,6 +1883,16 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 6; i++) this.splinter(e.x + this.fx.range(-5, 5), e.y, this.fx.range(0, Math.PI * 2), 0xa96a3f);
           this.floatText(e.x, e.y - 18, fontText(SHRUG_LINE), 0xe9d9a8, 'shrug', -12, 1.1);
           break;
+        case 'punch':
+          // Tarjeta de Fichar: the clock-in machine's beep and the time stamped over the extra coupon.
+          this.sound2.play('cupon', { detune: 500, volume: 0.8 });
+          this.floatText(e.x, e.y - 14, fontText(punchLine(e.secs)), 0x69dbd8, 'punch', -12, 1.2);
+          break;
+        case 'trialEnd':
+          // Contrato en Prácticas: not renewed. The item leaves the inventory with a line.
+          this.sound2.play('vacio', { detune: -500, volume: 0.7 });
+          this.floatText(e.x, e.y - 30, fontText(TRIAL_END_LINE), 0xc3c9d6, 'trial', -10, 1.6);
+          break;
         case 'mugLost':
           // Taza de Mejor Empleado: no longer the best. A small sad clink and the line, in grey.
           this.sound2.play('vacio', { detune: -300, volume: 0.7 });
@@ -3036,7 +3049,8 @@ export class GameScene extends Phaser.Scene {
     // Not while something is being said or shown there (the bubble, a panel).
     const busy = it?.kind === 'station' && (this.bubble || this.panel.length > 0);
     // (The price goes in the line: it stands over the shelf's own price tag.)
-    const verb = !it || busy ? null : it.kind === 'station' ? INTERACT_VERBS[it.station.kind] : it.kind === 'shop' ? `${INTERACT_VERBS.shop} por ${it.pickup.price}` : INTERACT_VERBS[it.kind];
+    const buy = it?.kind === 'shop' ? `${INTERACT_VERBS.shop} por ${shopPrice(this.world.player, it.pickup.price ?? 0)}` : null;
+    const verb = !it || busy ? null : it.kind === 'station' ? INTERACT_VERBS[it.station.kind] : (buy ?? INTERACT_VERBS[it.kind]);
     if (!verb) {
       this.prompt?.setVisible(false);
       this.promptBack?.setVisible(false);
@@ -3440,7 +3454,13 @@ export class GameScene extends Phaser.Scene {
       }
       if (v.price && k.price !== undefined) {
         const p = this.world.player;
-        const can = p.coupons >= k.price && !(k.kind === 'corazon' && p.hp >= p.def.maxHp);
+        // Acreditación de Visitante: the label follows the price the toaster pays, if it changes.
+        const price = shopPrice(p, k.price);
+        if (v.price.text !== String(price)) {
+          v.price.setText(String(price));
+          v.priceIcon?.setX(k.x - 5 - Math.ceil(v.price.width / 2));
+        }
+        const can = p.coupons >= price && !(k.kind === 'corazon' && p.hp >= p.def.maxHp);
         v.price.setTint(can ? 0xf6c431 : 0x858ea8);
         v.priceIcon?.setTint(can ? 0xffffff : 0x858ea8);
       }

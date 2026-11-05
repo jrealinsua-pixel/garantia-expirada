@@ -112,6 +112,12 @@ export interface Perks {
   grip?: number;
   /** Bola Antiestrés: the blink after a hit lasts this many times longer (the strongest wins). */
   hurtIframes?: number;
+  /** Tarjeta de Fichar: a combat room cleared within this many seconds drops one more coupon (the longest wins). */
+  punchIn?: number;
+  /** Contrato en Prácticas: the item ends (and leaves the inventory) when the toaster goes up to the next floor. */
+  trial?: boolean;
+  /** Acreditación de Visitante: the shop charges this much less (0–1; the biggest wins). */
+  discount?: number;
 }
 
 /** A number a modifier can change: the weapon's and the character's. */
