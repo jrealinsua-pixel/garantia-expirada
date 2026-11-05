@@ -189,5 +189,11 @@ export const SFX: Record<string, SfxParams> = {
   carton: { wave: 'noise', freq: 1800, freqEnd: 300, attack: 0.002, sustain: 0.18, decay: 0.25, volume: 0.3, lowpass: 0.5, crush: 2, vibrato: 0.35, vibratoSpeed: 38 },
   // ...and the sale stickers peeling off as it spins: a quick rising rip.
   pegatina: { wave: 'noise', freq: 600, freqEnd: 2600, attack: 0.004, sustain: 0.09, decay: 0.08, volume: 0.16, lowpass: 0.7, vibrato: 0.2, vibratoSpeed: 50 },
+  // El Director de Recursos Inhumanos (M10 planta 4 5b): one dry clap...
+  palmada: { wave: 'noise', freq: 2600, freqEnd: 1200, attack: 0.001, sustain: 0.012, decay: 0.08, volume: 0.3, lowpass: 0.8 },
+  // ...the frosted glass sliding along its rail, a long low hiss...
+  deslizar: { wave: 'noise', freq: 320, freqEnd: 520, attack: 0.08, sustain: 1.2, decay: 0.3, volume: 0.13, lowpass: 0.3, vibrato: 0.08, vibratoSpeed: 9 },
+  // ...and a dismissal letter slapping open on the carpet.
+  carta: { wave: 'noise', freq: 1400, freqEnd: 500, attack: 0.002, sustain: 0.04, decay: 0.1, volume: 0.2, lowpass: 0.6, crush: 2 },
   espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
 };

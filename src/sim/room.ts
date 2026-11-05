@@ -22,6 +22,12 @@ export interface PropInstance {
   fuse?: number;
   /** Furniture tipped over (its def has `tip`): the way its top faces, where it covers from. */
   tipped?: TipSide;
+  /**
+   * A partition being moved (BossPhase.restructure): where its bottom-centre is going, marked for
+   * `warn` s (the dashed outline) and then slid there in `time` s; `t` counts from the start of the
+   * warning, and (fromX, fromY) is where it was.
+   */
+  slide?: { fromX: number; fromY: number; toX: number; toY: number; t: number; warn: number; time: number };
 }
 
 /** The four ways a tipped table can face (its top, the side that stops bullets). */
@@ -102,7 +108,7 @@ export interface RoomDoor {
 export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
 const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 'shelf', J: 'boss' };
 
-const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste', '=': 'mesa-juntas' };
+const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste', '=': 'mesa-juntas', _: 'mampara-movil' };
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
   O: 'microondas',
@@ -120,6 +126,7 @@ const ENEMY_CHARS: Record<string, string> = {
   U: 'cubo-piezas',
   Y: 'sobre-sorpresa',
   D: 'muneco-moda',
+  E: 'director-rrhh',
   S: 'destructora',
   K: 'fotocopiadora',
   G: 'sello',

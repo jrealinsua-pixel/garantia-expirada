@@ -60,7 +60,7 @@ test('encadenar plantas: tras ganar la planta 2 se sube a la Juguetería, con el
   assert.deepEqual(checkInvariants(n), []);
 });
 
-test('encadenar plantas: tras ganar la planta 3 se sube a las Oficinas, con el Muñeco en la Sala de Juntas', () => {
+test('encadenar plantas: tras ganar la planta 3 se sube a las Oficinas, con el Director en la Sala de Juntas', () => {
   const w = createWorld({ seed: 'cadena-4', floor: true, level: 3 });
   w.player.coupons = 9;
   w.player.items = ['pila'];
@@ -72,10 +72,10 @@ test('encadenar plantas: tras ganar la planta 3 se sube a las Oficinas, con el M
   assert.deepEqual(n.player.items, ['pila']);
   assert.equal(n.room.kind, 'start');
   for (const st of n.floor!.rooms) assert.equal(ROOMS[st.template.id]!.level, 4, st.template.id);
-  // Until El Director de Recursos Inhumanos comes (M10 planta 4 (5)), the Muñeco fights again in the Sala de Juntas.
+  // El Director de Recursos Inhumanos (M10 planta 4 5b) waits in the Sala de Juntas.
   const boss = n.floor!.rooms.find((st) => st.template.kind === 'boss')!;
   assert.equal(boss.template.id, 'jefe-oficinas');
-  assert.ok(boss.template.rows.join('').includes('D'), 'el Muñeco espera en la Sala de Juntas');
+  assert.ok(boss.template.rows.join('').includes('E'), 'el Director espera en la Sala de Juntas');
   assert.ok(FLOOR_NAMES[4], 'la planta 4 tiene nombre');
   for (let i = 0; i < 3 / DT; i++) step(n, { ...NO_INPUT, moveX: i % 120 < 60 ? 1 : -1, fire: true });
   assert.deepEqual(checkInvariants(n), []);

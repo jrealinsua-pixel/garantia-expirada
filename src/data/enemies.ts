@@ -784,6 +784,78 @@ export const ENEMIES: Record<string, EnemyDef> = {
     },
     boss: { title: 'El Muñeco de Moda', motto: 'Pasado de moda. Como tú.', subtitle: 'Jefe de planta · Juguetería' },
   },
+  'director-rrhh': {
+    id: 'director-rrhh',
+    name: 'El Director de Recursos Inhumanos',
+    description:
+      'Firma las bajas de todo el edificio sin levantarse de la silla. Sonríe como en su foto de ' +
+      'perfil; las gafas reflejan una hoja de cálculo en la que usted es una celda.',
+    // M10 planta 4 (5b). docs/DISENO.md said about 240; 220 like the Muñeco, because his long table
+    // stops the toaster's bullets too (measured with the bot: see the log of 2026-11-05).
+    hp: 220,
+    sprite: 'director-rrhh',
+    anchor: { x: 34, y: 73 },
+    hurt: { x: -24, y: -66, w: 48, h: 60 },
+    footRadius: 16,
+    contactPush: 260,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [8, 11], hearts: 1 },
+    // tools/sprites/director.ts DIRECTOR_FRAMES: 0-1 in his chair breathing, 2-5 pushing off with
+    // his feet and rolling (his walk), 6 throwing, 7 the clap, 8 up with his own stamp.
+    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, warn: 6, clap: 7 },
+    brain: {
+      kind: 'boss',
+      // On wheels: pushes of the feet in short legs, now a glide, now a lurch.
+      roam: { leg: [0.4, 1.1], burst: [0.5, 1.6], spread: 50 },
+      drift: 0.35,
+      rage: 0.6,
+      // His right hand, out in front of the chair: the cards come out of there.
+      muzzle: { x: 24, y: 30 },
+      phases: [
+        {
+          // «Somos una familia»: fans of business cards, and dismissal letters that land where a
+          // red ring says and burst into sheets.
+          name: 'Somos una familia',
+          from: 1,
+          walkSpeed: 44,
+          keep: 140,
+          rest: [0.85, 1.2],
+          attacks: [
+            { kind: 'pattern', pattern: 'director-tarjetas', telegraph: 0.7, weight: 3, pose: 6 },
+            {
+              kind: 'spit', count: 3, spread: 70, flight: 1.1, from: { x: 30, y: 62 }, burst: 'director-folios',
+              telegraph: 0.7, weight: 2, look: 'carta-despido', pose: 6,
+            },
+          ],
+        },
+        {
+          // «Reestructuración» (from 60 %): a clap, and the four partitions of the room move (and
+          // again every 12 s); rings of slides with two holes going round, and his own stamp.
+          name: 'Reestructuración',
+          from: 0.6,
+          walkSpeed: 50,
+          keep: 130,
+          rest: [0.9, 1.25],
+          line: 'Hemos decidido redistribuir los espacios.',
+          restructure: { prop: 'mampara-movil', every: 12, warn: 1, time: 0.7 },
+          attacks: [
+            { kind: 'pattern', pattern: 'director-diapositivas', telegraph: 0.7, weight: 3 },
+            { kind: 'pattern', pattern: 'director-tarjetas-2', telegraph: 0.6, weight: 2, pose: 6 },
+            {
+              kind: 'stamp', count: 2, spread: 64, ink: { w: 40, h: 26, life: 5, max: 4 }, pattern: 'sello-gotas',
+              telegraph: 0.8, weight: 1.5, pose: 8,
+            },
+            {
+              kind: 'spit', count: 4, spread: 80, flight: 1.05, from: { x: 30, y: 62 }, burst: 'director-folios',
+              telegraph: 0.6, weight: 1.5, look: 'carta-despido', pose: 6,
+            },
+          ],
+        },
+      ],
+    },
+    boss: { title: 'El Director de Recursos Inhumanos', motto: 'Aquí nadie es imprescindible. Usted tampoco.', subtitle: 'Jefe de planta · Oficinas' },
+  },
   repetidor: {
     id: 'repetidor',
     name: 'Repetidor de Señal',

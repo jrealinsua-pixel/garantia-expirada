@@ -23,9 +23,11 @@ import {
   isClear,
   isRolling,
   playerFeetBox,
+  restructureRoom,
   slide,
   spawnEnemy,
   stampInk,
+  STAMP_LIFT,
   throwFrost,
   type Enemy,
   type SimEvent,
@@ -1097,8 +1099,9 @@ function bossRoam(w: World, en: Enemy, b: BossBrain, speed: number, keep: number
   if (en.legT <= 0 || en.legSpin === undefined) {
     en.legT = w.rng.range(b.roam.leg[0], b.roam.leg[1]);
     en.legPace = w.rng.range(b.roam.burst[0], b.roam.burst[1]);
-    // Mostly it turns back: that is what makes it hard to read.
-    en.legSpin = en.legSpin === undefined ? (w.rng.next() < 0.5 ? 1 : -1) : w.rng.next() < ROAM_FLIP ? -en.legSpin : en.legSpin;
+    // Mostly it turns back: that is what makes it hard to read. (Less often while it is going
+    // round something in its way: then it mostly keeps on round it.)
+    en.legSpin = en.legSpin === undefined ? (w.rng.next() < 0.5 ? 1 : -1) : w.rng.next() < (en.hugging ? ROAM_FLIP_HUGGING : ROAM_FLIP) ? -en.legSpin : en.legSpin;
     en.legKeep = keep + w.rng.range(-b.roam.spread, b.roam.spread);
   }
   // Round the player, on a flattened circle (see FLOOR_FLAT).
@@ -1108,20 +1111,48 @@ function bossRoam(w: World, en: Enemy, b: BossBrain, speed: number, keep: number
   const out = Math.max(-1, Math.min(1, ((en.legKeep ?? keep) - r) / 40));
   let vx = (-ry / r) * en.legSpin + (rx / r) * out;
   let vy = ((rx / r) * en.legSpin + (ry / r) * out) * FLOOR_FLAT;
+  // Something between it and where it wants to be (the long table): it goes round it, along its
+  // edge, instead of pressing against it.
+  const r0 = en.def.footRadius;
+  const ahead = (x: number, y: number): boolean => {
+    const n = Math.hypot(x, y) || 1;
+    return isClear(w, en.x + (x / n) * 8, en.y + (y / n) * 8, r0);
+  };
+  // Only big furniture (over two tiles wide, like the long table): elsewhere bosses walk as they did.
+  const bigInWay = (x: number, y: number): boolean => {
+    const n = Math.hypot(x, y) || 1;
+    const feet = playerFeetBox({ x: en.x + (x / n) * 8, y: en.y + (y / n) * 8 }, r0);
+    return w.room.props.some((pr) => pr.box.w > TILE * 2 && overlaps(pr.box, feet));
+  };
+  en.hugging = false;
+  if (!ahead(vx, vy) && bigInWay(vx, vy)) {
+    const tx = (-ry / r) * en.legSpin;
+    const ty = (rx / r) * en.legSpin * FLOOR_FLAT;
+    // Round it, or straight along its edge (whichever way round it is going).
+    for (const [hx, hy] of [[tx, ty], [Math.sign(tx), 0], [0, Math.sign(ty)]] as const) {
+      if ((hx || hy) && ahead(hx, hy)) {
+        vx = hx;
+        vy = hy;
+        en.hugging = true;
+        break;
+      }
+    }
+  }
   const n = Math.hypot(vx, vy) || 1;
   const v = speed * (en.legPace ?? 1);
   vx = (vx / n) * v;
   vy = (vy / n) * v;
   // Into a wall: it turns back at once rather than grinding against it.
-  if (!isClear(w, en.x + vx * 0.25, en.y + vy * 0.25, en.def.footRadius)) {
+  if (!isClear(w, en.x + vx * 0.25, en.y + vy * 0.25, r0)) {
     en.legSpin = -en.legSpin;
     en.legT = Math.min(en.legT, 0.3);
   }
   return { x: vx, y: vy };
 }
 
-/** Share of a boss's legs that go back the way it came. */
+/** Share of a boss's legs that go back the way it came (and while it goes round something in its way). */
 const ROAM_FLIP = 0.6;
+const ROAM_FLIP_HUGGING = 0.3;
 /**
  * Vertical squash of a boss's circle round the player: the screen is wider than tall, and the
  * camera has to show the toaster and the whole boss at once (see frameAxis in render/camera.ts).
@@ -1153,7 +1184,12 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       enter(en, 'roar', next.reboot?.time ?? BOSS_PHASE_BREAK);
       if (next.shed) shedShell(w, en, next.shed.prop);
       if (next.summon) summonHelpers(w, en, next.summon);
+      // «Reestructuración»: the clap of the phase change moves the partitions at once.
+      if (next.restructure && restructureRoom(w, next.restructure.prop, next.restructure.warn, next.restructure.time) > 0) {
+        w.events.push({ type: 'clap', boss: en.id, x: en.x, y: en.y });
+      }
     }
+    en.restructT = 0;
     en.relayT = 0;
     if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
   }
@@ -1165,6 +1201,18 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     else if ((en.relayT = (en.relayT ?? 0) + DT) >= phase.relays.every) {
       en.relayT = 0;
       plantRelays(w, en, phase.relays.id, 1);
+    }
+  }
+  // And again every so often: between attacks it claps, and the partitions move.
+  const rs = phase.restructure;
+  if (rs && en.state !== 'roar' && !w.over) {
+    en.restructT = (en.restructT ?? 0) + DT;
+    if (en.restructT >= rs.every && en.state === 'idle') {
+      en.restructT = 0;
+      if (restructureRoom(w, rs.prop, rs.warn, rs.time) > 0) {
+        w.events.push({ type: 'clap', boss: en.id, x: en.x, y: en.y });
+        enter(en, 'roar', BOSS_CLAP);
+      }
     }
   }
   const toX = p.x - en.x;
@@ -1213,6 +1261,37 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           }
           w.events.push({ type: 'drops', boss: en.id, count: a.count });
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.4);
+        } else if (a.kind === 'stamp') {
+          // «Denegado»: square shadows on the floor (one under the player) where the stamp comes down.
+          const def = PATTERNS[a.pattern];
+          if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
+          const spots: Array<{ x: number; y: number }> = [];
+          for (let k = 0; k < a.count; k++) {
+            let tx = p.x;
+            let ty = p.y;
+            // The others where the player would step to, never on top of each other.
+            for (let tries = 0; k > 0 && tries < 8; tries++) {
+              const ang = w.rng.range(0, Math.PI * 2);
+              const dist = a.spread * w.rng.range(0.6, 1);
+              tx = p.x + Math.cos(ang) * dist;
+              ty = p.y + Math.sin(ang) * dist * 0.75;
+              if (spots.every((o) => Math.abs(o.x - tx) > a.ink.w * 0.8 || Math.abs(o.y - ty) > a.ink.h * 0.8)) break;
+            }
+            // The whole square on the floor, not half up a wall.
+            tx = Math.max(TILE + a.ink.w / 2, Math.min(w.room.w - TILE - a.ink.w / 2, tx));
+            ty = Math.max(TILE * 2 + a.ink.h / 2, Math.min(w.room.h - TILE - a.ink.h / 2, ty));
+            if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
+            spots.push({ x: tx, y: ty });
+            firePattern(w, def, tx, ty - STAMP_LIFT, w.rng.range(0, Math.PI * 2), {
+              telegraph: a.telegraph,
+              source: en.id,
+              by: en.def.id,
+              height: STAMP_LIFT,
+              mark: 'stamp',
+              stamp: { ...a.ink, damage: 1 },
+            });
+          }
+          enter(en, 'fire', a.telegraph + patternDuration(def) + 0.35);
         } else if (a.kind === 'runway') {
           // It strikes a pose (warning by itself, see activeWarnings) before setting off; the lane
           // is picked now, so the warning can show it: first straight up or down onto it, then along it.
@@ -1256,8 +1335,9 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             let tx = p.x + Math.cos(ang) * dist;
             let ty = p.y + Math.sin(ang) * dist * 0.75;
             if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
-            const product = w.rng.int(0, EXPIRED_PRODUCTS.length - 1);
-            throwFrost(w, sx, en.y, sh, tx, ty, { r: 12, life: 0, slow: 1, flight: a.flight * w.rng.range(0.75, 1.25), shatter: a.burst, product, source: en.id, by: en.def.id });
+            const product = a.look ? 0 : w.rng.int(0, EXPIRED_PRODUCTS.length - 1);
+            const opts = { r: 12, life: 0, slow: 1, flight: a.flight * w.rng.range(0.75, 1.25), shatter: a.burst, product, source: en.id, by: en.def.id };
+            throwFrost(w, sx, en.y, sh, tx, ty, a.look ? { ...opts, look: a.look } : opts);
           }
         } else if (a.kind === 'runway') {
           // Off down the catwalk it picked when it struck the pose.
@@ -1349,6 +1429,9 @@ export function isSpinning(en: Enemy): boolean {
   const a = phase?.attacks[en.attack];
   return !!a && a.kind === 'pattern' && !!a.spin && en.t > a.telegraph;
 }
+
+/** Seconds a boss stands clapping when it restructures its room (BossPhase.restructure). */
+const BOSS_CLAP = 0.55;
 
 /** Height a dropped connection bursts at (px above the floor). */
 const DROP_HEIGHT = 3;

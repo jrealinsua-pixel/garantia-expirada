@@ -952,6 +952,53 @@ try {
   await shot('38h-muneco-pegatinas.png');
   console.log('Muñeco de Moda: cartel, accesorios, pasarela con destellos, rebajas con su etiqueta y sus repetidos, y sin caja con sus pegatinas.');
 
+  // M10 planta 4 (5b): El Director de Recursos Inhumanos, floor 4's boss: his card, the business
+  // cards, the dismissal letters, and the «Reestructuración» (the partitions marked and moving,
+  // the slides, his own stamp).
+  await page.goto(`${url}?semilla=e2e-director&sala=jefe-oficinas&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const directorJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'director-rrhh')";
+  if (!(await page.evaluate<boolean>(`!!${directorJs} && !!window.__GE__.scene.world.intro`))) throw new Error('El Director no está en la Sala de Juntas o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('39a-director-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'bizcard' && b.age > 0.3 && v.contains(b.x, b.y)).length >= 8; })()`,
+    undefined,
+    { timeout: 25000 },
+  );
+  await shot('39b-director-tarjetas.png');
+  // The letters in the air, their red rings on the carpet.
+  await page.waitForFunction("window.__GE__.scene.world.frost.filter((f) => f.look === 'carta-despido' && f.t > -0.45 && f.t < -0.15).length >= 2", undefined, { timeout: 40000 });
+  await shot('39c-director-cartas.png');
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.color === 'sheet' && b.age > 0.3).length >= 8", undefined, { timeout: 4000 });
+  await shot('39d-director-folios.png');
+  // «Reestructuración»: the clap, the partitions' new places marked with dashes.
+  await page.evaluate(`(() => { const b = ${directorJs}; b.damageTaken = Math.ceil(b.def.hp * 0.42); })()`);
+  await page.waitForFunction(`${directorJs}.bossPhase === 1`, undefined, { timeout: 3000 });
+  await page.waitForFunction("window.__GE__.scene.world.room.props.some((p) => p.slide && p.slide.t > 0.5)", undefined, { timeout: 3000 });
+  await shot('39e-director-reestructuracion.png');
+  await page.waitForFunction("window.__GE__.scene.world.room.props.some((p) => p.slide && p.slide.t > p.slide.warn + 0.3)", undefined, { timeout: 3000 });
+  await shot('39f-director-mamparas.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'slide' && b.age > 0.4 && v.contains(b.x, b.y)).length >= 14; })()`,
+    undefined,
+    { timeout: 30000 },
+  );
+  await shot('39g-director-diapositivas.png');
+  // His stamp: two square shadows, then the ink.
+  await page.waitForFunction("window.__GE__.scene.world.emitters.filter((e) => e.stamp && e.t > -0.35).length >= 2", undefined, { timeout: 40000 });
+  await shot('39h-director-sello.png');
+  await page.waitForFunction(`window.__GE__.scene.world.ink.some((k) => k.source === ${directorJs}.id && k.t > 0.3)`, undefined, { timeout: 3000 });
+  await shot('39i-director-tinta.png');
+  console.log('Director de Recursos Inhumanos: cartel, tarjetas, cartas de despido y sus folios, reestructuración de mamparas, diapositivas y su sello.');
+
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

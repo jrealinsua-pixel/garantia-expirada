@@ -36,6 +36,10 @@ export const PROPS: Record<string, PropDef> = {
   // the Director's room. It stops bullets from every side and does not tip over: you go round it.
   // The box matches tools/sprites/director.ts TABLE_BOX (the sprite is 168x52).
   'mesa-juntas': { id: 'mesa-juntas', name: 'Mesa de Juntas (Aforo: Uno)', box: { x: -82, y: -40, w: 164, h: 36 }, blocksBullets: true },
+  // The frosted glass partitions of the Sala de Juntas (M10 planta 4 5b): three wall tiles long and
+  // one deep (the `_` is the middle one), stopping bullets like a wall. The Director moves them
+  // round the room in his «Reestructuración» (BossPhase.restructure).
+  'mampara-movil': { id: 'mampara-movil', name: 'Mampara de Cristal Esmerilado', box: { x: -36, y: -22, w: 72, h: 24 }, blocksBullets: true },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 

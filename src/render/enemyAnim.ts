@@ -58,6 +58,11 @@ function sideFrame(en: Enemy, now: number): number {
   const shift = own ?? (a.phaseShift !== undefined && (en.bossPhase ?? 0) >= 1 ? a.phaseShift : 0);
   if (a.spin && isSpinning(en)) return a.spin[spinStep(en) % a.spin.length]!;
   if (a.off !== undefined && !bulbLit(en, now)) return a.off;
+  // A boss clapping (the Director's «Reestructuración»), or striking its attack's pose while it
+  // warns and throws (a card in his hand, his stamp up).
+  if (a.clap !== undefined && en.state === 'roar') return a.clap;
+  const pose = attackPose(en);
+  if (pose !== undefined) return pose;
   // Rebooting: its lights come on one by one over the reboot.
   if (a.reboot && en.state === 'roar') return a.reboot[Math.min(a.reboot.length - 1, Math.floor((en.t / en.until) * a.reboot.length))]!;
   // A hopper: in the air, crouching just before a hop, and puffed up while it spits confetti.
@@ -85,6 +90,16 @@ function sideFrame(en: Enemy, now: number): number {
   }
   const ms = busy(en) && a.busyMs ? a.busyMs : a.idleMs;
   return a.idle[Math.floor(now / ms + en.id * 0.5) % a.idle.length]! + shift;
+}
+
+/** The pose of a boss's current attack (BossPatternAttack.pose...), while it warns and just after. */
+function attackPose(en: Enemy): number | undefined {
+  const b = en.def.brain;
+  if (b.kind !== 'boss' || en.attack === undefined) return undefined;
+  const at = b.phases[en.bossPhase ?? 0]?.attacks[en.attack];
+  if (!at || !('pose' in at) || at.pose === undefined) return undefined;
+  if (en.state === 'warn' || (en.state === 'fire' && en.t < at.telegraph + 0.25)) return at.pose;
+  return undefined;
 }
 
 /** The frame shift of the boss's current phase (BossPhase.frameShift), the last one that set it. */

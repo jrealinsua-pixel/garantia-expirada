@@ -5,6 +5,7 @@ import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, inkUnder, inWind, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
 import { freeChestLeft, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
+import { overlaps } from './vec.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
 
@@ -123,7 +124,9 @@ export function dodge(w: World): Dodge {
     const d = Math.hypot(dx, dy) || 1;
     // Building pieces on the floor: step round them (they hurt), and well clear of where they fall.
     const piece = f.brick !== undefined;
-    const reach = f.r + (piece ? 14 : 8);
+    // A dismissal letter opens into a ring of sheets: well clear of it (the expired products, as
+    // ever, so the first floors' numbers stay comparable).
+    const reach = f.r + (piece ? 14 : f.look ? 30 : 8);
     if (d > reach) continue;
     const k = (1 - d / reach) * (f.t < 0 ? 0.9 : piece ? 1.2 : 0.5);
     out.x += (dx / d) * k;
@@ -443,11 +446,25 @@ export class Bot {
         return { moveX: ux, moveY: uy, aimX, aimY, fire, roll: true, reload: false, swap, useItem, interact };
       }
     }
+    // Pressed against something (the long table of the Sala de Juntas, a partition): along it
+    // instead, the nearer way round, as a player would slide off it.
+    let mx = tx / l;
+    let my = ty / l;
+    // Its shots stopped by the long table or a partition: out towards the nearer end of it, where
+    // it can see the target, as a player would (the others go on as before: see slideOff).
+    const cover = coverBetween(w, aimX, aimY + 16);
+    if (cover && u < 0.5) {
+      mx += Math.sign(p.x - (cover.box.x + cover.box.w / 2)) * 0.8;
+      const ml = Math.hypot(mx, my) || 1;
+      mx /= ml;
+      my /= ml;
+    }
+    const mv = slideOff(w, mx, my);
     return {
       useItem,
       interact,
-      moveX: tx / l,
-      moveY: ty / l,
+      moveX: mv.x,
+      moveY: mv.y,
       aimX,
       aimY,
       fire,
@@ -456,6 +473,46 @@ export class Bot {
       swap,
     };
   }
+}
+
+/** A big prop (over two tiles wide) between the toaster's feet and (x, y), if any. */
+function coverBetween(w: World, x: number, y: number): World['room']['props'][number] | undefined {
+  const p = w.player;
+  // Bullets are stopped where their shadow is: from the feet to the target's feet.
+  const hx = p.x;
+  const hy = p.y;
+  const d = Math.hypot(x - hx, y - hy);
+  const n = Math.floor(d / 8);
+  for (let i = 1; i < n; i++) {
+    const px = hx + ((x - hx) * i) / n;
+    const py = hy + ((y - hy) * i) / n;
+    const pr = w.room.props.find((o) => o.box.w > TILE * 2 && o.def.blocksBullets && px >= o.box.x && px <= o.box.x + o.box.w && py >= o.box.y && py <= o.box.y + o.box.h);
+    if (pr) return pr;
+  }
+  return undefined;
+}
+
+/**
+ * The way the bot walks, turned off whatever stands right in front of it (up to a right angle,
+ * whichever side is nearer). Only props count, and only big ones (PropDef boxes over two tiles
+ * wide: the Sala de Juntas's table and partitions): elsewhere the bot walks as it always has, so
+ * its numbers on the other floors stay comparable.
+ */
+function slideOff(w: World, x: number, y: number): { x: number; y: number } {
+  const p = w.player;
+  const r = p.def.footRadius;
+  const ahead = (ax: number, ay: number): boolean => {
+    const box = { x: p.x + ax * 8 - r, y: p.y + ay * 8 - 3, w: r * 2, h: 4 };
+    return !w.room.props.some((pr) => pr.box.w > TILE * 2 && overlaps(pr.box, box));
+  };
+  if ((x === 0 && y === 0) || ahead(x, y)) return { x, y };
+  for (const deg of [30, -30, 60, -60, 90, -90]) {
+    const a = (deg * Math.PI) / 180;
+    const nx = x * Math.cos(a) - y * Math.sin(a);
+    const ny = x * Math.sin(a) + y * Math.cos(a);
+    if (ahead(nx, ny)) return { x: nx, y: ny };
+  }
+  return { x, y };
 }
 
 /** What happened when the bot crossed the Mostrador (see crossHub). */

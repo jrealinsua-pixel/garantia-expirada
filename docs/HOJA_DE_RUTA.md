@@ -21,7 +21,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
-| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y a la 4 le quedan el jefe (5b, 5c), dos objetos (6b2) y las medidas (7)) |
+| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y a la 4 le quedan la fase 3 del jefe (5c), dos objetos (6b2) y las medidas (7)) |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
@@ -376,7 +376,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [x] (5a) Sprites: en la silla (reposo, impulso, lanzar), de pie (andar, girar), la silla
       sola, las tarjetas, las cartas de despido y las mamparas que se mueven; y la mesa larga de la
       Sala de Juntas (un objeto nuevo que para balas y no se vuelca), que la (2c) dejó sin poner.
-    - [ ] (5b) Fases 1 y 2 (cartas de despido, tarjetas, reestructuración de mamparas, sellos),
+    - [x] (5b) Fases 1 y 2 (cartas de despido, tarjetas, reestructuración de mamparas, sellos),
       cartel y sonidos.
     - [ ] (5c) Fase 3 (la silla suelta que embiste y la línea de recortes).
   - 10 objetos nuevos, en partes:

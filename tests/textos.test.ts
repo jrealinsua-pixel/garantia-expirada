@@ -94,6 +94,7 @@ test('variado: no se repite el mismo chiste en dos sitios', () => {
     'La Nevera Suprema',
     'El Router del Wifi',
     'El Muñeco de Moda',
+    'El Director de Recursos Inhumanos',
     // The Mostrador's NPCs are also its props.
     'Caja de Devoluciones',
     'El Chatarrero',

@@ -206,6 +206,38 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.2, pattern: { kind: 'fan', count: 5, spreadDeg: 60, speed: 132, color: 'accessory' }, turnDeg: 7 },
     ],
   },
+  // El Director de Recursos Inhumanos (M10 planta 4 5b). «Somos una familia»: three fans of
+  // business cards, each turned a little further round (they sweep across: step the other way).
+  'director-tarjetas': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 116, color: 'bizcard' }, turnDeg: -14 },
+      { at: 0.22, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 116, color: 'bizcard' } },
+      { at: 0.44, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 116, color: 'bizcard' }, turnDeg: 14 },
+    ],
+  },
+  // A dismissal letter opens where it lands: a short ring of sheets (as the Nevera's yogurts, in
+  // paper) that flutter down after a couple of steps: it keeps you off the spot, not the room.
+  'director-folios': { kind: 'ring', count: 5, speed: 50, life: 1.4, color: 'sheet' },
+  // «Reestructuración»: three rings of slides, each with two holes a little further round than the last.
+  'director-diapositivas': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 22, speed: 78, color: 'slide', gaps: { widthDeg: 50, atDeg: [25, -155] } } },
+      { at: 0.4, pattern: { kind: 'ring', count: 22, speed: 78, color: 'slide', gaps: { widthDeg: 50, atDeg: [55, -125] } } },
+      { at: 0.8, pattern: { kind: 'ring', count: 22, speed: 78, color: 'slide', gaps: { widthDeg: 50, atDeg: [85, -95] } } },
+    ],
+  },
+  // The cards again, four fans sweeping one way and back.
+  'director-tarjetas-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 126, color: 'bizcard' }, turnDeg: -16 },
+      { at: 0.18, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 126, color: 'bizcard' }, turnDeg: -5 },
+      { at: 0.36, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 126, color: 'bizcard' }, turnDeg: 5 },
+      { at: 0.54, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 126, color: 'bizcard' }, turnDeg: 16 },
+    ],
+  },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
   // A frost ball shatters where it lands: a few slow splinters.

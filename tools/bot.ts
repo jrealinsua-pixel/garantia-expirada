@@ -33,6 +33,8 @@ export interface BotReport {
   router?: BossReport;
   /** And against floor 3's, el Muñeco de Moda, in its Escaparate de Novedades. */
   muneco?: BossReport;
+  /** And floor 4's, El Director de Recursos Inhumanos, in the Sala de Juntas (M10 planta 4 5b). */
+  director?: BossReport;
   /** Whole floors (M3 criterion): see FloorReport. */
   plantas: FloorReport;
   errores: string[];
@@ -598,6 +600,9 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const muneco = runBoss(bosses, 240, 'jefe-jugueteria', 3);
   failed += muneco.errors.length;
   errors.push(...muneco.errors);
+  const director = runBoss(bosses, 240, 'jefe-oficinas', 4);
+  failed += director.errors.length;
+  errors.push(...director.errors);
   return {
     partidas: games,
     fallos: failed,
@@ -618,6 +623,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     jefe: boss.report,
     router: router.report,
     muneco: muneco.report,
+    director: director.report,
     errores: errors.slice(0, 20),
   };
 }
@@ -678,6 +684,14 @@ if (import.meta.main) {
       `${m.combates} combates contra el Muñeco · gana el ${m.gana} % en ${m.segundos} s (${m.minimo}–${m.maximo} s) · ` +
         `${m.heridas} heridas por combate (${m.heridasFase1} en la fase 1, ${m.heridasFase2} en las rebajas, ${m.heridasFase3} sin caja) · ` +
         `llega a las rebajas el ${m.llegaFase2} %, a los ${m.segundoFase2} s; sale de la caja el ${m.llegaFase3} %, a los ${m.segundoFase3} s`,
+    );
+  }
+  const d = report.director;
+  if (d?.combates) {
+    console.log(
+      `${d.combates} combates contra el Director · gana el ${d.gana} % en ${d.segundos} s (${d.minimo}–${d.maximo} s) · ` +
+        `${d.heridas} heridas por combate (${d.heridasFase1} en la fase 1, ${d.heridasFase2} en la reestructuración) · ` +
+        `llega a la reestructuración el ${d.llegaFase2} %, a los ${d.segundoFase2} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

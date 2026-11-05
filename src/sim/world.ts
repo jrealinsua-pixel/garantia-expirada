@@ -268,8 +268,16 @@ export interface Emitter {
   color: BulletColor;
   /** It comes out of enemy `id`, (dx, dy) px from its feet, wherever that enemy walks (a boss drifting while it fires). */
   follow?: { id: number; dx: number; dy: number };
-  /** How its warning looks, if not the usual closing ring: a camera flash charging on the floor. */
-  mark?: 'flash';
+  /**
+   * How its warning looks, if not the usual closing ring: a camera flash charging on the floor, or
+   * the square shadow of a stamp coming down (with `stamp`).
+   */
+  mark?: 'flash' | 'stamp';
+  /**
+   * A stamp coming down where it fires (the Director's «Denegado», BossStampAttack): when the
+   * warning ends, a square of ink centred `STAMP_LIFT` px under (x, y), and whoever is under it is hurt.
+   */
+  stamp?: { w: number; h: number; life: number; max: number; damage: number };
 }
 
 /** Default warning for enemy attacks (s). Enough to react, short enough to stay tense. */
@@ -282,8 +290,9 @@ export interface FireOptions {
   by?: string;
   /** Height of the muzzle above the floor (px, default 0). */
   height?: number;
-  /** How its warning looks (Emitter.mark). */
-  mark?: 'flash';
+  /** How its warning looks (Emitter.mark), and the stamp it brings down (Emitter.stamp). */
+  mark?: 'flash' | 'stamp';
+  stamp?: Emitter['stamp'];
 }
 
 export interface Dummy {
@@ -354,6 +363,10 @@ export interface Enemy {
   attack?: number;
   /** Bosses with relays: seconds it has gone without any (see BossPhase.relays.every). */
   relayT?: number;
+  /** Bosses: going round something in its way this tick (see bossRoam). */
+  hugging?: boolean;
+  /** Bosses that restructure their room: seconds since they last did (see BossPhase.restructure). */
+  restructT?: number;
   /**
    * Bosses: seconds left of the current leg of its walk, how fast (share of its speed), which way
    * round the player (1 or -1) and how far from it.
@@ -409,6 +422,8 @@ export interface Frost {
    * it bursts where it lands and leaves no patch (`life` is 0).
    */
   product?: number;
+  /** Not an expired product but this sprite (the Director's dismissal letters, `carta-despido`). */
+  look?: string;
   /**
    * Not frost but a building piece a bucket lobs (its frame in the `pieza` sheet): it lies on the
    * floor until `life`; stepping on it walking hurts (`damage`) and uses it up; a player bullet
@@ -469,6 +484,9 @@ export type SimEvent =
   /** A DENEGADO stamp: it rises to stamp (`tx`, `ty`), it lands and inks the floor (`hit`: the player was under it). */
   | { type: 'stampRise'; x: number; y: number; tx: number; ty: number; source: number }
   | { type: 'stamp'; x: number; y: number; w: number; h: number; hit: boolean; source: number }
+  | { type: 'restructure'; count: number }
+  | { type: 'clap'; boss: number; x: number; y: number }
+  | { type: 'slid'; x: number; y: number }
   /** An air conditioner is about to blow its frost along the air. */
   | { type: 'acBlow'; x: number; y: number; source: number }
   /** The player tried to roll on ink: a clumsy step instead, no invulnerability. */
@@ -520,7 +538,7 @@ export type SimEvent =
   | { type: 'blinkIn'; x: number; y: number; source: number }
   /** A boss throws a ball of frost from (x, y) to land at (tx, ty) in `flight` s; then it lands. */
   | { type: 'frostThrow'; x: number; y: number; tx: number; ty: number; flight: number; source: number }
-  | { type: 'frostLand'; x: number; y: number; r: number; product?: number; brick?: number }
+  | { type: 'frostLand'; x: number; y: number; r: number; product?: number; look?: string; brick?: number }
   /** A building piece is stepped on (it hurt) or swept away by a bullet. */
   | { type: 'brickStep' | 'brickSwept'; x: number; y: number; brick: number; angle?: number }
   /** A boss starts a new phase of its fight. */
@@ -2229,6 +2247,7 @@ export function firePattern(w: World, def: PatternDef, x: number, y: number, aim
   if (opts.source !== undefined) e.source = opts.source;
   if (opts.by !== undefined) e.by = opts.by;
   if (opts.mark) e.mark = opts.mark;
+  if (opts.stamp) e.stamp = opts.stamp;
   w.emitters.push(e);
   if (telegraph > 0) {
     const ev: SimEvent = { type: 'telegraph', x, y, time: telegraph, aim, aimed: e.aimed, color: e.color };
@@ -2280,6 +2299,10 @@ export function activeWarnings(w: World): Warning[] {
     const wn: Warning = { x: e.x, y: e.y, k, aim: e.aim, aimed: e.aimed, color: e.color, bullets: true };
     if (e.source !== undefined) wn.source = e.source;
     if (e.mark) wn.mark = e.mark;
+    if (e.stamp) {
+      wn.y += STAMP_LIFT;
+      wn.size = { w: e.stamp.w, h: e.stamp.h };
+    }
     out.push(wn);
   }
   for (const en of w.enemies) {
@@ -2360,6 +2383,7 @@ function updateEmitters(w: World): void {
         e.y = en.y + f.dy;
       }
     }
+    if (e.stamp && e.next === 0 && e.shots.length > 0 && e.shots[0]!.delay <= e.t + 1e-9) stampDown(w, e, e.stamp);
     while (e.next < e.shots.length && e.shots[e.next]!.delay <= e.t + 1e-9) {
       const s = e.shots[e.next++]!;
       const b: Bullet = {
@@ -2393,6 +2417,146 @@ function updateEmitters(w: World): void {
   w.emitters = keep;
 }
 
+/**
+ * «Reestructuración» (BossPhase.restructure): every prop `id` of the room is given a new place in
+ * its own quarter of the room (the quarter its middle is in now), snapped to the tiles like the
+ * props of the templates, at least two tiles from where it was and with a tile of clear floor all
+ * round it (walls, other props and the places already given to the rest), so no way through is
+ * ever shut and nobody is ever walled in. A prop with nowhere new to go stays. Each one is marked
+ * for `warn` s and then slides there in `time` s (updateSlides). Returns how many will move.
+ */
+export function restructureRoom(w: World, id: string, warn: number, time: number): number {
+  const room = w.room;
+  const parts = room.props.filter((pr) => pr.def.id === id && !pr.slide);
+  const others = room.props.filter((pr) => pr.def.id !== id);
+  const taken: Rect[] = [];
+  const midX = room.w / 2;
+  const midY = room.h / 2;
+  let moved = 0;
+  for (const pr of parts) {
+    const def = pr.def;
+    const left = pr.box.x + pr.box.w / 2 < midX;
+    const top = pr.box.y + pr.box.h / 2 < midY;
+    const spots: Array<{ x: number; y: number }> = [];
+    for (let r = 2; r < room.rows - 1; r++) {
+      for (let c = 1; c < room.cols - 1; c++) {
+        const x = c * TILE + TILE / 2;
+        const y = (r + 1) * TILE - 2;
+        const box = { x: x + def.box.x, y: y + def.box.y, w: def.box.w, h: def.box.h };
+        if (box.x + box.w / 2 < midX !== left || box.y + box.h / 2 < midY !== top) continue;
+        // Its own quarter only, never across the middle: the corridors through the middle stay open.
+        if (left ? box.x + box.w > midX - TILE : box.x < midX + TILE) continue;
+        if (Math.abs(x - pr.x) + Math.abs(y - pr.y) < TILE * 2) continue;
+        const pad = { x: box.x - TILE, y: box.y - TILE, w: box.w + TILE * 2, h: box.h + TILE * 2 };
+        const walls: Rect[] = [];
+        wallRectsNear(room, pad, walls);
+        if (walls.some((b) => overlaps(b, pad))) continue;
+        if (others.some((o) => overlaps(o.box, pad)) || taken.some((b) => overlaps(b, pad))) continue;
+        // Not on a door's way in (the doors open again when the boss falls).
+        if (room.doors.some((d) => overlaps({ x: d.x - TILE, y: d.y - TILE, w: d.w + TILE * 2, h: d.h + TILE * 2 }, pad))) continue;
+        spots.push({ x, y });
+      }
+    }
+    // The others' current places count too, so two never cross each other's way (each one stays in its quarter).
+    if (spots.length === 0) {
+      taken.push(pr.box);
+      continue;
+    }
+    const to = w.rng.pick(spots);
+    taken.push({ x: to.x + def.box.x, y: to.y + def.box.y, w: def.box.w, h: def.box.h });
+    pr.slide = { fromX: pr.x, fromY: pr.y, toX: to.x, toY: to.y, t: 0, warn, time };
+    moved++;
+  }
+  if (moved) w.events.push({ type: 'restructure', count: moved });
+  return moved;
+}
+
+/**
+ * Props on the move (PropInstance.slide): marked for a while, then sliding to their new place,
+ * eased in and out. Whatever is in the way is pushed out of it (the toaster, enemies, things lying
+ * on the floor), never crushed: out the nearest side, or to the nearest clear spot.
+ */
+function updateSlides(w: World): void {
+  for (const pr of w.room.props) {
+    const s = pr.slide;
+    if (!s) continue;
+    s.t += DT;
+    if (s.t < s.warn) continue;
+    const k0 = Math.min(1, (s.t - s.warn) / s.time);
+    const k = k0 * k0 * (3 - 2 * k0);
+    const nx = s.fromX + (s.toX - s.fromX) * k;
+    const ny = s.fromY + (s.toY - s.fromY) * k;
+    const dx = nx - pr.x;
+    const dy = ny - pr.y;
+    pr.x = nx;
+    pr.y = ny;
+    pr.box = { x: pr.box.x + dx, y: pr.box.y + dy, w: pr.box.w, h: pr.box.h };
+    shove(w, pr.box);
+    if (k0 >= 1) {
+      // Exactly on its tile at the end (no drift from the sums).
+      pr.x = s.toX;
+      pr.y = s.toY;
+      pr.box = { x: s.toX + pr.def.box.x, y: s.toY + pr.def.box.y, w: pr.def.box.w, h: pr.def.box.h };
+      delete pr.slide;
+      w.events.push({ type: 'slid', x: pr.x, y: pr.y });
+    }
+  }
+}
+
+/** Pushes out of `box` whoever stands in it (see updateSlides). */
+function shove(w: World, box: Rect): void {
+  const out = (x: number, y: number, r: number): { x: number; y: number } => {
+    const feet = playerFeetBox({ x, y }, r);
+    // The side it is least inside of.
+    const options = [
+      { x: box.x - r - 0.5, y, d: feet.x + feet.w - box.x },
+      { x: box.x + box.w + r + 0.5, y, d: box.x + box.w - feet.x },
+      { x, y: box.y - 1.5, d: feet.y + feet.h - box.y },
+      { x, y: box.y + box.h + 3.5, d: box.y + box.h - feet.y },
+    ].sort((a, b) => a.d - b.d);
+    for (const o of options) if (isClear(w, o.x, o.y, r)) return o;
+    return freeSpot(w, options[0]!.x, options[0]!.y, r);
+  };
+  const p = w.player;
+  if (overlaps(playerFeetBox(p, p.def.footRadius), box)) {
+    const to = out(p.x, p.y, p.def.footRadius);
+    p.x = to.x;
+    p.y = to.y;
+  }
+  for (const en of w.enemies) {
+    if (isDead(en) || en.def.brain.kind === 'moth') continue;
+    if (!overlaps(playerFeetBox(en, en.def.footRadius), box)) continue;
+    const to = out(en.x, en.y, en.def.footRadius);
+    en.x = to.x;
+    en.y = to.y;
+  }
+  for (const k of w.pickups) {
+    if (!pointInRect(k.x, k.y, box)) continue;
+    const to = out(k.x, k.y, PICKUP_RADIUS);
+    k.x = to.x;
+    k.y = to.y;
+  }
+}
+
+/** How far above the floor a stamp's ink splashes out (px): its emitter is this much over the square's centre. */
+export const STAMP_LIFT = 2;
+
+/** A stamp of an emitter (Emitter.stamp) comes down: the square of ink, and whoever is under it. */
+function stampDown(w: World, e: Emitter, st: NonNullable<Emitter['stamp']>): void {
+  const x = e.x;
+  const y = e.y + STAMP_LIFT;
+  const source = e.source ?? -1;
+  stampInk(w, x, y, st, source);
+  const p = w.player;
+  const under = Math.abs(p.x - x) <= st.w / 2 && Math.abs(p.y - y) <= st.h / 2;
+  let hit = false;
+  if (under && !w.over) {
+    const d = normalize(p.x - x, p.y - y);
+    hit = hurtPlayer(w, st.damage, source, d.x, d.y, { by: e.by ?? 'desconocido', how: 'contact' });
+  }
+  w.events.push({ type: 'stamp', x, y, w: st.w, h: st.h, hit, source });
+}
+
 function updateDummies(w: World): void {
   for (const d of w.dummies) {
     d.hitT = Math.max(0, d.hitT - DT);
@@ -2412,6 +2576,8 @@ export interface FrostOptions {
   flight: number;
   shatter?: string;
   product?: number;
+  /** With `product`: the sprite it is drawn with instead of an expired product (Frost.look). */
+  look?: string;
   brick?: number;
   damage?: number;
   source: number;
@@ -2422,6 +2588,7 @@ export function throwFrost(w: World, x: number, y: number, h: number, tx: number
   const f: Frost = { id: w.nextId++, x: tx, y: ty, r: opts.r, t: -opts.flight, life: opts.life, slow: opts.slow, fromX: x, fromY: y, fromH: h, flight: opts.flight, source: opts.source, by: opts.by };
   if (opts.shatter) f.shatter = opts.shatter;
   if (opts.product !== undefined) f.product = opts.product;
+  if (opts.look) f.look = opts.look;
   if (opts.brick !== undefined) {
     f.brick = opts.brick;
     f.damage = opts.damage ?? 1;
@@ -2454,7 +2621,9 @@ function updateFrost(w: World): void {
     if (was < 0 && f.t >= 0) {
       w.events.push(
         f.product !== undefined
-          ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, product: f.product }
+          ? f.look
+            ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, product: f.product, look: f.look }
+            : { type: 'frostLand', x: f.x, y: f.y, r: f.r, product: f.product }
           : f.brick !== undefined
             ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, brick: f.brick }
             : { type: 'frostLand', x: f.x, y: f.y, r: f.r },
@@ -3267,6 +3436,7 @@ export function step(w: World, input: Input): void {
     w.pendingBullets = [];
   }
   updateProps(w);
+  if (!paused) updateSlides(w);
   if (!paused) updateFrost(w);
   if (!paused) updateInk(w);
   reapEnemies(w);

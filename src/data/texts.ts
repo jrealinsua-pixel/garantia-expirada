@@ -104,6 +104,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   'cubo-piezas': { contact: 'Pieza pisada descalzo de madrugada' },
   'router-wifi': { bullet: 'Exceso de cobertura', contact: 'Reinicio forzoso' },
   'muneco-moda': { bullet: 'Tacón de la temporada pasada', contact: 'Atropello en plena pasarela' },
+  'director-rrhh': { bullet: 'Despido por carta certificada', contact: 'Atropellado por una silla ergonómica' },
   repetidor: { bullet: 'Señal repetida', contact: 'Tropiezo con un repetidor' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },
   maniqui: { bullet: 'Disparo de un maniquí de exposición' },

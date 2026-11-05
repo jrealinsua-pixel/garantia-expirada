@@ -88,6 +88,17 @@ export const LORE: readonly LoreDoc[] = [
     ],
   },
   {
+    id: 'evaluacion-1',
+    kind: 'Evaluación de desempeño',
+    title: 'Oficinas · Recursos Inhumanos',
+    source: { boss: 'director-rrhh' },
+    pages: [
+      'Producto: tostadora. Valoración: amortizada. Puntos fuertes: no se queja. Áreas de mejora: sigue funcionando.',
+      'Objetivos para el próximo trimestre: ninguno. Destino: última planta, como todos. Motivo: «redistribución de recursos».',
+      'Firmado: El Director de Recursos Inhumanos. Al margen, con su letra: «el mío también lo firmó alguien».',
+    ],
+  },
+  {
     id: 'acta-1',
     kind: 'Acta de reunión',
     title: 'Comité de Dirección · Punto 3',

@@ -493,6 +493,7 @@ export class GameScene extends Phaser.Scene {
     this.chestSprites = new Map();
     this.drumViews = new Map();
     this.tableViews = new Map();
+    this.partitionViews = [];
     this.ticketPop = 0;
     this.till = null;
     this.bubble = null;
@@ -580,6 +581,10 @@ export class GameScene extends Phaser.Scene {
       const key = pr.def.id;
       this.drawnProps.add(pr);
       if (room.kind === 'hub' && this.makeHubProp(pr)) continue;
+      if (key === 'mampara-movil') {
+        this.makePartitionView(pr);
+        continue;
+      }
       // Chests change (they open), so drawChests keeps them; here only their shadow.
       if (pr.chest) {
         this.add.image(pr.x, pr.y + 1, shadowTexture(this, 10, 3)).setDepth(-50000);
@@ -1150,7 +1155,38 @@ export class GameScene extends Phaser.Scene {
     for (const pr of this.world.room.props) {
       if (pr.chest || this.drawnProps.has(pr)) continue;
       this.drawnProps.add(pr);
-      this.makePropView(pr);
+      if (pr.def.id === 'mampara-movil') this.makePartitionView(pr);
+      else this.makePropView(pr);
+    }
+  }
+
+  /** The Sala de Juntas's glass partitions (PropInstance.slide): they move, so they are kept here. */
+  private partitionViews: Array<{ pr: PropInstance; img: Phaser.GameObjects.Image; ghost: Phaser.GameObjects.Image }> = [];
+
+  /**
+   * A frosted glass partition: flat on its three tiles like the walls it replaces (under everything
+   * that stands), and its dashed outline, shown where it is going while it is marked.
+   */
+  private makePartitionView(pr: PropInstance): void {
+    const img = this.add.image(pr.x, pr.box.y + pr.box.h, 'mampara-movil', 0).setOrigin(0.5, 1).setDepth(PARTITION_DEPTH);
+    const ghost = this.add.image(pr.x, pr.box.y + pr.box.h, 'mampara-movil', 1).setOrigin(0.5, 1).setDepth(PARTITION_DEPTH + 1).setVisible(false);
+    this.partitionViews.push({ pr, img, ghost });
+  }
+
+  /** Partitions follow their props; a marked one blinks its outline where it will go, faster and faster. */
+  private drawPartitions(): void {
+    for (const v of this.partitionViews) {
+      const pr = v.pr;
+      const bottom = (y: number): number => y + pr.def.box.y + pr.def.box.h;
+      v.img.setPosition(Math.round(pr.x), Math.round(bottom(pr.y)));
+      const s = pr.slide;
+      if (s && s.t < s.warn) {
+        const k = s.t / s.warn;
+        const on = Math.floor(this.time.now / (k < 0.6 ? 140 : 70)) % 2 === 0;
+        v.ghost.setPosition(s.toX, bottom(s.toY)).setVisible(true).setAlpha(on ? 1 : 0.45);
+        // And the glass that is about to go shivers in its rail.
+        v.img.x += Math.floor(this.time.now / 50) % 2 === 0 ? 1 : 0;
+      } else v.ghost.setVisible(false);
     }
   }
 
@@ -2011,6 +2047,22 @@ export class GameScene extends Phaser.Scene {
         case 'shed':
           this.shellShed(e);
           break;
+        case 'clap': {
+          // «Reestructuración»: one sharp clap, three white lines off his hands, and the glass
+          // starts to move.
+          this.sound2.play('palmada');
+          this.shake(90, 0.004, true);
+          for (let i = 0; i < 6; i++) this.spark(e.x + 20, e.y - 40, -Math.PI / 2 + this.fx.range(-1.1, 1.1), this.fx.range(60, 110), 0, 0xf4f1e8);
+          break;
+        }
+        case 'restructure':
+          this.sound2.play('deslizar', { volume: 0.6 });
+          break;
+        case 'slid':
+          // The glass stops against its new rail: a dull knock and some carpet dust.
+          this.sound2.play('chapa', { detune: -900, volume: 0.5 });
+          for (let i = 0; i < 4; i++) this.puff(e.x + this.fx.range(-34, 34), e.y + 1, 0.3);
+          break;
         case 'runway':
           // Off down the catwalk: a fanfare of flashes going off at once.
           this.sound2.play('pasarela');
@@ -2473,6 +2525,14 @@ export class GameScene extends Phaser.Scene {
             this.puff(e.x, e.y, 0.25);
             break;
           }
+          if (e.look) {
+            // A dismissal letter lands and opens: a dry slap of paper and dust off the carpet.
+            this.sound2.play('carta', { detune: this.fx.range(-200, 200) });
+            this.shake(60, 0.003, true);
+            this.puff(e.x, e.y - 2, 0.4);
+            for (let i = 0; i < 5; i++) this.spark(e.x, e.y - 2, this.fx.range(-Math.PI, 0), this.fx.range(30, 70), 0, 0xf4f1e8);
+            break;
+          }
           if (e.product !== undefined) {
             // An expired product bursts: a wet splat and green bits flying.
             this.sound2.play('chof', { detune: this.fx.range(-300, 300) });
@@ -2513,6 +2573,9 @@ export class GameScene extends Phaser.Scene {
             // The Router reboots: everything goes dark and its line comes up over it.
             this.sound2.play('apagar');
             this.floatText(boss.x, boss.y + 18, fontText(e.reboot), 0xb7bed0, `reboot:${boss.id}`, -1, 4.6);
+          } else if (e.line && boss && boss.def.id === 'director-rrhh') {
+            // The Director announces it calmly (the clap is its own event): just the line.
+            this.floatText(boss.x, boss.y + 16, fontText(e.line), 0xf4f1e8, `line:${boss.id}`, -6, 2.6);
           } else if (e.line && boss) {
             // A sale: the pricing gun clacks a new tag on its box, a shower of price-tag confetti,
             // and the advert line, shouted.
@@ -3408,6 +3471,7 @@ export class GameScene extends Phaser.Scene {
     this.drawInk();
     this.drawChests(dt);
     this.drawLateProps();
+    this.drawPartitions();
     this.drawDrums(dt);
     this.drawTables(dt);
     this.drawPickups();
@@ -3449,6 +3513,9 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'strip' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
+      // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
+      if (b.color === 'bizcard' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 70 + b.id) % 4);
+      if (b.color === 'slide' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 120 + b.id) % 2);
       // The stamp's drops of ink wobble.
       if (b.color === 'ink' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
       // The Muñeco's shoes and handbags spin a quarter turn at a time (half are shoes, half bags).
@@ -3637,7 +3704,7 @@ export class GameScene extends Phaser.Scene {
       if (!v) {
         const ball =
           f.product !== undefined
-            ? this.add.image(f.fromX, f.fromY, 'producto-caducado', f.product)
+            ? this.add.image(f.fromX, f.fromY, f.look ?? 'producto-caducado', f.look ? 0 : f.product)
             : f.brick !== undefined
               ? this.add.image(f.fromX, f.fromY, 'pieza', f.brick)
               : this.add.image(f.fromX, f.fromY, 'bola-escarcha');
@@ -4256,6 +4323,8 @@ export class GameScene extends Phaser.Scene {
 }
 
 /** Enemy bullet sprites by colour: the boss's ice is a cube. */
+/** Depth of the glass partitions: on the floor with the walls they replace, over shadows, under anyone standing. */
+const PARTITION_DEPTH = -49000;
 /** Radius the player's bullet sprite is drawn for (the hair dryer's). */
 const PLAYER_BULLET_R = 3;
 /** Tyre marks on the floor at once, at most (each is two dashes). */
@@ -4264,6 +4333,7 @@ const SKID_MAX = 120;
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
+  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

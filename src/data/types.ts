@@ -452,6 +452,8 @@ export interface BossPatternAttack {
   relay?: string;
   /** It spins on the spot while the bullets stream out (EnemyAnim.spin), instead of drifting. */
   spin?: boolean;
+  /** Frame it strikes while it warns and throws (the Director with a card in his hand). */
+  pose?: number;
 }
 
 /**
@@ -487,6 +489,10 @@ export interface BossSpitAttack {
   burst: string;
   telegraph: number;
   weight: number;
+  /** What it throws, if not expired products: a sprite (the Director's dismissal letters, `carta-despido`). */
+  look?: string;
+  /** Frame it strikes while it warns and throws. */
+  pose?: number;
 }
 
 /**
@@ -517,7 +523,24 @@ export interface BossRunwayAttack {
   weight: number;
 }
 
-export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack;
+/**
+ * «Denegado»: it raises its own stamp (`telegraph` s, the pose) while `count` square shadows of
+ * `ink` (one under the player, the rest up to `spread` px around it) blink on the floor; then each
+ * comes down as a square of ink (as the Sello de Denegado's: no rolling in it), hurting whoever is
+ * under it, and splashes `pattern`.
+ */
+export interface BossStampAttack {
+  kind: 'stamp';
+  count: number;
+  spread: number;
+  ink: { w: number; h: number; life: number; max: number };
+  pattern: string;
+  telegraph: number;
+  weight: number;
+  pose?: number;
+}
+
+export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack | BossStampAttack;
 
 /** A stage of a boss fight, with its own attacks. */
 export interface BossPhase {
@@ -565,6 +588,13 @@ export interface BossPhase {
    * instead of EnemyAnim.phaseShift: the Muñeco out of its box.
    */
   frameShift?: number;
+  /**
+   * «Reestructuración»: when the phase starts and every `every` s after that, it claps and every
+   * movable partition of the room (prop `prop`) is given a new place in its own quarter of the
+   * room: marked for `warn` s with a dashed outline, then slid there in `time` s, pushing whoever
+   * is in the way.
+   */
+  restructure?: { prop: string; every: number; warn: number; time: number };
 }
 
 /**
@@ -915,6 +945,8 @@ export interface EnemyAnim {
   stepPx?: number;
   /** Still switching on (turrets with `startup`): shown while the light flickers off. */
   off?: number;
+  /** A boss clapping (state `roar`: between phases, and when it restructures the room). */
+  clap?: number;
   /** Second boss phase: the same layout from this frame on (`idle`/`walk` + `phaseShift`). */
   phaseShift?: number;
   /** Frame shown while it warns (the wireless mouse frozen without signal). */

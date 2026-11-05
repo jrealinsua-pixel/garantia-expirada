@@ -1561,10 +1561,10 @@ const FLOOR_4: RoomTemplate[] = [
     ],
   },
   {
-    // La Sala de Juntas (docs/DISENO.md): the frosted glass partitions (cubicle partitions, for now)
-    // in two rows, with lanes clear from wall to wall above and below them (the Muñeco's catwalk
-    // until the Director arrives, M10 planta 4 (5)), and the long table in the middle (`=`, its
-    // bottom-centre: seven tiles, cols 9-15 of rows 8-9), which stops bullets and is gone round.
+    // La Sala de Juntas (docs/DISENO.md): the four frosted glass partitions (`_`, the middle of
+    // three tiles: props, so the Director can move them in his «Reestructuración»), in two rows,
+    // one in each quarter of the room, and the long table in the middle (`=`, its bottom-centre:
+    // seven tiles, cols 9-15 of rows 8-9), which stops bullets and is gone round.
     id: 'jefe-oficinas',
     kind: 'boss',
     level: 4,
@@ -1576,12 +1576,12 @@ const FLOOR_4: RoomTemplate[] = [
       '#........................#',
       '#...........J............#',
       '#........................#',
-      '#....###..........###....#',
+      '#....._............_.....#',
       '#........................#',
       '#........................#',
       '#...........=............#',
       '#........................#',
-      '#....###..........###....#',
+      '#....._............_.....#',
       '#........................#',
       '#k......................k#',
       '#b......................b#',
@@ -1626,16 +1626,14 @@ export const ROOMS: Record<string, RoomTemplate> = {
 export const FLOOR_BOSS_1 = 'N';
 /** Floor 2's: X, el Router del Wifi. */
 export const FLOOR_BOSS_2 = 'X';
-/**
- * Floor 3's: D (doll), el Muñeco de Moda (M10 5b), in its Escaparate de Novedades (M is the dummy).
- * Floor 4 has no boss of its own yet (El Director de Recursos Inhumanos, M10 planta 4 (5)): until
- * it comes, the Muñeco fights again in the Sala de Juntas.
- */
+/** Floor 3's: D (doll), el Muñeco de Moda (M10 5b), in its Escaparate de Novedades (M is the dummy). */
 export const FLOOR_BOSS_3 = 'D';
+/** Floor 4's: E (ejecutivo), El Director de Recursos Inhumanos (M10 planta 4 5b), in the Sala de Juntas. */
+export const FLOOR_BOSS_4 = 'E';
 
 /** Template letter of the boss of floor `level`. */
 export function floorBossOf(level: number): string {
-  return level >= 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
+  return level >= 4 ? FLOOR_BOSS_4 : level === 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
 }
 
 /**

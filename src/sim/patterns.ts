@@ -12,9 +12,11 @@ import type { Rng } from './rng.ts';
  * `sticker` are its sale stickers out of the box: round, yellow, with a red «%», turning. `strip`
  * are the shredder's strips of paper: white with a red edge, wriggling. `sheet` are the
  * photocopier's sheets: white with toner lines and a red rim, tumbling. `ink` are the DENEGADO
- * stamp's drops: red, with a white glint, wobbling.
+ * stamp's drops: red, with a white glint, wobbling. `bizcard` are the Director's business cards: white
+ * with a cyan edge, spinning; `slide` his slides: a red frame round a chart going down, turning.
  */
-export type BulletColor = 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink';
+export type BulletColor =
+  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide';
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {
