@@ -98,4 +98,15 @@ export const COMPLEMENTS: readonly ComplementDef[] = [
     kind: 'tapa',
     why: 'La batería se lleva un corazón; la bola hace que los que quedan tarden el doble en irse.',
   },
+  // M11 (6b2). The design proposed the Número de Turno with the Formulario en Línea (a big magazine
+  // while the waiting damage goes up), but measured it is just the product of the two (damage dealt
+  // firing non-stop with the Secador for 35 s: turno ×1.050, formulario ×1.000, the pair ×1.046):
+  // both multiply the same shots and nothing feeds the other. Left out. The form's slow reload is
+  // what the tape covers instead.
+  {
+    items: ['formulario-linea', 'cinta'],
+    kind: 'tapa',
+    stat: 'reloadTime',
+    why: 'Todos los campos son obligatorios; la cinta los deja pegados para la próxima vez.',
+  },
 ];

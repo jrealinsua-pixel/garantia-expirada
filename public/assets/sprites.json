@@ -1138,5 +1138,17 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-hoja-reclamaciones": {
+    "file": "objeto-hoja-reclamaciones.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-cinco-estrellas": {
+    "file": "objeto-cinco-estrellas.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

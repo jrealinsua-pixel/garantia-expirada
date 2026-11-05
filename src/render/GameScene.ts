@@ -44,6 +44,10 @@ import {
   punchLine,
   EXPIRED_LINE,
   RECORDED_LINE,
+  COMPLAINT_LINE,
+  starsLine,
+  STARS_PAID_LINE,
+  STARS_LOST_LINE,
   queueLine,
   PET_DEAD_LINE,
   petFedLine,
@@ -2011,6 +2015,27 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('clinc', { detune: -300, volume: 0.6 });
           this.floatText(e.x, e.y - 34, fontText(RECORDED_LINE), 0xe0453b, `recorded:${e.target}`, -10, 1.1);
           break;
+        case 'complaint':
+          // Hoja de Reclamaciones: the stamp on the form, and the name of who it is against.
+          this.sound2.play('golpe', { detune: 900, volume: 0.4 });
+          this.floatText(e.x, e.y - 44, fontText(COMPLAINT_LINE), 0xea93a8, `complaint:${e.target}`, -10, 1.1);
+          break;
+        case 'stars':
+          if (e.paid) {
+            // Five stars: the heart arrives, with the chime of a survey done.
+            this.sound2.play('cupon', { detune: 1500, volume: 0.8 });
+            for (let i = 0; i < 12; i++) this.spark(e.x, e.y - 6, -Math.PI / 2 + this.fx.range(-1.2, 1.2), this.fx.range(40, 90), 1, i % 2 ? 0xf6c431 : 0xe0453b);
+            this.floatText(e.x, e.y - 20, fontText(STARS_PAID_LINE), 0xf6c431, 'stars', -14, 1.6);
+          } else if (e.stars > 0) {
+            this.sound2.play('clinc', { detune: 600 + 200 * e.stars, volume: 0.6 });
+            for (let i = 0; i < 3 + e.stars; i++) this.spark(e.x, e.y - 6, -Math.PI / 2 + this.fx.range(-1, 1), this.fx.range(30, 60), 1, 0xf6c431);
+            this.floatText(e.x, e.y - 18, fontText(starsLine(e.stars, e.need)), 0xf6c431, 'stars', -12, 1.2);
+          } else {
+            // A hit: the rating is taken back.
+            this.sound2.play('apagar', { detune: 500, volume: 0.6 });
+            this.floatText(e.x, e.y - 30, fontText(STARS_LOST_LINE), 0x8a92a8, 'stars', -10, 1.2);
+          }
+          break;
         case 'expired':
           // Código Promocional Caducado: no chest here. A flat buzz and the stamp, in tired red.
           this.sound2.play('vacio', { detune: -300, volume: 0.6 });
@@ -3531,6 +3556,8 @@ export class GameScene extends Phaser.Scene {
         else s.clearTint();
         // Contestador Automático: the played-back shot is a fainter copy.
         if (b.echo) s.setAlpha(0.55);
+        // Hoja de Reclamaciones: the chasing shots are the pink copy that nobody reads.
+        if (b.chase !== undefined) s.setTint(0xea93a8);
         if (look?.turn) s.setRotation(b.dir);
         this.bulletSprites.set(b.id, s);
       }
@@ -3574,6 +3601,10 @@ export class GameScene extends Phaser.Scene {
       }
       // Contestador Automático: and a smaller one.
       if (b.echo) size *= 0.8;
+      // Hoja de Reclamaciones: the pink copy leaves a trail of pink paper behind it, so the turn reads.
+      if (b.chase !== undefined && !b.stuck && this.fx.range(0, 1) < 0.5) {
+        this.spark(b.x - b.vx * 0.02, b.y - b.vy * 0.02, Math.atan2(-b.vy, -b.vx) + this.fx.range(-0.5, 0.5), this.fx.range(10, 25), 0, 0xea93a8);
+      }
       // Pósit de Urgente: the shot after a roll (and its reply-all pieces) flashes yellow and red.
       if (b.urgent && b.owner === 'player' && !b.limited && !b.stuck) {
         size *= b.reply ? 1.15 : 1.3;

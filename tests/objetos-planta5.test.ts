@@ -1,9 +1,11 @@
 // Los objetos de la planta 5 (M11 6a): Formulario en Línea, Tecla Almohadilla, Tiempo de Espera
 // Estimado, Código Promocional Caducado y Cable de Teléfono Rizado; y (6b1) Número de Turno,
-// Contestador Automático y Llamada Grabada. Cada uno hace lo que dice su ficha.
+// Contestador Automático y Llamada Grabada; y (6b2) Hoja de Reclamaciones, Valoración de Cinco
+// Estrellas y las sinergias Ticket de Incidencia y Buzón Lleno. Cada uno hace lo que dice su ficha.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ITEMS, itemsUpTo } from '../src/data/items.ts';
+import { SYNERGIES } from '../src/data/synergies.ts';
 import { modifierLines } from '../src/data/describe.ts';
 import { CHARACTERS } from '../src/data/characters.ts';
 import { WEAPONS } from '../src/data/weapons.ts';
@@ -12,7 +14,7 @@ import { addModifier, createWorld, DT, enterRoom, giveActive, giveItem, HAND_HEI
 import { NO_INPUT, step, type Input, type SimEvent, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
-const OWN = ['formulario-linea', 'tecla-almohadilla', 'tiempo-espera', 'codigo-caducado', 'cable-rizado', 'numero-turno', 'contestador', 'llamada-grabada'];
+const OWN = ['formulario-linea', 'tecla-almohadilla', 'tiempo-espera', 'codigo-caducado', 'cable-rizado', 'numero-turno', 'contestador', 'llamada-grabada', 'hoja-reclamaciones', 'cinco-estrellas'];
 
 /** The test room with nothing in the way (as in objetos.test.ts). */
 function bare(seed: string, ...items: string[]): World {
@@ -60,6 +62,9 @@ test('son de la planta 5: solo salen desde la planta 5, y su ficha dice lo que h
   assert.deepEqual(line('llamada-grabada'), ['Quien te hiere queda grabado 6 s: daño ×1,5']);
   // The recorded call is only good, so only the premium chest (and the shop) has it.
   assert.equal(ITEMS['llamada-grabada']!.quality, 'buena');
+  assert.deepEqual(line('hoja-reclamaciones'), ['Tras un golpe: 3 disparos persiguen al culpable']);
+  assert.deepEqual(line('cinco-estrellas'), ['Sala limpia sin daño: una estrella', 'Con 5 estrellas: +1 corazón', 'Un golpe borra las estrellas']);
+  assert.equal(ITEMS['cinco-estrellas']!.quality, 'buena');
   // All but the hash key give something and take something (as the design asks of half of them at least).
   for (const id of ['formulario-linea', 'tiempo-espera', 'codigo-caducado', 'cable-rizado']) {
     assert.ok(modifierLines(ITEMS[id]!.mod).some((l) => !l.good), `${id}: su pega está en la ficha`);
@@ -339,4 +344,149 @@ test('Llamada Grabada: quien te hiere (cuerpo a cuerpo o con sus balas) queda ma
   const d = setUp('grabada-3', false);
   hurtPlayer(d.w, 1, d.en.id, 1, 0);
   assert.equal(d.en.markT, undefined);
+});
+
+/** An enemy standing still at (x, y) of a bare room (it neither moves nor attacks). */
+function still(w: World, id: string, x: number, y: number): ReturnType<typeof spawnEnemy> {
+  const en = spawnEnemy(w.nextId++, ENEMIES[id]!, x, y);
+  en.state = 'idle';
+  en.until = 999;
+  w.enemies.push(en);
+  return en;
+}
+
+test('Hoja de Reclamaciones: tras un golpe, los tres disparos siguientes persiguen a quien te ha dado (aunque apuntes a otro lado)', () => {
+  const w = bare('reclamacion', 'hoja-reclamaciones');
+  w.noDamage = false;
+  // The culprit is up and to the left; the toaster fires to the right.
+  const culprit = still(w, 'aspirador', w.player.x - 40, w.player.y - 90);
+  culprit.def = { ...culprit.def, hp: 9999 };
+  hurtPlayer(w, 1, culprit.id, 1, 0);
+  w.player.invulnerable = 99;
+  assert.ok(w.events.some((e) => e.type === 'complaint' && e.target === culprit.id && e.shots === 3));
+  const shots = [pull(w), pull(w), pull(w)];
+  for (const s of shots) for (const b of s) assert.equal(w.bullets.find((o) => o.id === b.id)?.chase, culprit.id);
+  assert.ok(!pull(w).some((b) => w.bullets.find((o) => o.id === b.id)?.chase !== undefined), 'el cuarto, ya no');
+  // They get there: the culprit takes damage although nobody aimed at it.
+  wait(w, 1.5);
+  assert.ok(culprit.damageTaken > 0, 'las balas dan la vuelta y le alcanzan');
+  // Without a culprit (a hit with no source), nothing to complain about.
+  const n = bare('reclamacion-nadie', 'hoja-reclamaciones');
+  n.noDamage = false;
+  hurtPlayer(n, 1, -1, 1, 0);
+  assert.equal(n.player.complaint, undefined);
+  // If the culprit is down before the shots, they fly straight.
+  const g = bare('reclamacion-baja', 'hoja-reclamaciones');
+  g.noDamage = false;
+  const gone = still(g, 'aspirador', g.player.x - 40, g.player.y - 90);
+  hurtPlayer(g, 1, gone.id, 1, 0);
+  g.enemies = [];
+  assert.ok(pull(g).every((b) => g.bullets.find((o) => o.id === b.id)?.chase === undefined));
+  // Without the item, no chasing.
+  const plain = bare('reclamacion-no');
+  plain.noDamage = false;
+  hurtPlayer(plain, 1, still(plain, 'aspirador', 60, 100).id, 1, 0);
+  assert.ok(pull(plain).every((b) => plain.bullets.find((o) => o.id === b.id)?.chase === undefined));
+});
+
+test('Ticket de Incidencia (Hoja de Reclamaciones + Llamada Grabada): las balas que persiguen al grabado le hacen la marca otra vez y se la renuevan', () => {
+  assert.deepEqual(SYNERGIES['ticket-incidencia']!.items, ['hoja-reclamaciones', 'llamada-grabada']);
+  /** The damage the first chasing pull does to the culprit (who sits right in the line of fire). */
+  const hit = (items: string[]): { took: number; mark: number } => {
+    const w = bare(`ticket-${items.join('-')}`, ...items);
+    w.noDamage = false;
+    const en = still(w, 'aspirador', w.player.x + 60, w.player.y - HAND_HEIGHT + 8);
+    en.def = { ...en.def, hp: 9999 };
+    hurtPlayer(w, 1, en.id, 1, 0);
+    w.player.invulnerable = 99;
+    if (en.markT) en.markT = 2;
+    pull(w);
+    for (let i = 0; i < ticks(0.5) && en.damageTaken === 0; i++) step(w, NO_INPUT);
+    return { took: en.damageTaken, mark: en.markT ?? 0 };
+  };
+  const recorded = hit(['llamada-grabada']);
+  const both = hit(['llamada-grabada', 'hoja-reclamaciones']);
+  assert.ok(both.took > 0);
+  assert.ok(Math.abs(both.took - recorded.took * 1.5) < 1e-6, `${both.took} frente a ${recorded.took}`);
+  assert.ok(both.mark > 5, 'el caso sigue abierto: la marca vuelve a sus 6 s');
+  assert.ok(recorded.mark < 2.1, 'sin la sinergia, la marca sigue bajando');
+  const w = bare('ticket-ficha', 'llamada-grabada', 'hoja-reclamaciones');
+  assert.ok(w.player.synergies.includes('ticket-incidencia'));
+});
+
+test('Buzón Lleno (Contestador + Cable Rizado): la repetición ondula, atraviesa a un enemigo y se graba cada 3 s', () => {
+  assert.deepEqual(SYNERGIES['buzon-lleno']!.items, ['contestador', 'cable-rizado']);
+  const w = bare('buzon', 'contestador', 'cable-rizado');
+  assert.ok(w.player.synergies.includes('buzon-lleno'));
+  pull(w);
+  wait(w, 0.55);
+  const echoes = w.bullets.filter((b) => b.echo);
+  assert.ok(echoes.length > 0);
+  for (const b of echoes) {
+    assert.ok(b.wave, 'ondula');
+    assert.equal(b.pierce, 1, 'atraviesa a uno');
+  }
+  // Recorded again at 3 s, not 4.
+  wait(w, 2.5);
+  pull(w);
+  assert.ok(wait(w, 0.6).some((e) => e.type === 'echo' && e.played), 'a los 3 s graba otra vez');
+  // The machine alone: no piercing playback, and still every 4 s.
+  const alone = bare('buzon-solo', 'contestador');
+  pull(alone);
+  wait(alone, 0.55);
+  assert.ok(alone.bullets.filter((b) => b.echo).every((b) => !b.pierce));
+  wait(alone, 2.5);
+  pull(alone);
+  assert.ok(!wait(alone, 0.6).some((e) => e.type === 'echo' && e.played), 'sin el cable, a los 3 s aún no');
+});
+
+test('Valoración de Cinco Estrellas: una estrella por sala limpia sin daño; con cinco, +1 corazón y vuelta a cero; un golpe las borra', () => {
+  const w = createWorld({ seed: 'estrellas', floor: true, level: 4 });
+  w.noDamage = true;
+  giveItem(w, 'cinco-estrellas');
+  const max = w.player.def.maxHp;
+  const combats = w.floor!.layout.rooms.filter((r) => r.kind === 'combat');
+  assert.ok(combats.length >= 5);
+  const stars: number[] = [];
+  for (let i = 0; i < 4; i++) {
+    clearCombatRoom(w, i);
+    stars.push(w.player.stars ?? 0);
+  }
+  assert.deepEqual(stars, [1, 2, 3, 4]);
+  // A hit wipes them (and says so).
+  w.noDamage = false;
+  w.player.invulnerable = 0;
+  hurtPlayer(w, 1, -1, 1, 0);
+  assert.equal(w.player.stars, 0);
+  assert.ok(w.events.some((e) => e.type === 'stars' && e.stars === 0 && e.was === 4));
+  // The room where the toaster was hurt gives no star.
+  w.noDamage = true;
+  w.player.starsHurt = true;
+  const fr = combats[4]!;
+  enterRoom(w, fr.id, fr.doors[0]!.dir);
+  w.player.starsHurt = true;
+  for (let i = 0; i < ticks(4) && w.doorsShut; i++) {
+    for (const en of w.enemies) en.damageTaken = en.def.hp;
+    step(w, NO_INPUT);
+  }
+  assert.equal(w.player.stars ?? 0, 0, 'la sala del golpe no da estrella');
+  // Five clean rooms in a row (on a fresh floor): one more heart, filled, and back to zero.
+  const f = createWorld({ seed: 'estrellas', floor: true, level: 4 });
+  f.noDamage = true;
+  giveItem(f, 'cinco-estrellas');
+  const hpBefore = f.player.hp;
+  let paid = 0;
+  for (let i = 0; i < 5; i++) {
+    clearCombatRoom(f, i);
+    paid += f.events.filter((e) => e.type === 'stars' && e.paid === true).length;
+  }
+  assert.equal(paid, 1);
+  assert.equal(f.player.stars, 0);
+  assert.equal(f.player.def.maxHp, max + 2);
+  assert.equal(f.player.hp, hpBefore + 2);
+  // Without the item, no stars.
+  const plain = createWorld({ seed: 'estrellas', floor: true, level: 4 });
+  plain.noDamage = true;
+  clearCombatRoom(plain);
+  assert.equal(plain.player.stars, undefined);
 });

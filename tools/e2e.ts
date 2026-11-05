@@ -748,6 +748,30 @@ try {
   await shot('52c-contestador-grabada.png');
   console.log('Planta 5: el Contestador repite el disparo, el Número de Turno avanza y la Llamada Grabada marca al enemigo.');
 
+  // M11 (6b2): the complaint form. The toaster fires away from the enemy that hurt it and the pink
+  // copies turn round after it; over the toaster, the five-star rating counts a star.
+  await page.goto(`${url}?semilla=e2e-reclamacion&sala=ventanillas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.holdT = 60;
+    for (const id of ['hoja-reclamaciones', 'cinco-estrellas']) g.giveItem(id); })()`);
+  await page.waitForTimeout(900);
+  const culprit = await page.evaluate<{ x: number; y: number; px: number; py: number }>(`(() => { const w = window.__GE__.scene.world; const p = w.player;
+    const e = w.enemies.filter((o) => o.state !== 'lurk').sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+    p.x = e.x > w.room.w / 2 ? e.x - 200 : e.x + 200; p.y = w.room.h - 70;
+    w.player.complaint = { target: e.id, left: 3 };
+    window.__GE__.scene.handleEvents([{ type: 'complaint', target: e.id, shots: 3, x: e.x, y: e.y }]);
+    return { x: e.x, y: e.y - 14, px: p.x, py: p.y }; })()`);
+  await page.waitForTimeout(200);
+  // Straight away from it, to the side.
+  await aimAt(culprit.px + (culprit.px > culprit.x ? 160 : -160), culprit.py + 30);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const p = s.world.player; s.handleEvents([{ type: 'stars', stars: 3, need: 5, x: p.x, y: p.y - 10 }]); })()`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.chase !== undefined && b.age > 0.22)", undefined, { timeout: 2000 });
+  await page.mouse.up();
+  await shot('52d-hoja-reclamaciones.png');
+  console.log('Planta 5: la Hoja de Reclamaciones manda las balas tras quien te ha dado y la Valoración cuenta estrellas.');
+
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
   await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);

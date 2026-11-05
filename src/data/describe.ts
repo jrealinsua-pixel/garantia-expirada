@@ -88,6 +88,14 @@ export function modifierLines(m: Modifier): EffectLine[] {
   }
   if (k?.echo) out.push({ text: `Cada ${k.echo.every} s, un disparo se repite solo (daño ×${String(k.echo.mul).replace('.', ',')})`, good: true });
   if (k?.recorded) out.push({ text: `Quien te hiere queda grabado ${k.recorded.time} s: daño ×${String(k.recorded.mul).replace('.', ',')}`, good: true });
+  if (k?.complaint) out.push({ text: `Tras un golpe: ${k.complaint.shots} disparos persiguen al culpable`, good: true });
+  if (k?.escalate) out.push({ text: 'Las que persiguen al grabado: marca doble', good: true });
+  if (k?.echoPierce) out.push({ text: `La repetición atraviesa ${k.echoPierce === 1 ? 'a un enemigo' : `a ${k.echoPierce} enemigos`}`, good: true });
+  if (k?.stars) {
+    out.push({ text: 'Sala limpia sin daño: una estrella', good: true });
+    out.push({ text: `Con ${k.stars.need} estrellas: +${k.stars.hp / 2} ${k.stars.hp === 2 ? 'corazón' : 'corazones'}`, good: true });
+    out.push({ text: 'Un golpe borra las estrellas', good: false });
+  }
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

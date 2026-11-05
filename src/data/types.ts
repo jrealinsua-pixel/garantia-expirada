@@ -157,6 +157,23 @@ export interface Perks {
   echo?: { every: number; delay: number; mul: number };
   /** Llamada Grabada: the enemy that hurts the toaster is marked for `time` s and takes `mul` times the damage of its bullets (the biggest wins). */
   recorded?: { time: number; mul: number };
+  /**
+   * Hoja de Reclamaciones: after a hit from an enemy, the next `shots` pulls of the trigger chase it
+   * (every pellet turns towards it at `turnDeg` degrees per second, from any distance; the most shots win).
+   */
+  complaint?: { shots: number; turnDeg: number };
+  /**
+   * Ticket de Incidencia: the chasing bullets that hit a marked enemy do the mark's damage once
+   * more on top, and open its mark again for its whole time.
+   */
+  escalate?: boolean;
+  /** Buzón Lleno: the Contestador's played-back bullets go through this many more enemies (they add up). */
+  echoPierce?: number;
+  /**
+   * Valoración de Cinco Estrellas: each combat room cleared unhurt gives a star; with `need`, the
+   * toaster gets `hp` more maximum life (filled) and the count starts again; a hit wipes the stars.
+   */
+  stars?: { need: number; hp: number };
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

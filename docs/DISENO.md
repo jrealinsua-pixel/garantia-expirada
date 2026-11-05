@@ -405,12 +405,22 @@ cambian cómo se juega y ninguno sube una estadística más de un 30 %.
 | Tiempo de Espera Estimado | Menos de un minuto. Desde hace una hora. | Espera entre volteretas ×0,75, velocidad ×0,95 |
 | Código Promocional Caducado | Válido hasta ayer, como todos. | Los enemigos sueltan un cupón más una de cada cuatro veces; 3 de cada 10 cofres de premio (los de las salas de combate) han caducado y no salen («Promoción caducada») |
 
-Sinergias de la planta 5 (a medir en la (6b)): **Ticket de Incidencia** (Hoja de Reclamaciones +
+Sinergias de la planta 5 (M11 6b2, medidas): **Ticket de Incidencia** (Hoja de Reclamaciones +
 Llamada Grabada: «Su caso ha sido escalado. Muy arriba. Sin respuesta.»; las balas que persiguen
-al marcado le hacen el daño de la marca) y **Buzón Lleno** (Contestador Automático + Cable de
-Teléfono Rizado: «No se pueden dejar más mensajes. Se dejan igual.»; el eco también ondula y
-atraviesa a un enemigo). Indirecta: el Número de Turno con el Formulario en Línea (cargador grande
-mientras sube el daño de la espera).
+al grabado le hacen la marca otra vez, ×1,5 sobre el ×1,5, y cada una le renueva los 6 s de la
+marca: el caso no se cierra nunca) y **Buzón Lleno** (Contestador Automático + Cable de Teléfono
+Rizado: «No se pueden dejar más mensajes. Se dejan igual.»; el eco ya ondulaba con el cable, y con
+la sinergia atraviesa a un enemigo y se graba cada 3 s en vez de cada 4).
+La Hoja de Reclamaciones apunta a quien te ha herido (cuerpo a cuerpo o con sus balas): los tres
+disparos siguientes, con todas sus balas, giran hacia él (540° por segundo, desde cualquier
+distancia) y salen rosas con un rastro de papel; si cae antes, vuelan rectos. La Valoración de
+Cinco Estrellas cuenta las salas de combate limpias sin un golpe; la quinta da un corazón de vida
+máxima, lleno (si ya no caben más, cura uno), y vuelta a empezar.
+Indirecta: el diseño proponía el Número de Turno con el Formulario en Línea, pero medido es solo el
+producto de los dos (daño hecho disparando 35 s seguidos con el Secador: turno ×1,050, formulario
+×1,000, la pareja ×1,046): los dos multiplican los mismos disparos y ninguno alimenta al otro.
+Descartada. En su lugar, el **Formulario en Línea con la Cinta Americana** (tapa: la cinta devuelve
+la recarga que el formulario alarga y se queda el cargador grande).
 
 Armas de la planta 5 (M11 6c), las dos primeras desde la planta 1; como las otras, cada una gana
 claramente en algo y pierde en otra cosa (`tests/armas.test.ts`, `npm run armas`):

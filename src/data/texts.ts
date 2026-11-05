@@ -43,6 +43,12 @@ export const TRIAL_END_LINE = 'Contrato no renovado';
 export const EXPIRED_LINE = 'Promoción caducada';
 /** Llamada Grabada (M11 6b1): over the enemy that hurt the toaster, now marked. */
 export const RECORDED_LINE = 'Llamada grabada';
+/** Hoja de Reclamaciones (M11 6b2): over the enemy that hurt the toaster, the complaint filed. */
+export const COMPLAINT_LINE = 'Reclamación presentada';
+/** Valoración de Cinco Estrellas (M11 6b2): a star earned, the heart they pay, or the stars wiped by a hit. */
+export const starsLine = (stars: number, need: number): string => `Valoración: ${stars} de ${need}`;
+export const STARS_PAID_LINE = 'Cinco estrellas: +1 corazón';
+export const STARS_LOST_LINE = 'Valoración retirada';
 /** Número de Turno (M11 6b1): over the toaster each time the queue moves on (it never gets to the 87). */
 export const queueLine = (level: number, top: boolean): string => (top ? 'Siguiente, por favor' : `Van por el ${12 + level}`);
 export const punchLine = (secs: number): string => `Fichado: 0:${String(Math.floor(secs)).padStart(2, '0')}`;

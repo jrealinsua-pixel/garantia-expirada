@@ -99,4 +99,21 @@ export const SYNERGIES: Record<string, SynergyDef> = {
     // The sticky note's bullet always splits, and its pieces keep the double damage.
     mod: { id: 'cadena-correos', perks: { chain: true } },
   },
+  // M11 (6b2): the complaint form and the recorded call; the answering machine and the curly cord.
+  'ticket-incidencia': {
+    id: 'ticket-incidencia',
+    name: 'Ticket de Incidencia',
+    text: 'Su caso ha sido escalado. Muy arriba. Sin respuesta.',
+    items: ['hoja-reclamaciones', 'llamada-grabada'],
+    // The complaint's chasing bullets hit the recorded caller with the mark twice over, and keep it on the record.
+    mod: { id: 'ticket-incidencia', perks: { escalate: true } },
+  },
+  'buzon-lleno': {
+    id: 'buzon-lleno',
+    name: 'Buzón Lleno',
+    text: 'No se pueden dejar más mensajes. Se dejan igual.',
+    items: ['contestador', 'cable-rizado'],
+    // The playback goes through one enemy, and the machine records every 3 s instead of 4.
+    mod: { id: 'buzon-lleno', perks: { echoPierce: 1, echo: { every: 3, delay: 0.5, mul: 0.6 } } },
+  },
 };

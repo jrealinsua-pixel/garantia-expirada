@@ -95,6 +95,7 @@ export function perksOf(mods: readonly Modifier[]): Required<Perks> {
     urgent: 1, replyAll: { chance: 0, count: 0, mul: 0 }, chain: false, fullHpCharge: 0,
     chargeMul: 1, expiredChests: 0,
     queue: { start: 1, step: 0, every: 1, max: 1 }, echo: { every: 0, delay: 0, mul: 0 }, recorded: { time: 0, mul: 1 },
+    complaint: { shots: 0, turnDeg: 0 }, escalate: false, echoPierce: 0, stars: { need: 0, hp: 0 },
   };
   for (const m of mods) {
     out.charge += m.perks?.charge ?? 0;
@@ -127,6 +128,12 @@ export function perksOf(mods: readonly Modifier[]): Required<Perks> {
     if (ec && (out.echo.every === 0 || ec.every < out.echo.every)) out.echo = { ...ec };
     const rc = m.perks?.recorded;
     if (rc && rc.mul > out.recorded.mul) out.recorded = { ...rc };
+    const cp = m.perks?.complaint;
+    if (cp && cp.shots > out.complaint.shots) out.complaint = { ...cp };
+    if (m.perks?.escalate) out.escalate = true;
+    out.echoPierce += m.perks?.echoPierce ?? 0;
+    const st = m.perks?.stars;
+    if (st && (out.stars.need === 0 || st.need < out.stars.need)) out.stars = { ...st };
   }
   out.coupons = Math.min(1, out.coupons);
   out.shrug = Math.min(SHRUG_MAX, out.shrug);

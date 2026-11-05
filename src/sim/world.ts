@@ -90,6 +90,11 @@ export interface Player {
   /** Contestador Automático (Perks.echo): seconds before the next shot is recorded, and the shot waiting to be played back. */
   echoCd?: number;
   echo?: { t: number; aim: number };
+  /** Hoja de Reclamaciones (Perks.complaint): the enemy that last hurt the toaster, and the pulls left that chase it. */
+  complaint?: { target: number; left: number };
+  /** Valoración de Cinco Estrellas (Perks.stars): stars earned so far, and whether this room has hurt the toaster. */
+  stars?: number;
+  starsHurt?: boolean;
   /**
    * Mascota Virtual (Perks.pet): how fed it is (0 to its max), and whether the toaster has been hurt
    * since the last combat room was cleared (then clearing one does not feed it).
@@ -253,6 +258,9 @@ export interface Bullet {
   from?: number;
   /** Player bullets: the Contestador Automático's playback of a shot (its damage is already scaled). */
   echo?: boolean;
+  /** Player bullets: Hoja de Reclamaciones, the enemy it chases and how hard it turns (degrees per second). */
+  chase?: number;
+  chaseTurn?: number;
   /**
    * Height above the floor it flies at (px). Walls and props stop it where its shadow, h px
    * below, meets them: in the three-quarter view a bullet flying along the back wall is drawn
@@ -552,6 +560,10 @@ export type SimEvent =
   | { type: 'echo'; played: boolean; x: number; y: number; angle: number; weapon: string }
   /** Llamada Grabada: the enemy that hurt the toaster is marked. */
   | { type: 'recorded'; target: number; x: number; y: number; time: number }
+  /** Hoja de Reclamaciones: the complaint is filed against `target` (`shots` pulls will chase it). */
+  | { type: 'complaint'; target: number; shots: number; x: number; y: number }
+  /** Valoración de Cinco Estrellas: a star earned (`stars` of `need`), the heart they pay (`paid`), or the stars wiped by a hit (`stars` 0, `was`). */
+  | { type: 'stars'; stars: number; need: number; x: number; y: number; paid?: boolean; was?: number }
   /** Contrato en Prácticas: up a floor, and the contract is over (the item has left the inventory). */
   | { type: 'trialEnd'; item: string; x: number; y: number }
   | { type: 'empty' }
@@ -1162,6 +1174,8 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.room = floorRoomOf(f, id);
   // A recorded shot is not played back in the next room.
   delete w.player.echo;
+  // Valoración de Cinco Estrellas: each room is rated on its own.
+  w.player.starsHurt = false;
   w.bullets = [];
   w.emitters = [];
   w.frost = [];
@@ -1865,6 +1879,12 @@ function updateEcho(w: World): void {
       ...shotBehaviour(def.bullets),
       echo: true,
     });
+    // Buzón Lleno: the playback goes through enemies too.
+    const extra = playerPerks(p).echoPierce;
+    if (extra > 0) {
+      const b = w.bullets[w.bullets.length - 1]!;
+      b.pierce = (b.pierce ?? 0) + extra;
+    }
   }
   w.events.push({ type: 'echo', played: true, x: mx, y: my, angle: aim, weapon: def.id });
 }
@@ -1915,6 +1935,8 @@ function updateWeapon(w: World, input: Input): void {
   // Pósit de Urgente: the first shot after a roll (every pellet of it).
   const urgent = p.urgent ? playerPerks(p).urgent : 1;
   delete p.urgent;
+  // Hoja de Reclamaciones: this pull chases whoever hurt the toaster, while it is still there.
+  const chase = complaintTarget(w);
   for (let i = 0; i < def.pellets; i++) {
     const a = p.aim + ((w.rng.range(-1, 1) * def.spreadDeg) / 180) * Math.PI;
     // A critical hit is decided when the bullet leaves the barrel (no roll without the item).
@@ -1938,6 +1960,7 @@ function updateWeapon(w: World, input: Input): void {
       weapon: def.id,
       ...shotBehaviour(def.bullets),
       ...(isCrit ? { crit: true } : {}),
+      ...(chase ? { chase: chase.target, chaseTurn: playerPerks(p).complaint.turnDeg } : {}),
     });
     if (urgent > 1) {
       const b = w.bullets[w.bullets.length - 1]!;
@@ -1954,6 +1977,7 @@ function updateWeapon(w: World, input: Input): void {
   p.vx -= Math.cos(p.aim) * def.recoil;
   p.vy -= Math.sin(p.aim) * def.recoil;
   w.events.push({ type: 'shot', x: mx, y: my, angle: p.aim, weapon: def.id, ...(lastOne ? { limited: true } : {}), ...(urgent > 1 ? { urgent: true } : {}) });
+  if (chase && --chase.left <= 0) delete p.complaint;
   // Contestador Automático: when it is ready, this shot is recorded to be played back.
   const echo = playerPerks(p).echo;
   if (echo.every > 0 && (p.echoCd ?? 0) <= 0 && !p.echo) {
@@ -1990,8 +2014,14 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
     // Homing: it turns towards the player (towards its body, not its feet) for a while.
     let homing = !!b.homing && b.age < b.homing.time && !w.over;
     if (homing) turnTowards(b, w.player.x, w.player.y - PLAYER_HURT_Y, b.homing!.turnDeg);
+    // Hoja de Reclamaciones: straight for the enemy it chases, wherever it is (until it is down or hit).
+    const chased = b.chase !== undefined && !b.stuck ? chaseTarget(w, b) : null;
+    if (chased) {
+      turnTowards(b, chased.x, chased.y, b.chaseTurn ?? 0);
+      homing = true;
+    }
     // A player bullet that seeks (an item): towards the nearest enemy in range it has not hit yet.
-    if (b.seek && !b.stuck && b.age - (b.seekFrom ?? 0) < b.seek.time) {
+    else if (b.seek && !b.stuck && b.age - (b.seekFrom ?? 0) < b.seek.time) {
       const t = seekTarget(w, b);
       if (t) {
         turnTowards(b, t.x, t.y, b.seek.turnDeg);
@@ -2058,7 +2088,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             }
             // A boss between phases shrugs bullets off (they still stop on it); a shredder's bin takes double.
             const back = side === 'back' && en.def.brain.kind === 'shredder' ? en.def.brain.backMul : 1;
-            const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en) * back * markScale(en);
+            const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en) * back * markScale(en) * escalateScale(w, b, en);
             en.hitT = damage > 0 ? 0.12 : 0.04;
             en.damageTaken += damage;
             en.lastHit = angle;
@@ -2254,6 +2284,28 @@ function feedPet(w: World): void {
   if (pet.max <= 0 || hurt || (p.pet ?? 0) >= pet.max) return;
   p.pet = (p.pet ?? 0) + 1;
   w.events.push({ type: 'pet', level: p.pet, max: pet.max, x: p.x, y: p.y - PLAYER_HURT_Y });
+}
+
+/**
+ * Valoración de Cinco Estrellas, at a combat room cleared: a star if the toaster went through it
+ * unhurt; with all of them, more maximum life (filled; at the top of the hearts, it heals instead)
+ * and the count starts again.
+ */
+function rateService(w: World): void {
+  const p = w.player;
+  const st = playerPerks(p).stars;
+  const hurt = !!p.starsHurt;
+  p.starsHurt = false;
+  if (st.need <= 0 || hurt) return;
+  p.stars = (p.stars ?? 0) + 1;
+  const paid = p.stars >= st.need;
+  if (paid) {
+    p.stars = 0;
+    const before = p.def.maxHp;
+    addModifier(w, { id: 'cinco-estrellas-corazon', stats: [{ stat: 'maxHp', add: st.hp }] });
+    if (p.def.maxHp === before) p.hp = Math.min(p.def.maxHp, p.hp + st.hp);
+  }
+  w.events.push({ type: 'stars', stars: paid ? st.need : p.stars, need: st.need, x: p.x, y: p.y - PLAYER_HURT_Y, ...(paid ? { paid: true } : {}) });
 }
 
 /** Turns a bullet's direction towards (x, y), at most `turnDeg` degrees per second. */
@@ -2921,6 +2973,13 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
   const extra = covered > 0 ? { covered, shield: p.shield, ...(bySurge > 0 ? { surge: p.surge } : {}) } : {};
   w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...extra });
   recordCaller(w, source);
+  fileComplaint(w, source);
+  // Valoración de Cinco Estrellas: a hit wipes the stars (and this room will not give one).
+  p.starsHurt = true;
+  if ((p.stars ?? 0) > 0) {
+    w.events.push({ type: 'stars', stars: 0, need: playerPerks(p).stars.need, x: p.x, y: p.y - PLAYER_HURT_Y, was: p.stars });
+    p.stars = 0;
+  }
   // Mascota Virtual: a hit and it is back to square one (and this room will not feed it).
   p.petHurt = true;
   if ((p.pet ?? 0) > 0) {
@@ -2970,6 +3029,47 @@ export function takenScale(en: Enemy): number {
 /** Llamada Grabada: what a marked enemy takes from the player's bullets (1 when unmarked). */
 export function markScale(en: Enemy): number {
   return (en.markT ?? 0) > 0 ? (en.markMul ?? 1) : 1;
+}
+
+/**
+ * Ticket de Incidencia: a chasing bullet that hits the enemy it chases while it is marked does the
+ * mark once more, and the mark starts again (1 for any other bullet).
+ */
+function escalateScale(w: World, b: Bullet, en: Enemy): number {
+  if (b.chase !== en.id || (en.markT ?? 0) <= 0 || !playerPerks(w.player).escalate) return 1;
+  en.markT = Math.max(en.markT ?? 0, playerPerks(w.player).recorded.time);
+  return en.markMul ?? 1;
+}
+
+/** Hoja de Reclamaciones: the complaint still open (its enemy is still standing), or nothing. */
+function complaintTarget(w: World): { target: number; left: number } | null {
+  const c = w.player.complaint;
+  if (!c) return null;
+  const en = w.enemies.find((o) => o.id === c.target);
+  if (!en || isDead(en) || en.state === 'dying' || en.state === 'gone') {
+    delete w.player.complaint;
+    return null;
+  }
+  return c;
+}
+
+/** The body of the enemy a complaint bullet chases, if it is still standing and not hit by it yet. */
+function chaseTarget(w: World, b: Bullet): { x: number; y: number } | null {
+  if (b.hits?.includes(b.chase!)) return null;
+  const en = w.enemies.find((o) => o.id === b.chase);
+  if (!en || isDead(en) || en.state === 'gone') return null;
+  const hb = dummyHurtBox(en);
+  return { x: hb.x + hb.w / 2, y: hb.y + hb.h / 2 };
+}
+
+/** Hoja de Reclamaciones: the enemy `source` has hurt the toaster; the next pulls go after it. */
+function fileComplaint(w: World, source: number): void {
+  const c = playerPerks(w.player).complaint;
+  if (c.shots <= 0 || source < 0) return;
+  const en = w.enemies.find((o) => o.id === source);
+  if (!en || isDead(en) || en.state === 'dying') return;
+  w.player.complaint = { target: en.id, left: c.shots };
+  w.events.push({ type: 'complaint', target: en.id, shots: c.shots, x: en.x, y: en.y });
 }
 
 /** Llamada Grabada: the enemy `source` (an instance id; -1 for none) has hurt the toaster and is marked. */
@@ -3287,6 +3387,7 @@ function updateRestock(w: World): void {
     // Emptying the test room counts as clearing a room.
     chargeActive(w);
     feedPet(w);
+    rateService(w);
   }
 }
 
@@ -3297,6 +3398,7 @@ function updateDoors(w: World): void {
     w.events.push({ type: 'doors', shut: false });
     chargeActive(w);
     feedPet(w);
+    rateService(w);
     punchOut(w);
     // The turbo lasts until the next combat room is cleared (this one, if it was already on).
     if (w.player.turbo) {

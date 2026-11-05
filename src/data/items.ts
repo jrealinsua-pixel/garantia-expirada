@@ -465,6 +465,27 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // The enemy that hurts the toaster is marked for 6 s and takes ×1.5 from its bullets.
     mod: { id: 'llamada-grabada', perks: { recorded: { time: 6, mul: 1.5 } } },
   },
+  // M11 (6b2).
+  'hoja-reclamaciones': {
+    id: 'hoja-reclamaciones',
+    name: 'Hoja de Reclamaciones',
+    description: 'Por triplicado. La copia rosa no la lee nadie.',
+    sprite: 'objeto-hoja-reclamaciones',
+    level: 5,
+    // After a hit from an enemy, the next three pulls of the trigger chase it down.
+    mod: { id: 'hoja-reclamaciones', perks: { complaint: { shots: 3, turnDeg: 540 } } },
+  },
+  'cinco-estrellas': {
+    id: 'cinco-estrellas',
+    name: 'Valoración de Cinco Estrellas',
+    description: 'Obligatoria para cobrar.',
+    sprite: 'objeto-cinco-estrellas',
+    level: 5,
+    // Only good: a heart that has to be earned, five clean rooms in a row.
+    quality: 'buena',
+    // A star per combat room cleared unhurt; five of them, one more heart (and the count starts again).
+    mod: { id: 'cinco-estrellas', perks: { stars: { need: 5, hp: 2 } } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

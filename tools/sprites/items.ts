@@ -1034,6 +1034,45 @@ export const ITEM_GRIDS: Record<string, readonly string[]> = {
     '.........KKKK...',
     '................',
   ],
+  // The complaint form (M11 6b2): three sheets fanned out (white, yellow and the pink copy on top
+  // that nobody reads), lines to fill in and the red stamp of «recibido».
+  'hoja-reclamaciones': [
+    '................',
+    '.....KKKKKKKKK..',
+    '....KKKKKKKKKYK.',
+    '...KPPPPPPPKYYK.',
+    '...KPKKKKKPKYYK.',
+    '...KPPPPPPPKYWK.',
+    '...KPDDDDDPKYWK.',
+    '...KPPPPPPPKYWK.',
+    '...KPDDDDPPKWWK.',
+    '...KPPPPPPPKWWK.',
+    '...KPDDDDDPKWWK.',
+    '...KPPPPRRPKKK..',
+    '...KPPPRPPRK....',
+    '...KPPPPRRPK....',
+    '...KKKKKKKKK....',
+    '................',
+  ],
+  // The five-star rating: the gold star sticker they ask you to give them (outlined like a stamp).
+  'cinco-estrellas': [
+    '................',
+    '.......KK.......',
+    '......KYYK......',
+    '......KWYK......',
+    '.....KWYYYK.....',
+    '.KKKKKYYYYKKKKK.',
+    '.KYWYYYYYYYYYyK.',
+    '..KYYYYYYYYYyK..',
+    '...KYYYYYYYyK...',
+    '....KYYYYYyK....',
+    '....KYYYYYyK....',
+    '...KYYYKKYYyK...',
+    '...KYYK..KYyK...',
+    '..KYYK....KyyK..',
+    '..KKK......KKK..',
+    '................',
+  ],
 };
 
 export function makeItem(name: string): Canvas {
