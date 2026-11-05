@@ -215,6 +215,42 @@
     "frameH": 52,
     "frames": 1
   },
+  "centralita": {
+    "file": "centralita.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 14
+  },
+  "bala-clavija": {
+    "file": "bala-clavija.png",
+    "frameW": 12,
+    "frameH": 6,
+    "frames": 1
+  },
+  "nota-espera": {
+    "file": "nota-espera.png",
+    "frameW": 9,
+    "frameH": 10,
+    "frames": 2
+  },
+  "mostrador-bajo": {
+    "file": "mostrador-bajo.png",
+    "frameW": 72,
+    "frameH": 30,
+    "frames": 4
+  },
+  "mostrador-bajo-v": {
+    "file": "mostrador-bajo-v.png",
+    "frameW": 24,
+    "frameH": 82,
+    "frames": 1
+  },
+  "zona-menu": {
+    "file": "zona-menu.png",
+    "frameW": 72,
+    "frameH": 48,
+    "frames": 6
+  },
   "maniqui": {
     "file": "maniqui.png",
     "frameW": 32,

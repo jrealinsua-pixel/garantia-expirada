@@ -18,6 +18,7 @@ import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
 import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
 import * as DR from './director.ts';
+import * as CT from './centralita.ts';
 import * as H from './mostrador.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
@@ -97,6 +98,16 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // The Sala de Juntas: a partition that slides (0) and where it is going (1); the long table.
     'mampara-movil': { canvas: strip(DR.makePartitionFrames()), frameW: DR.PARTITION_W, frameH: DR.PARTITION_H },
     'mesa-juntas': one(DR.makeBoardTable()),
+    // Floor 5's boss (M11 5a): centralita.ts CENTRALITA_FRAMES names each frame.
+    centralita: { canvas: strip(CT.makeCentralitaFrames()), frameW: CT.CENTRALITA_W, frameH: CT.CENTRALITA_H },
+    'bala-clavija': one(CT.makePlugBullet()),
+    // The hold music: 0 a quaver, 1 two beamed notes.
+    'nota-espera': { canvas: strip(CT.makeHoldNotes()), frameW: 9, frameH: 10 },
+    // Her room's low counters: one frame per department (CT.DEPARTMENTS), and the vertical one.
+    'mostrador-bajo': { canvas: strip(CT.makeLowCounterFrames()), frameW: CT.LOW_COUNTER_W, frameH: CT.LOW_COUNTER_H },
+    'mostrador-bajo-v': one(CT.makeLowCounterV()),
+    // The voice menu's zones on the floor: 0-2 «Pulse 1-3» waiting, 3-5 the same with bullets coming.
+    'zona-menu': { canvas: strip(CT.makeMenuZoneFrames()), frameW: CT.ZONE_W, frameH: CT.ZONE_H },
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
     'arma-grapadora': one(miniStapler()),

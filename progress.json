@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T22:25:00+01:00",
+  "actualizado": "2026-11-05T22:58:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 55,
     "plantillas_sala": 87,
-    "tests": 660,
-    "tests_ok": 660,
+    "tests": 667,
+    "tests_ok": 667,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 24586
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T22:58:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (5a): los sprites de la Centralita (un cuadro de conexiones de teca con pilotos por ojos, un altavoz que sonríe y los cables por brazos; 14 fotogramas), sus clavijas y notas de la música de espera, los mostradores bajos de los cuatro departamentos y las zonas «Pulse 1, 2, 3» del menú de voz.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T22:25:00+01:00",
       "hito": "M11",
@@ -1022,20 +1028,20 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/centralita-sala.png",
+      "pie": "La Centralita en Atención al Cliente: habla («Para reclamaciones, pulse 3»), lanza clavijas y notas de la música de espera; en el suelo, las zonas del menú de voz (la 1 en espera, la 2 y la 3 con las balas encima) y los mostradores bajos de los departamentos"
+    },
+    {
+      "archivo": "capturas/centralita-sprites.png",
+      "pie": "La hoja de la Centralita: reposo, arrastrarse con los cables, hablar, lanzar una clavija; en la fase 3 sin clavijas, con los pilotos en rojo y los cables en alto; y muda, con los pilotos en blanco"
+    },
+    {
       "archivo": "capturas/atencion-reclamaciones.png",
       "pie": "Hoja de Reclamaciones: la tostadora dispara hacia el otro lado y la copia rosa da la vuelta tras quien la ha herido («Reclamación presentada»); encima, la Valoración va por 3 de 5 estrellas"
     },
     {
       "archivo": "capturas/atencion-secreta.png",
       "pie": "Grabaciones con Fines de Calidad, la secreta de la planta 5: en el suelo, el Registro de llamadas (todas acaban en la extensión 0)"
-    },
-    {
-      "archivo": "capturas/atencion-preferente.png",
-      "pie": "Cola Preferente (Oro, Plata y Resto): tres carriles entre dos mostradores largos; se cambia de carril por los extremos o por el centro"
-    },
-    {
-      "archivo": "capturas/atencion-formularios.png",
-      "pie": "Mesa de Formularios (Rellene en Mayúsculas): hileras de pupitres fijos y mesitas sueltas que se vuelcan para hacer trinchera"
     },
     {
       "archivo": "capturas/atencion-contestador.png",
@@ -1046,7 +1052,7 @@
       "pie": "Cable de Teléfono Rizado: las balas van en tirabuzón hacia los maniquíes; y donde debía haber un cofre, «Promoción caducada». Abajo, los cinco primeros objetos de la planta 5"
     }
   ],
-  "proximo": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y acabar la partida al vencer a su jefe; o los enemigos (4a)–(4d) o las armas (6c1)–(6c2).",
+  "proximo": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y acabar la partida al vencer a su jefe; o (5b) las fases 1 y 2 de la Centralita con su sala (2c2); o los enemigos (4a)–(4d) o las armas (6c1)–(6c2).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1056,7 +1062,7 @@
       "M9": 10,
       "M9b": 16,
       "M10": 0,
-      "M11": 21,
+      "M11": 20,
       "M12": 12,
       "M13": 14,
       "M14": 30,
@@ -1072,11 +1078,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 22:26",
-      "tarea": "M11 (5a): sprites de la Centralita, sus clavijas, notas, mostradores bajos y zonas del menú de voz (tools/sprites/centralita.ts, tools/sprites/build.ts, src/data/props.ts, public/assets/)",
-      "desde": "2026-11-05T22:26:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

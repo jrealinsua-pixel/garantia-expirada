@@ -432,7 +432,7 @@ aspecto). En partes, como M10:
   - [ ] (4c) Asistente Virtual (aprende: se escuda del lado desde el que le das).
   - [ ] (4d) Teléfono de Recepción (le pasa con un compañero: se cambia de sitio con otro).
 - Jefa: La Centralita. En partes:
-  - [ ] (5a) Sprites: el cuadro de conexiones (reposo, arrastrarse, hablar, sin clavijas, muda),
+  - [x] (5a) Sprites: el cuadro de conexiones (reposo, arrastrarse, hablar, sin clavijas, muda),
     las clavijas, las notas, los mostradores bajos y las zonas del menú de voz.
   - [ ] (5b) Fases 1 y 2 (el menú de voz, la música de espera, pasar a la tostadora de
     departamento), cartel y sonidos.

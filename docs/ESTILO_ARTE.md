@@ -303,3 +303,44 @@ arriba a la izquierda, manos grandes de 7 × 7 sin brazos), pero todo gris menos
   enfrente vacías asomando, el portátil con el gráfico bajando, la pila de carpetas del «Plan de
   Reestructuración», la jarra con un solo vaso (aforo: uno), el mando del proyector, el
   vade de piel y la placa dorada de su sitio, y el cerco de café de otro.
+
+### La Centralita, jefa de la planta 5 (`tools/sprites/centralita.ts`)
+
+La primera jefa sin piernas ni manos: un cuadro de conexiones antiguo del tamaño de un armario. Mismo
+lienzo que los otros jefes (72 × 76, todos los fotogramas sobre la misma línea de suelo) y la misma
+luz (tapa clara, cara lateral oscura a la izquierda, frente a la derecha), pero en lugar de manos
+lleva **los dos cables largos del pupitre como brazos**, con una clavija gorda en la punta.
+
+- **Mueble** de **teca barnizada** (de cuando una centralita era un mueble; marrón cálido, que se
+  despega del linóleo azul petróleo), sobre un zócalo oscuro rayado de arrastrarse. Cornisa con la
+  placa de latón ilegible; en el lado oscuro, un pósit amarillo («Vuelva a llamar más tarde»).
+- **Cara** en el panel de baquelita negra, rodeada de conectores con aro de latón y sus pilotos de
+  llamada (siempre hay alguno encendido: llamadas en espera; se turnan entre fotogramas). **Ojos**:
+  dos pilotos de cristal ámbar en bisel cromado, tapados por abajo en arco para que sonrían (^ ^).
+  **Boca**: el altavoz de tela con lamas, en forma de sonrisa de media luna con las comisuras
+  rizadas hacia arriba: la sonrisa de una voz grabada, la misma para todas las llamadas. Hablando,
+  la tela se abre y se aclara en el centro y salen arcos de sonido (dos tiempos).
+- **Pupitre** salido sobre las puertas, con la fila de clavijas de pie (rojas y negras, punta de
+  latón), las palancas y el disco de marcar. **Puertas** de cuarterones con su bocallave y, colgado
+  de un gancho, **el casco de la operadora, sin nadie dentro** (fue lo primero que sustituyó).
+- **Fase 3, sin clavijas**: el pupitre vacío (solo los agujeros), los pilotos en **rojo** con
+  párpados que bajan hacia el centro, la tela del altavoz rasgada (y sigue sonriendo), los cables en
+  alto con chispas cian en la punta. **Muda**: los pilotos en blanco, sin brillo, el altavoz a
+  oscuras y los cables caídos en el suelo con las clavijas negras: el momento de darle.
+- **Hoja `centralita`** (14 fotogramas, nombres en `CENTRALITA_FRAMES`): 0–1 reposo (pilotos de
+  llamada y cable que se mece); 2–5 arrastrarse (el cable de delante se estira, se clava en el
+  suelo, tira del mueble un píxel hacia delante con polvo detrás, y el de atrás empuja); 6–7
+  hablando; 8 lanzando una clavija con el cable en alto; 9–10 sin clavijas (cables arriba, en dos
+  tiempos); 11–12 arrastrándose sin clavijas; 13 muda.
+- **Balas**: la clavija (`bala-clavija`, 12 × 6) con funda **roja** de núcleo blanco, virola de
+  acero y un trozo de cordón, apuntando a la derecha; las notas de la música de espera
+  (`nota-espera`, 9 × 10, 2: corchea y dos semicorcheas unidas) en **cian** con núcleo blanco.
+- **Su sala**: los **mostradores bajos** (`mostrador-bajo`, 72 × 30, tres casillas, uno por
+  departamento: 1 Reclamaciones rojo con el timbre, 2 Facturación azul con la pila de impresos, 3
+  Averías amarillo con un auricular roto, 4 Bajas gris con el cartel de cerrado) con la misma
+  encimera que las ventanillas de la planta pero a la altura de la cintura y sin mampara, y su placa
+  de color con el número en el frente; el vertical (`mostrador-bajo-v`, 24 × 82, tres casillas de
+  largo). Sus cajas (`LOW_COUNTER_BOX`, `LOW_COUNTER_V_BOX`) las usará la sala en la (2c2). Las
+  **zonas del menú de voz** (`zona-menu`, 72 × 48, 6): rectángulos de esquinas redondeadas
+  translúcidos con «PULSE» y el número grande; 0–2 en espera (azul pálido, borde a trazos), 3–5 con
+  las balas encima (rojo, rayado en diagonal, borde continuo).
