@@ -15,6 +15,7 @@ import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, mak
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
+import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
 import * as H from './mostrador.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
@@ -69,6 +70,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'router-wifi': { canvas: strip(makeRouterFrames()), frameW: 72, frameH: 76 },
     // Its repeater: 0-1 on (the LED blinks), 2 unplugged.
     repetidor: { canvas: strip(makeRepetidorFrames()), frameW: 20, frameH: 24 },
+    // Floor 3's boss: 0-5 boxed, 6 boxed posing, 7-12 out of the box, 13 posing, 14-15 spinning.
+    'muneco-moda': { canvas: strip(makeMunecoFrames()), frameW: MUNECO_W, frameH: MUNECO_H },
+    // The tag on its box (muneco.ts TAG_ANCHOR): full price, −30 %, −50 %, −70 %.
+    'etiqueta-rebaja': { canvas: strip(makeTagFrames()), frameW: TAG_W, frameH: TAG_H },
+    // The box it breaks out of in phase 3, left in the room as an obstacle.
+    'caja-muneco': one(makeBrokenBox()),
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
     'arma-grapadora': one(miniStapler()),

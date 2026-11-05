@@ -154,3 +154,22 @@ rosa en menor medida; paredes ciruela `#291d2b`), igual de oscuro que las otras 
   las balas pasan por encima) y una **mesa de manualidades** de plástico amarillo con patas rojas.
   Las persianas, ciruela, con el rodapié de colores y una tira de luces de feria fundidas (solo
   queda una encendida, en rosa) (`persiana-*-3`).
+
+### El Muñeco de Moda, jefe de la planta 3 (`tools/sprites/muneco.ts`)
+
+- **Con caja** (fotogramas 0–6): caja de escaparate magenta desvaído en tres cuartos (cara
+  lateral a la izquierda con el código de barras), banda amarilla del logotipo con letras que no
+  dicen nada, ventana con el cartón estampado azul noche y estrellas rosas, y el muñeco aplastado
+  dentro: el pelo contra el borde de arriba, alambre de atar en la cintura, ojos azules de cristal
+  cansados, colorete y la sonrisa de anuncio. Brillo del plástico en diagonal. Pegatina
+  «¡Novedad!» tachada con rotulador y cinta con «Temporada anterior» garabateado. Manos grandes
+  de vinilo fuera de la caja. Al posar: guiño, mano arriba y destello en los dientes.
+- **Etiqueta de rebaja** (hoja aparte, 22×12): precio completo «99» en blanco, −30 % amarillo,
+  −50 % naranja y −70 % rojo con letras blancas; cada una asoma una esquina de la anterior. Va en
+  `TAG_ANCHOR` (esquina de abajo a la izquierda de la ventana), con el mismo `bob` que el cuerpo.
+- **Sin caja** (7–15): el mismo muñeco más grande y desatado: pelo encrespado a mechones, el
+  alambre en el cuello con la punta cortada, la cinta pegada en el pecho, cejas de rabia, ojos
+  muy abiertos con la pupila pequeña y una grieta en la comisura de tanto sonreír. Al girar: de
+  espaldas (la etiqueta «made in» asomando del cuello) y de frente con las manos abiertas.
+- **Caja rota** (56×64): vacía, sin ventana (trozos de plástico en el marco), el troquel con la
+  silueta del muñeco enseñando el cartón marrón, los alambres cortados colgando y el −70 % puesto.

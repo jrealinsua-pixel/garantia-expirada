@@ -125,6 +125,24 @@
     "frameH": 24,
     "frames": 3
   },
+  "muneco-moda": {
+    "file": "muneco-moda.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 16
+  },
+  "etiqueta-rebaja": {
+    "file": "etiqueta-rebaja.png",
+    "frameW": 22,
+    "frameH": 12,
+    "frames": 4
+  },
+  "caja-muneco": {
+    "file": "caja-muneco.png",
+    "frameW": 56,
+    "frameH": 64,
+    "frames": 1
+  },
   "maniqui": {
     "file": "maniqui.png",
     "frameW": 32,

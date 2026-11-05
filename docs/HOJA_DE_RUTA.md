@@ -342,7 +342,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [x] (4c) Cubo de Piezas (siembra el suelo de piezas que hacen daño al andar, no al rodar).
     - [x] (4d) Sobre Sorpresa (al romperlo, sorpresa: repetidos, cupones o el Muñequito Dorado).
   - Jefe: El Muñeco de Moda. En partes:
-    - [ ] (5a) Sprites: con caja (reposo, andar, posar), las etiquetas de rebaja, la caja rota y
+    - [x] (5a) Sprites: con caja (reposo, andar, posar), las etiquetas de rebaja, la caja rota y
       sin ella; y los Muñequitos Repetidos.
     - [ ] (5b) Fases 1 y 2 en la simulación (pasarela, rebajas y repetidos), cartel y sonidos.
     - [ ] (5c) Fase 3 (liquidación: la caja rota se queda como obstáculo, espirales de pegatinas).

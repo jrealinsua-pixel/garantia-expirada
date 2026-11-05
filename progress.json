@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T03:55:00+01:00",
+  "actualizado": "2026-11-05T04:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -137,6 +137,12 @@
     "lineas_codigo": 18814
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T04:20:00+01:00",
+      "hito": "M10",
+      "resumen": "Los sprites del Muñeco de Moda, el jefe de la Juguetería: dentro de su caja de escaparate (andando y posando), fuera de ella con el pelo encrespado (andando, posando y girando), las etiquetas de rebaja del −30 % al −70 % y la caja rota que deja en la sala.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T03:55:00+01:00",
       "hito": "M10",
@@ -824,16 +830,16 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/muneco-moda.png",
+      "pie": "El Muñeco de Moda (jefe de la planta 3), aún sin programar: en su caja con las etiquetas de rebaja, fuera de ella, girando, y la caja rota que deja; al lado, el Router a la misma escala"
+    },
+    {
       "archivo": "capturas/cadena-planta3.png",
       "pie": "Tras la planta 2, la partida sube a la Juguetería con la misma tostadora, sus 37 cupones y su ticket"
     },
     {
       "archivo": "capturas/jugueteria-secreta.png",
       "pie": "La sala secreta de la Juguetería, llena de juguetes retirados, con su documento en el suelo: un catálogo de Navidad interno"
-    },
-    {
-      "archivo": "capturas/sala-castillo.png",
-      "pie": "Castillo Hinchable (Desinflado por Seguridad): un castillo de estanterías con la puerta hacia abajo; a veces tiene ventanas"
     },
     {
       "archivo": "capturas/sala-circuito.png",
@@ -848,7 +854,7 @@
       "pie": "La Juguetería (planta 3): losetas de goma de puzle, casitas de muñecas cerradas por reformas, bombonas de helio que explotan y el Coche Teledirigido derrapando"
     }
   ],
-  "proximo": "M10 (5a), los sprites del Muñeco de Moda; después (5b) sus fases 1 y 2.",
+  "proximo": "M10 (5b), las fases 1 y 2 del Muñeco de Moda en la simulación (pasarela, rebajas y repetidos), con su cartel y sonidos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -874,11 +880,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 03:52",
-      "tarea": "M10 (5a) sprites del Muñeco de Moda (tools/sprites/)",
-      "desde": "2026-11-05T03:52:00+01:00"
-    }
-  ]
+  "en_curso": []
 }
