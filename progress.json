@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T09:25:00+01:00",
+  "actualizado": "2026-11-05T09:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 3,
     "armas": 3,
     "objetos": 35,
-    "plantillas_sala": 66,
+    "plantillas_sala": 71,
     "tests": 563,
     "tests_ok": 563,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 20712
+    "lineas_codigo": 20834
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T09:40:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (2c): las salas especiales de las Oficinas (Recepción, Sala de Material, Economato de Empresa, Papeles para Destruir con su acta de reunión y la Sala de Juntas).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T09:25:00+01:00",
       "hito": "M10",
@@ -896,6 +902,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/oficinas-secreta.png",
+      "pie": "Papeles para Destruir (Confidencial), la sala secreta de las Oficinas: archivadores hasta el techo y, en el claro, un acta del Comité de Dirección"
+    },
+    {
+      "archivo": "capturas/oficinas-entrada.png",
+      "pie": "Recepción (Firme Aquí, y Aquí, y Aquí), la entrada de las Oficinas: archivadores de impresos, ficus de plástico y dos mesas de visitas"
+    },
+    {
       "archivo": "capturas/minimapa-botin.png",
       "pie": "El minimapa marca lo que queda en cada sala: cofre, ticket, corazón, objeto o cupones, una marca por tipo aunque haya varios"
     },
@@ -908,19 +922,11 @@
       "pie": "Sala de Reuniones (Esto Podía Ser un Correo), una de las seis salas nuevas de las Oficinas: dos filas de mesas que se vuelcan para hacer trinchera"
     },
     {
-      "archivo": "capturas/plastilina-manualidades.png",
-      "pie": "Plastilina Mezclada con Bote de Purpurina (sinergia Manualidades): las balas se quedan pegadas en la pared 2,5 s como pegotes con purpurina que dañan y frenan a quien pase"
-    },
-    {
       "archivo": "capturas/oficinas-sala.png",
       "pie": "Las Oficinas (planta 4): moqueta gris, mamparas de cubículo con el calendario del año pasado, un archivador, un ficus de plástico, termos de café que explotan y la pizarra de objetivos bajando"
-    },
-    {
-      "archivo": "capturas/mando-vibracion.png",
-      "pie": "Mando con Vibración: cada golpe que recibe la tostadora suelta un corro de diez balas suyas"
     }
   ],
-  "proximo": "M10 planta 4 (2c): las salas especiales propias de las Oficinas. O M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro.",
+  "proximo": "M10 planta 4 (3): encadenar la planta 4 tras el Muñeco de Moda. O M10 (7): medir la planta 3 con el bot y ajustarla para que sea el muro.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -946,11 +952,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 09:25",
-      "tarea": "M10 planta 4 (2c): salas especiales de las Oficinas",
-      "desde": "2026-11-05T08:24:53.295Z"
-    }
-  ]
+  "en_curso": []
 }

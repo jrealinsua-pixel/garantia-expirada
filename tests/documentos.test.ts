@@ -18,7 +18,7 @@ function intoSecret(w: World): void {
 const docOf = (level: number): string => LORE.find((l) => 'secret' in l.source && l.source.secret === level)!.id;
 
 test('la sala secreta de cada planta guarda su documento en el suelo, en un sitio pisable', () => {
-  for (const level of [1, 2, 3]) {
+  for (const level of [1, 2, 3, 4]) {
     for (const seed of ['a', 'b', 'c', 'd']) {
       const w = createWorld({ seed: `doc-${seed}`, floor: true, level });
       w.noDamage = true;

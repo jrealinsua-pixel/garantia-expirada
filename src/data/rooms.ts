@@ -1195,7 +1195,7 @@ const FLOOR_3: RoomTemplate[] = [
 ];
 
 /**
- * Floor 4 (Oficinas, M10 planta 4 (2a) and (2b)): combat rooms of the offices over the shop floors. Its inner
+ * Floor 4 (Oficinas, M10 planta 4 (2a)–(2c)): the rooms of the offices over the shop floors. Its inner
  * walls are drawn as cubicle partitions (src/art/oficinas.ts), `c` as filing cabinets, `b` as coffee
  * urns (they blow up like the drums), `k` as plastic ficus and `v` as office desks that tip over.
  */
@@ -1476,6 +1476,118 @@ const FLOOR_4: RoomTemplate[] = [
       '########################',
     ],
   },
+  // ---------- Start, treasure, shop, secret, boss (floor 4) ----------
+  {
+    // Reception: the visitors' desks (they tip over, like any desk), the cabinets of forms and a ficus
+    // by the lift. Nothing in front of the doors.
+    id: 'entrada-oficinas',
+    kind: 'start',
+    level: 4,
+    name: 'Recepción (Firme Aquí, y Aquí, y Aquí)',
+    rows: [
+      '################',
+      '################',
+      '#cc..........kc#',
+      '#..............#',
+      '#...v......v...#',
+      '#..............#',
+      '#.......P......#',
+      '#..............#',
+      '#..k........c..#',
+      '#kc...........k#',
+      '################',
+    ],
+  },
+  {
+    // The stationery cupboard: shelves of cabinets along the back, the chests among them.
+    id: 'tesoro-oficinas',
+    kind: 'treasure',
+    level: 4,
+    name: 'Sala de Material (Pida Cita Previa)',
+    rows: [
+      '################',
+      '################',
+      '#cc.c......c.cc#',
+      '#..............#',
+      '#....*....*....#',
+      '#..............#',
+      '#.......*......#',
+      '#..............#',
+      '#..k........k..#',
+      '#ck..........kc#',
+      '################',
+    ],
+  },
+  {
+    // The company store: still served by the Caja de Autocobro, with the stock in cabinets.
+    id: 'tienda-oficinas',
+    kind: 'shop',
+    level: 4,
+    name: 'Economato de Empresa (Descuento en Nómina)',
+    rows: [
+      '####################',
+      '####################',
+      '#cc.c........$..ccc#',
+      '#..................#',
+      '#....s....s....s...#',
+      '#..................#',
+      '#..................#',
+      '#..................#',
+      '#..k...........k...#',
+      '#..................#',
+      '#..................#',
+      '#kc..............ck#',
+      '####################',
+    ],
+  },
+  {
+    // Papers to shred: cabinets piled up to the ceiling round a clearing, with the minutes in it.
+    id: 'secreta-oficinas',
+    kind: 'secret',
+    level: 4,
+    name: 'Papeles para Destruir (Confidencial)',
+    rows: [
+      '################',
+      '################',
+      '#cccc.....kcccc#',
+      '#cc..........cc#',
+      '#c.............#',
+      '#.......*......#',
+      '#..............#',
+      '#.............c#',
+      '#cc..........cc#',
+      '#cccb......bccc#',
+      '################',
+    ],
+  },
+  {
+    // La Sala de Juntas (docs/DISENO.md): the frosted glass partitions (cubicle partitions, for now)
+    // in two rows, with lanes clear from wall to wall between them (the Muñeco's catwalk until the
+    // Director arrives, M10 planta 4 (5)). The long table in the middle comes with the Director's
+    // sprites (5a): it has to stop bullets and is not a desk that tips over.
+    id: 'jefe-oficinas',
+    kind: 'boss',
+    level: 4,
+    name: 'Sala de Juntas (Aforo: Uno)',
+    rows: [
+      '##########################',
+      '##########################',
+      '#c......................c#',
+      '#........................#',
+      '#...........J............#',
+      '#........................#',
+      '#....###..........###....#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#....###..........###....#',
+      '#........................#',
+      '#k......................k#',
+      '#b......................b#',
+      '##########################',
+    ],
+  },
 ];
 
 export const ROOMS: Record<string, RoomTemplate> = {
@@ -1562,8 +1674,7 @@ export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
 
 /** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses the nearest floor's below. */
 export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1): RoomTemplate[] {
-  // The nearest floor below that has its own (floor 4 borrows the Juguetería's special rooms until
-  // it has its own, M10 planta 4 (2c)).
+  // The nearest floor below that has its own (every floor has all its kinds now; kept for the next).
   const floors = [FLOOR_1, FLOOR_2, FLOOR_3, FLOOR_4];
   for (let l = Math.min(level, floors.length); l >= 1; l--) {
     const own = floors[l - 1]!.filter((t) => t.kind === kind);

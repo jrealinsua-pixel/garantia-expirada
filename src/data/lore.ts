@@ -87,4 +87,15 @@ export const LORE: readonly LoreDoc[] = [
       'Firmado: El Muñeco de Moda, jefe de planta. Debajo, a rotulador y con otra letra: «el siguiente es usted».',
     ],
   },
+  {
+    id: 'acta-1',
+    kind: 'Acta de reunión',
+    title: 'Comité de Dirección · Punto 3',
+    source: { secret: 4 },
+    pages: [
+      'Asisten: Dirección, Recursos Inhumanos y Contabilidad. Excusa su ausencia el Servicio Técnico: «está reacondicionando».',
+      'Punto 3: el Servicio Técnico entrega 2.000 kilos de electrodomésticos reacondicionados. Se compran a peso y se apuntan como activos, a precio de nuevo.',
+      'Ruegos y preguntas: Contabilidad pregunta qué se reacondiciona exactamente. Se acuerda no volver a convocar a Contabilidad.',
+    ],
+  },
 ];

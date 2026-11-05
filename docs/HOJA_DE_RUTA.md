@@ -21,7 +21,7 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M7 · Pulido | hecho | Terminado el 29 a las 17:40 (en unas 12 sesiones) |
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
-| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y la 4 está partida en 18 tareas: quedan unas 19) |
+| M10 · Plantas 3 y 4 | 24 | Dos plantas como la 2 (el 5 de noviembre la 3 va casi entera y la 4 está partida en 18 tareas: quedan unas 18) |
 | M11 · Planta 5 | 13 | Una planta más dos armas |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
@@ -363,7 +363,7 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     archivadores, termos de café, ficus de plástico, mesas de oficina y persianas con «Reunión».
   - [x] (2a) Seis plantillas de combate propias de la planta 4, cada una con su idea y sus grupos.
   - [x] (2b) Seis plantillas de combate más.
-  - [ ] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Papeles para
+  - [x] (2c) Las salas especiales propias (Recepción, Sala de Material, Economato, Papeles para
     Destruir con su acta de reunión, y la Sala de Juntas del jefe).
   - [ ] (3) Encadenar: tras el Muñeco se baja a la planta 4, con todo lo que se lleva; hasta que
     llegue el Director, el Muñeco pelea en la Sala de Juntas.
@@ -374,7 +374,8 @@ jefes y menos plantas ganadas), y los números están en la bitácora.
     - [ ] (4d) Climatizador Portátil (cono de aire que empuja y tuerce las balas).
   - Jefe: El Director de Recursos Inhumanos. En partes:
     - [ ] (5a) Sprites: en la silla (reposo, impulso, lanzar), de pie (andar, girar), la silla
-      sola, las tarjetas, las cartas de despido y las mamparas que se mueven.
+      sola, las tarjetas, las cartas de despido y las mamparas que se mueven; y la mesa larga de la
+      Sala de Juntas (un objeto nuevo que para balas y no se vuelca), que la (2c) dejó sin poner.
     - [ ] (5b) Fases 1 y 2 (cartas de despido, tarjetas, reestructuración de mamparas, sellos),
       cartel y sonidos.
     - [ ] (5c) Fase 3 (la silla suelta que embiste y la línea de recortes).

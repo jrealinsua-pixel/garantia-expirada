@@ -266,18 +266,30 @@ test('plantillas de la planta 3: doce salas de combate y las especiales, todas s
   assert.ok(withToys > 30, `${withToys} salas con juguetes`);
 });
 
-test('plantillas de la planta 4: doce salas de combate suyas (las especiales, de la Juguetería hasta la (2c))', () => {
+test('plantillas de la planta 4: doce salas de combate y las especiales, todas suyas', () => {
   const four = templatesOf('combat', 4);
   assert.ok(four.length >= 12, `${four.length} salas de combate en la planta 4`);
   for (const t of four) assert.equal(t.level, 4, t.id);
   for (const level of [1, 2, 3]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 4), `planta ${level}`);
-  // Until it has its own, its special rooms are the floor below's.
-  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) assert.deepEqual(templatesOf(k, 4), templatesOf(k, 3), k);
+  // Its special rooms are its own (M10 planta 4 (2c)), nothing of them leaks below, and they match
+  // the warehouse's where the code counts on it.
+  const count = (t: RoomTemplate, ch: string): number => [...t.rows.join('')].filter((x) => x === ch).length;
+  for (const k of ['start', 'treasure', 'shop', 'secret', 'boss'] as const) {
+    const [one] = templatesOf(k);
+    assert.ok(templatesOf(k, 4).length >= 1, k);
+    for (const level of [1, 2, 3]) assert.ok(!templatesOf(k, level).some((t) => t.level === 4), `${k}, planta ${level}`);
+    for (const t of templatesOf(k, 4)) {
+      assert.equal(t.level, 4, `${k}: ${t.id}`);
+      for (const ch of ['*', 's', '$', 'J', 'e', 'P']) assert.equal(count(t, ch), count(one!, ch), `${t.id}: «${ch}»`);
+      assert.deepEqual([t.rows[0]!.length, t.rows.length], [one!.rows[0]!.length, one!.rows.length], `${t.id}: tamaño`);
+      for (const r of t.rows) assert.equal(r.length, t.rows[0]!.length, `${t.id}: fila torcida`);
+    }
+  }
   // Each room has groups of partitions that come and go with the seed.
   for (const t of four) assert.ok(/[1-9]/.test(t.rows.join('')), `${t.id}: sin grupos`);
   // A generated floor 4 fights only in its own rooms.
   for (let i = 0; i < 10; i++) {
     const w = createWorld({ seed: `oficinas-${i}`, floor: true, level: 4 });
-    for (const r of w.floor!.rooms.filter((x) => x.template.kind === 'combat')) assert.equal(r.template.level, 4, r.template.id);
+    for (const r of w.floor!.rooms) assert.equal(r.template.level, 4, r.template.id);
   }
 });
