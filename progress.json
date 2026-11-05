@@ -1083,6 +1083,11 @@
       "sesion": "2026-11-05 23:02",
       "tarea": "M11 (3): encadenar la planta 5 tras el Director (LAST_LEVEL = 5) y el final de la partida (src/sim/world.ts, src/render/GameScene.ts, src/data/texts.ts, tools/bot.ts, tools/medir-plantas.ts, tests/plantas.test.ts)",
       "desde": "2026-11-05T23:02:00+01:00"
+    },
+    {
+      "sesion": "2026-11-05 23:26",
+      "tarea": "M11 (4s): sprites de los cuatro enemigos de la planta 5 y sus balas (solo tools/sprites/, public/assets/, tests/ nuevos, docs/ESTILO_ARTE.md)",
+      "desde": "2026-11-05T23:26:00+01:00"
     }
   ]
 }
