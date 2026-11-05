@@ -437,7 +437,7 @@ aspecto). En partes, como M10:
 - 10 objetos nuevos y 2 armas, en partes:
   - [x] (6a) Cinco de cifras o casi: Formulario en Línea, Tecla Almohadilla, Tiempo de Espera
     Estimado, Código Promocional Caducado y Cable de Teléfono Rizado.
-  - [ ] (6b1) Tres con efectos nuevos: Número de Turno, Contestador Automático y Llamada Grabada.
+  - [x] (6b1) Tres con efectos nuevos: Número de Turno, Contestador Automático y Llamada Grabada.
   - [ ] (6b2) Hoja de Reclamaciones y Valoración de Cinco Estrellas, las sinergias Ticket de
     Incidencia y Buzón Lleno, y la indirecta (Número de Turno + Formulario), medidas.
   - [ ] (6c1) Arma: la Etiquetadora de Precios (sprite, etiquetas que se pegan, «Rebajado»).

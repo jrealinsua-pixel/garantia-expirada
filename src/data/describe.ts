@@ -82,6 +82,12 @@ export function modifierLines(m: Modifier): EffectLine[] {
   if (k?.fullHpCharge) out.push({ text: `Sala limpia con la vida llena: +${k.fullHpCharge} ${k.fullHpCharge === 1 ? 'pila' : 'pilas'}`, good: true });
   if (k?.chargeMul) out.push({ text: `El objeto activo se carga un ${Math.round((k.chargeMul - 1) * 100)} % más deprisa`, good: true });
   if (k?.expiredChests) out.push({ text: `${Math.round(k.expiredChests * 10)} de cada 10 cofres de premio han caducado`, good: false });
+  if (k?.queue) {
+    out.push({ text: `Al entrar en una sala: daño ${Math.round((k.queue.start - 1) * 100)} %`, good: false });
+    out.push({ text: `Cada ${k.queue.every} s en ella: daño +${Math.round(k.queue.step * 100)} % (hasta +${Math.round((k.queue.max - 1) * 100)} %)`, good: true });
+  }
+  if (k?.echo) out.push({ text: `Cada ${k.echo.every} s, un disparo se repite solo (daño ×${String(k.echo.mul).replace('.', ',')})`, good: true });
+  if (k?.recorded) out.push({ text: `Quien te hiere queda grabado ${k.recorded.time} s: daño ×${String(k.recorded.mul).replace('.', ',')}`, good: true });
   if (k?.revive) out.push({ text: `Una vez: vuelve de la baja con ${k.revive / 2} ${k.revive === 2 ? 'corazón' : 'corazones'}`, good: true });
   return out;
 }

@@ -436,6 +436,35 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // The bullets corkscrew (they weave 5 px either way, three times a second) and hit harder; they reach less far.
     mod: { id: 'cable-rizado', stats: [{ stat: 'damage', mul: 1.15 }, { stat: 'bulletLife', mul: 0.9 }], bullets: { wave: { amp: 5, freq: 3 } } },
   },
+  'numero-turno': {
+    id: 'numero-turno',
+    name: 'Número de Turno',
+    description: 'Van por el 12. Tú tienes el 87.',
+    sprite: 'objeto-numero-turno',
+    level: 5,
+    // ×0.9 damage on coming into a room, and 5 % more for every 5 s in it, up to ×1.25 (35 s of waiting).
+    mod: { id: 'numero-turno', perks: { queue: { start: 0.9, step: 0.05, every: 5, max: 1.25 } } },
+  },
+  contestador: {
+    id: 'contestador',
+    name: 'Contestador Automático',
+    description: 'Deje su mensaje después de la señal. Nadie lo escuchará.',
+    sprite: 'objeto-contestador',
+    level: 5,
+    // Every 4 s the next shot is recorded, and played back half a second later at 0.6 of the damage.
+    mod: { id: 'contestador', perks: { echo: { every: 4, delay: 0.5, mul: 0.6 } } },
+  },
+  'llamada-grabada': {
+    id: 'llamada-grabada',
+    name: 'Llamada Grabada',
+    description: 'Esta llamada podrá ser grabada con fines de calidad.',
+    sprite: 'objeto-llamada-grabada',
+    level: 5,
+    // Only good, so only the premium chest (and the shop) has it.
+    quality: 'buena',
+    // The enemy that hurts the toaster is marked for 6 s and takes ×1.5 from its bullets.
+    mod: { id: 'llamada-grabada', perks: { recorded: { time: 6, mul: 1.5 } } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

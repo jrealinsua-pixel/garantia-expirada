@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T19:52:00+01:00",
+  "actualizado": "2026-11-05T20:28:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -128,15 +128,21 @@
     "enemigos": 22,
     "jefes": 4,
     "armas": 3,
-    "objetos": 50,
+    "objetos": 53,
     "plantillas_sala": 77,
-    "tests": 653,
-    "tests_ok": 653,
+    "tests": 656,
+    "tests_ok": 656,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 23929
+    "lineas_codigo": 24135
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T20:28:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (6b1): Número de Turno (el daño sube mientras esperas en la sala), Contestador Automático (cada 4 s un disparo se repite solo) y Llamada Grabada (quien te hiere queda marcado y recibe ×1,5).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T19:52:00+01:00",
       "hito": "M11",
@@ -998,6 +1004,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/atencion-contestador.png",
+      "pie": "Planta 5: el enemigo que te ha herido queda grabado (parpadea en rojo), el Número de Turno avanza («Van por el 13») y el Contestador repite el disparo, más tenue"
+    },
+    {
       "archivo": "capturas/atencion-objetos.png",
       "pie": "Cable de Teléfono Rizado: las balas van en tirabuzón hacia los maniquíes; y donde debía haber un cofre, «Promoción caducada». Abajo, los cinco primeros objetos de la planta 5"
     },
@@ -1016,10 +1026,6 @@
     {
       "archivo": "capturas/atencion-entrada.png",
       "pie": "La entrada de la planta 5: «Coja número», la línea amarilla que no lleva a ninguna parte, sillas de espera atornilladas y la pantalla que siempre dice A047"
-    },
-    {
-      "archivo": "capturas/cadena-correos.png",
-      "pie": "Cadena de Correos (Pósit de Urgente + Responder a Todos): tras una voltereta, la bala urgente acierta y se parte en dos trozos hacia los demás enemigos"
     }
   ],
   "proximo": "M11 (2b): seis plantillas de combate más de la planta 5.",
@@ -1049,11 +1055,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-05 20:01",
-      "tarea": "M11 (6b1): Número de Turno, Contestador Automático y Llamada Grabada (src/data/items.ts, src/sim/world.ts)",
-      "desde": "2026-11-05T20:01:00+01:00"
-    },
     {
       "sesion": "2026-11-05 20:25",
       "tarea": "M11 (2b): seis plantillas de combate más de la planta 5 (src/data/rooms.ts, tests/rooms.test.ts)",

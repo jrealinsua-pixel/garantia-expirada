@@ -43,6 +43,8 @@ import {
   TRIAL_END_LINE,
   punchLine,
   EXPIRED_LINE,
+  RECORDED_LINE,
+  queueLine,
   PET_DEAD_LINE,
   petFedLine,
   ALLEN_LINE,
@@ -1991,6 +1993,24 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('cupon', { detune: 500, volume: 0.8 });
           this.floatText(e.x, e.y - 14, fontText(punchLine(e.secs)), 0x69dbd8, 'punch', -12, 1.2);
           break;
+        case 'queue':
+          // Número de Turno: the queue moves on one; the ding of the ticket display and the number.
+          this.sound2.play('cupon', { detune: e.top ? 1200 : 300, volume: 0.5 });
+          this.floatText(e.x, e.y - 16, fontText(queueLine(e.level, e.top)), e.top ? 0xf6c431 : 0x69dbd8, 'queue', -12, 1.1);
+          break;
+        case 'echo':
+          // Contestador Automático: the beep when the shot is recorded; the playback, a muffled copy of the shot.
+          if (!e.played) this.sound2.play('clinc', { detune: 1400, volume: 0.35 });
+          else {
+            this.sound2.play(WEAPONS[e.weapon]?.look.sound ?? 'disparo', { detune: -400, volume: 0.45 });
+            for (let i = 0; i < 2; i++) this.spark(e.x, e.y, e.angle + this.fx.range(-0.3, 0.3), this.fx.range(30, 60), 0, 0xb7bed0);
+          }
+          break;
+        case 'recorded':
+          // Llamada Grabada: the enemy that hurt you is on the record.
+          this.sound2.play('clinc', { detune: -300, volume: 0.6 });
+          this.floatText(e.x, e.y - 34, fontText(RECORDED_LINE), 0xe0453b, `recorded:${e.target}`, -10, 1.1);
+          break;
         case 'expired':
           // Código Promocional Caducado: no chest here. A flat buzz and the stamp, in tired red.
           this.sound2.play('vacio', { detune: -300, volume: 0.6 });
@@ -3443,6 +3463,8 @@ export class GameScene extends Phaser.Scene {
         if (en.def.boss) s.setTint(warnK > 0.75 ? 0xffe9a8 : 0xffc870);
         else this.warnFill(s, warnK);
       } else if (this.scanned.has(en.id)) s.setTint(0xd8ffb0);
+      // Llamada Grabada: a marked enemy blinks red, like the light of a recording.
+      else if ((en.markT ?? 0) > 0 && Math.floor(this.time.now / 220) % 2 === 0) s.setTint(0xff8a80);
       else s.clearTint();
       // A copy whose photocopier broke fades out, flickering like a bad print.
       if (en.fadeT !== undefined) s.setAlpha(Math.max(0.1, en.fadeT) * (Math.floor(this.time.now / 60) % 2 === 0 ? 1 : 0.6));
@@ -3507,6 +3529,8 @@ export class GameScene extends Phaser.Scene {
         // In turbo, the toaster's shots come out orange-hot.
         if (b.owner === 'player' && w.player.turbo) s.setTint(0xffb36b);
         else s.clearTint();
+        // Contestador Automático: the played-back shot is a fainter copy.
+        if (b.echo) s.setAlpha(0.55);
         if (look?.turn) s.setRotation(b.dir);
         this.bulletSprites.set(b.id, s);
       }
@@ -3548,6 +3572,8 @@ export class GameScene extends Phaser.Scene {
         s.setFrame((b.slow?.mul ?? 1) <= 0.5 ? 2 + (Math.floor(this.time.now / 140 + b.id) % 2) : Math.floor(this.time.now / 140 + b.id) % 2);
         size = Math.min(1, b.life / 0.25);
       }
+      // Contestador Automático: and a smaller one.
+      if (b.echo) size *= 0.8;
       // Pósit de Urgente: the shot after a roll (and its reply-all pieces) flashes yellow and red.
       if (b.urgent && b.owner === 'player' && !b.limited && !b.stuck) {
         size *= b.reply ? 1.15 : 1.3;

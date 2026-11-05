@@ -145,6 +145,18 @@ export interface Perks {
    * expired and does not turn up (the biggest wins).
    */
   expiredChests?: number;
+  /**
+   * Número de Turno: the bullets do `start` times their damage on entering a room, and `step` more
+   * for every `every` s the toaster stays in it, up to `max` (the highest max wins).
+   */
+  queue?: { start: number; step: number; every: number; max: number };
+  /**
+   * Contestador Automático: every `every` s, the next shot repeats itself `delay` s later from the
+   * toaster, along the same line, with `mul` of its damage (the most frequent wins).
+   */
+  echo?: { every: number; delay: number; mul: number };
+  /** Llamada Grabada: the enemy that hurts the toaster is marked for `time` s and takes `mul` times the damage of its bullets (the biggest wins). */
+  recorded?: { time: number; mul: number };
 }
 
 /** A number a modifier can change: the weapon's and the character's. */

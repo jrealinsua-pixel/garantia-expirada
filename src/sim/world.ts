@@ -85,6 +85,11 @@ export interface WeaponState {
 export interface Player {
   /** Pilas No Incluidas (Perks.rush): seconds left of firing faster after a reload. */
   rushT?: number;
+  /** Número de Turno (Perks.queue): the steps its damage has gone up in this room (announced one by one). */
+  queueLevel?: number;
+  /** Contestador Automático (Perks.echo): seconds before the next shot is recorded, and the shot waiting to be played back. */
+  echoCd?: number;
+  echo?: { t: number; aim: number };
   /**
    * Mascota Virtual (Perks.pet): how fed it is (0 to its max), and whether the toaster has been hurt
    * since the last combat room was cleared (then clearing one does not feed it).
@@ -244,6 +249,10 @@ export interface Bullet {
   stuck?: boolean;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
+  /** Enemy bullets: the instance that fired it (Llamada Grabada marks it when the bullet hurts). */
+  from?: number;
+  /** Player bullets: the Contestador Automático's playback of a shot (its damage is already scaled). */
+  echo?: boolean;
   /**
    * Height above the floor it flies at (px). Walls and props stop it where its shadow, h px
    * below, meets them: in the three-quarter view a bullet flying along the back wall is drawn
@@ -365,6 +374,9 @@ export interface Enemy {
   /** Glitter (BulletBehaviour.slow): seconds left of going at `slowMul` of its speed. */
   slowT?: number;
   slowMul?: number;
+  /** Llamada Grabada (Perks.recorded): seconds left of taking `markMul` times the player's bullets. */
+  markT?: number;
+  markMul?: number;
   /** Turrets that jam: volleys left before the next jam. */
   volleys?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
@@ -534,6 +546,12 @@ export type SimEvent =
   | { type: 'punch'; x: number; y: number; secs: number }
   /** Código Promocional Caducado: the chest this room would have left has expired. */
   | { type: 'expired'; x: number; y: number }
+  /** Número de Turno: the queue moved on one (`top`: the damage will not go up any more in this room). */
+  | { type: 'queue'; level: number; top: boolean; x: number; y: number }
+  /** Contestador Automático: a shot recorded (`played` false) or played back (true). */
+  | { type: 'echo'; played: boolean; x: number; y: number; angle: number; weapon: string }
+  /** Llamada Grabada: the enemy that hurt the toaster is marked. */
+  | { type: 'recorded'; target: number; x: number; y: number; time: number }
   /** Contrato en Prácticas: up a floor, and the contract is over (the item has left the inventory). */
   | { type: 'trialEnd'; item: string; x: number; y: number }
   | { type: 'empty' }
@@ -1142,6 +1160,8 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   const first = !st.visited;
   st.visited = true;
   w.room = floorRoomOf(f, id);
+  // A recorded shot is not played back in the next room.
+  delete w.player.echo;
   w.bullets = [];
   w.emitters = [];
   w.frost = [];
@@ -1797,6 +1817,58 @@ export function removeModifier(w: World, id: string): boolean {
   return true;
 }
 
+/** What every bullet the toaster fires does on top of its weapon's damage: turbo, pet, mug and queue. */
+function shotScale(w: World): number {
+  const p = w.player;
+  return (p.turbo ? TURBO_DAMAGE : 1) * petScale(p) * fullHpScale(p) * queueScale(w);
+}
+
+/**
+ * Contestador Automático: the recorder counts down to the next recording, and a recorded shot is
+ * played back when its delay is up: the same pull of the trigger (every pellet), from where the
+ * toaster is now, along the line it was fired on, at the echo's share of the damage. It costs no
+ * ammo and it is never critical, urgent or limited.
+ */
+function updateEcho(w: World): void {
+  const p = w.player;
+  if (p.echoCd) p.echoCd = Math.max(0, p.echoCd - DT);
+  if (!p.echo) return;
+  p.echo.t -= DT;
+  if (p.echo.t > 1e-9) return;
+  const aim = p.echo.aim;
+  delete p.echo;
+  if (w.over || w.room.kind === 'hub') return;
+  const def = p.weapon.def;
+  const mul = playerPerks(p).echo.mul;
+  const pivot = gunPivot(p);
+  const mx = pivot.x + Math.cos(aim) * MUZZLE;
+  const my = pivot.y + Math.sin(aim) * MUZZLE;
+  for (let i = 0; i < def.pellets; i++) {
+    const a = aim + ((w.rng.range(-1, 1) * def.spreadDeg) / 180) * Math.PI;
+    w.bullets.push({
+      id: w.nextId++,
+      owner: 'player',
+      x: mx,
+      y: my,
+      vx: Math.cos(a) * def.bulletSpeed,
+      vy: Math.sin(a) * def.bulletSpeed,
+      r: def.bulletRadius,
+      life: def.bulletLife,
+      damage: def.damage * mul * shotScale(w),
+      knockback: def.knockback * mul,
+      color: 'red',
+      age: 0,
+      dir: a,
+      speed: def.bulletSpeed,
+      h: HAND_HEIGHT,
+      weapon: def.id,
+      ...shotBehaviour(def.bullets),
+      echo: true,
+    });
+  }
+  w.events.push({ type: 'echo', played: true, x: mx, y: my, angle: aim, weapon: def.id });
+}
+
 function updateWeapon(w: World, input: Input): void {
   const p = w.player;
   if (input.swap && p.arsenal.length > 1) selectWeapon(w, p.slot + Math.sign(input.swap));
@@ -1804,6 +1876,8 @@ function updateWeapon(w: World, input: Input): void {
   const def = ws.def;
   ws.cooldown = Math.max(0, ws.cooldown - DT);
   if (p.rushT) p.rushT = Math.max(0, p.rushT - DT);
+  updateQueue(w);
+  updateEcho(w);
   if (ws.reload > 0) {
     ws.reload -= DT;
     if (ws.reload <= 0) {
@@ -1854,7 +1928,7 @@ function updateWeapon(w: World, input: Input): void {
       vy: Math.sin(a) * def.bulletSpeed,
       r: def.bulletRadius,
       life: def.bulletLife,
-      damage: (isCrit ? def.damage * crit.mul : def.damage) * (p.turbo ? TURBO_DAMAGE : 1) * petScale(p) * fullHpScale(p),
+      damage: (isCrit ? def.damage * crit.mul : def.damage) * shotScale(w),
       knockback: def.knockback,
       color: 'red',
       age: 0,
@@ -1880,6 +1954,13 @@ function updateWeapon(w: World, input: Input): void {
   p.vx -= Math.cos(p.aim) * def.recoil;
   p.vy -= Math.sin(p.aim) * def.recoil;
   w.events.push({ type: 'shot', x: mx, y: my, angle: p.aim, weapon: def.id, ...(lastOne ? { limited: true } : {}), ...(urgent > 1 ? { urgent: true } : {}) });
+  // Contestador Automático: when it is ready, this shot is recorded to be played back.
+  const echo = playerPerks(p).echo;
+  if (echo.every > 0 && (p.echoCd ?? 0) <= 0 && !p.echo) {
+    p.echo = { t: echo.delay, aim: p.aim };
+    p.echoCd = echo.every;
+    w.events.push({ type: 'echo', played: false, x: mx, y: my, angle: p.aim, weapon: def.id });
+  }
   if (ws.ammo === 0) {
     ws.reload = def.reloadTime;
     w.events.push({ type: 'reloadStart', time: def.reloadTime });
@@ -1958,7 +2039,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
         const rr = b.r + PLAYER_HURT_RADIUS;
         if (dx * dx + dy * dy < rr * rr && canBeHurt(w)) {
           const d = normalize(b.vx, b.vy);
-          hurtPlayer(w, b.damage, -1, d.x, d.y, { by: b.by ?? 'desconocido', how: 'bullet' });
+          hurtPlayer(w, b.damage, b.from ?? -1, d.x, d.y, { by: b.by ?? 'desconocido', how: 'bullet' });
           alive = false;
           break;
         }
@@ -1977,7 +2058,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             }
             // A boss between phases shrugs bullets off (they still stop on it); a shredder's bin takes double.
             const back = side === 'back' && en.def.brain.kind === 'shredder' ? en.def.brain.backMul : 1;
-            const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en) * back;
+            const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en) * back * markScale(en);
             en.hitT = damage > 0 ? 0.12 : 0.04;
             en.damageTaken += damage;
             en.lastHit = angle;
@@ -2125,6 +2206,34 @@ export function shopPrice(p: Player, base: number): number {
 /** Taza de Mejor Empleado: its damage multiplier while the toaster's life is full (1 otherwise). */
 export function fullHpScale(p: Player): number {
   return p.hp >= p.def.maxHp ? playerPerks(p).fullHpDamage : 1;
+}
+
+/** Número de Turno: the steps the queue has moved on since the toaster came into this room. */
+function queueSteps(w: World): number {
+  const q = playerPerks(w.player).queue;
+  if (q.step <= 0) return 0;
+  const top = Math.round((q.max - q.start) / q.step);
+  return Math.min(top, Math.floor(((w.tick - w.shutTick) * DT) / q.every + 1e-9));
+}
+
+/** Número de Turno: the damage multiplier of waiting in this room (1 without it). */
+export function queueScale(w: World): number {
+  const q = playerPerks(w.player).queue;
+  if (q.step <= 0) return 1;
+  return Math.min(q.max, q.start + q.step * queueSteps(w));
+}
+
+/** Número de Turno: each step the queue moves on is announced over the toaster. */
+function updateQueue(w: World): void {
+  const p = w.player;
+  const q = playerPerks(p).queue;
+  if (q.step <= 0) {
+    delete p.queueLevel;
+    return;
+  }
+  const n = queueSteps(w);
+  if (n > (p.queueLevel ?? 0)) w.events.push({ type: 'queue', level: n, top: q.start + q.step * n >= q.max - 1e-9, x: p.x, y: p.y - PLAYER_HURT_Y });
+  p.queueLevel = n;
 }
 
 /** Mascota Virtual: the damage multiplier its level gives (1 without it or hungry). */
@@ -2512,6 +2621,7 @@ function updateEmitters(w: World): void {
       if (s.homing) b.homing = s.homing;
       if (s.shootable) b.shootable = true;
       if (e.by) b.by = e.by;
+      if (e.source !== undefined && e.owner === 'enemy') b.from = e.source;
       w.bullets.push(b);
     }
     e.t += DT;
@@ -2810,6 +2920,7 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
   if (wasFull && p.hp < p.def.maxHp && p.hp > 0 && playerPerks(p).fullHpDamage > 1) w.events.push({ type: 'mugLost', x: p.x, y: p.y - PLAYER_HURT_Y });
   const extra = covered > 0 ? { covered, shield: p.shield, ...(bySurge > 0 ? { surge: p.surge } : {}) } : {};
   w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...extra });
+  recordCaller(w, source);
   // Mascota Virtual: a hit and it is back to square one (and this room will not feed it).
   p.petHurt = true;
   if ((p.pet ?? 0) > 0) {
@@ -2854,6 +2965,22 @@ export function takenScale(en: Enemy): number {
   // A boss out of its box (BossPhase.taken).
   if (b.kind === 'boss') return b.phases[en.bossPhase ?? 0]?.taken ?? 1;
   return isRunDown(en) && b.kind === 'windup' ? b.exposed : 1;
+}
+
+/** Llamada Grabada: what a marked enemy takes from the player's bullets (1 when unmarked). */
+export function markScale(en: Enemy): number {
+  return (en.markT ?? 0) > 0 ? (en.markMul ?? 1) : 1;
+}
+
+/** Llamada Grabada: the enemy `source` (an instance id; -1 for none) has hurt the toaster and is marked. */
+function recordCaller(w: World, source: number): void {
+  const rec = playerPerks(w.player).recorded;
+  if (rec.time <= 0 || source < 0) return;
+  const en = w.enemies.find((o) => o.id === source);
+  if (!en || isDead(en) || en.state === 'dying') return;
+  en.markT = rec.time;
+  en.markMul = rec.mul;
+  w.events.push({ type: 'recorded', target: en.id, x: en.x, y: en.y, time: rec.time });
 }
 
 export const isDead = (en: Enemy): boolean => en.damageTaken >= en.def.hp;

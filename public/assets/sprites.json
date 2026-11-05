@@ -1120,5 +1120,23 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-numero-turno": {
+    "file": "objeto-numero-turno.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-contestador": {
+    "file": "objeto-contestador.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-llamada-grabada": {
+    "file": "objeto-llamada-grabada.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

@@ -710,6 +710,28 @@ try {
   await shot('52b-cable-rizado-caducado.png');
   console.log('Planta 5: sus cinco primeros objetos en el inventario, las balas en tirabuzón y la promoción caducada.');
 
+  // M11 (6b1): in a room of floor 5, frozen: the answering machine plays a shot back (pale copies),
+  // the queue ticket moves on («Van por el 13») and the enemy that hurt you blinks on the record.
+  await page.goto(`${url}?semilla=e2e-contestador&sala=ventanillas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.holdT = 60;
+    for (const id of ['numero-turno', 'contestador', 'llamada-grabada']) g.giveItem(id); })()`);
+  await page.waitForTimeout(900);
+  const callee = await page.evaluate<{ x: number; y: number }>(`(() => { const w = window.__GE__.scene.world; const p = w.player;
+    const e = w.enemies.filter((o) => o.state !== 'lurk').sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+    e.markT = 6; e.markMul = 1.5; window.__GE__.scene.handleEvents([{ type: 'recorded', target: e.id, x: e.x, y: e.y, time: 6 }]);
+    return { x: e.x, y: e.y - 14 }; })()`);
+  // Away from it (a hit would turn it white while the room is frozen).
+  await aimAt(callee.x < 240 ? callee.x + 260 : callee.x - 260, callee.y + 40);
+  await page.mouse.down();
+  await page.waitForTimeout(40);
+  await page.mouse.up();
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.echo)", undefined, { timeout: 2000 });
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const p = s.world.player; s.handleEvents([{ type: 'queue', level: 1, top: false, x: p.x, y: p.y - 10 }]); })()`);
+  await page.waitForTimeout(120);
+  await shot('52c-contestador-grabada.png');
+  console.log('Planta 5: el Contestador repite el disparo, el Número de Turno avanza y la Llamada Grabada marca al enemigo.');
+
   // M8: the printer of floor 2. Invoices in the air, then a jam («Atasco de papel»).
   // (The seeds pick rooms with the enemy in them; the others are taken out, so only it is in the picture.)
   await page.goto(`${url}?semilla=e2e-impresora-12&sala=taller-expres&planta=2`);
