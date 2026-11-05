@@ -17,6 +17,7 @@ import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
 import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
+import * as DR from './director.ts';
 import * as H from './mostrador.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
@@ -85,6 +86,17 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'etiqueta-rebaja': { canvas: strip(makeTagFrames()), frameW: TAG_W, frameH: TAG_H },
     // The box it breaks out of in phase 3, left in the room as an obstacle.
     'caja-muneco': one(makeBrokenBox()),
+    // Floor 4's boss (M10 planta 4 5a): director.ts DIRECTOR_FRAMES names each frame.
+    'director-rrhh': { canvas: strip(DR.makeDirectorFrames()), frameW: DR.DIRECTOR_W, frameH: DR.DIRECTOR_H },
+    // His chair on its own in phase 3: 0 still, 1-2 rolling, 3 about to ram.
+    'silla-director': { canvas: strip(DR.makeChairFrames()), frameW: DR.CHAIR_W, frameH: DR.CHAIR_H },
+    'bala-tarjeta-visita': { canvas: DR.makeBusinessCard(), frameW: 10, frameH: 8 },
+    'carta-despido': { canvas: DR.makeDismissalLetter(), frameW: 12, frameH: 10 },
+    'bala-diapositiva': { canvas: DR.makeSlide(), frameW: 9, frameH: 9 },
+    'bala-recorte': one(DR.makeCut()),
+    // The Sala de Juntas: a partition that slides (0) and where it is going (1); the long table.
+    'mampara-movil': { canvas: strip(DR.makePartitionFrames()), frameW: DR.PARTITION_W, frameH: DR.PARTITION_H },
+    'mesa-juntas': one(DR.makeBoardTable()),
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),
     'arma-grapadora': one(miniStapler()),

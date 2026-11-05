@@ -288,7 +288,7 @@ export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'bo
  * `Z` Mandos a Distancia (vienen en grupo: see EnemyDef.pack).
  * Slots, filled when a floor is built (src/sim/room.ts, fillTemplate): `e` an enemy (or nothing),
  * `o` an obstacle (or nothing), `*` an item pedestal, `$` the shopkeeper, `s` a shop shelf,
- * `J` the boss. `1`–`9`: a group of shelving that stands or not with the seed (each digit on its own).
+ * `J` the boss, `=` the long table of the Sala de Juntas (its bottom-centre). `1`–`9`: a group of shelving that stands or not with the seed (each digit on its own).
  * The Mostrador (hub, src/sim/room.ts): `m` a stretch of counter, `C` the counter with the Caja de
  * Devoluciones on it, `n` the ticket machine, `a` the filing cabinet, `h` the Chatarrero, `|` a
  * queue post, `B` the board and `t` the phone (both hang on the back wall over that tile) and `>`

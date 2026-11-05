@@ -167,6 +167,54 @@
     "frameH": 64,
     "frames": 1
   },
+  "director-rrhh": {
+    "file": "director-rrhh.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 18
+  },
+  "silla-director": {
+    "file": "silla-director.png",
+    "frameW": 44,
+    "frameH": 52,
+    "frames": 4
+  },
+  "bala-tarjeta-visita": {
+    "file": "bala-tarjeta-visita.png",
+    "frameW": 10,
+    "frameH": 8,
+    "frames": 4
+  },
+  "carta-despido": {
+    "file": "carta-despido.png",
+    "frameW": 12,
+    "frameH": 10,
+    "frames": 2
+  },
+  "bala-diapositiva": {
+    "file": "bala-diapositiva.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 2
+  },
+  "bala-recorte": {
+    "file": "bala-recorte.png",
+    "frameW": 9,
+    "frameH": 9,
+    "frames": 1
+  },
+  "mampara-movil": {
+    "file": "mampara-movil.png",
+    "frameW": 72,
+    "frameH": 24,
+    "frames": 2
+  },
+  "mesa-juntas": {
+    "file": "mesa-juntas.png",
+    "frameW": 168,
+    "frameH": 52,
+    "frames": 1
+  },
   "maniqui": {
     "file": "maniqui.png",
     "frameW": 32,

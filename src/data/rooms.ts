@@ -1562,9 +1562,9 @@ const FLOOR_4: RoomTemplate[] = [
   },
   {
     // La Sala de Juntas (docs/DISENO.md): the frosted glass partitions (cubicle partitions, for now)
-    // in two rows, with lanes clear from wall to wall between them (the Muñeco's catwalk until the
-    // Director arrives, M10 planta 4 (5)). The long table in the middle comes with the Director's
-    // sprites (5a): it has to stop bullets and is not a desk that tips over.
+    // in two rows, with lanes clear from wall to wall above and below them (the Muñeco's catwalk
+    // until the Director arrives, M10 planta 4 (5)), and the long table in the middle (`=`, its
+    // bottom-centre: seven tiles, cols 9-15 of rows 8-9), which stops bullets and is gone round.
     id: 'jefe-oficinas',
     kind: 'boss',
     level: 4,
@@ -1579,7 +1579,7 @@ const FLOOR_4: RoomTemplate[] = [
       '#....###..........###....#',
       '#........................#',
       '#........................#',
-      '#........................#',
+      '#...........=............#',
       '#........................#',
       '#....###..........###....#',
       '#........................#',

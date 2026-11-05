@@ -219,3 +219,45 @@ lo vigila). La planta más apagada a propósito: aquí el color lo ponen los ene
   reflejada con el cuerpo pero sin voltearla (el precio se lee siempre), con el mismo tinte. Los
   destellos de la pasarela se marcan en el suelo con un anillo rosa que se cierra y una chispa de
   cuatro puntas que crece y se pone blanca al final.
+
+### El Director de Recursos Inhumanos, jefe de la planta 4 (`tools/sprites/director.ts`)
+
+El único jefe humano. Mismo método que los otros jefes (72 × 76, cabeza de bloque iluminada
+arriba a la izquierda, manos grandes de 7 × 7 sin brazos), pero todo gris menos lo que manda.
+
+- **Cabeza**: bloque de piel morena de noviembre con la cara lateral oscura a la izquierda y la
+  oreja en ella; pelo gris acero peinado hacia atrás a surcos, con la raya y el tupé fijado con
+  producto. **Nunca se le ven los ojos**: gafas rectangulares de montura fina que reflejan una
+  hoja de cálculo (cabecera, rejilla y un total en rojo); cuando decide (lanzar, palmada, sello)
+  las gafas destellan en blanco. Sonrisa de foto de perfil (dientes cerrados, comisuras
+  simétricas, el hoyuelo) y una ceja levantada; de pie (fase 3) la sonrisa se va, las cejas bajan y
+  le late una vena en la sien.
+- **Traje** gris corporativo una talla grande (las hombreras sobresalen), solapas, camisa, la
+  corbata granate de logotipos con el pisacorbatas dorado, el anillo de sello de la empresa, el
+  pañuelo en punta y la acreditación azul que se le olvidó quitar. De espaldas, la etiqueta de la
+  tienda sigue colgando del cuello de la chaqueta (el lunes lo devuelve).
+- **Silla de dirección** de **polipiel granate** (en negro se perdía en la moqueta): respaldo alto
+  con pespuntes, asiento, pistón y base de estrella con ruedas cuyo brillo gira al rodar.
+- **Hoja `director-rrhh`** (18 fotogramas, nombres en `DIRECTOR_FRAMES`): 0–1 sentado; 2–5 el
+  impulso (los pies delante, el empujón, rodando con los pies levantados en dos tiempos); 6
+  lanzando una carta, 7 la palmada (con tres rayitas blancas fuera del contorno), 8 con su sello de
+  Denegado en alto; 9–14 de pie (reposo, respiración y el paso levantando el pie, sin cruzar);
+  15 lanzando de pie; 16–17 girando la línea de recortes, de espaldas y con las manos abiertas.
+  Todos pisan la misma línea (las ruedas sentado, los zapatos de pie).
+- **La silla sola** (`silla-director`, 44 × 52, 4): quieta, rodando en dos tiempos y a punto de
+  embestir (polvo de moqueta detrás de la rueda). Con la marca de él en el asiento y la etiqueta
+  de su chaqueta caída encima.
+- **Balas**: tarjetas de visita (`bala-tarjeta-visita`, 10 × 8, 4 giros) blancas con el borde
+  **cian**, para no confundirlas con las tarjetas rojas de la Nevera; cartas de despido
+  (`carta-despido`, 12 × 10, 2: el sobre con el lacre rojo y el dorso con la línea roja de
+  «Personal y confidencial»), que vuelan en parábola; diapositivas (`bala-diapositiva`, 9 × 9, 2:
+  marco rojo, un gráfico de barras bajando, y de canto); y los recortes (`bala-recorte`, 9 × 9),
+  bala roja con núcleo blanco y una flecha hacia abajo.
+- **Sala de Juntas**: la mampara móvil (`mampara-movil`, 72 × 24, del tamaño de tres casillas de
+  pared y con su carril de 7 px como las de cubículo): cristal esmerilado frío con vetas de luz,
+  la banda de vinilo y la pegatina roja de alguien que se dio con ella; el fotograma 1 es la
+  silueta discontinua de adónde va a ir. La **mesa larga** (`mesa-juntas`, 168 × 52, siete
+  casillas) de nogal, con el tablero en tres cuartos y el faldón hasta el suelo: las sillas de
+  enfrente vacías asomando, el portátil con el gráfico bajando, la pila de carpetas del «Plan de
+  Reestructuración», la jarra con un solo vaso (aforo: uno), el mando del proyector, el
+  vade de piel y la placa dorada de su sitio, y el cerco de café de otro.

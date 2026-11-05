@@ -102,7 +102,7 @@ export interface RoomDoor {
 export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
 const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 'shelf', J: 'boss' };
 
-const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste' };
+const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste', '=': 'mesa-juntas' };
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
   O: 'microondas',

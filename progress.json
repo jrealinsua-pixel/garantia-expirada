@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T13:50:00+01:00",
+  "actualizado": "2026-11-05T13:48:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M10",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 3,
     "objetos": 43,
     "plantillas_sala": 71,
-    "tests": 612,
-    "tests_ok": 612,
+    "tests": 616,
+    "tests_ok": 616,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 22227
+    "lineas_codigo": 22231
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T13:48:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (5a): los sprites del Director de Recursos Inhumanos (en su silla granate y de pie, con gafas que reflejan una hoja de cálculo), su silla sola, sus tarjetas, cartas de despido, diapositivas y recortes, las mamparas móviles y la mesa larga, que ya está en la Sala de Juntas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T13:50:00+01:00",
       "hito": "M10",
@@ -944,6 +950,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/director-sprites.png",
+      "pie": "El Director de Recursos Inhumanos: en su silla, rodando, lanzando una carta de despido, la palmada, su sello, de pie, girando de espaldas y la silla sola"
+    },
+    {
+      "archivo": "capturas/sala-juntas-mesa.png",
+      "pie": "La Sala de Juntas ya tiene su mesa larga de nogal: para balas y se rodea por los dos lados (aquí aún pelea el Muñeco)"
+    },
+    {
       "archivo": "capturas/climatizador-cono.png",
       "pie": "El Climatizador Portátil, «A 17 grados»: su cono de aire frío empuja a la tostadora, le tuerce las balas y sopla escarcha a favor del aire"
     },
@@ -958,17 +972,9 @@
     {
       "archivo": "capturas/fotocopiadora-escanea.png",
       "pie": "La Fotocopiadora de Planta levanta la tapa: la luz verde cruza el cristal y una raya marca al aspirador que va a copiar"
-    },
-    {
-      "archivo": "capturas/fotocopiadora-copias.png",
-      "pie": "«Copia no compulsada»: copias grises y con rayas de tóner, con la mitad de vida, más lentas y sin cupones"
-    },
-    {
-      "archivo": "capturas/oficinas-acreditacion.png",
-      "pie": "El Economato con la Acreditación de Visitante: todo un 25 % más barato (el ticket, por 8 cupones en vez de 10)"
     }
   ],
-  "proximo": "M10 planta 4 (5a): los sprites del Director de Recursos Inhumanos y la mesa larga de la Sala de Juntas; o (6b2): Pósit de Urgente, Responder a Todos y sus sinergias; o M10 (7): medir las plantas 3 y 4 con el bot.",
+  "proximo": "M10 planta 4 (5b): las fases 1 y 2 del Director (cartas de despido, tarjetas, mamparas que se recolocan, sellos); o (6b2): Pósit de Urgente, Responder a Todos y sus sinergias; o M10 (7): medir las plantas 3 y 4 con el bot.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-10-29",
@@ -994,11 +1000,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-05 13:25 UTC",
-      "tarea": "M10 planta 4 (5a): sprites del Director de Recursos Inhumanos y la mesa larga",
-      "desde": "2026-11-05T13:25:00Z"
-    }
-  ]
+  "en_curso": []
 }
