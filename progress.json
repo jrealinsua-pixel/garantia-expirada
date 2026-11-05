@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-05T18:54:00+01:00",
+  "actualizado": "2026-11-05T19:31:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -91,7 +91,7 @@
       "id": "M11",
       "nombre": "Planta 5: Atención al Cliente",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 7
     },
     {
@@ -129,14 +129,20 @@
     "jefes": 4,
     "armas": 3,
     "objetos": 45,
-    "plantillas_sala": 71,
-    "tests": 645,
-    "tests_ok": 645,
+    "plantillas_sala": 77,
+    "tests": 646,
+    "tests_ok": 646,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 23676
+    "lineas_codigo": 23822
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-05T19:31:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (2a): seis salas de combate de Atención al Cliente: Sala de Espera, Ventanillas, Cola en Zigzag, Locutorio de Reclamaciones, Mostrador de Reclamaciones y Departamento de Bajas, cada una con su idea y mostradores que la semilla pone o quita.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-05T18:54:00+01:00",
       "hito": "M11",
@@ -986,6 +992,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/atencion-ventanillas.png",
+      "pie": "Ventanillas (Diríjase a la de al Lado): un mostrador largo parte la sala; los de detrás disparan por las ventanillas abiertas"
+    },
+    {
+      "archivo": "capturas/atencion-espera.png",
+      "pie": "Sala de Espera (Su Turno Es el Siguiente): filas de sillas atornilladas que hacen de trinchera"
+    },
+    {
       "archivo": "capturas/atencion-sala.png",
       "pie": "Atención al Cliente (planta 5): linóleo azul petróleo, mostradores de ventanilla con mampara y número, la mesita de revistas, el buzón de reclamaciones y el cubo con «suelo mojado»"
     },
@@ -1000,17 +1014,9 @@
     {
       "archivo": "capturas/director-recortes.png",
       "pie": "«Despido procedente»: de pie, el Director gira la línea de recortes, una espiral con un hueco que empieza en la tostadora y hay que seguir alrededor de él"
-    },
-    {
-      "archivo": "capturas/director-silla.png",
-      "pie": "Su silla sale rodando sola y embiste en línea recta; contra la mesa se queda parada"
-    },
-    {
-      "archivo": "capturas/director-de-pie.png",
-      "pie": "Fase 3: «No es nada personal. Es todo.» Se levanta de la silla"
     }
   ],
-  "proximo": "M11 (2a): seis plantillas de combate propias de la planta 5.",
+  "proximo": "M11 (2b): seis plantillas de combate más de la planta 5.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1037,11 +1043,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-05 18:57",
-      "tarea": "M11 (2a): seis plantillas de combate de la planta 5 (src/data/rooms.ts)",
-      "desde": "2026-11-05T18:57:00+01:00"
-    },
     {
       "sesion": "2026-11-05 19:27",
       "tarea": "M11 (6a): cinco objetos de la planta 5 (src/data/items.ts, tools/sprites/items.ts)",

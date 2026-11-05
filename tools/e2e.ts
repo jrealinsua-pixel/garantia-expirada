@@ -467,16 +467,19 @@ try {
     await shot(`50${'abcdefghijklmno'[i]}-planta4-${names[i]}.png`);
   }
 
-  // M11 (1): floor 5 (Atención al Cliente) has its own tiles, colour, obstacles and shutters. Until
-  // M11 (2) it borrows the Oficinas' rooms (and the Director).
-  const p5 = ['sala=open-space&profundidad=5', 'sala=entrada-oficinas', 'sala=jefe-oficinas', 'sala=tienda-oficinas', 'sala=secreta-oficinas', 'sala=hot-desking&profundidad=6'];
+  // M11 (1, 2a): floor 5 (Atención al Cliente) has its own tiles, colour, obstacles, shutters and
+  // combat rooms. Until M11 (2c) and (3) it borrows the Oficinas' special rooms (and the Director).
+  const p5 = ['sala=sala-espera&profundidad=5', 'sala=entrada-oficinas', 'sala=jefe-oficinas', 'sala=tienda-oficinas', 'sala=secreta-oficinas',
+    'sala=ventanillas&profundidad=5', 'sala=cola-zigzag&profundidad=5', 'sala=locutorio-reclamaciones&profundidad=5',
+    'sala=mostrador-reclamaciones&profundidad=5', 'sala=departamento-bajas&profundidad=6'];
   for (const [i, q] of p5.entries()) {
     await page.goto(`${url}?semilla=e2e-p5-${i}&${q}&planta=5`);
     await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
     await page.evaluate('window.__GE__.scene.world.noDamage = true');
     if ((await page.evaluate<number>('window.__GE__.scene.world.level')) !== 5) throw new Error(`?planta=5 no pone la planta 5 (${q})`);
     await page.waitForTimeout(i === 2 ? 4200 : 1600);
-    await shot(`56${'abcdef'[i]}-planta5-${['sala', 'entrada', 'jefe', 'tienda', 'secreta', 'compartidos'][i]}.png`);
+    const names = ['espera', 'entrada', 'jefe', 'tienda', 'secreta', 'ventanillas', 'zigzag', 'locutorio', 'mostrador', 'bajas'];
+    await shot(`56${'abcdefghij'[i]}-planta5-${names[i]}.png`);
   }
 
   // M8: floors in a row. A floor won (here, a lift under the toaster's feet at the entrance) and

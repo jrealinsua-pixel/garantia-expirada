@@ -415,7 +415,7 @@ aspecto). En partes, como M10:
   azul con la línea amarilla, postes con cinta, sillas de espera atornilladas, mostradores de
   ventanilla con mampara, dispensadores de agua, pared con el cartel de la estrella y relojes, y
   persianas con «Ventanilla cerrada».
-- [ ] (2a) Seis plantillas de combate propias de la planta 5, cada una con su idea y sus grupos.
+- [x] (2a) Seis plantillas de combate propias de la planta 5, cada una con su idea y sus grupos.
 - [ ] (2b) Seis plantillas de combate más.
 - [ ] (2c) Las salas especiales propias (Coja Número, Objetos Perdidos, Repuestos Originales,
   Grabaciones con Fines de Calidad con su registro de llamadas, y la sala de la Centralita).

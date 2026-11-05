@@ -1590,6 +1590,152 @@ const FLOOR_4: RoomTemplate[] = [
   },
 ];
 
+/**
+ * Floor 5 (Atención al Cliente, M11 (2a)–(2c)): the customer service floor. Its inner walls are drawn
+ * as service counters with their perspex screen (src/art/atencion.ts), `c` as bolted waiting chairs,
+ * `b` as the red complaints box (it blows up like the drums), `k` as the mop bucket with its wet
+ * floor sign and `v` as the low tables of the waiting room, which tip over.
+ */
+const FLOOR_5: RoomTemplate[] = [
+  {
+    id: 'sala-espera',
+    kind: 'combat',
+    level: 5,
+    name: 'Sala de Espera (Su Turno Es el Siguiente)',
+    idea: 'Filas de sillas atornilladas que hacen de trinchera: se pelea de fila en fila por los pasillos, y al fondo dos ventanillas que están o no tapan a los de arriba.',
+    rows: [
+      '######################',
+      '######################',
+      '#e..111........222..e#',
+      '#....................#',
+      '#..cccc..o..o..cccc..#',
+      '#....e..........e....#',
+      '#....................#',
+      '#....................#',
+      '#..cccc...e....cccc..#',
+      '#....................#',
+      '#..cccc..o..o..cccc..#',
+      '#....................#',
+      '#b..e............e..b#',
+      '######################',
+    ],
+  },
+  {
+    id: 'ventanillas',
+    kind: 'combat',
+    level: 5,
+    name: 'Ventanillas (Diríjase a la de al Lado)',
+    idea: 'Un mostrador largo parte la sala: los de detrás disparan por las ventanillas abiertas (la del centro siempre, las otras según el día); a ellos se llega por los extremos.',
+    rows: [
+      '########################',
+      '########################',
+      '#..e...e........e...e..#',
+      '#......................#',
+      '#..###11###..###22###..#',
+      '#......................#',
+      '#....o.....e......o....#',
+      '#......................#',
+      '#..v...v........v...v..#',
+      '#.....e..........e.....#',
+      '#......................#',
+      '#b.....k........k.....b#',
+      '########################',
+    ],
+  },
+  {
+    id: 'cola-zigzag',
+    kind: 'combat',
+    level: 5,
+    name: 'Cola en Zigzag (Mantenga la Distancia)',
+    idea: 'Dos tramos de mostrador hacen la cola en ese: para llegar arriba hay que dar la vuelta entera, salvo el día que falta un trozo y se puede colar uno por el medio.',
+    rows: [
+      '####################',
+      '####################',
+      '#e...e.........e...#',
+      '#..................#',
+      '######11######.....#',
+      '#....e.............#',
+      '#..................#',
+      '#..o...........o...#',
+      '#..................#',
+      '#.....######22######',
+      '#..e.........e.....#',
+      '#..................#',
+      '#b................b#',
+      '####################',
+    ],
+  },
+  {
+    id: 'locutorio-reclamaciones',
+    kind: 'combat',
+    level: 5,
+    name: 'Locutorio de Reclamaciones (Pulse 3)',
+    idea: 'Pequeña: cuatro cabinas al fondo con la mampara de cristal de delante puesta o no; las máquinas disparan desde dentro y abajo dos buzones de reclamaciones que explotan si alguien falla.',
+    rows: [
+      '##################',
+      '##################',
+      '#e.#e.#....#.e#.e#',
+      '#..#..#....#..#..#',
+      '#..#..#....#..#..#',
+      '#1.#.2#....#3.#.4#',
+      '#................#',
+      '#....o..e...o....#',
+      '#..b..........b..#',
+      '#................#',
+      '#.e..k......k..e.#',
+      '#b..............b#',
+      '##################',
+    ],
+  },
+  {
+    id: 'mostrador-reclamaciones',
+    kind: 'combat',
+    level: 5,
+    name: 'Mostrador de Reclamaciones (Hoja 1 de 3)',
+    idea: 'Una isla de mostradores en el centro, siempre abierta por abajo y por arriba o los lados según el día: el de dentro se cubre tras la mampara; se entra a por él o se le rodea.',
+    rows: [
+      '################',
+      '################',
+      '#e............e#',
+      '#..............#',
+      '#...##1111##...#',
+      '#...#......#...#',
+      '#...2..e...3...#',
+      '#...2...o..3...#',
+      '#...#......#...#',
+      '#...###..###...#',
+      '#..............#',
+      '#.v..........v.#',
+      '#e....b..b....e#',
+      '################',
+    ],
+  },
+  {
+    id: 'departamento-bajas',
+    kind: 'combat',
+    level: 5,
+    name: 'Departamento de Bajas (Imposible Darse de Baja)',
+    idea: 'Dos mostradores de pared a pared cierran los lados: desde las puertas de los costados solo se sale por arriba, salvo si falta un trozo abajo; en medio, un mostrador suelto.',
+    rows: [
+      '##########################',
+      '##########################',
+      '#..e.....................#',
+      '#.....................e..#',
+      '#.b...#..o......o..#.....#',
+      '#.....#............#.....#',
+      '#.....#...333333...#.....#',
+      '#.....#............#.....#',
+      '#.....#...v....v...#.....#',
+      '#.....#..e......e..#.....#',
+      '#.....1............2.....#',
+      '#.....1..o.........2.....#',
+      '#.e...#............#..e..#',
+      '#k....#............#...b.#',
+      '##########################',
+    ],
+  },
+];
+
 export const ROOMS: Record<string, RoomTemplate> = {
   // 26 x 16 tiles of 24 px: a bit bigger than the screen, so the camera has to move.
   'sala-pruebas': {
@@ -1620,6 +1766,7 @@ export const ROOMS: Record<string, RoomTemplate> = {
   ...Object.fromEntries(FLOOR_2.map((t) => [t.id, t])),
   ...Object.fromEntries(FLOOR_3.map((t) => [t.id, t])),
   ...Object.fromEntries(FLOOR_4.map((t) => [t.id, t])),
+  ...Object.fromEntries(FLOOR_5.map((t) => [t.id, t])),
 };
 
 /** Template letter of floor 1's boss (src/sim/room.ts ENEMY_CHARS): La Nevera Suprema. */
@@ -1706,7 +1853,7 @@ export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
 /** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses the nearest floor's below. */
 export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1): RoomTemplate[] {
   // The nearest floor below that has its own (every floor has all its kinds now; kept for the next).
-  const floors = [FLOOR_1, FLOOR_2, FLOOR_3, FLOOR_4];
+  const floors = [FLOOR_1, FLOOR_2, FLOOR_3, FLOOR_4, FLOOR_5];
   for (let l = Math.min(level, floors.length); l >= 1; l--) {
     const own = floors[l - 1]!.filter((t) => t.kind === kind);
     if (own.length > 0) return own;
