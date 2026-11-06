@@ -433,7 +433,7 @@ aspecto). En partes, como M10:
 - 4 enemigos nuevos, uno por tarea (simulación, tests y captura; los sprites, juntos en la (4s)):
   - [x] (4s) Los sprites de los cuatro, con sus balas y lo que dejan en el suelo (el círculo del
     turno, la cinta de los postes, el escudo de preguntas frecuentes).
-  - [ ] (4a) Dispensador de Turnos (llama turnos: hay que llegar al círculo a tiempo).
+  - [x] (4a) Dispensador de Turnos (llama turnos: hay que llegar al círculo a tiempo).
   - [ ] (4b) Postes de Cola (dos postes con una cinta que no se cruza y te hace la cola).
   - [ ] (4c) Asistente Virtual (aprende: se escuda del lado desde el que le das).
   - [ ] (4d) Teléfono de Recepción (le pasa con un compañero: se cambia de sitio con otro).

@@ -372,6 +372,10 @@ export interface Enemy {
   dest?: { x: number; y: number };
   /** Air conditioners: seconds it has been swinging from side to side (its sweep). */
   sweepT?: number;
+  /** Ticket dispensers: the turn it has called, lit on the floor (TurnCircle). */
+  turn?: TurnCircle;
+  /** Ticket dispensers: seconds before it calls its next turn. */
+  callT?: number;
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
@@ -483,6 +487,23 @@ export interface Ink {
   source: number;
 }
 
+/**
+ * A turn called by a ticket dispenser (TurnerBrain): a circle of radius `r` on the floor with
+ * number `num` (for window `desk`). `called`: the player has until `until` s to get into it;
+ * `served`: it got there in time and the circle stops enemy bullets until `until`; `lost`: too
+ * late, red until `until`. `t`: seconds in the current state.
+ */
+export interface TurnCircle {
+  x: number;
+  y: number;
+  r: number;
+  num: number;
+  desk: number;
+  state: 'called' | 'served' | 'lost';
+  t: number;
+  until: number;
+}
+
 /** Frost patches are flattened ellipses, as seen in three-quarter view. */
 export const FROST_FLAT = 0.6;
 /** No more patches than this at once: the oldest melts. */
@@ -518,6 +539,10 @@ export type SimEvent =
   | { type: 'restructure'; count: number }
   | { type: 'clap'; boss: number; x: number; y: number }
   | { type: 'slid'; x: number; y: number }
+  /** A ticket dispenser calls turn `num` to window `desk` (its circle at x, y); the player made it in time, or did not. */
+  | { type: 'turnCall'; x: number; y: number; num: number; desk: number; source: number }
+  | { type: 'turnServed'; x: number; y: number; source: number }
+  | { type: 'turnLost'; x: number; y: number; source: number }
   /** An air conditioner is about to blow its frost along the air. */
   | { type: 'acBlow'; x: number; y: number; source: number }
   /** The player tried to roll on ink: a clumsy step instead, no invulnerability. */
@@ -1508,6 +1533,10 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'blower') {
     state = 'idle';
     until = b.interval[0] * 0.6;
+  } else if (b.kind === 'turner') {
+    // Its first turn comes a little sooner than the rest (the room should learn the rule early).
+    state = 'idle';
+    until = b.interval[0] * 0.5;
   } else if (b.kind === 'lobber') {
     state = 'idle';
     until = b.interval[0] * 0.6;
@@ -1538,7 +1567,8 @@ export function enemyAltitude(en: Enemy): number {
 }
 
 /** Brains whose own 'warn' state is a telegraph (the turret's comes from its emitter). */
-const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && en.def.brain.kind !== 'turret';
+// A ticket dispenser calling a turn fires nothing: its circle on the floor is the warning.
+const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && en.def.brain.kind !== 'turret' && en.def.brain.kind !== 'turner';
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
 
@@ -2010,8 +2040,22 @@ function updateWeapon(w: World, input: Input): void {
   }
 }
 
+/** Turns being called or just served: their circles stop enemy bullets (a window with its screen). */
+function screeningTurns(w: World): TurnCircle[] {
+  const out: TurnCircle[] = [];
+  for (const en of w.enemies) if (en.turn && en.turn.state !== 'lost' && !isDead(en) && en.state !== 'dying') out.push(en.turn);
+  return out;
+}
+
+/** Whether floor point (x, y) is inside one of `turns`. */
+function inTurn(turns: readonly TurnCircle[], x: number, y: number): boolean {
+  for (const c of turns) if ((x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= c.r * c.r) return true;
+  return false;
+}
+
 function updateBullets(w: World, held = false, enemyScale = 1): void {
   const keep: Bullet[] = [];
+  const turns = screeningTurns(w);
   // Pieces of bullets that split this tick (Responder a Todos): they fly from the next one.
   const born: Bullet[] = [];
   for (const b of w.bullets) {
@@ -2078,6 +2122,12 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
           stickBullet(w, b, dt);
           break;
         }
+        alive = false;
+        break;
+      }
+      if (b.owner === 'enemy' && turns.length > 0 && inTurn(turns, b.x, fy)) {
+        // Into a turn's circle: stopped at the screen, as at a window.
+        w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle });
         alive = false;
         break;
       }

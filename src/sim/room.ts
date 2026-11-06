@@ -131,6 +131,8 @@ const ENEMY_CHARS: Record<string, string> = {
   K: 'fotocopiadora',
   G: 'sello',
   H: 'climatizador',
+  // The ASCII capitals ran out with the Oficinas: Atención al Cliente's enemies use Spanish ones (M11 (4a)).
+  Ñ: 'dispensador-turnos',
 };
 
 /**

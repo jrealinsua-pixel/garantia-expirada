@@ -14,10 +14,11 @@ import type { Rng } from './rng.ts';
  * photocopier's sheets: white with toner lines and a red rim, tumbling. `ink` are the DENEGADO
  * stamp's drops: red, with a white glint, wobbling. `bizcard` are the Director's business cards: white
  * with a cyan edge, spinning; `slide` his slides: a red frame round a chart going down, turning; `cut` his line of
- * cuts: red with a white core and an arrow pointing down.
+ * cuts: red with a white core and an arrow pointing down. `ticket` are the ticket dispenser's paper
+ * tickets: red with a white core, flat or folded over as they glide.
  */
 export type BulletColor =
-  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut';
+  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket';
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {

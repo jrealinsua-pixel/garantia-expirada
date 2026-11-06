@@ -69,6 +69,12 @@ export const ROLL_DENIED_LINE = 'Solicitud denegada';
 export const STAMP_LINE = 'Denegado';
 /** Over an air conditioner when it starts blowing its frost (the display never changes). */
 export const AC_LINE = 'A 17 grados';
+/** A ticket dispenser's turn (M11 (4a)): the number, always three digits, as on its screen. */
+export const turnNumber = (n: number): string => String(n).padStart(3, '0');
+/** Over the circle when it is called, and when the toaster gets there in time or does not. */
+export const turnCallLine = (n: number, desk: number): string => `Turno ${turnNumber(n)}, ventanilla ${desk}`;
+export const TURN_SERVED_LINE = 'Atendido';
+export const TURN_LOST_LINE = 'Turno perdido';
 
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
@@ -108,6 +114,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   'coche-teledirigido': { contact: 'Atropello por un coche sin carné' },
   destructora: { bullet: 'Papeleo devuelto sin leer', contact: 'Triturado por error' },
   climatizador: { bullet: 'Resfriado de oficina', contact: 'Arrollado por un climatizador' },
+  'dispensador-turnos': { bullet: 'Corte con tique de turno, ya caducado', contact: 'Atendido por orden de llegada' },
   sello: { bullet: 'Mancha de tinta indeleble', contact: 'Denegado, con sello y fecha' },
   fotocopiadora: { bullet: 'Corte con folio, por duplicado', contact: 'Atropello por fotocopiadora averiada' },
   'sobre-sorpresa': { bullet: 'Confeti de papel de regalo en el ojo', contact: 'Sobre abierto con los dientes' },

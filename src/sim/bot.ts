@@ -3,7 +3,7 @@
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, inkUnder, inWind, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
-import { freeChestLeft, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
+import { freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
 import { overlaps } from './vec.ts';
 import { isWallAt, TILE } from './room.ts';
@@ -288,6 +288,8 @@ export class Bot {
   /** Ticks left walking `unstickDir` to get out of a squeeze (between a trolley and a box, say). */
   private unstick = 0;
   private unstickDir = { x: 0, y: 0 };
+  /** Ticks in a row with a shredder close by facing it (all its shots swallowed). */
+  private faced = 0;
 
   /** Whether it tries to dodge (off, it is the old bot that only walks around and shoots). */
   readonly dodges: boolean;
@@ -452,6 +454,22 @@ export class Bot {
         goal = { x: k.x, y: k.y };
       }
     }
+    // A shredder facing it close by for long (pressed against a row of bolted chairs, say, with the
+    // toaster on the other side): round to its back, as a player would (M11 (4a), Sala de Espera).
+    const shredder = w.enemies.find((en) => !isDead(en) && facesShredder(w, en) && Math.hypot(en.x - p.x, en.y - p.y) < 120);
+    this.faced = shredder ? this.faced + 1 : 0;
+    if (shredder && this.faced > FACED_TOO_LONG) {
+      const back = freeSpot(w, shredder.x - shredder.dirX * 56, shredder.y - shredder.dirY * 56, p.def.footRadius);
+      goal = steer(w, back, p.def.footRadius, blockedTiles(w, p.def.footRadius));
+    }
+    // A turn called by a ticket dispenser: into its circle before the countdown runs out, and in it
+    // while it is served (it stops the bullets), as a player would.
+    for (const en of w.enemies) {
+      const c = en.turn;
+      if (!c || c.state === 'lost' || isDead(en)) continue;
+      goal = Math.hypot(c.x - p.x, c.y - p.y) < c.r * 0.5 ? { x: c.x, y: c.y } : steer(w, c, p.def.footRadius, blockedTiles(w, p.def.footRadius));
+      break;
+    }
     let gx = (goal?.x ?? p.x) - p.x;
     let gy = (goal?.y ?? p.y) - p.y;
     if (this.unstick > 0) {
@@ -541,6 +559,9 @@ export class Bot {
     };
   }
 }
+
+/** Ticks facing a shredder before going round to its back (6 s). */
+const FACED_TOO_LONG = 360;
 
 /** A big prop (over two tiles wide) between the toaster's feet and (x, y), if any. */
 function coverBetween(w: World, x: number, y: number): World['room']['props'][number] | undefined {

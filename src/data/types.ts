@@ -960,8 +960,38 @@ export interface BlowerBrain {
   muzzleY: number;
 }
 
+/**
+ * The ticket dispenser (M11 (4a)): a slow support enemy that keeps about `keep` px from the player
+ * (walking at `speed`). Every `interval` s (random in the range) it calls a turn (`call` s, its
+ * calling pose): a circle of `radius` px lights up on the floor `near`–`far` px from the player,
+ * somewhere it can walk to in time, with a number on it; the player has `countdown` s to get its
+ * feet into it. In time («Atendido»), nothing happens, and the circle stops enemy bullets for
+ * `served` more s. Late («Turno perdido»), the circle goes red for `lost` s and it spits
+ * `punish` at the player after `telegraph` s. With no turn on, every `between` s it lets go of
+ * `pattern` (slow paper tickets that glide) if the player is closer than `range`. `muzzleY`: height of its slot.
+ */
+export interface TurnerBrain {
+  kind: 'turner';
+  speed: number;
+  keep: number;
+  range: number;
+  interval: [number, number];
+  call: number;
+  radius: number;
+  near: number;
+  far: number;
+  countdown: number;
+  served: number;
+  lost: number;
+  telegraph: number;
+  punish: string;
+  between: [number, number];
+  pattern: string;
+  muzzleY: number;
+}
+
 export type EnemyBrain =
-  | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | TurnerBrain | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
@@ -1018,6 +1048,8 @@ export interface EnemyAnim {
   scan?: readonly number[];
   /** Frame shown while it recovers after attacking (the photocopier's copy sliding out). */
   out?: number;
+  /** Frame shown while it punishes a turn missed (the ticket dispenser spitting, M11 (4a)). */
+  spit?: number;
   /**
    * A small sheet drawn over the body (the Muñeco's sale tag): its top-left at (x, y) of the frame,
    * mirrored with the body (the sheet itself is not flipped, so its text reads), on the frames

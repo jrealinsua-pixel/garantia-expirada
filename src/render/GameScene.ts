@@ -28,6 +28,10 @@ import {
   SHRED_JAM_LINE,
   COPY_LINE,
   AC_LINE,
+  turnCallLine,
+  turnNumber,
+  TURN_LOST_LINE,
+  TURN_SERVED_LINE,
   ROLL_DENIED_LINE,
   STAMP_LINE,
   TONER_OUT_LINE,
@@ -318,6 +322,9 @@ export class GameScene extends Phaser.Scene {
   private frostViews = new Map<number, { ball: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; patch: Phaser.GameObjects.Sprite | null }>();
   /** The squares of DENEGADO ink on the floor, by Ink id. */
   private inkViews = new Map<number, Phaser.GameObjects.Image>();
+  /** Ticket dispensers' turns on the floor, by the dispenser's id: the circle, its number and the countdown. */
+  private turnViews = new Map<number, { circle: Phaser.GameObjects.Image; num: Phaser.GameObjects.BitmapText; state: string }>();
+  private turnG!: Phaser.GameObjects.Graphics;
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
   private pieces = new Map<string, SpritePiece[]>();
   private couponIcon!: Phaser.GameObjects.Image;
@@ -513,6 +520,7 @@ export class GameScene extends Phaser.Scene {
     this.talkAt = null;
     this.frostViews = new Map();
     this.inkViews = new Map();
+    this.turnViews = new Map();
     this.particles = [];
     this.mapG = null;
     this.floats = [];
@@ -700,6 +708,7 @@ export class GameScene extends Phaser.Scene {
     else this.tweens.add({ targets: title, alpha: 0, delay: 2500, duration: 800 });
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
+    this.turnG = this.add.graphics().setDepth(-60350);
     this.windG = this.add.graphics().setDepth(-60100);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
     this.whiteFlash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xffffff, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(97000).setAlpha(0);
@@ -2201,6 +2210,27 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('soplar', { detune: this.fx.range(-100, 100) });
           this.floatText(e.x, e.y - 46, fontText(AC_LINE), 0x8fe3ff, `ac:${e.source}`, -12, 0.8);
           break;
+        case 'turnCall': {
+          // A turn called: the chime of every waiting room, and the number and window over its circle.
+          this.sound2.play('turno');
+          this.time.delayedCall(190, () => this.sound2.play('turno', { detune: -500 }));
+          this.floatText(e.x, e.y - 44, fontText(turnCallLine(e.num, e.desk)), 0xf6c431, `turn:${e.source}`, -8, 1.4);
+          break;
+        }
+        case 'turnServed':
+          this.sound2.play('desbloquear', { volume: 0.6 });
+          for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * Math.PI * 2;
+            this.spark(e.x + Math.cos(a) * 36, e.y + Math.sin(a) * 36, a, this.fx.range(15, 35), 0, 0x7fe08a);
+          }
+          this.floatText(e.x, e.y - 30, fontText(TURN_SERVED_LINE), 0x7fe08a, `turn:${e.source}`, -14, 0.9);
+          break;
+        case 'turnLost':
+          // Too late: the buzzer, and the dispenser loses its patience.
+          this.sound2.play('denegado');
+          this.shake(90, 0.004);
+          this.floatText(e.x, e.y - 30, fontText(TURN_LOST_LINE), 0xe0453b, `turn:${e.source}`, -14, 1);
+          break;
         case 'stampRise':
           // Up it goes, to stamp: a creak of the handle.
           this.sound2.play('saltar', { detune: -300, volume: 0.5 });
@@ -3551,6 +3581,7 @@ export class GameScene extends Phaser.Scene {
     this.drawWind();
     this.drawFrost(dt);
     this.drawInk();
+    this.drawTurns();
     this.drawChests(dt);
     this.drawLateProps();
     this.drawPartitions();
@@ -3598,6 +3629,8 @@ export class GameScene extends Phaser.Scene {
       // Confetti flutters.
       if (b.color === 'confetti' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 80 + b.id) % 2);
       if (b.color === 'strip' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
+      // The dispenser's tickets: the slow ones glide folded and flat by turns, the fan comes out flat.
+      if (b.color === 'ticket' && b.owner === 'enemy') s.setFrame(b.wave ? Math.floor(this.time.now / 160 + b.id) % 2 : 0);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -3785,6 +3818,56 @@ export class GameScene extends Phaser.Scene {
       if (alive.has(id)) continue;
       v.destroy();
       this.inkViews.delete(id);
+    }
+  }
+
+  /**
+   * Ticket dispensers' turns: the circle on the floor (yellow called, green served, red lost), its
+   * number in big digits, and while it is called a yellow arc round it that runs out with the
+   * countdown (blinking for its last second). It pops in a little big, and fades as it goes.
+   */
+  private drawTurns(): void {
+    const g = this.turnG;
+    g.clear();
+    const alive = new Set<number>();
+    for (const en of this.world.enemies) {
+      const c = en.turn;
+      if (!c || isDead(en) || en.state === 'dying') continue;
+      alive.add(en.id);
+      let v = this.turnViews.get(en.id);
+      if (!v) {
+        const circle = this.add.image(Math.round(c.x), Math.round(c.y), 'circulo-turno', 0).setDepth(-60400);
+        const num = this.add.bitmapText(Math.round(c.x), Math.round(c.y), FONT, turnNumber(c.num), 8).setOrigin(0.5, 0.5).setScale(2).setDepth(-60300);
+        v = { circle, num, state: '' };
+        this.turnViews.set(en.id, v);
+      }
+      if (v.state !== c.state) {
+        v.state = c.state;
+        v.circle.setFrame(c.state === 'called' ? 0 : c.state === 'served' ? 1 : 2);
+        v.num.setTint(c.state === 'called' ? 0xf6c431 : c.state === 'served' ? 0x7fe08a : 0xe0453b);
+      }
+      const pop = c.state === 'called' ? Math.min(1, c.t / 0.12) : 1;
+      v.circle.setScale(1.25 - 0.25 * pop);
+      const left = c.until - c.t;
+      const fade = c.state === 'called' ? 1 : Math.min(1, left / 0.4);
+      const blink = c.state === 'called' && left < 1 && Math.floor(this.time.now / 110) % 2 === 0;
+      v.circle.setAlpha((blink ? 0.6 : 0.95) * fade);
+      // Lost: the number shakes, as the dispenser does.
+      const jx = c.state === 'lost' ? Math.round(this.fx.range(-1, 1)) : 0;
+      v.num.setPosition(Math.round(c.x) + jx, Math.round(c.y)).setAlpha(fade);
+      if (c.state === 'called') {
+        const k = Math.max(0, left / c.until);
+        g.lineStyle(2, 0xf6c431, blink ? 0.55 : 0.95);
+        g.beginPath();
+        g.arc(c.x, c.y, c.r - 4, -Math.PI / 2, -Math.PI / 2 + k * Math.PI * 2, false);
+        g.strokePath();
+      }
+    }
+    for (const [id, v] of this.turnViews) {
+      if (alive.has(id)) continue;
+      v.circle.destroy();
+      v.num.destroy();
+      this.turnViews.delete(id);
     }
   }
 
@@ -4431,7 +4514,7 @@ const SKID_MAX = 120;
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
-  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte',
+  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

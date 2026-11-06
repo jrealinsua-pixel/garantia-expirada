@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-06T01:24:00+01:00",
+  "actualizado": "2026-11-06T02:24:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 22,
+    "enemigos": 23,
     "jefes": 4,
     "armas": 4,
     "objetos": 55,
     "plantillas_sala": 87,
-    "tests": 684,
-    "tests_ok": 684,
+    "tests": 694,
+    "tests_ok": 694,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 24712
+    "lineas_codigo": 25104
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-06T02:24:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (4a): el Dispensador de Turnos. Cada 4–5 s llama un turno con un círculo numerado en el suelo: llegar a tiempo para balas un rato; no llegar, «Turno perdido» y un abanico de tiques. El bot va al círculo y rodea a las destructoras que le plantan cara.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-06T01:24:00+01:00",
       "hito": "M11",
@@ -1046,6 +1052,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/dispensador-turno.png",
+      "pie": "El Dispensador de Turnos llama «Turno 122, ventanilla 6»: el círculo amarillo con el número y la cuenta atrás, lejos de la tostadora; si llega a tiempo, el círculo para las balas"
+    },
+    {
+      "archivo": "capturas/dispensador-perdido.png",
+      "pie": "Turno perdido: el círculo se pone rojo y el dispensador escupe un abanico doble de tiques hacia la tostadora"
+    },
+    {
       "archivo": "capturas/megafono.png",
       "pie": "El Megáfono de Reclamaciones en la Sala de Pruebas: el abanico de ondas atraviesa a dos enemigos en fila; arriba, su ficha («Atraviesa a todos y los empuja»)"
     },
@@ -1058,19 +1072,11 @@
       "pie": "Los cuatro enemigos de Atención al Cliente en la Cola Preferente: el Dispensador llama un turno y escupe tiques, los Postes tienden la cinta, el Asistente se escuda con sus preguntas frecuentes y el Teléfono suena; en el suelo, un círculo de turno llamado y otro atendido"
     },
     {
-      "archivo": "capturas/clientela-sprites.png",
-      "pie": "Las hojas de los cuatro: el Dispensador de Turnos (andar, llamar, escupir), los dos Postes de Cola (uno desconchado), el Asistente Virtual escribiendo y el Teléfono de Recepción saltando y sonando; abajo, sus balas, la cinta y el escudo"
-    },
-    {
       "archivo": "capturas/centralita-sala.png",
       "pie": "La Centralita en Atención al Cliente: habla («Para reclamaciones, pulse 3»), lanza clavijas y notas de la música de espera; en el suelo, las zonas del menú de voz (la 1 en espera, la 2 y la 3 con las balas encima) y los mostradores bajos de los departamentos"
-    },
-    {
-      "archivo": "capturas/centralita-sprites.png",
-      "pie": "La hoja de la Centralita: reposo, arrastrarse con los cables, hablar, lanzar una clavija; en la fase 3 sin clavijas, con los pilotos en rojo y los cables en alto; y muda, con los pilotos en blanco"
     }
   ],
-  "proximo": "M11 (6c1) la Etiquetadora de Precios; o (5b) la Centralita (fases 1 y 2) con su sala (2c2); o los enemigos (4a)–(4d) con sus sprites ya hechos.",
+  "proximo": "M11 (4b): los Postes de Cola; o la (5b) Centralita con su sala (2c2), los enemigos (4c)–(4d) o la medida (7).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1101,11 +1107,6 @@
       "sesion": "2026-11-06 01:26",
       "tarea": "M11 (6c1): la Etiquetadora de Precios (src/data/weapons.ts, src/data/types.ts, src/sim/mods.ts, src/sim/world.ts: balas que pegan etiquetas y «Rebajado»; src/render/GameScene.ts, tools/sprites/megafono.ts, tests/etiquetadora.test.ts)",
       "desde": "2026-11-06T01:26:00+01:00"
-    },
-    {
-      "sesion": "2026-11-06 01:35",
-      "tarea": "M11 (4a): el Dispensador de Turnos (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts; en src/sim/world.ts solo spawnEnemy, eventos, avisos y el círculo que para balas; src/render/GameScene.ts el círculo y su número; src/data/rooms.ts de la planta 5; tests/dispensador.test.ts)",
-      "desde": "2026-11-06T01:35:00+01:00"
     }
   ]
 }

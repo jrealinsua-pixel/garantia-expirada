@@ -943,6 +943,29 @@ try {
   await shot('50x-climatizador-copos.png');
   console.log('Climatizador: el cono de aire frío empuja a la tostadora, tuerce sus balas y sopla escarcha.');
 
+  // M11 (4a): the ticket dispenser. A turn called (the circle with its number and countdown),
+  // missed (red, the fan of tickets), and the next one served (green).
+  await page.goto(`${url}?semilla=e2e-dispensador&sala=ventanillas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('dispensador-turnos', p.x - 120, p.y - 10); w.enemies[0].callT = 0.2; w.enemies[0].until = 99; })()`);
+  await page.waitForFunction("(() => { const t = window.__GE__.scene.world.enemies[0]?.turn; return t && t.state === 'called' && t.t > 0.6; })()", undefined, { timeout: 6000 })
+    .catch(() => { throw new Error('El dispensador no llama ningún turno'); });
+  await shot('50y-dispensador-turno.png');
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'enemy' && b.color === 'ticket').length >= 12", undefined, { timeout: 5000 })
+    .catch(() => { throw new Error('Turno perdido y el dispensador no escupe su abanico'); });
+  await page.waitForTimeout(120);
+  await shot('50z-dispensador-perdido.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.bullets = []; const d = w.enemies[0]; d.callT = 0; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies[0]?.turn?.state === 'called'", undefined, { timeout: 6000 })
+    .catch(() => { throw new Error('El dispensador no llama el segundo turno'); });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const t = w.enemies[0].turn; w.player.x = t.x; w.player.y = t.y; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies[0]?.turn?.state === 'served'", undefined, { timeout: 2000 })
+    .catch(() => { throw new Error('La tostadora en el círculo y el turno no se atiende'); });
+  await page.waitForTimeout(200);
+  await shot('50za-dispensador-atendido.png');
+  console.log('Dispensador: llama un turno con su círculo, lo da por perdido con un abanico de tiques y atiende el siguiente.');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);

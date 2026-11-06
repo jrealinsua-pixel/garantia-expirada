@@ -62,6 +62,8 @@ function sideFrame(en: Enemy, now: number): number {
   // warns and throws (a card in his hand, his stamp up).
   // (Not once a phase has its own frames: the Director gets up in phase 3 and his clap is seated.)
   if (a.clap !== undefined && en.state === 'roar' && own === undefined) return a.clap;
+  // A ticket dispenser whose turn was missed: furious, tongue out, spitting its fan.
+  if (a.spit !== undefined && en.state === 'fire' && en.turn?.state === 'lost') return a.spit;
   const pose = attackPose(en);
   if (pose !== undefined) return pose;
   // Rebooting: its lights come on one by one over the reboot.

@@ -2057,6 +2057,15 @@ export const SLOT_ENEMIES_4: readonly SlotEnemy[] = [
 ];
 
 /**
+ * Floor 5 (Atención al Cliente): floor 4's and its own as they are made (Ñ: the ticket dispenser,
+ * M11 (4a), at most one: two would call turns at both ends of the room at once).
+ */
+export const SLOT_ENEMIES_5: readonly SlotEnemy[] = [
+  ...SLOT_ENEMIES_4,
+  { ch: 'Ñ', cost: 3, weight: 4, max: 1 },
+];
+
+/**
  * How much harder to break the room enemies of each floor are (life ×, bosses apart; M10 (7)).
  * The Juguetería is the wall of the run (human's note): its toys are built to survive a
  * three-year-old, so they take a third more; the Oficinas, where a run arrives loaded with items,
@@ -2073,7 +2082,7 @@ export function toughened<T extends { hp: number; brain: { kind: string } }>(def
 
 /** What can fill an `e` slot on floor `level`. */
 export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
-  return level >= 4 ? SLOT_ENEMIES_4 : level === 3 ? SLOT_ENEMIES_3 : level === 2 ? SLOT_ENEMIES_2 : SLOT_ENEMIES_1;
+  return level >= 5 ? SLOT_ENEMIES_5 : level === 4 ? SLOT_ENEMIES_4 : level === 3 ? SLOT_ENEMIES_3 : level === 2 ? SLOT_ENEMIES_2 : SLOT_ENEMIES_1;
 }
 
 /** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses the nearest floor's below. */

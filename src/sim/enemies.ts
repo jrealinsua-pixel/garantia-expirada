@@ -2,8 +2,9 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain,
+  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain,
 } from '../data/types.ts';
+import { blockedTiles, findPath } from './nav.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS, PROPS } from '../data/props.ts';
@@ -124,6 +125,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'blower':
         updateBlower(w, en, en.def.brain);
+        break;
+      case 'turner':
+        updateTurner(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1737,6 +1741,151 @@ function updateBlower(w: World, en: Enemy, b: BlowerBrain): void {
   }
 }
 
+/** Warning before a ticket dispenser's loose tickets (s): they are slow, so a short one. */
+const ENEMY_TELEGRAPH_SHORT = 0.35;
+
+/** The number on the dispenser's own screen: the one turn it never calls. */
+export const OWN_TURN = 87;
+
+/**
+ * Where a ticket dispenser lights its next turn: `near`–`far` px from the player (closer, if
+ * nothing fits), on the floor and clear of the walls, not on the dispenser itself, and somewhere
+ * the toaster can walk to (round whatever is in the way) in under 70 % of the countdown. Null if
+ * there is no such place (it will try again a moment later).
+ */
+export function turnSpot(w: World, en: Enemy, b: TurnerBrain): { x: number; y: number } | null {
+  const p = w.player;
+  const r = p.def.footRadius;
+  const room = w.room;
+  const blocked = blockedTiles(w, r);
+  const reach = p.def.speed * b.countdown * 0.7;
+  for (let i = 0; i < 28; i++) {
+    const d = i < 18 ? w.rng.range(b.near, b.far) : w.rng.range(b.near * 0.55, b.near);
+    const a = w.rng.range(0, Math.PI * 2);
+    const x = p.x + Math.cos(a) * d;
+    const y = p.y + Math.sin(a) * d * 0.8;
+    // Most of the circle on the floor (it is painted there), the middle well clear of anything.
+    if (x < TILE + b.radius * 0.6 || x > room.w - TILE - b.radius * 0.6) continue;
+    if (y < TILE * 2 + b.radius * 0.5 || y > room.h - TILE - b.radius * 0.5) continue;
+    if (Math.hypot(x - en.x, y - en.y) < b.radius + 12 || !isClear(w, x, y, r + 2)) continue;
+    const path = findPath(w, p, { x, y }, r, blocked);
+    const end = path[path.length - 1];
+    if (!end || Math.hypot(end.x - x, end.y - y) > TILE * 0.75) continue;
+    let len = 0;
+    let at: { x: number; y: number } = p;
+    for (const q of [...path, { x, y }]) {
+      len += Math.hypot(q.x - at.x, q.y - at.y);
+      at = q;
+    }
+    if (len <= reach) return { x, y };
+  }
+  return null;
+}
+
+/**
+ * The ticket dispenser: keeps its distance and, every few seconds, calls a turn: a numbered circle
+ * lights up on the floor away from the player, who has a moment to get into it. In time, the
+ * circle stops enemy bullets for a little longer; too late, it spits a wide fan of tickets at the
+ * player. With no turn on, it lets go of a couple of slow gliding tickets now and then.
+ */
+function updateTurner(w: World, en: Enemy, b: TurnerBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+  // Its next call counts down all the time (it can only come with no turn on the floor).
+  en.callT = (en.callT ?? b.interval[0] * 0.5) - DT;
+  const c = en.turn;
+  if (c) {
+    c.t += DT;
+    if (c.state === 'called') {
+      if (!w.over && Math.hypot(p.x - c.x, p.y - c.y) <= c.r - 2) {
+        c.state = 'served';
+        c.t = 0;
+        c.until = b.served;
+        w.events.push({ type: 'turnServed', x: c.x, y: c.y, source: en.id });
+      } else if (c.t >= c.until) {
+        c.state = 'lost';
+        c.t = 0;
+        c.until = b.lost;
+        w.events.push({ type: 'turnLost', x: c.x, y: c.y, source: en.id });
+        if (!w.over) {
+          const def = PATTERNS[b.punish];
+          if (!def) throw new Error(`Unknown pattern ${b.punish}`);
+          const mh = muzzleHeight(w, en, b.muzzleY);
+          firePattern(w, def, en.x + 3 * en.facing, en.y - mh, Math.atan2(dy, dx), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
+          enter(en, 'fire', b.telegraph + patternDuration(def) + 0.3);
+        }
+      }
+    } else if (c.t >= c.until) {
+      delete en.turn;
+    }
+  }
+  let walkX = 0;
+  let walkY = 0;
+  switch (en.state) {
+    case 'warn':
+      // Calling the turn: it stands still, the number lit up.
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(b.between[0], b.between[1]));
+      break;
+    case 'fire':
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(b.between[0], b.between[1]));
+      break;
+    default: {
+      if (en.state !== 'idle') enter(en, 'idle', w.rng.range(b.between[0], b.between[1]));
+      if (!en.turn && !w.over) {
+        if (en.callT <= 0 && dist < b.range) {
+          const at = turnSpot(w, en, b);
+          if (!at) {
+            en.callT = 0.4;
+          } else {
+            let num = w.rng.int(1, 999);
+            if (num === OWN_TURN) num++;
+            const desk = w.rng.int(1, 9);
+            en.turn = { x: at.x, y: at.y, r: b.radius, num, desk, state: 'called', t: 0, until: b.countdown };
+            // The next call counts from this one (a turn served or lost takes less than that).
+            en.callT = w.rng.range(b.interval[0], b.interval[1]);
+            w.events.push({ type: 'turnCall', x: at.x, y: at.y, num, desk, source: en.id });
+            enter(en, 'warn', b.call);
+            break;
+          }
+        }
+        // No turn on: a couple of loose tickets, gliding slowly at the player.
+        if (en.t >= en.until && dist < b.range) {
+          const def = PATTERNS[b.pattern];
+          if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+          const mh = muzzleHeight(w, en, b.muzzleY);
+          firePattern(w, def, en.x + 3 * en.facing, en.y - mh, Math.atan2(dy, dx), { telegraph: ENEMY_TELEGRAPH_SHORT, source: en.id, by: en.def.id, height: mh });
+          enter(en, 'fire', ENEMY_TELEGRAPH_SHORT + patternDuration(def) + 0.15);
+          break;
+        }
+      }
+      // Keeps its distance, backing off sideways (as the bucket of pieces does).
+      const sign = dist > b.keep + 24 ? 1 : dist < b.keep - 24 ? -1 : 0;
+      const side = sign < 0 ? (en.phase >= 0 ? 0.8 : -0.8) : 0;
+      const ux = dx / dist;
+      const uy = dy / dist;
+      const mx = ux * sign - uy * side;
+      const my = uy * sign + ux * side;
+      const ml = Math.hypot(mx, my) || 1;
+      if (sign !== 0) {
+        walkX = (mx / ml) * b.speed;
+        walkY = (my / ml) * b.speed;
+      }
+    }
+  }
+  approach(en, walkX, walkY, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+}
+
+
 /**
  * The DENEGADO stamp: hops towards the player (state `charge`, like the envelope) and every
  * `stampEvery` hops it stamps: it rises over the player's spot (state `warn`, gliding there while a
@@ -1918,7 +2067,8 @@ function updateLobber(w: World, en: Enemy, b: LobberBrain): void {
 export function copiable(en: Enemy): boolean {
   const k = en.def.brain.kind;
   // Nor an air conditioner: one cone per room is plenty (and copies of it would pin the toaster to a wall).
-  if (k === 'boss' || k === 'relay' || k === 'copier' || k === 'blower' || en.def.boss) return false;
+  // Nor a ticket dispenser: at most one per room (two would call turns at both ends of it at once).
+  if (k === 'boss' || k === 'relay' || k === 'copier' || k === 'blower' || k === 'turner' || en.def.boss) return false;
   return en.copyOf === undefined && !isDead(en) && en.state !== 'dying' && en.state !== 'lurk' && en.state !== 'gone';
 }
 

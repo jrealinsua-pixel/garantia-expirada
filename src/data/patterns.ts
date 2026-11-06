@@ -98,6 +98,16 @@ export const PATTERNS: Record<string, PatternDef> = {
   'climatizador-copos': { kind: 'fan', count: 6, spreadDeg: 36, speed: 95, accel: 40, maxSpeed: 140, color: 'ice' },
   // The DENEGADO stamp coming down: a short ring of eight drops of ink splashing out.
   'sello-gotas': { kind: 'ring', count: 8, speed: 95, life: 0.75, color: 'ink' },
+  // The ticket dispenser (M11 (4a)): with no turn on, two loose tickets that glide slowly,
+  // wobbling; a turn missed, a wide double fan of them (the second row slower, to close the gaps).
+  'dispensador-tiques': { kind: 'fan', count: 2, spreadDeg: 40, speed: 58, wave: { amp: 5, freq: 1.1 }, life: 4.5, color: 'ticket' },
+  'dispensador-abanico': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 9, spreadDeg: 110, speed: 112, color: 'ticket' } },
+      { at: 0.14, pattern: { kind: 'fan', count: 8, spreadDeg: 98, speed: 88, color: 'ticket' } },
+    ],
+  },
   'fotocopiadora-folios': { kind: 'fan', count: 3, spreadDeg: 34, speed: 100, color: 'sheet' },
   'destructora-tiras': { kind: 'fan', count: 5, spreadDeg: 50, speed: 115, color: 'strip' },
   'robot-tuercas': { kind: 'fan', count: 3, spreadDeg: 30, speed: 105, color: 'nut' },
