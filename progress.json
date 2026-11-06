@@ -1107,6 +1107,11 @@
       "sesion": "2026-11-06 01:26",
       "tarea": "M11 (6c1): la Etiquetadora de Precios (src/data/weapons.ts, src/data/types.ts, src/sim/mods.ts, src/sim/world.ts: balas que pegan etiquetas y «Rebajado»; src/render/GameScene.ts, tools/sprites/megafono.ts, tests/etiquetadora.test.ts)",
       "desde": "2026-11-06T01:26:00+01:00"
+    },
+    {
+      "sesion": "2026-11-06 02:30",
+      "tarea": "M11 (4b): los Postes de Cola (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts; en src/sim/world.ts solo la barrera de la cinta tras mover a la tostadora, spawnEnemy, eventos y avisos; src/render/GameScene.ts el dibujo de la cinta; src/data/rooms.ts SLOT_ENEMIES_5; src/sim/bot.ts; tests/postes.test.ts)",
+      "desde": "2026-11-06T02:30:00+01:00"
     }
   ]
 }
