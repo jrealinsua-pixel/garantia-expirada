@@ -80,6 +80,8 @@ export const SFX: Record<string, SfxParams> = {
   // The stapler: a dry metal clack; the iron: a hiss of steam with a thump.
   grapa: { wave: 'square', freq: 1900, freqEnd: 700, attack: 0.001, sustain: 0.008, decay: 0.035, volume: 0.15, duty: 0.2, crush: 2 },
   vapor: { wave: 'noise', freq: 3600, freqEnd: 900, attack: 0.004, sustain: 0.09, decay: 0.22, volume: 0.3, lowpass: 0.55 },
+  // The megaphone: a squawk through a cheap horn, with the feedback whine on top.
+  megafono: { wave: 'square', freq: 640, freqEnd: 470, attack: 0.004, sustain: 0.11, decay: 0.16, volume: 0.17, duty: 0.4, vibrato: 0.09, vibratoSpeed: 38, crush: 3 },
   vaporGolpe: { wave: 'square', freq: 150, freqEnd: 50, attack: 0.001, sustain: 0.03, decay: 0.1, volume: 0.24, duty: 0.5 },
   // Changing weapon (a holster click) and finding one (a little fanfare).
   cambiar: { wave: 'square', freq: 700, freqEnd: 420, attack: 0.001, sustain: 0.02, decay: 0.05, volume: 0.13, duty: 0.3, crush: 2 },

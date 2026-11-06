@@ -1,7 +1,7 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
 import { floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, toughened } from '../data/rooms.ts';
-import { FINDABLE_WEAPONS, WEAPONS } from '../data/weapons.ts';
+import { FINDABLE_WEAPONS, WEAPONS, weaponsUpTo } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
@@ -1128,10 +1128,10 @@ function planFloor(seed: string, level: number): FloorRun {
   return { layout, current: layout.start, rooms, ...lootDecks(seed, level) };
 }
 
-/** The weapons and items floor `level` hands out, each in its own seeded order (items: see itemsUpTo). */
+/** The weapons and items floor `level` hands out, each in its own seeded order (see weaponsUpTo and itemsUpTo). */
 function lootDecks(seed: string, level: number): { weapons: string[]; items: string[]; actives: string[] } {
   return {
-    weapons: new Rng(`armas:${seed}`).shuffle([...FINDABLE_WEAPONS]),
+    weapons: new Rng(`armas:${seed}`).shuffle(weaponsUpTo(level)),
     items: new Rng(`objetos:${seed}`).shuffle(itemsUpTo(level)),
     actives: new Rng(`activos:${seed}`).shuffle([...FINDABLE_ACTIVES]),
   };

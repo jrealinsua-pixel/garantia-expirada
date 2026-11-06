@@ -7,6 +7,8 @@ export interface WeaponDef {
    * «Economía». Unset: an ordinary one.
    */
   quality?: 'buena';
+  /** The first floor that can hand it out (1 if missing), like the items' (see weaponsUpTo). */
+  level?: number;
   name: string;
   description: string;
   /** Shots per second while the trigger is held. */
@@ -44,6 +46,11 @@ export interface WeaponLook {
   sound: string;
   /** Screen shake per shot (fraction of the view). */
   shake: number;
+  /**
+   * The bullet grows from `from` to `to` times its size over its life and fades out to `1 - fade`
+   * of its alpha (the iron's steam, the megaphone's sound waves).
+   */
+  swell?: { from: number; to: number; fade: number };
 }
 
 /**

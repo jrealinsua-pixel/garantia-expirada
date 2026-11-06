@@ -393,3 +393,15 @@ y cada uno con un color que se despega del linóleo azul petróleo: **rojo**, **
   reojo con media sonrisa). Su llamada (`bala-llamada`, 13 × 13, 2: el anillo late), roja con
   núcleo blanco y un auricular dibujado; los anillos de timbre y la espera usan `bala-roja` y
   `nota-espera`.
+
+### Las armas de la planta 5 (`tools/sprites/megafono.ts`)
+
+- **`arma-megafono`** (18×11, la boca a la derecha como todas): el tambor rojo del altavoz detrás,
+  con una tira de cinta gris en la tapa de las pilas; la bocina crema que se abre (de 3 a 9 px)
+  con un aro rojo a medio camino y el borde rojo de la boca, por dentro oscuro; la pegatina
+  amarilla del precio con el precio tachado; empuñadura de pistola gris oscuro con su gatillo.
+- **`bala-onda`** (7×13, vuela a la derecha y el juego la gira): un arco claro delante (blanco en
+  el centro, amarillo pálido en las puntas), un filo amarillo detrás y un arco naranja más pequeño
+  dentro. Las siete ondas de un disparo se solapan en un abanico; cada una crece de ×0,9 a ×1,8 y
+  se apaga hasta el 40 % (`look.swell`, el mismo mecanismo que el vapor de la plancha).
+

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-06T00:20:00+01:00",
+  "actualizado": "2026-11-06T01:24:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -91,7 +91,7 @@
       "id": "M11",
       "nombre": "Planta 5: Atención al Cliente",
       "estado": "en_curso",
-      "hechas": 4,
+      "hechas": 5,
       "total": 6
     },
     {
@@ -127,16 +127,22 @@
     "personajes": 1,
     "enemigos": 22,
     "jefes": 4,
-    "armas": 3,
+    "armas": 4,
     "objetos": 55,
     "plantillas_sala": 87,
-    "tests": 678,
-    "tests_ok": 678,
+    "tests": 684,
+    "tests_ok": 684,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 24671
+    "lineas_codigo": 24712
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-06T01:24:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (6c2): el Megáfono de Reclamaciones, arma de la planta 5: siete ondas de corto alcance que atraviesan a todos y los empujan. Las armas tienen ya planta propia, como los objetos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-06T00:20:00+01:00",
       "hito": "M11",
@@ -1040,6 +1046,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/megafono.png",
+      "pie": "El Megáfono de Reclamaciones en la Sala de Pruebas: el abanico de ondas atraviesa a dos enemigos en fila; arriba, su ficha («Atraviesa a todos y los empuja»)"
+    },
+    {
       "archivo": "capturas/partida-ganada.png",
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     },
@@ -1058,13 +1068,9 @@
     {
       "archivo": "capturas/centralita-sprites.png",
       "pie": "La hoja de la Centralita: reposo, arrastrarse con los cables, hablar, lanzar una clavija; en la fase 3 sin clavijas, con los pilotos en rojo y los cables en alto; y muda, con los pilotos en blanco"
-    },
-    {
-      "archivo": "capturas/atencion-reclamaciones.png",
-      "pie": "Hoja de Reclamaciones: la tostadora dispara hacia el otro lado y la copia rosa da la vuelta tras quien la ha herido («Reclamación presentada»); encima, la Valoración va por 3 de 5 estrellas"
     }
   ],
-  "proximo": "M11 (5b): las fases 1 y 2 de la Centralita con su sala (2c2); o los enemigos (4a)–(4d), las armas (6c1)–(6c2) o la medida (7).",
+  "proximo": "M11 (6c1) la Etiquetadora de Precios; o (5b) la Centralita (fases 1 y 2) con su sala (2c2); o los enemigos (4a)–(4d) con sus sprites ya hechos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1090,11 +1096,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-06 00:28",
-      "tarea": "M11 (6c2): el Megáfono de Reclamaciones (src/data/weapons.ts, src/data/types.ts, tools/sprites/, sonido en src/audio/synth.ts, una línea de lootDecks en src/sim/world.ts para que las armas de la planta 5 salgan solo allí, tests/armas.test.ts)",
-      "desde": "2026-11-06T00:28:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

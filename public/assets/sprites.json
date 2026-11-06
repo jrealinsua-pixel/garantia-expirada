@@ -359,6 +359,18 @@
     "frameH": 9,
     "frames": 1
   },
+  "arma-megafono": {
+    "file": "arma-megafono.png",
+    "frameW": 18,
+    "frameH": 11,
+    "frames": 1
+  },
+  "bala-onda": {
+    "file": "bala-onda.png",
+    "frameW": 7,
+    "frameH": 13,
+    "frames": 1
+  },
   "mano": {
     "file": "mano.png",
     "frameW": 5,

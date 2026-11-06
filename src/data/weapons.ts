@@ -59,9 +59,38 @@ export const WEAPONS: Record<string, WeaponDef> = {
     recoil: 95,
     knockback: 120,
     pellets: 5,
-    look: { sprite: 'arma-plancha', bullet: 'bala-vapor', sound: 'vapor', shake: 0.006 },
+    look: { sprite: 'arma-plancha', bullet: 'bala-vapor', sound: 'vapor', shake: 0.006, swell: { from: 0.75, to: 1.35, fade: 0.45 } },
+  },
+  /**
+   * M11 (6c2), Atención al Cliente: an arc of sound waves from close up that goes through every
+   * enemy in front and shoves them all back. Wins at going through and pushing; loses on reach
+   * (about the iron's, half the stapler's), damage per hit (the lowest) and rate (the slowest).
+   */
+  megafono: {
+    id: 'megafono',
+    level: 5,
+    name: 'Megáfono de Reclamaciones',
+    description: 'Para que le oigan en la ventanilla del fondo. No le van a atender antes, pero le van a oír.',
+    fireRate: 1.25,
+    magazine: 6,
+    reloadTime: 1.5,
+    spreadDeg: 26,
+    bulletSpeed: 220,
+    bulletLife: 0.48,
+    damage: 0.7,
+    bulletRadius: 4,
+    recoil: 60,
+    knockback: 140,
+    pellets: 7,
+    bullets: { pierce: 99 },
+    look: { sprite: 'arma-megafono', bullet: 'bala-onda', turn: true, sound: 'megafono', shake: 0.005, swell: { from: 0.9, to: 1.8, fade: 0.6 } },
   },
 };
 
 /** Weapons the toaster can find, in the order a floor hands them out (seeded shuffle). */
-export const FINDABLE_WEAPONS: readonly string[] = ['grapadora', 'plancha'];
+export const FINDABLE_WEAPONS: readonly string[] = ['grapadora', 'plancha', 'megafono'];
+
+/** The findable weapons floor `level` can hand out: its own and the lower floors' (like itemsUpTo). */
+export function weaponsUpTo(level: number): string[] {
+  return FINDABLE_WEAPONS.filter((id) => (WEAPONS[id]!.level ?? 1) <= level);
+}

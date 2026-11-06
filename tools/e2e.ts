@@ -1412,6 +1412,7 @@ try {
   // them, fire each at the enemies, and change weapon with E and the mouse wheel.
   await page.goto(`${url}?semilla=e2e-armas&sala=sala-pruebas`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  const slotOf0 = (): Promise<string> => page.evaluate<string>('window.__GE__.scene.world.player.weapon.base.id');
   const goTo = (id: string, dx: number): Promise<unknown> =>
     page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const k = w.pickups.find((p) => p.weapon === '${id}'); w.player.x = k.x + ${dx}; w.player.y = k.y + 2; })()`);
   await goTo('grapadora', -40);
@@ -1443,6 +1444,23 @@ try {
   await page.waitForFunction("window.__GE__.scene.world.player.weapon.ammo < window.__GE__.scene.world.player.weapon.def.magazine", undefined, { timeout: 3000 });
   await page.waitForTimeout(10);
   await shot('19d-plancha.png');
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  // M11 (6c2): the Megáfono de Reclamaciones, on the third pedestal: its arc of waves up close.
+  await goTo('megafono', -40);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 4', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  // Below the item card, with two enemies in a row in front: the waves go through both.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 360; w.player.y = 276;
+    w.enemies.filter((x) => x.state !== 'gone' && x.def.id !== 'bombilla').slice(0, 2).forEach((e, i) => { e.x = 408 + 26 * i; e.y = 270; e.vx = 0; e.vy = 0; }); })()`);
+  await page.waitForTimeout(250);
+  await page.evaluate(`window.__GE__.scene.controls.override = { aimX: 520, aimY: 262, fire: true }`);
+  await page.waitForFunction("window.__GE__.scene.world.player.weapon.ammo < window.__GE__.scene.world.player.weapon.def.magazine", undefined, { timeout: 3000 });
+  await page.waitForTimeout(90);
+  await shot('19f-megafono.png');
+  const waves = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player' && b.weapon === 'megafono').length");
+  if (await slotOf0() !== 'megafono') throw new Error('No se ha cogido el Megáfono');
+  console.log(`Megáfono: ${waves} ondas en pantalla.`);
   await page.evaluate('window.__GE__.scene.controls.override = null');
   const slotOf = (): Promise<string> => page.evaluate<string>('window.__GE__.scene.world.player.weapon.base.id');
   const before = await slotOf();

@@ -3582,11 +3582,12 @@ export class GameScene extends Phaser.Scene {
       let size = b.owner === 'player' ? b.r / (wdef?.bulletRadius ?? PLAYER_BULLET_R) : 1;
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);
       if (wdef?.look.turn) s.setRotation(Math.atan2(b.vy, b.vx));
-      if (wdef?.id === 'plancha') {
-        // Steam swells and thins out as it goes.
+      const swell = wdef?.look.swell;
+      if (swell) {
+        // Steam and sound waves swell and thin out as they go.
         const k = b.age / (b.age + b.life);
-        size *= 0.75 + 0.6 * k;
-        s.setAlpha(1 - 0.45 * k);
+        size *= swell.from + (swell.to - swell.from) * k;
+        s.setAlpha((b.echo ? 0.55 : 1) * (1 - swell.fade * k));
       }
       // Loyalty cards spin as they fly.
       if (b.color === 'card' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 70 + b.id) % 4);

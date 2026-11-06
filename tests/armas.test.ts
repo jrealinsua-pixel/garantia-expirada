@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { FINDABLE_WEAPONS, WEAPONS } from '../src/data/weapons.ts';
+import { FINDABLE_WEAPONS, WEAPONS, weaponsUpTo } from '../src/data/weapons.ts';
 import { weaponProfile } from '../src/data/describe.ts';
 import { createWorld, DT, enterRoom, giveWeapon, NO_INPUT, SWAP_TIME, step, addModifier, type Input, type World } from '../src/sim/world.ts';
 
@@ -184,7 +184,7 @@ test('en la planta, las armas salen de los cofres (no sueltas) y cambian con la 
     enterRoom(w, t.id, back.dir);
     assert.equal(w.room.props.filter((pr) => pr.chest).length, 2);
   }
-  assert.deepEqual([...found].sort(), [...FINDABLE_WEAPONS].sort());
+  assert.deepEqual([...found].sort(), weaponsUpTo(1).sort());
 });
 
 test('cada arma gana claramente en algo y pierde en otra cosa (nota del humano)', () => {
@@ -197,6 +197,7 @@ test('cada arma gana claramente en algo y pierde en otra cosa (nota del humano)'
     'segundos de cargador': (id) => weaponProfile(WEAPONS[id]!).magazineSeconds,
     puntería: (id) => -WEAPONS[id]!.spreadDeg,
     cadencia: (id) => WEAPONS[id]!.fireRate,
+    'enemigos que atraviesa': (id) => WEAPONS[id]!.bullets?.pierce ?? 0,
   };
   for (const id of ids) {
     const wins: string[] = [];

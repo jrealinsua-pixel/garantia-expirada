@@ -148,6 +148,8 @@ export function weaponLines(w: WeaponDef): EffectLine[] {
   return [
     { text: `Daño ${round1(w.damage)}${shots} · ${round1(w.fireRate)} disparos/s`, good: true },
     { text: `Cargador ${w.magazine} · recarga ${round1(w.reloadTime)} s · alcance ${range}`, good: true },
+    // What its own bullets do (the megaphone): pierce from 20 up reads as «everyone».
+    ...(w.bullets?.pierce ? [{ text: w.bullets.pierce >= 20 ? 'Atraviesa a todos y los empuja' : `Atraviesa ${w.bullets.pierce} enemigos`, good: true }] : []),
   ];
 }
 

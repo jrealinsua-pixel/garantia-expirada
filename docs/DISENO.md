@@ -430,6 +430,16 @@ claramente en algo y pierde en otra cosa (`tests/armas.test.ts`, `npm run armas`
 | Etiquetadora de Precios | Dispara etiquetas adhesivas a ráfagas; se quedan pegadas al enemigo y la tercera etiqueta en el mismo, «Rebajado», hace una explosión pequeña de daño | Cadencia, daño acumulado contra uno | Daño por bala suelta, cargador corto, contra muchos |
 | Megáfono de Reclamaciones | Un arco de ondas de sonido a corta distancia que atraviesa a todos y los empuja hacia atrás | Atravesar, empujar, controlar | Alcance, daño por golpe, cadencia baja |
 
+El **Megáfono** está en el juego (M11 6c2): 0,7 × 7 ondas, 1,25 disparos/s, cargador 6, recarga
+1,5 s, alcance 105 (el de la plancha, la mitad que la grapadora), empuje 140 por onda y
+`pierce: 99` (atraviesa a todos; es la única arma que lo trae de serie, y los objetos le suman el
+suyo). Daño/s con recargas 4,7. Medido con `npm run armas` (bot solo con el arma, salas de la
+planta 1 y la Nevera): limpia el 78 % de las salas (secador 92, plancha 90: con el bot, que
+pelea de lejos, lo corto pesa) y gana a la jefa el 85 % en 66 s con 3,3 heridas (secador 60 %,
+grapadora 70, plancha 90). Las armas llevan ya `level` como los objetos: la planta *n* reparte
+las suyas y las de abajo (`weaponsUpTo`), así que el Megáfono solo sale en Atención al Cliente
+(y en la Sala de Pruebas, que enseña todas en su tercer pedestal).
+
 Atención al Cliente se ve a la primera (M11 (1)): linóleo azul institucional con una línea
 amarilla pintada en el suelo («Siga la línea») que no lleva a ninguna parte, colas de postes con
 cinta, filas de sillas de espera atornilladas al suelo como obstáculos, mostradores de ventanilla

@@ -20,6 +20,7 @@ import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
+import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import * as H from './mostrador.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
@@ -131,6 +132,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'arma-plancha': one(P.makeMiniIron()),
     'bala-grapa': one(P.makeStaple()),
     'bala-vapor': one(P.makeSteam()),
+    // Floor 5's weapons (M11 6c).
+    'arma-megafono': one(makeMiniMegaphone()),
+    'bala-onda': one(makeSoundWave()),
     mano: one(P.makeHand()),
     caja: one(P.makeCaja()),
     barril: one(P.makeBarril()),

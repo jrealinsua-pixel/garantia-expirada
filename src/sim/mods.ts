@@ -48,7 +48,8 @@ export function modStat(stat: StatKey, base: number, mods: readonly Modifier[]):
 export function moddedWeapon(base: WeaponDef, mods: readonly Modifier[]): WeaponDef {
   const out: WeaponDef = { ...base };
   for (const k of WEAPON_STATS) out[k] = modStat(k, base[k], mods);
-  const b = bulletBehaviour(mods);
+  // The weapon's own bullet behaviour (the megaphone goes through everything) adds up with the items'.
+  const b = bulletBehaviour(base.bullets ? [{ id: base.id, bullets: base.bullets }, ...mods] : mods);
   if (b) out.bullets = b;
   else delete out.bullets;
   return out;
