@@ -1101,6 +1101,11 @@
       "sesion": "2026-11-06 01:26",
       "tarea": "M11 (6c1): la Etiquetadora de Precios (src/data/weapons.ts, src/data/types.ts, src/sim/mods.ts, src/sim/world.ts: balas que pegan etiquetas y «Rebajado»; src/render/GameScene.ts, tools/sprites/megafono.ts, tests/etiquetadora.test.ts)",
       "desde": "2026-11-06T01:26:00+01:00"
+    },
+    {
+      "sesion": "2026-11-06 01:35",
+      "tarea": "M11 (4a): el Dispensador de Turnos (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts; en src/sim/world.ts solo spawnEnemy, eventos, avisos y el círculo que para balas; src/render/GameScene.ts el círculo y su número; src/data/rooms.ts de la planta 5; tests/dispensador.test.ts)",
+      "desde": "2026-11-06T01:35:00+01:00"
     }
   ]
 }
