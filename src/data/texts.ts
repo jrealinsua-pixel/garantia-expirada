@@ -43,6 +43,8 @@ export const TRIAL_END_LINE = 'Contrato no renovado';
 export const EXPIRED_LINE = 'Promoción caducada';
 /** Llamada Grabada (M11 6b1): over the enemy that hurt the toaster, now marked. */
 export const RECORDED_LINE = 'Llamada grabada';
+/** Etiquetadora: the third label on the same enemy goes off (one of these, at random). */
+export const MARKDOWN_LINES: readonly string[] = ['Rebajado', 'Rebajado -30 %', 'Rebajado -50 %', 'Rebajado -70 %', 'Rebajado: sin devolución'];
 /** Hoja de Reclamaciones (M11 6b2): over the enemy that hurt the toaster, the complaint filed. */
 export const COMPLAINT_LINE = 'Reclamación presentada';
 /** Valoración de Cinco Estrellas (M11 6b2): a star earned, the heart they pay, or the stars wiped by a hit. */

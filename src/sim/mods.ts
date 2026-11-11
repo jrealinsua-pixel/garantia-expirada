@@ -84,6 +84,7 @@ export function bulletBehaviour(mods: readonly Modifier[]): BulletBehaviour | nu
       out.stick = { time: Math.max(out.stick?.time ?? 0, b.stick.time), ...(slow ? { slow: { ...slow } } : {}) };
     }
     if (b.wave && (!out.wave || b.wave.amp > out.wave.amp)) out.wave = { ...b.wave };
+    if (b.tag && (!out.tag || b.tag.mul > out.tag.mul)) out.tag = { ...b.tag };
   }
   return Object.keys(out).length ? out : null;
 }

@@ -93,6 +93,8 @@ import {
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { pairUp, spawnEnemy, tapesOf, TIP_FACING, type HeartKind, type Player } from '../sim/world.ts';
+import { dummyHurtBox, type Dummy } from '../sim/world.ts';
+import { MARKDOWN_LINES } from '../data/texts.ts';
 
 /** What the toaster has on loan after its hearts, in the order it pays: surge, warranties, turbo. */
 function loanIcons(p: Player): { key: string; half: boolean }[] {
@@ -313,6 +315,8 @@ export class GameScene extends Phaser.Scene {
   private crosshair!: Phaser.GameObjects.Image;
   private dummySprites = new Map<number, Phaser.GameObjects.Image>();
   private enemySprites = new Map<number, EnemyView>();
+  /** Etiquetadora: the labels stuck on each enemy or dummy (by id), one sprite each. */
+  private labelViews = new Map<number, Phaser.GameObjects.Image[]>();
   private bulletSprites = new Map<number, Phaser.GameObjects.Image>();
   /** Bullet sprites put away to be used again (hundreds of bullets come and go every second). */
   private bulletPool: Phaser.GameObjects.Image[] = [];
@@ -513,6 +517,7 @@ export class GameScene extends Phaser.Scene {
     this.winT = -1;
     this.dummySprites = new Map();
     this.enemySprites = new Map();
+    this.labelViews = new Map();
     this.bulletSprites = new Map();
     this.bulletPool = [];
     this.pickupSprites = new Map();
@@ -2056,6 +2061,13 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('clinc', { detune: -300, volume: 0.6 });
           this.floatText(e.x, e.y - 34, fontText(RECORDED_LINE), 0xe0453b, `recorded:${e.target}`, -10, 1.1);
           break;
+        case 'tag':
+          // Etiquetadora: a label stuck on; the slap of the paper, higher with each one.
+          this.sound2.play('clinc', { detune: -900 + 500 * e.count, volume: 0.45 });
+          break;
+        case 'markdown':
+          this.markdownFx(e);
+          break;
         case 'complaint':
           // Hoja de Reclamaciones: the stamp on the form, and the name of who it is against.
           this.sound2.play('golpe', { detune: 900, volume: 0.4 });
@@ -3059,6 +3071,63 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < 6; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(40, 90), 3);
   }
 
+  /**
+   * Etiquetadora: the labels stuck on enemies and dummies, a small sprite each on the body (the
+   * first one high, the next ones lower, crooked each its own way). They flicker just before
+   * they peel off.
+   */
+  private drawLabels(w: World): void {
+    const seen = new Set<number>();
+    const spots = [
+      [0.32, 0.3],
+      [0.66, 0.48],
+      [0.42, 0.68],
+    ] as const;
+    const targets: (Enemy | Dummy)[] = [...w.enemies, ...w.dummies];
+    for (const t of targets) {
+      const n = t.tags ?? 0;
+      const enemy = 'state' in t ? t : null;
+      if (n <= 0 || enemy?.state === 'gone') continue;
+      seen.add(t.id);
+      const list = this.labelViews.get(t.id) ?? [];
+      while (list.length < n) list.push(this.add.image(0, 0, 'etiqueta-pegada', (t.id + list.length) % 3));
+      while (list.length > n) list.pop()!.destroy();
+      this.labelViews.set(t.id, list);
+      const hb = dummyHurtBox(t);
+      const lift = enemy ? enemyAltitude(enemy) : 0;
+      const peeling = (t.tagT ?? 0) < 0.6 && Math.floor(this.time.now / 90) % 2 === 0;
+      list.forEach((s, i) => {
+        const [fx, fy] = spots[i % spots.length]!;
+        s.setPosition(Math.round(hb.x + hb.w * fx), Math.round(hb.y + hb.h * fy - lift)).setDepth(t.y + 0.4).setAlpha(peeling ? 0.45 : 1);
+      });
+    }
+    for (const [id, list] of this.labelViews) {
+      if (seen.has(id)) continue;
+      for (const s of list) s.destroy();
+      this.labelViews.delete(id);
+    }
+  }
+
+  /**
+   * Etiquetadora, «Rebajado»: the labels go off with the till's bell, a ring of yellow and red
+   * the size of the blast, torn bits of label and the line over the enemy.
+   */
+  private markdownFx(e: Extract<SimEvent, { type: 'markdown' }>): void {
+    this.hitstop = Math.max(this.hitstop, 0.04);
+    this.shake(120, 0.005);
+    this.sound2.play('rebajado');
+    this.sound2.play('pegatina', { volume: 0.6 });
+    const core = this.add.circle(e.x, e.y, 5, 0xfff1a8, 1).setDepth(e.y + 40);
+    const ring = this.add.circle(e.x, e.y, 6).setDepth(e.y + 41).setStrokeStyle(2, 0xf6c431, 1);
+    const ring2 = this.add.circle(e.x, e.y, 4).setDepth(e.y + 41).setStrokeStyle(1, 0xe0453b, 1);
+    this.tweens.add({ targets: core, radius: e.radius * 0.45, alpha: 0, duration: 140, ease: 'Quad.easeOut', onComplete: () => core.destroy() });
+    this.tweens.add({ targets: ring, radius: e.radius, alpha: 0, duration: 240, ease: 'Quad.easeOut', onComplete: () => ring.destroy() });
+    this.tweens.add({ targets: ring2, radius: e.radius * 0.8, alpha: 0, duration: 300, ease: 'Cubic.easeOut', onComplete: () => ring2.destroy() });
+    for (let i = 0; i < 10; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(50, 120), this.fx.int(0, 1), i % 2 ? 0xf6c431 : 0xe0453b);
+    for (let i = 0; i < 4; i++) this.paperBit(e.x, e.y);
+    this.floatText(e.x, e.y - 22, fontText(this.fx.pick(MARKDOWN_LINES)), 0xf6c431, `markdown:${e.target}`, -14, 0.9);
+  }
+
   /** A scrap of paper (a warranty slip) thrown out from (x, y). */
   private paperBit(x: number, y: number): void {
     const a = this.fx.range(0, Math.PI * 2);
@@ -3508,6 +3577,7 @@ export class GameScene extends Phaser.Scene {
     const mzy = gy + Math.sin(p.aim) * 14;
     this.muzzle.setVisible(this.muzzleT > 0 && !rolling).setPosition(Math.round(mzx), Math.round(mzy)).setRotation(p.aim).setDepth(p.y + 1);
 
+    this.drawLabels(w);
     // Dummies.
     for (const d of w.dummies) {
       const s = this.dummySprites.get(d.id);

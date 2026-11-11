@@ -440,6 +440,18 @@ grapadora 70, plancha 90). Las armas llevan ya `level` como los objetos: la plan
 las suyas y las de abajo (`weaponsUpTo`), así que el Megáfono solo sale en Atención al Cliente
 (y en la Sala de Pruebas, que enseña todas en su tercer pedestal).
 
+La **Etiquetadora** está en el juego (M11 6c1): ráfagas de tres etiquetas (8 disparos/s dentro
+de la ráfaga y 0,32 s de pausa después; soltar el gatillo a media ráfaga también espera la pausa,
+para que pulsar no salga más rápido que mantener), 0,85 por etiqueta (la mitad que el secador),
+cargador 9 (tres ráfagas, el que menos dura: 2,1 s), recarga 1,3 s, alcance 225. Cada etiqueta
+que hiere se queda pegada (se ve en el cuerpo del enemigo, y en los maniquíes); **la tercera
+seguida en el mismo, «Rebajado», estalla**: 3,5 veces el daño de la etiqueta (3 de serie) a todo
+lo que haya a 26 px, él incluido, y las etiquetas se van. Sin otra en 3 s, se despegan (parpadean
+antes). El estallido sale del daño de la bala, así que los objetos de daño lo suben también.
+Contra muchos pierde: las etiquetas repartidas no se suman. Daño/s con recargas, contra uno,
+4,9. La cadencia del diseño se queda en la grapadora (11/s): la Etiquetadora gana en lo que
+acumula contra uno (en `tests/armas.test.ts`, «estallido de etiquetas»).
+
 Atención al Cliente se ve a la primera (M11 (1)): linóleo azul institucional con una línea
 amarilla pintada en el suelo («Siga la línea») que no lleva a ninguna parte, colas de postes con
 cinta, filas de sillas de espera atornilladas al suelo como obstáculos, mostradores de ventanilla

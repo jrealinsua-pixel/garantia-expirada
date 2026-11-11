@@ -80,6 +80,8 @@ export interface WeaponState {
   cooldown: number;
   /** Seconds left of reload, 0 when not reloading. */
   reload: number;
+  /** Weapons that fire in bursts (WeaponDef.burst): shots of the current burst already fired. */
+  burstN?: number;
 }
 
 export interface Player {
@@ -255,6 +257,8 @@ export interface Bullet {
   stick?: NonNullable<BulletBehaviour['stick']>;
   /** ...and this one is stuck: it stays put and hurts every enemy that walks into it. */
   stuck?: boolean;
+  /** Player bullets of the Etiquetadora: they leave a label on what they hurt (BulletBehaviour.tag). */
+  tag?: NonNullable<BulletBehaviour['tag']>;
   /** Id of the enemy (or 'maniqui') that fired it, for the cause in the sick-leave report. */
   by?: string;
   /** Enemy bullets: the instance that fired it (Llamada Grabada marks it when the bullet hurts). */
@@ -334,6 +338,9 @@ export interface Dummy {
   leanV: number;
   hitT: number;
   damageTaken: number;
+  /** Etiquetadora (BulletBehaviour.tag): labels stuck on it, and seconds before they peel off. */
+  tags?: number;
+  tagT?: number;
 }
 
 /**
@@ -406,6 +413,9 @@ export interface Enemy {
   /** Llamada Grabada (Perks.recorded): seconds left of taking `markMul` times the player's bullets. */
   markT?: number;
   markMul?: number;
+  /** Etiquetadora (BulletBehaviour.tag): labels stuck on it, and seconds before they peel off. */
+  tags?: number;
+  tagT?: number;
   /** Turrets that jam: volleys left before the next jam. */
   volleys?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
@@ -616,6 +626,10 @@ export type SimEvent =
   | { type: 'recorded'; target: number; x: number; y: number; time: number }
   /** Hoja de Reclamaciones: the complaint is filed against `target` (`shots` pulls will chase it). */
   | { type: 'complaint'; target: number; shots: number; x: number; y: number }
+  /** Etiquetadora: a label stuck on `target` (an enemy or a dummy), the `count`-th in a row. */
+  | { type: 'tag'; target: number; count: number; x: number; y: number }
+  /** Etiquetadora: «Rebajado», the labels on `target` go off, hurting `hit` enemies round (x, y). */
+  | { type: 'markdown'; target: number; x: number; y: number; radius: number; hit: number }
   /** Valoración de Cinco Estrellas: a star earned (`stars` of `need`), the heart they pay (`paid`), or the stars wiped by a hit (`stars` 0, `was`). */
   | { type: 'stars'; stars: number; need: number; x: number; y: number; paid?: boolean; was?: number }
   /** Contrato en Prácticas: up a floor, and the contract is over (the item has left the inventory). */
@@ -1913,6 +1927,7 @@ function shotBehaviour(b: BulletBehaviour | undefined): Partial<Bullet> {
   if (b.slow) out.slow = b.slow;
   if (b.stick) out.stick = b.stick;
   if (b.wave) out.wave = b.wave;
+  if (b.tag) out.tag = b.tag;
   return out;
 }
 
@@ -2066,7 +2081,13 @@ function updateWeapon(w: World, input: Input): void {
     }
     return;
   }
+  // Letting go of the trigger half way through a burst: the burst is over, and so it waits its pause.
+  if (def.burst && ws.burstN && !input.fire) {
+    ws.burstN = 0;
+    ws.cooldown = Math.max(ws.cooldown, def.burst.pause);
+  }
   if (input.reload && ws.ammo < def.magazine) {
+    ws.burstN = 0;
     ws.reload = def.reloadTime;
     w.events.push({ type: 'reloadStart', time: def.reloadTime });
     return;
@@ -2081,6 +2102,11 @@ function updateWeapon(w: World, input: Input): void {
   const lastOne = ws.ammo === 1 && def.bullets?.last ? def.bullets.last : undefined;
   ws.ammo--;
   ws.cooldown = 1 / (def.fireRate * ((p.rushT ?? 0) > 0 ? playerPerks(p).rush.mul : 1));
+  // Bursts (the Etiquetadora): the last shot of one waits the pause on top.
+  if (def.burst && (ws.burstN = (ws.burstN ?? 0) + 1) >= def.burst.shots) {
+    ws.burstN = 0;
+    ws.cooldown += def.burst.pause;
+  }
   const pivot = gunPivot(p);
   const mx = pivot.x + Math.cos(p.aim) * MUZZLE;
   const my = pivot.y + Math.sin(p.aim) * MUZZLE;
@@ -2328,6 +2354,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage, target: en.id, ...(b.crit && damage > 0 ? { crit: true } : {}) });
             if (damage > 0) replyAll(w, b, en, born);
             if (damage > 0) learnHit(w, en, angle);
+            if (b.tag && damage > 0) stickLabel(w, b, en);
             if (pierces(b, en.id)) continue;
             alive = false;
             break;
@@ -2357,6 +2384,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             d.damageTaken += b.damage;
             d.leanV += Math.cos(angle) * b.knockback * 0.06;
             w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage: b.damage, target: d.id, ...(b.crit ? { crit: true } : {}) });
+            if (b.tag) stickLabel(w, b, d);
             if (pierces(b, d.id)) continue;
             alive = false;
             break;
@@ -3053,6 +3081,7 @@ function stampDown(w: World, e: Emitter, st: NonNullable<Emitter['stamp']>): voi
 function updateDummies(w: World): void {
   for (const d of w.dummies) {
     d.hitT = Math.max(0, d.hitT - DT);
+    peelLabels(d);
     // Damped spring back to upright.
     d.leanV += -d.lean * 140 * DT;
     d.leanV *= Math.pow(0.02, DT);
@@ -3267,6 +3296,52 @@ function escalateScale(w: World, b: Bullet, en: Enemy): number {
   if (b.chase !== en.id || (en.markT ?? 0) <= 0 || !playerPerks(w.player).escalate) return 1;
   en.markT = Math.max(en.markT ?? 0, playerPerks(w.player).recorded.time);
   return en.markMul ?? 1;
+}
+
+/** Etiquetadora: labels not added to for their time peel off (enemies and dummies, every tick). */
+export function peelLabels(t: { tags?: number; tagT?: number }): void {
+  if (!t.tagT) return;
+  t.tagT = Math.max(0, t.tagT - DT);
+  if (t.tagT === 0) delete t.tags;
+}
+
+/**
+ * Etiquetadora: player bullet `b` has just hurt `target` (an enemy or a dummy) and leaves a label
+ * on it. The `need`-th in a row goes off, «Rebajado»: `mul` times the bullet's damage to every
+ * enemy and dummy within the radius of the target's middle (the target too), and the labels go.
+ */
+function stickLabel(w: World, b: Bullet, target: Enemy | Dummy): void {
+  const tag = b.tag!;
+  const hb = dummyHurtBox(target);
+  const cx = hb.x + hb.w / 2;
+  const cy = hb.y + hb.h / 2;
+  target.tags = (target.tags ?? 0) + 1;
+  target.tagT = tag.time;
+  w.events.push({ type: 'tag', target: target.id, count: target.tags, x: b.x, y: b.y });
+  if (target.tags < tag.need) return;
+  delete target.tags;
+  delete target.tagT;
+  const blast = b.damage * tag.mul;
+  const near = (o: Enemy | Dummy): boolean => {
+    const ob = dummyHurtBox(o);
+    return Math.hypot(ob.x + ob.w / 2 - cx, ob.y + ob.h / 2 - cy) <= tag.radius + Math.min(ob.w, ob.h) / 2;
+  };
+  let hit = 0;
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar' || en.state === 'lurk') continue;
+    if (en !== target && !near(en)) continue;
+    // A shredder takes it whichever way it faces: the label is already stuck on it.
+    en.damageTaken = Math.min(en.def.hp, en.damageTaken + blast * takenScale(en) * markScale(en));
+    en.hitT = 0.12;
+    hit++;
+  }
+  for (const d of w.dummies) {
+    if (d !== target && !near(d)) continue;
+    d.hitT = 0.12;
+    d.damageTaken += blast;
+    hit++;
+  }
+  w.events.push({ type: 'markdown', target: target.id, x: cx, y: cy, radius: tag.radius, hit });
 }
 
 /** Hoja de Reclamaciones: the complaint still open (its enemy is still standing), or nothing. */

@@ -1537,6 +1537,26 @@ try {
   if (await slotOf0() !== 'megafono') throw new Error('No se ha cogido el Megáfono');
   console.log(`Megáfono: ${waves} ondas en pantalla.`);
   await page.evaluate('window.__GE__.scene.controls.override = null');
+  // M11 (6c1): the Etiquetadora de Precios, on the fourth pedestal: labels stuck on an enemy, then «Rebajado».
+  await goTo('etiquetadora', -40);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 5', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  // One enemy that does not fall (huge life) and stays put, and another just behind it for the blast.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 360; w.player.y = 276;
+    w.enemies.filter((x) => x.state !== 'gone' && x.def.id !== 'bombilla').slice(0, 2).forEach((e, i) => {
+      e.def = { ...e.def, hp: 999 }; e.x = 430 + 16 * i; e.y = 276 + 14 * i; e.vx = 0; e.vy = 0; e.state = 'idle'; e.until = 999; e.t = 0; }); })()`);
+  await page.waitForTimeout(250);
+  await page.evaluate(`window.__GE__.scene.controls.override = { aimX: 520, aimY: 264, fire: true }`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies.some((e) => (e.tags ?? 0) >= 2)", undefined, { timeout: 4000 });
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  await shot('19g-etiquetas.png');
+  await page.evaluate(`window.__GE__.scene.controls.override = { aimX: 520, aimY: 264, fire: true }`);
+  await page.waitForFunction("!window.__GE__.scene.world.enemies.some((e) => (e.tags ?? 0) >= 2)", undefined, { timeout: 4000 });
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  await page.waitForTimeout(60);
+  await shot('19h-rebajado.png');
+  if (await slotOf0() !== 'etiquetadora') throw new Error('No se ha cogido la Etiquetadora');
   const slotOf = (): Promise<string> => page.evaluate<string>('window.__GE__.scene.world.player.weapon.base.id');
   const before = await slotOf();
   await page.keyboard.press('e');

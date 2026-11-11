@@ -85,10 +85,37 @@ export const WEAPONS: Record<string, WeaponDef> = {
     bullets: { pierce: 99 },
     look: { sprite: 'arma-megafono', bullet: 'bala-onda', turn: true, sound: 'megafono', shake: 0.005, swell: { from: 0.9, to: 1.8, fade: 0.6 } },
   },
+  /**
+   * M11 (6c1), Atención al Cliente: bursts of three sticky price labels. Every label that hurts
+   * stays stuck on the enemy and the third one in a row on the same one, «Rebajado», goes off
+   * round it. Wins on piling damage onto one (the only one that blows up); loses on damage per
+   * label (half the dryer's), the shortest magazine in seconds and spreading over many (labels on
+   * different enemies never add up).
+   */
+  etiquetadora: {
+    id: 'etiquetadora',
+    level: 5,
+    name: 'Etiquetadora de Precios',
+    description: 'Tres etiquetas y el precio baja solo. Ningún artículo rebajado admite devolución.',
+    fireRate: 8,
+    burst: { shots: 3, pause: 0.32 },
+    magazine: 9,
+    reloadTime: 1.3,
+    spreadDeg: 4,
+    bulletSpeed: 300,
+    bulletLife: 0.75,
+    damage: 0.85,
+    bulletRadius: 2,
+    recoil: 10,
+    knockback: 15,
+    pellets: 1,
+    bullets: { tag: { need: 3, mul: 3.5, radius: 26, time: 3 } },
+    look: { sprite: 'arma-etiquetadora', bullet: 'bala-etiqueta', turn: true, sound: 'etiqueta', shake: 0.0015 },
+  },
 };
 
 /** Weapons the toaster can find, in the order a floor hands them out (seeded shuffle). */
-export const FINDABLE_WEAPONS: readonly string[] = ['grapadora', 'plancha', 'megafono'];
+export const FINDABLE_WEAPONS: readonly string[] = ['grapadora', 'plancha', 'megafono', 'etiquetadora'];
 
 /** The findable weapons floor `level` can hand out: its own and the lower floors' (like itemsUpTo). */
 export function weaponsUpTo(level: number): string[] {

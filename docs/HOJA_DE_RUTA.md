@@ -450,7 +450,7 @@ aspecto). En partes, como M10:
   - [x] (6b2) Hoja de Reclamaciones y Valoración de Cinco Estrellas, las sinergias Ticket de
     Incidencia y Buzón Lleno, y la indirecta (al final, Formulario + Cinta: la del Turno no se
     sostenía medida), medidas.
-  - [ ] (6c1) Arma: la Etiquetadora de Precios (sprite, etiquetas que se pegan, «Rebajado»).
+  - [x] (6c1) Arma: la Etiquetadora de Precios (sprite, etiquetas que se pegan, «Rebajado»).
   - [x] (6c2) Arma: el Megáfono de Reclamaciones (arco de ondas que atraviesa y empuja).
 - [ ] (7) La planta 5 medida con `npm run plantas`: sus salas, algo más duras que las de las
   Oficinas; la gana más gente de la que gana la 3 (sigue siendo el muro); y el bot completa la

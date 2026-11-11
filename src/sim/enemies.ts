@@ -23,6 +23,7 @@ import {
   inWind,
   isClear,
   isRolling,
+  peelLabels,
   playerFeetBox,
   restructureRoom,
   slide,
@@ -51,6 +52,8 @@ export function updateEnemies(w: World): void {
     }
     // Llamada Grabada: the mark wears off.
     if (en.markT && en.markT > 0) en.markT = Math.max(0, en.markT - DT);
+    // Etiquetadora: labels left alone peel off.
+    peelLabels(en);
     // Glitter (BulletBehaviour.slow): it skips one tick in every 1 / (1 − mul), walking, waiting
     // and attacking that much slower.
     if (en.slowT && en.slowT > 0) {

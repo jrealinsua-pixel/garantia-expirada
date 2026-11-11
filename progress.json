@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-11T19:00:00+01:00",
+  "actualizado": "2026-11-11T19:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -127,16 +127,22 @@
     "personajes": 1,
     "enemigos": 25,
     "jefes": 4,
-    "armas": 4,
+    "armas": 5,
     "objetos": 55,
     "plantillas_sala": 87,
-    "tests": 708,
-    "tests_ok": 708,
+    "tests": 718,
+    "tests_ok": 718,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 25794
+    "lineas_codigo": 25992
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-11T19:30:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (6c1): la Etiquetadora de Precios, segunda arma de la planta 5. Dispara ráfagas de tres etiquetas que se quedan pegadas en el enemigo; la tercera seguida en el mismo, «Rebajado», estalla y hiere a todo lo que tenga al lado. Las etiquetas se despegan a los 3 s sin otra, y también se pegan a los maniquíes de la Sala de Pruebas, que estrena un cuarto pedestal.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-11T19:00:00+01:00",
       "hito": "M11",
@@ -1064,6 +1070,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/etiquetadora-rebajado.png",
+      "pie": "La Etiquetadora de Precios: la tercera etiqueta en la batidora, «Rebajado -30 %», estalla en un aro amarillo y rojo y alcanza también al microondas de al lado"
+    },
+    {
+      "archivo": "capturas/etiquetadora-etiquetas.png",
+      "pie": "Dos etiquetas de oferta pegadas en un enemigo tras una ráfaga de la Etiquetadora; con la tercera, rebajado"
+    },
+    {
       "archivo": "capturas/asistente-faq.png",
       "pie": "El Asistente Virtual tras tres disparos desde el mismo sitio: «Pregunta frecuente», su escudo de respuestas predefinidas mira hacia la tostadora y para lo que llega por ese lado"
     },
@@ -1076,19 +1090,11 @@
       "pie": "Los Postes de Cola con la cinta tensa delante de la tostadora, que intenta pasar andando: «No se cuele». La cinta solo se rodea por fuera de los postes"
     },
     {
-      "archivo": "capturas/postes-bolas.png",
-      "pie": "El poste más cercano suelta su anillo de cuatro bolas de acero, una hacia la tostadora; el otro, el de la base desconchada, sujeta la cinta"
-    },
-    {
-      "archivo": "capturas/dispensador-turno.png",
-      "pie": "El Dispensador de Turnos llama «Turno 122, ventanilla 6»: el círculo amarillo con el número y la cuenta atrás, lejos de la tostadora; si llega a tiempo, el círculo para las balas"
-    },
-    {
       "archivo": "capturas/partida-ganada.png",
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M11 (4d): el Teléfono de Recepción; la (6c1) Etiquetadora está en curso; luego la (5b) Centralita con su sala (2c2) o la medida (7).",
+  "proximo": "M11 (4d): el Teléfono de Recepción; luego la (5b) Centralita con su sala (2c2) y la medida (7).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1114,11 +1120,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-11 18:26",
-      "tarea": "M11 (6c1): la Etiquetadora de Precios (src/data/weapons.ts, tools/sprites/etiquetadora.ts, src/sim/world.ts: etiquetas pegadas y «Rebajado», src/render/GameScene.ts: dibujo de las etiquetas, tests/etiquetadora.test.ts)",
-      "desde": "2026-11-11T18:26:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

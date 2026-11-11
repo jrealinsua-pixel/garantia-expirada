@@ -131,15 +131,23 @@ export interface WeaponProfile {
 
 export function weaponProfile(w: WeaponDef): WeaponProfile {
   const alpha = w.damage * w.pellets;
-  const magazineSeconds = w.magazine / w.fireRate;
+  // Bursts (the Etiquetadora): the pause after each one slows the rate down.
+  const rate = w.burst ? w.burst.shots / (w.burst.shots / w.fireRate + w.burst.pause) : w.fireRate;
+  const magazineSeconds = w.magazine / rate;
+  // Labels (the Etiquetadora): against one enemy, every `need`-th one also goes off.
+  const tag = w.bullets?.tag;
+  const perShot = alpha + (tag ? (w.damage * tag.mul) / tag.need : 0);
   return {
-    dps: (alpha * w.magazine) / (magazineSeconds + w.reloadTime),
-    burst: alpha * w.fireRate,
+    dps: (perShot * w.magazine) / (magazineSeconds + w.reloadTime),
+    burst: perShot * rate,
     alpha,
     range: w.bulletSpeed * w.bulletLife,
     magazineSeconds,
   };
 }
+
+/** Ordinals for the labeller's line (the font has no «ª»). */
+const ORDINALS: Record<number, string> = { 2: 'segunda', 3: 'tercera', 4: 'cuarta', 5: 'quinta' };
 
 /** A weapon's numbers, so the differences between weapons can be read. */
 export function weaponLines(w: WeaponDef): EffectLine[] {
@@ -150,6 +158,8 @@ export function weaponLines(w: WeaponDef): EffectLine[] {
     { text: `Cargador ${w.magazine} · recarga ${round1(w.reloadTime)} s · alcance ${range}`, good: true },
     // What its own bullets do (the megaphone): pierce from 20 up reads as «everyone».
     ...(w.bullets?.pierce ? [{ text: w.bullets.pierce >= 20 ? 'Atraviesa a todos y los empuja' : `Atraviesa ${w.bullets.pierce} enemigos`, good: true }] : []),
+    // The labeller: bursts, and the label that goes off.
+    ...(w.burst ? [{ text: `En ráfagas de ${w.burst.shots}${w.bullets?.tag ? ` · la ${ORDINALS[w.bullets.tag.need] ?? String(w.bullets.tag.need)} estalla` : ''}`, good: true }] : []),
   ];
 }
 

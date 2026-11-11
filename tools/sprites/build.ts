@@ -21,6 +21,7 @@ import * as DR from './director.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
+import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
 import * as H from './mostrador.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
@@ -135,6 +136,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // Floor 5's weapons (M11 6c).
     'arma-megafono': one(makeMiniMegaphone()),
     'bala-onda': one(makeSoundWave()),
+    'arma-etiquetadora': one(makeMiniLabeller()),
+    'bala-etiqueta': one(makeLabelShot()),
+    'etiqueta-pegada': { canvas: makeStuckLabels(), frameW: 7, frameH: 6 },
     mano: one(P.makeHand()),
     caja: one(P.makeCaja()),
     barril: one(P.makeBarril()),

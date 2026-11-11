@@ -404,4 +404,17 @@ y cada uno con un color que se despega del linóleo azul petróleo: **rojo**, **
   el centro, amarillo pálido en las puntas), un filo amarillo detrás y un arco naranja más pequeño
   dentro. Las siete ondas de un disparo se solapan en un abanico; cada una crece de ×0,9 a ×1,8 y
   se apaga hasta el 40 % (`look.swell`, el mismo mecanismo que el vapor de la plancha).
+- **`arma-etiquetadora`** (18×11, `tools/sprites/etiquetadora.ts`): la pistola de etiquetar de
+  cualquier pasillo de súper. Cuerpo de plástico azul en cuña (más alto detrás), el rollo de
+  etiquetas blanco arriba atrás con su borde crema y las vueltas marcadas (sin un centro oscuro,
+  que parecía un ojo), la ventanita crema con los números rojos del precio, la boquilla gris con
+  una etiqueta a medio salir y, debajo, la empuñadura gris con la palanca azul delante.
+- **`bala-etiqueta`** (7×5, gira con el vuelo): etiqueta blanca con el borde naranja de todas las
+  balas del jugador y el precio en rojo.
+- **`etiqueta-pegada`** (7×6, 3 fotogramas, cada una torcida a su manera): etiqueta de oferta
+  amarilla pálida con el precio rojo en una franja blanca y contorno negro, para que se lea encima
+  de cualquier cuerpo (la blanca se perdía en el microondas y en los blancos). El juego pone una por etiqueta, de
+  arriba abajo en el cuerpo, y las hace parpadear el último medio segundo antes de despegarse.
+  «Rebajado» es un aro amarillo con otro rojo dentro, del tamaño del estallido, chispas amarillas
+  y rojas, trocitos de papel y el texto en amarillo.
 

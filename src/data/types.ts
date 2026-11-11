@@ -29,6 +29,11 @@ export interface WeaponDef {
   knockback: number;
   /** Bullets per trigger pull. */
   pellets: number;
+  /**
+   * Fires in bursts (the Etiquetadora): after `shots` shots at `fireRate`, it waits `pause` s more
+   * before the next one; letting go of the trigger half way also waits it.
+   */
+  burst?: { shots: number; pause: number };
   /** What its bullets do besides flying straight (from items; see src/sim/mods.ts). */
   bullets?: BulletBehaviour;
   /** How it looks and sounds (render only): held sprite, bullet sprite, shot sound. */
@@ -87,6 +92,13 @@ export interface BulletBehaviour {
    * way, `freq` times a second (the widest wins).
    */
   wave?: { amp: number; freq: number };
+  /**
+   * Etiquetadora de Precios: each bullet that hurts an enemy leaves a label stuck on it; the
+   * `need`-th one in a row («Rebajado») goes off, `mul` times the bullet's damage to every enemy
+   * within `radius` px of it (itself too), and the labels come off. Labels not added to for `time`
+   * s peel off. The biggest multiplier wins.
+   */
+  tag?: { need: number; mul: number; radius: number; time: number };
 }
 
 /**

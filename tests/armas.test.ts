@@ -198,6 +198,7 @@ test('cada arma gana claramente en algo y pierde en otra cosa (nota del humano)'
     puntería: (id) => -WEAPONS[id]!.spreadDeg,
     cadencia: (id) => WEAPONS[id]!.fireRate,
     'enemigos que atraviesa': (id) => WEAPONS[id]!.bullets?.pierce ?? 0,
+    'estallido de etiquetas': (id) => WEAPONS[id]!.bullets?.tag?.mul ?? 0,
   };
   for (const id of ids) {
     const wins: string[] = [];
