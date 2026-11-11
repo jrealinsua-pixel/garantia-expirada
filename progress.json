@@ -1149,6 +1149,11 @@
       "sesion": "2026-11-11 22:31",
       "tarea": "M11 (7): medir la planta 5 y ajustar",
       "desde": "2026-11-11T22:31:00+01:00"
+    },
+    {
+      "sesion": "2026-11-11 23:27",
+      "tarea": "M11: pulir la sala de la Centralita (la barra de vida tapa las zonas de abajo; los nombres de los departamentos de abajo pegados a la pared)",
+      "desde": "2026-11-11T23:27:00+01:00"
     }
   ]
 }
