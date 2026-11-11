@@ -1152,9 +1152,9 @@
   },
   "en_curso": [
     {
-      "sesion": "2026-11-11 22:31",
-      "tarea": "M11 (7): medir la planta 5 y ajustar",
-      "desde": "2026-11-11T22:31:00+01:00"
+      "sesion": "2026-11-12 00:25",
+      "tarea": "M11 (7): medir la planta 5 y ajustar (la de las 22:31 pasó de 90 min sin cerrar)",
+      "desde": "2026-11-12T00:25:00+01:00"
     }
   ]
 }
