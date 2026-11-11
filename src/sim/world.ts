@@ -400,6 +400,14 @@ export interface Enemy {
   heard?: number[];
   /** Virtual assistants: its shield of frequently asked questions, facing `dir` (towards the shots). */
   faq?: { dir: number; t: number; until: number };
+  /**
+   * Reception phones (PhoneBrain): passing the player on to the enemy `to` (or, without one,
+   * putting them on hold), `t` s into its `until` s of warning.
+   */
+  transfer?: { to?: number; t: number; until: number };
+  /** Reception phones: seconds before it can pass you on again; and whether its next attack is the call. */
+  transferCd?: number;
+  callNext?: boolean;
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
@@ -580,6 +588,15 @@ export type SimEvent =
   | { type: 'typing'; x: number; y: number; source: number }
   /** A virtual assistant broke: «¿Le he ayudado?» over where it stood. */
   | { type: 'helpAsk'; x: number; y: number; source: number }
+  /** A reception phone rings (its rings go off `at` s from now) or places its call. */
+  | { type: 'phoneRing'; x: number; y: number; at: number[]; source: number }
+  | { type: 'phoneCall'; x: number; y: number; source: number }
+  /** A reception phone starts passing the player on to the enemy `to` («Le paso con un compañero»), or puts them on hold. */
+  | { type: 'transferStart'; x: number; y: number; to?: number; source: number }
+  /** ...and the two swap places: the phone was at (ax, ay) and is now at (bx, by). */
+  | { type: 'transferDone'; ax: number; ay: number; bx: number; by: number; source: number; to: number }
+  /** ...or the hold music starts, at (x, y). */
+  | { type: 'onHold'; x: number; y: number; source: number }
   /** The player walked or rolled into a queue tape (at x, y, on it). Not every tick: see TAPE_BUMP_GAP. */
   | { type: 'tapeBump'; x: number; y: number }
   /** An air conditioner is about to blow its frost along the air. */
@@ -1638,7 +1655,7 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'relay') {
     state = 'idle';
     until = Infinity;
-  } else if (b.kind === 'hopper' || b.kind === 'stamper') {
+  } else if (b.kind === 'hopper' || b.kind === 'stamper' || b.kind === 'phone') {
     state = 'idle';
     until = b.rest[1];
   } else if (b.kind === 'blower') {
@@ -1670,7 +1687,7 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
 /** Pixels above the ground an enemy is drawn (and hit) at: only flying ones are off the floor. */
 export function enemyAltitude(en: Enemy): number {
   const b = en.def.brain;
-  if (b.kind === 'hopper') return en.state === 'charge' ? Math.sin(Math.PI * Math.min(1, en.t / en.until)) * b.hopHeight : 0;
+  if (b.kind === 'hopper' || b.kind === 'phone') return en.state === 'charge' ? Math.sin(Math.PI * Math.min(1, en.t / en.until)) * b.hopHeight : 0;
   if (b.kind === 'stamper') {
     const k = Math.min(1, en.t / Math.max(en.until, 1e-6));
     if (en.state === 'charge') return Math.sin(Math.PI * k) * b.hopHeight;
@@ -1684,8 +1701,9 @@ export function enemyAltitude(en: Enemy): number {
 
 /** Brains whose own 'warn' state is a telegraph (the turret's comes from its emitter). */
 // A ticket dispenser calling a turn fires nothing: its circle on the floor is the warning. The
-// queue posts' and the virtual assistant's warnings come from their emitters, like the turret's.
-const OWN_WARNING_EXCEPT: ReadonlySet<string> = new Set(['turret', 'turner', 'queuer', 'chatbot']);
+// queue posts', the virtual assistant's and the reception phone's warnings come from their
+// emitters, like the turret's.
+const OWN_WARNING_EXCEPT: ReadonlySet<string> = new Set(['turret', 'turner', 'queuer', 'chatbot', 'phone']);
 const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && !OWN_WARNING_EXCEPT.has(en.def.brain.kind);
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
@@ -1701,7 +1719,7 @@ export function playerFeetBox(p: { x: number; y: number }, r: number): Rect {
 
 export function dummyHurtBox(d: Dummy | Enemy): Rect {
   // A hopping envelope (or stamp) is hit where it is drawn, up in the air.
-  const up = 'brain' in d.def && (d.def.brain.kind === 'hopper' || d.def.brain.kind === 'stamper') ? enemyAltitude(d as Enemy) : 0;
+  const up = 'brain' in d.def && (d.def.brain.kind === 'hopper' || d.def.brain.kind === 'phone' || d.def.brain.kind === 'stamper') ? enemyAltitude(d as Enemy) : 0;
   return { x: d.x + d.def.hurt.x, y: d.y + d.def.hurt.y - up, w: d.def.hurt.w, h: d.def.hurt.h };
 }
 
@@ -2912,7 +2930,7 @@ function updateEmitters(w: World): void {
         y: e.y,
         vx: Math.cos(s.angle) * s.speed,
         vy: Math.sin(s.angle) * s.speed,
-        r: ENEMY_BULLET_RADIUS,
+        r: s.radius ?? ENEMY_BULLET_RADIUS,
         life: s.life ?? ENEMY_BULLET_LIFE,
         damage: 1,
         knockback: 0,

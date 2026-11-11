@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-11T19:30:00+01:00",
+  "actualizado": "2026-11-11T20:19:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 25,
+    "enemigos": 26,
     "jefes": 4,
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 87,
-    "tests": 718,
-    "tests_ok": 718,
+    "tests": 728,
+    "tests_ok": 728,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 25992
+    "lineas_codigo": 26352
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-11T20:19:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (4d): el Teléfono de Recepción, el cuarto enemigo de la planta 5. Va a saltitos, suena (tres timbrazos, cada uno un anillo de seis balas lentas) y llama (una bala gorda que persigue un poco), por turnos. Pasada la mitad de su vida, cada golpe le hace decir «Le paso con un compañero»: una línea de puntos lo une al enemigo más lejano y se cambian de sitio (como mucho cada 4 s). Si no queda nadie, pone a la tostadora en espera con un anillo de notas.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-11T19:30:00+01:00",
       "hito": "M11",
@@ -1070,20 +1076,20 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/telefono-pasa.png",
+      "pie": "«Le paso con un compañero»: el Teléfono de Recepción, pasada la mitad de su vida, une con una línea de puntos al Asistente Virtual del otro lado de la sala; a los 0,8 s se cambian de sitio"
+    },
+    {
+      "archivo": "capturas/telefono-espera.png",
+      "pie": "Sin nadie con quien pasarla, el Teléfono de Recepción pone a la tostadora en espera: un anillo de notas lentas que ondulan"
+    },
+    {
       "archivo": "capturas/etiquetadora-rebajado.png",
       "pie": "La Etiquetadora de Precios: la tercera etiqueta en la batidora, «Rebajado -30 %», estalla en un aro amarillo y rojo y alcanza también al microondas de al lado"
     },
     {
-      "archivo": "capturas/etiquetadora-etiquetas.png",
-      "pie": "Dos etiquetas de oferta pegadas en un enemigo tras una ráfaga de la Etiquetadora; con la tercera, rebajado"
-    },
-    {
       "archivo": "capturas/asistente-faq.png",
       "pie": "El Asistente Virtual tras tres disparos desde el mismo sitio: «Pregunta frecuente», su escudo de respuestas predefinidas mira hacia la tostadora y para lo que llega por ese lado"
-    },
-    {
-      "archivo": "capturas/asistente-escribiendo.png",
-      "pie": "Los bocadillos del Asistente Virtual, parados a mitad de camino con sus tres puntitos, antes de seguir hacia donde va a estar la tostadora"
     },
     {
       "archivo": "capturas/postes-cinta.png",
@@ -1094,7 +1100,7 @@
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M11 (4d): el Teléfono de Recepción; luego la (5b) Centralita con su sala (2c2) y la medida (7).",
+  "proximo": "M11 (5b): las fases 1 y 2 de la Centralita con su sala (2c2); luego la (5c), su fase 3, y la medida (7).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1120,11 +1126,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-11 19:25",
-      "tarea": "M11 (4d), el Teléfono de Recepción",
-      "desde": "2026-11-11T18:25:00Z"
-    }
-  ]
+  "en_curso": []
 }

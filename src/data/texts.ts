@@ -84,6 +84,9 @@ export const TAPE_SNAP_LINE = 'Cola disuelta';
 export const TYPING_LINE = 'Escribiendo...';
 export const FAQ_LINE = 'Pregunta frecuente';
 export const HELP_ASK_LINE = '¿Le he ayudado?';
+/** The reception phone (M11 (4d)): passing you on to a colleague, or, with nobody left, putting you on hold. */
+export const TRANSFER_LINE = 'Le paso con un compañero';
+export const HOLD_LINE = 'No cuelgue, por favor';
 
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
@@ -124,6 +127,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   destructora: { bullet: 'Papeleo devuelto sin leer', contact: 'Triturado por error' },
   climatizador: { bullet: 'Resfriado de oficina', contact: 'Arrollado por un climatizador' },
   'dispensador-turnos': { bullet: 'Corte con tique de turno, ya caducado', contact: 'Atendido por orden de llegada' },
+  'telefono-recepcion': { bullet: 'Llamada perdida, de las que no se devuelven', contact: 'Transferido a otro departamento' },
   'asistente-virtual': { bullet: 'Respuesta automática que no respondía a nada', contact: 'Atropellado por la ayuda' },
   'poste-cola': { bullet: 'Rodamiento perdido de una cola', contact: 'Reconducido a la cola por un poste' },
   sello: { bullet: 'Mancha de tinta indeleble', contact: 'Denegado, con sello y fecha' },

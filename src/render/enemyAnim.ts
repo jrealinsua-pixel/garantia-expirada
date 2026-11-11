@@ -70,6 +70,9 @@ function sideFrame(en: Enemy, now: number): number {
   if (pose !== undefined) return pose;
   // Rebooting: its lights come on one by one over the reboot.
   if (a.reboot && en.state === 'roar') return a.reboot[Math.min(a.reboot.length - 1, Math.floor((en.t / en.until) * a.reboot.length))]!;
+  // The reception phone: passing you on (or putting you on hold) with a sly look; ringing, shaking.
+  if (a.pass !== undefined && en.transfer) return a.pass;
+  if (a.ring && (en.state === 'warn' || en.state === 'fire')) return a.ring[Math.floor(now / (a.ringMs ?? 90) + en.id) % a.ring.length]!;
   // A hopper: in the air, crouching just before a hop, and puffed up while it spits confetti.
   if (a.jump !== undefined && en.state === 'charge') return a.jump;
   if (a.jump !== undefined && en.state === 'fire' && a.warn !== undefined) return a.warn;

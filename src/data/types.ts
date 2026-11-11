@@ -1054,8 +1054,38 @@ export interface ChatbotBrain {
   muzzleY: number;
 }
 
+/**
+ * The reception phone (M11 (4d)): hops about like the hoppers (`hopTime`, `hopHeight`, `hopDist`,
+ * to about `keep` px from the player, resting `rest` s between hops). Every `volleyEvery` hops,
+ * with the player within `range`, it attacks, by turns: it rings (`telegraph` s of warning, then
+ * `rings`: a sequence of small rings, one per ring of the bell) or it calls (`call`: one fat bullet
+ * that homes in a little). Once it has lost `transferAt` of its life, the next hit it takes «passes
+ * you on to a colleague»: for `transferWarn` s a dotted line joins it to the other enemy farthest
+ * from the player and then they swap places; at most once every `transferEvery` s. With nobody to
+ * pass you on to, it puts you on hold instead: `hold`, a ring of slow notes that wave about.
+ * `muzzleY`: height of its keypad.
+ */
+export interface PhoneBrain {
+  kind: 'phone';
+  hopTime: number;
+  hopHeight: number;
+  hopDist: [number, number];
+  keep: number;
+  rest: [number, number];
+  volleyEvery: number;
+  range: number;
+  telegraph: number;
+  rings: string;
+  call: string;
+  transferAt: number;
+  transferWarn: number;
+  transferEvery: number;
+  hold: string;
+  muzzleY: number;
+}
+
 export type EnemyBrain =
-  | ChatbotBrain | QueuerBrain
+  | PhoneBrain | ChatbotBrain | QueuerBrain
   | TurnerBrain | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
@@ -1137,6 +1167,11 @@ export interface EnemyAnim {
   /** Mimics: the frame it shows lying in wait, and the one jumping up when found out. */
   lurk?: number;
   reveal?: number;
+  /** Ringing (the reception phone): these frames in turn, `ringMs` each, while it rings. */
+  ring?: readonly number[];
+  ringMs?: number;
+  /** Passing you on to a colleague, or putting you on hold (the reception phone). */
+  pass?: number;
   /** Hoppers: the frame crouching before a hop, and the one in the air. */
   crouch?: number;
   jump?: number;

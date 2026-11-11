@@ -37,6 +37,8 @@ import {
   TYPING_LINE,
   FAQ_LINE,
   HELP_ASK_LINE,
+  TRANSFER_LINE,
+  HOLD_LINE,
   ROLL_DENIED_LINE,
   STAMP_LINE,
   TONER_OUT_LINE,
@@ -338,6 +340,8 @@ export class GameScene extends Phaser.Scene {
   /** Virtual assistants' shields of frequently asked questions, by the assistant's id. */
   private faqViews = new Map<number, Phaser.GameObjects.Image>();
   private faqG!: Phaser.GameObjects.Graphics;
+  /** The reception phones' dotted lines to the colleague they pass you on to. */
+  private transferG!: Phaser.GameObjects.Graphics;
   /** Tapes snapping back into a post: a line that shrinks towards it for a moment. */
   private tapeSnaps: { x: number; y: number; fx: number; fy: number; t: number }[] = [];
   private turnG!: Phaser.GameObjects.Graphics;
@@ -730,6 +734,7 @@ export class GameScene extends Phaser.Scene {
     this.warn = this.add.graphics().setDepth(84000);
     this.turnG = this.add.graphics().setDepth(-60350);
     this.faqG = this.add.graphics().setDepth(83900);
+    this.transferG = this.add.graphics().setDepth(83800);
     this.windG = this.add.graphics().setDepth(-60100);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
     this.whiteFlash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xffffff, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(97000).setAlpha(0);
@@ -2289,6 +2294,31 @@ export class GameScene extends Phaser.Scene {
         case 'helpAsk':
           this.floatText(e.x, e.y - 18, fontText(HELP_ASK_LINE), 0x8fe3ff, `help:${e.source}`, -10, 1.4);
           break;
+        case 'phoneRing':
+          // Three rings of the old bell, each with its little ring of bullets.
+          for (const at of e.at) this.time.delayedCall(at * 1000, () => this.sound2.play('timbre', { detune: this.fx.range(-60, 60) }));
+          break;
+        case 'phoneCall':
+          // One short ring and the call is on its way.
+          this.sound2.play('timbre', { detune: 300, volume: 0.8 });
+          break;
+        case 'transferStart':
+          this.sound2.play('transferir', { detune: -300 });
+          this.floatText(e.x, e.y - 4, fontText(e.to === undefined ? HOLD_LINE : TRANSFER_LINE), 0xffd84a, `transfer:${e.source}`, -10, 1.2);
+          break;
+        case 'transferDone':
+          // Put through: each one pops out where the other was.
+          this.sound2.play('transferir', { detune: 400 });
+          this.puff(e.ax, e.ay, 0.3);
+          this.puff(e.bx, e.by, 0.3);
+          for (let i = 0; i < 5; i++) {
+            this.spark(e.ax, e.ay - 12, this.fx.range(0, Math.PI * 2), this.fx.range(25, 55), 0, 0xffd84a);
+            this.spark(e.bx, e.by - 12, this.fx.range(0, Math.PI * 2), this.fx.range(25, 55), 0, 0xffd84a);
+          }
+          break;
+        case 'onHold':
+          this.sound2.play('espera', { volume: 0.6 });
+          break;
         case 'tapeBump':
           // Into the tape: it gives a little and throws the toaster back. No queue-jumping.
           this.sound2.play('muelle', { volume: 0.35, detune: 300 });
@@ -3711,6 +3741,7 @@ export class GameScene extends Phaser.Scene {
     this.drawTurns();
     this.drawTapes(dt);
     this.drawFaqs();
+    this.drawTransfers();
     this.drawChests(dt);
     this.drawLateProps();
     this.drawPartitions();
@@ -3763,6 +3794,9 @@ export class GameScene extends Phaser.Scene {
       // The assistant's bubbles: «…» while they wait in mid-air; its buttons, SÍ and NO by turns.
       if (b.color === 'bubble') s.setFrame(b.pause && !b.resumed && b.age >= b.pause.at ? 1 : 0);
       if (b.color === 'help') s.setFrame(b.id % 2);
+      // The phone's call: its ring pulses; the hold music: one note or two.
+      if (b.color === 'call') s.setFrame(Math.floor(this.time.now / 140 + b.id) % 2);
+      if (b.color === 'note') s.setFrame(b.id % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -3950,6 +3984,36 @@ export class GameScene extends Phaser.Scene {
       if (alive.has(id)) continue;
       v.destroy();
       this.inkViews.delete(id);
+    }
+  }
+
+  /** Reception phones passing you on to a colleague (Enemy.transfer): the dotted line between the two. */
+  private drawTransfers(): void {
+    const g = this.transferG;
+    g.clear();
+    for (const en of this.world.enemies) {
+      const tr = en.transfer;
+      if (!tr || tr.to === undefined || isDead(en)) continue;
+      const mate = this.world.enemies.find((o) => o.id === tr.to);
+      if (!mate || isDead(mate)) continue;
+      // «Le paso con un compañero»: a dotted line that runs from the phone to its colleague, faster
+      // and blinking as the transfer comes; a ring round the colleague, closing in.
+      const ax = en.x;
+      const ay = en.y - 14;
+      const bx = mate.x;
+      const by = mate.y - mate.def.anchor.y / 2;
+      const len = Math.hypot(bx - ax, by - ay) || 1;
+      const k = Math.min(1, tr.t / tr.until);
+      const blink = k > 0.7 && Math.floor(this.time.now / 70) % 2 === 0;
+      const run = (this.time.now / 1000) * (40 + 80 * k);
+      for (let d = run % 7; d < len; d += 7) {
+        const x = Math.round(ax + ((bx - ax) * d) / len);
+        const y = Math.round(ay + ((by - ay) * d) / len);
+        g.fillStyle(0x1a1420, 0.8).fillRect(x - 1, y - 1, 4, 4);
+        g.fillStyle(blink ? 0xffffff : 0xffd84a, 1).fillRect(x, y, 2, 2);
+      }
+      g.lineStyle(2, blink ? 0xffffff : 0xffd84a, 0.85);
+      g.strokeCircle(bx, by, 18 - 8 * k);
     }
   }
 
@@ -4741,6 +4805,7 @@ const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
   bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
+  call: 'bala-llamada', note: 'nota-espera',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

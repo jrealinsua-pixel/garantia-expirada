@@ -436,7 +436,7 @@ aspecto). En partes, como M10:
   - [x] (4a) Dispensador de Turnos (llama turnos: hay que llegar al círculo a tiempo).
   - [x] (4b) Postes de Cola (dos postes con una cinta que no se cruza y te hace la cola).
   - [x] (4c) Asistente Virtual (aprende: se escuda del lado desde el que le das).
-  - [ ] (4d) Teléfono de Recepción (le pasa con un compañero: se cambia de sitio con otro).
+  - [x] (4d) Teléfono de Recepción (le pasa con un compañero: se cambia de sitio con otro).
 - Jefa: La Centralita. En partes:
   - [x] (5a) Sprites: el cuadro de conexiones (reposo, arrastrarse, hablar, sin clavijas, muda),
     las clavijas, las notas, los mostradores bajos y las zonas del menú de voz.

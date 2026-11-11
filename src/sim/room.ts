@@ -137,6 +137,8 @@ const ENEMY_CHARS: Record<string, string> = {
   Á: 'poste-cola',
   // É: the virtual assistant (M11 (4c)).
   É: 'asistente-virtual',
+  // Ó: the reception phone (M11 (4d)).
+  Ó: 'telefono-recepcion',
 };
 
 /**

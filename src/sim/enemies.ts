@@ -2,7 +2,7 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain, ChatbotBrain,
+  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain, ChatbotBrain, PhoneBrain,
 } from '../data/types.ts';
 import { blockedTiles, clearLine, findPath } from './nav.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
@@ -137,6 +137,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'chatbot':
         updateChatbot(w, en, en.def.brain);
+        break;
+      case 'phone':
+        updatePhone(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -2098,6 +2101,183 @@ function updateChatbot(w: World, en: Enemy, b: ChatbotBrain): void {
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
+}
+
+/**
+ * Brains a reception phone never passes you on to: bosses and their relays, what is fixed to the
+ * room or to someone (turrets, moths round their owner), the queue posts (their tape would jump
+ * across the room) and mimics, which are not on duty yet.
+ */
+const NOT_ON_DUTY: ReadonlySet<string> = new Set(['boss', 'relay', 'turret', 'moth', 'queuer', 'mimic']);
+
+/** Whether a reception phone can pass the player on to `o`: a colleague on the floor and on duty. */
+export function onDuty(o: Enemy): boolean {
+  return !isDead(o) && !NOT_ON_DUTY.has(o.def.brain.kind) && o.state !== 'dying' && o.state !== 'gone' && o.state !== 'lurk' && o.fadeT === undefined;
+}
+
+/** The colleague a reception phone passes you on to: the other enemy on duty farthest from the player. */
+export function farthestColleague(w: World, en: Enemy): Enemy | undefined {
+  let best: Enemy | undefined;
+  let far = -1;
+  for (const o of w.enemies) {
+    if (o === en || !onDuty(o)) continue;
+    const d = Math.hypot(o.x - w.player.x, o.y - w.player.y);
+    if (d > far) {
+      far = d;
+      best = o;
+    }
+  }
+  return best;
+}
+
+/**
+ * The reception phone (PhoneBrain): hops about like the surprise envelope and, every few hops,
+ * rings (three small rings) or places a call (one fat bullet that homes in a little), by turns.
+ * Once it has lost `transferAt` of its life, a hit makes it pass the player on to a colleague: a
+ * dotted line to the enemy farthest from the player for `transferWarn` s and then they swap
+ * places (at most once every `transferEvery` s); with nobody left, it puts them on hold.
+ */
+function updatePhone(w: World, en: Enemy, b: PhoneBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  en.transferCd = Math.max(0, (en.transferCd ?? 0) - DT);
+  // Hits while the line is busy do not count: it is the next one after that passes you on.
+  if (en.transferCd > 0) en.seenDamage = en.damageTaken;
+  const tr = en.transfer;
+  if (tr) {
+    // «Le paso con un compañero»: it stands still, looking away, while the line holds.
+    tr.t += DT;
+    const mate = tr.to === undefined ? undefined : w.enemies.find((o) => o.id === tr.to);
+    if (tr.to !== undefined && (!mate || !onDuty(mate))) {
+      // The colleague hung up first (it broke): the call is dropped.
+      delete en.transfer;
+      enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+    } else if (tr.t >= tr.until) {
+      delete en.transfer;
+      if (mate) swapPlaces(w, en, mate);
+      else w.events.push({ type: 'onHold', x: en.x, y: en.y - b.muzzleY, source: en.id });
+      enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+    }
+    approach(en, 0, 0, KNOCK_FRICTION);
+    return;
+  }
+  // Hit again once past `transferAt` of its life, on the floor and with the line free: it passes you on.
+  if (en.state !== 'charge' && !w.over && en.transferCd <= 0 && en.damageTaken >= en.def.hp * b.transferAt && en.damageTaken > (en.seenDamage ?? 0)) {
+    en.seenDamage = en.damageTaken;
+    en.transferCd = b.transferEvery;
+    const mate = farthestColleague(w, en);
+    en.transfer = { t: 0, until: b.transferWarn };
+    if (mate) en.transfer.to = mate.id;
+    else {
+      // Nobody to pass you on to: the hold music, its warning while the line holds.
+      const def = PATTERNS[b.hold];
+      if (!def) throw new Error(`Unknown pattern ${b.hold}`);
+      const mh = muzzleHeight(w, en, b.muzzleY);
+      firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), dx), { telegraph: b.transferWarn, source: en.id, by: en.def.id, height: mh });
+    }
+    if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+    enter(en, 'idle', b.transferWarn);
+    en.vx = 0;
+    en.vy = 0;
+    const ev: SimEvent = { type: 'transferStart', x: en.x, y: en.y - en.def.anchor.y, source: en.id };
+    if (mate) ev.to = mate.id;
+    w.events.push(ev);
+    return;
+  }
+  switch (en.state) {
+    case 'charge': {
+      const ox = en.x;
+      const oy = en.y;
+      slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+      en.moved += Math.hypot(en.x - ox, en.y - oy);
+      if (en.t >= en.until) {
+        en.vx = 0;
+        en.vy = 0;
+        enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+        en.volleys = (en.volleys ?? b.volleyEvery) - 1;
+        w.events.push({ type: 'hopLand', x: en.x, y: en.y, source: en.id });
+      }
+      return;
+    }
+    case 'fire':
+      if (en.t >= en.until) enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+      break;
+    default: {
+      if (en.state !== 'idle') enter(en, 'idle', w.rng.range(b.rest[0], b.rest[1]));
+      if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+      if (en.t < en.until || w.over) break;
+      if ((en.volleys ?? b.volleyEvery) <= 0 && dist < b.range) {
+        // Its turn to attack: it rings, or it calls, by turns (it starts ringing).
+        const call = en.callNext === true;
+        const def = PATTERNS[call ? b.call : b.rings];
+        if (!def) throw new Error(`Unknown pattern ${call ? b.call : b.rings}`);
+        const mh = muzzleHeight(w, en, b.muzzleY);
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), dx), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
+        enter(en, 'fire', b.telegraph + patternDuration(def) + 0.15);
+        if (call) w.events.push({ type: 'phoneCall', x: en.x, y: en.y - mh, source: en.id });
+        else {
+          const at = def.kind === 'sequence' ? def.parts.map((q) => b.telegraph + q.at) : [b.telegraph];
+          w.events.push({ type: 'phoneRing', x: en.x, y: en.y - mh, at, source: en.id });
+        }
+        en.callNext = !call;
+        en.volleys = b.volleyEvery;
+        break;
+      }
+      // Hop: towards (or away from) its distance from the player, swerving to one side or the
+      // other; with something in between (a counter, a partition), round it towards the player,
+      // so it never sits ringing behind a wall for ever.
+      let d: { x: number; y: number };
+      if (!clearLine(w, en, p, 1)) {
+        en.pathT = 0;
+        const way = wayTo(w, en, p);
+        d = normalize(way.x - en.x, way.y - en.y);
+      } else {
+        const sign = dist > b.keep + 20 ? 1 : dist < b.keep - 20 ? -1 : 0;
+        const swerve = w.rng.range(-1, 1) * (sign === 0 ? 1.6 : 0.9);
+        const ux = dx / dist;
+        const uy = dy / dist;
+        d = normalize(ux * sign - uy * swerve, uy * sign + ux * swerve);
+      }
+      const len = w.rng.range(b.hopDist[0], b.hopDist[1]);
+      en.dirX = d.x;
+      en.dirY = d.y;
+      en.vx = (d.x * len) / b.hopTime;
+      en.vy = (d.y * len) / b.hopTime;
+      if (Math.abs(d.x) > 0.2) en.facing = d.x > 0 ? 1 : -1;
+      enter(en, 'charge', b.hopTime);
+      w.events.push({ type: 'hop', x: en.x, y: en.y, source: en.id });
+      return;
+    }
+  }
+  approach(en, 0, 0, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+}
+
+/** A reception phone and its colleague swap places (each on clear floor for its own feet). */
+function swapPlaces(w: World, en: Enemy, mate: Enemy): void {
+  const ax = en.x;
+  const ay = en.y;
+  const here = freeSpot(w, mate.x, mate.y, en.def.footRadius);
+  const there = freeSpot(w, ax, ay, mate.def.footRadius);
+  en.x = here.x;
+  en.y = here.y;
+  mate.x = there.x;
+  mate.y = there.y;
+  for (const o of [en, mate]) {
+    o.vx = 0;
+    o.vy = 0;
+    o.pathT = 0;
+    delete o.dest;
+  }
+  w.events.push({ type: 'transferDone', ax, ay, bx: en.x, by: en.y, source: en.id, to: mate.id });
 }
 
 /**

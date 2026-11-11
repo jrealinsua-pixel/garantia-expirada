@@ -113,6 +113,19 @@ export const PATTERNS: Record<string, PatternDef> = {
   // The virtual assistant (M11 (4c)): three speech bubbles that stop halfway («…») and set off again
   // towards where the toaster is going; and, when it breaks, its two «¿Le he ayudado?» buttons, slow.
   'asistente-bocadillos': { kind: 'fan', count: 3, spreadDeg: 34, speed: 118, pause: { at: 0.5, wait: 0.55, lead: 0.55 }, life: 4, color: 'bubble' },
+  // The reception phone (M11 (4d)): three rings of the bell, each a small slow ring of six (the
+  // middle one turned half a gap); its call, one fat ball that homes in a little; and the hold
+  // music when there is nobody to pass you on to: a ring of slow notes that wave about.
+  'telefono-timbres': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 6, speed: 64, aimed: true, life: 4, color: 'red' } },
+      { at: 0.38, pattern: { kind: 'ring', count: 6, speed: 64, aimed: true, offsetDeg: 30, life: 4, color: 'red' } },
+      { at: 0.76, pattern: { kind: 'ring', count: 6, speed: 64, aimed: true, life: 4, color: 'red' } },
+    ],
+  },
+  'telefono-llamada': { kind: 'fan', count: 1, spreadDeg: 0, speed: 92, homing: { turnDeg: 70, time: 1.5 }, radius: 6, life: 4.5, color: 'call' },
+  'telefono-espera': { kind: 'ring', count: 12, speed: 46, aimed: true, wave: { amp: 7, freq: 1.4 }, life: 5, color: 'note' },
   'asistente-botones': { kind: 'fan', count: 2, spreadDeg: 36, speed: 42, life: 4.5, color: 'help' },
   'fotocopiadora-folios': { kind: 'fan', count: 3, spreadDeg: 34, speed: 100, color: 'sheet' },
   'destructora-tiras': { kind: 'fan', count: 5, spreadDeg: 50, speed: 115, color: 'strip' },

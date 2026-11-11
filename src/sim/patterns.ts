@@ -18,10 +18,12 @@ import type { Rng } from './rng.ts';
  * tickets: red with a white core, flat or folded over as they glide. `steel` are the queue posts'
  * steel balls: grey with a cyan glint and a white core. `bubble` are the virtual assistant's speech
  * bubbles: cyan with a white core, with «…» while they wait; `help` its «¿Le he ayudado?» buttons
- * (SÍ cyan and NO red, by turns).
+ * (SÍ cyan and NO red, by turns). `call` is the reception phone's call: a fat red ball with a white
+ * core and a handset on it, its ring pulsing; `note` the notes of the hold music: cyan, one or two.
  */
 export type BulletColor =
-  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help';
+  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help'
+  | 'call' | 'note';
 
 /**
  * «Escribiendo…»: at `at` s it stops in mid-air for `wait` s, then sets off again (at its speed)
@@ -56,6 +58,8 @@ interface Common {
   shootable?: boolean;
   /** Seconds it lives, if not the usual. */
   life?: number;
+  /** Its radius (px), if not the usual (ENEMY_BULLET_RADIUS): the phone's fat call. */
+  radius?: number;
 }
 
 /** `count` bullets evenly around a full circle. `offsetDeg` rotates the ring. */
@@ -124,6 +128,7 @@ export interface ShotSpec {
   pause?: Pause;
   shootable?: boolean;
   life?: number;
+  radius?: number;
 }
 
 const DEG = Math.PI / 180;
@@ -137,6 +142,7 @@ function shot(def: Common, delay: number, angle: number): ShotSpec {
   if (def.pause) s.pause = def.pause;
   if (def.shootable) s.shootable = true;
   if (def.life) s.life = def.life;
+  if (def.radius) s.radius = def.radius;
   return s;
 }
 

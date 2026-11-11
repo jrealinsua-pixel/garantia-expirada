@@ -1018,6 +1018,35 @@ try {
   await shot('50zg-asistente-ayudado.png');
   console.log('Asistente Virtual: bocadillos que esperan a mitad de camino, escudo de preguntas frecuentes y «¿Le he ayudado?».');
 
+  // M11 (4d): the reception phone. Its three rings, its call (a fat ball that homes in), «Le paso
+  // con un compañero» (the dotted line, then the swap) and, with nobody left, the hold music.
+  await page.goto(`${url}?semilla=e2e-telefono&sala=ventanillas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('telefono-recepcion', p.x + 110, p.y - 10); const ph = w.enemies[0]; ph.until = 0.1; ph.volleys = 0; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'enemy' && b.color === 'red').length >= 12", undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('El teléfono no suena (no salen sus anillos de balas)'); });
+  await shot('50zh-telefono-timbres.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.bullets = []; w.emitters = [];
+    const ph = w.enemies[0]; ph.state = 'idle'; ph.t = 0; ph.until = 0.1; ph.volleys = 0; ph.callNext = true; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.color === 'call' && b.age > 0.35)", undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('El teléfono no llama'); });
+  await shot('50zi-telefono-llamada.png');
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.bullets = []; const p = w.player;
+    g.spawnIdle('asistente-virtual', p.x - 130, p.y - 60); const ph = w.enemies[0]; ph.state = 'idle'; ph.t = 0; ph.until = 999; ph.damageTaken = ph.def.hp / 2; })()`);
+  await page.waitForFunction('(window.__GE__.scene.world.enemies[0].transfer?.t ?? 0) > 0.45', undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('Pasada la mitad de su vida, el teléfono no pasa con un compañero'); });
+  await shot('50zj-telefono-pasa.png');
+  await page.waitForFunction('!window.__GE__.scene.world.enemies[0].transfer', undefined, { timeout: 3000 });
+  await page.waitForTimeout(120);
+  await shot('50zk-telefono-cambio.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.bullets = []; w.enemies = [w.enemies[0]]; const ph = w.enemies[0];
+    ph.state = 'idle'; ph.t = 0; ph.until = 999; ph.transferCd = 0; ph.damageTaken += 0.5; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.color === 'note' && b.age > 0.6).length >= 10", undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('Sin compañeros, el teléfono no pone a la tostadora en espera'); });
+  await shot('50zl-telefono-espera.png');
+  console.log('Teléfono de Recepción: timbres, llamada, «Le paso con un compañero» (se cambian de sitio) y la música de espera.');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);
