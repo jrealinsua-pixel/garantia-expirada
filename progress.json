@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-11T21:35:00+01:00",
+  "actualizado": "2026-11-11T21:47:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -137,6 +137,12 @@
     "lineas_codigo": 27017
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-11T21:47:00+01:00",
+      "hito": "M11",
+      "resumen": "Mientras otra sesión hacía la Centralita, una mejora del bot para medir la planta 5 (tarea (7)): en una sala suelta, el bot puede ir a por los enemigos como en una planta en vez de pasear al azar. Así las salas que se miden por separado se terminan (de 35 % sin limpiar en 90 s a 11 %), y la herramienta de medir salas dice cuántas se quedan a medias.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-11T21:35:00+01:00",
       "hito": "M11",

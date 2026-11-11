@@ -64,3 +64,30 @@ test('esquivando recibe muchos menos golpes que sin esquivar', () => {
   const withDodge = play(true);
   assert.ok(withDodge * 2 < without, `con esquiva ${withDodge}, sin esquiva ${without}`);
 });
+
+test('en una sala suelta, el bot que caza va a por los enemigos y limpia más salas que el que pasea', async () => {
+  const { templatesOf, slotEnemiesOf } = await import('../src/data/rooms.ts');
+  const { fillTemplate } = await import('../src/sim/room.ts');
+  const { Rng } = await import('../src/sim/rng.ts');
+  const { DT } = await import('../src/sim/world.ts');
+  const play = (hunt: boolean): number => {
+    let cleared = 0;
+    for (const t of templatesOf('combat', 5).slice(0, 6)) {
+      for (let i = 0; i < 3; i++) {
+        const seed = `caza:${t.id}:${i}`;
+        const tpl = fillTemplate(t, new Rng(seed), { depth: 6, pool: slotEnemiesOf(5) });
+        const w = createWorld({ seed, template: tpl, level: 5 });
+        const bot = new Bot(seed, { hunt });
+        for (let n = 0; n < 60 / DT && w.enemies.length > 0; n++) {
+          step(w, bot.think(w));
+          w.player.hp = w.player.def.maxHp;
+        }
+        if (w.enemies.length === 0) cleared++;
+      }
+    }
+    return cleared;
+  };
+  const wander = play(false);
+  const hunt = play(true);
+  assert.ok(hunt > wander + 3, `cazando ${hunt} de 18, paseando ${wander}`);
+});

@@ -1,6 +1,8 @@
 // Measures the combat templates of one floor with the bot (scratch tool, M10 planta 4 (2a)):
 // node tools/medir-salas.ts [nivel] — for each combat template, 30 rooms at depth 6 with that
-// floor's enemies: hurts per room and seconds; then 20 whole floors (playFloor, no items).
+// floor's enemies: hurts per room, seconds and rooms not cleared in 60 s; then 20 whole floors
+// (playFloor, no items). The bot goes after the enemies as on a floor (`hunt`): wandering at random,
+// it left a third of the rooms of floors 4 and 5 unfinished in 90 s, with a microwave in a corner.
 import { templatesOf, slotEnemiesOf } from '../src/data/rooms.ts';
 import { fillTemplate } from '../src/sim/room.ts';
 import { Rng } from '../src/sim/rng.ts';
@@ -13,11 +15,12 @@ const all: number[] = [];
 for (const t of templatesOf('combat', level)) {
   let hurts = 0;
   let secs = 0;
+  let left = 0;
   for (let i = 0; i < 30; i++) {
     const seed = `medir:${t.id}:${i}`;
     const tpl = fillTemplate(t, new Rng(seed), { depth: 6, pool: slotEnemiesOf(level) });
     const w = createWorld({ seed, template: tpl, level });
-    const bot = new Bot(seed);
+    const bot = new Bot(seed, { hunt: true });
     let n = 0;
     for (; n < 60 / DT && w.enemies.length > 0; n++) {
       step(w, bot.think(w));
@@ -26,9 +29,10 @@ for (const t of templatesOf('combat', level)) {
       w.player.hp = w.player.def.maxHp;
     }
     secs += n * DT;
+    if (w.enemies.length > 0) left++;
   }
   all.push(hurts / 30);
-  console.log(`${t.id}: ${(hurts / 30).toFixed(2)} heridas, ${(secs / 30).toFixed(1)} s`);
+  console.log(`${t.id}: ${(hurts / 30).toFixed(2)} heridas, ${(secs / 30).toFixed(1)} s${left ? `, ${left} de 30 sin limpiar` : ''}`);
 }
 console.log(`media: ${(all.reduce((a, b) => a + b, 0) / all.length).toFixed(2)}`);
 let s = 0;

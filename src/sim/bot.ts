@@ -293,10 +293,17 @@ export class Bot {
 
   /** Whether it tries to dodge (off, it is the old bot that only walks around and shoots). */
   readonly dodges: boolean;
+  /**
+   * Whether, in a room on its own (no floor), it goes after the enemies as it does on a floor
+   * (round the furniture to the nearest one when it is far or out of sight) instead of wandering
+   * at random. Off by default: the boss fights of `npm run bot` are measured with the old way.
+   */
+  readonly hunts: boolean;
 
-  constructor(seed: string, opts: { dodge?: boolean } = {}) {
+  constructor(seed: string, opts: { dodge?: boolean; hunt?: boolean } = {}) {
     this.rng = new Rng('bot:' + seed);
     this.dodges = opts.dodge ?? true;
+    this.hunts = opts.hunt ?? false;
   }
 
   /**
@@ -424,7 +431,7 @@ export class Bot {
       }
       this.lastPos = { x: p.x, y: p.y, t: w.tick };
     }
-    if (w.floor) {
+    if (w.floor || (this.hunts && w.enemies.length > 0)) {
       const plan = this.floorGoal(w);
       if (plan) this.target = plan;
     } else if (w.enemies.length === 0 && this.ignorePickups <= 0 && this.shopping(w)) {
