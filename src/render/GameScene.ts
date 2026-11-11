@@ -34,6 +34,9 @@ import {
   TURN_SERVED_LINE,
   TAPE_BUMP_LINE,
   TAPE_SNAP_LINE,
+  TYPING_LINE,
+  FAQ_LINE,
+  HELP_ASK_LINE,
   ROLL_DENIED_LINE,
   STAMP_LINE,
   TONER_OUT_LINE,
@@ -328,6 +331,9 @@ export class GameScene extends Phaser.Scene {
   private turnViews = new Map<number, { circle: Phaser.GameObjects.Image; num: Phaser.GameObjects.BitmapText; state: string }>();
   /** Queue posts' tapes, by the id of the first post of the pair, and where their ends were last drawn (for the snap). */
   private tapeViews = new Map<number, { tape: Phaser.GameObjects.TileSprite; ax: number; ay: number; bx: number; by: number }>();
+  /** Virtual assistants' shields of frequently asked questions, by the assistant's id. */
+  private faqViews = new Map<number, Phaser.GameObjects.Image>();
+  private faqG!: Phaser.GameObjects.Graphics;
   /** Tapes snapping back into a post: a line that shrinks towards it for a moment. */
   private tapeSnaps: { x: number; y: number; fx: number; fy: number; t: number }[] = [];
   private turnG!: Phaser.GameObjects.Graphics;
@@ -528,6 +534,7 @@ export class GameScene extends Phaser.Scene {
     this.inkViews = new Map();
     this.turnViews = new Map();
     this.tapeViews = new Map();
+    this.faqViews = new Map();
     this.tapeSnaps = [];
     this.particles = [];
     this.mapG = null;
@@ -717,6 +724,7 @@ export class GameScene extends Phaser.Scene {
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
     this.turnG = this.add.graphics().setDepth(-60350);
+    this.faqG = this.add.graphics().setDepth(83900);
     this.windG = this.add.graphics().setDepth(-60100);
     this.crosshair = this.hud(this.add.image(0, 0, 'mira')).setDepth(100000);
     this.whiteFlash = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0xffffff, 1).setOrigin(0, 0).setScrollFactor(0).setDepth(97000).setAlpha(0);
@@ -2252,6 +2260,23 @@ export class GameScene extends Phaser.Scene {
           this.floatText(e.x, e.y - 14, fontText(TAPE_SNAP_LINE), 0x4aa8ff, `tape:${e.source}`, -14, 0.9);
           break;
         }
+        case 'typing':
+          for (let i = 0; i < 3; i++) this.time.delayedCall(i * 75, () => this.sound2.play('teclear', { detune: this.fx.range(-150, 150) }));
+          this.floatText(e.x, e.y - 4, fontText(TYPING_LINE), 0x8fe3ff, `typing:${e.source}`, -6, 0.6);
+          break;
+        case 'faqUp':
+          // It learned where the shots come from: up go its canned answers, that way.
+          this.sound2.play('escanear', { detune: 600, volume: 0.7 });
+          this.floatText(e.x + Math.cos(e.dir) * 18, e.y - 22, fontText(FAQ_LINE), 0x8fe3ff, `faq:${e.source}`, -12, 1.1);
+          break;
+        case 'faqBlock':
+          // Answered with a frequently asked question: the shot stops on the shield.
+          this.sound2.play('pared', { detune: 500, volume: 0.5 });
+          for (let i = 0; i < 3; i++) this.spark(e.x, e.y, e.angle + Math.PI + this.fx.range(-0.8, 0.8), this.fx.range(30, 60), 0, 0x8fe3ff);
+          break;
+        case 'helpAsk':
+          this.floatText(e.x, e.y - 18, fontText(HELP_ASK_LINE), 0x8fe3ff, `help:${e.source}`, -10, 1.4);
+          break;
         case 'tapeBump':
           // Into the tape: it gives a little and throws the toaster back. No queue-jumping.
           this.sound2.play('muelle', { volume: 0.35, detune: 300 });
@@ -3615,6 +3640,7 @@ export class GameScene extends Phaser.Scene {
     this.drawInk();
     this.drawTurns();
     this.drawTapes(dt);
+    this.drawFaqs();
     this.drawChests(dt);
     this.drawLateProps();
     this.drawPartitions();
@@ -3664,6 +3690,9 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'strip' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
       // The dispenser's tickets: the slow ones glide folded and flat by turns, the fan comes out flat.
       if (b.color === 'ticket' && b.owner === 'enemy') s.setFrame(b.wave ? Math.floor(this.time.now / 160 + b.id) % 2 : 0);
+      // The assistant's bubbles: «…» while they wait in mid-air; its buttons, SÍ and NO by turns.
+      if (b.color === 'bubble') s.setFrame(b.pause && !b.resumed && b.age >= b.pause.at ? 1 : 0);
+      if (b.color === 'help') s.setFrame(b.id % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -3851,6 +3880,50 @@ export class GameScene extends Phaser.Scene {
       if (alive.has(id)) continue;
       v.destroy();
       this.inkViews.delete(id);
+    }
+  }
+
+  /**
+   * Virtual assistants' shields: the curved pile of canned answers (escudo-faq, drawn facing left)
+   * turned towards the shots, at the height of the screen, in front of or behind the body as it
+   * faces; fading (its second frame, blinking) its last half second.
+   */
+  private drawFaqs(): void {
+    const g = this.faqG;
+    g.clear();
+    const alive = new Set<number>();
+    for (const en of this.world.enemies) {
+      const f = en.faq;
+      if (!f || isDead(en) || en.def.brain.kind !== 'chatbot') continue;
+      alive.add(en.id);
+      let v = this.faqViews.get(en.id);
+      if (!v) {
+        v = this.add.image(0, 0, 'escudo-faq', 0);
+        this.faqViews.set(en.id, v);
+      }
+      const left = f.until - f.t;
+      const pop = Math.min(1, f.t / 0.1);
+      v.setPosition(Math.round(en.x + Math.cos(f.dir) * 15), Math.round(en.y - 17 + Math.sin(f.dir) * 9))
+        .setRotation(f.dir - Math.PI)
+        .setScale(0.6 + 0.4 * pop)
+        .setFrame(left < 0.5 ? 1 : 0)
+        .setAlpha(left < 0.5 && Math.floor(this.time.now / 80) % 2 === 0 ? 0.5 : 0.95)
+        .setDepth(en.y + (Math.sin(f.dir) > 0 ? 1 : -1));
+      // The side it covers, as a thin arc round the body: so it reads as a shield, not a pile of bubbles.
+      const br = en.def.brain;
+      if (br.kind === 'chatbot') {
+        const half = (br.shieldArc * Math.PI) / 360;
+        const fade = left < 0.5 ? 0.25 : 0.55;
+        g.lineStyle(2, 0x8fe3ff, fade * pop);
+        g.beginPath();
+        g.arc(en.x, en.y - 17, 21, f.dir - half, f.dir + half, false);
+        g.strokePath();
+      }
+    }
+    for (const [id, v] of this.faqViews) {
+      if (alive.has(id)) continue;
+      v.destroy();
+      this.faqViews.delete(id);
     }
   }
 
@@ -4597,7 +4670,7 @@ const SKID_MAX = 120;
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
-  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero',
+  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

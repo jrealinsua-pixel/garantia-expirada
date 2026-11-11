@@ -110,6 +110,10 @@ export const PATTERNS: Record<string, PatternDef> = {
   },
   // The queue posts (M11 (4b)): a short ring of four steel balls, the tape drum's spare bearings.
   'poste-bolas': { kind: 'ring', count: 4, speed: 92, life: 1.5, aimed: true, color: 'steel' },
+  // The virtual assistant (M11 (4c)): three speech bubbles that stop halfway («…») and set off again
+  // towards where the toaster is going; and, when it breaks, its two «¿Le he ayudado?» buttons, slow.
+  'asistente-bocadillos': { kind: 'fan', count: 3, spreadDeg: 34, speed: 118, pause: { at: 0.5, wait: 0.55, lead: 0.55 }, life: 4, color: 'bubble' },
+  'asistente-botones': { kind: 'fan', count: 2, spreadDeg: 36, speed: 42, life: 4.5, color: 'help' },
   'fotocopiadora-folios': { kind: 'fan', count: 3, spreadDeg: 34, speed: 100, color: 'sheet' },
   'destructora-tiras': { kind: 'fan', count: 5, spreadDeg: 50, speed: 115, color: 'strip' },
   'robot-tuercas': { kind: 'fan', count: 3, spreadDeg: 30, speed: 105, color: 'nut' },

@@ -2,7 +2,7 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain,
+  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain, ChatbotBrain,
 } from '../data/types.ts';
 import { blockedTiles, clearLine, findPath } from './nav.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
@@ -131,6 +131,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'queuer':
         updateQueuer(w, en, en.def.brain);
+        break;
+      case 'chatbot':
+        updateChatbot(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1891,15 +1894,15 @@ function updateTurner(w: World, en: Enemy, b: TurnerBrain): void {
 /** Farther than this from the player, queue posts do not fire (px). */
 const QUEUE_RANGE = 260;
 
-/** Seconds between two searches of the way round things for a queue post. */
+/** Seconds between two searches of the way round things (wayTo). */
 const QUEUE_REPATH = 0.35;
 
 /**
- * Where a queue post heads now to get to `goal`: straight at it if nothing is in the way;
- * otherwise the farthest point of the tile path it can walk to in a straight line (worked out
- * every QUEUE_REPATH s and kept in `dest`).
+ * Where an enemy that walks round things (the queue posts, the virtual assistant) heads now to get
+ * to `goal`: straight at it if nothing is in the way; otherwise the farthest point of the tile path
+ * it can walk to in a straight line (worked out every QUEUE_REPATH s and kept in `dest`).
  */
-function queueWay(w: World, en: Enemy, goal: { x: number; y: number }): { x: number; y: number } {
+function wayTo(w: World, en: Enemy, goal: { x: number; y: number }): { x: number; y: number } {
   const r = en.def.footRadius + 1;
   en.pathT = (en.pathT ?? 0) - DT;
   if (clearLine(w, en, goal, r)) {
@@ -2007,14 +2010,14 @@ function updateQueuer(w: World, en: Enemy, b: QueuerBrain): void {
     if (mate) {
       const at = queueSpot(w, en, mate, b);
       const left = Math.hypot(at.x - en.x, at.y - en.y);
-      const way = queueWay(w, en, at);
+      const way = wayTo(w, en, at);
       tx = way.x - en.x;
       ty = way.y - en.y;
       v = left < 2 ? 0 : Math.min(b.speed, left * 4);
     } else if (dist > b.keep + 20 || !clearLine(w, en, p, 1)) {
       // Alone: comes closer (round whatever is in the way), to about `keep`, or until nothing
       // stands between them (a partition would leave the two shooting at it for ever).
-      const way = queueWay(w, en, p);
+      const way = wayTo(w, en, p);
       tx = way.x - en.x;
       ty = way.y - en.y;
       v = b.speed;
@@ -2042,6 +2045,55 @@ function updateQueuer(w: World, en: Enemy, b: QueuerBrain): void {
       const k = ((md - b.tether) / 2) / md;
       slide(w, en, en.def.footRadius, mx * k, my * k);
     }
+  }
+}
+
+/**
+ * The virtual assistant (ChatbotBrain): keeps its distance (round things, and closer when it
+ * cannot see the player), types and sends its speech bubbles; its shield (learnHit in world.ts)
+ * wears off here.
+ */
+function updateChatbot(w: World, en: Enemy, b: ChatbotBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+  if (en.faq) {
+    en.faq.t += DT;
+    if (en.faq.t >= en.faq.until) delete en.faq;
+  }
+  let tx = 0;
+  let ty = 0;
+  if (en.state === 'warn') {
+    // Typing: it stands still, the three dots under the smile.
+    if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.interval[0], b.interval[1]));
+  } else {
+    if (en.state !== 'walk') enter(en, 'walk', w.rng.range(b.interval[0], b.interval[1]));
+    if (en.t >= en.until && !w.over && dist < 300) {
+      const def = PATTERNS[b.pattern];
+      if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+      const mh = muzzleHeight(w, en, b.muzzleY);
+      firePattern(w, def, en.x + 4 * en.facing, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), dx), { telegraph: b.telegraph, source: en.id, by: en.def.id, height: mh });
+      w.events.push({ type: 'typing', x: en.x, y: en.y - en.def.anchor.y, source: en.id });
+      enter(en, 'warn', b.telegraph + 0.1);
+    } else if (dist > b.keep + 24 || !clearLine(w, en, p, 1)) {
+      const way = wayTo(w, en, p);
+      tx = way.x - en.x;
+      ty = way.y - en.y;
+    } else if (dist < b.keep - 24) {
+      tx = -dx;
+      ty = -dy;
+    }
+  }
+  const tl = Math.hypot(tx, ty);
+  approach(en, tl > 0.5 ? (tx / tl) * b.speed : 0, tl > 0.5 ? (ty / tl) * b.speed : 0, KNOCK_FRICTION);
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
 }
 

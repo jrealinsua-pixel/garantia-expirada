@@ -994,6 +994,30 @@ try {
   await shot('50zd-postes-sueltan.png');
   console.log('Postes de Cola: la cinta no se cruza, sueltan bolas de acero y, roto uno, la cinta vuelve al otro.');
 
+  // M11 (4c): the virtual assistant. Its bubbles waiting halfway («…»), its shield of frequently
+  // asked questions up after three shots from the same side, and «¿Le he ayudado?» when it breaks.
+  await page.goto(`${url}?semilla=e2e-asistente&sala=ventanillas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('asistente-virtual', p.x + 120, p.y - 20); w.enemies[0].until = 0.2; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.color === 'bubble' && b.pause && !b.resumed && b.age > b.pause.at + 0.1)", undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('Los bocadillos del asistente no se paran a mitad de camino'); });
+  await shot('50ze-asistente-escribiendo.png');
+  const botAt = await page.evaluate<{ x: number; y: number }>("(() => { const e = window.__GE__.scene.world.enemies[0]; e.state = 'warn'; e.until = 999; return { x: e.x, y: e.y - 16 }; })()");
+  await aimAt(botAt.x, botAt.y);
+  await page.mouse.down();
+  await page.waitForFunction('!!window.__GE__.scene.world.enemies[0]?.faq', undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('Tres disparos desde el mismo sitio y el asistente no sube su escudo'); });
+  await page.waitForTimeout(350);
+  await shot('50zf-asistente-faq.png');
+  await page.mouse.up();
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.bullets = []; const a = w.enemies[0]; a.damageTaken = a.def.hp; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'enemy' && b.color === 'help').length >= 2", undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('Roto el asistente, no salen los botones de «¿Le he ayudado?»'); });
+  await page.waitForTimeout(250);
+  await shot('50zg-asistente-ayudado.png');
+  console.log('Asistente Virtual: bocadillos que esperan a mitad de camino, escudo de preguntas frecuentes y «¿Le he ayudado?».');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);

@@ -11,7 +11,7 @@ import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
-import { expandPattern, isAimed, type BulletColor, type Homing, type PatternDef, type ShotSpec } from './patterns.ts';
+import { expandPattern, isAimed, type BulletColor, type Homing, type Pause, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
 import {
   BACK_WALL_ROWS,
@@ -221,6 +221,9 @@ export interface Bullet {
   accel?: number;
   maxSpeed?: number;
   homing?: Homing;
+  /** It stops halfway and aims again (Pause); `resumed` once it has set off again. */
+  pause?: Pause;
+  resumed?: boolean;
   /** The player's bullets break it (the boss's loyalty cards). */
   shootable?: boolean;
   /** Player bullets with item behaviours: enemies it can still go through, walls it can still bounce off, */
@@ -386,6 +389,10 @@ export interface Enemy {
   tense?: boolean;
   /** Queue posts: seconds before working out again the way to where they want to stand (`dest`). */
   pathT?: number;
+  /** Virtual assistants (ChatbotBrain): where the last hits came from (angles, oldest first). */
+  heard?: number[];
+  /** Virtual assistants: its shield of frequently asked questions, facing `dir` (towards the shots). */
+  faq?: { dir: number; t: number; until: number };
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
@@ -555,6 +562,14 @@ export type SimEvent =
   | { type: 'turnLost'; x: number; y: number; source: number }
   /** A queue post broke: its tape snaps back into the other one (at x, y). */
   | { type: 'tapeSnap'; x: number; y: number; source: number }
+  /** A virtual assistant learned where the shots come from: its shield goes up facing `dir`. */
+  | { type: 'faqUp'; x: number; y: number; dir: number; source: number }
+  /** A shot stopped by its shield of frequently asked questions. */
+  | { type: 'faqBlock'; x: number; y: number; angle: number }
+  /** A virtual assistant starts typing its bubbles. */
+  | { type: 'typing'; x: number; y: number; source: number }
+  /** A virtual assistant broke: «¿Le he ayudado?» over where it stood. */
+  | { type: 'helpAsk'; x: number; y: number; source: number }
   /** The player walked or rolled into a queue tape (at x, y, on it). Not every tick: see TAPE_BUMP_GAP. */
   | { type: 'tapeBump'; x: number; y: number }
   /** An air conditioner is about to blow its frost along the air. */
@@ -1615,6 +1630,8 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'blower') {
     state = 'idle';
     until = b.interval[0] * 0.6;
+  } else if (b.kind === 'chatbot') {
+    until = b.interval[0] * 0.6;
   } else if (b.kind === 'queuer') {
     // Their first volley a little sooner than the rest.
     until = b.interval * 0.6;
@@ -1652,8 +1669,10 @@ export function enemyAltitude(en: Enemy): number {
 }
 
 /** Brains whose own 'warn' state is a telegraph (the turret's comes from its emitter). */
-// A ticket dispenser calling a turn fires nothing: its circle on the floor is the warning.
-const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && en.def.brain.kind !== 'turret' && en.def.brain.kind !== 'turner' && en.def.brain.kind !== 'queuer';
+// A ticket dispenser calling a turn fires nothing: its circle on the floor is the warning. The
+// queue posts' and the virtual assistant's warnings come from their emitters, like the turret's.
+const OWN_WARNING_EXCEPT: ReadonlySet<string> = new Set(['turret', 'turner', 'queuer', 'chatbot']);
+const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && !OWN_WARNING_EXCEPT.has(en.def.brain.kind);
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
 
@@ -2125,6 +2144,38 @@ function updateWeapon(w: World, input: Input): void {
   }
 }
 
+/** Smallest angle between two directions (0 to π). */
+function angleApart(a: number, b: number): number {
+  const d = Math.abs(a - b) % (2 * Math.PI);
+  return d > Math.PI ? 2 * Math.PI - d : d;
+}
+
+/** Whether a virtual assistant's shield is up and faces a bullet flying at `angle` (it comes from the opposite way). */
+export function faqBlocks(en: Enemy, angle: number): boolean {
+  const b = en.def.brain;
+  if (b.kind !== 'chatbot' || !en.faq || isDead(en)) return false;
+  return angleApart(angle + Math.PI, en.faq.dir) <= (b.shieldArc * Math.PI) / 360;
+}
+
+/**
+ * A virtual assistant learns (ChatbotBrain): it keeps where its last `learn` hits came from, and
+ * if they all came from within `sameDeg` of each other, up goes its shield facing them, for
+ * `shield` s («Pregunta frecuente»). With the shield up it learns nothing new.
+ */
+function learnHit(w: World, en: Enemy, angle: number): void {
+  const b = en.def.brain;
+  if (b.kind !== 'chatbot' || en.faq || isDead(en)) return;
+  const heard = (en.heard ??= []);
+  heard.push(angle + Math.PI);
+  if (heard.length > b.learn) heard.shift();
+  if (heard.length < b.learn) return;
+  for (let i = 0; i < heard.length; i++) for (let j = i + 1; j < heard.length; j++) if (angleApart(heard[i]!, heard[j]!) > (b.sameDeg * Math.PI) / 180) return;
+  const dir = Math.atan2(heard.reduce((s, a) => s + Math.sin(a), 0), heard.reduce((s, a) => s + Math.cos(a), 0));
+  en.faq = { dir, t: 0, until: b.shield };
+  en.heard = [];
+  w.events.push({ type: 'faqUp', x: en.x, y: en.y - en.def.anchor.y / 2, dir, source: en.id });
+}
+
 /** Turns being called or just served: their circles stop enemy bullets (a window with its screen). */
 function screeningTurns(w: World): TurnCircle[] {
   const out: TurnCircle[] = [];
@@ -2183,6 +2234,21 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
       b.vx = Math.cos(b.dir) * b.speed - Math.sin(b.dir) * side;
       b.vy = Math.sin(b.dir) * b.speed + Math.cos(b.dir) * side;
     }
+    // «Escribiendo…»: it waits in mid-air, then sets off towards where the player is going to be.
+    if (b.pause && !b.resumed && b.age >= b.pause.at) {
+      if (b.age < b.pause.at + b.pause.wait) {
+        b.vx = 0;
+        b.vy = 0;
+      } else {
+        const p = w.player;
+        const tx = p.x + p.vx * b.pause.lead;
+        const ty = p.y - PLAYER_HURT_Y + p.vy * b.pause.lead;
+        b.dir = Math.atan2(ty - b.y, tx - b.x);
+        b.vx = Math.cos(b.dir) * b.speed;
+        b.vy = Math.sin(b.dir) * b.speed;
+        b.resumed = true;
+      }
+    }
     // Two sub-steps keep fast bullets from skipping thin things.
     let alive = true;
     for (let s = 0; s < 2 && alive; s++) {
@@ -2240,6 +2306,12 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
               alive = false;
               break;
             }
+            // A virtual assistant's frequently asked questions stop what comes from their side.
+            if (faqBlocks(en, angle)) {
+              w.events.push({ type: 'faqBlock', x: b.x, y: b.y, angle });
+              alive = false;
+              break;
+            }
             // A boss between phases shrugs bullets off (they still stop on it); a shredder's bin takes double.
             const back = side === 'back' && en.def.brain.kind === 'shredder' ? en.def.brain.backMul : 1;
             const damage = en.state === 'roar' ? 0 : b.damage * takenScale(en) * back * markScale(en) * escalateScale(w, b, en);
@@ -2255,6 +2327,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             en.vy += Math.sin(angle) * k;
             w.events.push({ type: 'hit', x: b.x, y: b.y, angle, damage, target: en.id, ...(b.crit && damage > 0 ? { crit: true } : {}) });
             if (damage > 0) replyAll(w, b, en, born);
+            if (damage > 0) learnHit(w, en, angle);
             if (pierces(b, en.id)) continue;
             alive = false;
             break;
@@ -2825,6 +2898,7 @@ function updateEmitters(w: World): void {
       if (s.accel) b.accel = s.accel;
       if (s.maxSpeed) b.maxSpeed = s.maxSpeed;
       if (s.homing) b.homing = s.homing;
+      if (s.pause) b.pause = s.pause;
       if (s.shootable) b.shootable = true;
       if (e.by) b.by = e.by;
       if (e.source !== undefined && e.owner === 'enemy') b.from = e.source;
@@ -3285,6 +3359,15 @@ function reapEnemies(w: World): void {
     w.emitters = w.emitters.filter((e) => e.source !== en.id);
     const alt = enemyAltitude(en);
     w.events.push({ type: 'death', x: en.x, y: en.y, alt, angle: en.lastHit, enemy: en.def.id, source: en.id });
+    // A virtual assistant asks for its rating on the way out: two slow buttons, SÍ and NO, at the player.
+    const fb = en.def.brain;
+    if (fb.kind === 'chatbot' && en.copyOf === undefined && !w.over) {
+      const def = PATTERNS[fb.farewell];
+      if (!def) throw new Error(`Unknown pattern ${fb.farewell}`);
+      const y = en.y - fb.muzzleY;
+      firePattern(w, def, en.x, y, Math.atan2(w.player.y - PLAYER_HURT_Y - y, w.player.x - en.x), { telegraph: 0.3, source: en.id, by: en.def.id, height: fb.muzzleY });
+      w.events.push({ type: 'helpAsk', x: en.x, y, source: en.id });
+    }
     // A photocopier's copies fade with it.
     if (en.def.brain.kind === 'copier') {
       for (const o of w.enemies) if (o.copyOf === en.id && !isDead(o) && o.fadeT === undefined) o.fadeT = en.def.brain.fade;

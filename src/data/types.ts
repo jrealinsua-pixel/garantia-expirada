@@ -1018,8 +1018,33 @@ export interface QueuerBrain {
   muzzleY: number;
 }
 
+/**
+ * The virtual assistant (M11 (4c)): keeps about `keep` px from the player (walking at `speed`,
+ * round things, and closer if something stands between them). Every `interval` s (random in the
+ * range) it types (`telegraph` s) and sends `pattern`: speech bubbles that stop halfway and set off
+ * again towards where the player is going. It learns: if its last `learn` hits all came from within
+ * `sameDeg` of each other, its shield of frequently asked questions goes up facing them for
+ * `shield` s and stops whatever comes within `shieldArc` (degrees, the whole arc) of that side.
+ * When it breaks it sends `farewell` (the «¿Le he ayudado?» buttons). `muzzleY`: height of its screen.
+ */
+export interface ChatbotBrain {
+  kind: 'chatbot';
+  speed: number;
+  keep: number;
+  interval: [number, number];
+  telegraph: number;
+  pattern: string;
+  learn: number;
+  sameDeg: number;
+  shield: number;
+  shieldArc: number;
+  farewell: string;
+  muzzleY: number;
+}
+
 export type EnemyBrain =
-  | QueuerBrain | TurnerBrain | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | ChatbotBrain | QueuerBrain
+  | TurnerBrain | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {

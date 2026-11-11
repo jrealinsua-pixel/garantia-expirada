@@ -78,6 +78,10 @@ export const TURN_LOST_LINE = 'Turno perdido';
 /** Bumping into the queue posts' tape (M11 (4b)), and the tape snapping back when one breaks. */
 export const TAPE_BUMP_LINE = 'No se cuele';
 export const TAPE_SNAP_LINE = 'Cola disuelta';
+/** The virtual assistant (M11 (4c)): typing, its shield going up, and when it breaks. */
+export const TYPING_LINE = 'Escribiendo...';
+export const FAQ_LINE = 'Pregunta frecuente';
+export const HELP_ASK_LINE = '¿Le he ayudado?';
 
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
@@ -118,6 +122,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   destructora: { bullet: 'Papeleo devuelto sin leer', contact: 'Triturado por error' },
   climatizador: { bullet: 'Resfriado de oficina', contact: 'Arrollado por un climatizador' },
   'dispensador-turnos': { bullet: 'Corte con tique de turno, ya caducado', contact: 'Atendido por orden de llegada' },
+  'asistente-virtual': { bullet: 'Respuesta automática que no respondía a nada', contact: 'Atropellado por la ayuda' },
   'poste-cola': { bullet: 'Rodamiento perdido de una cola', contact: 'Reconducido a la cola por un poste' },
   sello: { bullet: 'Mancha de tinta indeleble', contact: 'Denegado, con sello y fecha' },
   fotocopiadora: { bullet: 'Corte con folio, por duplicado', contact: 'Atropello por fotocopiadora averiada' },

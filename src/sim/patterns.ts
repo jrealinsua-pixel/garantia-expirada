@@ -16,10 +16,22 @@ import type { Rng } from './rng.ts';
  * with a cyan edge, spinning; `slide` his slides: a red frame round a chart going down, turning; `cut` his line of
  * cuts: red with a white core and an arrow pointing down. `ticket` are the ticket dispenser's paper
  * tickets: red with a white core, flat or folded over as they glide. `steel` are the queue posts'
- * steel balls: grey with a cyan glint and a white core.
+ * steel balls: grey with a cyan glint and a white core. `bubble` are the virtual assistant's speech
+ * bubbles: cyan with a white core, with «…» while they wait; `help` its «¿Le he ayudado?» buttons
+ * (SÍ cyan and NO red, by turns).
  */
 export type BulletColor =
-  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel';
+  | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help';
+
+/**
+ * «Escribiendo…»: at `at` s it stops in mid-air for `wait` s, then sets off again (at its speed)
+ * towards where the player will be `lead` s later, going by how it is moving.
+ */
+export interface Pause {
+  at: number;
+  wait: number;
+  lead: number;
+}
 
 /** Turns towards the player at up to `turnDeg` degrees per second for its first `time` seconds. */
 export interface Homing {
@@ -38,6 +50,8 @@ interface Common {
   maxSpeed?: number;
   /** It chases the player for a while (see Homing). */
   homing?: Homing;
+  /** It stops halfway and aims again (see Pause). */
+  pause?: Pause;
   /** The player's bullets can break it (both are lost). */
   shootable?: boolean;
   /** Seconds it lives, if not the usual. */
@@ -107,6 +121,7 @@ export interface ShotSpec {
   accel?: number;
   maxSpeed?: number;
   homing?: Homing;
+  pause?: Pause;
   shootable?: boolean;
   life?: number;
 }
@@ -119,6 +134,7 @@ function shot(def: Common, delay: number, angle: number): ShotSpec {
   if (def.accel) s.accel = def.accel;
   if (def.maxSpeed) s.maxSpeed = def.maxSpeed;
   if (def.homing) s.homing = def.homing;
+  if (def.pause) s.pause = def.pause;
   if (def.shootable) s.shootable = true;
   if (def.life) s.life = def.life;
   return s;

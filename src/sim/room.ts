@@ -135,6 +135,8 @@ const ENEMY_CHARS: Record<string, string> = {
   Ñ: 'dispensador-turnos',
   // Á: the queue posts (M11 (4b)), always a pair (EnemyDef.pack).
   Á: 'poste-cola',
+  // É: the virtual assistant (M11 (4c)).
+  É: 'asistente-virtual',
 };
 
 /**
