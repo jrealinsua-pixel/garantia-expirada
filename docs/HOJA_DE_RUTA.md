@@ -424,7 +424,7 @@ aspecto). En partes, como M10:
 - Las salas especiales propias, en dos partes:
   - [x] (2c1) Coja Número, Objetos Perdidos, Repuestos Originales y Grabaciones con Fines de
     Calidad con su registro de llamadas (documento para el archivador).
-  - [ ] (2c2) La sala de la Centralita, con sus cuatro mostradores bajos (paran balas y se cruzan
+  - [x] (2c2) La sala de la Centralita, con sus cuatro mostradores bajos (paran balas y se cruzan
     rodando); va con la (5b), que es cuando hay jefa que pelee en ella.
 - [x] (3) Encadenar y cerrar: tras el Director se sube a la planta 5 con todo lo que se lleva
   (`LAST_LEVEL` = 5); hasta que llegue la Centralita, el Director pelea en su sala. Vencer al jefe
@@ -440,9 +440,10 @@ aspecto). En partes, como M10:
 - Jefa: La Centralita. En partes:
   - [x] (5a) Sprites: el cuadro de conexiones (reposo, arrastrarse, hablar, sin clavijas, muda),
     las clavijas, las notas, los mostradores bajos y las zonas del menú de voz.
-  - [ ] (5b) Fases 1 y 2 (el menú de voz, la música de espera, pasar a la tostadora de
-    departamento), cartel y sonidos.
-  - [ ] (5c) Fase 3 (los cables que barren, muda a ratos) y su documento para el archivador.
+  - [x] (5b) Fases 1 y 2 (el menú de voz, la música de espera, pasar a la tostadora de
+    departamento), cartel y sonidos. (Su documento para el archivador también: el test de los
+    documentos pide uno por jefe.)
+  - [ ] (5c) Fase 3 (los cables que barren, muda a ratos).
 - 10 objetos nuevos y 2 armas, en partes:
   - [x] (6a) Cinco de cifras o casi: Formulario en Línea, Tecla Almohadilla, Tiempo de Espera
     Estimado, Código Promocional Caducado y Cable de Teléfono Rizado.

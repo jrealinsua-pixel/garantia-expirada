@@ -126,6 +126,54 @@ export const PATTERNS: Record<string, PatternDef> = {
   },
   'telefono-llamada': { kind: 'fan', count: 1, spreadDeg: 0, speed: 92, homing: { turnDeg: 70, time: 1.5 }, radius: 6, life: 4.5, color: 'call' },
   'telefono-espera': { kind: 'ring', count: 12, speed: 46, aimed: true, wave: { amp: 7, freq: 1.4 }, life: 5, color: 'note' },
+  // La Centralita (M11 (5b)). Fans of plugs thrown with the cords, two or three in a row.
+  'centralita-clavijas': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 48, speed: 118, color: 'plug' }, turnDeg: -10 },
+      { at: 0.26, pattern: { kind: 'fan', count: 5, spreadDeg: 48, speed: 118, color: 'plug' }, turnDeg: 10 },
+    ],
+  },
+  'centralita-clavijas-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 6, spreadDeg: 60, speed: 124, color: 'plug' }, turnDeg: -14 },
+      { at: 0.22, pattern: { kind: 'fan', count: 5, spreadDeg: 48, speed: 124, color: 'plug' } },
+      { at: 0.44, pattern: { kind: 'fan', count: 6, spreadDeg: 60, speed: 124, color: 'plug' }, turnDeg: 14 },
+    ],
+  },
+  // The hold music between menus: rings of notes that wave (the phone's, fuller), the second
+  // one turned half a gap.
+  'centralita-espera': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 14, speed: 54, aimed: true, wave: { amp: 8, freq: 1.3 }, life: 5.5, color: 'note' } },
+      { at: 0.6, pattern: { kind: 'ring', count: 14, speed: 54, aimed: true, offsetDeg: 12.9, wave: { amp: 8, freq: 1.3 }, life: 5.5, color: 'note' } },
+    ],
+  },
+  // The voice menu's rain: what falls on each spot of a wrong zone, a short splash on the floor.
+  'centralita-lluvia': { kind: 'ring', count: 4, speed: 42, life: 0.36, color: 'red' },
+  // «Le paso con el departamento»: what waits in each one (1-4), from its far corner.
+  // Reclamaciones: a wide fan of plugs, and another into the gaps.
+  'depto-reclamaciones': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 7, spreadDeg: 70, speed: 105, color: 'plug' } },
+      { at: 0.3, pattern: { kind: 'fan', count: 6, spreadDeg: 58, speed: 105, color: 'plug' } },
+    ],
+  },
+  // Facturación: invoices, a burst of them, aimed and shaky.
+  'depto-facturacion': { kind: 'burst', count: 8, interval: 0.09, jitterDeg: 14, speed: 120, color: 'invoice' },
+  // Averías: a slow spiral of hold music (it will be a while).
+  'depto-averias': { kind: 'spiral', arms: 3, steps: 10, stepDeg: 13, interval: 0.11, speed: 70, color: 'note' },
+  // Bajas: a ring with one way out, then another with the way out somewhere else.
+  'depto-bajas': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 18, speed: 66, aimed: true, gaps: { widthDeg: 46, atDeg: [28] }, color: 'red' } },
+      { at: 0.55, pattern: { kind: 'ring', count: 18, speed: 66, aimed: true, gaps: { widthDeg: 46, atDeg: [-28] }, color: 'red' } },
+    ],
+  },
   'asistente-botones': { kind: 'fan', count: 2, spreadDeg: 36, speed: 42, life: 4.5, color: 'help' },
   'fotocopiadora-folios': { kind: 'fan', count: 3, spreadDeg: 34, speed: 100, color: 'sheet' },
   'destructora-tiras': { kind: 'fan', count: 5, spreadDeg: 50, speed: 115, color: 'strip' },

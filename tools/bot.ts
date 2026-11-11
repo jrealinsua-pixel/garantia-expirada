@@ -36,6 +36,8 @@ export interface BotReport {
   muneco?: BossReport;
   /** And floor 4's, El Director de Recursos Inhumanos, in the Sala de Juntas (M10 planta 4 5b). */
   director?: BossReport;
+  /** And floor 5's, La Centralita, in her room (M11 5b). */
+  centralita?: BossReport;
   /** Whole floors (M3 criterion): see FloorReport. */
   plantas: FloorReport;
   errores: string[];
@@ -612,6 +614,9 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const director = runBoss(bosses, 240, 'jefe-oficinas', 4);
   failed += director.errors.length;
   errors.push(...director.errors);
+  const centralita = runBoss(bosses, 240, 'jefe-atencion', 5);
+  failed += centralita.errors.length;
+  errors.push(...centralita.errors);
   return {
     partidas: games,
     fallos: failed,
@@ -633,6 +638,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     router: router.report,
     muneco: muneco.report,
     director: director.report,
+    centralita: centralita.report,
     errores: errors.slice(0, 20),
   };
 }
@@ -701,6 +707,14 @@ if (import.meta.main) {
       `${d.combates} combates contra el Director · gana el ${d.gana} % en ${d.segundos} s (${d.minimo}–${d.maximo} s) · ` +
         `${d.heridas} heridas por combate (${d.heridasFase1} en la fase 1, ${d.heridasFase2} en la reestructuración, ${d.heridasFase3} de pie) · ` +
         `llega a la reestructuración el ${d.llegaFase2} %, a los ${d.segundoFase2} s; se levanta el ${d.llegaFase3} %, a los ${d.segundoFase3} s`,
+    );
+  }
+  const c = report.centralita;
+  if (c?.combates) {
+    console.log(
+      `${c.combates} combates contra la Centralita · gana el ${c.gana} % en ${c.segundos} s (${c.minimo}–${c.maximo} s) · ` +
+        `${c.heridas} heridas por combate (${c.heridasFase1} en la fase 1, ${c.heridasFase2} en la de los departamentos) · ` +
+        `llega a los departamentos el ${c.llegaFase2} %, a los ${c.segundoFase2} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

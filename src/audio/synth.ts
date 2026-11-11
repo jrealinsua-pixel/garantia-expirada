@@ -211,4 +211,9 @@ export const SFX: Record<string, SfxParams> = {
   // ...and a dismissal letter slapping open on the carpet.
   carta: { wave: 'noise', freq: 1400, freqEnd: 500, attack: 0.002, sustain: 0.04, decay: 0.1, volume: 0.2, lowpass: 0.6, crush: 2 },
   espera: { wave: 'triangle', freq: 523, freqEnd: 392, attack: 0.05, sustain: 1.2, decay: 0.6, volume: 0.16, vibrato: 0.03, vibratoSpeed: 5 },
+  // The Centralita's voice menu (M11 5b): one tone of a phone keypad, played for each zone that
+  // lights up and for the option she says.
+  pulsar: { wave: 'square', freq: 1209, freqEnd: 1209, attack: 0.002, sustain: 0.09, decay: 0.04, volume: 0.1, duty: 0.5, lowpass: 0.5 },
+  // The rain on the wrong zones: static on the line, all at once.
+  chaparron: { wave: 'noise', freq: 2200, freqEnd: 500, attack: 0.004, sustain: 0.22, decay: 0.25, volume: 0.22, lowpass: 0.55, crush: 3 },
 };

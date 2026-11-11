@@ -295,7 +295,7 @@ test('plantillas de la planta 4: doce salas de combate y las especiales, todas s
   }
 });
 
-test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tamaños variados, y sus especiales (la del jefe, de momento, la de las Oficinas)', () => {
+test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tamaños variados, y sus especiales, la de la jefa incluida', () => {
   const five = templatesOf('combat', 5);
   assert.equal(five.length, 12, `${five.length} salas de combate en la planta 5`);
   // As on the floors below: small, middling and big rooms, never all of one size.
@@ -308,7 +308,7 @@ test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tam
   }
   for (const level of [1, 2, 3, 4]) assert.ok(!templatesOf('combat', level).some((t) => t.level === 5), `planta ${level}`);
   // Its special rooms are its own (M11 (2c1)) and match the warehouse's where the code counts on it;
-  // until the Centralita's room (2c2) the boss room is the offices'.
+  // the boss room is the Centralita's (2c2).
   const count = (t: RoomTemplate, ch: string): number => [...t.rows.join('')].filter((x) => x === ch).length;
   for (const k of ['start', 'treasure', 'shop', 'secret'] as const) {
     const [one] = templatesOf(k);
@@ -320,7 +320,8 @@ test('plantillas de la planta 5: doce salas de combate suyas con grupos y de tam
       assert.deepEqual([t.rows[0]!.length, t.rows.length], [one!.rows[0]!.length, one!.rows.length], `${t.id}: tamaño`);
     }
   }
-  assert.deepEqual(templatesOf('boss', 5), templatesOf('boss', 4), 'boss');
+  assert.deepEqual(templatesOf('boss', 5).map((t) => t.id), ['jefe-atencion'], 'boss');
+  assert.equal([...templatesOf('boss', 5)[0]!.rows.join('')].filter((x) => x === 'J').length, 1, 'un sitio para la jefa');
   // A generated floor 5 fights only in its own combat rooms.
   for (let i = 0; i < 10; i++) {
     const w = createWorld({ seed: `atencion-${i}`, floor: true, level: 5 });

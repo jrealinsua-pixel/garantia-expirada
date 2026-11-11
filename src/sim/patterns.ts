@@ -19,11 +19,12 @@ import type { Rng } from './rng.ts';
  * steel balls: grey with a cyan glint and a white core. `bubble` are the virtual assistant's speech
  * bubbles: cyan with a white core, with «…» while they wait; `help` its «¿Le he ayudado?» buttons
  * (SÍ cyan and NO red, by turns). `call` is the reception phone's call: a fat red ball with a white
- * core and a handset on it, its ring pulsing; `note` the notes of the hold music: cyan, one or two.
+ * core and a handset on it, its ring pulsing; `note` the notes of the hold music: cyan, one or two;
+ * `plug` the Centralita's plugs, red with a white core, pointing where they fly.
  */
 export type BulletColor =
   | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help'
-  | 'call' | 'note';
+  | 'call' | 'note' | 'plug';
 
 /**
  * «Escribiendo…»: at `at` s it stops in mid-air for `wait` s, then sets off again (at its speed)

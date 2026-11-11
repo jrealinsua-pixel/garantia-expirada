@@ -341,6 +341,11 @@ export interface PropDef {
    * player's their damage) before it breaks; a blast next to it breaks it at once.
    */
   tip?: { hp: number };
+  /**
+   * Low furniture (the Centralita's low counters, M11 (2c2)): it stops bullets and blocks walking,
+   * but the toaster rolls over it (a roll that would end on top carries on until it is off).
+   */
+  low?: boolean;
 }
 
 export interface DummyDef {
@@ -363,7 +368,8 @@ export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'bo
  * `Z` Mandos a Distancia (vienen en grupo: see EnemyDef.pack).
  * Slots, filled when a floor is built (src/sim/room.ts, fillTemplate): `e` an enemy (or nothing),
  * `o` an obstacle (or nothing), `*` an item pedestal, `$` the shopkeeper, `s` a shop shelf,
- * `J` the boss, `=` the long table of the Sala de Juntas (its bottom-centre). `1`–`9`: a group of shelving that stands or not with the seed (each digit on its own).
+ * `J` the boss, `=` the long table of the Sala de Juntas (its bottom-centre), `~` and `!` the Centralita's low
+ * counters (the middle of a long one, the bottom of an upright one). `1`–`9`: a group of shelving that stands or not with the seed (each digit on its own).
  * The Mostrador (hub, src/sim/room.ts): `m` a stretch of counter, `C` the counter with the Caja de
  * Devoluciones on it, `n` the ticket machine, `a` the filing cabinet, `h` the Chatarrero, `|` a
  * queue post, `B` the board and `t` the phone (both hang on the back wall over that tile) and `>`
@@ -615,7 +621,25 @@ export interface BossStampAttack {
   pose?: number;
 }
 
-export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack | BossStampAttack;
+export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack | BossStampAttack | BossMenuAttack;
+
+/**
+ * «Su llamada es importante» (the Centralita's voice menu, M11 (5b)): `zones` numbered zones light
+ * up on the floor in a line through the player (one of them under it), while it reads the menu out
+ * (`telegraph` s); then it says which one to press (the farthest from the player `far` of the
+ * times, else any) and `wait` s later bullets rain on all the others: `drops` bursts of `pattern`
+ * spread over each wrong zone, from the floor.
+ */
+export interface BossMenuAttack {
+  kind: 'menu';
+  zones: number;
+  wait: number;
+  drops: number;
+  pattern: string;
+  far: number;
+  telegraph: number;
+  weight: number;
+}
 
 /** A stage of a boss fight, with its own attacks. */
 export interface BossPhase {
@@ -670,6 +694,16 @@ export interface BossPhase {
    * is in the way.
    */
   restructure?: { prop: string; every: number; warn: number; time: number };
+  /**
+   * «Le paso con el departamento» (the Centralita, M11 (5b)): the room is four departments (its
+   * quarters, see departmentOf in src/sim/enemies.ts). `first` s after the phase starts and every
+   * `every` s after that a bell rings and a circle marks the toaster; `mark` s later it is put
+   * through to another department (a free spot in it, away from the boss), with `grace` s of
+   * invulnerability, and that department's `welcome` pattern (one per department, 1-4) is fired at
+   * it from the department's far corner, with `warn` s of warning. Every `recall` transfers, if
+   * its helper (BossPhase.summon) is down, it calls it again.
+   */
+  transfer?: { first: number; every: number; mark: number; grace: number; welcome: readonly string[]; warn: number; recall?: number };
 }
 
 /**
@@ -1169,6 +1203,9 @@ export interface EnemyAnim {
   reveal?: number;
   /** Ringing (the reception phone): these frames in turn, `ringMs` each, while it rings. */
   ring?: readonly number[];
+  /** Talking (the Centralita reading out her voice menu, putting you through): these frames in turn, `talkMs` each. */
+  talk?: readonly number[];
+  talkMs?: number;
   ringMs?: number;
   /** Passing you on to a colleague, or putting you on hold (the reception phone). */
   pass?: number;

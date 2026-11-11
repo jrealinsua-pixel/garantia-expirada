@@ -40,6 +40,11 @@ export const PROPS: Record<string, PropDef> = {
   // one deep (the `_` is the middle one), stopping bullets like a wall. The Director moves them
   // round the room in his «Reestructuración» (BossPhase.restructure).
   'mampara-movil': { id: 'mampara-movil', name: 'Mampara de Cristal Esmerilado', box: { x: -36, y: -22, w: 72, h: 24 }, blocksBullets: true },
+  // The low counters of the Centralita's room (M11 (2c2)): waist high and without a screen, three
+  // tiles long. They stop bullets from both sides and block walking, but the toaster rolls over them
+  // (PropDef.low). Boxes from tools/sprites/centralita.ts LOW_COUNTER_BOX and LOW_COUNTER_V_BOX.
+  'mostrador-bajo': { id: 'mostrador-bajo', name: 'Mostrador Bajo de Departamento', box: { x: -36, y: -24, w: 72, h: 20 }, blocksBullets: true, low: true },
+  'mostrador-bajo-v': { id: 'mostrador-bajo-v', name: 'Separador de Departamentos', box: { x: -12, y: -76, w: 24, h: 72 }, blocksBullets: true, low: true },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 

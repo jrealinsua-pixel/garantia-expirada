@@ -1011,6 +1011,79 @@ export const ENEMIES: Record<string, EnemyDef> = {
     },
     boss: { title: 'El Director de Recursos Inhumanos', motto: 'Aquí nadie es imprescindible. Usted tampoco.', subtitle: 'Jefe de planta · Oficinas' },
   },
+  centralita: {
+    id: 'centralita',
+    name: 'La Centralita',
+    description:
+      'El menú de voz que contesta todas las llamadas del edificio y no resuelve ninguna. Un cuadro ' +
+      'de clavijas del tamaño de un armario, con una voz grabada demasiado amable y los cables de brazos.',
+    // M11 (5b). docs/DISENO.md says about 240, like the Director measured; her low counters stop the
+    // toaster's bullets too.
+    hp: 240,
+    sprite: 'centralita',
+    anchor: { x: 32, y: 73 },
+    hurt: { x: -26, y: -66, w: 52, h: 62 },
+    footRadius: 18,
+    contactPush: 260,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [9, 12], hearts: 1 },
+    // tools/sprites/centralita.ts CENTRALITA_FRAMES: 0-1 resting, 2-5 dragging herself with the
+    // cords, 6-7 talking, 8 throwing a plug; 9-13 phase 3 (M11 5c).
+    anim: { idle: [0, 1], idleMs: 620, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, talk: [6, 7], talkMs: 170 },
+    brain: {
+      kind: 'boss',
+      // She drags herself: short legs, now slow, now a heave.
+      roam: { leg: [0.6, 1.4], burst: [0.7, 1.4], spread: 40 },
+      drift: 0.4,
+      rage: 0.5,
+      // The tip of the front cord, raised: the plugs come out of there.
+      muzzle: { x: 30, y: 44 },
+      phases: [
+        {
+          // «Su llamada es importante»: the voice menu (three zones on the floor, bullets on the two
+          // wrong ones), fans of plugs and rings of hold music in between.
+          name: 'Su llamada es importante',
+          from: 1,
+          walkSpeed: 34,
+          keep: 150,
+          rest: [1, 1.4],
+          attacks: [
+            { kind: 'menu', zones: 3, wait: 1.5, drops: 8, pattern: 'centralita-lluvia', far: 0.35, telegraph: 0.7, weight: 2.5 },
+            { kind: 'pattern', pattern: 'centralita-clavijas', telegraph: 0.6, weight: 2.5, pose: 8 },
+            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.6, weight: 2 },
+          ],
+        },
+        {
+          // «Le paso con el departamento» (from 60 %): every 10 s a bell, a circle on the toaster and
+          // off it goes to another department, where a pattern of its own waits; and she calls a
+          // reception phone (again every third transfer, if it is down).
+          name: 'Le paso con el departamento',
+          from: 0.6,
+          walkSpeed: 40,
+          keep: 140,
+          rest: [0.95, 1.3],
+          line: 'Le paso con el departamento correspondiente.',
+          summon: { id: 'telefono-recepcion', count: 1, max: 1 },
+          transfer: {
+            first: 3,
+            every: 10,
+            mark: 0.8,
+            grace: 0.5,
+            warn: 0.7,
+            welcome: ['depto-reclamaciones', 'depto-facturacion', 'depto-averias', 'depto-bajas'],
+            recall: 3,
+          },
+          attacks: [
+            { kind: 'menu', zones: 3, wait: 1.4, drops: 8, pattern: 'centralita-lluvia', far: 0.45, telegraph: 0.6, weight: 2 },
+            { kind: 'pattern', pattern: 'centralita-clavijas-2', telegraph: 0.55, weight: 2.5, pose: 8 },
+            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.55, weight: 1.5 },
+          ],
+        },
+      ],
+    },
+    boss: { title: 'La Centralita', motto: 'Todos nuestros operadores están ocupados. Siempre.', subtitle: 'Jefa de planta · Atención al Cliente' },
+  },
   'silla-director': {
     id: 'silla-director',
     name: 'Silla Ergonómica de Dirección',

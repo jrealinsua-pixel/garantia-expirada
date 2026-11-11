@@ -1959,6 +1959,35 @@ const FLOOR_5: RoomTemplate[] = [
       '########################',
     ],
   },
+  {
+    // La Centralita (docs/DISENO.md, M11 (2c2)): big, and split into four departments (its quarters:
+    // 1 Reclamaciones top left, 2 Facturación top right, 3 Averías bottom left, 4 Bajas bottom right)
+    // by four low counters that stop bullets and that the toaster rolls over (PropDef.low): `~` the
+    // long ones, across the middle row (the middle of their three tiles), `!` the upright ones, down
+    // the middle column (their bottom tile). Between them, the hall where she drags herself about.
+    id: 'jefe-atencion',
+    kind: 'boss',
+    level: 5,
+    name: 'Centralita (Operadores Ocupados)',
+    rows: [
+      '##########################',
+      '##########################',
+      '#c......................c#',
+      '#........................#',
+      '#...............J........#',
+      '#........................#',
+      '#........................#',
+      '#...........!............#',
+      '#.....~............~.....#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#...........!............#',
+      '#........................#',
+      '#b......................b#',
+      '##########################',
+    ],
+  },
 ];
 
 export const ROOMS: Record<string, RoomTemplate> = {
@@ -2003,9 +2032,12 @@ export const FLOOR_BOSS_3 = 'D';
 /** Floor 4's: E (ejecutivo), El Director de Recursos Inhumanos (M10 planta 4 5b), in the Sala de Juntas. */
 export const FLOOR_BOSS_4 = 'E';
 
+/** Floor 5's: Ú, La Centralita (M11 (5b)), in her Centralita (the capitals ran out: see ENEMY_CHARS). */
+export const FLOOR_BOSS_5 = 'Ú';
+
 /** Template letter of the boss of floor `level`. */
 export function floorBossOf(level: number): string {
-  return level >= 4 ? FLOOR_BOSS_4 : level === 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
+  return level >= 5 ? FLOOR_BOSS_5 : level === 4 ? FLOOR_BOSS_4 : level === 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
 }
 
 /**

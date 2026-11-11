@@ -99,6 +99,17 @@ export const LORE: readonly LoreDoc[] = [
     ],
   },
   {
+    id: 'transcripcion-1',
+    kind: 'Transcripción de llamada',
+    title: 'Atención al Cliente · Llamada 0001',
+    source: { boss: 'centralita' },
+    pages: [
+      'Llamada al Servicio Técnico. Duración: 41 minutos. De ellos, 40 de música de espera, la misma, en bucle.',
+      'Minuto 41. Voz grabada: «Su producto será reacondicionado. Gracias por su paciencia». No se oye a nadie al otro lado.',
+      'Nota de calidad, a mano: «nadie ha llamado nunca desde dentro del Servicio Técnico. Esta llamada salió de allí».',
+    ],
+  },
+  {
     id: 'acta-1',
     kind: 'Acta de reunión',
     title: 'Comité de Dirección · Punto 3',

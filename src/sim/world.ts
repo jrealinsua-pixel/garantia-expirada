@@ -436,6 +436,19 @@ export interface Enemy {
   /** Bosses that restructure their room: seconds since they last did (see BossPhase.restructure). */
   restructT?: number;
   /**
+   * The Centralita's voice menu (BossMenuAttack): its zones on the floor (centres, numbered 1-n),
+   * the one to press (`good`, an index), whether it has said which yet (and when: `saidAt`), `t` s
+   * since the zones lit up, when the rain falls (`rainAt`) and whether it has.
+   */
+  menu?: { zones: Array<{ x: number; y: number; n: number }>; good: number; said: boolean; saidAt: number; t: number; rainAt: number; rained: boolean };
+  /**
+   * Bosses that put you through (BossPhase.transfer): seconds since the last transfer, how many so
+   * far, and the circle marking the toaster while the bell rings (`t` s of `until`).
+   */
+  deptT?: number;
+  deptCount?: number;
+  deptMark?: { t: number; until: number };
+  /**
    * Bosses: seconds left of the current leg of its walk, how fast (share of its speed), which way
    * round the player (1 or -1) and how far from it.
    */
@@ -671,6 +684,16 @@ export type SimEvent =
   | { type: 'brickStep' | 'brickSwept'; x: number; y: number; brick: number; angle?: number }
   /** A boss starts a new phase of its fight. */
   | { type: 'bossPhase'; boss: number; phase: number; name: string; reboot?: string; line?: string; stage?: number }
+  /** The Centralita's voice menu: its zones light up on the floor (Enemy.menu). */
+  | { type: 'menuZones'; boss: number; count: number }
+  /** It says which zone to press (number `n`); the others are about to get the rain. */
+  | { type: 'menuOption'; boss: number; n: number; x: number; y: number }
+  /** The rain falls on the wrong zones (their centres). */
+  | { type: 'menuRain'; boss: number; zones: Array<{ x: number; y: number }> }
+  /** The bell: a circle marks the toaster, about to be put through to another department. */
+  | { type: 'deptMark'; boss: number; x: number; y: number }
+  /** Put through: the toaster went from (fromX, fromY) to (x, y), in department `dept` (1-4). */
+  | { type: 'deptTransfer'; boss: number; fromX: number; fromY: number; x: number; y: number; dept: number }
   /** A boss breaks out of its shell (BossPhase.shed): the prop is left at (x, y) (bottom-centre). */
   | { type: 'shed'; boss: number; x: number; y: number; prop: string }
   /** A boss calls its helpers (BossPhase.summon): they pop out next to it. */
@@ -1708,6 +1731,15 @@ const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && !OWN_WARNIN
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
 
+/** Whether the toaster's feet are on a low counter (PropDef.low: only rolling gets it there). */
+export function onLowProp(w: World, p: { x: number; y: number; def: { footRadius: number } }): boolean {
+  const feet = playerFeetBox(p, p.def.footRadius);
+  return w.room.props.some((pr) => pr.def.low && overlaps(pr.box, feet));
+}
+
+/** Seconds a roll may carry on over a low counter before the toaster is put down beside it. */
+const LOW_ROLL_EXTRA = 0.6;
+
 /** Where the floating hand holding the gun is. */
 export function gunPivot(p: Player): { x: number; y: number } {
   return { x: p.x + Math.cos(p.aim) * HAND_REACH, y: p.y - HAND_HEIGHT + Math.sin(p.aim) * HAND_REACH_Y };
@@ -1723,11 +1755,11 @@ export function dummyHurtBox(d: Dummy | Enemy): Rect {
   return { x: d.x + d.def.hurt.x, y: d.y + d.def.hurt.y - up, w: d.def.hurt.w, h: d.def.hurt.h };
 }
 
-function solidsNear(w: World, box: Rect): Rect[] {
+function solidsNear(w: World, box: Rect, overLow = false): Rect[] {
   const out: Rect[] = [];
   const probe = { x: box.x - 4, y: box.y - 4, w: box.w + 8, h: box.h + 8 };
   wallRectsNear(w.room, probe, out);
-  for (const pr of w.room.props) if (overlaps(pr.box, probe)) out.push(pr.box);
+  for (const pr of w.room.props) if (overlaps(pr.box, probe) && !(overLow && pr.def.low)) out.push(pr.box);
   for (const d of w.dummies) {
     const b = { x: d.x + d.def.box.x, y: d.y + d.def.box.y, w: d.def.box.w, h: d.def.box.h };
     if (overlaps(b, probe)) out.push(b);
@@ -1739,14 +1771,21 @@ function solidsNear(w: World, box: Rect): Rect[] {
  * Moves a feet box of half-width `r`, sliding along whatever is solid. Zeroes the velocity on
  * the axis that hits something and says which axes did.
  */
-export function slide(w: World, b: { x: number; y: number; vx: number; vy: number }, r: number, dx: number, dy: number): { hitX: boolean; hitY: boolean } {
+export function slide(
+  w: World,
+  b: { x: number; y: number; vx: number; vy: number },
+  r: number,
+  dx: number,
+  dy: number,
+  overLow = false,
+): { hitX: boolean; hitY: boolean } {
   const eps = 0.001;
   let hitX = false;
   let hitY = false;
   if (dx !== 0) {
     b.x += dx;
     const box = playerFeetBox(b, r);
-    for (const s of solidsNear(w, box)) {
+    for (const s of solidsNear(w, box, overLow)) {
       if (!overlaps(playerFeetBox(b, r), s)) continue;
       b.x = dx > 0 ? s.x - r - eps : s.x + s.w + r + eps;
       b.vx = 0;
@@ -1756,7 +1795,7 @@ export function slide(w: World, b: { x: number; y: number; vx: number; vy: numbe
   if (dy !== 0) {
     b.y += dy;
     const box = playerFeetBox(b, r);
-    for (const s of solidsNear(w, box)) {
+    for (const s of solidsNear(w, box, overLow)) {
       if (!overlaps(playerFeetBox(b, r), s)) continue;
       // feet box spans [y-3, y+1]
       b.y = dy > 0 ? s.y - 1 - eps : s.y + s.h + 3 + eps;
@@ -1892,13 +1931,24 @@ function updatePlayer(w: World, input: Input): void {
   }
 
   if (isRolling(p)) {
-    const k = p.rollT / d.rollTime;
+    const k = Math.min(1, p.rollT / d.rollTime);
     // Full speed for most of the roll, then a quick ease-out so the landing reads.
     const speed = d.rollSpeed * (k < 0.7 ? 1 : 1 - ((k - 0.7) / 0.3) * 0.65);
     p.vx = p.rollDirX * speed;
     p.vy = p.rollDirY * speed;
     p.rollT += DT;
-    if (p.rollT >= d.rollTime) {
+    // Over a low counter (PropDef.low): the roll carries on, slowly, until the toaster is off it
+    // (never landing on top); if it cannot get off that way, it is put down beside it.
+    let carryOn = false;
+    if (p.rollT >= d.rollTime && onLowProp(w, p)) {
+      if (p.rollT < d.rollTime + LOW_ROLL_EXTRA) carryOn = true;
+      else {
+        const out = freeSpot(w, p.x, p.y, p.def.footRadius);
+        p.x = out.x;
+        p.y = out.y;
+      }
+    }
+    if (p.rollT >= d.rollTime && !carryOn) {
       p.rollT = -1;
       p.rollCooldown = d.rollCooldown;
       // Keep part of the momentum so the exit is not a dead stop.
@@ -1931,7 +1981,7 @@ function updatePlayer(w: World, input: Input): void {
   const oy = p.y;
   // An air conditioner's cone pushes the toaster along (walking against it still gets somewhere).
   const wind = w.over ? { x: 0, y: 0 } : windOn(w, p.x, p.y);
-  slide(w, p, p.def.footRadius, (p.vx + wind.x) * DT, (p.vy + wind.y) * DT);
+  slide(w, p, p.def.footRadius, (p.vx + wind.x) * DT, (p.vy + wind.y) * DT, isRolling(p));
   if (!isRolling(p)) p.walked += Math.hypot(p.x - ox, p.y - oy);
 }
 
@@ -2847,6 +2897,8 @@ export function activeWarnings(w: World): Warning[] {
     const b = en.def.brain;
     if (b.kind === 'boss') {
       const a = b.phases[en.bossPhase ?? 0]?.attacks[en.attack ?? 0];
+      // The voice menu warns with its zones on the floor (Enemy.menu), drawn on their own.
+      if (a?.kind === 'menu') continue;
       const at = a ? bossWarnSpot(en, b, a) : { x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y };
       const k = Math.min(1, en.t / en.until);
       out.push({ x: at.x, y: at.y, k, aim: 0, aimed: false, color: a?.kind === 'spit' || a?.kind === 'runway' ? 'red' : 'ice', bullets: true, source: en.id });
@@ -4166,7 +4218,8 @@ export function checkInvariants(w: World): string[] {
   const walls: Rect[] = [];
   wallRectsNear(w.room, box, walls);
   if (walls.some((r) => overlaps(r, box))) errs.push(`player inside a wall at ${p.x.toFixed(1)},${p.y.toFixed(1)}`);
-  if (w.room.props.some((pr) => overlaps(pr.box, box))) errs.push(`player inside a prop at ${p.x.toFixed(1)},${p.y.toFixed(1)}`);
+  // Rolling over a low counter is the one way into a prop (PropDef.low).
+  if (w.room.props.some((pr) => overlaps(pr.box, box) && !(pr.def.low && isRolling(p)))) errs.push(`player inside a prop at ${p.x.toFixed(1)},${p.y.toFixed(1)}`);
   if (!Number.isInteger(p.hp) || p.hp < 0 || p.hp > p.def.maxHp) errs.push(`player hp out of range: ${p.hp}`);
   if (p.hp === 0 && !w.over) errs.push('player has no life but the run is not over');
   if (!Number.isInteger(p.shield) || p.shield < 0 || p.shield > SHIELD_MAX) errs.push(`player shield out of range: ${p.shield}`);

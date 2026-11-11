@@ -39,6 +39,11 @@ import {
   HELP_ASK_LINE,
   TRANSFER_LINE,
   HOLD_LINE,
+  DEPARTMENT_NAMES,
+  DEPT_MARK_LINE,
+  deptTransferLine,
+  MENU_INTRO_LINES,
+  menuOptionLine,
   ROLL_DENIED_LINE,
   STAMP_LINE,
   TONER_OUT_LINE,
@@ -89,6 +94,7 @@ import {
   frostSlow,
   gunPivot,
   isRolling,
+  onLowProp,
   sourceTelegraph,
   step,
   BODY_HEIGHT,
@@ -116,7 +122,7 @@ import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from
 import { profile, saveFloor, saveRun } from './save.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
 import type { PropInstance, StationKind, TipSide } from '../sim/room.ts';
-import { isSpinning } from '../sim/enemies.ts';
+import { departmentOf, departmentRect, isSpinning, MENU_ZONE_H, MENU_ZONE_W } from '../sim/enemies.ts';
 import { rosterBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
 import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
@@ -345,6 +351,11 @@ export class GameScene extends Phaser.Scene {
   /** Tapes snapping back into a post: a line that shrinks towards it for a moment. */
   private tapeSnaps: { x: number; y: number; fx: number; fy: number; t: number }[] = [];
   private turnG!: Phaser.GameObjects.Graphics;
+  /** The Centralita's voice menu: the zones on the floor (per boss), and the circle on the toaster before a transfer. */
+  private menuViews = new Map<number, Phaser.GameObjects.Image[]>();
+  private menuG!: Phaser.GameObjects.Graphics;
+  /** «Le paso con el departamento»: the dotted line from where the toaster was to where it is, fading. */
+  private deptLines: Array<{ ax: number; ay: number; bx: number; by: number; t: number }> = [];
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
   private pieces = new Map<string, SpritePiece[]>();
   private couponIcon!: Phaser.GameObjects.Image;
@@ -642,9 +653,12 @@ export class GameScene extends Phaser.Scene {
         this.tableViews.set(`${pr.x},${pr.y}`, { s, shadow, x: pr.x, y: pr.y, jolt: 0, tip: 0, side: pr.tipped });
         continue;
       }
-      this.makePropView(pr);
+      const view = this.makePropView(pr);
+      // The Centralita's low counters: each long one has the plate of the department behind it.
+      if (key === 'mostrador-bajo') view.setFrame(departmentOf(room, pr.x, pr.box.y - 6) - 1);
     }
     if (room.kind === 'hub') this.makeHub();
+    if (room.id === 'jefe-atencion') this.paintDepartments();
     if (room.kind === 'shop') {
       // A display stand under every shelf, and the till says hello.
       for (const sl of room.slots) if (sl.kind === 'shelf') this.add.image(sl.x, sl.y + 6, 'expositor').setOrigin(0.5, 1).setDepth(sl.y - 1);
@@ -733,6 +747,7 @@ export class GameScene extends Phaser.Scene {
     this.reloadBar = this.add.graphics().setDepth(80000);
     this.warn = this.add.graphics().setDepth(84000);
     this.turnG = this.add.graphics().setDepth(-60350);
+    this.menuG = this.add.graphics().setDepth(83700);
     this.faqG = this.add.graphics().setDepth(83900);
     this.transferG = this.add.graphics().setDepth(83800);
     this.windG = this.add.graphics().setDepth(-60100);
@@ -1203,6 +1218,31 @@ export class GameScene extends Phaser.Scene {
     const img = this.add.image(pr.x, pr.y, look).setOrigin(0.5, 1).setDepth(pr.y);
     if (pr.def.hp) this.drumViews.set(`${pr.x},${pr.y}`, { s: img, shadow, x: pr.x, jolt: 0, smoke: 0 });
     return img;
+  }
+
+  /** Just over the zones of a boss's voice menu (their middle), for what it says. */
+  private menuTop(boss: number): { x: number; y: number } | null {
+    const zones = this.world.enemies.find((en) => en.id === boss)?.menu?.zones;
+    if (!zones?.length) return null;
+    const x = zones.reduce((a, z) => a + z.x, 0) / zones.length;
+    return { x, y: Math.min(...zones.map((z) => z.y)) - MENU_ZONE_H / 2 - 12 };
+  }
+
+  /**
+   * The Centralita's room: each department's number and name stencilled on the floor, faded, in
+   * the outer corner of its quarter (BossPhase.transfer puts the toaster through to them).
+   */
+  private paintDepartments(): void {
+    const room = this.world.room;
+    for (let d = 1; d <= 4; d++) {
+      const r = departmentRect(room, d);
+      const right = d === 2 || d === 4;
+      const down = d >= 3;
+      const x = right ? r.x + r.w - 14 : r.x + 14;
+      const y = down ? r.y + r.h - 14 : r.y + 14;
+      const label = fontText(`${d} · ${DEPARTMENT_NAMES[d - 1]!}`);
+      this.add.bitmapText(x, y, FONT, label, 8).setOrigin(right ? 1 : 0, 0.5).setTint(0xd6ecff).setAlpha(0.32).setDepth(-60450);
+    }
   }
 
   /** Props already drawn; any other one turned up during the fight (the Muñeco's broken box). */
@@ -2319,6 +2359,54 @@ export class GameScene extends Phaser.Scene {
         case 'onHold':
           this.sound2.play('espera', { volume: 0.6 });
           break;
+        case 'menuZones': {
+          // The voice menu: a keypad tone for each zone that lights up, and the recording starts.
+          for (let i = 0; i < e.count; i++) this.time.delayedCall(i * 110, () => this.sound2.play('pulsar', { detune: i * 200 }));
+          const top = this.menuTop(e.boss);
+          if (top) this.floatText(top.x, top.y, fontText(this.fx.pick(MENU_INTRO_LINES)), 0xd6ecff, `menu:${e.boss}`, -6, 1.1);
+          break;
+        }
+        case 'menuOption':
+          // «Para reclamaciones, pulse 3»: over her, in big, with the tone of that key.
+          this.sound2.play('pulsar', { detune: 700 });
+          this.time.delayedCall(120, () => this.sound2.play('pulsar', { detune: 700 }));
+          {
+            // Over the zones, where the eyes are (she may well be off screen).
+            const top = this.menuTop(e.boss) ?? { x: e.x, y: e.y - 80 };
+            this.floatText(top.x, top.y, fontText(menuOptionLine(e.n, this.fx.int(0, 5))), 0xf6c431, `menu:${e.boss}`, -4, 1.6);
+          }
+          break;
+        case 'menuRain':
+          // Static on the line: the wrong zones get it all at once.
+          this.sound2.play('chaparron');
+          this.shake(110, 0.005);
+          for (const z of e.zones) {
+            for (let i = 0; i < 6; i++) {
+              this.spark(z.x + this.fx.range(-30, 30), z.y + this.fx.range(-18, 18), -Math.PI / 2 + this.fx.range(-0.5, 0.5), this.fx.range(30, 70), 2, 0xff6e5a);
+            }
+          }
+          break;
+        case 'deptMark': {
+          // The bell: two rings, and she says it.
+          this.sound2.play('timbre', { detune: 150 });
+          this.time.delayedCall(260, () => this.sound2.play('timbre', { detune: 150 }));
+          const boss = this.world.enemies.find((en) => en.id === e.boss);
+          if (boss) this.floatText(boss.x, boss.y - 80, fontText(DEPT_MARK_LINE), 0xffd84a, `menu:${boss.id}`, -6, 1.2);
+          break;
+        }
+        case 'deptTransfer':
+          // Put through: gone from one spot in a puff, out at the other, and where it is now.
+          this.sound2.play('transferir', { detune: 200 });
+          this.time.delayedCall(90, () => this.sound2.play('transferir', { detune: 600 }));
+          this.puff(e.fromX, e.fromY, 0.4);
+          this.puff(e.x, e.y, 0.4);
+          for (let i = 0; i < 6; i++) {
+            this.spark(e.fromX, e.fromY - 10, this.fx.range(0, Math.PI * 2), this.fx.range(25, 60), 0, 0xffd84a);
+            this.spark(e.x, e.y - 10, this.fx.range(0, Math.PI * 2), this.fx.range(25, 60), 0, 0xffd84a);
+          }
+          this.deptLines.push({ ax: e.fromX, ay: e.fromY - 8, bx: e.x, by: e.y - 8, t: 0 });
+          this.floatText(e.x, e.y - 30, fontText(deptTransferLine(e.dept)), 0xffd84a, 'deptTransfer', -12, 1.3);
+          break;
         case 'tapeBump':
           // Into the tape: it gives a little and throws the toaster back. No queue-jumping.
           this.sound2.play('muelle', { volume: 0.35, detune: 300 });
@@ -2771,8 +2859,10 @@ export class GameScene extends Phaser.Scene {
             // The Router reboots: everything goes dark and its line comes up over it.
             this.sound2.play('apagar');
             this.floatText(boss.x, boss.y + 18, fontText(e.reboot), 0xb7bed0, `reboot:${boss.id}`, -1, 4.6);
-          } else if (e.line && boss && boss.def.id === 'director-rrhh') {
-            // The Director announces it calmly (the clap is its own event): just the line.
+          } else if (e.line && boss && (boss.def.id === 'director-rrhh' || boss.def.id === 'centralita')) {
+            // The Director announces it calmly (the clap is its own event): just the line. The
+            // Centralita too, after a ring: a recording does not raise its voice.
+            if (boss.def.id === 'centralita') this.sound2.play('timbre');
             this.floatText(boss.x, boss.y + 16, fontText(e.line), 0xf4f1e8, `line:${boss.id}`, -6, 2.6);
           } else if (e.line && boss) {
             // A sale: the pricing gun clacks a new tag on its box, a shower of price-tag confetti,
@@ -3574,7 +3664,9 @@ export class GameScene extends Phaser.Scene {
         else if (this.downArmed) this.goOn();
       }
     }
-    this.hero.setDepth(p.y);
+    // Rolling over a low counter: on top of it, not behind.
+    const heroDepth = isRolling(p) && onLowProp(w, p) ? p.y + LOW_PROP_LIFT : p.y;
+    this.hero.setDepth(heroDepth);
     this.hero.setAlpha(1);
     this.heroShadow.setVisible(!w.won);
     this.heroShadow.setPosition(Math.round(p.x), Math.round(p.y));
@@ -3600,8 +3692,8 @@ export class GameScene extends Phaser.Scene {
     this.gun.setVisible(armed);
     this.hand.setVisible(armed);
     this.gun.setPosition(Math.round(gx), Math.round(gy)).setRotation(p.aim).setScale(1, p.facing);
-    this.gun.setDepth(p.y + (behind ? -0.5 : 0.5));
-    this.hand.setPosition(Math.round(gx), Math.round(gy + 1)).setDepth(p.y + (behind ? -0.4 : 0.6));
+    this.gun.setDepth(heroDepth + (behind ? -0.5 : 0.5));
+    this.hand.setPosition(Math.round(gx), Math.round(gy + 1)).setDepth(heroDepth + (behind ? -0.4 : 0.6));
     this.muzzleT -= dt;
     const mzx = gx + Math.cos(p.aim) * 14;
     const mzy = gy + Math.sin(p.aim) * 14;
@@ -3739,6 +3831,7 @@ export class GameScene extends Phaser.Scene {
     this.drawFrost(dt);
     this.drawInk();
     this.drawTurns();
+    this.drawMenus(dt);
     this.drawTapes(dt);
     this.drawFaqs();
     this.drawTransfers();
@@ -3797,6 +3890,8 @@ export class GameScene extends Phaser.Scene {
       // The phone's call: its ring pulses; the hold music: one note or two.
       if (b.color === 'call') s.setFrame(Math.floor(this.time.now / 140 + b.id) % 2);
       if (b.color === 'note') s.setFrame(b.id % 2);
+      // The Centralita's plugs point where they fly.
+      if (b.color === 'plug') s.setRotation(Math.atan2(b.vy, b.vx));
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -4109,6 +4204,77 @@ export class GameScene extends Phaser.Scene {
       g.lineBetween(sn.x, sn.y, sn.x + (sn.fx - sn.x) * k, sn.y + (sn.fy - sn.y) * k);
     }
     this.tapeSnaps = this.tapeSnaps.filter((sn) => sn.t < 0.16);
+  }
+
+  /**
+   * The Centralita's voice menu: its zones on the floor (pale and dashed while she reads the menu;
+   * once she has said which, the one to press glows and the others go red and blink faster as the
+   * rain comes), and before a transfer, a yellow ring closing on the toaster. The dotted line of a
+   * transfer fades out.
+   */
+  private drawMenus(dt: number): void {
+    const g = this.menuG;
+    g.clear();
+    const alive = new Set<number>();
+    for (const en of this.world.enemies) {
+      const m = en.menu;
+      if (m && !isDead(en) && en.state !== 'dying') {
+        alive.add(en.id);
+        let v = this.menuViews.get(en.id);
+        if (!v || v.length !== m.zones.length) {
+          for (const im of v ?? []) im.destroy();
+          v = m.zones.map((z) => this.add.image(z.x, z.y, 'zona-menu', z.n - 1).setDepth(-60400));
+          this.menuViews.set(en.id, v);
+        }
+        const pop = Math.min(1, m.t / 0.15);
+        m.zones.forEach((z, i) => {
+          const im = v![i]!;
+          const bad = m.said && i !== m.good;
+          im.setFrame(z.n - 1 + (bad ? 3 : 0)).setPosition(z.x, z.y).setScale(1.15 - 0.15 * pop);
+          if (bad && !m.rained) {
+            // Faster and faster as the rain comes.
+            const left = Math.max(0, m.rainAt - m.t);
+            const period = 60 + 140 * Math.min(1, left / 1.5);
+            im.setAlpha(Math.floor(this.time.now / period) % 2 ? 1 : 0.65);
+          } else if (m.rained) im.setAlpha(bad ? 1 : 0.5);
+          else im.setAlpha(0.95);
+          if (m.said && i === m.good && !m.rained) {
+            // The one to press: a pale outline that breathes.
+            const k = 0.5 + 0.5 * Math.sin(this.time.now / 90);
+            g.lineStyle(2, 0xd6ecff, 0.5 + 0.4 * k);
+            g.strokeRoundedRect(z.x - MENU_ZONE_W / 2 - 2, z.y - MENU_ZONE_H / 2 - 2, MENU_ZONE_W + 4, MENU_ZONE_H + 4, 4);
+          }
+        });
+      }
+      const mk = en.deptMark;
+      if (mk && !isDead(en)) {
+        const p = this.world.player;
+        const k = Math.min(1, mk.t / mk.until);
+        const r = 26 - 14 * k;
+        const blink = Math.floor(this.time.now / 70) % 2 === 0;
+        g.lineStyle(2, 0xffd84a, blink ? 1 : 0.6);
+        g.strokeEllipse(p.x, p.y - 2, r * 2, r * 1.2);
+        g.lineStyle(1, 0xffd84a, 0.7);
+        g.strokeEllipse(p.x, p.y - 2, (r + 6) * 2, (r + 6) * 1.2);
+      }
+    }
+    for (const [id, v] of this.menuViews) {
+      if (alive.has(id)) continue;
+      for (const im of v) im.destroy();
+      this.menuViews.delete(id);
+    }
+    for (const ln of this.deptLines) {
+      ln.t += dt;
+      const a = Math.max(0, 1 - ln.t / 0.6);
+      const d = Math.hypot(ln.bx - ln.ax, ln.by - ln.ay);
+      const n = Math.floor(d / 7);
+      g.fillStyle(0xffd84a, a);
+      for (let i = 0; i <= n; i++) {
+        const k = n ? i / n : 0;
+        g.fillRect(Math.round(ln.ax + (ln.bx - ln.ax) * k) - 1, Math.round(ln.ay + (ln.by - ln.ay) * k) - 1, 2, 2);
+      }
+    }
+    this.deptLines = this.deptLines.filter((ln) => ln.t < 0.6);
   }
 
   /**
@@ -4801,11 +4967,14 @@ const PLAYER_BULLET_R = 3;
 /** Tyre marks on the floor at once, at most (each is two dashes). */
 const SKID_MAX = 120;
 
+/** Depth added to the toaster while it rolls over a low counter (deeper than the counter is tall). */
+const LOW_PROP_LIFT = 90;
+
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
   bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
-  call: 'bala-llamada', note: 'nota-espera',
+  call: 'bala-llamada', note: 'nota-espera', plug: 'bala-clavija',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

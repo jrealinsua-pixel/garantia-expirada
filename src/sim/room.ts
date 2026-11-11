@@ -108,7 +108,11 @@ export interface RoomDoor {
 export type SlotKind = 'item' | 'shopkeeper' | 'shelf' | 'boss';
 const SLOT_CHARS: Record<string, SlotKind> = { '*': 'item', $: 'shopkeeper', s: 'shelf', J: 'boss' };
 
-const PROP_CHARS: Record<string, string> = { c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste', '=': 'mesa-juntas', _: 'mampara-movil' };
+const PROP_CHARS: Record<string, string> = {
+  c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste', '=': 'mesa-juntas', _: 'mampara-movil',
+  // The Centralita's low counters (M11 (2c2)): `~` the middle of a long one, `!` the bottom of an upright one.
+  '~': 'mostrador-bajo', '!': 'mostrador-bajo-v',
+};
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
   O: 'microondas',
@@ -139,6 +143,8 @@ const ENEMY_CHARS: Record<string, string> = {
   É: 'asistente-virtual',
   // Ó: the reception phone (M11 (4d)).
   Ó: 'telefono-recepcion',
+  // Ú: La Centralita, floor 5's boss (M11 (5b)).
+  Ú: 'centralita',
 };
 
 /**

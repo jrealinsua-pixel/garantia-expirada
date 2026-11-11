@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-11T20:19:00+01:00",
+  "actualizado": "2026-11-11T21:35:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -126,17 +126,23 @@
   "metricas": {
     "personajes": 1,
     "enemigos": 26,
-    "jefes": 4,
+    "jefes": 5,
     "armas": 5,
     "objetos": 55,
-    "plantillas_sala": 87,
-    "tests": 728,
-    "tests_ok": 728,
+    "plantillas_sala": 88,
+    "tests": 740,
+    "tests_ok": 740,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 26352
+    "lineas_codigo": 27017
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-11T21:35:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (5b) y (2c2): la Centralita, jefa de la planta 5, con sus fases 1 y 2 y su sala. Fase 1, el menú de voz: tres zonas en el suelo, dice cuál pulsar y 1,5 s después llueven balas en las otras dos; entre menú y menú, abanicos de clavijas y anillos de música de espera. Fase 2: cada 10 s un timbre y pasa a la tostadora a otro departamento, donde la espera un patrón propio, y llama a un Teléfono de Recepción. Su sala tiene cuatro mostradores bajos que paran balas y se cruzan rodando. Y su documento para el archivador.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-11T20:19:00+01:00",
       "hito": "M11",
@@ -1076,31 +1082,31 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/centralita-menu.png",
+      "pie": "La Centralita, fase 1: «Para darse de baja, pulse 1». La zona buena brilla y las otras dos se ponen rojas y parpadean cada vez más deprisa"
+    },
+    {
+      "archivo": "capturas/centralita-lluvia.png",
+      "pie": "1,5 s después llueven balas en las dos zonas que no eran; la tostadora se había quedado en la del medio"
+    },
+    {
+      "archivo": "capturas/centralita-departamento.png",
+      "pie": "Fase 2, «Le paso con el departamento»: el timbre, el círculo sobre la tostadora y, a los 0,8 s, a Reclamaciones, donde la espera un abanico de clavijas desde la esquina"
+    },
+    {
+      "archivo": "capturas/centralita-mostrador.png",
+      "pie": "Los mostradores bajos de su sala paran las balas y no se cruzan andando, pero sí rodando: la tostadora por encima del de Reclamaciones"
+    },
+    {
       "archivo": "capturas/telefono-pasa.png",
       "pie": "«Le paso con un compañero»: el Teléfono de Recepción, pasada la mitad de su vida, une con una línea de puntos al Asistente Virtual del otro lado de la sala; a los 0,8 s se cambian de sitio"
-    },
-    {
-      "archivo": "capturas/telefono-espera.png",
-      "pie": "Sin nadie con quien pasarla, el Teléfono de Recepción pone a la tostadora en espera: un anillo de notas lentas que ondulan"
-    },
-    {
-      "archivo": "capturas/etiquetadora-rebajado.png",
-      "pie": "La Etiquetadora de Precios: la tercera etiqueta en la batidora, «Rebajado -30 %», estalla en un aro amarillo y rojo y alcanza también al microondas de al lado"
-    },
-    {
-      "archivo": "capturas/asistente-faq.png",
-      "pie": "El Asistente Virtual tras tres disparos desde el mismo sitio: «Pregunta frecuente», su escudo de respuestas predefinidas mira hacia la tostadora y para lo que llega por ese lado"
-    },
-    {
-      "archivo": "capturas/postes-cinta.png",
-      "pie": "Los Postes de Cola con la cinta tensa delante de la tostadora, que intenta pasar andando: «No se cuele». La cinta solo se rodea por fuera de los postes"
     },
     {
       "archivo": "capturas/partida-ganada.png",
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M11 (5b): las fases 1 y 2 de la Centralita con su sala (2c2); luego la (5c), su fase 3, y la medida (7).",
+  "proximo": "M11 (5c): la fase 3 de la Centralita («Se ha cortado la llamada»: los cables que barren y muda a ratos); luego la medida (7).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1126,11 +1132,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-11 20:30",
-      "tarea": "M11 (5b)+(2c2): fases 1 y 2 de la Centralita y su sala",
-      "desde": "2026-11-11T20:30:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

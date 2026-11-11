@@ -87,6 +87,28 @@ export const HELP_ASK_LINE = '¿Le he ayudado?';
 /** The reception phone (M11 (4d)): passing you on to a colleague, or, with nobody left, putting you on hold. */
 export const TRANSFER_LINE = 'Le paso con un compañero';
 export const HOLD_LINE = 'No cuelgue, por favor';
+/** La Centralita (M11 5b): the departments of her room (BossPhase.transfer), 1-4, as painted on the floor. */
+export const DEPARTMENT_NAMES: readonly string[] = ['Reclamaciones', 'Facturación', 'Averías', 'Bajas'];
+/** Her voice menu reading itself out while the zones light up. */
+export const MENU_INTRO_LINES: readonly string[] = [
+  'Escuche atentamente las siguientes opciones',
+  'Nuestro menú ha cambiado',
+  'Para continuar en español, no haga nada',
+  'Por su seguridad, esta llamada podrá ser grabada',
+];
+/** And the option she picks (`n` is the zone to press). */
+export const menuOptionLine = (n: number, k: number): string =>
+  [
+    `Para reclamaciones, pulse ${n}`,
+    `Para hablar con un operador, pulse ${n}`,
+    `Si su producto no funciona, pulse ${n}`,
+    `Para darse de baja, pulse ${n}`,
+    `Para escuchar de nuevo este menú, pulse ${n}`,
+    `Para todo lo demás, pulse ${n}`,
+  ][k % 6]!;
+/** The bell before she puts you through, and where you end up (`dept` 1-4). */
+export const DEPT_MARK_LINE = 'Un momento, le transfiero';
+export const deptTransferLine = (dept: number): string => `Departamento de ${DEPARTMENT_NAMES[dept - 1] ?? 'Otros'}. Espere.`;
 
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
@@ -139,6 +161,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   'router-wifi': { bullet: 'Exceso de cobertura', contact: 'Reinicio forzoso' },
   'muneco-moda': { bullet: 'Tacón de la temporada pasada', contact: 'Atropello en plena pasarela' },
   'director-rrhh': { bullet: 'Despido por carta certificada', contact: 'Atropellado por una silla ergonómica' },
+  centralita: { bullet: 'Llamada finalizada por el sistema', contact: 'Arrollado por un cuadro de clavijas' },
   'silla-director': { contact: 'Atropello por silla de dirección sin director' },
   repetidor: { bullet: 'Señal repetida', contact: 'Tropiezo con un repetidor' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },

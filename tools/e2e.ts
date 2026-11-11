@@ -488,9 +488,9 @@ try {
     await shot(`50${'abcdefghijklmno'[i]}-planta4-${names[i]}.png`);
   }
 
-  // M11 (1, 2a, 2b, 2c1): floor 5 (Atención al Cliente) has its own tiles, colour, obstacles, shutters,
-  // combat rooms and special rooms. Until M11 (2c2) and (3) it borrows the Oficinas' boss room (and the Director).
-  const p5 = ['sala=sala-espera&profundidad=5', 'sala=entrada-atencion', 'sala=jefe-oficinas', 'sala=tienda-atencion', 'sala=secreta-atencion',
+  // M11 (1, 2a, 2b, 2c1, 2c2): floor 5 (Atención al Cliente) has its own tiles, colour, obstacles, shutters,
+  // combat rooms, special rooms and boss room (the Centralita's, with its low counters).
+  const p5 = ['sala=sala-espera&profundidad=5', 'sala=entrada-atencion', 'sala=jefe-atencion', 'sala=tienda-atencion', 'sala=secreta-atencion',
     'sala=ventanillas&profundidad=5', 'sala=cola-zigzag&profundidad=5', 'sala=locutorio-reclamaciones&profundidad=5',
     'sala=mostrador-reclamaciones&profundidad=5', 'sala=departamento-bajas&profundidad=6',
     'sala=punto-informacion&profundidad=5', 'sala=pasillo-mamparas&profundidad=5', 'sala=autoservicio&profundidad=5',
@@ -1259,6 +1259,73 @@ try {
     'Director de Recursos Inhumanos: cartel, tarjetas, cartas de despido y sus folios, reestructuración de mamparas, ' +
       'diapositivas, su sello, y de pie con la silla suelta y la línea de recortes.',
   );
+
+  // M11 (5b, 2c2): La Centralita, floor 5's boss, in her room of four departments and low counters:
+  // her card, the voice menu (the zones lit, then the wrong ones red and the rain), her plugs and
+  // hold music; and «Le paso con el departamento» (the circle on the toaster, put through to another
+  // department, and her reception phone). Rolling over a low counter.
+  await page.goto(`${url}?semilla=e2e-centralita&sala=jefe-atencion&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const centralitaJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'centralita')";
+  if (!(await page.evaluate<boolean>(`!!${centralitaJs} && !!window.__GE__.scene.world.intro`))) throw new Error('La Centralita no está en su sala o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('51a-centralita-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  // The voice menu: the zones lit while she reads it out, then which one, then the rain.
+  await page.waitForFunction(`(() => { const m = ${centralitaJs}.menu; return !!m && !m.said && m.t > 0.3; })()`, undefined, { timeout: 30000 });
+  await shot('51b-centralita-menu.png');
+  await page.waitForFunction(`(() => { const m = ${centralitaJs}.menu; return !!m && m.said && m.rainAt - m.t < 0.6 && !m.rained; })()`, undefined, { timeout: 4000 });
+  await shot('51c-centralita-pulse.png');
+  await page.waitForFunction(`(() => { const m = ${centralitaJs}.menu; return !!m && m.rained && m.t > m.rainAt + 0.08; })()`, undefined, { timeout: 4000 });
+  await shot('51d-centralita-lluvia.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'plug' && b.age > 0.3 && v.contains(b.x, b.y)).length >= 6; })()`,
+    undefined,
+    { timeout: 40000 },
+  );
+  await shot('51e-centralita-clavijas.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'note' && b.age > 0.8 && v.contains(b.x, b.y)).length >= 12; })()`,
+    undefined,
+    { timeout: 40000 },
+  );
+  await shot('51f-centralita-espera.png');
+  // Rolling over a low counter: from just above the left one, rolling down, it lands below it.
+  await page.waitForFunction(`!${centralitaJs}.menu`, undefined, { timeout: 5000 });
+  const counter = await page.evaluate<{ x: number; top: number; bottom: number }>(`(() => {
+    const pr = window.__GE__.scene.world.room.props.find((p) => p.def.id === 'mostrador-bajo' && p.x < window.__GE__.scene.world.room.w / 2);
+    return { x: pr.x, top: pr.box.y, bottom: pr.box.y + pr.box.h }; })()`);
+  await page.evaluate(`(() => { const p = window.__GE__.scene.world.player; p.x = ${counter.x}; p.y = ${counter.top - 6}; p.vx = 0; p.vy = 0; p.rollCooldown = 0; })()`);
+  await page.keyboard.down('s');
+  await page.keyboard.down('Space');
+  await page.waitForTimeout(120);
+  await shot('51g-centralita-mostrador-rodando.png');
+  await page.keyboard.up('Space');
+  await page.waitForFunction('!window.__GE__.state().rolling', undefined, { timeout: 2000 });
+  await page.keyboard.up('s');
+  const landed = await page.evaluate<number>('window.__GE__.scene.world.player.y');
+  if (landed <= counter.bottom) throw new Error(`Rodando no se cruza el mostrador bajo (y ${landed}, el mostrador acaba en ${counter.bottom})`);
+  // «Le paso con el departamento»: the phone she calls, the circle on the toaster, and put through.
+  await page.evaluate(`(() => { const b = ${centralitaJs}; b.damageTaken = Math.ceil(b.def.hp * 0.42); })()`);
+  await page.waitForFunction(`${centralitaJs}.bossPhase === 1`, undefined, { timeout: 3000 });
+  await page.waitForTimeout(500);
+  await shot('51h-centralita-departamentos.png');
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'telefono-recepcion')"))) throw new Error('La Centralita no llama a un Teléfono de Recepción');
+  await page.waitForFunction(`(() => { const m = ${centralitaJs}.deptMark; return !!m && m.t > 0.35; })()`, undefined, { timeout: 15000 });
+  await shot('51i-centralita-timbre.png');
+  const putFrom = await page.evaluate<{ x: number; y: number }>('(() => { const p = window.__GE__.scene.world.player; return { x: p.x, y: p.y }; })()');
+  await page.waitForFunction(`!${centralitaJs}.deptMark`, undefined, { timeout: 2000 });
+  await page.waitForTimeout(180);
+  await shot('51j-centralita-transferida.png');
+  const putTo = await page.evaluate<{ x: number; y: number }>('(() => { const p = window.__GE__.scene.world.player; return { x: p.x, y: p.y }; })()');
+  if (Math.hypot(putTo.x - putFrom.x, putTo.y - putFrom.y) < 40) throw new Error('La Centralita no pasa a la tostadora a otro departamento');
+  console.log('La Centralita: cartel, menú de voz (zonas, la buena y la lluvia), clavijas, música de espera, el mostrador bajo rodando y la transferencia de departamento.');
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

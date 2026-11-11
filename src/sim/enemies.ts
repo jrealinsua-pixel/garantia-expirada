@@ -1,7 +1,8 @@
 // Enemy behaviours. Each brain kind in src/data/types.ts has an update function here; the numbers
 // come from the enemy's data.
 import type {
-  BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
+  BlinkerBrain, BossAttack, BossBrain, BossMenuAttack, BossPhase,
+  RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
   HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain, ChatbotBrain, PhoneBrain,
 } from '../data/types.ts';
 import { blockedTiles, clearLine, findPath } from './nav.ts';
@@ -10,7 +11,7 @@ import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS, PROPS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
-import { isWallAt, TILE, wallRectsNear } from './room.ts';
+import { BACK_WALL_ROWS, isWallAt, TILE, wallRectsNear } from './room.ts';
 import {
   BOSS_PHASE_BREAK,
   clearEnemyFire,
@@ -1177,6 +1178,175 @@ const ROAM_FLIP_HUGGING = 0.3;
  */
 const FLOOR_FLAT = 0.5;
 
+/** Size of a zone of the voice menu (tools/sprites/centralita.ts ZONE_W × ZONE_H), and the gap between two. */
+export const MENU_ZONE_W = 72;
+export const MENU_ZONE_H = 48;
+const MENU_ZONE_GAP = 14;
+/** Seconds the zones stay up after the rain, red, so the hit reads. */
+const MENU_LINGER = 0.45;
+/** Spots of a wrong zone the rain falls on keep this far in from its edge (px). */
+const MENU_RAIN_INSET = 9;
+
+/**
+ * Lays out a voice menu (BossMenuAttack): its zones in a line, across or down, through the player
+ * (who is in one of them, any), kept inside the room; and the one to press.
+ */
+function layMenu(w: World, a: BossMenuAttack): NonNullable<Enemy['menu']> {
+  const p = w.player;
+  const room = w.room;
+  const n = a.zones;
+  const across = w.rng.next() < 0.6;
+  const sx = across ? MENU_ZONE_W + MENU_ZONE_GAP : 0;
+  const sy = across ? 0 : MENU_ZONE_H + MENU_ZONE_GAP;
+  const j = w.rng.int(0, n - 1);
+  const minX = TILE + MENU_ZONE_W / 2 + 2;
+  const maxX = room.w - TILE - MENU_ZONE_W / 2 - 2 - (n - 1) * sx;
+  const minY = BACK_WALL_ROWS * TILE + MENU_ZONE_H / 2 + 2;
+  const maxY = room.h - TILE - MENU_ZONE_H / 2 - 2 - (n - 1) * sy;
+  const x0 = Math.max(minX, Math.min(maxX, p.x - j * sx));
+  const y0 = Math.max(minY, Math.min(maxY, p.y - j * sy));
+  const zones = Array.from({ length: n }, (_, i) => ({ x: Math.round(x0 + i * sx), y: Math.round(y0 + i * sy), n: i + 1 }));
+  let good = w.rng.int(0, n - 1);
+  if (w.rng.next() < a.far) {
+    // The farthest from the player (it is never that easy).
+    good = 0;
+    zones.forEach((z, i) => {
+      if (Math.hypot(z.x - p.x, z.y - p.y) > Math.hypot(zones[good]!.x - p.x, zones[good]!.y - p.y)) good = i;
+    });
+  }
+  return { zones, good, said: false, saidAt: Infinity, t: 0, rainAt: Infinity, rained: false };
+}
+
+/** Whether floor point (x, y) is inside zone `z` of a voice menu. */
+export function inMenuZone(z: { x: number; y: number }, x: number, y: number): boolean {
+  return Math.abs(x - z.x) <= MENU_ZONE_W / 2 && Math.abs(y - z.y) <= MENU_ZONE_H / 2;
+}
+
+/** The voice menu's clock: the rain on the wrong zones when it is due, and the zones gone a moment after. */
+function updateMenu(w: World, en: Enemy, phase: BossPhase): void {
+  const m = en.menu!;
+  m.t += DT;
+  if (m.said && !m.rained && m.t >= m.rainAt) {
+    m.rained = true;
+    const a = phase.attacks.find((x): x is BossMenuAttack => x.kind === 'menu');
+    const def = a ? PATTERNS[a.pattern] : undefined;
+    if (a && !def) throw new Error(`Unknown pattern ${a.pattern}`);
+    const wrong = m.zones.filter((_, i) => i !== m.good);
+    if (a && def) {
+      // Spread evenly over each zone (a grid, a little jittered), so there is no dry spot in it.
+      const cols = Math.ceil(Math.sqrt(a.drops * (MENU_ZONE_W / MENU_ZONE_H)));
+      const rows = Math.ceil(a.drops / cols);
+      const cw = (MENU_ZONE_W - MENU_RAIN_INSET * 2) / cols;
+      const ch = (MENU_ZONE_H - MENU_RAIN_INSET * 2) / rows;
+      for (const z of wrong) {
+        for (let k = 0; k < a.drops; k++) {
+          const c = k % cols;
+          const r = Math.floor(k / cols);
+          const x = z.x - MENU_ZONE_W / 2 + MENU_RAIN_INSET + (c + w.rng.range(0.25, 0.75)) * cw;
+          const y = z.y - MENU_ZONE_H / 2 + MENU_RAIN_INSET + (r + w.rng.range(0.25, 0.75)) * ch;
+          firePattern(w, def, x, y - DROP_HEIGHT, w.rng.range(0, Math.PI * 2), { source: en.id, by: en.def.id, height: DROP_HEIGHT });
+        }
+      }
+    }
+    w.events.push({ type: 'menuRain', boss: en.id, zones: wrong.map((z) => ({ x: z.x, y: z.y })) });
+  }
+  if (m.rained && m.t >= m.rainAt + MENU_LINGER) delete en.menu;
+}
+
+/**
+ * The department (1-4) floor point (x, y) is in: the room's quarters, 1 top left, 2 top right,
+ * 3 bottom left, 4 bottom right (the Centralita's room, BossPhase.transfer).
+ */
+export function departmentOf(room: { w: number; rows: number }, x: number, y: number): number {
+  const midY = (BACK_WALL_ROWS * TILE + (room.rows - 1) * TILE) / 2;
+  return (y < midY ? 1 : 3) + (x < room.w / 2 ? 0 : 1);
+}
+
+/** The floor of department `d` (1-4), inside the walls. */
+export function departmentRect(room: { w: number; rows: number }, d: number): Rect {
+  const top = BACK_WALL_ROWS * TILE;
+  const bottom = (room.rows - 1) * TILE;
+  const midY = (top + bottom) / 2;
+  const midX = room.w / 2;
+  const left = d === 1 || d === 3;
+  const up = d <= 2;
+  return { x: left ? TILE : midX, y: up ? top : midY, w: left ? midX - TILE : room.w - TILE - midX, h: up ? midY - top : bottom - midY };
+}
+
+/** Free floor this far from the toaster's new spot at least, for the boss (px). */
+const TRANSFER_CLEAR_OF_BOSS = 90;
+
+/**
+ * «Le paso con el departamento» (BossPhase.transfer): every `every` s a bell rings and a circle
+ * marks the toaster; `mark` s later it is somewhere else: a free spot in another department, away
+ * from the boss, with `grace` s of invulnerability; and that department's welcome is fired at it
+ * from the department's far corner. A roll does not get it out of the call: it is cut short.
+ */
+function updateTransfer(w: World, en: Enemy, phase: BossPhase, tr: NonNullable<BossPhase['transfer']>): void {
+  const p = w.player;
+  if (en.deptMark) {
+    en.deptMark.t += DT;
+    if (en.deptMark.t < en.deptMark.until) return;
+    delete en.deptMark;
+    const from = departmentOf(w.room, p.x, p.y);
+    const boss = departmentOf(w.room, en.x, en.y);
+    const others = [1, 2, 3, 4].filter((d) => d !== from);
+    // Never into the boss's lap, if it can be helped.
+    const away = others.filter((d) => d !== boss);
+    const dept = w.rng.pick(away.length > 0 ? away : others);
+    const r = departmentRect(w.room, dept);
+    const fr = p.def.footRadius + 2;
+    let spot = { x: r.x + r.w / 2, y: r.y + r.h / 2 };
+    for (let tries = 0; tries < 12; tries++) {
+      const x = r.x + r.w * w.rng.range(0.25, 0.75);
+      const y = r.y + r.h * w.rng.range(0.3, 0.75);
+      if (isClear(w, x, y, fr) && Math.hypot(x - en.x, y - en.y) > TRANSFER_CLEAR_OF_BOSS) {
+        spot = { x, y };
+        break;
+      }
+    }
+    if (!isClear(w, spot.x, spot.y, fr)) spot = freeSpot(w, spot.x, spot.y, fr);
+    const fromX = p.x;
+    const fromY = p.y;
+    p.x = spot.x;
+    p.y = spot.y;
+    p.vx = 0;
+    p.vy = 0;
+    if (isRolling(p)) {
+      p.rollT = -1;
+      p.rollCooldown = p.def.rollCooldown;
+    }
+    p.invulnerable = Math.max(p.invulnerable, tr.grace);
+    w.events.push({ type: 'deptTransfer', boss: en.id, fromX, fromY, x: p.x, y: p.y, dept });
+    // What waits in that department, from its corner farthest from where the toaster landed.
+    const welcome = tr.welcome[dept - 1];
+    const def = welcome ? PATTERNS[welcome] : undefined;
+    if (welcome && !def) throw new Error(`Unknown pattern ${welcome}`);
+    if (def) {
+      const cx = p.x < r.x + r.w / 2 ? r.x + r.w - TILE : r.x + TILE;
+      const cy = p.y < r.y + r.h / 2 ? r.y + r.h - TILE / 2 : r.y + TILE;
+      const at = freeSpot(w, cx, cy, 4);
+      firePattern(w, def, at.x, at.y - DROP_HEIGHT * 4, Math.atan2(p.y - HAND_HEIGHT - (at.y - DROP_HEIGHT * 4), p.x - at.x), {
+        telegraph: tr.warn,
+        source: en.id,
+        by: en.def.id,
+        height: DROP_HEIGHT * 4,
+      });
+    }
+    en.deptCount = (en.deptCount ?? 0) + 1;
+    // Its reception phone, again, if it is down (BossPhase.summon).
+    if (phase.summon && tr.recall && en.deptCount % tr.recall === 0) summonHelpers(w, en, phase.summon);
+    return;
+  }
+  en.deptT = (en.deptT ?? 0) + DT;
+  // The bell waits for the voice menu to be over: two things to read at once is one too many.
+  if (en.deptT >= tr.every && !en.menu) {
+    en.deptT = 0;
+    en.deptMark = { t: 0, until: tr.mark };
+    w.events.push({ type: 'deptMark', boss: en.id, x: p.x, y: p.y });
+  }
+}
+
 function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   const p = w.player;
   en.t += DT;
@@ -1209,6 +1379,14 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     }
     en.restructT = 0;
     en.relayT = 0;
+    // A new phase cuts the voice menu short (its zones go with the bullets on screen), and the
+    // transfers start counting from now.
+    delete en.menu;
+    delete en.deptMark;
+    if (next.transfer) {
+      en.deptT = next.transfer.every - next.transfer.first;
+      en.deptCount = 0;
+    }
     if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
   }
   const phase = b.phases[en.bossPhase]!;
@@ -1233,6 +1411,10 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       }
     }
   }
+  // The voice menu goes on by itself once it is out: the rain falls when it is due.
+  if (en.menu) updateMenu(w, en, phase);
+  // «Le paso con el departamento»: the bell every so often, and off the toaster goes.
+  if (phase.transfer && en.state !== 'roar' && !w.over) updateTransfer(w, en, phase, phase.transfer);
   const toX = p.x - en.x;
   if (Math.abs(toX) > 4 && en.state !== 'fire') en.facing = toX > 0 ? 1 : -1;
   const mx = en.x + b.muzzle.x * en.facing;
@@ -1310,6 +1492,11 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             });
           }
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.35);
+        } else if (a.kind === 'menu') {
+          // «Su llamada es importante»: the zones light up while it reads the menu out.
+          en.menu = layMenu(w, a);
+          w.events.push({ type: 'menuZones', boss: en.id, count: a.zones });
+          enter(en, 'warn', a.telegraph);
         } else if (a.kind === 'runway') {
           // It strikes a pose (warning by itself, see activeWarnings) before setting off; the lane
           // is picked now, so the warning can show it: first straight up or down onto it, then along it.
@@ -1357,6 +1544,18 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             const opts = { r: 12, life: 0, slow: 1, flight: a.flight * w.rng.range(0.75, 1.25), shatter: a.burst, product, source: en.id, by: en.def.id };
             throwFrost(w, sx, en.y, sh, tx, ty, a.look ? { ...opts, look: a.look } : opts);
           }
+        } else if (a.kind === 'menu') {
+          // «Para reclamaciones, pulse 3»: which one; the rain is `wait` s away.
+          const m = en.menu;
+          if (m) {
+            m.said = true;
+            m.saidAt = m.t;
+            m.rainAt = m.t + a.wait;
+            const z = m.zones[m.good]!;
+            w.events.push({ type: 'menuOption', boss: en.id, n: z.n, x: en.x, y: en.y });
+          }
+          enter(en, 'fire', a.wait + 0.5);
+          break;
         } else if (a.kind === 'runway') {
           // Off down the catwalk it picked when it struck the pose.
           en.runTo ??= runwayEnd(w, en);

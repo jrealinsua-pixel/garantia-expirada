@@ -66,6 +66,8 @@ function sideFrame(en: Enemy, now: number): number {
   if (a.clap !== undefined && en.state === 'roar' && own === undefined) return a.clap;
   // A ticket dispenser whose turn was missed: furious, tongue out, spitting its fan.
   if (a.spit !== undefined && en.state === 'fire' && en.turn?.state === 'lost') return a.spit;
+  // Talking: the Centralita reading out her voice menu, or saying she is putting you through.
+  if (a.talk && ((en.menu && !en.menu.rained) || en.deptMark)) return a.talk[Math.floor(now / (a.talkMs ?? 160)) % a.talk.length]! + shift;
   const pose = attackPose(en);
   if (pose !== undefined) return pose;
   // Rebooting: its lights come on one by one over the reboot.

@@ -470,6 +470,19 @@ export class Bot {
       goal = Math.hypot(c.x - p.x, c.y - p.y) < c.r * 0.5 ? { x: c.x, y: c.y } : steer(w, c, p.def.footRadius, blockedTiles(w, p.def.footRadius));
       break;
     }
+    let menuRush = false;
+    // The Centralita's voice menu: once it has said which, into the zone to press (its middle),
+    // as a player would.
+    for (const en of w.enemies) {
+      const m = en.menu;
+      if (!m || !m.said || m.rained || isDead(en) || m.t < m.saidAt + BOT_REACTION) continue;
+      const z = m.zones[m.good]!;
+      goal = Math.hypot(z.x - p.x, z.y - p.y) < 14 ? { x: z.x, y: z.y } : steer(w, z, p.def.footRadius, blockedTiles(w, p.def.footRadius));
+      // Too far to walk there in time: it rolls that way.
+      const reach = Math.hypot(Math.max(0, Math.abs(z.x - p.x) - 30), Math.max(0, Math.abs(z.y - p.y) - 18));
+      menuRush = reach > p.def.speed * Math.max(0, m.rainAt - m.t - 0.15);
+      break;
+    }
     let gx = (goal?.x ?? p.x) - p.x;
     let gy = (goal?.y ?? p.y) - p.y;
     if (this.unstick > 0) {
@@ -522,6 +535,10 @@ export class Bot {
     if (dg?.roll) {
       // The roll goes where the stick points.
       return { moveX: dg.rollX, moveY: dg.rollY, aimX, aimY, fire, roll: true, reload: false, swap, useItem, interact };
+    }
+    // Late for the zone of the voice menu: a roll towards it, if the roll is ready.
+    if (menuRush && !isRolling(p) && p.rollCooldown <= 0) {
+      return { moveX: gx / gl, moveY: gy / gl, aimX, aimY, fire, roll: true, reload: false, swap, useItem, interact };
     }
     // About to walk onto a building piece: roll over it (as a player would), if the roll is ready.
     if (!isRolling(p) && p.rollCooldown <= 0 && w.frost.length > 0) {

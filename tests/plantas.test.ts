@@ -140,11 +140,11 @@ test('encadenar plantas: tras ganar la planta 4 se sube a Atención al Cliente, 
   assert.equal(n.player.coupons, 21);
   assert.deepEqual(n.player.items, ['pila']);
   assert.ok(isLastFloor(n) && !isLastFloor(w));
-  // Its own rooms, except the boss's: until La Centralita (M11 5b) the Director fights there.
+  // All its own rooms; La Centralita (M11 5b) waits in hers.
   for (const st of n.floor!.rooms) {
     const t = ROOMS[st.template.id]!;
-    if (t.kind === 'boss') assert.equal(t.id, 'jefe-oficinas');
-    else assert.equal(t.level, 5, st.template.id);
+    assert.equal(t.level, 5, st.template.id);
+    if (t.kind === 'boss') assert.equal(t.id, 'jefe-atencion');
   }
   // Its items are in the decks now (floor 5's own, M11 6a-6b).
   const deck = [...n.floor!.items, ...n.floor!.actives];
