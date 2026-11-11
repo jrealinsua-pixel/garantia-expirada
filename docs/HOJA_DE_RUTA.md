@@ -444,6 +444,8 @@ aspecto). En partes, como M10:
     departamento), cartel y sonidos. (Su documento para el archivador también: el test de los
     documentos pide uno por jefe.)
   - [x] (5c) Fase 3 (los cables que barren, muda a ratos).
+  - [x] (5d) Pulido de su sala: la barra de vida se aparta si la tostadora o las zonas del menú
+    quedan debajo; los nombres de los departamentos, centrados en cada cuarto y lejos de las esquinas.
 - 10 objetos nuevos y 2 armas, en partes:
   - [x] (6a) Cinco de cifras o casi: Formulario en Línea, Tecla Almohadilla, Tiempo de Espera
     Estimado, Código Promocional Caducado y Cable de Teléfono Rizado.

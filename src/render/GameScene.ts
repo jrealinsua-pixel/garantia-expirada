@@ -144,7 +144,7 @@ import { BOARD_CARDS, TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '..
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis, scrollRange } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
-import { cardLayout, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
+import { BOSS_BAR, bossBarVeiled, cardLayout, departmentLabelBox, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 import { bulbLit, enemyFrame, spinMirrored } from './enemyAnim.ts';
 
 export const VIEW_W = 480;
@@ -1236,13 +1236,11 @@ export class GameScene extends Phaser.Scene {
   private paintDepartments(): void {
     const room = this.world.room;
     for (let d = 1; d <= 4; d++) {
-      const r = departmentRect(room, d);
-      const right = d === 2 || d === 4;
-      const down = d >= 3;
-      const x = right ? r.x + r.w - 14 : r.x + 14;
-      const y = down ? r.y + r.h - 14 : r.y + 14;
       const label = fontText(`${d} · ${DEPARTMENT_NAMES[d - 1]!}`);
-      this.add.bitmapText(x, y, FONT, label, 8).setOrigin(right ? 1 : 0, 0.5).setTint(0xd6ecff).setAlpha(0.32).setDepth(-60450);
+      const box = departmentLabelBox(departmentRect(room, d), d, textWidth(label));
+      // Stencilled paint: a dark under-layer one pixel down, so it reads on the light lino too.
+      this.add.bitmapText(box.x, box.y + 1, FONT, label, 8).setTint(0x0e0c16).setAlpha(0.3).setDepth(-60451);
+      this.add.bitmapText(box.x, box.y, FONT, label, 8).setTint(0xd6ecff).setAlpha(0.42).setDepth(-60450);
     }
   }
 
@@ -1603,8 +1601,19 @@ export class GameScene extends Phaser.Scene {
     name.setTint(0xd6cdb2);
     const g = this.hud(this.add.graphics()).setDepth(93000);
     // It fills up when the fight starts (after the entrance); straight away if there is none.
-    this.bossBar = { boss: boss.id, name, g, trail: 0, fill: 0, flash: 0, alpha: 1 };
+    this.bossBar = { boss: boss.id, name, g, trail: 0, fill: 0, flash: 0, alpha: 1, veil: 1 };
     if (!this.world.intro) this.bossBar.fill = this.bossBar.trail = 1 - boss.damageTaken / boss.def.hp;
+  }
+
+  /** Screen boxes of what must not hide under the boss bar: the toaster and the voice menu zones. */
+  private underBossBar(boss: Enemy | undefined): Box[] {
+    const v = this.cameras.main.worldView;
+    const p = this.world.player;
+    const out: Box[] = [{ x: p.x - v.x - 9, y: p.y - v.y - 22, w: 18, h: 24 }];
+    for (const z of boss?.menu?.zones ?? []) {
+      out.push({ x: z.x - v.x - MENU_ZONE_W / 2 - 2, y: z.y - v.y - MENU_ZONE_H / 2 - 2, w: MENU_ZONE_W + 4, h: MENU_ZONE_H + 4 });
+    }
+    return out;
   }
 
   private drawBossBar(dt: number): void {
@@ -1626,11 +1635,14 @@ export class GameScene extends Phaser.Scene {
     }
     bar.flash = Math.max(0, bar.flash - dt);
     if (!boss) bar.alpha = Math.max(0, bar.alpha - dt * 0.8);
+    // It steps back while the toaster or the voice menu zones are under it on the screen.
+    const veiled = bossBarVeiled(bar.name.width, this.underBossBar(boss));
+    bar.veil = veiled ? Math.max(BOSS_BAR_VEIL, bar.veil - dt * 5) : Math.min(1, bar.veil + dt * 3);
     const x = Math.round((VIEW_W - BOSS_BAR_W) / 2);
     const y = BOSS_BAR_Y;
     const g = bar.g;
-    g.clear().setAlpha(bar.alpha);
-    bar.name.setAlpha(bar.alpha);
+    g.clear().setAlpha(bar.alpha * bar.veil);
+    bar.name.setAlpha(bar.alpha * bar.veil);
     g.fillStyle(0x0e0c16, 0.9).fillRect(x - 2, y - 2, BOSS_BAR_W + 4, BOSS_BAR_H + 4);
     g.lineStyle(1, 0x3a3f5c, 1).strokeRect(x - 1.5, y - 1.5, BOSS_BAR_W + 3, BOSS_BAR_H + 3);
     g.fillStyle(0x2a1620, 1).fillRect(x, y, BOSS_BAR_W, BOSS_BAR_H);
@@ -5030,11 +5042,15 @@ interface BossBarView {
   flash: number;
   /** Fades out once the boss is gone. */
   alpha: number;
+  /** 1 shown, down to BOSS_BAR_VEIL while the toaster or the voice menu zones are under it. */
+  veil: number;
 }
 
-const BOSS_BAR_W = 200;
-const BOSS_BAR_H = 5;
-const BOSS_BAR_Y = VIEW_H - 13;
+const BOSS_BAR_W = BOSS_BAR.w;
+const BOSS_BAR_H = BOSS_BAR.h;
+const BOSS_BAR_Y = BOSS_BAR.y;
+/** How see-through the boss bar gets with something under it. */
+const BOSS_BAR_VEIL = 0.22;
 
 interface EnemyView {
   /** When a remote last switched back on (ms), for the TV «switch on» animation. */

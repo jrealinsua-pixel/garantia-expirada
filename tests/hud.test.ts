@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CARD_WIDTH, HUD_H, HUD_W, TITLE_BOTTOM, TITLE_TOP, hudLayout, inside, overlaps, splitTitle, stackFloat, titleX, type Box, type HudState } from '../src/render/hud.ts';
+import {
+  BOSS_BAR, CARD_WIDTH, HUD_H, HUD_W, TITLE_BOTTOM, TITLE_TOP, bossBarBox, bossBarVeiled, departmentLabelBox,
+  hudLayout, inside, overlaps, splitTitle, stackFloat, titleX, type Box, type HudState,
+} from '../src/render/hud.ts';
 import { ROOMS } from '../src/data/rooms.ts';
 import { WEAPONS } from '../src/data/weapons.ts';
 import { textWidth } from '../src/art/font.ts';
@@ -93,4 +96,48 @@ test('los textos flotantes no se amontonan: el nuevo sube por encima del que pis
   const y2 = stackFloat([a, b], { x: 104, y: 101, w: 12, h: 8 });
   assert.ok(!overlaps({ x: 104, y: y2, w: 12, h: 8 }, a) && !overlaps({ x: 104, y: y2, w: 12, h: 8 }, b), 'y el tercero encima de los dos');
   assert.equal(stackFloat([a], { x: 200, y: 100, w: 10, h: 8 }), 100, 'lejos no se mueve');
+});
+
+test('la barra del jefe se aparta si la tostadora o las zonas del menú de voz quedan debajo', () => {
+  const name = textWidth('LA CENTRALITA');
+  const bar = bossBarBox(name);
+  assert.ok(inside(bar, { x: 0, y: 0, w: HUD_W, h: HUD_H }));
+  assert.ok(bar.y + bar.h >= BOSS_BAR.y + BOSS_BAR.h);
+  // The toaster up in the middle of the screen: the bar stays.
+  assert.equal(bossBarVeiled(name, [{ x: 231, y: 120, w: 18, h: 24 }]), false);
+  // Down by the front wall, right under the bar: it steps back.
+  assert.equal(bossBarVeiled(name, [{ x: 231, y: 240, w: 18, h: 24 }]), true);
+  // Down there but off to the side (the bar is only in the middle): it stays.
+  assert.equal(bossBarVeiled(name, [{ x: 20, y: 240, w: 18, h: 24 }]), false);
+  // A voice menu zone whose bottom edge is under the name.
+  assert.equal(bossBarVeiled(name, [{ x: 20, y: 240, w: 18, h: 24 }, { x: 150, y: 200, w: 76, h: 52 }]), true);
+});
+
+test('los nombres de los departamentos de la Centralita se leen: dentro de su cuarto y lejos de los muebles', async () => {
+  const { buildRoom } = await import('../src/sim/room.ts');
+  const { departmentRect } = await import('../src/sim/enemies.ts');
+  const { DEPARTMENT_NAMES } = await import('../src/data/texts.ts');
+  const { fontText } = await import('../src/art/font.ts');
+  const room = buildRoom(ROOMS['jefe-atencion']!);
+  const boxes: Box[] = [];
+  for (let d = 1; d <= 4; d++) {
+    const r = departmentRect(room, d);
+    const label = departmentLabelBox(r, d, textWidth(fontText(`${d} · ${DEPARTMENT_NAMES[d - 1]!}`)));
+    assert.ok(inside(label, r), `el ${d} se sale de su departamento`);
+    // Off the walls: at least a few pixels of floor all round.
+    assert.ok(label.y - r.y >= 8 && r.y + r.h - (label.y + label.h) >= 8, `el ${d} va pegado a la pared`);
+    for (const pr of room.props) {
+      // What is drawn of a prop goes higher than what it blocks (its front faces up the screen).
+      const drawn = { x: pr.box.x - 2, y: pr.box.y - 18, w: pr.box.w + 4, h: pr.box.h + 20 };
+      assert.ok(!overlaps(label, drawn), `el ${d} queda debajo de ${pr.def.id}`);
+    }
+    // The screen corners have the hearts (top left) and the weapon (bottom right): with the
+    // camera against that corner of the room, the label must not land under them.
+    const view = { x: d % 2 ? 0 : room.w - HUD_W, y: d <= 2 ? 0 : room.rows * 24 - HUD_H };
+    const onScreen = { ...label, x: label.x - view.x, y: label.y - view.y };
+    assert.ok(!overlaps(onScreen, { x: 0, y: 0, w: 70, h: 34 }) && !overlaps(onScreen, { x: HUD_W - 76, y: HUD_H - 30, w: 76, h: 30 }), `el ${d} queda bajo el HUD`);
+    assert.ok(!overlaps(onScreen, bossBarBox(textWidth('LA CENTRALITA'))), `el ${d} queda bajo la barra de la jefa`);
+    boxes.push(label);
+  }
+  for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) assert.ok(!overlaps(boxes[i]!, boxes[j]!));
 });

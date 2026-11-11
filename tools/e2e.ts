@@ -1335,7 +1335,10 @@ try {
     { timeout: 4000 },
   );
   await shot('51k-centralita-arranca-clavijas.png');
-  await page.evaluate(`${centralitaJs}.muteIn = 99`);
+  // In the open (where the transfers left her depends on timing): by a counter, half the coils
+  // are born inside it and the sweep is too thin to show.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const b = ${centralitaJs}; const p = w.player;
+    b.x = w.room.w * 0.7; b.y = 128; p.x = w.room.w * 0.45; p.y = 110; b.muteIn = 99; })()`);
   await page.waitForFunction(
     `window.__GE__.scene.world.emitters.some((e) => e.source === ${centralitaJs}.id && e.arms && e.t < 0 && e.t > -0.35)`,
     undefined,

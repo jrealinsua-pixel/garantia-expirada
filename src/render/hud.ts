@@ -325,3 +325,35 @@ export function inventoryCardAt(cardW: number, cardH: number): Point {
 export function inventoryListBottom(visible: number): number {
   return INVENTORY.y + 36 + INVENTORY.listHead + visible * INVENTORY.rowH;
 }
+
+/** The boss's life bar, bottom centre of the screen: the bar and its name above it. */
+export const BOSS_BAR = { w: 200, h: 5, y: HUD_H - 13, nameGap: 11 } as const;
+
+/** Screen box of the boss bar with its name (`nameW`, the name's width in px), and its frame. */
+export function bossBarBox(nameW: number): Box {
+  const w = Math.max(BOSS_BAR.w + 4, nameW);
+  return { x: Math.round((HUD_W - w) / 2), y: BOSS_BAR.y - BOSS_BAR.nameGap, w, h: BOSS_BAR.nameGap + BOSS_BAR.h + 2 };
+}
+
+/**
+ * The boss bar steps back (almost see-through) while something that matters is under it on the
+ * screen: the toaster, or the Centralita's voice menu zones when they are down by the bottom wall.
+ */
+export function bossBarVeiled(nameW: number, under: readonly Box[]): boolean {
+  const bar = bossBarBox(nameW);
+  return under.some((b) => overlaps(bar, b));
+}
+
+/**
+ * Where a department's name is stencilled in the Centralita's room (world px): centred in its
+ * quarter, by the outer wall (top quarters below the back wall, bottom ones above the front one),
+ * clear of the corner props and of the HUD in the screen corners. `rect` is the department's
+ * floor (departmentRect), `textW` the width of the label.
+ */
+export function departmentLabelBox(rect: Box, d: number, textW: number): Box {
+  const down = d >= 3;
+  const h = FONT_LINE;
+  const x = Math.round(rect.x + (rect.w - textW) / 2);
+  const y = down ? rect.y + rect.h - 20 - h : rect.y + 12;
+  return { x, y, w: textW, h };
+}

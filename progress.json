@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-11T22:30:00+01:00",
+  "actualizado": "2026-11-11T23:58:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 88,
-    "tests": 747,
-    "tests_ok": 747,
+    "tests": 749,
+    "tests_ok": 749,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 27170
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-11T23:58:00+01:00",
+      "hito": "M11",
+      "resumen": "M11, pulido de la sala de la Centralita: la barra de vida de los jefes se vuelve casi transparente cuando la tostadora o las zonas del menú de voz quedan debajo, y los nombres de los cuatro departamentos se pintan centrados en cada cuarto, lejos de las esquinas (antes quedaban bajo los dispensadores y el recuadro del arma). La captura de los cables del e2e ya no falla según dónde quedara la jefa.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-11T22:30:00+01:00",
       "hito": "M11",
@@ -1107,7 +1113,7 @@
     },
     {
       "archivo": "capturas/centralita-menu.png",
-      "pie": "La Centralita, fase 1: «Para darse de baja, pulse 1». La zona buena brilla y las otras dos se ponen rojas y parpadean cada vez más deprisa"
+      "pie": "La Centralita, fase 1, con las zonas del menú de voz abajo del todo: la barra de vida se aparta (casi transparente) para que se vean enteras; los nombres de los departamentos, pintados en el centro de cada cuarto, lejos de los dispensadores y del HUD"
     },
     {
       "archivo": "capturas/centralita-departamento.png",
@@ -1149,11 +1155,6 @@
       "sesion": "2026-11-11 22:31",
       "tarea": "M11 (7): medir la planta 5 y ajustar",
       "desde": "2026-11-11T22:31:00+01:00"
-    },
-    {
-      "sesion": "2026-11-11 23:27",
-      "tarea": "M11: pulir la sala de la Centralita (la barra de vida tapa las zonas de abajo; los nombres de los departamentos de abajo pegados a la pared)",
-      "desde": "2026-11-11T23:27:00+01:00"
     }
   ]
 }
