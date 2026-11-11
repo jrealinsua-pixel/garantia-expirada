@@ -1113,6 +1113,11 @@
       "sesion": "2026-11-11 18:20",
       "tarea": "M11 (4c): el Asistente Virtual (src/data/enemies.ts, src/data/types.ts, src/data/patterns.ts, src/sim/enemies.ts, src/sim/world.ts: balas que se paran y reapuntan, escudo de preguntas frecuentes; src/sim/patterns.ts, src/render/GameScene.ts, src/data/rooms.ts, tests/asistente.test.ts)",
       "desde": "2026-11-11T18:20:00+01:00"
+    },
+    {
+      "sesion": "2026-11-11 18:26",
+      "tarea": "M11 (6c1): la Etiquetadora de Precios (src/data/weapons.ts, tools/sprites/etiquetadora.ts, src/sim/world.ts: etiquetas pegadas y «Rebajado», src/render/GameScene.ts: dibujo de las etiquetas, tests/etiquetadora.test.ts)",
+      "desde": "2026-11-11T18:26:00+01:00"
     }
   ]
 }
