@@ -2111,8 +2111,22 @@ export const SLOT_ENEMIES_5: readonly SlotEnemy[] = [
  * three-year-old, so they take a third more; the Oficinas, where a run arrives loaded with items,
  * more still. Floors 1 and 2 as they were. Measured with `node tools/medir-plantas.ts`.
  */
-// Atención al Cliente (5) starts as hard as the Oficinas (M11 3); its own measure is M11 (7).
-export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.5, 5: 1.5 };
+// Atención al Cliente (5), measured in M11 (7): one enemy more a room (FLOOR_BUDGET_CAP) and a
+// little less life than the Oficinas', so its rooms are longer and somewhat harder with the same
+// weapon but whoever arrives loaded still gets through more often than through the Juguetería.
+export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.5, 5: 1.4 };
+
+/**
+ * Most a combat room of each floor may spend on enemies (BUDGET_CAP, 14, if not here). From the
+ * Juguetería up every room is already at the cap (each floor counts LEVEL_DEPTH rooms deeper), so
+ * this is what makes a floor's rooms more crowded. Atención al Cliente (M11 (7)): its waiting
+ * rooms are fuller than the Oficinas, one enemy more a room, on templates with slots to spare.
+ */
+export const FLOOR_BUDGET_CAP: Readonly<Record<number, number>> = { 5: 16 };
+
+export function budgetCapOf(level: number): number | undefined {
+  return FLOOR_BUDGET_CAP[level];
+}
 
 /** The life of a room enemy on floor `level` (bosses keep theirs: they are measured one by one). */
 export function toughened<T extends { hp: number; brain: { kind: string } }>(def: T, level: number): T {

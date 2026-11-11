@@ -22,12 +22,12 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M8 · Planta 2: Informática | 13 | Casillas 1, entornos 1, enemigos 4, jefe 5 (como la Nevera), objetos 2 |
 | M9 · El centro y la historia | 10 | Mostrador, PNJs con diálogos, desbloqueos, objetos de historia |
 | M10 · Plantas 3 y 4 | hecho | Terminado el 5 de noviembre (34 tareas cerradas; se estimaron 24 sesiones) |
-| M11 · Planta 5 | 22 | Partida en 22 tareas como M10 (que necesitó 34 para dos plantas) |
+| M11 · Planta 5 | hecho | Terminado el 11 de noviembre (en unas 25 tareas; se estimaron 22) |
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
 | M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
 | M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
-| **Quedan** (5 de noviembre) | **83** | **~108 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+| **Quedan** (11 de noviembre) | **62** | **~81 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
 
 En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
 medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
@@ -409,7 +409,7 @@ llena. «La planta 3 es donde más partidas acaban» = es la planta que menos ga
 ella. Con 80 partidas: la 1 la gana el 19 %, la 2 el 9 %, **la 3 el 5 %** y la 4 el 8 %; el bot
 llega a la 4 (y la gana) en algunas. Hecho: M10 terminado.
 
-## M11 · Planta 5: Atención al Cliente
+## M11 · Planta 5: Atención al Cliente (hecho)
 
 Diseño en `docs/DISENO.md` (enemigos de la quinta planta, la Centralita, objetos, armas y
 aspecto). En partes, como M10:
@@ -455,7 +455,7 @@ aspecto). En partes, como M10:
     sostenía medida), medidas.
   - [x] (6c1) Arma: la Etiquetadora de Precios (sprite, etiquetas que se pegan, «Rebajado»).
   - [x] (6c2) Arma: el Megáfono de Reclamaciones (arco de ondas que atraviesa y empuja).
-- [ ] (7) La planta 5 medida con `npm run plantas`: sus salas, algo más duras que las de las
+- [x] (7) La planta 5 medida con `npm run plantas`: sus salas, algo más duras que las de las
   Oficinas; la gana más gente de la que gana la 3 (sigue siendo el muro); y el bot completa la
   partida entera alguna vez llegando con lo de abajo.
 

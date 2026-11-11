@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, toughened } from '../data/rooms.ts';
+import { budgetCapOf, floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, toughened } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS, weaponsUpTo } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -1005,7 +1005,10 @@ export function createWorld(opts: WorldOptions): World {
   let tpl = floor ? floor.rooms[floor.current]!.template : single;
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
   const filled = !floor && !opts.template && tpl.kind && tpl.kind !== 'hub';
-  if (filled) tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(opts.level ?? 1), boss: floorBossOf(opts.level ?? 1) });
+  if (filled) {
+    const level = opts.level ?? 1;
+    tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(level), boss: floorBossOf(level), cap: budgetCapOf(level) });
+  }
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
   const wdef = WEAPONS[def.startWeapon];
@@ -1216,7 +1219,7 @@ function planFloor(seed: string, level: number): FloorRun {
   const rooms = layout.rooms.map((fr): FloorRoomState => {
     // Each floor up counts as LEVEL_DEPTH rooms deeper: more enemies per room.
     const depth = Math.max(1, fr.depth) + (level - 1) * LEVEL_DEPTH;
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss: floorBossOf(level), vary: true });
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss: floorBossOf(level), vary: true, cap: budgetCapOf(level) });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets; each of the rest a
@@ -1784,6 +1787,30 @@ export function slide(
   dx: number,
   dy: number,
   overLow = false,
+): { hitX: boolean; hitY: boolean } {
+  // A long step in one tick could jump over a thin wall into the next one (a rubber stamp gliding
+  // down from on high, M11 (7)): in pieces no longer than the feet.
+  const n = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / Math.max(2, r));
+  if (n > 1) {
+    let hitX = false;
+    let hitY = false;
+    for (let i = 0; i < n; i++) {
+      const h = slideStep(w, b, r, hitX ? 0 : dx / n, hitY ? 0 : dy / n, overLow);
+      hitX ||= h.hitX;
+      hitY ||= h.hitY;
+    }
+    return { hitX, hitY };
+  }
+  return slideStep(w, b, r, dx, dy, overLow);
+}
+
+function slideStep(
+  w: World,
+  b: { x: number; y: number; vx: number; vy: number },
+  r: number,
+  dx: number,
+  dy: number,
+  overLow: boolean,
 ): { hitX: boolean; hitY: boolean } {
   const eps = 0.001;
   let hitX = false;

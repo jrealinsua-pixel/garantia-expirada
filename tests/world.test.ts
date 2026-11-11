@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ROOMS } from '../src/data/rooms.ts';
 import { buildRoom, TILE } from '../src/sim/room.ts';
-import { checkInvariants, createWorld, DT, NO_INPUT, step, worldHash, type Input, type World } from '../src/sim/world.ts';
+import { checkInvariants, createWorld, DT, NO_INPUT, slide, step, worldHash, type Input, type World } from '../src/sim/world.ts';
 
 const aimRight = (w: World): Input => ({ ...NO_INPUT, aimX: w.player.x + 100, aimY: w.player.y - 14 });
 
@@ -165,4 +165,18 @@ test('la planta 2 se arma con sus salas, las especiales también, sobre el mismo
     run(b, 3, aimRight);
     assert.deepEqual(checkInvariants(b), []);
   }
+});
+
+test('un paso largo de una sola vez no atraviesa una pared fina (el sello planeando, M11 (7))', () => {
+  // A wall one tile thick in the middle; a body 30 px to its right asked to move 60 px left in a tick.
+  const rows = ['#########', '#########', '#...#...#', '#P..#...#', '#.......#', '#########'];
+  const w = createWorld({ seed: 'pared-fina', template: { id: 'fina', name: 'fina', rows } });
+  const b = { x: 5 * TILE + 8, y: 3 * TILE + 12, vx: 0, vy: 0 };
+  const h = slide(w, b, 6, -60, 0);
+  assert.ok(h.hitX);
+  assert.ok(b.x > 5 * TILE, `se ha colado al otro lado: ${b.x.toFixed(1)}`);
+  // Free movement in pieces ends exactly where one step would.
+  const c = { x: 6 * TILE, y: 4 * TILE + 12, vx: 0, vy: 0 };
+  slide(w, c, 6, -30, 7);
+  assert.ok(Math.abs(c.x - (6 * TILE - 30)) < 1e-6 && Math.abs(c.y - (4 * TILE + 19)) < 1e-6);
 });

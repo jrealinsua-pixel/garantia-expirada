@@ -1,9 +1,10 @@
-// node tools/medir-plantas.ts [partidas] — how hard each floor is for someone who gets there
+// node tools/medir-plantas.ts [partidas] [desde] [planta] — how hard each floor is for someone who gets there
 // (M10 (7)). npm run bot plays whole runs, but the bot rarely wins floor 1, so the floors above
 // get two or three samples. Here, for every run, the floors below are played without damage
 // (the bot gathers weapons, items and coupons as it would by playing well) and each floor is then
 // played with damage from that arrival, with full life: the floor's pass rate for whoever gets
-// there. The wall is the floor with the lowest pass rate.
+// there. The wall is the floor with the lowest pass rate. With [planta], only that floor is played
+// with damage (the ones below are still crossed without it to get there).
 import { crossHub } from '../src/sim/bot.ts';
 import { LAST_LEVEL, nextFloor, type World } from '../src/sim/world.ts';
 import { playFloor, upperTime } from './bot.ts';
@@ -22,7 +23,7 @@ export interface FloorPass {
   items: number;
 }
 
-export function measureFloors(runs: number, maxSeconds = 600, prefix = 'medir-plantas', from = 0): { floors: FloorPass[]; errors: string[] } {
+export function measureFloors(runs: number, maxSeconds = 600, prefix = 'medir-plantas', from = 0, only = 0): { floors: FloorPass[]; errors: string[] } {
   const errors: string[] = [];
   const floors: FloorPass[] = [];
   const acc = new Map<number, { arrived: number; won: number; downAtBoss: number; hurts: number; rooms: number[]; weapons: number; items: number }>();
@@ -34,7 +35,7 @@ export function measureFloors(runs: number, maxSeconds = 600, prefix = 'medir-pl
       errors.push(...hub.errors);
       continue;
     }
-    for (let l = 1; l <= LAST_LEVEL; l++) {
+    for (let l = only || 1; l <= (only || LAST_LEVEL); l++) {
       // playFloor plays on in the world it is given, so each floor starts from an arrival rebuilt
       // from the floors below (all deterministic).
       const start = l === 1 ? hub.run : rebuild(seed, i, l, maxSeconds, errors);
@@ -44,7 +45,7 @@ export function measureFloors(runs: number, maxSeconds = 600, prefix = 'medir-pl
       a.weapons += start.player.arsenal.length;
       a.items += start.player.items.length;
       const c = playFloor(seed, upperTime(maxSeconds, l), false, true, l, start);
-      if (c.errors.length) errors.push(...c.errors);
+      if (c.errors.length) errors.push(...c.errors.map((e) => `[planta ${l}] ${e}`));
       if (c.won) a.won++;
       if (c.downAtBoss) a.downAtBoss++;
       a.hurts += c.hurts;
@@ -82,8 +83,9 @@ function rebuild(seed: string, i: number, level: number, maxSeconds: number, err
 if (import.meta.url === `file://${process.argv[1]}`) {
   const runs = Number(process.argv[2] ?? 20);
   const t0 = Date.now();
-  const { floors, errors } = measureFloors(runs, 600, 'medir-plantas', Number(process.argv[3] ?? 0));
+  const { floors, errors } = measureFloors(runs, 600, 'medir-plantas', Number(process.argv[3] ?? 0), Number(process.argv[4] ?? 0));
   for (const f of floors) {
+    if (!f.arrived) continue;
     const pct = f.arrived ? ((f.won / f.arrived) * 100).toFixed(1) : '—';
     console.log(
       `Planta ${f.level} · llegan ${f.arrived} (con ${f.weapons.toFixed(1)} armas y ${f.items.toFixed(1)} objetos) · la gana el ${pct} % · ` +

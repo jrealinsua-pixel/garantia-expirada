@@ -336,6 +336,8 @@ export interface FillOptions {
   boss?: string;
   /** Rooms of a generated floor: a combat room may also come mirrored left to right. */
   vary?: boolean;
+  /** Most the room may spend on enemies (BUDGET_CAP if not given). */
+  cap?: number;
 }
 
 /** Template digits `1`–`9`: groups of shelving that stand or not, each on its own, with the seed. */
@@ -344,9 +346,12 @@ export const isGroup = (ch: string): boolean => ch >= '1' && ch <= '9';
 /** Chance that a group of shelving stands. */
 export const GROUP_STANDS = 0.5;
 
+/** Most a room can spend on enemies (a floor may have its own: src/data/rooms.ts budgetCapOf). */
+export const BUDGET_CAP = 14;
+
 /** Enemy budget of a combat room at a given depth (each enemy costs SlotEnemy.cost). */
-export function enemyBudget(depth: number): number {
-  return Math.min(14, 4 + depth * 1.5);
+export function enemyBudget(depth: number, cap = BUDGET_CAP): number {
+  return Math.min(cap, 4 + depth * 1.5);
 }
 
 /** Obstacles an `o` slot can become ('.' = nothing), with weights. */
@@ -366,7 +371,7 @@ export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): Room
     else if (ch === 'o') line[c] = weighted(rng, OBSTACLES);
   }));
   rng.shuffle(enemySlots);
-  let budget = enemyBudget(opts.depth);
+  let budget = enemyBudget(opts.depth, opts.cap);
   const used = new Map<string, number>();
   let placed = 0;
   for (const cell of enemySlots) {
