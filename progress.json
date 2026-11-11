@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-11T23:58:00+01:00",
+  "actualizado": "2026-11-12T00:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -138,7 +138,7 @@
   },
   "sesiones": [
     {
-      "fecha": "2026-11-11T23:58:00+01:00",
+      "fecha": "2026-11-12T00:20:00+01:00",
       "hito": "M11",
       "resumen": "M11, pulido de la sala de la Centralita: la barra de vida de los jefes se vuelve casi transparente cuando la tostadora o las zonas del menú de voz quedan debajo, y los nombres de los cuatro departamentos se pintan centrados en cada cuarto, lejos de las esquinas (antes quedaban bajo los dispensadores y el recuadro del arma). La captura de los cables del e2e ya no falla según dónde quedara la jefa.",
       "commit": ""

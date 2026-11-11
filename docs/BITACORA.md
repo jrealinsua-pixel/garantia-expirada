@@ -2,7 +2,7 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
-## 2026-11-11 23:58 (hora peninsular, de `date`) — Hito M11 — Pulido de la sala de la Centralita
+## 2026-11-12 00:20 (hora peninsular, de `date`) — Hito M11 — Pulido de la sala de la Centralita
 - Contexto: la (7), la única tarea que queda de M11, la cogió otra sesión hace 53 minutos (menos de 90). No hay notas del humano pendientes. Para no pisar los datos ni el equilibrio, elegí los dos «problemas conocidos» que dejó la (5b), que solo tocan el dibujo: la barra de vida de la jefa tapaba la parte de abajo de las zonas del menú de voz, y los nombres de los departamentos de abajo se veían poco.
 - Salud: `check`, 747 tests, `build` y `bot` en verde al empezar.
 - Hecho: **la barra de vida de los jefes se aparta** (baja a un 22 % de opacidad en 0,15 s y vuelve en 0,3 s) mientras la tostadora o alguna zona del menú de voz quedan debajo en la pantalla; vale para todos los jefes (la tostadora pegada a la pared de abajo tampoco se tapa ya). Lo decide `bossBarVeiled` (`src/render/hud.ts`, puro, con la caja de la barra y su nombre en `bossBarBox`/`BOSS_BAR`). **Los nombres de los departamentos** (`departmentLabelBox`, también en `hud.ts`) van **centrados en su cuarto**, a 12 px de la pared del fondo los de arriba y a 20 px de la de delante los de abajo, con una capa oscura un píxel por debajo y algo más de opacidad (0,42): antes iban en la esquina de fuera y caían **debajo de los dispensadores de las esquinas y, con la cámara en la esquina, del recuadro del arma** («4 · Bajas» no se veía). Tests nuevos en `tests/hud.test.ts` (2: cuándo se aparta la barra; los nombres dentro de su cuarto, sin pegarse a la pared, sin muebles encima y fuera del HUD y de la barra con la cámara en cada esquina).
