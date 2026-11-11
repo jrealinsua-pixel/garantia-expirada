@@ -108,6 +108,8 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.14, pattern: { kind: 'fan', count: 8, spreadDeg: 98, speed: 88, color: 'ticket' } },
     ],
   },
+  // The queue posts (M11 (4b)): a short ring of four steel balls, the tape drum's spare bearings.
+  'poste-bolas': { kind: 'ring', count: 4, speed: 92, life: 1.5, aimed: true, color: 'steel' },
   'fotocopiadora-folios': { kind: 'fan', count: 3, spreadDeg: 34, speed: 100, color: 'sheet' },
   'destructora-tiras': { kind: 'fan', count: 5, spreadDeg: 50, speed: 115, color: 'strip' },
   'robot-tuercas': { kind: 'fan', count: 3, spreadDeg: 30, speed: 105, color: 'nut' },

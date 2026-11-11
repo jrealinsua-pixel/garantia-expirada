@@ -434,7 +434,7 @@ aspecto). En partes, como M10:
   - [x] (4s) Los sprites de los cuatro, con sus balas y lo que dejan en el suelo (el círculo del
     turno, la cinta de los postes, el escudo de preguntas frecuentes).
   - [x] (4a) Dispensador de Turnos (llama turnos: hay que llegar al círculo a tiempo).
-  - [ ] (4b) Postes de Cola (dos postes con una cinta que no se cruza y te hace la cola).
+  - [x] (4b) Postes de Cola (dos postes con una cinta que no se cruza y te hace la cola).
   - [ ] (4c) Asistente Virtual (aprende: se escuda del lado desde el que le das).
   - [ ] (4d) Teléfono de Recepción (le pasa con un compañero: se cambia de sitio con otro).
 - Jefa: La Centralita. En partes:

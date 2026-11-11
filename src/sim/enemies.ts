@@ -2,9 +2,9 @@
 // come from the enemy's data.
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossPhase, RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain,
+  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain,
 } from '../data/types.ts';
-import { blockedTiles, findPath } from './nav.ts';
+import { blockedTiles, clearLine, findPath } from './nav.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS, PROPS } from '../data/props.ts';
@@ -128,6 +128,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'turner':
         updateTurner(w, en, en.def.brain);
+        break;
+      case 'queuer':
+        updateQueuer(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1885,6 +1888,162 @@ function updateTurner(w: World, en: Enemy, b: TurnerBrain): void {
   }
 }
 
+/** Farther than this from the player, queue posts do not fire (px). */
+const QUEUE_RANGE = 260;
+
+/** Seconds between two searches of the way round things for a queue post. */
+const QUEUE_REPATH = 0.35;
+
+/**
+ * Where a queue post heads now to get to `goal`: straight at it if nothing is in the way;
+ * otherwise the farthest point of the tile path it can walk to in a straight line (worked out
+ * every QUEUE_REPATH s and kept in `dest`).
+ */
+function queueWay(w: World, en: Enemy, goal: { x: number; y: number }): { x: number; y: number } {
+  const r = en.def.footRadius + 1;
+  en.pathT = (en.pathT ?? 0) - DT;
+  if (clearLine(w, en, goal, r)) {
+    delete en.dest;
+    return goal;
+  }
+  if (en.dest && en.pathT > 0) return en.dest;
+  en.pathT = QUEUE_REPATH;
+  const path = findPath(w, en, goal, en.def.footRadius);
+  if (path.length === 0) return goal;
+  let at = path[0]!;
+  for (let i = Math.min(path.length - 1, 6); i > 0; i--) {
+    if (clearLine(w, en, path[i]!, r)) {
+      at = path[i]!;
+      break;
+    }
+  }
+  en.dest = at;
+  return at;
+}
+
+/** The other post of `en`'s pair, if it is still standing. */
+export function liveMate(w: World, en: Enemy): Enemy | undefined {
+  if (en.mate === undefined) return undefined;
+  const m = w.enemies.find((o) => o.id === en.mate);
+  return m && !isDead(m) && m.state !== 'dying' ? m : undefined;
+}
+
+/**
+ * Where a queue post wants to stand: its end of a tape `gap` px from the player, across the line
+ * from the player to the middle of the pair (so the tape is between the player and them), as long
+ * as `spread` (the short one while it is tense). Which end is its own: the one on its side of the
+ * pair.
+ */
+export function queueSpot(w: World, en: Enemy, mate: Enemy, b: QueuerBrain): { x: number; y: number } {
+  const p = w.player;
+  const mx = (en.x + mate.x) / 2;
+  const my = (en.y + mate.y) / 2;
+  let ux = mx - p.x;
+  let uy = my - p.y;
+  const ul = Math.hypot(ux, uy);
+  if (ul < 1) {
+    ux = 0;
+    uy = -1;
+  } else {
+    ux /= ul;
+    uy /= ul;
+  }
+  const px = -uy;
+  const py = ux;
+  const lead = en.id < mate.id ? en : mate;
+  const half = (lead.tense ? b.spread[0] : b.spread[1]) / 2;
+  const own = (en.x - mate.x) * px + (en.y - mate.y) * py;
+  const s = own > 0 || (own === 0 && en.id < mate.id) ? 1 : -1;
+  return { x: p.x + ux * b.gap + px * half * s, y: p.y + uy * b.gap + py * half * s };
+}
+
+/**
+ * The queue posts (QueuerBrain): two that walk to the ends of a tape in front of the player and
+ * fire by turns (the nearer one), and when one breaks the other snaps its tape back, stands a
+ * moment and goes on alone, firing more often.
+ */
+function updateQueuer(w: World, en: Enemy, b: QueuerBrain): void {
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  en.t += DT;
+  if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
+  const mate = liveMate(w, en);
+  if (en.mate !== undefined && !mate) {
+    // The other one broke: the tape snaps back into this one.
+    delete en.mate;
+    delete en.tense;
+    en.queueT = Math.min(en.queueT ?? b.alone, b.snap + b.alone * 0.5);
+    w.events.push({ type: 'tapeSnap', x: en.x, y: en.y - b.muzzleY, source: en.id });
+    enter(en, 'reveal', b.snap);
+  }
+  if (en.state === 'reveal') {
+    approach(en, 0, 0, KNOCK_FRICTION);
+    if (en.t >= en.until) enter(en, 'walk', 1);
+  } else {
+    if (en.state === 'warn' && en.t >= en.until) enter(en, 'walk', 1);
+    // Firing: the pair by turns (the one with the lower id keeps the time, the nearer one fires).
+    const leads = !mate || en.id < mate.id;
+    if (leads) {
+      en.queueT = (en.queueT ?? b.interval * 0.6) - DT;
+      if (en.queueT <= 0) {
+        en.queueT = mate ? b.interval : b.alone;
+        const shooter = mate && Math.hypot(p.x - mate.x, p.y - mate.y) < dist ? mate : en;
+        const sd = Math.hypot(p.x - shooter.x, p.y - shooter.y);
+        if (!w.over && sd < QUEUE_RANGE && shooter.state !== 'reveal') {
+          const def = PATTERNS[b.pattern];
+          if (!def) throw new Error(`Unknown pattern ${b.pattern}`);
+          const mh = muzzleHeight(w, shooter, b.muzzleY);
+          const aim = Math.atan2(p.y - (shooter.y - mh), p.x - shooter.x);
+          firePattern(w, def, shooter.x, shooter.y - mh, aim, { telegraph: b.telegraph, source: shooter.id, by: shooter.def.id, height: mh });
+          enter(shooter, 'warn', b.telegraph + 0.15);
+        }
+      }
+    }
+    let tx: number;
+    let ty: number;
+    let v: number;
+    if (mate) {
+      const at = queueSpot(w, en, mate, b);
+      const left = Math.hypot(at.x - en.x, at.y - en.y);
+      const way = queueWay(w, en, at);
+      tx = way.x - en.x;
+      ty = way.y - en.y;
+      v = left < 2 ? 0 : Math.min(b.speed, left * 4);
+    } else if (dist > b.keep + 20 || !clearLine(w, en, p, 1)) {
+      // Alone: comes closer (round whatever is in the way), to about `keep`, or until nothing
+      // stands between them (a partition would leave the two shooting at it for ever).
+      const way = queueWay(w, en, p);
+      tx = way.x - en.x;
+      ty = way.y - en.y;
+      v = b.speed;
+    } else {
+      // ...and backs off if the player comes too close.
+      tx = dist < b.keep - 20 ? -dx : 0;
+      ty = dist < b.keep - 20 ? -dy : 0;
+      v = b.speed;
+    }
+    const tl = Math.hypot(tx, ty);
+    approach(en, tl > 0.5 ? (tx / tl) * v : 0, tl > 0.5 ? (ty / tl) * v : 0, KNOCK_FRICTION);
+  }
+  if (en.vx !== 0 || en.vy !== 0) {
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+  }
+  // The tape only gives so much: pulled too far apart (knocked back, say), each comes back half the excess.
+  if (mate) {
+    const mx = mate.x - en.x;
+    const my = mate.y - en.y;
+    const md = Math.hypot(mx, my);
+    if (md > b.tether) {
+      const k = ((md - b.tether) / 2) / md;
+      slide(w, en, en.def.footRadius, mx * k, my * k);
+    }
+  }
+}
 
 /**
  * The DENEGADO stamp: hops towards the player (state `charge`, like the envelope) and every
@@ -2068,7 +2227,8 @@ export function copiable(en: Enemy): boolean {
   const k = en.def.brain.kind;
   // Nor an air conditioner: one cone per room is plenty (and copies of it would pin the toaster to a wall).
   // Nor a ticket dispenser: at most one per room (two would call turns at both ends of it at once).
-  if (k === 'boss' || k === 'relay' || k === 'copier' || k === 'blower' || k === 'turner' || en.def.boss) return false;
+  // Nor a queue post: a copy would have no other post to stretch its tape to.
+  if (k === 'boss' || k === 'relay' || k === 'copier' || k === 'blower' || k === 'turner' || k === 'queuer' || en.def.boss) return false;
   return en.copyOf === undefined && !isDead(en) && en.state !== 'dying' && en.state !== 'lurk' && en.state !== 'gone';
 }
 

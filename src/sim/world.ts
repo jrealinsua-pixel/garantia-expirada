@@ -376,6 +376,16 @@ export interface Enemy {
   turn?: TurnCircle;
   /** Ticket dispensers: seconds before it calls its next turn. */
   callT?: number;
+  /** Queue posts (QueuerBrain): the other post of its pair, while the tape joins them. */
+  mate?: number;
+  /** The other one of a pair, drawn with its own frames (EnemyAnim.altShift). */
+  alt?: boolean;
+  /** Queue posts: seconds before the pair (or the one left) next fires. */
+  queueT?: number;
+  /** Queue posts: the player is in the middle of its tape and close (the tape shortens and pushes). */
+  tense?: boolean;
+  /** Queue posts: seconds before working out again the way to where they want to stand (`dest`). */
+  pathT?: number;
   /** Seconds before being hit makes a blinker vanish again; and the damage it had last tick. */
   blinkCd?: number;
   seenDamage?: number;
@@ -543,6 +553,10 @@ export type SimEvent =
   | { type: 'turnCall'; x: number; y: number; num: number; desk: number; source: number }
   | { type: 'turnServed'; x: number; y: number; source: number }
   | { type: 'turnLost'; x: number; y: number; source: number }
+  /** A queue post broke: its tape snaps back into the other one (at x, y). */
+  | { type: 'tapeSnap'; x: number; y: number; source: number }
+  /** The player walked or rolled into a queue tape (at x, y, on it). Not every tick: see TAPE_BUMP_GAP. */
+  | { type: 'tapeBump'; x: number; y: number }
   /** An air conditioner is about to blow its frost along the air. */
   | { type: 'acBlow'; x: number; y: number; source: number }
   /** The player tried to roll on ink: a clumsy step instead, no invulnerability. */
@@ -747,6 +761,8 @@ export interface World {
   won: boolean;
   /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
   holdT: number;
+  /** The last tick the player bumped into a queue tape with a noise (holdTapes). */
+  tapeBumpTick?: number;
   /** The Mostrador: the toaster stepped on the conveyor, the hub stands still and a run is due (see leaveHub). */
   leftHub: boolean;
   /** A single room (no floor): chests opened without a ticket in it (see FloorRun.freeChests). */
@@ -1492,6 +1508,8 @@ function spawnRoomEnemies(w: World): void {
       const mate = spawnEnemy(w.nextId++, s.def, spot.x, spot.y);
       mate.until += i * 0.45;
       w.enemies.push(mate);
+      // Queue posts: the two of a pair are joined by their tape.
+      if (s.def.brain.kind === 'queuer' && i === 1) pairUp(en, mate);
     }
     if (s.def.escort) {
       const edef = ENEMIES[s.def.escort];
@@ -1501,6 +1519,70 @@ function spawnRoomEnemies(w: World): void {
       esc.owner = en.id;
       w.enemies.push(esc);
     }
+  }
+}
+
+/** Joins two queue posts with their tape (QueuerBrain); the second is the one with the chipped base. */
+export function pairUp(a: Enemy, b: Enemy): void {
+  a.mate = b.id;
+  b.mate = a.id;
+  b.alt = true;
+}
+
+/** A queue tape stretched between two posts (`a` has the lower id, and carries `tense`). */
+export interface Tape {
+  a: Enemy;
+  b: Enemy;
+}
+
+/** The queue tapes standing: pairs of posts both alive and in one piece. */
+export function tapesOf(w: World): Tape[] {
+  const out: Tape[] = [];
+  for (const a of w.enemies) {
+    if (a.mate === undefined || a.mate < a.id || isDead(a) || a.state === 'dying') continue;
+    const b = w.enemies.find((o) => o.id === a.mate);
+    if (b && b.mate === a.id && !isDead(b) && b.state !== 'dying') out.push({ a, b });
+  }
+  return out;
+}
+
+/** Half the thickness of a queue tape (px): the player's feet keep this far from its line, and their own radius. */
+export const TAPE_HALF = 1.5;
+/** Seconds between two bumps into a tape that make a noise. */
+const TAPE_BUMP_GAP = 0.45;
+
+/**
+ * Queue tapes do not let the player through (walking or rolling: QueuerBrain). The side of each
+ * tape the player was on at the start of the tick (`ox`, `oy`) is the side it stays on: its feet
+ * are put back `footRadius + TAPE_HALF` px from the line wherever they cross or touch it (the tape
+ * sweeping over it pushes it too). Only along the tape: round the end of it, past a post, is free.
+ * With the player in the middle of a tape and close, it is tense and pushes it away.
+ */
+export function holdTapes(w: World, ox: number, oy: number): void {
+  const p = w.player;
+  for (const { a, b } of tapesOf(w)) {
+    const br = a.def.brain;
+    if (br.kind !== 'queuer') continue;
+    a.tense = false;
+    const ex = b.x - a.x;
+    const ey = b.y - a.y;
+    const len = Math.hypot(ex, ey);
+    if (len < 1) continue;
+    const nx = -ey / len;
+    const ny = ex / len;
+    const side = (ox - a.x) * nx + (oy - a.y) * ny >= 0 ? 1 : -1;
+    const along = ((p.x - a.x) * ex + (p.y - a.y) * ey) / len;
+    if (along < 0 || along > len) continue;
+    const d = ((p.x - a.x) * nx + (p.y - a.y) * ny) * side;
+    const r = p.def.footRadius + TAPE_HALF;
+    a.tense = d < r + br.squeeze;
+    let out = d < r ? r - d : 0;
+    if (out > 0.3 && w.tick - (w.tapeBumpTick ?? -1e9) > TAPE_BUMP_GAP / DT) {
+      w.tapeBumpTick = w.tick;
+      w.events.push({ type: 'tapeBump', x: p.x - nx * side * d, y: p.y - ny * side * d });
+    }
+    if (a.tense && !w.over) out += br.push * DT;
+    if (out > 0) slide(w, p, p.def.footRadius, nx * side * out, ny * side * out);
   }
 }
 
@@ -1533,6 +1615,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'blower') {
     state = 'idle';
     until = b.interval[0] * 0.6;
+  } else if (b.kind === 'queuer') {
+    // Their first volley a little sooner than the rest.
+    until = b.interval * 0.6;
   } else if (b.kind === 'turner') {
     // Its first turn comes a little sooner than the rest (the room should learn the rule early).
     state = 'idle';
@@ -1568,7 +1653,7 @@ export function enemyAltitude(en: Enemy): number {
 
 /** Brains whose own 'warn' state is a telegraph (the turret's comes from its emitter). */
 // A ticket dispenser calling a turn fires nothing: its circle on the floor is the warning.
-const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && en.def.brain.kind !== 'turret' && en.def.brain.kind !== 'turner';
+const warnsByItself = (en: Enemy): boolean => en.state === 'warn' && en.def.brain.kind !== 'turret' && en.def.brain.kind !== 'turner' && en.def.brain.kind !== 'queuer';
 
 export const isRolling = (p: Player): boolean => p.rollT >= 0;
 
@@ -3842,7 +3927,11 @@ export function step(w: World, input: Input): void {
   // The Mostrador is the one place in the building where nobody shoots.
   if (w.room.kind === 'hub') input = { ...input, fire: false, reload: false, useItem: false, debugPattern: undefined };
   // Once down, the toaster lies there: the room goes on without it.
+  const ox = w.player.x;
+  const oy = w.player.y;
   updatePlayer(w, w.over ? { ...NO_INPUT, aimX: w.player.x + Math.cos(w.player.aim), aimY: w.player.y - HAND_HEIGHT + Math.sin(w.player.aim) } : input);
+  // Queue tapes: the side the toaster was on is the side it stays on.
+  holdTapes(w, ox, oy);
   if (input.useItem && !w.over) useActive(w);
   // On hold (Música de Espera) enemies, their bullets and their attacks stand still. A boss does
   // not: it (and everything in its room) goes in slow motion, its bullets at HOLD_BOSS_SCALE of

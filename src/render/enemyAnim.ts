@@ -35,7 +35,9 @@ function busy(en: Enemy): boolean {
  * warning frame included); a boss spinning on the spot goes round its `spin` frames.
  */
 export function enemyFrame(en: Enemy, now: number): number {
-  return sideFrame(en, now) + viewShift(en);
+  // The other one of a pair (the queue post with the chipped base) has the same layout further on.
+  const alt = en.alt ? en.def.anim?.altShift ?? 0 : 0;
+  return sideFrame(en, now) + viewShift(en) + alt;
 }
 
 /**

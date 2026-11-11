@@ -133,6 +133,8 @@ const ENEMY_CHARS: Record<string, string> = {
   H: 'climatizador',
   // The ASCII capitals ran out with the Oficinas: Atención al Cliente's enemies use Spanish ones (M11 (4a)).
   Ñ: 'dispensador-turnos',
+  // Á: the queue posts (M11 (4b)), always a pair (EnemyDef.pack).
+  Á: 'poste-cola',
 };
 
 /**

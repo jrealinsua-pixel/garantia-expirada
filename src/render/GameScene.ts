@@ -32,6 +32,8 @@ import {
   turnNumber,
   TURN_LOST_LINE,
   TURN_SERVED_LINE,
+  TAPE_BUMP_LINE,
+  TAPE_SNAP_LINE,
   ROLL_DENIED_LINE,
   STAMP_LINE,
   TONER_OUT_LINE,
@@ -87,7 +89,7 @@ import {
   BODY_HEIGHT,
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
-import { spawnEnemy, TIP_FACING, type HeartKind, type Player } from '../sim/world.ts';
+import { pairUp, spawnEnemy, tapesOf, TIP_FACING, type HeartKind, type Player } from '../sim/world.ts';
 
 /** What the toaster has on loan after its hearts, in the order it pays: surge, warranties, turbo. */
 function loanIcons(p: Player): { key: string; half: boolean }[] {
@@ -324,6 +326,10 @@ export class GameScene extends Phaser.Scene {
   private inkViews = new Map<number, Phaser.GameObjects.Image>();
   /** Ticket dispensers' turns on the floor, by the dispenser's id: the circle, its number and the countdown. */
   private turnViews = new Map<number, { circle: Phaser.GameObjects.Image; num: Phaser.GameObjects.BitmapText; state: string }>();
+  /** Queue posts' tapes, by the id of the first post of the pair, and where their ends were last drawn (for the snap). */
+  private tapeViews = new Map<number, { tape: Phaser.GameObjects.TileSprite; ax: number; ay: number; bx: number; by: number }>();
+  /** Tapes snapping back into a post: a line that shrinks towards it for a moment. */
+  private tapeSnaps: { x: number; y: number; fx: number; fy: number; t: number }[] = [];
   private turnG!: Phaser.GameObjects.Graphics;
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
   private pieces = new Map<string, SpritePiece[]>();
@@ -521,6 +527,8 @@ export class GameScene extends Phaser.Scene {
     this.frostViews = new Map();
     this.inkViews = new Map();
     this.turnViews = new Map();
+    this.tapeViews = new Map();
+    this.tapeSnaps = [];
     this.particles = [];
     this.mapG = null;
     this.floats = [];
@@ -744,6 +752,7 @@ export class GameScene extends Phaser.Scene {
       dropShield: (x: number, y: number) => void;
       dropHeart: (x: number, y: number, kind: HeartKind) => void;
       spawnIdle: (id: string, x: number, y: number) => void;
+      spawnPair: (id: string, ax: number, ay: number, bx: number, by: number) => void;
     };
     (window as unknown as { __GE__: TestHooks }).__GE__ = {
       scene: this,
@@ -766,6 +775,13 @@ export class GameScene extends Phaser.Scene {
         en.state = 'idle';
         en.until = 999;
         this.world.enemies.push(en);
+      },
+      // ...or a pair joined by their tape (the queue posts).
+      spawnPair: (id: string, ax: number, ay: number, bx: number, by: number) => {
+        const a = spawnEnemy(this.world.nextId++, ENEMIES[id]!, ax, ay);
+        const b = spawnEnemy(this.world.nextId++, ENEMIES[id]!, bx, by);
+        pairUp(a, b);
+        this.world.enemies.push(a, b);
       },
     };
     // Back in the boss room after walking out: the lift is still there, waiting.
@@ -2225,6 +2241,22 @@ export class GameScene extends Phaser.Scene {
           }
           this.floatText(e.x, e.y - 30, fontText(TURN_SERVED_LINE), 0x7fe08a, `turn:${e.source}`, -14, 0.9);
           break;
+        case 'tapeSnap': {
+          // One post broke: its tape whips back into the other with a clack.
+          this.sound2.play('cinta');
+          for (const [id, v] of this.tapeViews) {
+            if (this.world.enemies.some((en) => en.id === id && en.mate !== undefined)) continue;
+            const atA = Math.hypot(v.ax - e.x, v.ay - e.y) < Math.hypot(v.bx - e.x, v.by - e.y);
+            this.tapeSnaps.push({ x: atA ? v.ax : v.bx, y: atA ? v.ay : v.by, fx: atA ? v.bx : v.ax, fy: atA ? v.by : v.ay, t: 0 });
+          }
+          this.floatText(e.x, e.y - 14, fontText(TAPE_SNAP_LINE), 0x4aa8ff, `tape:${e.source}`, -14, 0.9);
+          break;
+        }
+        case 'tapeBump':
+          // Into the tape: it gives a little and throws the toaster back. No queue-jumping.
+          this.sound2.play('muelle', { volume: 0.35, detune: 300 });
+          this.floatText(e.x, e.y - 34, fontText(TAPE_BUMP_LINE), 0x4aa8ff, 'tapeBump', -14, 0.7);
+          break;
         case 'turnLost':
           // Too late: the buzzer, and the dispenser loses its patience.
           this.sound2.play('denegado');
@@ -3582,6 +3614,7 @@ export class GameScene extends Phaser.Scene {
     this.drawFrost(dt);
     this.drawInk();
     this.drawTurns();
+    this.drawTapes(dt);
     this.drawChests(dt);
     this.drawLateProps();
     this.drawPartitions();
@@ -3819,6 +3852,56 @@ export class GameScene extends Phaser.Scene {
       v.destroy();
       this.inkViews.delete(id);
     }
+  }
+
+  /**
+   * Queue posts' tapes: the blue tape (cinta-poste, repeated along it) from drum to drum at the
+   * height of the drums, sorted with everything else by the middle of its feet line; under it, a
+   * dark line on the floor where it actually stops the toaster. Tense (the toaster in the middle,
+   * close), the lighter frame and a slight shiver. A tape snapping back shrinks into its post.
+   */
+  private drawTapes(dt: number): void {
+    const g = this.turnG;
+    const alive = new Set<number>();
+    for (const { a, b } of tapesOf(this.world)) {
+      const br = a.def.brain;
+      if (br.kind !== 'queuer') continue;
+      alive.add(a.id);
+      const h = br.muzzleY - 3;
+      const ax = Math.round(a.x);
+      const ay = Math.round(a.y);
+      const bx = Math.round(b.x);
+      const by = Math.round(b.y);
+      const len = Math.hypot(bx - ax, by - ay);
+      let v = this.tapeViews.get(a.id);
+      if (!v) {
+        const tape = this.add.tileSprite(ax, ay - h, Math.max(1, len), 6, 'cinta-poste', 0).setOrigin(0, 0.5);
+        v = { tape, ax, ay, bx, by };
+        this.tapeViews.set(a.id, v);
+      }
+      v.ax = ax;
+      v.ay = ay - h;
+      v.bx = bx;
+      v.by = by - h;
+      const shiver = a.tense ? Math.round(this.fx.range(-0.6, 0.6)) : 0;
+      v.tape.setPosition(ax, ay - h + shiver).setSize(Math.max(1, Math.round(len)), 6).setRotation(Math.atan2(by - ay, bx - ax))
+        .setFrame(a.tense ? 1 : 0).setDepth((a.y + b.y) / 2 + 0.5);
+      // The tape's line on the floor: where it stops the toaster.
+      g.lineStyle(2, 0x0b1a2a, 0.35);
+      g.lineBetween(ax, ay - 1, bx, by - 1);
+    }
+    for (const [id, v] of this.tapeViews) {
+      if (alive.has(id)) continue;
+      v.tape.destroy();
+      this.tapeViews.delete(id);
+    }
+    for (const sn of this.tapeSnaps) {
+      sn.t += dt;
+      const k = Math.max(0, 1 - sn.t / 0.16);
+      g.lineStyle(3, 0x4aa8ff, 0.9);
+      g.lineBetween(sn.x, sn.y, sn.x + (sn.fx - sn.x) * k, sn.y + (sn.fy - sn.y) * k);
+    }
+    this.tapeSnaps = this.tapeSnaps.filter((sn) => sn.t < 0.16);
   }
 
   /**
@@ -4514,7 +4597,7 @@ const SKID_MAX = 120;
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
-  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno',
+  bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

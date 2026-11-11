@@ -966,6 +966,34 @@ try {
   await shot('50za-dispensador-atendido.png');
   console.log('Dispensador: llama un turno con su círculo, lo da por perdido con un abanico de tiques y atiende el siguiente.');
 
+  // M11 (4b): the queue posts. Their tape across the toaster's way (walking into it, it stays on
+  // its side), the ring of steel balls, and one broken: the tape snaps back into the other.
+  await page.goto(`${url}?semilla=e2e-postes&sala=ventanillas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnPair('poste-cola', p.x - 40, p.y - 56, p.x + 40, p.y - 56); w.enemies[0].queueT = 99; })()`);
+  // Which side of the tape the toaster is on (the sign of the cross product, with the tape as it is now).
+  const tapeSide = "(() => { const w = window.__GE__.scene.world; const [a, b] = w.enemies; const p = w.player; return Math.sign((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x)); })()";
+  const sideBefore = await page.evaluate<number>(tapeSide);
+  await page.keyboard.down('w');
+  await page.waitForTimeout(1400);
+  await shot('50zb-postes-cinta.png');
+  await page.keyboard.up('w');
+  const tapes = await page.evaluate<number>('window.__GE__.scene.world.enemies.filter((e) => e.mate !== undefined).length');
+  if (tapes !== 2) throw new Error('Los postes no tienen la cinta tendida');
+  if ((await page.evaluate<number>(tapeSide)) !== sideBefore) throw new Error('La tostadora ha cruzado la cinta de los postes andando hacia ella');
+  await page.evaluate('window.__GE__.scene.world.enemies[0].queueT = 0.1');
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'enemy' && b.color === 'steel').length >= 4", undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('Los postes no sueltan sus bolas de acero'); });
+  await page.waitForTimeout(150);
+  await shot('50zc-postes-bolas.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.bullets = []; const b = w.enemies[1]; b.damageTaken = b.def.hp; })()`);
+  await page.waitForFunction("(() => { const e = window.__GE__.scene.world.enemies; return e.length === 1 && e[0].mate === undefined && e[0].state === 'reveal'; })()", undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('Roto un poste, el otro no suelta la cinta'); });
+  await page.waitForTimeout(80);
+  await shot('50zd-postes-sueltan.png');
+  console.log('Postes de Cola: la cinta no se cruza, sueltan bolas de acero y, roto uno, la cinta vuelve al otro.');
+
   // M10 (4b): the remote-control car: drifting round the toaster (tyre marks), aiming its ram,
   // stalling (batteries not included) and overturned.
   await page.goto(`${url}?semilla=e2e-coche&sala=taller-expres`);

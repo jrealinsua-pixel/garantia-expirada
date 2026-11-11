@@ -75,6 +75,9 @@ export const turnNumber = (n: number): string => String(n).padStart(3, '0');
 export const turnCallLine = (n: number, desk: number): string => `Turno ${turnNumber(n)}, ventanilla ${desk}`;
 export const TURN_SERVED_LINE = 'Atendido';
 export const TURN_LOST_LINE = 'Turno perdido';
+/** Bumping into the queue posts' tape (M11 (4b)), and the tape snapping back when one breaks. */
+export const TAPE_BUMP_LINE = 'No se cuele';
+export const TAPE_SNAP_LINE = 'Cola disuelta';
 
 /** Over a remote-control car when its batteries give out. */
 export const STALL_LINE = 'Pilas no incluidas';
@@ -115,6 +118,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   destructora: { bullet: 'Papeleo devuelto sin leer', contact: 'Triturado por error' },
   climatizador: { bullet: 'Resfriado de oficina', contact: 'Arrollado por un climatizador' },
   'dispensador-turnos': { bullet: 'Corte con tique de turno, ya caducado', contact: 'Atendido por orden de llegada' },
+  'poste-cola': { bullet: 'Rodamiento perdido de una cola', contact: 'Reconducido a la cola por un poste' },
   sello: { bullet: 'Mancha de tinta indeleble', contact: 'Denegado, con sello y fecha' },
   fotocopiadora: { bullet: 'Corte con folio, por duplicado', contact: 'Atropello por fotocopiadora averiada' },
   'sobre-sorpresa': { bullet: 'Confeti de papel de regalo en el ojo', contact: 'Sobre abierto con los dientes' },

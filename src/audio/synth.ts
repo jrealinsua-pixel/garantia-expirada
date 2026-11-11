@@ -126,6 +126,8 @@ export const SFX: Record<string, SfxParams> = {
   persiana: { wave: 'noise', freq: 900, freqEnd: 90, attack: 0.002, sustain: 0.12, decay: 0.3, volume: 0.3, lowpass: 0.3, crush: 3, vibrato: 0.3, vibratoSpeed: 30 },
   desbloquear: { wave: 'square', freq: 330, freqEnd: 990, attack: 0.005, sustain: 0.18, decay: 0.2, volume: 0.13, duty: 0.35, vibrato: 0.08, vibratoSpeed: 16 },
   // A ticket dispenser calling a turn: one note of the chime of every waiting room (played twice, the second a fourth down).
+  // A retractable queue tape let go: the whir of it reeling back in and the clack of the hook.
+  cinta: { wave: 'noise', freq: 2400, freqEnd: 300, attack: 0.002, sustain: 0.07, decay: 0.12, volume: 0.22, lowpass: 0.5, crush: 2, vibrato: 0.4, vibratoSpeed: 45 },
   turno: { wave: 'triangle', freq: 880, freqEnd: 874, attack: 0.004, sustain: 0.22, decay: 0.35, volume: 0.17, vibrato: 0.02, vibratoSpeed: 6 },
   // Walking through a door into the next room: a quick draught.
   puerta: { wave: 'noise', freq: 500, freqEnd: 1700, attack: 0.02, sustain: 0.04, decay: 0.14, volume: 0.13, lowpass: 0.65 },

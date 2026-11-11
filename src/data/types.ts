@@ -990,8 +990,36 @@ export interface TurnerBrain {
   muzzleY: number;
 }
 
+/**
+ * The queue posts (M11 (4b)): they come as a pair (EnemyDef.pack 2) and stretch their tape between
+ * them, a line the player cannot cross walking or rolling (bullets go through). Each walks at
+ * `speed` to its end of a line `gap` px from the player, on the pair's side, `spread` px long
+ * (the longest of the range); with the player in the middle of it and closer than `squeeze` px
+ * the tape is tense: it shortens to the shortest of `spread` and pushes the player away at `push`
+ * px/s (it makes it queue). They never stand more than `tether` px apart. Every `interval` s the
+ * nearer of the two lets go of `pattern` (a short ring of steel balls) after `telegraph` s; one
+ * broken, the tape snaps back into the other (`snap` s, its released pose) and it fires every
+ * `alone` s instead, keeping about `keep` px. `muzzleY`: height of the tape drum.
+ */
+export interface QueuerBrain {
+  kind: 'queuer';
+  speed: number;
+  gap: number;
+  spread: [number, number];
+  squeeze: number;
+  push: number;
+  tether: number;
+  interval: number;
+  alone: number;
+  keep: number;
+  snap: number;
+  telegraph: number;
+  pattern: string;
+  muzzleY: number;
+}
+
 export type EnemyBrain =
-  | TurnerBrain | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
+  | QueuerBrain | TurnerBrain | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
 export interface EnemyDef {
@@ -1050,6 +1078,11 @@ export interface EnemyAnim {
   out?: number;
   /** Frame shown while it punishes a turn missed (the ticket dispenser spitting, M11 (4a)). */
   spit?: number;
+  /**
+   * The other one of a pair (Enemy.alt) is drawn this many frames on: the same layout, a little
+   * different (the queue post with the chipped base, M11 (4b)).
+   */
+  altShift?: number;
   /**
    * A small sheet drawn over the body (the Muñeco's sale tag): its top-left at (x, y) of the frame,
    * mirrored with the body (the sheet itself is not flipped, so its text reads), on the frames

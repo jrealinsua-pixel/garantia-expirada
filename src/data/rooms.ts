@@ -2058,11 +2058,14 @@ export const SLOT_ENEMIES_4: readonly SlotEnemy[] = [
 
 /**
  * Floor 5 (Atención al Cliente): floor 4's and its own as they are made (Ñ: the ticket dispenser,
- * M11 (4a), at most one: two would call turns at both ends of the room at once).
+ * M11 (4a), at most one: two would call turns at both ends of the room at once; Á: the queue posts,
+ * M11 (4b), a pair with their tape).
  */
 export const SLOT_ENEMIES_5: readonly SlotEnemy[] = [
   ...SLOT_ENEMIES_4,
   { ch: 'Ñ', cost: 3, weight: 4, max: 1 },
+  // Á: a pair of queue posts (M11 (4b)); one pair at most, or the room is all tape.
+  { ch: 'Á', cost: 4, weight: 4, max: 1 },
 ];
 
 /**
