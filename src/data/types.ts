@@ -704,6 +704,22 @@ export interface BossPhase {
    * its helper (BossPhase.summon) is down, it calls it again.
    */
   transfer?: { first: number; every: number; mark: number; grace: number; welcome: readonly string[]; warn: number; recall?: number };
+  /**
+   * A pattern (src/data/patterns.ts) it lets out all round itself as the phase starts, at the end
+   * of the break: the Centralita tearing her plugs out (M11 (5c)).
+   */
+  opening?: string;
+  /**
+   * «Se queda muda» (the Centralita's phase 3, M11 (5c)): every `every` s (random in the range;
+   * once due, it waits for the attack it is doing to end) it stops dead for `time` s, attacking nothing (state `stun`, frame
+   * EnemyAnim.stun), and takes `taken` times the damage meanwhile: the moment to hit it.
+   */
+  mute?: { every: [number, number]; time: number; taken: number };
+  /**
+   * Its own frames from this phase on (instead of shifting the usual ones, BossPhase.frameShift),
+   * when the phase has fewer of them: the Centralita without her plugs, two to drag herself.
+   */
+  look?: { idle: readonly number[]; walk: readonly number[]; warn: number };
 }
 
 /**

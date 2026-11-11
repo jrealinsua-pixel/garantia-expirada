@@ -2,7 +2,9 @@
 // departamentos con los mostradores bajos (paran balas y se cruzan rodando), la fase 1 «Su llamada
 // es importante» con el menú de voz (tres zonas en el suelo; llueven balas en las que no son) y la
 // fase 2 «Le paso con el departamento» (cada 10 s pasa a la tostadora a otro departamento, donde la
-// espera un patrón propio, y llama a un Teléfono de Recepción).
+// espera un patrón propio, y llama a un Teléfono de Recepción); y la fase 3, M11 (5c), «Se ha
+// cortado la llamada» (se arranca las clavijas, barre la sala con cuatro brazos de cable que giran y
+// se queda muda a ratos, cuando más le duele).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ENEMIES } from '../src/data/enemies.ts';
@@ -13,8 +15,10 @@ import type { BossBrain, BossMenuAttack } from '../src/data/types.ts';
 import { DEPARTMENT_NAMES, DOWN_CAUSES, menuOptionLine } from '../src/data/texts.ts';
 import { departmentOf, departmentRect, inMenuZone, MENU_ZONE_H, MENU_ZONE_W } from '../src/sim/enemies.ts';
 import { Bot } from '../src/sim/bot.ts';
+import { enemyFrame } from '../src/render/enemyAnim.ts';
+import { CENTRALITA_FRAMES } from '../tools/sprites/centralita.ts';
 import { TILE } from '../src/sim/room.ts';
-import { checkInvariants, createWorld, DT, isClear, isRolling, NO_INPUT, onLowProp, step, worldHash, type Enemy, type Input, type SimEvent, type World } from '../src/sim/world.ts';
+import { checkInvariants, createWorld, DT, isClear, isRolling, NO_INPUT, onLowProp, step, takenScale, worldHash, type Enemy, type Input, type SimEvent, type World } from '../src/sim/world.ts';
 import { LOW_COUNTER_BOX, LOW_COUNTER_V_BOX, ZONE_H, ZONE_W } from '../tools/sprites/centralita.ts';
 
 const def = ENEMIES.centralita!;
@@ -54,7 +58,7 @@ test('la Centralita es la jefa de la planta 5, con su sala, su cartel y su causa
   assert.equal(def.boss?.motto, 'Todos nuestros operadores están ocupados. Siempre.');
   assert.ok(DOWN_CAUSES.centralita?.bullet && DOWN_CAUSES.centralita?.contact);
   assert.equal(def.hp, 240);
-  assert.deepEqual(brain.phases.map((p) => p.name), ['Su llamada es importante', 'Le paso con el departamento']);
+  assert.deepEqual(brain.phases.map((p) => p.name), ['Su llamada es importante', 'Le paso con el departamento', 'Se ha cortado la llamada']);
   assert.equal(brain.phases[1]!.from, 0.6);
   const f5 = createWorld({ seed: 'planta-centralita', floor: true, level: 5 }).floor!;
   const room = f5.rooms.find((r) => r.template.kind === 'boss')!;
@@ -293,4 +297,116 @@ test('el bot va a la zona buena del menú casi siempre', () => {
   }
   assert.ok(menus > 50, `${menus} menús`);
   assert.ok(inGood / menus >= 0.7, `en la buena el ${Math.round((inGood / menus) * 100)} %`);
+});
+
+/** Only the attacks of phase 3 that match `keep`. */
+function onlyPhase3(boss: Enemy, keep: (a: BossBrain['phases'][number]['attacks'][number]) => boolean): void {
+  const b = boss.def.brain as BossBrain;
+  boss.def = { ...boss.def, brain: { ...b, phases: b.phases.map((ph, i) => (i === 2 ? { ...ph, attacks: ph.attacks.filter(keep) } : ph)) } };
+}
+
+test('fase 3: desde el 25 %, el grito, y se arranca las clavijas, que salen volando alrededor', () => {
+  const ph = brain.phases[2]!;
+  assert.equal(ph.from, 0.25);
+  assert.equal(ph.line, 'Le atenderemos lo antes posible. No.');
+  assert.ok(ph.walkSpeed > brain.phases[1]!.walkSpeed, 'corre más que nunca');
+  assert.equal(ph.transfer, undefined, 'ya no pasa a nadie');
+  assert.ok(ph.attacks.every((a) => a.kind !== 'menu'), 'ni menú de voz');
+  const { w, boss } = fight('fase3');
+  boss.damageTaken = Math.ceil(def.hp * 0.76);
+  const ev = run(w, 0.05);
+  const card = ev.find((e) => e.type === 'bossPhase');
+  assert.ok(card && card.type === 'bossPhase' && card.phase === 2 && card.line === ph.line);
+  assert.equal(boss.state, 'roar');
+  // Nothing before the break is over; then the plugs fly off all round.
+  assert.equal(w.bullets.filter((b) => b.color === 'plug').length, 0);
+  const seen = new Map<number, (typeof w.bullets)[number]>();
+  for (let i = 0; i < ticks(1.9); i++) {
+    step(w, NO_INPUT);
+    for (const b of w.bullets) if (b.color === 'plug' && !seen.has(b.id)) seen.set(b.id, { ...b });
+  }
+  const plugs = [...seen.values()];
+  assert.ok(plugs.length >= 20, `${plugs.length} clavijas`);
+  const sides = new Set(plugs.map((b) => Math.round(((Math.atan2(b.vy, b.vx) + Math.PI) / (Math.PI * 2)) * 4) % 4));
+  assert.equal(sides.size, 4, 'hacia todos lados');
+});
+
+test('fase 3: los cables barren la sala en cuatro brazos que giran, avisados con sus líneas', () => {
+  for (const which of ['centralita-cables', 'centralita-cables-2']) {
+    const { w, boss } = fight(`cables-${which}`);
+    onlyPhase3(boss, (a) => a.kind === 'pattern' && a.pattern === which);
+    boss.damageTaken = Math.ceil(def.hp * 0.8);
+    boss.muteIn = 99;
+    let em: World['emitters'][number] | undefined;
+    for (let i = 0; i < ticks(6) && !em; i++) {
+      step(w, NO_INPUT);
+      boss.muteIn = 99;
+      em = w.emitters.find((e) => e.source === boss.id && e.arms && e.t < 0);
+    }
+    assert.ok(em, `${which}: sale el barrido`);
+    // The warning shows four arms, square to each other, with the toaster right between two.
+    assert.equal(em.arms!.length, 4);
+    const aim = em.aim;
+    const gaps = em.arms!.map((a) => Math.abs(Math.atan2(Math.sin(a - aim), Math.cos(a - aim))) * (180 / Math.PI)).sort((a, b) => a - b);
+    assert.ok(Math.abs(gaps[0]! - 45) < 1 && Math.abs(gaps[1]! - 45) < 1, `brazos a 45° de la tostadora (${gaps.map(Math.round)})`);
+    // Then lines of coils that turn: the last ones out have gone round some 85° from the first.
+    const warn = -em.t;
+    const cords = new Set<number>();
+    for (let i = 0; i < ticks(warn + 3); i++) {
+      step(w, NO_INPUT);
+      for (const b of w.bullets) if (b.color === 'cord') cords.add(b.id);
+    }
+    // (Out of 120: the ones born inside a wall, with her against it, are lost; here, about half.)
+    assert.ok(cords.size >= 60, `${which}: ${cords.size} rizos de cable`);
+    const sweep = PATTERNS[which]!;
+    assert.equal(sweep.kind, 'spiral');
+    if (sweep.kind === 'spiral') assert.ok(Math.abs(sweep.stepDeg * (sweep.steps - 1)) >= 80, 'giran casi un cuarto de vuelta');
+  }
+});
+
+test('fase 3: a ratos se queda muda: quieta, sin atacar, en blanco y con más daño', () => {
+  const { w, boss } = fight('muda');
+  boss.damageTaken = Math.ceil(def.hp * 0.8);
+  const mute = brain.phases[2]!.mute!;
+  let muted = 0;
+  let at = { x: 0, y: 0 };
+  let emitters = 0;
+  for (let i = 0; i < ticks(20); i++) {
+    step(w, NO_INPUT);
+    for (const e of w.events) {
+      if (e.type !== 'mute') continue;
+      muted++;
+      assert.equal(e.time, mute.time);
+      assert.equal(boss.state, 'stun');
+      at = { x: boss.x, y: boss.y };
+      emitters = w.emitters.filter((em) => em.source === boss.id && em.t < 0).length;
+      assert.equal(takenScale(boss), mute.taken, 'le duele más');
+      // Her lights blank.
+      assert.equal(CENTRALITA_FRAMES[enemyFrame(boss, 0)], 'muda');
+    }
+    if (boss.state === 'stun') {
+      assert.ok(Math.hypot(boss.x - at.x, boss.y - at.y) < 0.5, 'quieta');
+      assert.ok(w.emitters.filter((em) => em.source === boss.id && em.t < 0).length <= emitters, 'sin atacar');
+    }
+    assert.deepEqual(checkInvariants(w), []);
+  }
+  assert.ok(muted >= 2, `${muted} silencios en 20 s`);
+  assert.equal(takenScale(boss) === mute.taken, boss.state === 'stun');
+  // Without her plugs: her own frames.
+  if (boss.state !== 'stun') assert.match(CENTRALITA_FRAMES[enemyFrame(boss, 0)]!, /^sin-clavijas/);
+});
+
+test('fase 3: con el bot, la pelea entera se acaba, y a veces la gana', () => {
+  let wins = 0;
+  for (let k = 0; k < 6; k++) {
+    const { w, boss } = fight(`fase3-bot-${k}`, true);
+    boss.damageTaken = Math.ceil(def.hp * 0.75);
+    const bot = new Bot(`fase3-bot-${k}`);
+    for (let i = 0; i < ticks(120) && !w.over && w.enemies.some((e) => e.def.id === 'centralita'); i++) {
+      step(w, bot.think(w));
+      if (i % 30 === 0) assert.deepEqual(checkInvariants(w), []);
+    }
+    if (!w.enemies.some((e) => e.def.id === 'centralita')) wins++;
+  }
+  assert.ok(wins >= 1, `gana ${wins} de 6`);
 });

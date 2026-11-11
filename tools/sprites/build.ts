@@ -104,6 +104,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // Floor 5's boss (M11 5a): centralita.ts CENTRALITA_FRAMES names each frame.
     centralita: { canvas: strip(CT.makeCentralitaFrames()), frameW: CT.CENTRALITA_W, frameH: CT.CENTRALITA_H },
     'bala-clavija': one(CT.makePlugBullet()),
+    // Phase 3's cords swept round: a coil of curly cord, two frames a quarter-turn apart (M11 5c).
+    'bala-cable': { canvas: strip(CT.makeCordCoils()), frameW: 10, frameH: 10 },
     // The hold music: 0 a quaver, 1 two beamed notes.
     'nota-espera': { canvas: strip(CT.makeHoldNotes()), frameW: 9, frameH: 10 },
     // Her room's low counters: one frame per department (CT.DEPARTMENTS), and the vertical one.

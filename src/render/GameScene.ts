@@ -41,6 +41,7 @@ import {
   HOLD_LINE,
   DEPARTMENT_NAMES,
   DEPT_MARK_LINE,
+  MUTE_LINE,
   deptTransferLine,
   MENU_INTRO_LINES,
   menuOptionLine,
@@ -2386,6 +2387,13 @@ export class GameScene extends Phaser.Scene {
             }
           }
           break;
+        case 'mute': {
+          // Gone quiet: the busy tone, three times over the second, and it written over her.
+          for (let i = 0; i < 3; i++) this.time.delayedCall(i * 330, () => this.sound2.play('comunicando'));
+          const boss = this.world.enemies.find((en) => en.id === e.boss);
+          if (boss) this.floatText(boss.x, boss.y - 80, fontText(MUTE_LINE), 0xb4b0c4, `menu:${boss.id}`, -6, e.time);
+          break;
+        }
         case 'deptMark': {
           // The bell: two rings, and she says it.
           this.sound2.play('timbre', { detune: 150 });
@@ -2773,6 +2781,8 @@ export class GameScene extends Phaser.Scene {
           this.sound2.play('aviso', { detune: e.color === 'red' ? 0 : e.color === 'cyan' ? 300 : -250 });
           // The fridge's dispenser rattles as it loads the cubes.
           if (e.color === 'ice') this.sound2.play('cubitos', { detune: this.fx.range(-150, 150) });
+          // The Centralita's cords: they whip round as the warning ends.
+          if (e.color === 'cord') this.time.delayedCall(e.time * 1000, () => this.sound2.play('latigo', { detune: this.fx.range(-200, 200) }));
           break;
         case 'frostThrow':
           this.sound2.play('lanzar', { detune: this.fx.range(-200, 200) });
@@ -2863,7 +2873,10 @@ export class GameScene extends Phaser.Scene {
             // The Director announces it calmly (the clap is its own event): just the line. The
             // Centralita too, after a ring: a recording does not raise its voice.
             if (boss.def.id === 'centralita') this.sound2.play('timbre');
-            this.floatText(boss.x, boss.y + 16, fontText(e.line), 0xf4f1e8, `line:${boss.id}`, -6, 2.6);
+            // Under its feet, unless that is where the phase card comes up: then over its head.
+            const v = this.cameras.main.worldView;
+            const low = boss.y + 16 - v.y > v.height * 0.7;
+            this.floatText(boss.x, low ? boss.y + boss.def.hurt.y - 14 : boss.y + 16, fontText(e.line), 0xf4f1e8, `line:${boss.id}`, -6, 2.6);
           } else if (e.line && boss) {
             // A sale: the pricing gun clacks a new tag on its box, a shower of price-tag confetti,
             // and the advert line, shouted.
@@ -3742,7 +3755,8 @@ export class GameScene extends Phaser.Scene {
       // A boss on its catwalk keeps its pose (a slight lean, chin up); the rest lean into the charge.
       else if (en.state === 'charge') rot = (en.def.boss ? 0.05 : 0.18) * en.facing;
       else if (en.state === 'brake') rot = -0.12 * en.facing * (1 - en.t / en.until);
-      else if (en.state === 'stun') rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
+      // (A boss gone quiet, BossPhase.mute, stands stock-still instead.)
+      else if (en.state === 'stun' && !en.def.boss) rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
       s.setRotation(rot);
       // The remote switches off like an old TV (squashed to a line, then to a dot) and back on.
       const tv = tvScale(en, v.onAt === undefined ? 1 : (this.time.now - v.onAt) / 1000);
@@ -3892,6 +3906,8 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'note') s.setFrame(b.id % 2);
       // The Centralita's plugs point where they fly.
       if (b.color === 'plug') s.setRotation(Math.atan2(b.vy, b.vx));
+      // Her cords, swept round in phase 3: each coil twists as it flies.
+      if (b.color === 'cord') s.setFrame(Math.floor(this.time.now / 110 + b.id) % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -4484,7 +4500,7 @@ export class GameScene extends Phaser.Scene {
     for (const wn of activeWarnings(this.world)) {
       const k = wn.k;
       // A photocopier's scan is the green of its light, not a threat colour.
-      const col = wn.scan !== undefined ? 0xb8f07a : wn.color === 'red' ? 0xe0453b : 0x69dbd8;
+      const col = wn.scan !== undefined ? 0xb8f07a : wn.color === 'red' || wn.color === 'cord' ? 0xe0453b : 0x69dbd8;
       if (wn.scan !== undefined) {
         this.scanned.add(wn.scan);
         // Corner brackets round whoever is being copied, closing in over the scan.
@@ -4517,6 +4533,20 @@ export class GameScene extends Phaser.Scene {
         const r = Math.round(4 + 16 * (1 - k));
         pixelRing(g, x, y, r + 1, 0x0e0c16);
         pixelRing(g, x, y, r, col);
+      }
+      // A sweep (the Centralita's cords): long dotted lines where its arms start, growing over the
+      // warning, so the gap to stand in can be read before the first coil is out.
+      if (wn.arms) {
+        const len = 40 + 150 * k;
+        const off = (this.time.now / 60) % 6;
+        for (const ang of wn.arms) {
+          for (let d = 14 + off; d < 14 + len; d += 6) {
+            const px = Math.round(x + Math.cos(ang) * d);
+            const py = Math.round(y + Math.sin(ang) * d);
+            g.fillStyle(0x0e0c16, 1).fillRect(px - 1, py - 1, 3, 3);
+            g.fillStyle(col, 1).fillRect(px, py, 1, 1);
+          }
+        }
       }
       // Aimed attacks: dots show where they will go (a charge shows its whole path).
       if (wn.aimed) {
@@ -4974,7 +5004,7 @@ const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
   bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
-  call: 'bala-llamada', note: 'nota-espera', plug: 'bala-clavija',
+  call: 'bala-llamada', note: 'nota-espera', plug: 'bala-clavija', cord: 'bala-cable',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

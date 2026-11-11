@@ -24,7 +24,7 @@ import type { Rng } from './rng.ts';
  */
 export type BulletColor =
   | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help'
-  | 'call' | 'note' | 'plug';
+  | 'call' | 'note' | 'plug' | 'cord';
 
 /**
  * «Escribiendo…»: at `at` s it stops in mid-air for `wait` s, then sets off again (at its speed)
@@ -98,6 +98,13 @@ export interface SpiralDef extends Common {
    * `widthDeg` / 2 of the aim turned by each of `atDeg` and by the turn so far.
    */
   gaps?: { widthDeg: number; atDeg: number[] };
+  /** Its arms start from the aim (turned `offsetDeg`) instead of from straight right. */
+  aimed?: boolean;
+  /**
+   * Its warning shows where the arms start, as long dotted lines (Emitter.arms): the Centralita's
+   * cords sweeping the room, M11 (5c).
+   */
+  preview?: boolean;
 }
 
 /** `count` aimed shots one every `interval` s, each with up to `jitterDeg` of random spread. */
@@ -175,7 +182,7 @@ export function expandPattern(def: PatternDef, aim: number, rng: Rng): ShotSpec[
       break;
     }
     case 'spiral': {
-      const base = (def.gaps ? aim : 0) + (def.offsetDeg ?? 0) * DEG;
+      const base = (def.gaps || def.aimed ? aim : 0) + (def.offsetDeg ?? 0) * DEG;
       for (let s = 0; s < def.steps; s++) {
         const turn = s * def.stepDeg * DEG;
         for (let a = 0; a < def.arms; a++) {

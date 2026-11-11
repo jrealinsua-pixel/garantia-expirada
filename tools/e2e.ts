@@ -1325,7 +1325,37 @@ try {
   await shot('51j-centralita-transferida.png');
   const putTo = await page.evaluate<{ x: number; y: number }>('(() => { const p = window.__GE__.scene.world.player; return { x: p.x, y: p.y }; })()');
   if (Math.hypot(putTo.x - putFrom.x, putTo.y - putFrom.y) < 40) throw new Error('La Centralita no pasa a la tostadora a otro departamento');
-  console.log('La Centralita: cartel, menú de voz (zonas, la buena y la lluvia), clavijas, música de espera, el mostrador bajo rodando y la transferencia de departamento.');
+  // M11 (5c): «Se ha cortado la llamada». She tears her plugs out (they fly off all round), sweeps
+  // the room with four arms of cord (shown first as dotted lines) and goes quiet now and then.
+  await page.evaluate(`(() => { const b = ${centralitaJs}; b.damageTaken = Math.ceil(b.def.hp * 0.78); })()`);
+  await page.waitForFunction(`${centralitaJs}.bossPhase === 2`, undefined, { timeout: 3000 });
+  await page.waitForFunction(
+    `window.__GE__.scene.world.bullets.filter((b) => b.color === 'plug' && b.age > 0.15).length >= 12`,
+    undefined,
+    { timeout: 4000 },
+  );
+  await shot('51k-centralita-arranca-clavijas.png');
+  await page.evaluate(`${centralitaJs}.muteIn = 99`);
+  await page.waitForFunction(
+    `window.__GE__.scene.world.emitters.some((e) => e.source === ${centralitaJs}.id && e.arms && e.t < 0 && e.t > -0.35)`,
+    undefined,
+    { timeout: 15000 },
+  );
+  await shot('51l-centralita-aviso-cables.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'cord' && v.contains(b.x, b.y)).length >= 50; })()`,
+    undefined,
+    { timeout: 6000 },
+  );
+  await shot('51m-centralita-cables.png');
+  await page.evaluate(`${centralitaJs}.muteIn = 0`);
+  await page.waitForFunction(`${centralitaJs}.state === 'stun' && ${centralitaJs}.t > 0.25`, undefined, { timeout: 8000 });
+  await shot('51n-centralita-muda.png');
+  console.log(
+    'La Centralita: cartel, menú de voz (zonas, la buena y la lluvia), clavijas, música de espera, el mostrador bajo rodando, ' +
+      'la transferencia de departamento, y la llamada cortada (las clavijas arrancadas, los cables que barren y muda).',
+  );
 
   // A whole floor (the default page): walk out of the entrance through a door and into the next room.
   await page.goto(`${url}?semilla=e2e-planta`);

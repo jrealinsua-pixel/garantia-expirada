@@ -108,6 +108,9 @@ export const menuOptionLine = (n: number, k: number): string =>
   ][k % 6]!;
 /** The bell before she puts you through, and where you end up (`dept` 1-4). */
 export const DEPT_MARK_LINE = 'Un momento, le transfiero';
+
+/** Over the Centralita while she is quiet (BossPhase.mute, M11 (5c)): the busy tone, written down. */
+export const MUTE_LINE = 'Pi. Pi. Pi.';
 export const deptTransferLine = (dept: number): string => `Departamento de ${DEPARTMENT_NAMES[dept - 1] ?? 'Otros'}. Espere.`;
 
 /** Over a remote-control car when its batteries give out. */

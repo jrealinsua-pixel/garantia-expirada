@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-11T21:47:00+01:00",
+  "actualizado": "2026-11-11T22:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M11",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 88,
-    "tests": 740,
-    "tests_ok": 740,
+    "tests": 747,
+    "tests_ok": 747,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 27017
+    "lineas_codigo": 27170
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-11T22:30:00+01:00",
+      "hito": "M11",
+      "resumen": "M11 (5c): la fase 3 de la Centralita, «Se ha cortado la llamada». Desde el 25 % de vida grita «Le atenderemos lo antes posible. No.», se arranca las clavijas (salen volando en dos anillos) y barre la sala con cuatro brazos de cable que giran, avisados antes con líneas de puntos. Corre más que nunca y cada 5 o 6 s se queda muda un segundo: quieta, sin atacar y recibiendo más daño. La jefa de la planta 5 está terminada.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-11T21:47:00+01:00",
       "hito": "M11",
@@ -1088,31 +1094,31 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/centralita-menu.png",
-      "pie": "La Centralita, fase 1: «Para darse de baja, pulse 1». La zona buena brilla y las otras dos se ponen rojas y parpadean cada vez más deprisa"
+      "archivo": "capturas/centralita-aviso-cables.png",
+      "pie": "Fase 3, «Se ha cortado la llamada»: se ha arrancado las clavijas (salen volando) y cuatro líneas de puntos avisan de dónde salen los brazos de cable, con la tostadora entre dos"
     },
     {
-      "archivo": "capturas/centralita-lluvia.png",
-      "pie": "1,5 s después llueven balas en las dos zonas que no eran; la tostadora se había quedado en la del medio"
+      "archivo": "capturas/centralita-cables.png",
+      "pie": "Los cables barren la sala: cuatro brazos de rizos que giran; hay que andar con el hueco o rodar a través de un brazo"
+    },
+    {
+      "archivo": "capturas/centralita-muda.png",
+      "pie": "A ratos se queda muda: los pilotos en blanco, «Pi. Pi. Pi.», quieta y sin atacar durante un segundo, y le duele un 50 % más"
+    },
+    {
+      "archivo": "capturas/centralita-menu.png",
+      "pie": "La Centralita, fase 1: «Para darse de baja, pulse 1». La zona buena brilla y las otras dos se ponen rojas y parpadean cada vez más deprisa"
     },
     {
       "archivo": "capturas/centralita-departamento.png",
       "pie": "Fase 2, «Le paso con el departamento»: el timbre, el círculo sobre la tostadora y, a los 0,8 s, a Reclamaciones, donde la espera un abanico de clavijas desde la esquina"
     },
     {
-      "archivo": "capturas/centralita-mostrador.png",
-      "pie": "Los mostradores bajos de su sala paran las balas y no se cruzan andando, pero sí rodando: la tostadora por encima del de Reclamaciones"
-    },
-    {
-      "archivo": "capturas/telefono-pasa.png",
-      "pie": "«Le paso con un compañero»: el Teléfono de Recepción, pasada la mitad de su vida, une con una línea de puntos al Asistente Virtual del otro lado de la sala; a los 0,8 s se cambian de sitio"
-    },
-    {
       "archivo": "capturas/partida-ganada.png",
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M11 (5c): la fase 3 de la Centralita («Se ha cortado la llamada»: los cables que barren y muda a ratos); luego la medida (7).",
+  "proximo": "M11 (7): medir la planta 5 entera con `npm run plantas` (y las salas sueltas con el bot que caza, `hunt`), y ajustar: salas algo más duras que las de las Oficinas, la 3 sigue siendo el muro y el bot completa la partida alguna vez.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-05",
@@ -1138,11 +1144,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-11 21:55",
-      "tarea": "M11 (5c): fase 3 de la Centralita",
-      "desde": "2026-11-11T21:55:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

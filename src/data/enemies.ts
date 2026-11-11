@@ -1030,7 +1030,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     loot: { coupons: [9, 12], hearts: 1 },
     // tools/sprites/centralita.ts CENTRALITA_FRAMES: 0-1 resting, 2-5 dragging herself with the
     // cords, 6-7 talking, 8 throwing a plug; 9-13 phase 3 (M11 5c).
-    anim: { idle: [0, 1], idleMs: 620, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, talk: [6, 7], talkMs: 170 },
+    anim: { idle: [0, 1], idleMs: 620, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, talk: [6, 7], talkMs: 170, stun: 13 },
     brain: {
       kind: 'boss',
       // She drags herself: short legs, now slow, now a heave.
@@ -1078,6 +1078,27 @@ export const ENEMIES: Record<string, EnemyDef> = {
             { kind: 'menu', zones: 3, wait: 1.4, drops: 8, pattern: 'centralita-lluvia', far: 0.45, telegraph: 0.6, weight: 2 },
             { kind: 'pattern', pattern: 'centralita-clavijas-2', telegraph: 0.55, weight: 2.5, pose: 8 },
             { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.55, weight: 1.5 },
+          ],
+        },
+        {
+          // «Se ha cortado la llamada» (from 25 %, M11 (5c)): she tears her plugs out (they fly off
+          // all round), swings her cords round as four arms of bullets that turn slowly (shown
+          // beforehand), drags herself about faster than ever and, every so often, goes quiet for a
+          // second (her lights blank): standing still and taking half as much again, the moment
+          // to hit her. No more menus or transfers: there is no one left on the line.
+          name: 'Se ha cortado la llamada',
+          from: 0.25,
+          walkSpeed: 62,
+          keep: 120,
+          rest: [0.5, 0.8],
+          line: 'Le atenderemos lo antes posible. No.',
+          opening: 'centralita-arranque',
+          mute: { every: [4.5, 6.5], time: 1, taken: 1.5 },
+          look: { idle: [9, 10], walk: [11, 12], warn: 10 },
+          attacks: [
+            { kind: 'pattern', pattern: 'centralita-cables', telegraph: 0.8, weight: 2.5 },
+            { kind: 'pattern', pattern: 'centralita-cables-2', telegraph: 0.8, weight: 2.5 },
+            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.5, weight: 1 },
           ],
         },
       ],

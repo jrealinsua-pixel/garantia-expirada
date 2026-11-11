@@ -216,4 +216,9 @@ export const SFX: Record<string, SfxParams> = {
   pulsar: { wave: 'square', freq: 1209, freqEnd: 1209, attack: 0.002, sustain: 0.09, decay: 0.04, volume: 0.1, duty: 0.5, lowpass: 0.5 },
   // The rain on the wrong zones: static on the line, all at once.
   chaparron: { wave: 'noise', freq: 2200, freqEnd: 500, attack: 0.004, sustain: 0.22, decay: 0.25, volume: 0.22, lowpass: 0.55, crush: 3 },
+  // Phase 3 (M11 5c): the line gone dead, the busy tone (425 Hz, played three times while she is
+  // quiet)...
+  comunicando: { wave: 'square', freq: 425, freqEnd: 425, attack: 0.004, sustain: 0.16, decay: 0.03, volume: 0.1, duty: 0.5, lowpass: 0.35 },
+  // ...and the cords whipping round: a low swish.
+  latigo: { wave: 'noise', freq: 300, freqEnd: 1300, attack: 0.03, sustain: 0.18, decay: 0.2, volume: 0.15, lowpass: 0.4, vibrato: 0.1, vibratoSpeed: 14 },
 };

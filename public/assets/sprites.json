@@ -227,6 +227,12 @@
     "frameH": 6,
     "frames": 1
   },
+  "bala-cable": {
+    "file": "bala-cable.png",
+    "frameW": 10,
+    "frameH": 10,
+    "frames": 2
+  },
   "nota-espera": {
     "file": "nota-espera.png",
     "frameW": 9,

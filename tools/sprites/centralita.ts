@@ -497,6 +497,36 @@ export function makePlugBullet(): Canvas {
 }
 
 /**
+ * A coil of her cord, swung round in phase 3 (M11 (5c)): the cords sweep the room as lines of
+ * bullets, each one a loop of curly telephone cord (red, white core) that turns as it flies. Two
+ * frames, the loop seen a quarter-turn apart, so a line of them reads as a twisting cable. 10x10
+ * (the 8x8 coil and room for its outline).
+ */
+export function makeCordCoils(): Canvas[] {
+  const frames: Canvas[] = [];
+  for (const turn of [0, 1]) {
+    const inner = new Canvas(10, 10);
+    const cv = { set: (x: number, y: number, c: RGBA): void => inner.set(x + 1, y + 1, c) };
+    // The loop: a ring of the cord, thicker where it faces us.
+    const ring: Array<[number, number]> = turn
+      ? [[2, 1], [3, 1], [4, 1], [5, 2], [6, 3], [6, 4], [5, 5], [4, 6], [3, 6], [2, 5], [1, 4], [1, 3]]
+      : [[3, 1], [4, 1], [5, 1], [6, 2], [6, 3], [6, 4], [5, 5], [4, 6], [3, 6], [2, 6], [1, 5], [1, 4], [1, 3], [2, 2]];
+    for (const [x, y] of ring) cv.set(x, y, CORD_RED[1]!);
+    // Lit on the upper side, in shadow underneath.
+    for (const [x, y] of ring) if (y <= 2) cv.set(x, y, CORD_RED[0]!);
+    for (const [x, y] of ring) if (y >= 6) cv.set(x, y, CORD_RED[2]!);
+    // The white core enemy bullets have, where the loop catches the light.
+    cv.set(turn ? 3 : 4, 2, WHITE);
+    cv.set(2, 3, WHITE);
+    // The twist that carries on to the next coil.
+    cv.set(turn ? 6 : 7, turn ? 5 : 4, CORD_RED[2]!);
+    cv.set(0, turn ? 2 : 3, CORD_RED[1]!);
+    frames.push(outline(inner));
+  }
+  return frames;
+}
+
+/**
  * The hold music: notes that wave their way across the room. Cyan with a white core. Frame 0 a
  * quaver, frame 1 two beamed semiquavers (the same tune, forever). 9x10.
  */

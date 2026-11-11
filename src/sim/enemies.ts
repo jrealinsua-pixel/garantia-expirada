@@ -1372,6 +1372,13 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       enter(en, 'roar', next.reboot?.time ?? BOSS_PHASE_BREAK);
       if (next.shed) shedShell(w, en, next.shed.prop);
       if (next.summon) summonHelpers(w, en, next.summon);
+      // Tearing the plugs out: they fly off all round as the break ends.
+      if (next.opening) {
+        const def = PATTERNS[next.opening];
+        if (!def) throw new Error(`Unknown pattern ${next.opening}`);
+        const mh = muzzleHeight(w, en, b.muzzle.y);
+        firePattern(w, def, en.x, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - en.x), { telegraph: BOSS_PHASE_BREAK, source: en.id, by: en.def.id, height: mh });
+      }
       // «Reestructuración»: the clap of the phase change moves the partitions at once.
       if (next.restructure && restructureRoom(w, next.restructure.prop, next.restructure.warn, next.restructure.time) > 0) {
         w.events.push({ type: 'clap', boss: en.id, x: en.x, y: en.y });
@@ -1387,6 +1394,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       en.deptT = next.transfer.every - next.transfer.first;
       en.deptCount = 0;
     }
+    if (next.mute) en.muteIn = w.rng.range(next.mute.every[0], next.mute.every[1]);
     if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
   }
   const phase = b.phases[en.bossPhase]!;
@@ -1411,6 +1419,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       }
     }
   }
+  // The silence comes round (BossPhase.mute): counted all the time, it falls between attacks.
+  if (phase.mute && en.muteIn !== undefined && en.state !== 'roar' && en.state !== 'stun') en.muteIn -= DT;
   // The voice menu goes on by itself once it is out: the rain falls when it is due.
   if (en.menu) updateMenu(w, en, phase);
   // «Le paso con el departamento»: the bell every so often, and off the toaster goes.
@@ -1426,6 +1436,16 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       // Never still between attacks: from spot to spot round the player, now strolling, now
       // lurching, and quicker the less life it has.
       ({ x: walkX, y: walkY } = bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep));
+      // Gone quiet: its lights blank, it stops dead and takes more (BossPhase.mute). Only between
+      // attacks, so a sweep is never cut short and the silence is never under a hail of bullets.
+      if (phase.mute && en.muteIn !== undefined && en.muteIn <= 0 && !w.over) {
+        en.muteIn = w.rng.range(phase.mute.every[0], phase.mute.every[1]);
+        w.events.push({ type: 'mute', boss: en.id, x: en.x, y: en.y, time: phase.mute.time });
+        enter(en, 'stun', phase.mute.time);
+        walkX = 0;
+        walkY = 0;
+        break;
+      }
       if (en.t * rage >= en.until && !w.over) {
         const i = pickAttack(w, phase.attacks, en.attack);
         en.attack = i;
@@ -1621,6 +1641,12 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       break;
     case 'roar':
       if (en.t >= en.until) enter(en, 'idle', 0.5);
+      break;
+    case 'stun':
+      // Quiet (BossPhase.mute): stock-still, then a short breath before it picks up again.
+      en.vx = 0;
+      en.vy = 0;
+      if (en.t >= en.until) enter(en, 'idle', 0.35);
       break;
     default:
       // First tick after its entrance: a short breath, then the first attack.

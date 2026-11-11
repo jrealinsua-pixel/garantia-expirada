@@ -151,6 +151,20 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.6, pattern: { kind: 'ring', count: 14, speed: 54, aimed: true, offsetDeg: 12.9, wave: { amp: 8, freq: 1.3 }, life: 5.5, color: 'note' } },
     ],
   },
+  // Phase 3, «Se ha cortado la llamada» (M11 (5c)). The cords swung round: four arms of coils
+  // that turn slowly (45° in 2.6 s... and on: 90° in all), shown beforehand as dotted lines; they
+  // start aimed between the toaster and the next arm, so the gap it stands in comes round at it.
+  // Walk round with the gap, or roll through an arm.
+  'centralita-cables': { kind: 'spiral', arms: 4, steps: 30, stepDeg: 3.2, interval: 0.07, speed: 96, aimed: true, offsetDeg: 45, preview: true, life: 4, color: 'cord' },
+  'centralita-cables-2': { kind: 'spiral', arms: 4, steps: 30, stepDeg: -3.2, interval: 0.07, speed: 96, aimed: true, offsetDeg: 45, preview: true, life: 4, color: 'cord' },
+  // Tearing her plugs out as phase 3 starts: they fly off all round, two rings.
+  'centralita-arranque': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 14, speed: 104, aimed: true, offsetDeg: 12.9, color: 'plug' } },
+      { at: 0.2, pattern: { kind: 'ring', count: 14, speed: 82, aimed: true, color: 'plug' } },
+    ],
+  },
   // The voice menu's rain: what falls on each spot of a wrong zone, a short splash on the floor.
   'centralita-lluvia': { kind: 'ring', count: 4, speed: 42, life: 0.36, color: 'red' },
   // «Le paso con el departamento»: what waits in each one (1-4), from its far corner.

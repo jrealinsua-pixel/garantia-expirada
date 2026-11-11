@@ -443,7 +443,7 @@ aspecto). En partes, como M10:
   - [x] (5b) Fases 1 y 2 (el menú de voz, la música de espera, pasar a la tostadora de
     departamento), cartel y sonidos. (Su documento para el archivador también: el test de los
     documentos pide uno por jefe.)
-  - [ ] (5c) Fase 3 (los cables que barren, muda a ratos).
+  - [x] (5c) Fase 3 (los cables que barren, muda a ratos).
 - 10 objetos nuevos y 2 armas, en partes:
   - [x] (6a) Cinco de cifras o casi: Formulario en Línea, Tecla Almohadilla, Tiempo de Espera
     Estimado, Código Promocional Caducado y Cable de Teléfono Rizado.

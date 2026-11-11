@@ -713,8 +713,8 @@ if (import.meta.main) {
   if (c?.combates) {
     console.log(
       `${c.combates} combates contra la Centralita · gana el ${c.gana} % en ${c.segundos} s (${c.minimo}–${c.maximo} s) · ` +
-        `${c.heridas} heridas por combate (${c.heridasFase1} en la fase 1, ${c.heridasFase2} en la de los departamentos) · ` +
-        `llega a los departamentos el ${c.llegaFase2} %, a los ${c.segundoFase2} s`,
+        `${c.heridas} heridas por combate (${c.heridasFase1} en la fase 1, ${c.heridasFase2} en la de los departamentos, ${c.heridasFase3} con la llamada cortada) · ` +
+        `llega a los departamentos el ${c.llegaFase2} %, a los ${c.segundoFase2} s; se corta la llamada el ${c.llegaFase3} %, a los ${c.segundoFase3} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

@@ -311,6 +311,8 @@ export interface Emitter {
    * warning ends, a square of ink centred `STAMP_LIFT` px under (x, y), and whoever is under it is hurt.
    */
   stamp?: { w: number; h: number; life: number; max: number; damage: number };
+  /** The directions its arms start in (SpiralDef.preview), drawn as long dotted lines while it warns. */
+  arms?: number[];
 }
 
 /** Default warning for enemy attacks (s). Enough to react, short enough to stay tense. */
@@ -448,6 +450,8 @@ export interface Enemy {
   deptT?: number;
   deptCount?: number;
   deptMark?: { t: number; until: number };
+  /** Bosses that go quiet (BossPhase.mute): seconds of attacks left before the next silence. */
+  muteIn?: number;
   /**
    * Bosses: seconds left of the current leg of its walk, how fast (share of its speed), which way
    * round the player (1 or -1) and how far from it.
@@ -692,6 +696,8 @@ export type SimEvent =
   | { type: 'menuRain'; boss: number; zones: Array<{ x: number; y: number }> }
   /** The bell: a circle marks the toaster, about to be put through to another department. */
   | { type: 'deptMark'; boss: number; x: number; y: number }
+  /** A boss gone quiet for `time` s (BossPhase.mute): its lights blank, the moment to hit it. */
+  | { type: 'mute'; boss: number; x: number; y: number; time: number }
   /** Put through: the toaster went from (fromX, fromY) to (x, y), in department `dept` (1-4). */
   | { type: 'deptTransfer'; boss: number; fromX: number; fromY: number; x: number; y: number; dept: number }
   /** A boss breaks out of its shell (BossPhase.shed): the prop is left at (x, y) (bottom-centre). */
@@ -2835,6 +2841,8 @@ export function firePattern(w: World, def: PatternDef, x: number, y: number, aim
   if (opts.by !== undefined) e.by = opts.by;
   if (opts.mark) e.mark = opts.mark;
   if (opts.stamp) e.stamp = opts.stamp;
+  // A sweep shows where its arms start while it warns.
+  if (def.kind === 'spiral' && def.preview) e.arms = shots.filter((s) => s.delay === 0).map((s) => s.angle);
   w.emitters.push(e);
   if (telegraph > 0) {
     const ev: SimEvent = { type: 'telegraph', x, y, time: telegraph, aim, aimed: e.aimed, color: e.color };
@@ -2876,6 +2884,8 @@ export interface Warning {
   size?: { w: number; h: number };
   /** A photocopier scanning this enemy: the line is the green of its light, and the enemy glows. */
   scan?: number;
+  /** A sweep's arms (Emitter.arms): long dotted lines from (x, y) in these directions. */
+  arms?: number[];
 }
 
 export function activeWarnings(w: World): Warning[] {
@@ -2886,6 +2896,7 @@ export function activeWarnings(w: World): Warning[] {
     const wn: Warning = { x: e.x, y: e.y, k, aim: e.aim, aimed: e.aimed, color: e.color, bullets: true };
     if (e.source !== undefined) wn.source = e.source;
     if (e.mark) wn.mark = e.mark;
+    if (e.arms) wn.arms = e.arms;
     if (e.stamp) {
       wn.y += STAMP_LIFT;
       wn.size = { w: e.stamp.w, h: e.stamp.h };
@@ -3348,8 +3359,11 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
 /** How much of a hit an enemy takes: a run-down wind-up toy takes its `exposed` times. */
 export function takenScale(en: Enemy): number {
   const b = en.def.brain;
-  // A boss out of its box (BossPhase.taken).
-  if (b.kind === 'boss') return b.phases[en.bossPhase ?? 0]?.taken ?? 1;
+  // A boss out of its box (BossPhase.taken); one gone quiet (BossPhase.mute), more.
+  if (b.kind === 'boss') {
+    const ph = b.phases[en.bossPhase ?? 0];
+    return (ph?.taken ?? 1) * (ph?.mute && en.state === 'stun' ? ph.mute.taken : 1);
+  }
   return isRunDown(en) && b.kind === 'windup' ? b.exposed : 1;
 }
 
