@@ -1233,6 +1233,11 @@
       "sesion": "2026-11-12 09:27",
       "tarea": "M12 (6): medir la planta 6 entera con el bot y ajustar",
       "desde": "2026-11-12T09:27:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 10:25",
+      "tarea": "M13 (0): diseño de los cinco personajes y lista de tareas; luego M13 (1), la Batidora de Vaso",
+      "desde": "2026-11-12T10:25:00+01:00"
     }
   ]
 }
