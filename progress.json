@@ -1291,6 +1291,11 @@
       "sesion": "2026-11-12 17:55",
       "tarea": "M13 criterio: la captura con los cinco personajes juntos (solo tools/e2e.ts, un paso junto al del tablón, y tests/personajes.test.ts)",
       "desde": "2026-11-12T17:55:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 18:30",
+      "tarea": "M14 glosario (g1): el perfil cuenta las bajas de cada tipo de enemigo (src/sim/profile.ts, World.killsBy en src/sim/world.ts, recordRun/saveFloor en GameScene, tests/glosario.test.ts)",
+      "desde": "2026-11-12T18:30:00+01:00"
     }
   ]
 }
