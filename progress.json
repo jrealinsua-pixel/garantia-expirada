@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T08:50:00+01:00",
+  "actualizado": "2026-11-12T09:35:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -98,7 +98,7 @@
       "id": "M12",
       "nombre": "El Servicio Técnico (piso final secreto)",
       "estado": "en_curso",
-      "hechas": 4,
+      "hechas": 5,
       "total": 6
     },
     {
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 800,
-    "tests_ok": 800,
+    "tests": 807,
+    "tests_ok": 807,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 29541
+    "lineas_codigo": 30159
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T09:35:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (5): el final verdadero y los créditos. Al caer la Trituradora, la pantalla se va a negro y el taller se queda con la tostadora: la cinta, la limpieza, una resistencia nueva «de igual o menor calidad», una caja con ventana y la pegatina «Reacondicionado», y la estantería de la planta 1 a 49,99 €, precio de nuevo. «El producto era usted.» Luego los créditos con todo el reparto. Cada vez que se ve, la garantía de la caja es más corta, hasta «hasta el martes».",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T08:50:00+01:00",
       "hito": "M12",
@@ -1172,31 +1178,31 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/final-el-producto.png",
+      "pie": "M12 (5): el final verdadero. La tostadora, en su caja con ventana y la pegatina verde «Reacondicionado», en la estantería de la planta 1 con la etiqueta «49,99 € · PVP de nuevo». Arriba, la última frase"
+    },
+    {
+      "archivo": "capturas/final-estanteria.png",
+      "pie": "El plano general: el almacén de la planta 1, la estantería de palés llena de cajas reacondicionadas, el cartel rojo y la caja de la tostadora en el hueco del medio"
+    },
+    {
+      "archivo": "capturas/final-caja.png",
+      "pie": "Paso 4 · Embalaje: cerrada con cinta, la pegatina verde y el sello rojo «Garantía: 6 meses» (cada vez que se ve el final, la garantía encoge)"
+    },
+    {
+      "archivo": "capturas/final-resistencia.png",
+      "pie": "Paso 3 · Reparación: un guante de nitrilo saca por la ranura la resistencia vieja, quemada; la nueva será «de igual o menor calidad»"
+    },
+    {
       "archivo": "capturas/calidad-cajas.png",
-      "pie": "M12 (4c): fase 3 de la Trituradora, «Control de calidad». Las pilas de cajas ya cierran el fondo de la sala, hay etiquetas «APTO» pegadas en el suelo (frenan) y ella escupe tornillos desde su pared"
+      "pie": "M12 (4c): fase 3 de la Trituradora, «Control de calidad». Las pilas de cajas cierran el fondo de la sala y hay etiquetas «APTO» en el suelo que frenan"
     },
     {
       "archivo": "capturas/calidad-caen.png",
-      "pie": "Media columna de cajas marcada con franjas amarillas y negras a punto de caer; la Trituradora, con los pilotos en verde y su etiquetadora, ya apunta la siguiente tanda de «APTO»"
-    },
-    {
-      "archivo": "capturas/taller-carretilla.png",
-      "pie": "M12 (3c): la Carretilla Elevadora, propia del taller (en su mostaza, no gris), acaba de embestir a la tostadora en la Zona de Embalaje; a la izquierda, una webcam reacondicionada"
-    },
-    {
-      "archivo": "capturas/taller-cinta.png",
-      "pie": "M12 (3b3): la Cinta de Clasificación. Dos cintas cruzan la sala en sentidos contrarios; quieta encima, la tostadora va de viaje hacia los rodillos que acaban en la jaula de piezas"
-    },
-    {
-      "archivo": "capturas/despiece-piezas.png",
-      "pie": "M12 (4b): fase 2 de la Trituradora, «Despiece»: el suelo entero es una cinta que lleva hacia ella; sube y baja por su pared con los pilotos en rojo y escupe tornillos, muelles y teclas en abanicos"
-    },
-    {
-      "archivo": "capturas/despiece-cinta.png",
-      "pie": "Al bajar del 60 %: «Procedemos al despiece. No se mueva.» La cinta arranca y la Trituradora se va a la pared más lejana de la tostadora, con los rodillos de entrada a sus pies"
+      "pie": "Media columna de cajas marcada con franjas amarillas y negras a punto de caer; la Trituradora ya apunta la siguiente tanda de «APTO»"
     }
   ],
-  "proximo": "M12 (5): el final verdadero (la tostadora acaba en una caja «Reacondicionado. Como nuevo» en la estantería de la planta 1) y los créditos; luego (6), medir la planta 6 entera con el bot.",
+  "proximo": "M12 (6): medir la planta 6 entera con el bot y ajustar (con ella M12 queda terminado); luego M13, los cinco personajes jugables.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1223,11 +1229,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 08:30",
-      "tarea": "M12 (5): el final verdadero y los créditos",
-      "desde": "2026-11-12T08:30:00+01:00"
-    },
     {
       "sesion": "2026-11-12 09:27",
       "tarea": "M12 (6): medir la planta 6 entera con el bot y ajustar",
