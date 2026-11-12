@@ -1648,6 +1648,13 @@ try {
   const beltX1 = await page.evaluate<number>('window.__GE__.scene.world.player.x');
   if (Math.abs(beltX1 - beltX0) < 40) throw new Error(`La cinta no arrastra a la tostadora (${beltX0} → ${beltX1})`);
   await shot('17y-taller-cinta.png');
+  // M12 (3c): the workshop's own forklift, in its own colours next to a reconditioned (grey) webcam.
+  await page.goto(`${url}?semilla=e2e-carretilla-2&sala=zona-embalaje&planta=6`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'carretilla')"))) throw new Error('Sin carretilla en la Zona de Embalaje');
+  await page.waitForTimeout(1200);
+  await shot('17z-taller-carretilla.png');
   // M12 (4a): La Trituradora, the final boss, at the end of the workshop: her card, the scanner
   // beam over the toaster with the diagnosis, and the refurbished pattern that answers it.
   await page.goto(`${url}?semilla=e2e-trituradora&sala=jefe-taller&planta=6`);

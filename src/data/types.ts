@@ -1163,6 +1163,11 @@ export interface EnemyDef {
   name: string;
   description: string;
   hp: number;
+  /**
+   * The Servicio Técnico's own machines (M12 (3c)): drawn with their own colours on floor 6, not
+   * grey and stickered like the reconditioned enemies from the floors below.
+   */
+  workshop?: boolean;
   /** Texture key, and the point of the sprite that sits on the feet (px from its top-left). */
   sprite: string;
   anchor: { x: number; y: number };

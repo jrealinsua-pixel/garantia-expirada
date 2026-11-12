@@ -20,6 +20,7 @@ import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
+import * as TL from './taller.ts';
 import * as TR from './trituradora.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
@@ -64,6 +65,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'robot-cuerda': { canvas: strip(makeRobotFrames()), frameW: 27, frameH: 31 },
     // 0-1 idling, 2-3 driving, 4 revving to ram, 5 overturned, 6 batteries out.
     'coche-teledirigido': { canvas: strip(makeRcCarFrames()), frameW: 32, frameH: 22 },
+    // The workshop's own (M12 (3c)): taller.ts names the frames (FORK_FRAMES).
+    carretilla: { canvas: strip(TL.makeCarretillaFrames()), frameW: TL.FORK_W, frameH: TL.FORK_H },
     // 0-1 standing, 2-5 waddling, 6 lid up (about to throw); and the pieces it throws (4 kinds).
     'cubo-piezas': { canvas: strip(makeCuboFrames()), frameW: 27, frameH: 31 },
     pieza: { canvas: strip(makePiezas()), frameW: 10, frameH: 8 },

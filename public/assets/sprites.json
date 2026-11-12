@@ -77,6 +77,12 @@
     "frameH": 22,
     "frames": 7
   },
+  "carretilla": {
+    "file": "carretilla.png",
+    "frameW": 36,
+    "frameH": 37,
+    "frames": 8
+  },
   "cubo-piezas": {
     "file": "cubo-piezas.png",
     "frameW": 27,

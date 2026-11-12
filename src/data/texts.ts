@@ -166,6 +166,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   'director-rrhh': { bullet: 'Despido por carta certificada', contact: 'Atropellado por una silla ergonómica' },
   centralita: { bullet: 'Llamada finalizada por el sistema', contact: 'Arrollado por un cuadro de clavijas' },
   trituradora: { bullet: 'Diagnosticado sin solución', contact: 'Recogido para reacondicionar' },
+  carretilla: { contact: 'Ensartado por una carretilla fuera de servicio' },
   // The workshop's own belts (M12 (3b3)), into their rollers.
   cinta: { contact: 'Procesado en cadena sin cita previa' },
   'silla-director': { contact: 'Atropello por silla de dirección sin director' },

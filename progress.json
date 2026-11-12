@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T07:05:00+01:00",
+  "actualizado": "2026-11-12T07:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -98,7 +98,7 @@
       "id": "M12",
       "nombre": "El Servicio Técnico (piso final secreto)",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 6
     },
     {
@@ -125,18 +125,24 @@
   ],
   "metricas": {
     "personajes": 1,
-    "enemigos": 26,
+    "enemigos": 27,
     "jefes": 6,
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 790,
-    "tests_ok": 790,
+    "tests": 792,
+    "tests_ok": 792,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 29192
+    "lineas_codigo": 29235
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T07:50:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (3c): la Carretilla Elevadora, el enemigo propio del taller: amarillo mostaza y sin reacondicionar, avisa con la rotativa y las horquillas arriba, embiste y, contra la pared, se queda con las horquillas dobladas. Lleva la tarjeta de «Fuera de servicio» que nadie ha leído. Con ella, la planta 6 está terminada.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T07:05:00+01:00",
       "hito": "M12",
@@ -1160,6 +1166,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/taller-carretilla.png",
+      "pie": "M12 (3c): la Carretilla Elevadora, propia del taller (en su mostaza, no gris), acaba de embestir a la tostadora en la Zona de Embalaje; a la izquierda, una webcam reacondicionada"
+    },
+    {
       "archivo": "capturas/taller-cinta.png",
       "pie": "M12 (3b3): la Cinta de Clasificación. Dos cintas cruzan la sala en sentidos contrarios; quieta encima, la tostadora va de viaje hacia los rodillos que acaban en la jaula de piezas"
     },
@@ -1178,13 +1188,9 @@
     {
       "archivo": "capturas/trituradora-diagnostico.png",
       "pie": "M12 (4a): la Trituradora diagnostica: el láser rojo del escáner sobre la tostadora, los pilotos en ámbar y el veredicto, «Diagnóstico: le falta frío.» (y luego los cubitos de la Nevera, reacondicionados)"
-    },
-    {
-      "archivo": "capturas/servicio-montacargas.png",
-      "pie": "M12 (2): con la cita previa, la Centralita deja el montacargas del Servicio Técnico: borde verde y blanco, flecha hacia arriba y el cartel de la ventanilla detrás"
     }
   ],
-  "proximo": "M12 (3c): uno o dos enemigos propios del taller (brazo de montaje, carretilla); o la (4c), la fase 3 de la Trituradora, «Control de calidad».",
+  "proximo": "M12 (4c): la fase 3 de la Trituradora, «Control de calidad» (etiquetas de «APTO» que frenan y pilas de cajas que cierran la sala por trozos); luego (5), el final verdadero y los créditos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1211,11 +1217,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 07:10",
-      "tarea": "M12 (3c): la carretilla elevadora, enemigo propio del taller",
-      "desde": "2026-11-12T07:10:00+01:00"
-    },
     {
       "sesion": "2026-11-12 07:25",
       "tarea": "M12 (4c): la fase 3 de la Trituradora, «Control de calidad»",

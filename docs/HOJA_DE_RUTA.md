@@ -472,7 +472,7 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
   ven en el Mostrador: el cartel «Cita previa» en la pared, con su panel; el teléfono confirma la cita.
 - [x] (2) El acceso: con la cita, vencer a la Centralita apunta la victoria y abre el montacargas
   del Servicio Técnico; sin ella, la partida acaba en la planta 5 (test).
-- [ ] (3) La planta 6, el Taller de Reacondicionado: su generación (corta, casi en línea, sin
+- [x] (3) La planta 6, el Taller de Reacondicionado: su generación (corta, casi en línea, sin
   tienda ni tesoro), sus plantillas y su arte (azulejo de taller, cintas que arrastran).
   - [x] (3a) La planta y sus salas con enemigos reacondicionados de las cinco plantas.
   - [x] (3b) Las cintas transportadoras del suelo y el arte del taller (partida el 2026-11-12: el
@@ -490,7 +490,8 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
       plantillas con una letra y quizá en otras direcciones que no sean de lado.)
       Hecho el 2026-11-12: flechas `→`/`←` en las plantillas, solo de lado (el sprite de la cinta es
       de perfil); en la Línea de Desmontaje y en la sala nueva Cinta de Clasificación.
-  - [ ] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla).
+  - [x] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla). Hecho el
+    2026-11-12 con la Carretilla Elevadora; el brazo de montaje queda para M14 si hace falta.
 - [ ] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.
   - [x] (4a) Sprites, sala y fase 1, «Diagnóstico».
   - [x] (4b) Fase 2, «Despiece».

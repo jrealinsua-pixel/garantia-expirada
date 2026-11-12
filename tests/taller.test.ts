@@ -45,7 +45,8 @@ test('la planta 6: sus salas, nada regalado y los enemigos de las cinco plantas,
   assert.ok(templatesOf('combat', SERVICE_LEVEL).length >= 4);
   assert.equal(templatesOf('start', SERVICE_LEVEL)[0]!.id, 'recepcion-taller');
   // Everything the five floors have can turn up, and it takes more than on the fifth.
-  assert.equal(slotEnemiesOf(SERVICE_LEVEL), slotEnemiesOf(5));
+  for (const e of slotEnemiesOf(5)) assert.ok(slotEnemiesOf(SERVICE_LEVEL).includes(e), e.ch);
+  assert.ok(slotEnemiesOf(SERVICE_LEVEL).some((e) => e.ch === 'Í'), 'y la carretilla, propia del taller');
   assert.ok(FLOOR_TOUGHNESS[SERVICE_LEVEL]! > FLOOR_TOUGHNESS[5]!);
   const micro = ENEMIES.microondas!;
   assert.ok(toughened(micro, SERVICE_LEVEL).hp > toughened(micro, 5).hp);

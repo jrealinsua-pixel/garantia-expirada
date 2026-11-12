@@ -847,7 +847,7 @@ export class GameScene extends Phaser.Scene {
     const sheet = this.textures.get(en.def.sprite);
     // A photocopy is drawn from a grey, toner-streaked copy of its original's sheet.
     // In the Servicio Técnico (M12 (3a)) they are all reconditioned: grey shell and a green sticker.
-    const refurb = this.world.level >= SERVICE_LEVEL && !en.def.boss;
+    const refurb = this.world.level >= SERVICE_LEVEL && !en.def.boss && !en.def.workshop;
     const key = en.copyOf !== undefined ? this.photocopyOf(en.def.sprite) : refurb ? this.refurbishedOf(en.def.sprite) : en.def.sprite;
     const s = this.add.image(en.x, en.y, key, sheet.frameTotal > 2 ? 0 : undefined);
     s.setOrigin(en.def.anchor.x / s.width, en.def.anchor.y / s.height);

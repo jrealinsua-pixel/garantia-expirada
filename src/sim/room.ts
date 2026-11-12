@@ -176,6 +176,8 @@ const ENEMY_CHARS: Record<string, string> = {
   Ú: 'centralita',
   // Ü: La Trituradora, the final boss (M12 (4a)), in the Servicio Técnico's workshop.
   Ü: 'trituradora',
+  // Í: the forklift, the workshop's own (M12 (3c)).
+  Í: 'carretilla',
 };
 
 /**
