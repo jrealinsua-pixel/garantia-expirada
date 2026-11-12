@@ -107,6 +107,13 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-clavija': one(CT.makePlugBullet()),
     // The final boss (M12 (4a)): trituradora.ts TRITURADORA_FRAMES names each frame.
     trituradora: { canvas: strip(TR.makeTrituradoraFrames()), frameW: TR.TRITURADORA_W, frameH: TR.TRITURADORA_H },
+    // Its phase 2, «Despiece» (M12 (4b)): the parts it spits out (two frames each), the belt over the
+    // floor and the intake rollers at its end.
+    'bala-tornillo': { canvas: TR.makeScrewBullet(), frameW: 10, frameH: 10 },
+    'bala-muelle': { canvas: TR.makeSpringBullet(), frameW: 10, frameH: 10 },
+    'bala-tecla': { canvas: TR.makeKeyBullet(), frameW: 10, frameH: 10 },
+    'cinta-despiece': one(TR.makeBeltTile()),
+    'rodillos-despiece': { canvas: TR.makeIntakeTiles(), frameW: 16, frameH: 24 },
     // Phase 3's cords swept round: a coil of curly cord, two frames a quarter-turn apart (M11 5c).
     'bala-cable': { canvas: strip(CT.makeCordCoils()), frameW: 10, frameH: 10 },
     // The hold music: 0 a quaver, 1 two beamed notes.

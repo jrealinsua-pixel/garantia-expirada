@@ -28,6 +28,8 @@ const RUBBER = ramp('#5a5668', '#3a3646', '#28242e', '#18141e');
 /** The pilot lamps (its eyes): «En servicio» green; amber while it diagnoses. */
 export const LAMP_GREEN = ramp('#e8ffd8', '#8ef07a', '#4cb84a', '#2a7a34');
 export const LAMP_AMBER = ramp('#fff4c8', '#ffc24a', '#e08a24', '#9a5418');
+/** Red while it takes things apart (M12 (4b), «Despiece»). */
+export const LAMP_RED = ramp('#ffd0c0', '#ff6a50', '#d0302c', '#7a1a22');
 /** Blue nitrile gloves: hygiene first. */
 const GLOVE_B = ramp('#b8d4f4', '#6aa0dc', '#4672b0', '#2c4a80');
 
@@ -38,8 +40,8 @@ export interface TrituradoraLook {
   dip?: 0 | 1;
   /** Where the tread lugs are (0-3), and which way the blades in the hopper have turned. */
   tread?: number;
-  /** Lamps: on (green), dim (one of them blinking), scan (amber, diagnosing). */
-  lamps?: 'on' | 'blink' | 'scan';
+  /** Lamps: on (green), dim (one of them blinking), scan (amber, diagnosing), red (taking apart). */
+  lamps?: 'on' | 'blink' | 'scan' | 'red';
   /** Hands: hanging, swung (walking, two beats), or the scanner raised at the toaster. */
   hands?: 'rest' | 'swing0' | 'swing1' | 'scan';
 }
@@ -229,7 +231,7 @@ function cabinet(cv: Canvas, look: TrituradoraLook): void {
   // The visor: a steel brow across both lamps, lower over the inner corners (that is the look).
   const ey = y + th + 18;
   const lamps: Array<[number, number]> = [[fx + 17, ey], [fx + 41, ey]];
-  const L = look.lamps === 'scan' ? LAMP_AMBER : LAMP_GREEN;
+  const L = look.lamps === 'scan' ? LAMP_AMBER : look.lamps === 'red' ? LAMP_RED : LAMP_GREEN;
   lamps.forEach(([cx, cy], i) => lamp(cv, cx, cy, L, look.lamps === 'blink' && i === 1));
   for (const [cx, cy] of lamps) {
     for (let xx = -6; xx <= 6; xx++) {
@@ -267,6 +269,16 @@ function cabinet(cv: Canvas, look: TrituradoraLook): void {
   for (const [sx, len, c] of strips) {
     cv.rect(sx, my + 5, 1, len, c);
     cv.set(sx + 1, my + 5 + len - 1, c);
+  }
+  // Taking apart: the slot is full of what is about to come out (a red screw head, a white key, a coil of spring).
+  if (look.lamps === 'red') {
+    cv.rect(mx0 + 4, my + 2, 3, 3, RED[1]!);
+    cv.set(mx0 + 5, my + 3, WHITE);
+    cv.rect(mx0 + 14, my + 2, 4, 3, WHITE);
+    cv.set(mx0 + 15, my + 3, RED[1]!);
+    for (let k = 0; k < 4; k++) cv.set(mx0 + 25 + k * 2, my + 2 + (k % 2), RED[0]!);
+    for (let k = 0; k < 4; k++) cv.set(mx0 + 26 + k * 2, my + 3 - (k % 2), RED[2]!);
+    cv.rect(mx0 + 36, my + 3, 3, 2, STEEL[0]!);
   }
   // The hazard band on the plinth, under the front.
   hazard(cv, fx, y + h - 6, fw - 1, 4);
@@ -320,7 +332,7 @@ export function makeTrituradora(look: TrituradoraLook = {}): Canvas {
   all.blit(outline(top), 0, 0);
   all.blit(outline(frontLayer), 0, 0);
   // A wisp of toast smoke out of the hopper (it is still warm).
-  if (look.lamps !== 'scan') {
+  if (look.lamps !== 'scan' && look.lamps !== 'red') {
     const sx = 63 + (look.tread ?? 0) % 2;
     all.set(sx, 1, [150, 150, 165, 170]);
     all.set(sx + 1, 0, [120, 120, 138, 140]);
@@ -341,9 +353,10 @@ export function makeTrituradora(look: TrituradoraLook = {}): Canvas {
 /**
  * The frames of its sheet, by name: at rest (breathing, a lamp blinking, the blades turning),
  * rolling on its tracks (four, the hands swinging), and diagnosing (the scanner raised, lamps
- * amber). Phases 2 and 3 (M12 (4b), (4c)) will add theirs after these.
+ * amber), and taking apart (M12 (4b): the lamps red and the slot full of parts about to fly).
+ * Phase 3 (M12 (4c)) will add its own after these.
  */
-export const TRITURADORA_FRAMES = ['reposo0', 'reposo1', 'avanza0', 'avanza1', 'avanza2', 'avanza3', 'diagnostico'] as const;
+export const TRITURADORA_FRAMES = ['reposo0', 'reposo1', 'avanza0', 'avanza1', 'avanza2', 'avanza3', 'diagnostico', 'despiece'] as const;
 
 const LOOKS: Record<(typeof TRITURADORA_FRAMES)[number], TrituradoraLook> = {
   reposo0: {},
@@ -353,6 +366,7 @@ const LOOKS: Record<(typeof TRITURADORA_FRAMES)[number], TrituradoraLook> = {
   avanza2: { tread: 2, hands: 'swing1' },
   avanza3: { tread: 3, dip: 1, hands: 'swing1' },
   diagnostico: { lamps: 'scan', hands: 'scan', tread: 2 },
+  despiece: { lamps: 'red', hands: 'swing1', tread: 1, dip: 1 },
 };
 
 export function trituradoraLook(name: (typeof TRITURADORA_FRAMES)[number]): TrituradoraLook {
@@ -365,3 +379,121 @@ export function makeTrituradoraFrames(): Canvas[] {
 
 /** Where the scanner's window is in the «diagnostico» frame (px from the left and from the top): the beam starts there. */
 export const SCANNER_TIP = { x: 94, y: 37 } as const;
+
+/** Enemy-bullet grids: `r` red, `R` dark red, `l` light red, `w` white, `s`/`S`/`d` steel light, base, dark. */
+const PART_COLS: Record<string, RGBA> = { r: RED[1]!, R: RED[2]!, l: RED[0]!, w: WHITE, s: STEEL[0]!, S: STEEL[1]!, d: STEEL[2]! };
+
+function partFrames(frames: ReadonlyArray<readonly string[]>, size: number): Canvas {
+  const sheet = new Canvas(size * frames.length, size);
+  frames.forEach((rows, f) => {
+    const cv = new Canvas(size, size);
+    rows.forEach((row, j) => [...row].forEach((ch, i) => {
+      const c = PART_COLS[ch];
+      if (c) cv.set(i + 1, j + 1, c);
+    }));
+    sheet.blit(outline(cv), f * size, 0);
+  });
+  return sheet;
+}
+
+/**
+ * «Despiece» (M12 (4b)): a screw it has taken out, flying. 10x10, 2 frames a quarter-turn apart
+ * (it spins): the round red head with its white slot (the saturated rim and white core of every
+ * enemy bullet) and the steel shank with its thread.
+ */
+export function makeScrewBullet(): Canvas {
+  return partFrames(
+    [
+      ['.lll....', 'lrwrr...', 'lwwwr...', 'rrwRR...', '.rRRsd..', '....Sd..', '.....sd.', '......S.'],
+      ['....lll.', '...rrwrl', '...rwwwl', '...RRwrr', '..dsRRr.', '..dS....', '.ds.....', '.S......'],
+    ],
+    10,
+  );
+}
+
+/**
+ * A spring out of something (M12 (4b)): a red coil with white glints, squashed and stretched by
+ * turns as it boings along. 10x10, 2 frames.
+ */
+export function makeSpringBullet(): Canvas {
+  return partFrames(
+    [
+      ['........', 'lwwwwwl.', '..RRrr..', '.lrrrrrl', '..rRRR..', 'lrrrrrl.', '..RRrr..', '.lrwwrrl'],
+      ['lwwwwwl.', '...RRr..', '.lrrrrrl', '...rRR..', 'lrrrrrl.', '...RRr..', '.lrrrrrl', '...rR...'],
+    ],
+    10,
+  );
+}
+
+/**
+ * A key off an old keyboard (M12 (4b)): white keycap with a red rim and a red letter on it, tumbling
+ * (face on, then tipped over showing its stem). 10x10, 2 frames. The letter is an A: the first of
+ * «Avería», and of «Anulada».
+ */
+export function makeKeyBullet(): Canvas {
+  return partFrames(
+    [
+      ['rrrrrrr.', 'rwwwwwRr', 'rwwrwwRr', 'rwrwrwRr', 'rwrrrwRr', 'rwrwrwRr', 'rRRRRRRr', '.rrrrrr.'],
+      ['........', '.rrrrrr.', 'rwwwwwwr', 'rwwrrwwr', 'rRRRRRRr', '..rssr..', '...SS...', '........'],
+    ],
+    10,
+  );
+}
+
+/**
+ * The conveyor belt of «Despiece» (M12 (4b)): a 48x24 tile of a belt running right (the game
+ * flips it to run left and scrolls it). Black rubber slats with the joint between them, worn grey
+ * where the parts rub, and a faded yellow chevron every two tiles pointing the way it goes: dark, so
+ * the bullets over it still read.
+ */
+export function makeBeltTile(): Canvas {
+  const cv = new Canvas(BELT_TILE_W, 24);
+  const B = RUBBER;
+  cv.rect(0, 0, BELT_TILE_W, 24, B[2]!);
+  // Slats 6 px wide: a lit edge on the left, the joint (deep shadow) on the right.
+  for (let x = 0; x < BELT_TILE_W; x += 6) {
+    cv.rect(x, 0, 1, 24, B[1]!);
+    cv.rect(x + 5, 0, 1, 24, B[3]!);
+  }
+  // Worn patches along the slats.
+  for (const [x, y, h] of [[2, 3, 3], [8, 15, 4], [15, 7, 2], [20, 18, 3], [33, 5, 3], [40, 14, 2], [44, 20, 3]] as const) cv.rect(x, y, 2, h, B[1]!);
+  // One chevron every two tiles, faded yellow, pointing right.
+  const C: RGBA = [112, 100, 58, 255];
+  for (let k = 0; k < 5; k++) {
+    cv.rect(9 + k, 7 + k, 2, 1, C);
+    cv.rect(9 + k, 16 - k, 2, 1, C);
+  }
+  return cv;
+}
+
+/** Width of the belt's tile: two tiles of the room, one chevron. */
+export const BELT_TILE_W = 48;
+
+/**
+ * The intake rollers at the end of the belt (M12 (4b)): a 16x24 tile of a vertical column of
+ * toothed steel rollers going into the dark, with a hazard stripe along the outer edge. Two frames:
+ * the teeth half a step round (the game swaps them as the belt runs).
+ */
+export function makeIntakeTiles(): Canvas {
+  const sheet = new Canvas(32, 24);
+  for (const f of [0, 1]) {
+    const cv = new Canvas(16, 24);
+    cv.rect(0, 0, 16, 24, THROAT[3]!);
+    for (let y = 0; y < 24; y += 8) {
+      // A roller: steel, lit on top, its teeth sticking out on the belt side.
+      cv.rect(3, y + 1, 10, 6, STEEL[2]!);
+      cv.rect(3, y + 1, 10, 2, STEEL[1]!);
+      cv.rect(3, y + 1, 10, 1, STEEL[0]!);
+      cv.rect(3, y + 6, 10, 1, STEEL[3]!);
+      for (let k = 0; k < 3; k++) {
+        const ty = y + 1 + ((k * 2 + f) % 6);
+        cv.set(1, ty, STEEL[1]!);
+        cv.set(2, ty, STEEL[0]!);
+      }
+    }
+    // The hazard stripe along the far edge: yellow and black, diagonal.
+    for (let y = 0; y < 24; y++) cv.rect(14, y, 2, 1, ((y + f * 2) >> 2) % 2 === 0 ? YEL[1]! : K);
+    sheet.blit(cv, f * 16, 0);
+  }
+  return sheet;
+}

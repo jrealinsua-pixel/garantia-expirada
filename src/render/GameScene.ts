@@ -346,6 +346,8 @@ export class GameScene extends Phaser.Scene {
   private frostViews = new Map<number, { ball: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; patch: Phaser.GameObjects.Sprite | null }>();
   /** The squares of DENEGADO ink on the floor, by Ink id. */
   private inkViews = new Map<number, Phaser.GameObjects.Image>();
+  /** Conveyor belts on the floor (M12 (4b)): the scrolling belt and the intake rollers at its end. */
+  private beltViews = new Map<number, { belt: Phaser.GameObjects.TileSprite; rollers: Phaser.GameObjects.TileSprite | null }>();
   /** Ticket dispensers' turns on the floor, by the dispenser's id: the circle, its number and the countdown. */
   private turnViews = new Map<number, { circle: Phaser.GameObjects.Image; num: Phaser.GameObjects.BitmapText; state: string }>();
   /** Queue posts' tapes, by the id of the first post of the pair, and where their ends were last drawn (for the snap). */
@@ -561,6 +563,7 @@ export class GameScene extends Phaser.Scene {
     this.talkAt = null;
     this.frostViews = new Map();
     this.inkViews = new Map();
+    this.beltViews = new Map();
     this.turnViews = new Map();
     this.tapeViews = new Map();
     this.faqViews = new Map();
@@ -2555,6 +2558,23 @@ export class GameScene extends Phaser.Scene {
           if (boss) this.floatText(boss.x, boss.y + 16, fontText(e.line), 0xff8a70, `scan:${boss.id}`, -4, e.time + 0.6);
           break;
         }
+        case 'conveyor':
+          // «Despiece»: the belt starts up with a lurch and a clatter (or winds down when she falls).
+          if (e.on) {
+            this.shake(220, 0.006);
+            this.sound2.play('ascensor', { detune: -300 });
+            this.sound2.play('atasco', { detune: -400 });
+          } else this.sound2.play('ascensor', { detune: -900 });
+          break;
+        case 'bite': {
+          // Into the intake rollers: grinding, sparks and thrown back down the belt.
+          this.shake(160, 0.008, true);
+          this.sound2.play('triturar', { detune: -300 });
+          this.sound2.play('empujon');
+          const a = Math.atan2(e.dirY, e.dirX);
+          for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 8, a + this.fx.range(-1.1, 1.1), this.fx.range(50, 130), this.fx.int(0, 2));
+          break;
+        }
         case 'deptMark': {
           // The bell: two rings, and she says it.
           this.sound2.play('timbre', { detune: 150 });
@@ -4019,6 +4039,7 @@ export class GameScene extends Phaser.Scene {
     this.drawWind();
     this.drawFrost(dt);
     this.drawInk();
+    this.drawConveyors();
     this.drawTurns();
     this.drawMenus(dt);
     this.drawTapes(dt);
@@ -4083,6 +4104,10 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'plug') s.setRotation(Math.atan2(b.vy, b.vx));
       // Her cords, swept round in phase 3: each coil twists as it flies.
       if (b.color === 'cord') s.setFrame(Math.floor(this.time.now / 110 + b.id) % 2);
+      // What the Trituradora took apart (M12 (4b)): the screws spin, the springs boing, the keys tumble.
+      if (b.color === 'screw') s.setFrame(Math.floor(this.time.now / 60 + b.id) % 2);
+      if (b.color === 'spring') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
+      if (b.color === 'key') s.setFrame(Math.floor(this.time.now / 130 + b.id) % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -4270,6 +4295,42 @@ export class GameScene extends Phaser.Scene {
       if (alive.has(id)) continue;
       v.destroy();
       this.inkViews.delete(id);
+    }
+  }
+
+  /**
+   * Conveyor belts (src/sim/conveyors.ts): the belt over the floor, its slats running the way it
+   * goes, fading in as it starts; the column of intake rollers at its end, turning.
+   */
+  private drawConveyors(): void {
+    const alive = new Set<number>();
+    for (const c of this.world.conveyors) {
+      alive.add(c.id);
+      let v = this.beltViews.get(c.id);
+      if (!v) {
+        const belt = this.add.tileSprite(c.x, c.y, c.w, c.h, 'cinta-despiece').setOrigin(0, 0).setDepth(-95000).setFlipX(c.dirX < 0);
+        let rollers: Phaser.GameObjects.TileSprite | null = null;
+        if (c.bite > 0 && c.dirY === 0) {
+          const rx = c.dirX > 0 ? c.x + c.w - BELT_ROLLERS_W : c.x;
+          rollers = this.add.tileSprite(rx, c.y, BELT_ROLLERS_W, c.h, 'rodillos-despiece', 0).setOrigin(0, 0).setDepth(-94999).setFlipX(c.dirX < 0);
+        }
+        v = { belt, rollers };
+        this.beltViews.set(c.id, v);
+      }
+      // The slats move with the belt (the texture is drawn running right; flipped, the same scroll runs left).
+      v.belt.tilePositionX = -((c.t * c.speed) % 48);
+      v.belt.setAlpha(Math.min(1, c.t / 0.4));
+      if (v.rollers) {
+        v.rollers.setFrame(Math.floor(c.t * 10) % 2);
+        v.rollers.tilePositionY = -((c.t * 12) % 24);
+        v.rollers.setAlpha(Math.min(1, c.t / 0.4));
+      }
+    }
+    for (const [id, v] of this.beltViews) {
+      if (alive.has(id)) continue;
+      v.belt.destroy();
+      v.rollers?.destroy();
+      this.beltViews.delete(id);
     }
   }
 
@@ -5199,6 +5260,8 @@ export class GameScene extends Phaser.Scene {
 /** Enemy bullet sprites by colour: the boss's ice is a cube. */
 /** Depth of the glass partitions: on the floor with the walls they replace, over shadows, under anyone standing. */
 const PARTITION_DEPTH = -49000;
+/** Width of the intake rollers' sprite at the end of a belt (tools/sprites/trituradora.ts makeIntakeTiles). */
+const BELT_ROLLERS_W = 16;
 /** Radius the player's bullet sprite is drawn for (the hair dryer's). */
 const PLAYER_BULLET_R = 3;
 /** Tyre marks on the floor at once, at most (each is two dashes). */
@@ -5212,6 +5275,7 @@ const BULLET_TEXTURES: Record<BulletColor, string> = {
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
   bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
   call: 'bala-llamada', note: 'nota-espera', plug: 'bala-clavija', cord: 'bala-cable',
+  screw: 'bala-tornillo', spring: 'bala-muelle', key: 'bala-tecla',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

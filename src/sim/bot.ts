@@ -6,6 +6,7 @@ import { brickUnder, checkInvariants, inkUnder, inWind, createWorld, DT, FROST_F
 import { freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
 import { overlaps } from './vec.ts';
+import { conveyorAt } from './conveyors.ts';
 import { isWallAt, TILE } from './room.ts';
 import { blockedTiles, clearLine, doorGoal, nextDoor, steer, type Point } from './nav.ts';
 
@@ -152,6 +153,15 @@ export function dodge(w: World): Dodge {
     out.x += -en.dirY * side * 0.7;
     out.y += en.dirX * side * 0.7;
   }
+  // A conveyor belt's rollers (M12 (4b)): hard away from them (walking against the belt itself is
+  // in Bot.think, after everything else).
+  const belt = conveyorAt(w, p.x, p.y);
+  if (belt && belt.bite > 0) {
+    const toEnd = belt.dirX > 0 ? belt.x + belt.w - p.x : belt.dirX < 0 ? p.x - belt.x : belt.dirY > 0 ? belt.y + belt.h - p.y : p.y - belt.y;
+    const near = Math.max(0, 1 - (toEnd - belt.bite) / BELT_WARY);
+    out.x -= belt.dirX * near * 1.4;
+    out.y -= belt.dirY * near * 1.4;
+  }
   // A spiral with a hole that turns (the Director's line of cuts): into the hole and round with it.
   const hole = followHole(w);
   if (hole) {
@@ -183,6 +193,23 @@ export function dodge(w: World): Dodge {
   }
   return out;
 }
+
+/**
+ * On a conveyor belt the stick also pushes against it, so the toaster goes where it means to (as a
+ * player does without thinking): the belt's speed, in units of the toaster's, taken off the move.
+ */
+function beltCounter(w: World, mv: { x: number; y: number }): { x: number; y: number } {
+  const p = w.player;
+  const belt = conveyorAt(w, p.x, p.y);
+  if (!belt) return mv;
+  const x = mv.x - (belt.dirX * belt.speed) / p.def.speed;
+  const y = mv.y - (belt.dirY * belt.speed) / p.def.speed;
+  const l = Math.hypot(x, y);
+  return l > 1 ? { x: x / l, y: y / l } : { x, y };
+}
+
+/** px from a belt's rollers at which the bot starts to hurry away from them. */
+const BELT_WARY = 90;
 
 /** Steps at least this many in a pattern, and its hole this many times its usual spacing, to count as a hole to follow. */
 const HOLE_STEPS = 6;
@@ -568,7 +595,7 @@ export class Bot {
       mx /= ml;
       my /= ml;
     }
-    const mv = slideOff(w, mx, my);
+    const mv = beltCounter(w, slideOff(w, mx, my));
     return {
       useItem,
       interact,

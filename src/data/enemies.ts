@@ -1112,7 +1112,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
       'El Servicio Técnico Oficial en persona: una trituradora industrial del tamaño de una pared, con ' +
       'la tolva por boca y dos pilotos de «En servicio» por ojos. Todo lo que entra sale reacondicionado.',
     // M12 (4a). The final boss: more life than the Centralita (240), spread over three phases
-    // (4b and 4c add phases 2 and 3 at 60 % and 25 %).
+    // (phase 2 at 60 %, M12 (4b); 4c adds phase 3 at 25 %).
     hp: 300,
     sprite: 'trituradora',
     anchor: { x: 47, y: 85 },
@@ -1149,6 +1149,23 @@ export const ENEMIES: Record<string, EnemyDef> = {
             { kind: 'pattern', pattern: 'triturado-accesorios', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: pasado de moda.' },
             { kind: 'pattern', pattern: 'triturado-tarjetas', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: plantilla excesiva.' },
             { kind: 'pattern', pattern: 'triturado-espera', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: no contesta.' },
+          ],
+        },
+        {
+          // «Despiece» (M12 (4b)): the floor becomes a belt that carries everything to its hopper,
+          // and it rides up and down the end of it spitting out what it has taken apart: screws,
+          // springs and keys, in fans. You walk against the belt or you get fed in.
+          name: 'Despiece',
+          from: 0.6,
+          walkSpeed: 44,
+          keep: 150,
+          rest: [0.5, 0.8],
+          line: 'Procedemos al despiece. No se mueva.',
+          belt: { speed: 44, bite: 16, move: 3 },
+          attacks: [
+            { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1.2, pose: 7 },
+            { kind: 'pattern', pattern: 'despiece-muelles', telegraph: 0.8, weight: 1, pose: 7 },
+            { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 1, pose: 7 },
           ],
         },
       ],

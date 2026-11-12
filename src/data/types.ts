@@ -730,6 +730,15 @@ export interface BossPhase {
    * at random): the Trituradora answering with each fallen boss in turn (M12 (4a)).
    */
   cycle?: boolean;
+  /**
+   * «Despiece» (the Trituradora, M12 (4b)): as the phase starts the whole floor becomes a conveyor
+   * belt (src/sim/conveyors.ts) running at `speed` px/s towards the side wall farthest from the
+   * player. The boss goes over to that wall (at `move` times its walking speed, attacking nothing
+   * on the way) and from then on rides up and down along it, its hopper over the end of the belt.
+   * The last `bite` px of the belt are the intake rollers: they hurt like the boss's touch and throw
+   * the toaster back down the belt. The belt keeps running in the phases after this one.
+   */
+  belt?: { speed: number; bite: number; move: number };
 }
 
 /**

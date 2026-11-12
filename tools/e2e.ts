@@ -1665,6 +1665,22 @@ try {
     { timeout: 20000 },
   );
   await shot('53d-trituradora-cobertura.png');
+  // M12 (4b): down to 60 %, «Despiece»: the floor runs towards the far wall, she goes over there and
+  // spits screws, springs and keys; the toaster stood still is carried to the rollers.
+  await page.evaluate(`(() => { const s = window.__GE__.scene; s.world.bullets = []; s.world.emitters = [];
+    const b = ${trituradoraJs}; b.damageTaken = Math.ceil(b.def.hp * 0.41); })()`);
+  await page.waitForFunction(`window.__GE__.scene.world.conveyors.length === 1`, undefined, { timeout: 5000 });
+  await page.waitForTimeout(900);
+  await shot('53e-despiece-cinta.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => ['screw', 'spring', 'key'].includes(b.color) && b.age > 0.4 && v.contains(b.x, b.y)).length >= 12; })()`,
+    undefined,
+    { timeout: 20000 },
+  );
+  await shot('53f-despiece-piezas.png');
+  await page.waitForFunction(`window.__GE__.scene.world.player.x < 120 || window.__GE__.scene.world.player.x > 500`, undefined, { timeout: 20000 });
+  await shot('53g-despiece-rodillos.png');
   await page.evaluate(`(() => { const r = ${JSON.stringify(recordBefore)}; const key = 'garantia-expirada/perfil';
     if (r === null) localStorage.removeItem(key); else localStorage.setItem(key, r); })()`);
 

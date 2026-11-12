@@ -726,8 +726,9 @@ if (import.meta.main) {
   const tr = report.trituradora;
   if (tr?.combates) {
     console.log(
-      `${tr.combates} combates contra la Trituradora (solo la fase 1, «Diagnóstico», hasta la (4b)) · gana el ${tr.gana} % en ${tr.segundos} s (${tr.minimo}–${tr.maximo} s) · ` +
-        `${tr.heridas} heridas por combate`,
+      `${tr.combates} combates contra la Trituradora (fases 1 y 2; la 3 llega con la (4c)) · gana el ${tr.gana} % en ${tr.segundos} s (${tr.minimo}–${tr.maximo} s) · ` +
+        `${tr.heridas} heridas por combate (${tr.heridasFase1} en el diagnóstico, ${tr.heridasFase2} en el despiece) · ` +
+        `llega al despiece el ${tr.llegaFase2} %, a los ${tr.segundoFase2} s`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

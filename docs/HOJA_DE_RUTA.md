@@ -485,10 +485,13 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
     - [ ] (3b3) Las cintas transportadoras del suelo que arrastran a todo el que las pisa (letra de
       plantilla con dirección, empuje en la simulación, dibujo animado como la cinta del Mostrador,
       el bot las tiene en cuenta).
+      (El motor ya está desde la (4b): `src/sim/conveyors.ts` empuja, muerde con los rodillos, se
+      dibuja con `cinta-despiece`/`rodillos-despiece` y el bot anda en contra; falta ponerlas en las
+      plantillas con una letra y quizá en otras direcciones que no sean de lado.)
   - [ ] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla).
 - [ ] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.
   - [x] (4a) Sprites, sala y fase 1, «Diagnóstico».
-  - [ ] (4b) Fase 2, «Despiece».
+  - [x] (4b) Fase 2, «Despiece».
   - [ ] (4c) Fase 3, «Control de calidad».
 - [ ] (5) El final verdadero (el jugador es el producto) y los créditos.
 - [ ] (6) Medir la planta 6 entera con el bot y ajustar.

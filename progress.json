@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T05:45:00+01:00",
+  "actualizado": "2026-11-12T06:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 94,
-    "tests": 781,
-    "tests_ok": 781,
+    "tests": 785,
+    "tests_ok": 785,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 28696
+    "lineas_codigo": 29025
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T06:20:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (4b): la fase 2 de la Trituradora, «Despiece»: desde el 60 % todo el suelo es una cinta transportadora que arrastra hacia la pared más lejana; ella se va allí, sube y baja por el final de la cinta y escupe tornillos, muelles y teclas en abanicos. Los rodillos del final muerden y te devuelven cinta abajo.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T05:45:00+01:00",
       "hito": "M12",
@@ -1148,6 +1154,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/despiece-piezas.png",
+      "pie": "M12 (4b): fase 2 de la Trituradora, «Despiece»: el suelo entero es una cinta que lleva hacia ella; sube y baja por su pared con los pilotos en rojo y escupe tornillos, muelles y teclas en abanicos"
+    },
+    {
+      "archivo": "capturas/despiece-cinta.png",
+      "pie": "Al bajar del 60 %: «Procedemos al despiece. No se mueva.» La cinta arranca y la Trituradora se va a la pared más lejana de la tostadora, con los rodillos de entrada a sus pies"
+    },
+    {
       "archivo": "capturas/taller-recepcion.png",
       "pie": "M12 (3b): la Recepción de Averías con el arte del taller: azulejo engrasado, cajas de piezas, bidones de grasa, transpaleta, bancos de trabajo, el panel de herramientas y el rótulo «Servicio Técnico Oficial · Solo con cita previa»"
     },
@@ -1156,23 +1170,15 @@
       "pie": "M12 (4a): la Trituradora diagnostica: el láser rojo del escáner sobre la tostadora, los pilotos en ámbar y el veredicto, «Diagnóstico: le falta frío.» (y luego los cubitos de la Nevera, reacondicionados)"
     },
     {
-      "archivo": "capturas/trituradora-cobertura.png",
-      "pie": "El segundo turno: la cobertura del Router en tres anillos con el hueco que gira, saliendo de la boca de la Trituradora"
-    },
-    {
       "archivo": "capturas/servicio-montacargas.png",
       "pie": "M12 (2): con la cita previa, la Centralita deja el montacargas del Servicio Técnico: borde verde y blanco, flecha hacia arriba y el cartel de la ventanilla detrás"
-    },
-    {
-      "archivo": "capturas/cita-previa.png",
-      "pie": "M12 (1): el cartel de «Cita previa» del Servicio Técnico, en la pared del Mostrador, abierto con F: los cinco jefes, ganar la partida y el expediente completo, con lo que falta de cada uno"
     },
     {
       "archivo": "capturas/partida-ganada.png",
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M12 (3b3): las cintas transportadoras del suelo que arrastran (letra de plantilla, empuje en la simulación, dibujo animado, el bot las tiene en cuenta); luego (3c) un enemigo propio del taller y (4b), la fase 2 de la Trituradora.",
+  "proximo": "M12 (3b3): las cintas transportadoras del suelo en las salas del taller (letra de plantilla; el motor ya existe: src/sim/conveyors.ts, con dibujo y bot); luego (3c), un enemigo propio del taller, y (4c), la fase 3 «Control de calidad».",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1198,11 +1204,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 05:30",
-      "tarea": "M12 (4b), fase 2 «Despiece» de la Trituradora (src/sim/enemies.ts, patterns, sprites/trituradora, una cinta de jefe en src/sim/belts.ts)",
-      "desde": "2026-11-12T05:30:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

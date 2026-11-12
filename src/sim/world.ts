@@ -10,6 +10,7 @@ import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.
 import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
+import { conveyorPush, updateConveyors, type Conveyor } from './conveyors.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type Pause, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, generateWorkshop, OPPOSITE, type Dir, type Floor } from './floor.ts';
@@ -461,6 +462,11 @@ export interface Enemy {
   legSpin?: number;
   legKeep?: number;
   /**
+   * Bosses that lay a conveyor belt (BossPhase.belt): the line along the end wall it rides (`x`),
+   * how much faster than walking it goes there, and whether it has got there yet.
+   */
+  rail?: { x: number; move: number; on: boolean };
+  /**
    * Bosses on the catwalk (BossRunwayAttack): where it is walking to, px left before the next
    * flash, and seconds it has gone without getting anywhere (it gives up on a blocked catwalk).
    */
@@ -700,6 +706,10 @@ export type SimEvent =
   | { type: 'mute'; boss: number; x: number; y: number; time: number }
   /** A boss diagnoses the toaster (BossPatternAttack.scan): a scanner beam on it for `time` s, and `line`. */
   | { type: 'scan'; boss: number; time: number; line: string }
+  /** A conveyor belt starts up (Conveyor, src/sim/conveyors.ts), or stops when its boss falls. */
+  | { type: 'conveyor'; id: number; on: boolean; x: number; y: number }
+  /** The intake rollers at the end of a belt catch the toaster and throw it back (`dirX`, `dirY`). */
+  | { type: 'bite'; x: number; y: number; dirX: number; dirY: number; source: number }
   /** Put through: the toaster went from (fromX, fromY) to (x, y), in department `dept` (1-4). */
   | { type: 'deptTransfer'; boss: number; fromX: number; fromY: number; x: number; y: number; dept: number }
   /** A boss breaks out of its shell (BossPhase.shed): the prop is left at (x, y) (bottom-centre). */
@@ -801,6 +811,8 @@ export interface World {
   frost: Frost[];
   /** Squares of DENEGADO ink on the floor (Ink). */
   ink: Ink[];
+  /** Conveyor belts running in this room (src/sim/conveyors.ts): the Trituradora's, M12 (4b). */
+  conveyors: Conveyor[];
   events: SimEvent[];
   nextId: number;
   /** Enemies taken apart so far. */
@@ -1078,6 +1090,7 @@ export function createWorld(opts: WorldOptions): World {
     pickups: [],
     frost: [],
     ink: [],
+    conveyors: [],
     events: [],
     nextId,
     kills: 0,
@@ -1359,6 +1372,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.emitters = [];
   w.frost = [];
   w.ink = [];
+  w.conveyors = [];
   w.enemies = [];
   w.dummies = [];
   w.pickups = st.pickups;
@@ -2055,7 +2069,9 @@ function updatePlayer(w: World, input: Input): void {
   const oy = p.y;
   // An air conditioner's cone pushes the toaster along (walking against it still gets somewhere).
   const wind = w.over ? { x: 0, y: 0 } : windOn(w, p.x, p.y);
-  slide(w, p, p.def.footRadius, (p.vx + wind.x) * DT, (p.vy + wind.y) * DT, isRolling(p));
+  // A conveyor belt carries it along too (rolling or not; down, it lies still).
+  const belt = w.over ? { x: 0, y: 0 } : conveyorPush(w, p.x, p.y);
+  slide(w, p, p.def.footRadius, (p.vx + wind.x + belt.x) * DT, (p.vy + wind.y + belt.y) * DT, isRolling(p));
   if (!isRolling(p)) p.walked += Math.hypot(p.x - ox, p.y - oy);
 }
 
@@ -4280,6 +4296,7 @@ export function step(w: World, input: Input): void {
   if (!paused) updateEnemies(w);
   // Enemies that fell during their own update (a boss's relays when it reboots or goes down).
   reapEnemies(w);
+  if (!paused) updateConveyors(w);
   if (input.interact && !w.over) interact(w);
   updatePickups(w);
   updateRestock(w);
@@ -4335,6 +4352,7 @@ export function worldHash(w: World): string {
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));
   for (const k of w.ink) parts.push(k.x.toFixed(2), k.y.toFixed(2), k.t.toFixed(3));
+  for (const c of w.conveyors) parts.push(c.id, c.dirX, c.t.toFixed(3));
   if (w.lift) parts.push(w.lift.x.toFixed(2), w.lift.y.toFixed(2), w.won ? 'won' : 'lift');
   if (w.finale) parts.push(w.finale.t.toFixed(3), w.won ? 'won' : 'finale');
   return parts.join('|');

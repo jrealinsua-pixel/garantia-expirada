@@ -280,6 +280,35 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 1.1, pattern: { kind: 'ring', count: 14, speed: 54, aimed: true, wave: { amp: 8, freq: 1.3 }, life: 5.5, color: 'note' } },
     ],
   },
+  // Phase 2, «Despiece» (M12 (4b)): what it has taken apart comes back out, in fans. Screws: four
+  // quick narrow fans, sweeping across.
+  'despiece-tornillos': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 40, speed: 140, color: 'screw' }, turnDeg: -18 },
+      { at: 0.17, pattern: { kind: 'fan', count: 5, spreadDeg: 40, speed: 140, color: 'screw' }, turnDeg: -6 },
+      { at: 0.34, pattern: { kind: 'fan', count: 5, spreadDeg: 40, speed: 140, color: 'screw' }, turnDeg: 6 },
+      { at: 0.51, pattern: { kind: 'fan', count: 5, spreadDeg: 40, speed: 140, color: 'screw' }, turnDeg: 18 },
+    ],
+  },
+  // Springs: three wide fans that boing from side to side as they come, each one in the gaps of the last.
+  'despiece-muelles': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 8, spreadDeg: 90, speed: 92, wave: { amp: 8, freq: 2.2 }, color: 'spring' } },
+      { at: 0.4, pattern: { kind: 'fan', count: 7, spreadDeg: 78, speed: 92, wave: { amp: 8, freq: 2.2 }, color: 'spring' } },
+      { at: 0.8, pattern: { kind: 'fan', count: 8, spreadDeg: 90, speed: 92, wave: { amp: 8, freq: 2.2 }, color: 'spring' } },
+    ],
+  },
+  // Keys: a whole keyboard, very wide fans that set off slow and speed up, row after row.
+  'despiece-teclas': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 13, spreadDeg: 150, speed: 46, accel: 80, maxSpeed: 124, color: 'key' } },
+      { at: 0.34, pattern: { kind: 'fan', count: 12, spreadDeg: 138, speed: 46, accel: 80, maxSpeed: 124, color: 'key' } },
+      { at: 0.68, pattern: { kind: 'fan', count: 13, spreadDeg: 150, speed: 46, accel: 80, maxSpeed: 124, color: 'key' } },
+    ],
+  },
   // El Muñeco de Moda (M10 5b). «Lanzamiento»: the season's accessories, three fans of pink shoes
   // and handbags, the outer ones turned so there is a gap to step into.
   'muneco-accesorios': {

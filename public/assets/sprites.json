@@ -231,7 +231,37 @@
     "file": "trituradora.png",
     "frameW": 96,
     "frameH": 88,
-    "frames": 7
+    "frames": 8
+  },
+  "bala-tornillo": {
+    "file": "bala-tornillo.png",
+    "frameW": 10,
+    "frameH": 10,
+    "frames": 2
+  },
+  "bala-muelle": {
+    "file": "bala-muelle.png",
+    "frameW": 10,
+    "frameH": 10,
+    "frames": 2
+  },
+  "bala-tecla": {
+    "file": "bala-tecla.png",
+    "frameW": 10,
+    "frameH": 10,
+    "frames": 2
+  },
+  "cinta-despiece": {
+    "file": "cinta-despiece.png",
+    "frameW": 48,
+    "frameH": 24,
+    "frames": 1
+  },
+  "rodillos-despiece": {
+    "file": "rodillos-despiece.png",
+    "frameW": 16,
+    "frameH": 24,
+    "frames": 2
   },
   "bala-cable": {
     "file": "bala-cable.png",

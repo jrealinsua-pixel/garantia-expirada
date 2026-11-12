@@ -10,6 +10,7 @@ import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS, PROPS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
+import { layFloorBelt } from './conveyors.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { BACK_WALL_ROWS, isWallAt, TILE, wallRectsNear } from './room.ts';
 import {
@@ -1169,6 +1170,53 @@ function bossRoam(w: World, en: Enemy, b: BossBrain, speed: number, keep: number
   return { x: vx, y: vy };
 }
 
+/**
+ * A boss riding the end of its conveyor belt (BossPhase.belt): first straight over to the rail (at
+ * `move` times its speed), then up and down along it in legs, like bossRoam (now a stroll, now a
+ * lurch, mostly turning back), half of them towards the toaster's height. Returns its velocity.
+ */
+function railRoam(w: World, en: Enemy, b: BossBrain, speed: number): { x: number; y: number } {
+  const rail = en.rail!;
+  const r0 = en.def.footRadius;
+  const dx = rail.x - en.x;
+  if (!rail.on) {
+    if (Math.abs(dx) <= RAIL_SNAP) {
+      rail.on = true;
+      delete en.legSpin;
+      // A breath before the first fan: it has only just got there.
+      en.until = Math.max(en.until, en.t * bossRage(en, b) + RAIL_SETTLE);
+    } else {
+      const v = speed * rail.move;
+      // Something in the way (a crate in a corner): round it, up or down towards the middle.
+      if (!isClear(w, en.x + Math.sign(dx) * 10, en.y, r0)) return { x: 0, y: (en.y < w.room.h / 2 ? 1 : -1) * v };
+      return { x: Math.sign(dx) * v, y: 0 };
+    }
+  }
+  en.legT = (en.legT ?? 0) - DT;
+  if (en.legT <= 0 || en.legSpin === undefined) {
+    en.legT = w.rng.range(b.roam.leg[0], b.roam.leg[1]);
+    en.legPace = w.rng.range(b.roam.burst[0], b.roam.burst[1]);
+    const towards = w.player.y >= en.y ? 1 : -1;
+    en.legSpin = w.rng.next() < 0.5 ? towards : en.legSpin === undefined ? -towards : w.rng.next() < ROAM_FLIP ? -en.legSpin : en.legSpin;
+  }
+  let vy = en.legSpin * speed * (en.legPace ?? 1);
+  // The end of the rail (a wall, a crate): back the other way at once.
+  if (!isClear(w, en.x, en.y + vy * 0.25, r0)) {
+    en.legSpin = -en.legSpin;
+    en.legT = Math.min(en.legT, 0.3);
+    vy = -vy;
+  }
+  // Kept on its line: pushed off it, it steps back.
+  const vx = Math.max(-speed, Math.min(speed, dx * 4));
+  return { x: vx, y: vy };
+}
+
+/** px between a boss on its rail and the wall at the end of its belt, and how near the rail counts as on it. */
+const RAIL_GAP = 4;
+const RAIL_SNAP = 6;
+/** Seconds it waits on its rail before the first attack. */
+const RAIL_SETTLE = 0.6;
+
 /** Share of a boss's legs that go back the way it came (and while it goes round something in its way). */
 const ROAM_FLIP = 0.6;
 const ROAM_FLIP_HUGGING = 0.3;
@@ -1396,6 +1444,13 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     }
     if (next.mute) en.muteIn = w.rng.range(next.mute.every[0], next.mute.every[1]);
     if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
+    // «Despiece»: the floor starts running towards the far wall, and over there it goes.
+    if (next.belt && !w.conveyors.some((c) => c.source === en.id)) {
+      const c = layFloorBelt(w, en, next.belt.speed, next.belt.bite);
+      const end = c.dirX > 0 ? c.x + c.w : c.x;
+      en.rail = { x: end - c.dirX * (en.def.footRadius + RAIL_GAP), move: next.belt.move, on: false };
+      delete en.legSpin;
+    }
   }
   const phase = b.phases[en.bossPhase]!;
   const rage = bossRage(en, b);
@@ -1435,7 +1490,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     case 'idle': {
       // Never still between attacks: from spot to spot round the player, now strolling, now
       // lurching, and quicker the less life it has.
-      ({ x: walkX, y: walkY } = bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep));
+      ({ x: walkX, y: walkY } = en.rail ? railRoam(w, en, b, phase.walkSpeed * rage) : bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep));
       // Gone quiet: its lights blank, it stops dead and takes more (BossPhase.mute). Only between
       // attacks, so a sweep is never cut short and the silence is never under a hail of bullets.
       if (phase.mute && en.muteIn !== undefined && en.muteIn <= 0 && !w.over) {
@@ -1446,7 +1501,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         walkY = 0;
         break;
       }
-      if (en.t * rage >= en.until && !w.over) {
+      // On its way over to the end of the belt it attacks nothing.
+      if (en.t * rage >= en.until && !w.over && (!en.rail || en.rail.on)) {
         const i = phase.cycle ? ((en.attack ?? -1) + 1) % phase.attacks.length : pickAttack(w, phase.attacks, en.attack);
         en.attack = i;
         const a = phase.attacks[i]!;
@@ -1638,7 +1694,10 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     case 'fire':
       // Once the warning is over it drifts on while its bullets stream out (they follow it).
       // (Spinning on the spot it stays put: BossPatternAttack.spin.)
-      if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) ({ x: walkX, y: walkY } = bossRoam(w, en, b, phase.walkSpeed * rage * b.drift, phase.keep));
+      if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) {
+        const v = phase.walkSpeed * rage * b.drift;
+        ({ x: walkX, y: walkY } = en.rail ? railRoam(w, en, b, v) : bossRoam(w, en, b, v, phase.keep));
+      }
       if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
       break;
     case 'roar':

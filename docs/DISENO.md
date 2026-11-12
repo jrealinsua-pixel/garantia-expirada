@@ -605,6 +605,19 @@ Centralita en tres anillos. Antes de cada uno, el láser rojo del escáner barre
 sale el diagnóstico («Diagnóstico: le falta frío.», «…sin cobertura.», «…pasado de moda.»,
 «…plantilla excesiva.», «…no contesta.»). Su documento, el «Parte de reacondicionado», está más
 allá de la cita: no cuenta para el expediente completo que la pide.
+Hecha la fase 2 (M12 (4b)), «Despiece», desde el 60 %: grita «Procedemos al despiece. No se
+mueva.» y **el suelo entero se vuelve una cinta transportadora** (goma negra con lamas y un galón
+amarillo desvaído cada dos casillas, que corre) hacia la pared lateral más lejana de la tostadora,
+a 44 px/s (la tostadora anda a 100: quieta, la cinta se la lleva; andando en contra, avanza
+despacio). Ella cruza a esa pared (a tres veces su paso, sin atacar) y desde allí **sube y baja
+por el final de la cinta** con los pilotos en rojo y la ranura llena de piezas, escupiendo lo que
+ha desmontado en abanicos: **tornillos** (cuatro abanicos estrechos y rápidos que barren),
+**muelles** (tres abanicos anchos que culebrean) y **teclas** (un teclado entero: abanicos de 150°
+que salen despacio y aceleran). Al final de la cinta, **los rodillos de entrada**: una columna de
+rodillos dentados con su franja amarilla y negra; tocarlos quita un corazón (cuenta como «Recogido
+para reacondicionar») y te devuelve cinta abajo unos 60 px. La cinta sigue en las fases de
+después y se para cuando ella cae. Es la primera cinta del juego (`src/sim/conveyors.ts`): las del
+taller (3b3) usarán el mismo motor.
 
 **El final verdadero** (M12 (4)): al vencerla, la tostadora no sale por ninguna puerta. La cinta
 se la lleva, la limpian, le cambian la resistencia y la meten en una caja con la etiqueta
