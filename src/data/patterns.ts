@@ -230,6 +230,56 @@ export const PATTERNS: Record<string, PatternDef> = {
   'repetidor-onda': { kind: 'ring', count: 12, speed: 64, color: 'cyan', gaps: { widthDeg: 80, atDeg: [40] } },
   // A dropped connection bursts out of the floor: a short ring.
   'router-caida': { kind: 'ring', count: 8, speed: 72, life: 0.7, color: 'cyan' },
+  // La Trituradora (M12 (4a)), phase 1, «Diagnóstico»: it answers with each fallen boss in turn,
+  // refurbished (the same part with something bolted on). The Nevera's cubes, three fans and then
+  // the hail closing behind them.
+  'triturado-cubitos': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 44, speed: 108, color: 'ice' }, turnDeg: -9 },
+      { at: 0.28, pattern: { kind: 'fan', count: 5, spreadDeg: 44, speed: 108, color: 'ice' } },
+      { at: 0.56, pattern: { kind: 'fan', count: 5, spreadDeg: 44, speed: 108, color: 'ice' }, turnDeg: 9 },
+      { at: 0.95, pattern: { kind: 'ring', count: 14, speed: 36, accel: 55, maxSpeed: 92, offsetDeg: 12.9, color: 'ice' } },
+    ],
+  },
+  // The Router's coverage: three rings with a hole that moves round each time (step with it).
+  'triturado-cobertura': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 24, speed: 74, color: 'cyan', gaps: { widthDeg: 58, atDeg: [30] } } },
+      { at: 0.42, pattern: { kind: 'ring', count: 24, speed: 74, color: 'cyan', gaps: { widthDeg: 58, atDeg: [60] } } },
+      { at: 0.84, pattern: { kind: 'ring', count: 24, speed: 74, color: 'cyan', gaps: { widthDeg: 58, atDeg: [90] } } },
+    ],
+  },
+  // The Muñeco's accessories, and a sale ring to finish (its hole the other way round).
+  'triturado-accesorios': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 114, color: 'accessory' }, turnDeg: -10 },
+      { at: 0.26, pattern: { kind: 'fan', count: 7, spreadDeg: 70, speed: 110, color: 'accessory' } },
+      { at: 0.52, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 114, color: 'accessory' }, turnDeg: 10 },
+      { at: 0.9, pattern: { kind: 'ring', count: 18, speed: 70, color: 'accessory', gaps: { widthDeg: 54, atDeg: [-40] } } },
+    ],
+  },
+  // The Director's cards, sweeping one way and back (five fans).
+  'triturado-tarjetas': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 52, speed: 120, color: 'bizcard' }, turnDeg: -16 },
+      { at: 0.18, pattern: { kind: 'fan', count: 5, spreadDeg: 52, speed: 120, color: 'bizcard' }, turnDeg: -6 },
+      { at: 0.36, pattern: { kind: 'fan', count: 5, spreadDeg: 52, speed: 120, color: 'bizcard' }, turnDeg: 6 },
+      { at: 0.54, pattern: { kind: 'fan', count: 5, spreadDeg: 52, speed: 120, color: 'bizcard' }, turnDeg: 16 },
+    ],
+  },
+  // The Centralita's hold music: three waving rings of notes, each turned half a gap.
+  'triturado-espera': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 14, speed: 54, aimed: true, wave: { amp: 8, freq: 1.3 }, life: 5.5, color: 'note' } },
+      { at: 0.55, pattern: { kind: 'ring', count: 14, speed: 54, aimed: true, offsetDeg: 12.9, wave: { amp: 8, freq: 1.3 }, life: 5.5, color: 'note' } },
+      { at: 1.1, pattern: { kind: 'ring', count: 14, speed: 54, aimed: true, wave: { amp: 8, freq: 1.3 }, life: 5.5, color: 'note' } },
+    ],
+  },
   // El Muñeco de Moda (M10 5b). «Lanzamiento»: the season's accessories, three fans of pink shoes
   // and handbags, the outer ones turned so there is a gap to step into.
   'muneco-accesorios': {

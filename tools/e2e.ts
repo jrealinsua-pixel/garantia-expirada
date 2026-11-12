@@ -1635,6 +1635,36 @@ try {
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
   await page.waitForTimeout(1500);
   await shot('17x-taller-almacen.png');
+  // M12 (4a): La Trituradora, the final boss, at the end of the workshop: her card, the scanner
+  // beam over the toaster with the diagnosis, and the refurbished pattern that answers it.
+  await page.goto(`${url}?semilla=e2e-trituradora&sala=jefe-taller&planta=6`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const trituradoraJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'trituradora')";
+  if (!(await page.evaluate<boolean>(`!!${trituradoraJs} && !!window.__GE__.scene.world.intro`))) throw new Error('La Trituradora no está en su sala o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('53a-trituradora-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  await page.waitForFunction(`(() => { const s = window.__GE__.scene; return s.scans.length > 0 && s.scans[0].t > 0.35; })()`, undefined, { timeout: 15000 });
+  await shot('53b-trituradora-diagnostico.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'ice' && b.age > 0.5 && v.contains(b.x, b.y)).length >= 10; })()`,
+    undefined,
+    { timeout: 15000 },
+  );
+  await shot('53c-trituradora-cubitos.png');
+  // The second diagnosis: the Router's coverage, refurbished.
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'cyan' && b.age > 0.6 && v.contains(b.x, b.y)).length >= 14; })()`,
+    undefined,
+    { timeout: 20000 },
+  );
+  await shot('53d-trituradora-cobertura.png');
   await page.evaluate(`(() => { const r = ${JSON.stringify(recordBefore)}; const key = 'garantia-expirada/perfil';
     if (r === null) localStorage.removeItem(key); else localStorage.setItem(key, r); })()`);
 

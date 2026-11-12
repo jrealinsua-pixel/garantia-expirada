@@ -4,7 +4,7 @@
 
 import { ROSTER, type UnlockCondition } from '../data/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
-import { LORE } from '../data/lore.ts';
+import { EXPEDIENTE } from '../data/lore.ts';
 import { SERVICE_REQUIREMENTS } from '../data/servicio.ts';
 import type { Profile } from './profile.ts';
 
@@ -18,7 +18,7 @@ export const winnersNeeded = (n: number): number => Math.max(1, Math.min(n, PLAY
 export const winners = (p: Profile): number => Object.values(p.victories).filter((v) => v > 0).length;
 
 /** Story documents found that this version has. */
-const docsFound = (p: Profile): number => LORE.filter((l) => p.docs.includes(l.id)).length;
+const docsFound = (p: Profile): number => EXPEDIENTE.filter((l) => p.docs.includes(l.id)).length;
 
 /** Whether a condition holds for this profile (null: always). */
 export function meets(c: UnlockCondition | null, p: Profile): boolean {
@@ -28,7 +28,7 @@ export function meets(c: UnlockCondition | null, p: Profile): boolean {
   if (c.minFound !== undefined && p.found.items.length < c.minFound) return false;
   if (c.minFloors !== undefined && p.floorsCleared < c.minFloors) return false;
   if (c.minWinners !== undefined && winners(p) < winnersNeeded(c.minWinners)) return false;
-  if (c.allDocs && docsFound(p) < LORE.length) return false;
+  if (c.allDocs && docsFound(p) < EXPEDIENTE.length) return false;
   return true;
 }
 
@@ -49,7 +49,7 @@ export function unlockProgress(c: UnlockCondition | null, p: Profile): { done: n
     const n = winnersNeeded(c.minWinners);
     out.push({ done: Math.min(winners(p), n), needed: n });
   }
-  if (c.allDocs) out.push({ done: docsFound(p), needed: LORE.length });
+  if (c.allDocs) out.push({ done: docsFound(p), needed: EXPEDIENTE.length });
   return out;
 }
 

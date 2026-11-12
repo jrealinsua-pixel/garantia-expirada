@@ -13,6 +13,11 @@ export interface LoreDoc {
   pages: readonly string[];
   /** How it is found: beating a boss (enemy id) or in the secret room of a floor (1 = the first). */
   source: LoreSource;
+  /**
+   * Found beyond the appointment (the Servicio Técnico's own papers): it is in the archivador, but
+   * the «expediente completo» it takes to get the appointment does not ask for it (M12 (4a)).
+   */
+  beyond?: boolean;
 }
 
 /** Longest page, in characters. */
@@ -110,6 +115,18 @@ export const LORE: readonly LoreDoc[] = [
     ],
   },
   {
+    id: 'parte-1',
+    kind: 'Parte de reacondicionado',
+    title: 'Servicio Técnico Oficial · Orden 000001',
+    source: { boss: 'trituradora' },
+    beyond: true,
+    pages: [
+      'Entrada: una tostadora, por su propio pie. Avería declarada por el cliente: «todo». Avería encontrada: ninguna.',
+      'Intervención: limpieza, resistencia nueva, caja nueva. Precio de venta: de nuevo. Garantía: 6 meses.',
+      'Observaciones del técnico: «otra vez la misma tostadora». Tachado: «otra vez».',
+    ],
+  },
+  {
     id: 'acta-1',
     kind: 'Acta de reunión',
     title: 'Comité de Dirección · Punto 3',
@@ -132,3 +149,6 @@ export const LORE: readonly LoreDoc[] = [
     ],
   },
 ];
+
+/** The documents of the «expediente completo» (the Servicio Técnico's requirement): all but those found beyond it. */
+export const EXPEDIENTE: readonly LoreDoc[] = LORE.filter((l) => !l.beyond);

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T03:39:00+01:00",
+  "actualizado": "2026-11-12T04:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -126,17 +126,23 @@
   "metricas": {
     "personajes": 1,
     "enemigos": 26,
-    "jefes": 5,
+    "jefes": 6,
     "armas": 5,
     "objetos": 55,
-    "plantillas_sala": 93,
-    "tests": 771,
-    "tests_ok": 771,
+    "plantillas_sala": 94,
+    "tests": 777,
+    "tests_ok": 777,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 27911
+    "lineas_codigo": 28120
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T04:40:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (4a): el jefe final, la Trituradora, en su sala al final del Taller: una trituradora industrial verde sobre orugas, con la tolva por boca (una tostada quemada entre las cuchillas), pilotos de «En servicio» por ojos y guantes de nitrilo. Fase 1, «Diagnóstico»: el láser del escáner barre a la tostadora, sale el diagnóstico y responde con el patrón de cada jefe vencido, uno por turno y reacondicionado. Su documento no cuenta para la cita.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T03:39:00+01:00",
       "hito": "M12",
@@ -1130,6 +1136,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/trituradora-diagnostico.png",
+      "pie": "M12 (4a): la Trituradora diagnostica: el láser rojo del escáner sobre la tostadora, los pilotos en ámbar y el veredicto, «Diagnóstico: le falta frío.» (y luego los cubitos de la Nevera, reacondicionados)"
+    },
+    {
+      "archivo": "capturas/trituradora-cobertura.png",
+      "pie": "El segundo turno: la cobertura del Router en tres anillos con el hueco que gira, saliendo de la boca de la Trituradora"
+    },
+    {
       "archivo": "capturas/taller-banco.png",
       "pie": "M12 (3a): el Banco de Pruebas del Servicio Técnico, con los enemigos reacondicionados (carcasa gris y pegatina verde); hasta su arte, con los muebles de la planta 5"
     },
@@ -1142,19 +1156,11 @@
       "pie": "M12 (1): el cartel de «Cita previa» del Servicio Técnico, en la pared del Mostrador, abierto con F: los cinco jefes, ganar la partida y el expediente completo, con lo que falta de cada uno"
     },
     {
-      "archivo": "capturas/centralita-aviso-cables.png",
-      "pie": "Fase 3, «Se ha cortado la llamada»: se ha arrancado las clavijas (salen volando) y cuatro líneas de puntos avisan de dónde salen los brazos de cable, con la tostadora entre dos"
-    },
-    {
-      "archivo": "capturas/centralita-cables.png",
-      "pie": "Los cables barren la sala: cuatro brazos de rizos que giran; hay que andar con el hueco o rodar a través de un brazo"
-    },
-    {
       "archivo": "capturas/partida-ganada.png",
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M12 (3b1): el juego de losetas del Taller de Reacondicionado (azulejo de taller con grasa, fluorescentes fríos, jaulas de piezas) y el cartel de su entrada; luego sus muebles (3b2) y las cintas que arrastran (3b3).",
+  "proximo": "M12 (3b): el arte del taller (losetas, muebles -6 y las cintas que arrastran; la (3b1) la tiene otra sesión) y M12 (4b), la fase 2 de la Trituradora, «Despiece».",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1181,11 +1187,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 03:29",
-      "tarea": "M12 (4a), la Trituradora: sprites, sala y fase 1 «Diagnóstico»",
-      "desde": "2026-11-12T03:29:00+01:00"
-    },
     {
       "sesion": "2026-11-12 04:26",
       "tarea": "M12 (3b1), el juego de losetas del Taller de Reacondicionado y el cartel de su entrada",

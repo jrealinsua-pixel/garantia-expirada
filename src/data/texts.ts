@@ -165,6 +165,7 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   'muneco-moda': { bullet: 'Tacón de la temporada pasada', contact: 'Atropello en plena pasarela' },
   'director-rrhh': { bullet: 'Despido por carta certificada', contact: 'Atropellado por una silla ergonómica' },
   centralita: { bullet: 'Llamada finalizada por el sistema', contact: 'Arrollado por un cuadro de clavijas' },
+  trituradora: { bullet: 'Diagnosticado sin solución', contact: 'Recogido para reacondicionar' },
   'silla-director': { contact: 'Atropello por silla de dirección sin director' },
   repetidor: { bullet: 'Señal repetida', contact: 'Tropiezo con un repetidor' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },

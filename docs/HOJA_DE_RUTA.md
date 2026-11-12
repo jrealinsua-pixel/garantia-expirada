@@ -487,7 +487,7 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
       el bot las tiene en cuenta).
   - [ ] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla).
 - [ ] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.
-  - [ ] (4a) Sprites, sala y fase 1, «Diagnóstico».
+  - [x] (4a) Sprites, sala y fase 1, «Diagnóstico».
   - [ ] (4b) Fase 2, «Despiece».
   - [ ] (4c) Fase 3, «Control de calidad».
 - [ ] (5) El final verdadero (el jugador es el producto) y los créditos.

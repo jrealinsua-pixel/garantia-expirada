@@ -147,6 +147,8 @@ const ENEMY_CHARS: Record<string, string> = {
   Ó: 'telefono-recepcion',
   // Ú: La Centralita, floor 5's boss (M11 (5b)).
   Ú: 'centralita',
+  // Ü: La Trituradora, the final boss (M12 (4a)), in the Servicio Técnico's workshop.
+  Ü: 'trituradora',
 };
 
 /**

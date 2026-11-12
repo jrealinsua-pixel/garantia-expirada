@@ -1105,6 +1105,56 @@ export const ENEMIES: Record<string, EnemyDef> = {
     },
     boss: { title: 'La Centralita', motto: 'Todos nuestros operadores están ocupados. Siempre.', subtitle: 'Jefa de planta · Atención al Cliente' },
   },
+  trituradora: {
+    id: 'trituradora',
+    name: 'La Trituradora',
+    description:
+      'El Servicio Técnico Oficial en persona: una trituradora industrial del tamaño de una pared, con ' +
+      'la tolva por boca y dos pilotos de «En servicio» por ojos. Todo lo que entra sale reacondicionado.',
+    // M12 (4a). The final boss: more life than the Centralita (240), spread over three phases
+    // (4b and 4c add phases 2 and 3 at 60 % and 25 %).
+    hp: 300,
+    sprite: 'trituradora',
+    anchor: { x: 47, y: 85 },
+    hurt: { x: -35, y: -80, w: 72, h: 76 },
+    footRadius: 24,
+    contactPush: 280,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [0, 0] },
+    // tools/sprites/trituradora.ts TRITURADORA_FRAMES: 0-1 resting, 2-5 rolling on its tracks, 6
+    // diagnosing (the scanner raised, the lamps amber).
+    anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 6, warn: 6 },
+    brain: {
+      kind: 'boss',
+      // On tracks: slow, steady legs, now and then a lurch forward.
+      roam: { leg: [0.8, 1.6], burst: [0.6, 1.3], spread: 40 },
+      drift: 0.4,
+      rage: 0.5,
+      // The output slot, under the lamps: everything comes out of there.
+      muzzle: { x: 12, y: 23 },
+      phases: [
+        {
+          // «Diagnóstico»: it scans the toaster and answers with each fallen boss in turn,
+          // refurbished: the Nevera, the Router, the Muñeco, the Director, the Centralita, and round again.
+          name: 'Diagnóstico',
+          from: 1,
+          walkSpeed: 40,
+          keep: 150,
+          rest: [0.9, 1.3],
+          cycle: true,
+          attacks: [
+            { kind: 'pattern', pattern: 'triturado-cubitos', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: le falta frío.' },
+            { kind: 'pattern', pattern: 'triturado-cobertura', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: sin cobertura.' },
+            { kind: 'pattern', pattern: 'triturado-accesorios', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: pasado de moda.' },
+            { kind: 'pattern', pattern: 'triturado-tarjetas', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: plantilla excesiva.' },
+            { kind: 'pattern', pattern: 'triturado-espera', telegraph: 0.9, weight: 1, pose: 6, scan: 'Diagnóstico: no contesta.' },
+          ],
+        },
+      ],
+    },
+    boss: { title: 'La Trituradora', motto: 'Su producto será reacondicionado. Usted también.', subtitle: 'Servicio Técnico Oficial' },
+  },
   'silla-director': {
     id: 'silla-director',
     name: 'Silla Ergonómica de Dirección',

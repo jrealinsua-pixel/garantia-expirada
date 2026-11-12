@@ -535,6 +535,11 @@ export interface BossPatternAttack {
   spin?: boolean;
   /** Frame it strikes while it warns and throws (the Director with a card in his hand). */
   pose?: number;
+  /**
+   * «Diagnóstico» (the Trituradora, M12 (4a)): during the warning a scanner beam sweeps the toaster
+   * (event `scan`) and this line comes up over the boss: what it has diagnosed.
+   */
+  scan?: string;
 }
 
 /**
@@ -720,6 +725,11 @@ export interface BossPhase {
    * when the phase has fewer of them: the Centralita without her plugs, two to drag herself.
    */
   look?: { idle: readonly number[]; walk: readonly number[]; warn: number };
+  /**
+   * Its attacks go in the order of the list, one per turn, and round again (instead of weighted
+   * at random): the Trituradora answering with each fallen boss in turn (M12 (4a)).
+   */
+  cycle?: boolean;
 }
 
 /**

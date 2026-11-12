@@ -38,6 +38,8 @@ export interface BotReport {
   director?: BossReport;
   /** And floor 5's, La Centralita, in her room (M11 5b). */
   centralita?: BossReport;
+  /** And the final boss, La Trituradora, in the Taller de Reacondicionado (M12 (4a)). */
+  trituradora?: BossReport;
   /** Whole floors (M3 criterion): see FloorReport. */
   plantas: FloorReport;
   errores: string[];
@@ -617,6 +619,9 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const centralita = runBoss(bosses, 240, 'jefe-atencion', 5);
   failed += centralita.errors.length;
   errors.push(...centralita.errors);
+  const trituradora = runBoss(bosses, 240, 'jefe-taller', 6);
+  failed += trituradora.errors.length;
+  errors.push(...trituradora.errors);
   return {
     partidas: games,
     fallos: failed,
@@ -639,6 +644,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     muneco: muneco.report,
     director: director.report,
     centralita: centralita.report,
+    trituradora: trituradora.report,
     errores: errors.slice(0, 20),
   };
 }
@@ -715,6 +721,13 @@ if (import.meta.main) {
       `${c.combates} combates contra la Centralita · gana el ${c.gana} % en ${c.segundos} s (${c.minimo}–${c.maximo} s) · ` +
         `${c.heridas} heridas por combate (${c.heridasFase1} en la fase 1, ${c.heridasFase2} en la de los departamentos, ${c.heridasFase3} con la llamada cortada) · ` +
         `llega a los departamentos el ${c.llegaFase2} %, a los ${c.segundoFase2} s; se corta la llamada el ${c.llegaFase3} %, a los ${c.segundoFase3} s`,
+    );
+  }
+  const tr = report.trituradora;
+  if (tr?.combates) {
+    console.log(
+      `${tr.combates} combates contra la Trituradora (solo la fase 1, «Diagnóstico», hasta la (4b)) · gana el ${tr.gana} % en ${tr.segundos} s (${tr.minimo}–${tr.maximo} s) · ` +
+        `${tr.heridas} heridas por combate`,
     );
   }
   for (const e of report.errores) console.error('✖ ' + e);

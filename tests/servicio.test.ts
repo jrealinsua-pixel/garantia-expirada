@@ -6,7 +6,7 @@ import { serviceBoard, serviceMet, winnersNeeded } from '../src/sim/unlocks.ts';
 import { FLOOR_BOSSES, SERVICE, SERVICE_REQUIREMENTS } from '../src/data/servicio.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { CHARACTERS } from '../src/data/characters.ts';
-import { LORE } from '../src/data/lore.ts';
+import { EXPEDIENTE, LORE } from '../src/data/lore.ts';
 import { FONT_CHARS, fontText } from '../src/art/font.ts';
 
 const run = (over: Partial<RunResult> = {}): RunResult => ({
@@ -45,7 +45,9 @@ test('un perfil nuevo no tiene cita, y el cartel enseña cada requisito a cero',
   assert.deepEqual(b.rows.map((r) => r.id), ['jefes', 'victorias', 'expediente']);
   assert.ok(b.rows.every((r) => r.done === 0 && !r.met));
   assert.equal(b.rows[0]!.needed, 5);
-  assert.equal(b.rows[2]!.needed, LORE.length);
+  assert.equal(b.rows[2]!.needed, EXPEDIENTE.length);
+  // The Servicio Técnico's own papers are found beyond the appointment: it does not ask for them.
+  assert.ok(EXPEDIENTE.length < LORE.length && EXPEDIENTE.every((l) => !l.beyond));
   assert.match(b.rows[0]!.text, /5 jefes/);
 });
 

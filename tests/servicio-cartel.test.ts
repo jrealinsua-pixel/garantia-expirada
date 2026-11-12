@@ -11,7 +11,7 @@ import { serviceBoard } from '../src/sim/unlocks.ts';
 import { buildRoom } from '../src/sim/room.ts';
 import { HUB } from '../src/data/rooms.ts';
 import { FLOOR_BOSSES, SERVICE } from '../src/data/servicio.ts';
-import { LORE } from '../src/data/lore.ts';
+import { EXPEDIENTE, LORE } from '../src/data/lore.ts';
 import { CITA_BOXES, CITA_H, CITA_STAMP, CITA_W, WALL_CITA_Y, hubHung } from '../src/art/hub.ts';
 import { paintRoom } from '../src/art/room.ts';
 
@@ -37,10 +37,10 @@ test('el cartel cuenta lo que falta, pone «Cumplido» a lo hecho y el sello al 
   const [fresh, two, won, all] = profiles().map((p) => citaLayout(serviceBoard(p)));
   assert.deepEqual(fresh!.boxes.map((b) => b.ticked), [false, false, false]);
   assert.ok(fresh!.texts.some((t) => t.text === '0/5'));
-  assert.ok(fresh!.texts.some((t) => t.text === `0/${LORE.length}`));
+  assert.ok(fresh!.texts.some((t) => t.text === `0/${EXPEDIENTE.length}`));
   assert.ok(fresh!.texts.some((t) => t.text === SERVICE.pending));
   assert.ok(two!.texts.some((t) => t.text === '2/5'));
-  assert.ok(two!.texts.some((t) => t.text === `4/${LORE.length}`), 'dos de jefe y dos de secreta');
+  assert.ok(two!.texts.some((t) => t.text === `4/${EXPEDIENTE.length}`), 'dos de jefe y dos de secreta');
   assert.deepEqual(won!.boxes.map((b) => b.ticked).slice(0, 2), [true, true]);
   assert.equal(won!.texts.filter((t) => t.text === CITA_DONE).length, 2);
   assert.deepEqual(all!.boxes.map((b) => b.ticked), [true, true, true]);

@@ -698,6 +698,8 @@ export type SimEvent =
   | { type: 'deptMark'; boss: number; x: number; y: number }
   /** A boss gone quiet for `time` s (BossPhase.mute): its lights blank, the moment to hit it. */
   | { type: 'mute'; boss: number; x: number; y: number; time: number }
+  /** A boss diagnoses the toaster (BossPatternAttack.scan): a scanner beam on it for `time` s, and `line`. */
+  | { type: 'scan'; boss: number; time: number; line: string }
   /** Put through: the toaster went from (fromX, fromY) to (x, y), in department `dept` (1-4). */
   | { type: 'deptTransfer'; boss: number; fromX: number; fromY: number; x: number; y: number; dept: number }
   /** A boss breaks out of its shell (BossPhase.shed): the prop is left at (x, y) (bottom-centre). */

@@ -96,6 +96,7 @@ test('variado: no se repite el mismo chiste en dos sitios', () => {
     'El Muñeco de Moda',
     'El Director de Recursos Inhumanos',
     'La Centralita',
+    'La Trituradora',
     // The Mostrador's NPCs are also its props.
     'Caja de Devoluciones',
     'El Chatarrero',

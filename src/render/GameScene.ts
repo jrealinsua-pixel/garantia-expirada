@@ -305,6 +305,9 @@ interface HubViews {
   t: number;
 }
 
+/** Where the Trituradora's scanner window is in its «diagnostico» frame, from its feet (tools/sprites/trituradora.ts SCANNER_TIP). */
+const SCANNER_TIP = { x: 47, y: 48 } as const;
+
 export class GameScene extends Phaser.Scene {
   world!: World;
   controls!: Controls;
@@ -360,6 +363,8 @@ export class GameScene extends Phaser.Scene {
   private menuG!: Phaser.GameObjects.Graphics;
   /** «Le paso con el departamento»: the dotted line from where the toaster was to where it is, fading. */
   private deptLines: Array<{ ax: number; ay: number; bx: number; by: number; t: number }> = [];
+  /** The Trituradora's diagnoses on screen (event `scan`): the beam from its scanner to the toaster. */
+  private scans: Array<{ boss: number; t: number; time: number }> = [];
   /** Pieces each enemy sprite breaks into, cut once per texture and frame. */
   private pieces = new Map<string, SpritePiece[]>();
   private couponIcon!: Phaser.GameObjects.Image;
@@ -2541,6 +2546,15 @@ export class GameScene extends Phaser.Scene {
           if (boss) this.floatText(boss.x, boss.y - 80, fontText(MUTE_LINE), 0xb4b0c4, `menu:${boss.id}`, -6, e.time);
           break;
         }
+        case 'scan': {
+          // «Diagnóstico»: the scanner beeps, the beam goes over the toaster and the verdict comes up over it.
+          this.scans.push({ boss: e.boss, t: 0, time: e.time });
+          this.sound2.play('escaner');
+          const boss = this.world.enemies.find((en) => en.id === e.boss);
+          // Under its tracks, between it and the toaster: over its hopper it would be off the screen.
+          if (boss) this.floatText(boss.x, boss.y + 16, fontText(e.line), 0xff8a70, `scan:${boss.id}`, -4, e.time + 0.6);
+          break;
+        }
         case 'deptMark': {
           // The bell: two rings, and she says it.
           this.sound2.play('timbre', { detune: 150 });
@@ -4452,6 +4466,38 @@ export class GameScene extends Phaser.Scene {
       }
     }
     this.deptLines = this.deptLines.filter((ln) => ln.t < 0.6);
+    // «Diagnóstico»: a red fan of light from the scanner to the toaster, and the scan line going
+    // up and down it twice, until the warning ends.
+    for (const sc of this.scans) {
+      sc.t += dt;
+      const en = this.world.enemies.find((e) => e.id === sc.boss);
+      if (!en || isDead(en) || en.state === 'dying') {
+        sc.t = sc.time;
+        continue;
+      }
+      const p = this.world.player;
+      const tx = en.x + SCANNER_TIP.x * en.facing;
+      const ty = en.y - SCANNER_TIP.y;
+      const k = Math.min(1, sc.t / sc.time);
+      const top = p.y - 32;
+      const bottom = p.y - 2;
+      const flick = Math.floor(this.time.now / 50) % 2 ? 0.16 : 0.22;
+      g.fillStyle(0xff5a46, flick * (1 - 0.4 * k));
+      g.fillTriangle(tx, ty, p.x - 12, top, p.x - 12, bottom);
+      g.fillTriangle(tx, ty, p.x + 12, top, p.x + 12, bottom);
+      g.fillTriangle(tx, ty, p.x - 12, top, p.x + 12, bottom);
+      // The line itself: up and down the toaster, twice.
+      const sweep = (k * 2) % 1;
+      const ly = Math.round(sweep < 0.5 ? top + (bottom - top) * sweep * 2 : bottom - (bottom - top) * (sweep - 0.5) * 2);
+      g.fillStyle(0xff5a46, 0.9);
+      g.fillRect(Math.round(p.x - 13), ly, 26, 1);
+      g.fillStyle(0xffd0c0, 0.9);
+      g.fillRect(Math.round(p.x - 6), ly, 12, 1);
+      g.lineStyle(1, 0xff5a46, 0.8);
+      g.lineBetween(tx, ty, p.x - 13, ly);
+      g.lineBetween(tx, ty, p.x + 13, ly);
+    }
+    this.scans = this.scans.filter((sc) => sc.t < sc.time);
   }
 
   /**

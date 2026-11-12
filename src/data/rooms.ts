@@ -2108,6 +2108,32 @@ const FLOOR_6: RoomTemplate[] = [
       '####################',
     ],
   },
+  {
+    // M12 (4a): La Trituradora's room, at the end of the line. Open, because the boss is the size
+    // of a wall (its conveyor belts, M12 (3b3) and (4b), will cross it); crates in the corners.
+    id: 'jefe-taller',
+    kind: 'boss',
+    level: 6,
+    name: 'Taller de Reacondicionado',
+    rows: [
+      '##########################',
+      '##########################',
+      '#c......................c#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#............J...........#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#........................#',
+      '#b......................c#',
+      '##########################',
+    ],
+  },
 ];
 
 export const ROOMS: Record<string, RoomTemplate> = {
@@ -2156,9 +2182,12 @@ export const FLOOR_BOSS_4 = 'E';
 /** Floor 5's: Ú, La Centralita (M11 (5b)), in her Centralita (the capitals ran out: see ENEMY_CHARS). */
 export const FLOOR_BOSS_5 = 'Ú';
 
+/** Floor 6's (the Servicio Técnico): Ü, La Trituradora (M12 (4a)), in the Taller de Reacondicionado. */
+export const FLOOR_BOSS_6 = 'Ü';
+
 /** Template letter of the boss of floor `level`. */
 export function floorBossOf(level: number): string {
-  return level >= 5 ? FLOOR_BOSS_5 : level === 4 ? FLOOR_BOSS_4 : level === 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
+  return level >= 6 ? FLOOR_BOSS_6 : level >= 5 ? FLOOR_BOSS_5 : level === 4 ? FLOOR_BOSS_4 : level === 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;
 }
 
 /**

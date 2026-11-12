@@ -33,9 +33,12 @@ test('la planta 6: sus salas, nada regalado y los enemigos de las cinco plantas,
     assert.deepEqual(validateWorkshop(f.layout), []);
     for (const st of f.rooms) {
       const t = ROOMS[st.template.id]!;
-      // The boss's room is still floor 5's until the Trituradora (M12 (4a)).
-      if (t.kind === 'boss') assert.equal(t.id, 'jefe-atencion');
-      else assert.equal(t.level, SERVICE_LEVEL, t.id);
+      // The boss's room is the Trituradora's (M12 (4a)), and so is the boss in it.
+      if (t.kind === 'boss') {
+        assert.equal(t.id, 'jefe-taller');
+        assert.ok(st.template.rows.join('').includes('Ü'), 'la Trituradora en su sala');
+      }
+      assert.equal(t.level, SERVICE_LEVEL, t.id);
       assert.ok(st.reward !== 'ticket' && st.reward !== 'chest', `${t.id}: ${st.reward}`);
     }
   }

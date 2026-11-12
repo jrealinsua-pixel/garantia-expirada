@@ -20,6 +20,7 @@ import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
+import * as TR from './trituradora.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
 import * as H from './mostrador.ts';
@@ -104,6 +105,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // Floor 5's boss (M11 5a): centralita.ts CENTRALITA_FRAMES names each frame.
     centralita: { canvas: strip(CT.makeCentralitaFrames()), frameW: CT.CENTRALITA_W, frameH: CT.CENTRALITA_H },
     'bala-clavija': one(CT.makePlugBullet()),
+    // The final boss (M12 (4a)): trituradora.ts TRITURADORA_FRAMES names each frame.
+    trituradora: { canvas: strip(TR.makeTrituradoraFrames()), frameW: TR.TRITURADORA_W, frameH: TR.TRITURADORA_H },
     // Phase 3's cords swept round: a coil of curly cord, two frames a quarter-turn apart (M11 5c).
     'bala-cable': { canvas: strip(CT.makeCordCoils()), frameW: 10, frameH: 10 },
     // The hold music: 0 a quaver, 1 two beamed notes.

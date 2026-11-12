@@ -17,6 +17,7 @@ const ARENAS: Record<string, { room: string; level: number }> = {
   'muneco-moda': { room: 'jefe-jugueteria', level: 3 },
   'director-rrhh': { room: 'jefe-oficinas', level: 4 },
   centralita: { room: 'jefe-atencion', level: 5 },
+  trituradora: { room: 'jefe-taller', level: 6 },
 };
 
 function fight(id: string, seed: string): { w: World; boss: Enemy } {

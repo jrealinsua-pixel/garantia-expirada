@@ -227,6 +227,12 @@
     "frameH": 6,
     "frames": 1
   },
+  "trituradora": {
+    "file": "trituradora.png",
+    "frameW": 96,
+    "frameH": 88,
+    "frames": 7
+  },
   "bala-cable": {
     "file": "bala-cable.png",
     "frameW": 10,

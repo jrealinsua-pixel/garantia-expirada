@@ -596,6 +596,15 @@ reacondicionada. Fase 2, «Despiece» (desde el 60 %): la cinta del suelo arrast
 y ella escupe piezas (tornillos, muelles, teclas) en abanicos; hay que andar contra la cinta.
 Fase 3, «Control de calidad» (desde el 25 %): pega etiquetas de «APTO» que frenan, y caen
 pilas de cajas que cierran la sala por trozos.
+Hecha la fase 1 (M12 (4a)): 300 de vida (más que cualquier jefe de planta); rueda sobre orugas;
+manos grandes con guantes de nitrilo azules; una rebanada de tostada quemada asoma entre las
+cuchillas de la tolva (el cliente anterior). Responde en orden fijo, uno por turno: los cubitos de
+la Nevera con granizo detrás, la cobertura del Router en tres anillos, los accesorios del Muñeco
+con un anillo de rebajas, las tarjetas del Director en cinco abanicos y la música de espera de la
+Centralita en tres anillos. Antes de cada uno, el láser rojo del escáner barre a la tostadora y
+sale el diagnóstico («Diagnóstico: le falta frío.», «…sin cobertura.», «…pasado de moda.»,
+«…plantilla excesiva.», «…no contesta.»). Su documento, el «Parte de reacondicionado», está más
+allá de la cita: no cuenta para el expediente completo que la pide.
 
 **El final verdadero** (M12 (4)): al vencerla, la tostadora no sale por ninguna puerta. La cinta
 se la lleva, la limpian, le cambian la resistencia y la meten en una caja con la etiqueta

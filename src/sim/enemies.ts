@@ -1447,7 +1447,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         break;
       }
       if (en.t * rage >= en.until && !w.over) {
-        const i = pickAttack(w, phase.attacks, en.attack);
+        const i = phase.cycle ? ((en.attack ?? -1) + 1) % phase.attacks.length : pickAttack(w, phase.attacks, en.attack);
         en.attack = i;
         const a = phase.attacks[i]!;
         const aim = Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - mx);
@@ -1457,6 +1457,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           const em = firePattern(w, def, mx, en.y - mh, aim, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: mh });
           em.follow = { id: en.id, dx: mx - en.x, dy: -mh };
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.25);
+          // «Diagnóstico»: the scanner beam goes over the toaster while it warns, and the verdict comes up.
+          if (a.scan) w.events.push({ type: 'scan', boss: en.id, time: a.telegraph, line: a.scan });
           // Its relays send the same thing out from where they stand.
           const relayed = a.relay ? PATTERNS[a.relay] : undefined;
           if (a.relay && !relayed) throw new Error(`Unknown pattern ${a.relay}`);
