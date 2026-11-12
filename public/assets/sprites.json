@@ -257,6 +257,24 @@
     "frameH": 76,
     "frames": 12
   },
+  "lavadora-eco": {
+    "file": "lavadora-eco.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 21
+  },
+  "bala-espuma": {
+    "file": "bala-espuma.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 2
+  },
+  "bala-calcetin": {
+    "file": "bala-calcetin.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 2
+  },
   "router-wifi": {
     "file": "router-wifi.png",
     "frameW": 72,

@@ -38,7 +38,7 @@ test('cada logro tiene su id, un número alcanzable y textos que se escriben con
     }
     assert.ok(a.text.endsWith('.') && a.quip.length > 5, a.id);
   }
-  assert.equal(FLOOR_BOSSES.length, 5, 'los cinco jefes de planta, sin la Trituradora');
+  assert.ok(FLOOR_BOSSES.length >= 5 && !FLOOR_BOSSES.includes('trituradora'), 'los jefes de planta (cinco o más), sin la Trituradora');
 });
 
 test('un perfil nuevo no tiene logros; la primera baja da el primero y espera a anunciarse', () => {

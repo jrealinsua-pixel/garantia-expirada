@@ -829,7 +829,7 @@ export interface BossPhase {
    * once due, it waits for the attack it is doing to end) it stops dead for `time` s, attacking nothing (state `stun`, frame
    * EnemyAnim.stun), and takes `taken` times the damage meanwhile: the moment to hit it.
    */
-  mute?: { every: [number, number]; time: number; taken: number };
+  mute?: { every: [number, number]; time: number; taken: number; line?: string };
   /**
    * Its own frames from this phase on (instead of shifting the usual ones, BossPhase.frameShift),
    * when the phase has fewer of them: the Centralita without her plugs, two to drag herself.
@@ -1379,6 +1379,11 @@ export interface EnemyAnim {
    * same layout `front` frames on faces the camera (heading down) and `back` frames on faces away.
    */
   views?: { front: number; back: number };
+  /**
+   * A boss that rattles on its feet from boss phase `phase` on (the Lavadora's Centrifugado, M14 (j2)):
+   * the sprite jumps `px` px about every `ms` ms (not while stopped, between phases or dying).
+   */
+  rattle?: { phase: number; px: number; ms: number };
   /** Jammed turrets: frames cycled every `jamMs` while it shakes. */
   jam?: readonly number[];
   jamMs?: number;

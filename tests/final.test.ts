@@ -79,14 +79,14 @@ test('los textos del final caben en pantalla', () => {
   assert.ok(textWidth('€') >= 4);
 });
 
-test('los créditos nombran al producto, a los seis jefes en orden y al resto del reparto', () => {
+test('los créditos nombran al producto, a todos los jefes en orden y al resto del reparto', () => {
   const credits = endingCredits('Motor de prueba');
   const names = credits.flatMap((l) => (l.kind === 'gap' ? [] : [l.text]));
   assert.ok(names.includes('Motor de prueba'), 'el motor lo pone la escena');
   for (const c of Object.values(CHARACTERS)) assert.ok(names.includes(c.name), c.name);
-  const bosses = ['nevera-suprema', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora'].map((id) => ENEMIES[id]!.boss!.title);
+  const bosses = ['nevera-suprema', 'lavadora-eco', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora'].map((id) => ENEMIES[id]!.boss!.title);
   const at = bosses.map((t) => names.indexOf(t));
-  assert.ok(at.every((i) => i >= 0), 'están los seis');
+  assert.ok(at.every((i) => i >= 0), 'están todos');
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'en el orden en que se encuentran');
   const allBosses = Object.values(ENEMIES).filter((d) => d.boss);
   assert.equal(allBosses.length, bosses.length, 'si hay un jefe nuevo, que salga en los créditos');

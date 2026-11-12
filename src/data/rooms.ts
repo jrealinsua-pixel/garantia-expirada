@@ -2262,7 +2262,8 @@ export const FLOOR_BOSS_6 = 'Ü';
  * `floorBossOf` gives and the one a single room (`?sala=`) brings.
  */
 export const FLOOR_BOSS_POOLS: Readonly<Record<number, readonly string[]>> = {
-  1: [FLOOR_BOSS_1],
+  // M14 (j2): or La Lavadora Programa Eco (À).
+  1: [FLOOR_BOSS_1, 'À'],
   2: [FLOOR_BOSS_2],
   3: [FLOOR_BOSS_3],
   4: [FLOOR_BOSS_4],

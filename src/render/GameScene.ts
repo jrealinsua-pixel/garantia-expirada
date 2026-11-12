@@ -164,7 +164,7 @@ import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
 import { slipLayout, type SlipRole } from './ficha.ts';
 import { returnSlip, slipHint, slipNumber, STORIES } from '../data/stories.ts';
 import { BOSS_BAR, bossBarVeiled, cardLayout, departmentLabelBox, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
-import { bulbLit, enemyFrame, spinMirrored } from './enemyAnim.ts';
+import { bulbLit, enemyFrame, rattleOffset, spinMirrored } from './enemyAnim.ts';
 
 export const VIEW_W = 480;
 
@@ -2905,9 +2905,11 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'mute': {
           // Gone quiet: the busy tone, three times over the second, and it written over her.
-          for (let i = 0; i < 3; i++) this.time.delayedCall(i * 330, () => this.sound2.play('comunicando'));
+          // With a line of its own (the Lavadora weighing the load): two slow beeps of the display.
+          if (e.line) for (let i = 0; i < 2; i++) this.time.delayedCall(i * 520, () => this.sound2.play('turno', { detune: -500 }));
+          else for (let i = 0; i < 3; i++) this.time.delayedCall(i * 330, () => this.sound2.play('comunicando'));
           const boss = this.world.enemies.find((en) => en.id === e.boss);
-          if (boss) this.floatText(boss.x, boss.y - 80, fontText(MUTE_LINE), 0xb4b0c4, `menu:${boss.id}`, -6, e.time);
+          if (boss) this.floatText(boss.x, boss.y - 80, fontText(e.line ?? MUTE_LINE), e.line ? 0x9fe8e4 : 0xb4b0c4, `menu:${boss.id}`, -6, e.time);
           break;
         }
         case 'scan': {
@@ -3489,10 +3491,12 @@ export class GameScene extends Phaser.Scene {
             // The Router reboots: everything goes dark and its line comes up over it.
             this.sound2.play('apagar');
             this.floatText(boss.x, boss.y + 18, fontText(e.reboot), 0xb7bed0, `reboot:${boss.id}`, -1, 4.6);
-          } else if (e.line && boss && (boss.def.id === 'director-rrhh' || boss.def.id === 'centralita')) {
+          } else if (e.line && boss && (boss.def.id === 'director-rrhh' || boss.def.id === 'centralita' || boss.def.id === 'lavadora-eco')) {
             // The Director announces it calmly (the clap is its own event): just the line. The
-            // Centralita too, after a ring: a recording does not raise its voice.
+            // Centralita too, after a ring: a recording does not raise its voice. The Lavadora's
+            // spin starts with its motor winding up.
             if (boss.def.id === 'centralita') this.sound2.play('timbre');
+            if (boss.def.id === 'lavadora-eco') this.sound2.play('motor', { detune: 400 });
             // Under its feet, unless that is where the phase card comes up: then over its head.
             const v = this.cameras.main.worldView;
             const low = boss.y + 16 - v.y > v.height * 0.7;
@@ -4423,7 +4427,9 @@ export class GameScene extends Phaser.Scene {
       const alt = enemyAltitude(en);
       // Flyers bob up and down; the moth flaps fast, faster when it dives.
       const fly = alt > 0 ? Math.round(Math.sin(this.time.now / 160 + en.id) * 1.5) : 0;
-      s.setPosition(Math.round(en.x) + shiver, Math.round(en.y) + bob - alt + fly).setDepth(en.y + (alt > 0 ? 1 : 0));
+      // The Lavadora spinning rattles on its feet (EnemyAnim.rattle).
+      const rt = rattleOffset(en, this.time.now);
+      s.setPosition(Math.round(en.x) + shiver + rt.x, Math.round(en.y) + bob - alt + fly + rt.y).setDepth(en.y + (alt > 0 ? 1 : 0));
       // A boss spinning on the spot shows its other side half the time (EnemyAnim.spin), and the
       // stickers peel off with a rip as it starts.
       const spinning = isSpinning(en);
@@ -4617,6 +4623,9 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'screw') s.setFrame(Math.floor(this.time.now / 60 + b.id) % 2);
       if (b.color === 'spring') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       if (b.color === 'key') s.setFrame(Math.floor(this.time.now / 130 + b.id) % 2);
+      // The Lavadora's (M14 (j2)): the foam bubbles wobble, slowly; the odd socks flap as they fly.
+      if (b.color === 'foam') s.setFrame(Math.floor(this.time.now / 180 + b.id) % 2);
+      if (b.color === 'sock') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -5898,7 +5907,7 @@ const BULLET_TEXTURES: Record<BulletColor, string> = {
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
   bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
   call: 'bala-llamada', note: 'nota-espera', plug: 'bala-clavija', cord: 'bala-cable',
-  screw: 'bala-tornillo', spring: 'bala-muelle', key: 'bala-tecla',
+  screw: 'bala-tornillo', spring: 'bala-muelle', key: 'bala-tecla', foam: 'bala-espuma', sock: 'bala-calcetin',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

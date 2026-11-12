@@ -1170,6 +1170,53 @@ try {
   await shot('36d-router-caidas.png');
   console.log('Router del Wifi: cartel, ondas con hueco y repetidores, reinicio y caídas de conexión.');
 
+  // M14 (j2): la Lavadora Programa Eco, floor 1's second boss: its card, the foam of Prelavado,
+  // stopping to weigh the load, the odd socks of Lavado bouncing off the walls and the spin.
+  await page.goto(`${url}?semilla=e2e-lavadora&sala=jefe&jefe=À`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const lavJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'lavadora-eco')";
+  if (!(await page.evaluate<boolean>(`!!${lavJs} && !!window.__GE__.scene.world.intro`))) throw new Error('La Lavadora no está en la sala del jefe o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('63a-lavadora-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  await page.evaluate(`${lavJs}.muteIn = 99`);
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.bullets.filter((b) => b.color === 'foam' && b.age > 1.2 && v.contains(b.x, b.y)).length >= 10; })()`,
+    undefined,
+    { timeout: 20000 },
+  ).catch(() => { throw new Error('La Lavadora no suelta espuma en el prelavado'); });
+  await shot('63b-lavadora-espuma.png');
+  await page.waitForFunction(`${lavJs}.state === 'idle'`, undefined, { timeout: 8000 });
+  await page.evaluate(`${lavJs}.muteIn = 0`);
+  await page.waitForFunction(`${lavJs}.state === 'stun'`, undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('La Lavadora no se para a pesar la carga'); });
+  await page.waitForTimeout(500);
+  await shot('63c-lavadora-pesando.png');
+  await page.evaluate(`(() => { const b = ${lavJs}; b.damageTaken = Math.ceil(b.def.hp * 0.4); b.muteIn = 99; })()`);
+  await page.waitForFunction(`${lavJs}.bossPhase === 1`, undefined, { timeout: 5000 });
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView; s.world.enemies.forEach((e) => { if (e.def.id === 'lavadora-eco') e.muteIn = 99; });
+      return s.world.bullets.filter((b) => b.color === 'sock' && (b.bounce ?? 2) < 2 && v.contains(b.x, b.y)).length >= 2; })()`,
+    undefined,
+    { timeout: 25000 },
+  ).catch(() => { throw new Error('Los calcetines de la Lavadora no rebotan'); });
+  await shot('63d-lavadora-calcetines.png');
+  await page.evaluate(`(() => { const b = ${lavJs}; b.damageTaken = Math.ceil(b.def.hp * 0.72); })()`);
+  await page.waitForFunction(`${lavJs}.bossPhase === 2`, undefined, { timeout: 5000 });
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView; s.world.enemies.forEach((e) => { if (e.def.id === 'lavadora-eco') e.muteIn = 99; });
+      return s.world.bullets.filter((b) => b.color === 'cyan' && b.age > 0.3 && v.contains(b.x, b.y)).length >= 18; })()`,
+    undefined,
+    { timeout: 25000 },
+  ).catch(() => { throw new Error('La Lavadora no centrifuga'); });
+  await shot('63e-lavadora-centrifugado.png');
+  console.log('Lavadora Programa Eco: cartel, espuma, pesando la carga, calcetines que rebotan y centrifugado.');
+
   // M10 (5b): el Muñeco de Moda, floor 3's boss: its card, the accessories, the catwalk with its
   // flashes, and the sales (the tag on its box comes down and the repeated dolls come out).
   await page.goto(`${url}?semilla=e2e-muneco&sala=jefe-jugueteria&planta=3`);

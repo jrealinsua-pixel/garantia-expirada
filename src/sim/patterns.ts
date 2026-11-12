@@ -23,10 +23,12 @@ import type { Rng } from './rng.ts';
  * `plug` the Centralita's plugs, red with a white core, pointing where they fly. `screw`, `spring`
  * and `key` are what the Trituradora has taken apart (M12 (4b)): steel screws with a red head,
  * spinning; red coiled springs, squashing and stretching; old keyboard keys, white with a red letter, tumbling.
+ * `foam` and `sock` are the Lavadora Programa Eco's (M14 (j2)): big soap bubbles, cyan-rimmed with a
+ * white glint, wobbling; and odd socks, red with a white heel and toe, flapping as they bounce.
  */
 export type BulletColor =
   | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help'
-  | 'call' | 'note' | 'plug' | 'cord' | 'screw' | 'spring' | 'key';
+  | 'call' | 'note' | 'plug' | 'cord' | 'screw' | 'spring' | 'key' | 'foam' | 'sock';
 
 /**
  * «Escribiendo…»: at `at` s it stops in mid-air for `wait` s, then sets off again (at its speed)
@@ -63,6 +65,8 @@ interface Common {
   life?: number;
   /** Its radius (px), if not the usual (ENEMY_BULLET_RADIUS): the phone's fat call. */
   radius?: number;
+  /** Walls (and props) it bounces off before it breaks: the Lavadora's odd socks. */
+  bounce?: number;
 }
 
 /** `count` bullets evenly around a full circle. `offsetDeg` rotates the ring. */
@@ -139,6 +143,7 @@ export interface ShotSpec {
   shootable?: boolean;
   life?: number;
   radius?: number;
+  bounce?: number;
 }
 
 const DEG = Math.PI / 180;
@@ -153,6 +158,7 @@ function shot(def: Common, delay: number, angle: number): ShotSpec {
   if (def.shootable) s.shootable = true;
   if (def.life) s.life = def.life;
   if (def.radius) s.radius = def.radius;
+  if (def.bounce) s.bounce = def.bounce;
   return s;
 }
 

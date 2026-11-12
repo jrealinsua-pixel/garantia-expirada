@@ -172,6 +172,8 @@ const ENEMY_CHARS: Record<string, string> = {
   É: 'asistente-virtual',
   // Ó: the reception phone (M11 (4d)).
   Ó: 'telefono-recepcion',
+  // À: La Lavadora Programa Eco, floor 1's second boss (M14 (j2)), in the Nevera's room.
+  À: 'lavadora-eco',
   // Ú: La Centralita, floor 5's boss (M11 (5b)).
   Ú: 'centralita',
   // Ü: La Trituradora, the final boss (M12 (4a)), in the Servicio Técnico's workshop.

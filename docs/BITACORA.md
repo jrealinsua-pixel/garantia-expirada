@@ -2,6 +2,46 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 00:20 (hora peninsular, de `date`) — Hito M14 — Jefes al azar (j2): la Lavadora Programa Eco
+- Contexto: el `main` local volvía a estar viejo (otro clon); lo guardé como `main-stale2` y puse
+  `main` en `origin/main`. Salud al empezar: `check`, 912 tests, `build` y `bot` en verde.
+- Hecho: **la Lavadora Programa Eco** (`lavadora-eco`, letra `À`), el segundo jefe de la planta 1,
+  en `FLOOR_BOSS_POOLS[1]` junto a la Nevera: la semilla elige (en 400 semillas, más o menos a
+  medias). Diseño a fondo en `docs/DISENO.md` («La Lavadora Programa Eco»). Sprite nuevo
+  (`tools/sprites/lavadora.ts`, 72×76): lavadora de carga frontal con el cajetín perdiendo polvo
+  azul, la pantalla en **2:59**, el mando en ECO, una toalla encima, el ojo de buey como barriga, el
+  calcetín rojo pillado en la goma y la etiqueta A+++ con la hoja verde que se puso ella. Siete
+  fotogramas por programa (reposo, respiración con el tambor chapoteando, cuatro de andar y
+  «pesando»): espuma, agua con calcetín y remolino con 1400 en rojo. Balas nuevas: pompas de jabón
+  (16×16) y calcetines (12×12). Los tres programas: **Prelavado** (anillos de pompas grandes que
+  frenan y se quedan flotando; se revientan a tiros) y un chorro apuntado; **Lavado** (desde 2/3:
+  calcetines que rebotan dos veces en las paredes, y dos abanicos que rebotan una); **Centrifugado**
+  (desde 1/3: más rápida, el sprite tiembla, espirales de agua de cuatro brazos y anillos de
+  «Desagüe» que aceleran). En los tres, cada 8–13 s se para a **pesar la carga** (2 s quieta, sin
+  atacar, recibe ×1,5, «Pesando la carga…» y dos pitidos). Su cartel, su causa de baja, el glosario y
+  los créditos.
+  Motor (genérico, en los datos): `bounce` en los patrones (las balas enemigas rebotan como las del
+  jugador), `BossPhase.mute.line` (la frase propia de la pausa), `EnemyAnim.rattle` (el temblor) y
+  el bot acepta un jefe forzado (`runBoss(..., boss)`), con su línea «combates contra la Lavadora».
+  Tests: `tests/lavadora.test.ts` (5) y ajustes a los que daban por hecho que la planta 1 era la
+  Nevera (boss, router-jefe, jefes-azar, jefes-movimiento, archivador, glosario, logros, final,
+  textos). e2e `63a`–`63e`: cartel, espuma, pesando la carga, calcetines rebotando y centrifugado.
+- Decisiones: «Entre programas se para a pesar la carga» lo hice con la pausa que ya tenía la
+  Centralita (`mute`), una vez cada 8–13 s en cada programa, no solo en el cambio de fase (el cambio de
+  fase ya es invulnerable: no servía de ventana). Su sala es la de la Nevera (la sala es de la planta),
+  así que el cartel de arriba dice «Cámara frigorífica de la Dirección»: se queda, es la sala de
+  la Dirección de la planta. El logro «Hoja de reclamaciones completa» pasa a «Vence a 5 jefes de
+  planta distintos» (había 6 jefes de planta). El documento del archivador lo deja cualquier jefe de
+  la planta, como decidió la (j1): la Lavadora no trae uno propio. No hay frases con exclamación (la
+  guía de textos lo prohíbe): «1400 revoluciones. Las que pone en la caja.»
+- Medidas: el bot contra la Lavadora (30 combates): gana el 60 % en 73 s, 4,7 heridas (2,2 en el
+  prelavado, 1,8 en el lavado, 0,7 centrifugando); contra la Nevera, el 67 % en 72 s. Antes de ajustar
+  (140 de vida, 9 pompas por anillo) ganaba el 30 %: bajé a 130 de vida, 8 pompas que viven 5 s y un
+  chorro de 6. Planta 1 entera con daño: la gana el 35 % (antes el 15 %; con 20 plantas es mucho
+  ruido). `npm run bot` 200 partidas, 0 fallos. 918 tests en verde.
+- Problemas conocidos: ninguno nuevo.
+- Siguiente paso: (j3) la Nube de Almacenamiento, el segundo jefe de la planta 2.
+
 ## 2026-11-12 23:05 (hora peninsular, de `date`) — Hito M14 — Jefes al azar (j1): cada planta elige su jefe
 - Contexto: el `main` local del clon estaba viejo y divergido (50 commits que no están en el
   remoto); lo guardé como rama local `main-stale` y puse `main` en `origin/main`. Salud al empezar:

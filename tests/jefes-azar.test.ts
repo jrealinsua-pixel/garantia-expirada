@@ -114,7 +114,7 @@ test('el jefe se puede forzar (tests y ?jefe=), pero solo con la letra de un jef
   assert.equal(w.floor!.boss, 'X');
   assert.ok(bossRoomRows(w).includes('X'));
   const n = createWorld({ seed: 'forzado', floor: true, level: 1, boss: 'A' });
-  assert.equal(n.floor!.boss, 'N', 'el aspirador no es un jefe: se ignora');
+  assert.equal(n.floor!.boss, pickFloorBoss('forzado', 1), 'el aspirador no es un jefe: se ignora');
 });
 
 test('los personajes y la cita piden el jefe de una planta, sea cual sea', () => {

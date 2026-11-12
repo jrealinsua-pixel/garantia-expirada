@@ -30,6 +30,8 @@ export interface BotReport {
   msPorPartida: number;
   /** The boss fight (M4 criterion): see BossReport. */
   jefe?: BossReport;
+  /** Floor 1's other boss, La Lavadora Programa Eco (M14 (j2)), in the same room. */
+  lavadora?: BossReport;
   /** The same against floor 2's boss, el Router del Wifi, in its Sala de Redes. */
   router?: BossReport;
   /** And against floor 3's, el Muñeco de Moda, in its Escaparate de Novedades. */
@@ -318,7 +320,7 @@ export interface BossReport {
 }
 
 /** The bot fights the floor boss in its room (entrance skipped), with damage, up to `maxSeconds`. */
-export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level = 1): { report: BossReport; errors: string[] } {
+export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level = 1, boss?: string): { report: BossReport; errors: string[] } {
   const errors: string[] = [];
   const won: number[] = [];
   let hurts = 0;
@@ -330,7 +332,7 @@ export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level =
   for (let i = 0; i < fights; i++) {
     const seed = `jefe-${i}`;
     let phase = 0;
-    const w = createWorld({ seed, room, level, character: CHARACTER });
+    const w = createWorld({ seed, room, level, character: CHARACTER, ...(boss ? { boss } : {}) });
     w.intro = null;
     const bot = new Bot(seed);
     try {
@@ -613,6 +615,9 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const boss = runBoss(bosses);
   failed += boss.errors.length;
   errors.push(...boss.errors);
+  const lavadora = runBoss(bosses, 240, 'jefe', 1, 'À');
+  failed += lavadora.errors.length;
+  errors.push(...lavadora.errors);
   const router = runBoss(bosses, 240, 'jefe-informatica', 2);
   failed += router.errors.length;
   errors.push(...router.errors);
@@ -646,6 +651,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     msPorPartida: Math.round((ms / (games + 2)) * 10) / 10,
     plantas: fl.report,
     jefe: boss.report,
+    lavadora: lavadora.report,
     router: router.report,
     muneco: muneco.report,
     director: director.report,
@@ -695,6 +701,14 @@ if (import.meta.main) {
         `${j.heridas} heridas por combate (${j.heridasFase1} en la fase 1, ${j.heridasFase2} en la 2) · ${j.segundosEnEscarcha} s en la escarcha · ` +
         `baja en el montacargas el ${j.montacargas} % de las victorias · ` +
         `llega a la fase 2 el ${j.llegaFase2} %, a los ${j.segundoFase2} s`,
+    );
+  }
+  const lv = report.lavadora;
+  if (lv?.combates) {
+    console.log(
+      `${lv.combates} combates contra la Lavadora · gana el ${lv.gana} % en ${lv.segundos} s (${lv.minimo}–${lv.maximo} s) · ` +
+        `${lv.heridas} heridas por combate (${lv.heridasFase1} en el prelavado, ${lv.heridasFase2} en el lavado, ${lv.heridasFase3} centrifugando) · ` +
+        `llega al lavado el ${lv.llegaFase2} %, a los ${lv.segundoFase2} s; centrifuga el ${lv.llegaFase3} %, a los ${lv.segundoFase3} s`,
     );
   }
   const r = report.router;

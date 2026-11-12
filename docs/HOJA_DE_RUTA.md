@@ -595,8 +595,11 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
     que pedía un jefe concreto pide ahora «el jefe de la planta N»: los personajes del tablón
     (`floorBosses`), la cita del Servicio Técnico y los documentos de los jefes. `?jefe=<letra>`
     lo fuerza. Hecho el 2026-11-12: `tests/jefes-azar.test.ts`.
-  - [ ] (j2) Planta 1: la Lavadora Programa Eco (diseño, sprite, sus tres programas, presentación,
-    despiece, documento… como los demás jefes), en la lista de la planta 1.
+  - [x] (j2) Planta 1: la Lavadora Programa Eco (diseño, sprite, sus tres programas, presentación,
+    despiece, documento… como los demás jefes), en la lista de la planta 1. Hecho el 2026-11-12:
+    `lavadora-eco` (letra `À`), `tools/sprites/lavadora.ts`, balas que rebotan (`bounce` en los
+    patrones), «Pesando la carga» (`BossPhase.mute.line`), el temblor (`EnemyAnim.rattle`), el bot la
+    mide; ya sale en el glosario y en los créditos. `tests/lavadora.test.ts`, e2e `63a`–`63e`.
   - [ ] (j3) Planta 2: la Nube de Almacenamiento.
   - [ ] (j4) Planta 3: la Consola Edición Coleccionista.
   - [ ] (j5) Planta 4: la Fuente de Agua de Oficina.

@@ -430,6 +430,38 @@ export const PATTERNS: Record<string, PatternDef> = {
   },
   // An expired product bursts where it lands.
   'caducado-reventon': { kind: 'ring', count: 6, speed: 50, color: 'red' },
+  // La Lavadora Programa Eco (M14 (j2)), floor 1's second boss. «Prelavado»: two rings of big soap
+  // bubbles that slow down to a drift and hang there, filling the room and hiding what comes behind
+  // them; they pop if you shoot them (one shot each), so you clear yourself a way through.
+  'lavadora-espuma': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 8, speed: 60, accel: -24, life: 5, radius: 6, shootable: true, color: 'foam' } },
+      { at: 0.5, pattern: { kind: 'ring', count: 8, speed: 60, accel: -24, offsetDeg: 22.5, life: 5, radius: 6, shootable: true, color: 'foam' } },
+    ],
+  },
+  // «Llenado»: a jet of water from the detergent drawer, aimed, a little wild.
+  'lavadora-llenado': { kind: 'burst', count: 6, interval: 0.1, jitterDeg: 6, speed: 128, color: 'cyan' },
+  // «Lavado»: a fan of odd socks that bounce off the walls twice before they give up (never in pairs).
+  'lavadora-calcetines': { kind: 'fan', count: 5, spreadDeg: 76, speed: 96, bounce: 2, life: 5, color: 'sock' },
+  // Two smaller fans, one to each side of you, that bounce once: the gap is in the middle, at first.
+  'lavadora-calcetines-par': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 3, spreadDeg: 24, speed: 104, bounce: 1, life: 4.5, color: 'sock' }, turnDeg: -28 },
+      { at: 0.35, pattern: { kind: 'fan', count: 3, spreadDeg: 24, speed: 104, bounce: 1, life: 4.5, color: 'sock' }, turnDeg: 28 },
+    ],
+  },
+  // «Centrifugado»: four arms of water spun out fast, turning one way...
+  'lavadora-centrifugado': { kind: 'spiral', arms: 4, steps: 16, stepDeg: 13, interval: 0.075, speed: 112, color: 'cyan' },
+  // ...and «Desagüe»: two rings of drops, the second offset, that start slow and speed up.
+  'lavadora-desague': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 14, speed: 40, accel: 70, maxSpeed: 110, color: 'cyan' } },
+      { at: 0.4, pattern: { kind: 'ring', count: 14, speed: 40, accel: 70, maxSpeed: 110, offsetDeg: 12.86, color: 'cyan' } },
+    ],
+  },
   // A frost ball shatters where it lands: a few slow splinters.
   'escarcha-esquirlas': { kind: 'ring', count: 6, speed: 52, offsetDeg: 30, color: 'ice' },
   // Generic aimed fan, for the weaker enemies.

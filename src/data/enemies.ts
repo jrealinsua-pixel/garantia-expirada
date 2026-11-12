@@ -972,7 +972,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     brain: {
       kind: 'boss',
       // On wheels: pushes of the feet in short legs, now a glide, now a lurch.
-      roam: { leg: [0.4, 1.1], burst: [0.5, 1.6], spread: 50 },
+      roam: { leg: [0.5, 1.3], burst: [0.6, 1.5], spread: 50 },
       drift: 0.35,
       rage: 0.6,
       // His right hand, out in front of the chair: the cards come out of there.
@@ -1277,6 +1277,84 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // 0-1 plugged in with its light blinking.
     anim: { idle: [0, 1], idleMs: 350 },
     brain: { kind: 'relay', muzzleY: 13 },
+  },
+  // M14 (j2): floor 1's second boss, drawn instead of the Nevera by some seeds (FLOOR_BOSS_POOLS).
+  'lavadora-eco': {
+    id: 'lavadora-eco',
+    name: 'La Lavadora Programa Eco',
+    description:
+      'Gasta la mitad de agua y tarda el triple: en la pantalla pone 2:59 desde que la enchufaron. ' +
+      'La hoja verde y la etiqueta A+++ se las puso ella.',
+    // Like the Nevera (135): the same floor, the same toaster with one weapon. Measured with the bot (j2).
+    hp: 130,
+    sprite: 'lavadora-eco',
+    anchor: { x: 34, y: 73 },
+    hurt: { x: -25, y: -66, w: 50, h: 58 },
+    footRadius: 16,
+    contactPush: 260,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [5, 8], hearts: 1 },
+    // Seven frames per program (tools/sprites/lavadora.ts): 0-1 breathing (the drum sloshing), 2-5 a
+    // heavy walk, 6 weighing the load. Lavado is the same seven on, Centrifugado fourteen on, and in
+    // Centrifugado the whole machine rattles.
+    anim: { idle: [0, 1], idleMs: 520, walk: [2, 3, 4, 5], stepPx: 9, stun: 6, rattle: { phase: 2, px: 1, ms: 45 } },
+    brain: {
+      kind: 'boss',
+      roam: { leg: [0.5, 1.3], burst: [0.6, 1.5], spread: 50 },
+      drift: 0.35,
+      rage: 0.45,
+      // The porthole, in the middle of its front: everything comes out of the drum.
+      muzzle: { x: 7, y: 26 },
+      phases: [
+        {
+          name: 'Prelavado',
+          from: 1,
+          walkSpeed: 40,
+          keep: 130,
+          rest: [0.9, 1.4],
+          // «Pesando la carga»: now and then it stops dead to weigh the load, and takes more meanwhile.
+          mute: { every: [8, 11], time: 2.2, taken: 1.5, line: 'Pesando la carga…' },
+          attacks: [
+            // Rings of foam that slow to a drift and fill the room (shoot them to pop a way through).
+            { kind: 'pattern', pattern: 'lavadora-espuma', telegraph: 0.8, weight: 3 },
+            { kind: 'pattern', pattern: 'lavadora-llenado', telegraph: 0.6, weight: 2 },
+          ],
+        },
+        {
+          // A third of its life gone: the water goes in and the odd socks start coming out.
+          name: 'Lavado',
+          from: 0.66,
+          walkSpeed: 42,
+          keep: 125,
+          rest: [0.8, 1.2],
+          mute: { every: [9, 12], time: 2, taken: 1.5, line: 'Pesando la carga…' },
+          frameShift: 7,
+          attacks: [
+            { kind: 'pattern', pattern: 'lavadora-calcetines', telegraph: 0.7, weight: 3 },
+            { kind: 'pattern', pattern: 'lavadora-calcetines-par', telegraph: 0.6, weight: 2 },
+            { kind: 'pattern', pattern: 'lavadora-espuma', telegraph: 0.7, weight: 1 },
+          ],
+        },
+        {
+          // The last third: it spins, rattling across the room in lurches.
+          name: 'Centrifugado',
+          from: 0.33,
+          walkSpeed: 62,
+          keep: 115,
+          rest: [0.6, 1],
+          line: '1400 revoluciones. Las que pone en la caja.',
+          mute: { every: [10, 13], time: 1.8, taken: 1.5, line: 'Pesando la carga…' },
+          frameShift: 14,
+          attacks: [
+            { kind: 'pattern', pattern: 'lavadora-centrifugado', telegraph: 0.7, weight: 3 },
+            { kind: 'pattern', pattern: 'lavadora-desague', telegraph: 0.7, weight: 2 },
+            { kind: 'pattern', pattern: 'lavadora-calcetines', telegraph: 0.6, weight: 1 },
+          ],
+        },
+      ],
+    },
+    boss: { title: 'La Lavadora Programa Eco', motto: 'Tres horas para lavar lo mismo. Pero ahorra.', subtitle: 'Jefa de planta · Electrodomésticos' },
   },
   'nevera-suprema': {
     id: 'nevera-suprema',

@@ -306,6 +306,34 @@ Máquina son objetos):
 | 4 | **La Fuente de Agua de Oficina** | «Hidratación corporativa. En vasos que no se pueden dejar en la mesa.» | Borbotones del garrafón (anillos que suben y caen), vasos de cono en abanico que giran, charcos que resbalan, y una fase de «cambio de garrafa» en la que rueda por la sala la garrafa vacía. |
 | 5 | **La Política de Devoluciones** | «Devolución en 14 días. Hábiles. Del año que viene.» | Un contrato enorme que se desenrolla: cláusulas que cierran franjas de la sala, letra pequeña (muchas balas diminutas y lentas) y asteriscos que remiten a otra cláusula (balas que cambian de rumbo hacia una marca). |
 
+#### La Lavadora Programa Eco (planta 1, hecha en M14 (j2))
+
+«Tres horas para lavar lo mismo. Pero ahorra.» Jefa de planta de Electrodomésticos, la otra que
+puede salir en lugar de la Nevera (la semilla elige, más o menos a medias). Una lavadora de carga
+frontal con patas cortas: el cajetín del detergente medio abierto y perdiendo polvo azul, una
+pantalla que dice **2:59** siempre, el mando de programas en ECO, una toalla arrugada encima (todo
+el mundo la usa de estante) y el ojo de buey como barriga, donde se ve en qué programa está. Mira
+desde arriba, con los párpados de carcasa medio caídos: tiene todo el día. Chistes: el 2:59, un
+calcetín rojo pillado en la goma de la puerta y, en el costado, la etiqueta A+++ y la hoja verde de
+«ECO» que se puso ella misma. 130 de vida (la Nevera, 135).
+
+- **Prelavado** (toda la vida): anillos de pompas de jabón grandes que salen deprisa, frenan y se
+  quedan flotando unos segundos, llenando la sala y tapando lo que viene detrás; un disparo revienta
+  cada una, así que uno se abre camino a tiros. Y «Llenado»: un chorro de agua apuntado y algo loco.
+- **Lavado** (desde dos tercios): calcetines desparejados en abanico que **rebotan dos veces en las
+  paredes** (nunca van en pareja), y dos abanicos pequeños a cada lado con el hueco en el medio, que
+  rebotan una. A veces, todavía, espuma. El ojo de buey se llena de agua con un calcetín dando vueltas.
+- **Centrifugado** (desde un tercio): «1400 revoluciones. Las que pone en la caja.» Anda mucho más
+  deprisa, a tirones, temblando sobre las patas (el sprite vibra), y suelta espirales rápidas de agua
+  de cuatro brazos y dos anillos de «Desagüe» que empiezan lentos y aceleran. La pantalla marca 1400 en
+  rojo y el ojo de buey es un remolino.
+- **Pesando la carga**: en los tres programas, cada 8–13 s, entre dos ataques, se para en seco a
+  pesar la carga: dos pitidos, «Pesando la carga…» encima, la pantalla en guiones ámbar y los ojos
+  mirándose los pies (a la báscula que no tiene). Durante esos 2 s ni se mueve ni ataca y recibe un
+  50 % más: la ventana para pegarle.
+- Causa de baja: «Calcetín desparejado a 1400 revoluciones» o «Arrollado por un electrodoméstico de
+  clase A+++».
+
 ## Mecánicas
 
 ### Control

@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { BOSS_FLOORS, bossesOfFloor } from '../src/sim/bosses.ts';
 import { emptyProfile, parseProfile, recordRun, type Profile, type RunResult } from '../src/sim/profile.ts';
 import { archive, archiveCount } from '../src/sim/archive.ts';
 import { LORE, LORE_MISSING, LORE_PAGE_MAX } from '../src/data/lore.ts';
@@ -22,7 +23,8 @@ const played = (...runs: RunResult[]): Profile => runs.reduce((p, r) => recordRu
 test('cada jefe vencido tiene su documento y cada sala secreta de las plantas que hay, el suyo', () => {
   const ids = LORE.map((l) => l.id);
   assert.equal(new Set(ids).size, ids.length);
-  const bosses = Object.keys(ENEMIES).filter((e) => ENEMIES[e]!.boss);
+  // One per floor (M14 (j1)): any of the floor's bosses leaves its first boss's document.
+  const bosses = BOSS_FLOORS.map((n) => bossesOfFloor(n)[0]!);
   for (const b of bosses) assert.equal(LORE.filter((l) => 'boss' in l.source && l.source.boss === b).length, 1, `${b} deja un documento`);
   for (const floor of [1, 2, 3, 4, 5]) assert.equal(LORE.filter((l) => 'secret' in l.source && l.source.secret === floor).length, 1, `la sala secreta de la planta ${floor} guarda uno`);
   for (const l of LORE) if ('boss' in l.source) assert.ok(ENEMIES[l.source.boss]?.boss, `${l.id}: ${l.source.boss} es un jefe`);

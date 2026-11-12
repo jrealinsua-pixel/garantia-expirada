@@ -145,3 +145,15 @@ export function spinMirrored(en: Enemy): boolean {
   if (!sp || !isSpinning(en)) return false;
   return spinStep(en) % sp.length >= sp.length / 2;
 }
+
+/**
+ * How far the sprite of a rattling boss jumps right now (EnemyAnim.rattle): from its phase on, a
+ * px or so sideways and now and then one up, changing every `ms`; nothing while it stands planted
+ * (weighing the load, between phases, dying).
+ */
+export function rattleOffset(en: Enemy, now: number): { x: number; y: number } {
+  const r = en.def.anim?.rattle;
+  if (!r || (en.bossPhase ?? 0) < r.phase || PLANTED.has(en.state)) return { x: 0, y: 0 };
+  const k = Math.floor(now / r.ms) + en.id;
+  return { x: k % 2 === 0 ? r.px : -r.px, y: k % 3 === 0 ? -r.px : 0 };
+}

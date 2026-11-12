@@ -768,7 +768,7 @@ export type SimEvent =
   /** The bell: a circle marks the toaster, about to be put through to another department. */
   | { type: 'deptMark'; boss: number; x: number; y: number }
   /** A boss gone quiet for `time` s (BossPhase.mute): its lights blank, the moment to hit it. */
-  | { type: 'mute'; boss: number; x: number; y: number; time: number }
+  | { type: 'mute'; boss: number; x: number; y: number; time: number; line?: string }
   /** A boss diagnoses the toaster (BossPatternAttack.scan): a scanner beam on it for `time` s, and `line`. */
   | { type: 'scan'; boss: number; time: number; line: string }
   /** A conveyor belt starts up (Conveyor, src/sim/conveyors.ts), or stops when its boss falls. */
@@ -3576,6 +3576,7 @@ function updateEmitters(w: World): void {
       if (s.homing) b.homing = s.homing;
       if (s.pause) b.pause = s.pause;
       if (s.shootable) b.shootable = true;
+      if (s.bounce) b.bounce = s.bounce;
       if (e.by) b.by = e.by;
       if (e.source !== undefined && e.owner === 'enemy') b.from = e.source;
       w.bullets.push(b);

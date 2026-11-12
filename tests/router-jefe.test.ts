@@ -39,7 +39,8 @@ test('el Router es el jefe de la planta 2 (la Nevera sigue en la 1) y entra con 
   assert.ok(bossRoom.template.rows.join('').includes('X'));
   assert.ok(!bossRoom.template.rows.join('').includes('N'));
   const f1 = createWorld({ seed: 'planta-router', floor: true }).floor!;
-  assert.ok(f1.rooms.find((r) => r.template.kind === 'boss')!.template.rows.join('').includes('N'));
+  assert.ok(f1.rooms.find((r) => r.template.kind === 'boss')!.template.rows.join('').includes(f1.boss));
+  assert.ok(['N', 'À'].includes(f1.boss));
 });
 
 test('los anillos tienen su hueco: ninguna bala en la «zona sin cobertura»', () => {

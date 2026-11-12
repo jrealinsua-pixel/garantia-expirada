@@ -16,6 +16,7 @@ import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, mak
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
+import * as LV from './lavadora.ts';
 import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
@@ -114,6 +115,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'munequito-dorado': { canvas: strip(makeMunequitoFrames(true)), frameW: 18, frameH: 20 },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
     'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
+    // Floor 1's second boss (M14 (j2)): seven frames per program (rest, breathing, walking, weighing the
+    // load), Prelavado 0-6, Lavado 7-13, Centrifugado 14-20; its soap bubbles and odd socks.
+    'lavadora-eco': { canvas: strip(LV.makeLavadoraFrames()), frameW: LV.LAVADORA_W, frameH: LV.LAVADORA_H },
+    'bala-espuma': { canvas: LV.makeFoamBullet(), frameW: 16, frameH: 16 },
+    'bala-calcetin': { canvas: LV.makeSockBullet(), frameW: 12, frameH: 12 },
     // Floor 2's boss: 0-5 awake (rest, breathing, walking), 6-11 rebooting with 0 to 5 LEDs lit.
     'router-wifi': { canvas: strip(makeRouterFrames()), frameW: 72, frameH: 76 },
     // Its repeater: 0-1 on (the LED blinks), 2 unplugged.

@@ -134,7 +134,7 @@ export const ENDING_BACK = 'Disparar: volver al menú';
 export type CreditLine = { kind: 'title' | 'heading' | 'name' | 'note'; text: string } | { kind: 'gap' };
 
 /** The bosses, in the order they are met (floor 1 to the Servicio Técnico). */
-const BOSS_ORDER = ['nevera-suprema', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora'] as const;
+const BOSS_ORDER = ['nevera-suprema', 'lavadora-eco', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora'] as const;
 
 /**
  * The credits roll, after the ending. `engine` is the engine's line (the scene adds it: data files

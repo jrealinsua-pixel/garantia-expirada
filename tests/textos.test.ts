@@ -92,6 +92,7 @@ test('variado: no se repite el mismo chiste en dos sitios', () => {
     TEXTS.CHEST_NAME, SHOPKEEPER.name, TEXTS.ARCHIVE_TITLE, ...Object.values(GOOD_NAMES), ...Object.values(TEXTS.PAUSE_MENU),
     TEXTS.OPTIONS_TITLE, TEXTS.CONTROLS_TITLE, TEXTS.INVENTORY_TITLE, TEXTS.CREDITS_TITLE, TEXTS.TITLE, TEXTS.DOWN_UNIT,
     'La Nevera Suprema',
+    'La Lavadora Programa Eco',
     'El Router del Wifi',
     'El Muñeco de Moda',
     'El Director de Recursos Inhumanos',

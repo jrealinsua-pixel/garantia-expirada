@@ -60,13 +60,13 @@ test('jefe: la presentación se salta pulsando disparo otra vez, no manteniéndo
   assert.equal(w.intro, null);
 });
 
-test('jefe: en cada planta la sala del jefe trae a la Nevera Suprema', () => {
+test('jefe: en cada planta la sala del jefe trae a la Nevera Suprema o a la Lavadora (M14 (j2))', () => {
   for (let i = 0; i < 50; i++) {
     const w = createWorld({ seed: `planta-jefe-${i}`, floor: true });
     const f = w.floor!;
     const boss = f.layout.rooms.find((r) => r.kind === 'boss')!;
     const rows = f.rooms[boss.id]!.template.rows.join('');
-    assert.equal([...rows].filter((c) => c === 'N').length, 1, `planta ${i}`);
+    assert.equal([...rows].filter((c) => c === 'N' || c === 'À').length, 1, `planta ${i}`);
     assert.ok(!rows.includes('J'));
   }
 });

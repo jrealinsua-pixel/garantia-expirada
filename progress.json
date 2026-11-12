@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T23:20:00+01:00",
+  "actualizado": "2026-11-13T00:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -126,17 +126,22 @@
   "metricas": {
     "personajes": 5,
     "enemigos": 27,
-    "jefes": 6,
+    "jefes": 7,
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 97,
-    "tests": 912,
-    "tests_ok": 912,
+    "tests": 918,
+    "tests_ok": 918,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 32961
+    "lineas_codigo": 33109
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T00:20:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (j2): la Lavadora Programa Eco, el segundo jefe de la planta 1; la semilla elige entre ella y la Nevera, más o menos a medias. Tres programas: Prelavado (anillos de pompas que se quedan flotando y se revientan a tiros), Lavado (calcetines desparejados que rebotan en las paredes) y Centrifugado (espirales de agua mientras tiembla por la sala); y entre medias se para a «pesar la carga»: la ventana para pegarle. Sprite nuevo con tres juegos de fotogramas, su cartel, su causa de baja y su medida en el bot (gana el 60 %, la Nevera el 67 %). Ya sale en el glosario y en los créditos."
+    },
     {
       "fecha": "2026-11-12T23:20:00+01:00",
       "hito": "M14",
@@ -1281,6 +1286,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/lavadora-calcetines.png",
+      "pie": "M14 (j2): la Lavadora Programa Eco, el otro jefe que puede salir en la planta 1, en su programa «Lavado»: calcetines desparejados que rebotan en las paredes"
+    },
+    {
+      "archivo": "capturas/lavadora-centrifugado.png",
+      "pie": "«Centrifugado»: 1400 revoluciones en la pantalla, el ojo de buey hecho un remolino y espirales de agua mientras tiembla por la sala"
+    },
+    {
       "archivo": "capturas/tablon-jefes.png",
       "pie": "M14 (j1): los jefes ya salen al azar por planta, así que el tablón pide «el jefe de Oficinas» o «el de Informática», sea quien sea"
     },
@@ -1295,17 +1308,9 @@
     {
       "archivo": "capturas/sorteo.png",
       "pie": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización: tres rascas a 5 cupones; casi siempre «Siga participando», a veces cupones, un ticket, un corazón, una garantía o, muy rara vez, un cofre premium"
-    },
-    {
-      "archivo": "capturas/financiacion.png",
-      "pie": "M14 (r2a): la primera sala rara, la Oficina de Financiación: un arma y un objeto buenos que no se pagan con cupones, sino con un corazón de máximo cada uno, para siempre. La misma caja de la tienda, pluriempleada"
-    },
-    {
-      "archivo": "capturas/reto-del-dia.png",
-      "pie": "M14 (r1): el «Boletín de ofertas del día» de la portada: la misma partida para todo el mundo, con su regalo «sin garantía», los intentos de hoy, el mejor y los días seguidos"
     }
   ],
-  "proximo": "M14 (j2): la Lavadora Programa Eco, el segundo jefe de la planta 1 (diseño en docs/DISENO.md, «Jefes al azar»); o la (l3), contenido que se desbloquea con logros.",
+  "proximo": "M14 (j3): la Nube de Almacenamiento, el segundo jefe de la planta 2 (diseño en docs/DISENO.md, «Jefes al azar»); o la (l3), contenido que se desbloquea con logros.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1332,11 +1337,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 23:25",
-      "tarea": "M14 (j2): la Lavadora Programa Eco, segundo jefe de la planta 1",
-      "desde": "2026-11-12T22:41:55Z"
-    },
     {
       "sesion": "2026-11-12 23:30",
       "tarea": "M14 (l3): contenido limitado que se desbloquea con logros",

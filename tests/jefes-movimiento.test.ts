@@ -11,8 +11,9 @@ const ticks = (s: number): number => Math.ceil(s / DT);
 const BOSSES = Object.values(ENEMIES).filter((d) => d.brain.kind === 'boss');
 
 /** Each boss in its own room, on its own floor. */
-const ARENAS: Record<string, { room: string; level: number }> = {
+const ARENAS: Record<string, { room: string; level: number; boss?: string }> = {
   'nevera-suprema': { room: 'jefe', level: 1 },
+  'lavadora-eco': { room: 'jefe', level: 1, boss: 'À' },
   'router-wifi': { room: 'jefe-informatica', level: 2 },
   'muneco-moda': { room: 'jefe-jugueteria', level: 3 },
   'director-rrhh': { room: 'jefe-oficinas', level: 4 },

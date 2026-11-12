@@ -1514,7 +1514,9 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       // attacks, so a sweep is never cut short and the silence is never under a hail of bullets.
       if (phase.mute && en.muteIn !== undefined && en.muteIn <= 0 && !w.over) {
         en.muteIn = w.rng.range(phase.mute.every[0], phase.mute.every[1]);
-        w.events.push({ type: 'mute', boss: en.id, x: en.x, y: en.y, time: phase.mute.time });
+        const ev: SimEvent = { type: 'mute', boss: en.id, x: en.x, y: en.y, time: phase.mute.time };
+        if (phase.mute.line) ev.line = phase.mute.line;
+        w.events.push(ev);
         enter(en, 'stun', phase.mute.time);
         walkX = 0;
         walkY = 0;

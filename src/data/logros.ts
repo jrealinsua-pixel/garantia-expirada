@@ -60,7 +60,7 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
   { id: 'cliente-fiel', name: 'Cliente fiel', text: 'Juega el reto del día 3 días seguidos.', quip: 'Le enviaremos más ofertas. Muchas más.', stat: 'dailyStreak', n: 3 },
   { id: 'montaje-expres', name: 'Montaje exprés', text: 'Limpia una planta en 4 minutos o menos.', quip: 'Sobraron tornillos. Siempre sobran.', stat: 'fastFloor', n: 240 },
   { id: 'incidencia-cerrada', name: 'Incidencia cerrada', text: 'Gana una partida.', quip: 'Sin resolver. Pero cerrada.', stat: 'victories', n: 1 },
-  { id: 'hoja-completa', name: 'Hoja de reclamaciones completa', text: 'Vence a los 5 jefes de planta.', quip: 'Por duplicado. Y con sello.', stat: 'bosses', n: 5 },
+  { id: 'hoja-completa', name: 'Hoja de reclamaciones completa', text: 'Vence a 5 jefes de planta distintos.', quip: 'Por duplicado. Y con sello.', stat: 'bosses', n: 5 },
   { id: 'siniestro-total', name: 'Siniestro total', text: 'Causa baja 50 veces.', quip: 'Ya tiene ficha en el desguace.', stat: 'downs', n: 50 },
   { id: 'punto-limpio', name: 'Punto limpio', text: 'Desmonta 1000 electrodomésticos.', quip: 'El reciclaje empieza por uno mismo.', stat: 'kills', n: 1000 },
   { id: 'pack-ahorro', name: 'Pack ahorro', text: 'Consigue 8 sinergias distintas.', quip: 'Lleve tres, pague cuatro.', stat: 'synergies', n: 8 },
