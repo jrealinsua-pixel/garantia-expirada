@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T15:40:00+01:00",
+  "actualizado": "2026-11-12T16:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 855,
-    "tests_ok": 855,
+    "tests": 859,
+    "tests_ok": 859,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 30984
+    "lineas_codigo": 31344
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T16:55:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (7a): cada partida empieza ahora con la ficha de devolución del personaje que pisa la cinta: producto, motivo («Quema las tostadas.»), los comentarios del cliente, el diagnóstico de la tienda (la culpa siempre es del cliente), la garantía, el destino y la firma ilegible. La cinta la lee letra a letra con pitidos mientras la partida espera; al acabar cae un sello rojo (FUERA DE PLAZO, SIN USO, USO INDEBIDO, SIN TRAMITAR u OBSOLETO) y disparar empieza la partida. Las cinco historias, también la del Móvil, están en datos.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T15:40:00+01:00",
       "hito": "M13",
@@ -1214,6 +1220,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/ficha-leyendo.png",
+      "pie": "M13 (7a): al pisar la cinta del Mostrador, la cinta lee en voz alta la ficha de devolución de la tostadora, letra a letra"
+    },
+    {
+      "archivo": "capturas/ficha-sellada.png",
+      "pie": "La ficha leída y sellada: «Fuera de plazo». La partida espera hasta que se dispara"
+    },
+    {
       "archivo": "capturas/movil-notificaciones.png",
       "pie": "M13 (6): el Móvil Reacondicionado dispara de frente y sus Notificaciones Push, globitos naranjas lentos, se tuercen solas hacia los enemigos de abajo"
     },
@@ -1228,17 +1242,9 @@
     {
       "archivo": "capturas/plancha-almidon.png",
       "pie": "El Pulverizador de Almidón: gotas amarillo limón de corto alcance que dejan tiesos (más lentos) a los enemigos"
-    },
-    {
-      "archivo": "capturas/becario.png",
-      "pie": "M13 (5): El Becario Eterno en la sala de pruebas, grapando: camisa con mancha de café, pósit en el pelo, ojeras y la acreditación sin foto; la mano, desnuda"
-    },
-    {
-      "archivo": "capturas/becario-experiencia.png",
-      "pie": "«Experiencia demostrable: 3»: cada sala limpiada sin que le hieran le sube un 4 % el daño; un golpe le deja la mitad («No se valora»)"
     }
   ],
-  "proximo": "M13: la historia de cada personaje (la (7a), la ficha que lee la cinta, la tiene otra sesión; luego su propio final), su muerte propia y una captura con los cinco juntos.",
+  "proximo": "M13 (7b): el final propio de cada personaje (la caja y la estantería del final verdadero según quién llegue); después la (7c), su muerte propia, y el desbloqueo de cada uno con su condición.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1265,11 +1271,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 15:27",
-      "tarea": "M13 historia (7a): la ficha de devolución de cada personaje que lee la cinta al empezar (src/data/stories.ts)",
-      "desde": "2026-11-12T15:27:00+01:00"
-    },
     {
       "sesion": "2026-11-12 16:30",
       "tarea": "M13 desbloqueo (8): condiciones propias definitivas de cada personaje (src/data/unlocks.ts) y sus armas iniciales en los cofres al desbloquearlo (src/data/weapons.ts; en src/sim/world.ts solo WorldOptions.unlocked y lootDecks; en src/render/GameScene.ts solo pasar unlocked a createWorld; tests/desbloqueo-armas.test.ts)",

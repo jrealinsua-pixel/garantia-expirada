@@ -148,6 +148,15 @@ objeto, y las balas le siguen dando; el último segundo parpadea una pila vacía
 al apagarse se ve la pantalla negra con el logo (`movil-apagado`). Medido (`medir-personajes`, 60
 partidas): gana la planta 1 el 31,7 %, como la tostadora, con 1,16 heridas y 22,5 s por sala.
 
+**La ficha de devolución** (M13 (7a), 2026-11-12): al pisar la cinta del Mostrador, la partida
+empieza con la ficha del que va encima (`src/data/stories.ts`): producto, motivo (entre comillas,
+como lo escribió el cliente), comentarios, diagnóstico de la tienda (la culpa siempre es del
+cliente), garantía, destino, «Firma del cliente: ilegible» y un sello rojo (FUERA DE PLAZO, SIN
+USO, USO INDEBIDO, SIN TRAMITAR, OBSOLETO). La cinta la lee en voz alta letra a letra (un pitido
+cada tres), y la partida espera: disparar, usar o rodar la lee de golpe y la sella; otra vez (o
+echar a andar), a jugar. Rosa de copia en papel de calco, para no confundirla con el parte de baja
+(rojo) ni con la planta superada (cian). Solo en la planta 1 de una partida que sale de la cinta.
+
 Desbloqueos (los de `src/data/unlocks.ts`, sin cambios): Batidora al vencer a la Nevera, Plancha
 al vencer al Router, Becario tras diez bajas, Móvil al encontrar veinte objetos distintos. Con
 cada personaje nuevo, el requisito de «ganar con varios personajes» del Servicio Técnico pide

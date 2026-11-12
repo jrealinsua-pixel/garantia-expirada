@@ -541,6 +541,14 @@ sin ellos la partida acaba en la planta 5.
     gana la planta 1 con él el 31,7 %.
 - [ ] Una historia distinta por personaje: por qué está en el vertedero, una escena al empezar
   y su propio final.
+  - [x] (7a) La escena al empezar: la ficha de devolución de cada uno, que la cinta lee al pisarla.
+    Hecho el 2026-11-12: `src/data/stories.ts` (las cinco historias, también la del Móvil),
+    `src/render/ficha.ts` (la ficha, que cabe a los dos tamaños), la partida espera mientras se
+    lee; `tests/ficha-devolucion.test.ts` y e2e `41a`–`41b`.
+  - [ ] (7b) El final propio de cada uno: el texto de la caja y de la estantería del final
+    verdadero según quién llegue (`FinalScene`), con las frases de «Los cinco, en detalle».
+  - [ ] (7c) La muerte propia de cada uno: su despiece (ahora todos sueltan las tostadas o casi
+    nada) y la causa en el parte de baja.
 - [ ] Desbloqueo de cada personaje con una condición propia.
 
 **Criterios de aceptación:** cada personaje tiene un test de su habilidad; el bot gana la

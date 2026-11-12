@@ -27,6 +27,7 @@ interface State {
   hp: number;
   over: boolean;
   report: string[];
+  slip: { read: boolean; stamped: boolean; text: string } | null;
 }
 
 interface Page {
@@ -109,6 +110,42 @@ try {
     await page.keyboard.up('w');
     await page.waitForFunction("!!window.__GE__.scene.world.floor && window.__GE__.state().ready", undefined, { timeout: 5000 })
       .catch(() => { throw new Error('La cinta del Mostrador no lleva a la planta 1'); });
+    await readSlip(slipShots);
+  };
+
+  /**
+   * M13: every run opens with the product's return slip. The simulation waits while it is up: the
+   * conveyor reads it out, a shot reads the rest at once and stamps it, and another one gets on with
+   * the run (a click: by then an earlier step may have moved the use key off the F).
+   * With `shots`, a picture halfway through the reading and another one stamped.
+   */
+  let slipShots: [string, string] | undefined;
+  const readSlip = async (shots?: [string, string]): Promise<void> => {
+    await page.waitForFunction('!!window.__GE__.state().slip', undefined, { timeout: 3000 })
+      .catch(() => { throw new Error('La partida no empieza con la ficha de devolución'); });
+    const tick0 = (await state()).tick;
+    if (shots) {
+      await page.waitForTimeout(1300);
+      await shot(shots[0]);
+    }
+    const click = async (): Promise<void> => {
+      await page.mouse.down();
+      await page.waitForTimeout(120);
+      await page.mouse.up();
+    };
+    await click();
+    await page.waitForFunction('window.__GE__.state().slip?.stamped', undefined, { timeout: 2000 })
+      .catch(() => { throw new Error('Disparar no termina de leer la ficha ni la sella'); });
+    if (shots) {
+      await page.waitForTimeout(400);
+      await shot(shots[1]);
+    }
+    if ((await state()).tick !== tick0) throw new Error('Con la ficha delante la partida no espera');
+    await page.waitForTimeout(500);
+    await click();
+    await page.waitForFunction('!window.__GE__.state().slip', undefined, { timeout: 2000 })
+      .catch(() => { throw new Error('La ficha de devolución no se cierra'); });
+    slipShots = undefined;
   };
 
   const s0 = await state();
@@ -2279,7 +2316,9 @@ try {
   await page.waitForTimeout(400);
   await page.mouse.up();
   if ((await page.evaluate<number>('window.__GE__.scene.world.bullets.length')) !== 0) throw new Error('En el Mostrador se dispara');
+  slipShots = ['41a-ficha-leyendo.png', '41b-ficha-sellada.png'];
   await throughHub();
+  console.log('Ficha de devolución: la cinta la lee, disparar la sella y disparar otra vez empieza la partida.');
   await page.waitForTimeout(700);
   await shot('41-de-la-cinta-a-la-planta.png');
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = false; w.player.hp = 1; w.player.invulnerable = 0; w.player.rollT = -1; })()`);

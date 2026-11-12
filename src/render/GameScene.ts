@@ -154,6 +154,8 @@ import { BOARD_CARDS, CITA_BOXES, CITA_STAMP, CITA_W, TAPE_Y, WALL_BOARD_Y, WALL
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis, scrollRange } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
+import { slipLayout, type SlipRole } from './ficha.ts';
+import { returnSlip, slipHint, slipNumber, STORIES } from '../data/stories.ts';
 import { BOSS_BAR, bossBarVeiled, cardLayout, departmentLabelBox, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 import { bulbLit, enemyFrame, spinMirrored } from './enemyAnim.ts';
 
@@ -258,6 +260,8 @@ export interface GameStateForTests {
   won: boolean;
   /** Text of the sick-leave report (or the floor-done one) once it is on screen (empty before). */
   report: string[];
+  /** The return slip that opens a run (M13), while it is up: read out, stamped, and what it says so far. */
+  slip: { read: boolean; stamped: boolean; text: string } | null;
 }
 
 /** Pixels of a rolled-up shutter still showing under the lintel (with its pilot light). */
@@ -485,6 +489,26 @@ export class GameScene extends Phaser.Scene {
   private camFocus: { x: number; y: number } | null = null;
   /** The boss entrance's letterbox bars and texts, removed when it ends. */
   private introParts: Phaser.GameObjects.GameObject[] = [];
+  /**
+   * The return slip that opens a run (M13): while it is up the simulation waits. The conveyor
+   * reads it out a character at a time (`shown`); then the stamp; a press gets on with it.
+   */
+  private slip: {
+    parts: Phaser.GameObjects.GameObject[];
+    lines: { o: Phaser.GameObjects.BitmapText; text: string; read: number }[];
+    total: number;
+    shown: number;
+    t: number;
+    /** Seconds since the stamp came down; -1: not yet. */
+    stamped: number;
+    stamp: (Phaser.GameObjects.BitmapText | Phaser.GameObjects.Rectangle)[];
+    fades: boolean;
+    hint: Phaser.GameObjects.BitmapText | null;
+    armed: boolean;
+    clicked: boolean;
+  } | null = null;
+  /** The trigger is still down from putting the slip away. */
+  private slipFire = false;
   private introBars: Phaser.GameObjects.Rectangle[] = [];
   /** Everything on the HUD (hidden during a boss's entrance), and the room's name. */
   private hudObjs: Array<Phaser.GameObjects.Components.Visible> = [];
@@ -600,6 +624,10 @@ export class GameScene extends Phaser.Scene {
     const carried = this.carry;
     this.carry = null;
     this.ending = null;
+    // Off the Mostrador's conveyor: the run opens with the product's return slip (M13).
+    const offTheBelt = this.freshRun;
+    this.slip = null;
+    this.slipFire = false;
     if (!carried || this.freshRun) {
       this.freshRun = false;
       // A new run: nothing beaten yet, nothing written in the record.
@@ -654,6 +682,10 @@ export class GameScene extends Phaser.Scene {
     const w0 = this.world;
     this.sound2.playMusic(w0.over || w0.won ? null : w0.room.kind === 'boss' && w0.enemies.length > 0 ? 'jefa' : 'planta');
     this.input.on('pointerdown', () => this.newUnit());
+    // A click on the return slip counts even if it was over between two frames (a slow first one).
+    this.input.on('pointerdown', () => {
+      if (this.slip) this.slip.clicked = true;
+    });
 
     const room = this.world.room;
     // Open doors are floor in the simulation; the painter wants the wall around the opening.
@@ -856,6 +888,7 @@ export class GameScene extends Phaser.Scene {
         this.world.enemies.push(a, b);
       },
     };
+    if (offTheBelt && this.world.floor && this.world.level === 1) this.showSlip();
     // Back in the boss room after walking out: the lift is still there, waiting.
     const lift = this.world.lift;
     if (lift) {
@@ -1122,6 +1155,130 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < (big ? 6 : 3); i++) this.puff(cx + this.fx.range(-8, 8), cy - this.fx.range(4, 20), this.fx.range(0.4, 0.7));
     for (let i = 0; i < (big ? 14 : 6); i++) this.spark(cx, cy - 12, this.fx.range(0, Math.PI * 2), this.fx.range(60, 160), this.fx.int(0, 3));
     // (No text over it: the human asked for none, 2026-10-30. The pieces say it.)
+  }
+
+  /**
+   * The return slip (M13): the character's story as the shop filed it, on a form that drops in;
+   * the conveyor reads it out (a blip every couple of letters) and stamps it.
+   */
+  private showSlip(): void {
+    const p = this.world.player;
+    const id = p.base.def.id;
+    const story = STORIES[id] ?? STORIES['tostadora']!;
+    const L = slipLayout(returnSlip(id, p.base.def.name), slipNumber(this.world.seed), story.stamp, slipHint(keyWords()), readScale(settings()));
+    const parts: Phaser.GameObjects.GameObject[] = [];
+    const add = <T extends Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor>(o: T): T => {
+      this.hud(o).setDepth(96500 + parts.length);
+      parts.push(o);
+      return o;
+    };
+    // Return-slip pink: the carbon copy the warehouse keeps.
+    const edge = 0xe08fb0;
+    add(this.add.rectangle(L.x, L.y, L.w, L.h, 0x0e0c16, 0.95).setOrigin(0, 0)).setStrokeStyle(1, edge);
+    add(this.add.rectangle(L.x + 1, L.y + 1, L.w - 2, L.barH, 0xb04a78, 1).setOrigin(0, 0));
+    const g = add(this.add.graphics());
+    for (let x = L.x + 4; x < L.x + L.w - 4; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, L.rule, 2, 1);
+    const tints: Record<SlipRole, number> = {
+      title: 0xf4f1e8, ref: 0xffd6e6, reader: 0x858ea8, label: 0x858ea8, value: 0xd6cdb2, signLabel: 0x858ea8, sign: 0x8fe3ff, hint: 0xf6c431,
+    };
+    const lines: { o: Phaser.GameObjects.BitmapText; text: string; read: number }[] = [];
+    let hint: Phaser.GameObjects.BitmapText | null = null;
+    for (const t of L.texts) {
+      const text = fontText(t.text);
+      const o = add(this.add.bitmapText(t.x, t.y, FONT, t.read < 0 ? text : '', L.size)).setTint(tints[t.role]);
+      if (t.read >= 0) lines.push({ o, text, read: t.read });
+      if (t.role === 'hint') hint = o.setAlpha(0);
+    }
+    lines.sort((a, b) => a.read - b.read);
+    const stampText = fontText(story.stamp);
+    const stampColor = 0xe0453b;
+    const stamp = [
+      add(this.add.bitmapText(L.stamp.x, L.stamp.y, FONT, stampText, 8).setOrigin(0.5, 0.5)).setTint(stampColor),
+      add(this.add.rectangle(L.stamp.x, L.stamp.y, textWidth(story.stamp) + 8, 13).setStrokeStyle(1, stampColor)),
+    ];
+    for (const o of stamp) o.setRotation(-0.22).setScale(5).setAlpha(0);
+    // The whole slip drops in from above, as the conveyor feeds it.
+    for (const o of parts) {
+      const ob = o as unknown as Phaser.GameObjects.Components.Transform;
+      const ty = ob.y;
+      ob.y = ty - 40;
+      this.tweens.add({ targets: o, y: ty, duration: 240, ease: 'Back.easeOut' });
+    }
+    this.sound2.play('cinta', { detune: -300, volume: 0.7 });
+    this.slip = {
+      parts, lines, total: lines.reduce((a, l) => a + l.text.length, 0), shown: 0, t: -0.35, stamped: -1, stamp, fades: L.stampFades, hint, armed: false, clicked: false,
+    };
+  }
+
+  /** Letters per second the conveyor reads at. */
+  private static readonly SLIP_READ_SPEED = 75;
+
+  private updateSlip(dt: number): void {
+    const s = this.slip!;
+    s.t += dt;
+    const p = this.world.player;
+    const input = this.controls.read({ bodyX: p.x, bodyY: p.y - BODY_HEIGHT });
+    if (!input.fire) s.armed = true;
+    const press = !!input.interact || input.roll || s.clicked || (s.armed && input.fire);
+    if (press) s.armed = false;
+    s.clicked = false;
+    if (s.stamped < 0) {
+      // Reading out: a press reads the rest at once.
+      const before = s.shown;
+      s.shown = press ? s.total : Math.min(s.total, Math.max(0, Math.floor(s.t * GameScene.SLIP_READ_SPEED)));
+      let left = s.shown;
+      for (const l of s.lines) {
+        const n = Math.max(0, Math.min(l.text.length, left));
+        if (l.o.text.length !== n) l.o.setText(l.text.slice(0, n));
+        left -= l.text.length;
+      }
+      // The conveyor's voice: a blip every third letter, pitched about.
+      if (!press && Math.floor(s.shown / 3) > Math.floor(before / 3)) this.sound2.play('teclear', { detune: this.fx.range(-500, 300), volume: 0.8 });
+      if (s.shown >= s.total) this.stampSlip();
+      return;
+    }
+    // Stamped: a press, or walking off, after a moment, gets on with the run.
+    s.stamped += dt;
+    const moved = Math.hypot(input.moveX, input.moveY) > 0.3;
+    if (s.stamped > 0.45 && (press || moved)) this.closeSlip();
+  }
+
+  private stampSlip(): void {
+    const s = this.slip!;
+    s.stamped = 0;
+    for (const o of s.stamp) {
+      this.tweens.add({
+        targets: o,
+        scale: STAMP_SCALE,
+        alpha: 0.9,
+        duration: 130,
+        ease: 'Quad.easeIn',
+        onComplete: () => {
+          if (s.fades) this.tweens.add({ targets: o, alpha: 0.3, delay: 1400, duration: 500 });
+          if (o !== s.stamp[0]) return;
+          this.sound2.play('sello');
+          this.shake(120, 0.006, true);
+        },
+      });
+    }
+    if (s.hint) {
+      s.hint.setAlpha(1);
+      this.tweens.add({ targets: s.hint, alpha: 0.35, yoyo: true, repeat: -1, duration: 450, delay: 600 });
+    }
+  }
+
+  /** The slip slides away and the run begins. */
+  private closeSlip(): void {
+    const s = this.slip!;
+    this.slip = null;
+    this.sound2.play('deslizar', { volume: 0.7 });
+    for (const o of s.parts) {
+      this.tweens.killTweensOf(o);
+      this.tweens.add({ targets: o, y: (o as unknown as { y: number }).y + 30, alpha: 0, duration: 200, ease: 'Quad.easeIn', onComplete: () => o.destroy() });
+    }
+    this.hudObjs = this.hudObjs.filter((o) => !s.parts.includes(o as unknown as Phaser.GameObjects.GameObject));
+    this.acc = 0;
+    this.slipFire = true;
   }
 
   /**
@@ -2145,6 +2302,7 @@ export class GameScene extends Phaser.Scene {
       over: this.world.over,
       won: this.world.won,
       report: this.report,
+      slip: this.slip ? { read: this.slip.shown >= this.slip.total, stamped: this.slip.stamped >= 0, text: this.slip.lines.map((l) => l.o.text).join(' ') } : null,
     };
   }
 
@@ -2157,6 +2315,12 @@ export class GameScene extends Phaser.Scene {
       this.openPause();
       return;
     }
+    if (this.slip) {
+      // The run waits for the slip to be read.
+      this.updateSlip(dt);
+      this.syncView(dt);
+      return;
+    }
     if (this.hitstop > 0) {
       this.hitstop -= dt;
     } else {
@@ -2165,6 +2329,11 @@ export class GameScene extends Phaser.Scene {
       while (this.acc >= DT && steps < 5) {
         const p = this.world.player;
         const input = this.controls.read({ bodyX: p.x, bodyY: p.y - BODY_HEIGHT });
+        // The shot that put the return slip away is not a shot: the trigger counts once let go.
+        if (this.slipFire) {
+          if (input.fire) input.fire = false;
+          else this.slipFire = false;
+        }
         step(this.world, input);
         this.handleEvents(this.world.events);
         if (this.world.events.some((e) => e.type === 'room')) {
