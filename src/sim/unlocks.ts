@@ -7,6 +7,7 @@ import { CHARACTERS } from '../data/characters.ts';
 import { EXPEDIENTE } from '../data/lore.ts';
 import { SERVICE_REQUIREMENTS } from '../data/servicio.ts';
 import type { Profile } from './profile.ts';
+import { floorBossBeaten } from './bosses.ts';
 
 /** Characters that can be played in this version. */
 const PLAYABLE = Object.keys(CHARACTERS).length;
@@ -24,6 +25,7 @@ const docsFound = (p: Profile): number => EXPEDIENTE.filter((l) => p.docs.includ
 export function meets(c: UnlockCondition | null, p: Profile): boolean {
   if (!c) return true;
   if (c.beaten && !c.beaten.every((b) => (p.bosses[b] ?? 0) > 0)) return false;
+  if (c.floorBosses && !c.floorBosses.every((n) => floorBossBeaten(p.bosses, n))) return false;
   if (c.minDowns !== undefined && p.downs < c.minDowns) return false;
   if (c.minFound !== undefined && p.found.items.length < c.minFound) return false;
   if (c.minFloors !== undefined && p.floorsCleared < c.minFloors) return false;
@@ -42,6 +44,7 @@ export function unlockProgress(c: UnlockCondition | null, p: Profile): { done: n
   if (!c) return [];
   const out: { done: number; needed: number }[] = [];
   if (c.beaten) out.push({ done: c.beaten.filter((b) => (p.bosses[b] ?? 0) > 0).length, needed: c.beaten.length });
+  if (c.floorBosses) out.push({ done: c.floorBosses.filter((n) => floorBossBeaten(p.bosses, n)).length, needed: c.floorBosses.length });
   if (c.minDowns !== undefined) out.push({ done: Math.min(p.downs, c.minDowns), needed: c.minDowns });
   if (c.minFound !== undefined) out.push({ done: Math.min(p.found.items.length, c.minFound), needed: c.minFound });
   if (c.minFloors !== undefined) out.push({ done: Math.min(p.floorsCleared, c.minFloors), needed: c.minFloors });

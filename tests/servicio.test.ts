@@ -48,7 +48,7 @@ test('un perfil nuevo no tiene cita, y el cartel enseña cada requisito a cero',
   assert.equal(b.rows[2]!.needed, EXPEDIENTE.length);
   // The Servicio Técnico's own papers are found beyond the appointment: it does not ask for them.
   assert.ok(EXPEDIENTE.length < LORE.length && EXPEDIENTE.every((l) => !l.beyond));
-  assert.match(b.rows[0]!.text, /5 jefes/);
+  assert.match(b.rows[0]!.text, /jefe de las 5 plantas/);
 });
 
 test('mientras se pueda jugar con menos de tres, basta con ganar con los que hay (y el cartel lo dice)', () => {

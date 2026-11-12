@@ -14,14 +14,14 @@ export interface ServiceRequirement {
   condition: UnlockCondition;
 }
 
-/** The five floor bosses, in floor order. */
+/** The five floor bosses each floor had first, in floor order (each floor may bring another: M14 (j1)). */
 export const FLOOR_BOSSES = ['nevera-suprema', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita'] as const;
 
 export const SERVICE_REQUIREMENTS: readonly ServiceRequirement[] = [
   {
     id: 'jefes',
-    text: 'Haber reclamado en persona ante los {n} jefes de planta.',
-    condition: { beaten: FLOOR_BOSSES },
+    text: 'Haber reclamado en persona ante el jefe de las {n} plantas, cada uno.',
+    condition: { floorBosses: [1, 2, 3, 4, 5] },
   },
   {
     id: 'victorias',

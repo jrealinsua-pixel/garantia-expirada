@@ -588,7 +588,20 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
       Sorteo de Fidelización (tres rascas de 5 cupones; `RAFFLE_PRIZES` en `src/data/shop.ts`),
       e2e `60c`–`60d`. Más salas raras (un PNJ, un desafío) pueden venir con los PNJs de M14.
 - [ ] Jefes al azar: cada planta elige entre varios jefes (la planta 1, la Nevera u otros tres).
-  (Nota del humano del 2026-10-30.)
+  (Nota del humano del 2026-10-30.) Primero un jefe más por planta (cinco nuevos, diseñados en
+  «Jefes al azar» de `docs/DISENO.md`); después, si sale bien, más para la planta 1.
+  - [x] (j1) Cada planta elige su jefe de una lista con la semilla (`FLOOR_BOSS_POOLS` en
+    `src/data/rooms.ts`, `src/sim/bosses.ts`, con su propio generador: no mueve nada más) y lo
+    que pedía un jefe concreto pide ahora «el jefe de la planta N»: los personajes del tablón
+    (`floorBosses`), la cita del Servicio Técnico y los documentos de los jefes. `?jefe=<letra>`
+    lo fuerza. Hecho el 2026-11-12: `tests/jefes-azar.test.ts`.
+  - [ ] (j2) Planta 1: la Lavadora Programa Eco (diseño, sprite, sus tres programas, presentación,
+    despiece, documento… como los demás jefes), en la lista de la planta 1.
+  - [ ] (j3) Planta 2: la Nube de Almacenamiento.
+  - [ ] (j4) Planta 3: la Consola Edición Coleccionista.
+  - [ ] (j5) Planta 4: la Fuente de Agua de Oficina.
+  - [ ] (j6) Planta 5: la Política de Devoluciones.
+  - [ ] (j7) El glosario, los logros y los créditos con los jefes nuevos; el bot mide cada uno.
 - [x] Glosario de enemigos y armas descubiertos, en el Mostrador o en la pausa.
   - [x] (g1) El perfil cuenta las bajas de cada tipo de enemigo (`Profile.killed`, `World.killsBy`):
     un enemigo está «descubierto» cuando ha caído una vez. Hecho el 2026-11-12, `tests/glosario.test.ts`.

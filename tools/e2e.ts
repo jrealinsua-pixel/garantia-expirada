@@ -2549,7 +2549,7 @@ try {
   await page.keyboard.press('f');
   await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no enseña nada'); });
   const boardTexts = await page.evaluate<string[]>("window.__GE__.scene.panel.filter((o) => o.type === 'BitmapText').map((o) => o.text)");
-  const boardOk = boardTexts.some((t) => t.startsWith('RÁPIDA Y FRÁGIL')) && boardTexts.some((t) => t.includes('ROUTER'));
+  const boardOk = boardTexts.some((t) => t.startsWith('RÁPIDA Y FRÁGIL')) && boardTexts.some((t) => t.includes('JEFE DE INFORMÁTICA'));
   if (!boardOk) throw new Error(`El tablón no enseña lo desbloqueado y lo que falta: ${boardTexts.join(' | ')}`);
   // M13 (8): the Mostrador knows who is unlocked, so the runs that leave from it can hand out the
   // Batidora's Picahielos to the others (weaponPool).

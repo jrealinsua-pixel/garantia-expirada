@@ -2,6 +2,36 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 23:05 (hora peninsular, de `date`) — Hito M14 — Jefes al azar (j1): cada planta elige su jefe
+- Contexto: el `main` local del clon estaba viejo y divergido (50 commits que no están en el
+  remoto); lo guardé como rama local `main-stale` y puse `main` en `origin/main`. Salud al empezar:
+  `check`, tests, `build` y `bot` en verde. Los logros (l2) los llevaba otra sesión desde las 22:05,
+  así que cogí los jefes al azar, que no tocan sus archivos (en `GameScene.ts`, solo `?jefe=`).
+- Hecho: la tarea «Jefes al azar» (nota del humano del 2026-10-30) partida en siete en la hoja de
+  ruta; hecha la (j1). `FLOOR_BOSS_POOLS` en `src/data/rooms.ts`: la lista de jefes de cada planta
+  (letras de plantilla; la primera, la de siempre). `src/sim/bosses.ts`: `pickFloorBoss` (con su
+  propio generador, `jefe:<planta>:<semilla>`), `bossesOfFloor`, `floorOfBoss`, `floorBossBeaten`.
+  `FloorRun.boss` guarda el elegido y `planFloor` lo pone en la sala del jefe. `WorldOptions.boss`
+  y `?jefe=<letra>` lo fuerzan (solo letras de jefe). Lo que pedía un jefe concreto pide ahora
+  «el jefe de la planta N» (`UnlockCondition.floorBosses`): la Batidora (planta 1), el Móvil (2),
+  la Plancha (4) y la cita del Servicio Técnico («ante el jefe de las 5 plantas, cada uno»); el
+  documento de cada jefe lo deja cualquier jefe de su planta. Diseño de cinco jefes nuevos, uno por
+  planta, en «Jefes al azar» de `docs/DISENO.md`. Tests nuevos en `tests/jefes-azar.test.ts` (7).
+- Decisiones: **las listas tienen hoy un solo jefe**, así que la partida es idéntica a antes; el
+  generador propio hace que añadir un jefe no mueva salas, cofres ni enemigos (lo comprueba un test
+  con una lista de dos). La sala del jefe sigue siendo la de la planta (un jefe nuevo usa la de su
+  planta). Los **diálogos** que nombran a un jefe (el teléfono, el Chatarrero) no cambian: son chistes
+  de ese jefe y, al ser al azar, acaban saliendo. El logro «Hoja de reclamaciones completa» (5 jefes
+  de planta distintos) tampoco: con más jefes sigue teniendo sentido. Los nombres de los jefes
+  nuevos evitan los de objetos que ya hay (Antivirus Gratuito, Encuesta de Satisfacción, Café de
+  Máquina): Lavadora Programa Eco, Nube de Almacenamiento, Consola Edición Coleccionista, Fuente de
+  Agua de Oficina y Política de Devoluciones. El objetivo de «8 jefes» de M14 pasa a 11 con ellos.
+- Medidas: no cambia el equilibrio. `npm run bot`, 200 partidas, 0 fallos; planta 1 con daño: la
+  recorre el 65 % y la gana el 15 % (igual que antes). 912 tests en verde (con los de la (l2), que llegó a la vez).
+- Problemas conocidos: ninguno nuevo.
+- Siguiente paso: (j2) la Lavadora Programa Eco, el segundo jefe de la planta 1 (diseño a fondo,
+  sprite al estilo aprobado, sus tres programas, presentación, despiece, bot), en la lista de la 1.
+
 ## 2026-11-12 22:28 (hora peninsular, de `date`) — Hito M14 — Logros (l2): verlos
 - Hecho: la (l2), en la misma sesión que la (l1). **El sello del mérito** (`sello-merito`, 26×30,
   `tools/sprites/meritos.ts`): una roseta de papel dorado con su dentado, una marca en relieve, dos

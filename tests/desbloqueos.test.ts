@@ -61,12 +61,13 @@ test('el Becario sale tras diez bajas; encontrar objetos no desbloquea a nadie',
 test('cada personaje se desbloquea con una condición propia (M13 (8))', () => {
   const keys = ROSTER.filter((r) => r.condition).map((r) => JSON.stringify(r.condition));
   assert.equal(new Set(keys).size, keys.length, 'no hay dos condiciones iguales');
-  const bosses = ROSTER.flatMap((r) => r.condition?.beaten ?? []);
-  assert.equal(new Set(bosses).size, bosses.length, 'ningún jefe desbloquea a dos');
+  const bosses = ROSTER.flatMap((r) => r.condition?.floorBosses ?? []);
+  assert.equal(new Set(bosses).size, bosses.length, 'ningún jefe de planta desbloquea a dos');
   const by = (id: string) => ROSTER.find((r) => r.id === id)!.condition;
-  assert.deepEqual(by('batidora-vaso'), { beaten: ['nevera-suprema'] }, 'la de la cocina, con la Nevera');
-  assert.deepEqual(by('movil'), { beaten: ['router-wifi'] }, 'el móvil, con el wifi');
-  assert.deepEqual(by('plancha'), { beaten: ['director-rrhh'] }, 'la plancha, con el de la entrevista');
+  // M14 (j1): the floor's boss, whichever came out (the floor's own is still the Nevera, the Router, the Director).
+  assert.deepEqual(by('batidora-vaso'), { floorBosses: [1] }, 'la de la cocina, con el jefe de la planta 1');
+  assert.deepEqual(by('movil'), { floorBosses: [2] }, 'el móvil, con el de Informática');
+  assert.deepEqual(by('plancha'), { floorBosses: [4] }, 'la plancha, con el de las Oficinas');
   assert.deepEqual(by('becario'), { minDowns: 10 });
   for (const r of ROSTER.filter((x) => x.condition)) assert.ok(CHARACTERS[r.id], `${r.id} es jugable`);
 });
@@ -96,7 +97,7 @@ test('el tablón enseña nombre y frase a los desbloqueados, y condición y avan
   const board = rosterBoard(played(run({ outcome: 'floor', bosses: ['nevera-suprema'] })));
   assert.deepEqual(board.map((b) => b.unlocked), [true, true, false, false, false]);
   const plancha = board.find((b) => b.id === 'plancha')!;
-  assert.equal(plancha.text, 'Disponible al vencer al Director de Recursos Inhumanos. Traiga camisa.');
+  assert.equal(plancha.text, 'Disponible al vencer al jefe de Oficinas. Traiga camisa.');
   assert.deepEqual(plancha.progress, [{ done: 0, needed: 1 }]);
   assert.equal(board[1]!.text, ROSTER[1]!.blurb);
   assert.deepEqual(board[1]!.progress, []);

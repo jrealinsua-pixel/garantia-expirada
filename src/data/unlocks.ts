@@ -9,6 +9,11 @@
 export interface UnlockCondition {
   /** Bosses (enemy ids) taken down at least once. */
   beaten?: readonly string[];
+  /**
+   * Floors whose boss has been taken down at least once, whichever of its list it was (M14 (j1):
+   * every floor picks its boss at random, src/data/rooms.ts FLOOR_BOSS_POOLS).
+   */
+  floorBosses?: readonly number[];
   /** Runs ended by a breakdown. */
   minDowns?: number;
   /** Different passive items ever found. */
@@ -48,15 +53,15 @@ export const ROSTER: readonly RosterEntry[] = [
     id: 'batidora-vaso',
     name: 'Batidora de Vaso',
     blurb: 'Rápida y frágil. Tritura primero y pregunta después.',
-    condition: { beaten: ['nevera-suprema'] },
-    conditionText: 'Disponible al vencer a la Nevera Suprema.',
+    condition: { floorBosses: [1] },
+    conditionText: 'Disponible al vencer al jefe de Pequeño Electrodoméstico.',
   },
   {
     id: 'plancha',
     name: 'Plancha de Vapor',
     blurb: 'Lenta y dura. No deja una arruga ni un enemigo.',
-    condition: { beaten: ['director-rrhh'] },
-    conditionText: 'Disponible al vencer al Director de Recursos Inhumanos. Traiga camisa.',
+    condition: { floorBosses: [4] },
+    conditionText: 'Disponible al vencer al jefe de Oficinas. Traiga camisa.',
   },
   {
     id: 'becario',
@@ -69,7 +74,7 @@ export const ROSTER: readonly RosterEntry[] = [
     id: 'movil',
     name: 'Móvil Reacondicionado',
     blurb: 'Como nuevo. Salvo la pantalla, la batería y el sistema.',
-    condition: { beaten: ['router-wifi'] },
-    conditionText: 'Disponible al vencer al Router del Wifi. Por fin, cobertura.',
+    condition: { floorBosses: [2] },
+    conditionText: 'Disponible al vencer al jefe de Informática. Por fin, cobertura.',
   },
 ];

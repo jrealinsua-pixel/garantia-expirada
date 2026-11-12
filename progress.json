@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T22:28:00+01:00",
+  "actualizado": "2026-11-12T23:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -130,13 +130,18 @@
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 97,
-    "tests": 905,
-    "tests_ok": 905,
+    "tests": 912,
+    "tests_ok": 912,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 32760
+    "lineas_codigo": 32961
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T23:20:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (j1): jefes al azar. Cada planta elige ya su jefe de una lista con la semilla de la partida (de momento, una lista de uno: la partida no cambia), con su propio generador para que añadir un jefe no mueva nada más. Lo que pedía un jefe concreto pide ahora «el jefe de la planta N»: la Batidora, el Móvil, la Plancha, la cita del Servicio Técnico y los documentos del archivador. Diseñados los cinco jefes nuevos, uno por planta: la Lavadora Programa Eco, la Nube de Almacenamiento, la Consola Edición Coleccionista, la Fuente de Agua de Oficina y la Política de Devoluciones."
+    },
     {
       "fecha": "2026-11-12T22:28:00+01:00",
       "hito": "M14",
@@ -1276,6 +1281,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/tablon-jefes.png",
+      "pie": "M14 (j1): los jefes ya salen al azar por planta, así que el tablón pide «el jefe de Oficinas» o «el de Informática», sea quien sea"
+    },
+    {
       "archivo": "capturas/meritos.png",
       "pie": "M14 (l2): la pestaña «Méritos» del Catálogo de siniestros: los 19 logros, el nuevo marcado, lo que piden y, ganados, su chiste"
     },
@@ -1294,13 +1303,9 @@
     {
       "archivo": "capturas/reto-del-dia.png",
       "pie": "M14 (r1): el «Boletín de ofertas del día» de la portada: la misma partida para todo el mundo, con su regalo «sin garantía», los intentos de hoy, el mejor y los días seguidos"
-    },
-    {
-      "archivo": "capturas/glosario.png",
-      "pie": "M14: el «Catálogo de siniestros», el glosario de la pausa y la portada: lo que has desmontado, con su ficha y cuántos llevas; lo demás, «Sin catalogar»"
     }
   ],
-  "proximo": "M14 (l3): armas y objetos que solo salen después de ganar un logro; o los jefes al azar por planta (j) si quedan libres.",
+  "proximo": "M14 (j2): la Lavadora Programa Eco, el segundo jefe de la planta 1 (diseño en docs/DISENO.md, «Jefes al azar»); o la (l3), contenido que se desbloquea con logros.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1326,11 +1331,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "https://claude.ai/code/session_01LyCe1MqXgZfNxidXm3g8dR",
-      "tarea": "M14 (j1): jefes al azar, cada planta elige su jefe de una lista con la semilla (src/data/rooms.ts, src/sim/world.ts planFloor, src/data/unlocks.ts, src/data/servicio.ts, src/data/lore.ts, src/sim/unlocks.ts; tests/jefes-azar.test.ts)",
-      "desde": "2026-11-12T22:27:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

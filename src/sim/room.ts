@@ -180,6 +180,9 @@ const ENEMY_CHARS: Record<string, string> = {
   Í: 'carretilla',
 };
 
+/** The enemy id a template letter stands for (undefined: not an enemy). */
+export const enemyOfChar = (ch: string): string | undefined => ENEMY_CHARS[ch];
+
 /**
  * Builds a room from a template. `doors` are the walls with an opening: by default all four for
  * floor templates and north and south for the test room.

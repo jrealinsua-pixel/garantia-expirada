@@ -658,6 +658,8 @@ export class GameScene extends Phaser.Scene {
     // ?planta=6: the Servicio Técnico (M12), as if with the appointment.
     const level = Math.max(1, Math.min(SERVICE_LEVEL, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
     // Who plays (M13 (1)): the one on display on the tablón; ?personaje=<id> tries any character there is.
+    // `?jefe=<letra>`: the boss the floor (or the room) brings instead of the seed's (M14 (j1)).
+    const forcedBoss = params.get('jefe') ? { boss: params.get('jefe')! } : {};
     const asked = params.get('personaje');
     const character = asked && CHARACTERS[asked] ? asked : exhibited(profile());
     if (carried) {
@@ -677,12 +679,12 @@ export class GameScene extends Phaser.Scene {
       // ?sala=<id>&profundidad=<n>: one room template, its slots filled for that depth (the test
       // room is ?sala=sala-pruebas).
       const sala = params.get('sala')!;
-      this.world = createWorld({ seed: params.get('semilla') ?? sala, room: sala, depth: Number(params.get('profundidad') ?? 3), level, character, unlocked: profile().unlocked });
+      this.world = createWorld({ seed: params.get('semilla') ?? sala, room: sala, depth: Number(params.get('profundidad') ?? 3), level, character, unlocked: profile().unlocked, ...forcedBoss });
     } else {
       // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
       // ?cita=1: as if the Servicio Técnico's appointment were granted (otherwise, the profile's).
       const service = level === SERVICE_LEVEL || params.get('cita') === '1' || profile().service;
-      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service, character, unlocked: profile().unlocked });
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service, character, unlocked: profile().unlocked, ...forcedBoss });
     }
     const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);

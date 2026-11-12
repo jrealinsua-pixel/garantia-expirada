@@ -13,6 +13,7 @@ import { PATTERNS } from '../data/patterns.ts';
 import { conveyorPush, layRoomBelts, updateConveyors, type Conveyor } from './conveyors.ts';
 import { updateCrates, type CrateDrop, type CrateState } from './crates.ts';
 import { Rng } from './rng.ts';
+import { pickFloorBoss } from './bosses.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type Pause, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, generateWorkshop, OPPOSITE, type Dir, type Floor } from './floor.ts';
 import {
@@ -20,6 +21,7 @@ import {
   buildRoom,
   doorApron,
   doorCells,
+  enemyOfChar,
   fillTemplate,
   isWallAt,
   TILE,
@@ -1064,6 +1066,8 @@ export interface FloorRun {
   actives: string[];
   /** Chests opened without a ticket on this floor (Perks.freeChests, the Allen key). */
   freeChests?: number;
+  /** Template letter of the boss this floor brings (src/sim/bosses.ts pickFloorBoss; M14 (j1)). */
+  boss: string;
 }
 
 /** What dealt the last blow: an enemy id (or 'maniqui'), and whether it was a bullet or a body. */
@@ -1109,6 +1113,11 @@ export interface WorldOptions {
    * the findable ones (weaponPool). Missing: none (tests, bots and the test room).
    */
   unlocked?: readonly string[];
+  /**
+   * Template letter of the boss this floor (or this single room) brings instead of the one the seed
+   * picks (src/sim/bosses.ts): tests and `?jefe=`. Ignored unless it is a boss's letter.
+   */
+  boss?: string;
 }
 
 /** Who is in the Mostrador this time (the profile decides; see src/sim/dialogue.ts). */
@@ -1122,14 +1131,15 @@ export interface HubOptions {
 export function createWorld(opts: WorldOptions): World {
   const unlocked = opts.unlocked ?? [];
   const pool = (level: number): string[] => weaponPool(level, opts.character ?? 'tostadora', unlocked);
-  const floor = opts.floor && !opts.hub ? planFloor(opts.seed, opts.level ?? 1, pool(opts.level ?? 1)) : null;
+  const forced = opts.boss !== undefined && ENEMIES[enemyOfChar(opts.boss) ?? '']?.boss ? opts.boss : undefined;
+  const floor = opts.floor && !opts.hub ? planFloor(opts.seed, opts.level ?? 1, pool(opts.level ?? 1), forced) : null;
   const single = opts.hub ? HUB : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   let tpl = floor ? floor.rooms[floor.current]!.template : single;
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
   const filled = !floor && !opts.template && tpl.kind && tpl.kind !== 'hub';
   if (filled) {
     const level = opts.level ?? 1;
-    tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(level), boss: floorBossOf(level), cap: budgetCapOf(level) });
+    tpl = fillTemplate(tpl, new Rng(`sala:${opts.seed}`), { depth: opts.depth ?? 3, pool: slotEnemiesOf(level), boss: forced ?? floorBossOf(level), cap: budgetCapOf(level) });
   }
   const def = CHARACTERS[opts.character ?? 'tostadora'];
   if (!def) throw new Error(`Unknown character ${opts.character}`);
@@ -1379,11 +1389,13 @@ export function nextFloor(w: World): World | null {
  * are dealt from a shuffled deck, so a floor repeats one only when it runs out) with its slots
  * filled for the room's depth. Seeded by the world's seed.
  */
-function planFloor(seed: string, level: number, weapons: string[]): FloorRun {
+function planFloor(seed: string, level: number, weapons: string[], forcedBoss?: string): FloorRun {
   // The Servicio Técnico (M12 (3a)) is a short line of rooms: no treasure, no shop, no secret.
   const workshop = level >= SERVICE_LEVEL;
   const layout = workshop ? generateWorkshop(seed) : generateFloor(seed);
   const rng = new Rng(`salas:${seed}`);
+  // The boss, out of the floor's list with its own generator (M14 (j1)).
+  const boss = forcedBoss ?? pickFloorBoss(seed, level);
   const decks = new Map<string, RoomTemplate[]>();
   const deal = (kind: NonNullable<RoomTemplate['kind']>): RoomTemplate => {
     let deck = decks.get(kind);
@@ -1397,7 +1409,7 @@ function planFloor(seed: string, level: number, weapons: string[]): FloorRun {
   const rooms = layout.rooms.map((fr): FloorRoomState => {
     // Each floor up counts as LEVEL_DEPTH rooms deeper: more enemies per room.
     const depth = Math.max(1, fr.depth) + (level - 1) * LEVEL_DEPTH;
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss: floorBossOf(level), vary: true, cap: budgetCapOf(level) });
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss, vary: true, cap: budgetCapOf(level) });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets; each of the rest a
@@ -1425,7 +1437,7 @@ function planFloor(seed: string, level: number, weapons: string[]): FloorRun {
     else if (!rooms[id]!.reward && shield) rooms[id]!.reward = 'shield';
     else if (!rooms[id]!.reward && heart) rooms[id]!.reward = 'heart';
   });
-  return { layout, current: layout.start, rooms, ...lootDecks(seed, level, weapons) };
+  return { layout, current: layout.start, rooms, boss, ...lootDecks(seed, level, weapons) };
 }
 
 /**

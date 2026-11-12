@@ -2254,6 +2254,27 @@ export const FLOOR_BOSS_5 = 'Ú';
 /** Floor 6's (the Servicio Técnico): Ü, La Trituradora (M12 (4a)), in the Taller de Reacondicionado. */
 export const FLOOR_BOSS_6 = 'Ü';
 
+/**
+ * The bosses each floor can bring, as template letters (M14 (j1), the human's note of 2026-10-30:
+ * «en el piso 1 podrá aparecer la nevera o otros tres jefes distintos»). Every floor picks one with
+ * its own generator (src/sim/bosses.ts pickFloorBoss), so adding a boss to a list moves nothing
+ * else. The first of each list is the floor's own: the one its boss room was drawn for, the one
+ * `floorBossOf` gives and the one a single room (`?sala=`) brings.
+ */
+export const FLOOR_BOSS_POOLS: Readonly<Record<number, readonly string[]>> = {
+  1: [FLOOR_BOSS_1],
+  2: [FLOOR_BOSS_2],
+  3: [FLOOR_BOSS_3],
+  4: [FLOOR_BOSS_4],
+  5: [FLOOR_BOSS_5],
+  6: [FLOOR_BOSS_6],
+};
+
+/** The template letters of the bosses floor `level` can bring (the floor's own first). */
+export function floorBossPool(level: number): readonly string[] {
+  return FLOOR_BOSS_POOLS[Math.min(6, Math.max(1, Math.floor(level)))] ?? [floorBossOf(level)];
+}
+
 /** Template letter of the boss of floor `level`. */
 export function floorBossOf(level: number): string {
   return level >= 6 ? FLOOR_BOSS_6 : level >= 5 ? FLOOR_BOSS_5 : level === 4 ? FLOOR_BOSS_4 : level === 3 ? FLOOR_BOSS_3 : level === 2 ? FLOOR_BOSS_2 : FLOOR_BOSS_1;

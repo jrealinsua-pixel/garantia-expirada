@@ -9,9 +9,19 @@ import { parseDailies, recordDaily, type DailyRecord, type DailyResult } from '.
 import { grantAchievements } from './achievements.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { ENEMIES } from '../data/enemies.ts';
+import { floorOfBoss } from './bosses.ts';
 
-/** The documents beating these bosses gives, in archivador order. */
-const bossDocs = (bosses: readonly string[]): string[] => LORE.filter((l) => 'boss' in l.source && bosses.includes(l.source.boss)).map((l) => l.id);
+/**
+ * The documents beating these bosses gives, in archivador order. A boss's document is its floor's
+ * (M14 (j1)): whichever boss the floor brought leaves it, so the expediente never waits on luck.
+ */
+const bossDocs = (bosses: readonly string[]): string[] =>
+  LORE.filter((l) => {
+    if (!('boss' in l.source)) return false;
+    const own = l.source.boss;
+    const floor = floorOfBoss(own);
+    return bosses.some((b) => b === own || (floor !== undefined && floorOfBoss(b) === floor));
+  }).map((l) => l.id);
 
 /** Characters available from the start (no condition on the tablón). */
 const STARTERS = ROSTER.filter((r) => !r.condition).map((r) => r.id);

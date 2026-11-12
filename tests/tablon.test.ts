@@ -49,7 +49,7 @@ test('el tablón: los desbloqueados a color, los otros en silueta, con su condic
   const fresh = boardLayout(entries(emptyProfile()));
   assert.deepEqual(fresh.faces.map((f) => f.frame), [0, 6, 7, 8, 9], 'solo la Tostadora a color');
   const texts = fresh.texts.map((t) => t.text);
-  assert.ok(texts.includes('Disponible al vencer a la Nevera Suprema.'));
+  assert.ok(texts.includes('Disponible al vencer al jefe de Pequeño Electrodoméstico.'));
   assert.ok(texts.includes('0/10'), 'las bajas que faltan');
   assert.equal(fresh.texts.filter((t) => t.role === 'soon').length, 0);
   const four = boardLayout(entries(profiles()[1]!));
@@ -61,7 +61,7 @@ test('el tablón: los desbloqueados a color, los otros en silueta, con su condic
   const notYet = ['batidora-vaso', 'movil'].filter((id) => !CHARACTERS[id]).length;
   assert.equal(beaten.texts.filter((t) => t.text === BOARD_RESTOCK).length, notYet);
   assert.ok(beaten.texts.some((t) => t.text.startsWith('Rápida y frágil')));
-  assert.ok(!beaten.texts.some((t) => t.text.includes('Nevera Suprema')));
+  assert.ok(!beaten.texts.some((t) => t.text.includes('Pequeño Electrodoméstico')));
 });
 
 test('el tablón cabe en la pantalla y nada se sale ni se pisa, a los dos tamaños', () => {
