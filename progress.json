@@ -1227,6 +1227,11 @@
       "sesion": "2026-11-12 08:30",
       "tarea": "M12 (5): el final verdadero y los créditos",
       "desde": "2026-11-12T08:30:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 09:27",
+      "tarea": "M12 (6): medir la planta 6 entera con el bot y ajustar",
+      "desde": "2026-11-12T09:27:00+01:00"
     }
   ]
 }
