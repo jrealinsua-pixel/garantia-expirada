@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T10:40:00+01:00",
+  "actualizado": "2026-11-12T12:15:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 810,
-    "tests_ok": 810,
+    "tests": 822,
+    "tests_ok": 822,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 30163
+    "lineas_codigo": 30364
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T12:15:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (0)–(2): el diseño de los cinco personajes (vida, velocidad, arma inicial, habilidad e historia de cada uno) y M13 partido en tareas; elegir personaje en el tablón del Mostrador (se guarda, se cambia de cuerpo ahí mismo y la partida empieza con él; el jugador se dibuja desde los datos del personaje); y la habilidad de la Tostadora, «Una de cada dos»: al acabar una recarga salta una tostada que atraviesa, y una de cada dos sale quemada y borra balas. Medido con el bot: la dificultad no cambia.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T10:40:00+01:00",
       "hito": "M12",
@@ -1184,6 +1190,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/tostada-quemada.png",
+      "pie": "M13 (2): «Una de cada dos». Al acabar la recarga, la tostadora escupe una tostada quemada que vuela dando vueltas y dejando ascuas: borra las balas enemigas que toca"
+    },
+    {
+      "archivo": "capturas/tostada.png",
+      "pie": "La dorada, la de antes: atraviesa a todo lo que pilla, pero no limpia balas"
+    },
+    {
       "archivo": "capturas/final-el-producto.png",
       "pie": "M12 (5): el final verdadero. La tostadora, en su caja con ventana y la pegatina verde «Reacondicionado», en la estantería de la planta 1 con la etiqueta «49,99 € · PVP de nuevo». Arriba, la última frase"
     },
@@ -1198,17 +1212,9 @@
     {
       "archivo": "capturas/final-resistencia.png",
       "pie": "Paso 3 · Reparación: un guante de nitrilo saca por la ranura la resistencia vieja, quemada; la nueva será «de igual o menor calidad»"
-    },
-    {
-      "archivo": "capturas/calidad-cajas.png",
-      "pie": "M12 (4c): fase 3 de la Trituradora, «Control de calidad». Las pilas de cajas cierran el fondo de la sala y hay etiquetas «APTO» en el suelo que frenan"
-    },
-    {
-      "archivo": "capturas/calidad-caen.png",
-      "pie": "Media columna de cajas marcada con franjas amarillas y negras a punto de caer; la Trituradora ya apunta la siguiente tanda de «APTO»"
     }
   ],
-  "proximo": "M13: los cinco personajes jugables, empezando por su diseño (0) y la Batidora de Vaso (1).",
+  "proximo": "M13 (3), la Batidora de Vaso (la tiene otra sesión); luego (4) la Plancha de Vapor, (5) el Becario Eterno y (6) el Móvil Reacondicionado.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
