@@ -11,6 +11,7 @@ import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS, PROPS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
 import { inConveyor, layFloorBelt } from './conveyors.ts';
+import { startCrates, tickCrates } from './crates.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { BACK_WALL_ROWS, isWallAt, TILE, wallRectsNear } from './room.ts';
 import {
@@ -1465,6 +1466,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       en.rail = { x: end - c.dirX * (en.def.footRadius + RAIL_GAP), move: next.belt.move, on: false };
       delete en.legSpin;
     }
+    // «Control de calidad»: the crates start coming down, from the far wall in.
+    if (next.crates && !en.crates) en.crates = startCrates(w, en, next.crates);
   }
   const phase = b.phases[en.bossPhase]!;
   const rage = bossRage(en, b);
@@ -1488,6 +1491,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       }
     }
   }
+  // The crates keep coming down (BossPhase.crates), whatever it is doing, but not in the break.
+  if (phase.crates && en.crates && en.state !== 'roar') tickCrates(w, en, phase.crates, en.crates);
   // The silence comes round (BossPhase.mute): counted all the time, it falls between attacks.
   if (phase.mute && en.muteIn !== undefined && en.state !== 'roar' && en.state !== 'stun') en.muteIn -= DT;
   // The voice menu goes on by itself once it is out: the rain falls when it is due.
@@ -1602,7 +1607,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           // (or on the open door).
           enter(en, 'warn', a.telegraph);
           const at = bossWarnSpot(en, b, a);
-          w.events.push({ type: 'telegraph', x: at.x, y: at.y, time: a.telegraph, aim, aimed: false, color: a.kind === 'spit' ? 'red' : 'ice', source: en.id });
+          const color = a.kind === 'spit' ? 'red' : a.kind === 'frost' && a.sticker ? 'sticker' : 'ice';
+          w.events.push({ type: 'telegraph', x: at.x, y: at.y, time: a.telegraph, aim, aimed: false, color, source: en.id });
         }
       }
       break;
@@ -1619,7 +1625,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             let tx = p.x + p.vx * 0.25 * (k === 0 ? 1 : 0) + Math.cos(ang) * dist;
             let ty = p.y + p.vy * 0.25 * (k === 0 ? 1 : 0) + Math.sin(ang) * dist * 0.75;
             if (!isClear(w, tx, ty, 4)) ({ x: tx, y: ty } = freeSpot(w, tx, ty, 4));
-            const opts = { r: a.radius, life: a.life, slow: a.slow, flight: a.flight * w.rng.range(0.9, 1.1), source: en.id, by: en.def.id };
+            const opts = { r: a.radius, life: a.life, slow: a.slow, flight: a.flight * w.rng.range(0.9, 1.1), source: en.id, by: en.def.id, ...(a.sticker ? { sticker: a.sticker } : {}) };
             throwFrost(w, mx, en.y, mh, tx, ty, a.shatter ? { ...opts, shatter: a.shatter } : opts);
           }
         } else if (a.kind === 'spit') {

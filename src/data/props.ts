@@ -44,6 +44,9 @@ export const PROPS: Record<string, PropDef> = {
   // tiles long. They stop bullets from both sides and block walking, but the toaster rolls over them
   // (PropDef.low). Boxes from tools/sprites/centralita.ts LOW_COUNTER_BOX and LOW_COUNTER_V_BOX.
   'mostrador-bajo': { id: 'mostrador-bajo', name: 'Mostrador Bajo de Departamento', box: { x: -36, y: -24, w: 72, h: 20 }, blocksBullets: true, low: true },
+  // M12 (4c): the stacks of crates the Trituradora drops in «Control de calidad» (BossPhase.crates):
+  // a whole tile each, so a column of them is a wall.
+  'pila-cajas': { id: 'pila-cajas', name: 'Pila de Cajas «APTO»', box: { x: -12, y: -24, w: 24, h: 24 }, blocksBullets: true },
   'mostrador-bajo-v': { id: 'mostrador-bajo-v', name: 'Separador de Departamentos', box: { x: -12, y: -76, w: 24, h: 72 }, blocksBullets: true, low: true },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };

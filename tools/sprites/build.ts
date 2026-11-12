@@ -117,6 +117,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-tecla': { canvas: TR.makeKeyBullet(), frameW: 10, frameH: 10 },
     'cinta-despiece': one(TR.makeBeltTile()),
     'rodillos-despiece': { canvas: TR.makeIntakeTiles(), frameW: 16, frameH: 24 },
+    // «Control de calidad» (M12 (4c)): the «APTO» label on the floor and the stacks of crates.
+    'etiqueta-apto': one(TR.makeAptoLabel()),
+    // Her «EN SERVICIO» plate, drawn unflipped over the body so it reads both ways (EnemyAnim.badge).
+    'placa-servicio': one(TR.makeServicePlate()),
+    'etiqueta-apto-vuelo': { canvas: TR.makeAptoLabelFlying(), frameW: 14, frameH: 9 },
+    'pila-cajas': one(TR.makeCrateStack()),
     // Phase 3's cords swept round: a coil of curly cord, two frames a quarter-turn apart (M11 5c).
     'bala-cable': { canvas: strip(CT.makeCordCoils()), frameW: 10, frameH: 10 },
     // The hold music: 0 a quaver, 1 two beamed notes.

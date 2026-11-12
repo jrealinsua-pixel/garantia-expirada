@@ -7,7 +7,7 @@
 // hands in blue nitrile gloves (a boss may have big hands, never arms: docs/ESTILO_ARTE.md); in
 // «Diagnóstico» the front one raises a barcode scanner at the toaster.
 import { Canvas, type RGBA } from '../../src/art/canvas.ts';
-import { BURNT, K, RED, STEEL, TOASTC, WHITE, YEL, cube, outline, ramp, type Ramp } from '../../src/art/lib.ts';
+import { BLUE, BURNT, CREAM, K, RED, STEEL, TOASTC, WHITE, YEL, cube, outline, ramp, type Ramp } from '../../src/art/lib.ts';
 import { stencil, stencilWidth } from '../../src/art/warehouse.ts';
 
 export const TRITURADORA_W = 96;
@@ -30,6 +30,10 @@ export const LAMP_GREEN = ramp('#e8ffd8', '#8ef07a', '#4cb84a', '#2a7a34');
 export const LAMP_AMBER = ramp('#fff4c8', '#ffc24a', '#e08a24', '#9a5418');
 /** Red while it takes things apart (M12 (4b), «Despiece»). */
 export const LAMP_RED = ramp('#ffd0c0', '#ff6a50', '#d0302c', '#7a1a22');
+const hexTape: RGBA = [176, 138, 82, 255];
+
+/** Bright green while it passes everything (M12 (4c), «Control de calidad»). */
+export const LAMP_QC = ramp('#f4ffe8', '#b4ff8a', '#62d050', '#2a8a34');
 /** Blue nitrile gloves: hygiene first. */
 const GLOVE_B = ramp('#b8d4f4', '#6aa0dc', '#4672b0', '#2c4a80');
 
@@ -40,10 +44,13 @@ export interface TrituradoraLook {
   dip?: 0 | 1;
   /** Where the tread lugs are (0-3), and which way the blades in the hopper have turned. */
   tread?: number;
-  /** Lamps: on (green), dim (one of them blinking), scan (amber, diagnosing), red (taking apart). */
-  lamps?: 'on' | 'blink' | 'scan' | 'red';
-  /** Hands: hanging, swung (walking, two beats), or the scanner raised at the toaster. */
-  hands?: 'rest' | 'swing0' | 'swing1' | 'scan';
+  /**
+   * Lamps: on (green), dim (one of them blinking), scan (amber, diagnosing), red (taking apart),
+   * qc (quality control, M12 (4c): bright green, each with a white tick: everything passes).
+   */
+  lamps?: 'on' | 'blink' | 'scan' | 'red' | 'qc';
+  /** Hands: hanging, swung (walking, two beats), the scanner raised at the toaster, or the label gun. */
+  hands?: 'rest' | 'swing0' | 'swing1' | 'scan' | 'label';
 }
 
 /** A big round glove, 8x7, lit from the top left; `fist`: the fingers curled round a handle. */
@@ -78,6 +85,56 @@ function scanner(cv: Canvas, x: number, y: number): void {
   // The window, lit.
   cv.rect(x + 9, y + 1, 2, 3, RED[1]!);
   cv.set(x + 10, y + 2, WHITE);
+}
+
+/**
+ * «Control de calidad» (M12 (4c)): a big price gun, the one from every supermarket aisle grown to
+ * its size: blue body pointing right, the roll of labels on top at the back, the nozzle with a
+ * green «APTO» label half out, the grip under the glove. (x, y): top left of the body.
+ */
+function labelGun(cv: Canvas, x: number, y: number): void {
+  // The body: a wedge, taller at the back.
+  for (let xx = 0; xx < 13; xx++) {
+    const top = xx < 7 ? 0 : 1;
+    cv.rect(x + xx, y + top, 1, 6 - top, BLUE[1]!);
+    cv.set(x + xx, y + top, BLUE[0]!);
+    cv.set(x + xx, y + 5, BLUE[3]!);
+  }
+  cv.rect(x, y + 4, 13, 1, BLUE[2]!);
+  // The window with the price wheels.
+  cv.rect(x + 7, y + 2, 4, 2, CREAM[0]!);
+  cv.set(x + 8, y + 2, RED[1]!);
+  cv.set(x + 9, y + 3, RED[1]!);
+  // The roll of labels on top at the back.
+  for (let yy = -4; yy <= 0; yy++) for (let xx = 0; xx <= 6; xx++) if (Math.hypot(xx - 3, yy + 2) <= 2.7) cv.set(x + xx, y + yy, Math.hypot(xx - 3, yy + 2) > 1.8 ? CREAM[2]! : WHITE);
+  cv.set(x + 3, y - 2, CREAM[3]!);
+  // The nozzle and the label coming out of it: green with a white tick.
+  cv.rect(x + 13, y + 1, 1, 4, STEEL[2]!);
+  cv.rect(x + 14, y + 1, 4, 3, LAMP_GREEN[2]!);
+  cv.rect(x + 14, y + 1, 4, 1, LAMP_GREEN[1]!);
+  cv.set(x + 15, y + 2, WHITE);
+  cv.set(x + 16, y + 3, LAMP_GREEN[3]!);
+  cv.set(x + 17, y + 2, WHITE);
+  // The grip and the squeeze lever.
+  cv.rect(x + 2, y + 6, 4, 5, BLUE[2]!);
+  cv.rect(x + 2, y + 6, 1, 5, BLUE[1]!);
+  cv.rect(x + 7, y + 6, 1, 3, STEEL[1]!);
+}
+
+/** The «EN SERVICIO» plate on the front, top left at (PLATE.x, PLATE.y) of a frame (1 px lower on the dipped ones). */
+export const PLATE = { x: 30, y: 34, w: stencilWidth('EN SERVICIO') + 4, h: 8 } as const;
+
+function plate(cv: Canvas, x: number, y: number): void {
+  cv.rect(x, y, PLATE.w, PLATE.h, K);
+  cv.rect(x, y, PLATE.w, 1, STEEL[3]!);
+  stencil(cv, x + 2, y + 2, 'EN SERVICIO', LAMP_GREEN[2]!);
+}
+
+/** The plate alone, for the game to draw unflipped over a body facing left. */
+export function makeServicePlate(): Canvas {
+  const cv = new Canvas(PLATE.w, PLATE.h);
+  plate(cv, 0, 0);
+  return cv;
 }
 
 /** The tracks: a rubber belt round two wheels and a bogie, lugs moving with `tread`. */
@@ -220,18 +277,13 @@ function cabinet(cv: Canvas, look: TrituradoraLook): void {
     cv.set(x + w - 3, ry, MACHINE[3]!);
     cv.set(x + 3, ry, MACHINE_SIDE[0]!);
   }
-  // The plate: «EN SERVICIO» in green on black, screwed on.
-  const label = 'EN SERVICIO';
-  const lw = stencilWidth(label) + 4;
-  const lx = fx + Math.round((fw - lw) / 2);
-  const ly = y + th + 2;
-  cv.rect(lx, ly, lw, 8, K);
-  cv.rect(lx, ly, lw, 1, STEEL[3]!);
-  stencil(cv, lx + 2, ly + 2, label, LAMP_GREEN[2]!);
+  // The plate: «EN SERVICIO» in green on black, screwed on (the game draws it again over the
+  // body, unflipped, so it reads when she faces left: EnemyAnim.badge, PLATE).
+  plate(cv, PLATE.x, PLATE.y + dy);
   // The visor: a steel brow across both lamps, lower over the inner corners (that is the look).
   const ey = y + th + 18;
   const lamps: Array<[number, number]> = [[fx + 17, ey], [fx + 41, ey]];
-  const L = look.lamps === 'scan' ? LAMP_AMBER : look.lamps === 'red' ? LAMP_RED : LAMP_GREEN;
+  const L = look.lamps === 'scan' ? LAMP_AMBER : look.lamps === 'red' ? LAMP_RED : look.lamps === 'qc' ? LAMP_QC : LAMP_GREEN;
   lamps.forEach(([cx, cy], i) => lamp(cv, cx, cy, L, look.lamps === 'blink' && i === 1));
   for (const [cx, cy] of lamps) {
     for (let xx = -6; xx <= 6; xx++) {
@@ -250,6 +302,10 @@ function cabinet(cv: Canvas, look: TrituradoraLook): void {
       cv.set(cx + 3, cy, WHITE);
       cv.set(cx - 3, cy, LAMP_AMBER[3]!);
     }
+  }
+  // Quality control: a white tick in each glass (everything passes).
+  if (look.lamps === 'qc') {
+    for (const [cx, cy] of lamps) for (const [tx, ty] of [[-2, 0], [-1, 1], [0, 2], [1, 1], [2, 0]] as Pt[]) cv.set(cx + tx, cy + ty - 1, WHITE);
   }
   // The output slot: a wide dark grin with steel teeth top and bottom, and strips of shredded
   // paper (and one of toast) hanging out of it.
@@ -303,6 +359,8 @@ function handSpots(look: TrituradoraLook): [Pt, Pt] {
       return [[2, 54 + dy], [86, 50 + dy]];
     case 'scan':
       return [[2, 54 + dy], [80, 38 + dy]];
+    case 'label':
+      return [[2, 52 + dy], [76, 46 + dy]];
     default:
       return [[2, 52 + dy], [86, 52 + dy]];
   }
@@ -324,6 +382,9 @@ export function makeTrituradora(look: TrituradoraLook = {}): Canvas {
   if (look.hands === 'scan') {
     scanner(frontLayer, front[0] + 3, front[1] - 3);
     glove(frontLayer, front[0], front[1] + 1, true);
+  } else if (look.hands === 'label') {
+    labelGun(frontLayer, front[0] + 1, front[1] - 3);
+    glove(frontLayer, front[0], front[1] + 2, true);
   } else glove(frontLayer, front[0], front[1]);
   const all = new Canvas(W, H);
   all.blit(outline(backLayer), 0, 0);
@@ -332,7 +393,7 @@ export function makeTrituradora(look: TrituradoraLook = {}): Canvas {
   all.blit(outline(top), 0, 0);
   all.blit(outline(frontLayer), 0, 0);
   // A wisp of toast smoke out of the hopper (it is still warm).
-  if (look.lamps !== 'scan' && look.lamps !== 'red') {
+  if (look.lamps !== 'scan' && look.lamps !== 'red' && look.lamps !== 'qc') {
     const sx = 63 + (look.tread ?? 0) % 2;
     all.set(sx, 1, [150, 150, 165, 170]);
     all.set(sx + 1, 0, [120, 120, 138, 140]);
@@ -354,9 +415,9 @@ export function makeTrituradora(look: TrituradoraLook = {}): Canvas {
  * The frames of its sheet, by name: at rest (breathing, a lamp blinking, the blades turning),
  * rolling on its tracks (four, the hands swinging), and diagnosing (the scanner raised, lamps
  * amber), and taking apart (M12 (4b): the lamps red and the slot full of parts about to fly).
- * Phase 3 (M12 (4c)) will add its own after these.
+ * And quality control (M12 (4c)): the label gun up, the lamps bright green with a tick in each.
  */
-export const TRITURADORA_FRAMES = ['reposo0', 'reposo1', 'avanza0', 'avanza1', 'avanza2', 'avanza3', 'diagnostico', 'despiece'] as const;
+export const TRITURADORA_FRAMES = ['reposo0', 'reposo1', 'avanza0', 'avanza1', 'avanza2', 'avanza3', 'diagnostico', 'despiece', 'calidad'] as const;
 
 const LOOKS: Record<(typeof TRITURADORA_FRAMES)[number], TrituradoraLook> = {
   reposo0: {},
@@ -367,6 +428,7 @@ const LOOKS: Record<(typeof TRITURADORA_FRAMES)[number], TrituradoraLook> = {
   avanza3: { tread: 3, dip: 1, hands: 'swing1' },
   diagnostico: { lamps: 'scan', hands: 'scan', tread: 2 },
   despiece: { lamps: 'red', hands: 'swing1', tread: 1, dip: 1 },
+  calidad: { lamps: 'qc', hands: 'label', tread: 3 },
 };
 
 export function trituradoraLook(name: (typeof TRITURADORA_FRAMES)[number]): TrituradoraLook {
@@ -495,5 +557,101 @@ export function makeIntakeTiles(): Canvas {
     for (let y = 0; y < 24; y++) cv.rect(14, y, 2, 1, ((y + f * 2) >> 2) % 2 === 0 ? YEL[1]! : K);
     sheet.blit(cv, f * 16, 0);
   }
+  return sheet;
+}
+
+/**
+ * «Control de calidad» (M12 (4c)): the «APTO» label it sticks on the floor (it slows you down like
+ * frost). 36x18, flat on the floor: a white label with rounded corners, curling up at one corner,
+ * a green band with «APTO» in white stencil and a row of small print under it that nobody reads.
+ */
+export function makeAptoLabel(): Canvas {
+  const cv = new Canvas(36, 18);
+  const W0 = WHITE;
+  const W1 = CREAM[0]!;
+  const W2 = CREAM[2]!;
+  // The label: white, the corners cut round, a shade darker along the bottom (it is thick paper).
+  cv.rect(2, 1, 32, 15, W0);
+  cv.rect(1, 2, 34, 13, W0);
+  cv.rect(2, 15, 32, 1, W2);
+  cv.rect(1, 14, 1, 1, W2);
+  cv.rect(34, 14, 1, 1, W2);
+  // The green band with «APTO».
+  cv.rect(3, 3, 30, 8, LAMP_GREEN[2]!);
+  cv.rect(3, 3, 30, 1, LAMP_GREEN[1]!);
+  cv.rect(3, 10, 30, 1, LAMP_GREEN[3]!);
+  const tw = stencilWidth('APTO');
+  stencil(cv, 3 + Math.floor((30 - tw) / 2), 5, 'APTO', W0);
+  // The small print: dashes of grey.
+  for (let x = 4; x < 30; x += 3) cv.rect(x, 12, 2, 1, W2);
+  // The top right corner curling up (where it will come unstuck, eventually).
+  cv.rect(31, 1, 3, 2, W1);
+  cv.set(33, 2, W2);
+  cv.set(34, 3, W2);
+  return outline(cv);
+}
+
+/**
+ * «Control de calidad» (M12 (4c)): a stack of crates that came down from above (prop
+ * `pila-cajas`, a whole tile). 26x46: three grey crates of reconditioned parts, each a little off
+ * the one below, the tape across their lids, the green «APTO» label on the middle one and a white
+ * plastic strap round the lot. A column of them makes a wall.
+ */
+export function makeCrateStack(): Canvas {
+  const cv = new Canvas(26, 46);
+  const C = ramp('#b4baae', '#868c80', '#62665c', '#40433b');
+  const TOP = ramp('#d4d8cc', '#b8bcae', '#9a9e90', '#7a7e72');
+  const crate = (x: number, y: number, w: number, h: number): void => {
+    // The front, the lid seen from above (3 px) and the brown tape across it.
+    cv.rect(x, y + 3, w, h - 3, C[1]!);
+    cv.rect(x, y + 3, w, 1, C[0]!);
+    cv.rect(x, y + h - 1, w, 1, C[3]!);
+    cv.rect(x + w - 1, y + 3, 1, h - 3, C[2]!);
+    cv.rect(x, y, w, 3, TOP[1]!);
+    cv.rect(x, y, w, 1, TOP[0]!);
+    cv.rect(x + Math.floor(w / 2) - 1, y, 3, 3, hexTape);
+    cv.rect(x + Math.floor(w / 2) - 1, y + 3, 3, 2, hexTape);
+    // Ribs down the front and the hand hole.
+    for (let rx = x + 3; rx < x + w - 2; rx += 5) cv.rect(rx, y + 6, 1, h - 8, C[2]!);
+    cv.rect(x + 2, y + 5, 5, 2, C[3]!);
+  };
+  crate(1, 33, 24, 12);
+  crate(2, 20, 23, 13);
+  crate(0, 8, 23, 13);
+  // The label on the middle crate: green, «APTO» too small to read, a white tick.
+  cv.rect(13, 25, 9, 5, LAMP_GREEN[2]!);
+  cv.rect(13, 25, 9, 1, LAMP_GREEN[1]!);
+  for (const [tx, ty] of [[15, 27], [16, 28], [17, 27], [18, 26]] as Pt[]) cv.set(tx, ty, WHITE);
+  // The strap round the lot, white plastic.
+  for (let y = 8; y < 45; y++) cv.set(20 + (y < 20 ? -1 : y < 33 ? 0 : 1), y, y % 6 === 0 ? CREAM[2]! : WHITE);
+  // The top crate's lid: something left in it (a bent fork of a toaster, a coil of cable).
+  cv.rect(4, 6, 6, 2, STEEL[1]!);
+  cv.set(4, 6, STEEL[0]!);
+  for (const [x, y] of [[13, 6], [14, 5], [15, 5], [16, 6]] as Pt[]) cv.set(x, y, RED[1]!);
+  return outline(cv);
+}
+
+/**
+ * The «APTO» label in flight (M12 (4c)): 14x9, curled as it comes off the gun, two frames (it
+ * flutters: face up, then edge on).
+ */
+export function makeAptoLabelFlying(): Canvas {
+  const sheet = new Canvas(28, 9);
+  const a = new Canvas(14, 9);
+  a.rect(1, 1, 12, 7, WHITE);
+  a.rect(2, 2, 10, 3, LAMP_GREEN[2]!);
+  a.rect(2, 2, 10, 1, LAMP_GREEN[1]!);
+  a.set(5, 3, WHITE);
+  a.set(6, 4, WHITE);
+  a.set(7, 3, WHITE);
+  a.set(8, 2, WHITE);
+  a.rect(2, 6, 9, 1, CREAM[2]!);
+  a.rect(11, 1, 2, 2, CREAM[0]!);
+  const b = new Canvas(14, 9);
+  b.rect(1, 3, 12, 3, WHITE);
+  b.rect(2, 3, 10, 1, LAMP_GREEN[2]!);
+  b.rect(1, 5, 12, 1, CREAM[2]!);
+  sheet.blit(outline(a), 0, 0);
+  sheet.blit(outline(b), 14, 0);
   return sheet;
 }

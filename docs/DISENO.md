@@ -619,6 +619,23 @@ rodillos dentados con su franja amarilla y negra; tocarlos quita un corazón (cu
 para reacondicionar») y te devuelve cinta abajo unos 60 px. La cinta sigue en las fases de
 después y se para cuando ella cae. Es la primera cinta del juego (`src/sim/conveyors.ts`): las del
 taller (3b3) usarán el mismo motor.
+Hecha la fase 3 (M12 (4c)), «Control de calidad», desde el 25 %: grita «Control de calidad. Todo
+APTO, sin mirar.» (el control de calidad que lo aprueba todo) y saca una **etiquetadora de precios
+de su tamaño** (los pilotos en verde brillante, con un visto bueno en cada uno). Sigue en su pared,
+la cinta sigue corriendo, y alterna los abanicos de tornillos y teclas con **las etiquetas «APTO»**:
+cuatro, una donde estás y las otras alrededor, que revolotean por el aire (el aro verde marca dónde
+caerán) y se quedan pegadas en el suelo seis segundos: una etiqueta blanca con la franja verde y
+«APTO» en letra de plantilla; pisarla es como andar sobre pegamento (al 55 % de la velocidad, igual
+que la escarcha, sin el tinte de frío). Y desde el principio de la fase, **las pilas de cajas**
+(`src/sim/crates.ts`): tres cajas grises de piezas reacondicionadas con la cinta de embalar, la
+etiqueta verde y un fleje blanco, que caen del techo media columna cada vez (la mitad de arriba, luego
+la de abajo), cada 3,2 s, empezando por la pared de la que sale la cinta (la más lejana a ella) y
+avanzando hacia ella, hasta ocho columnas. Cada trozo se marca antes en el suelo (la casilla se
+oscurece y un marco de franjas amarillas y negras corre a su alrededor, parpadeando cada vez más
+deprisa, con un crujido arriba) y en el último instante se ven caer. A quien pilla debajo le quita un
+corazón y lo despide hacia ella, al otro lado de la columna. Son casillas enteras: una columna es una
+pared, paran las balas y no se rompen. La sala se va cerrando hacia los rodillos: el refugio del
+fondo, donde se aguantaba la cinta, desaparece.
 
 **El final verdadero** (M12 (4)): al vencerla, la tostadora no sale por ninguna puerta. La cinta
 se la lleva, la limpian, le cambian la resistencia y la meten en una caja con la etiqueta

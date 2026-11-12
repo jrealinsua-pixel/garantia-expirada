@@ -1142,7 +1142,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
       'El Servicio Técnico Oficial en persona: una trituradora industrial del tamaño de una pared, con ' +
       'la tolva por boca y dos pilotos de «En servicio» por ojos. Todo lo que entra sale reacondicionado.',
     // M12 (4a). The final boss: more life than the Centralita (240), spread over three phases
-    // (phase 2 at 60 %, M12 (4b); 4c adds phase 3 at 25 %).
+    // (phase 2 at 60 %, M12 (4b); phase 3 at 25 %, M12 (4c)).
     hp: 300,
     sprite: 'trituradora',
     anchor: { x: 47, y: 85 },
@@ -1153,8 +1153,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
     knockbackScale: 0,
     loot: { coupons: [0, 0] },
     // tools/sprites/trituradora.ts TRITURADORA_FRAMES: 0-1 resting, 2-5 rolling on its tracks, 6
-    // diagnosing (the scanner raised, the lamps amber).
-    anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 6, warn: 6 },
+    // diagnosing (the scanner raised, the lamps amber), 7 taking apart (lamps red), 8 quality
+    // control (the label gun up, the lamps green).
+    // Her «EN SERVICIO» plate (TR.PLATE) goes on again unflipped, so it reads when she faces left.
+    anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, badge: { sprite: 'placa-servicio', x: 30, y: 34, w: 47, upTo: 9, frameDy: { 1: 1, 3: 1, 5: 1, 7: 1 } } },
     brain: {
       kind: 'boss',
       // On tracks: slow, steady legs, now and then a lurch forward.
@@ -1196,6 +1198,23 @@ export const ENEMIES: Record<string, EnemyDef> = {
             { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1.2, pose: 7 },
             { kind: 'pattern', pattern: 'despiece-muelles', telegraph: 0.8, weight: 1, pose: 7 },
             { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 1, pose: 7 },
+          ],
+        },
+        {
+          // «Control de calidad» (M12 (4c)): everything passes. It sticks «APTO» labels on the floor
+          // (they slow you down like frost) between its fans of parts, and stacks of crates come down
+          // from the far wall in, half a column at a time, closing the room towards the rollers.
+          name: 'Control de calidad',
+          from: 0.25,
+          walkSpeed: 48,
+          keep: 150,
+          rest: [0.55, 0.85],
+          line: 'Control de calidad. Todo APTO, sin mirar.',
+          crates: { prop: 'pila-cajas', first: 2.5, every: 3.2, warn: 1.2, hurt: 1, cols: 8 },
+          attacks: [
+            { kind: 'frost', count: 4, spread: 64, flight: 0.8, radius: 18, life: 6, slow: 0.55, sticker: 'etiqueta-apto', telegraph: 0.7, weight: 1.3, pose: 8 },
+            { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1, pose: 7 },
+            { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 0.8, pose: 7 },
           ],
         },
       ],

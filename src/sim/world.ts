@@ -11,6 +11,7 @@ import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { conveyorPush, layRoomBelts, updateConveyors, type Conveyor } from './conveyors.ts';
+import { updateCrates, type CrateDrop, type CrateState } from './crates.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type Pause, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, generateWorkshop, OPPOSITE, type Dir, type Floor } from './floor.ts';
@@ -466,6 +467,8 @@ export interface Enemy {
    * how much faster than walking it goes there, and whether it has got there yet.
    */
   rail?: { x: number; move: number; on: boolean };
+  /** Bosses that close the room with crates (BossPhase.crates): how far they have got. */
+  crates?: CrateState;
   /**
    * Bosses on the catwalk (BossRunwayAttack): where it is walking to, px left before the next
    * flash, and seconds it has gone without getting anywhere (it gives up on a blocked catwalk).
@@ -515,6 +518,11 @@ export interface Frost {
   product?: number;
   /** Not an expired product but this sprite (the Director's dismissal letters, `carta-despido`). */
   look?: string;
+  /**
+   * Not frost but a label (this sprite) stuck on the floor: it slows the same, and is drawn as
+   * the label (the Trituradora's «APTO» stickers, M12 (4c)).
+   */
+  sticker?: string;
   /**
    * Not frost but a building piece a bucket lobs (its frame in the `pieza` sheet): it lies on the
    * floor until `life`; stepping on it walking hurts (`damage`) and uses it up; a player bullet
@@ -689,7 +697,7 @@ export type SimEvent =
   | { type: 'blinkIn'; x: number; y: number; source: number }
   /** A boss throws a ball of frost from (x, y) to land at (tx, ty) in `flight` s; then it lands. */
   | { type: 'frostThrow'; x: number; y: number; tx: number; ty: number; flight: number; source: number }
-  | { type: 'frostLand'; x: number; y: number; r: number; product?: number; look?: string; brick?: number }
+  | { type: 'frostLand'; x: number; y: number; r: number; product?: number; look?: string; brick?: number; sticker?: string }
   /** A building piece is stepped on (it hurt) or swept away by a bullet. */
   | { type: 'brickStep' | 'brickSwept'; x: number; y: number; brick: number; angle?: number }
   /** A boss starts a new phase of its fight. */
@@ -710,6 +718,10 @@ export type SimEvent =
   | { type: 'conveyor'; id: number; on: boolean; x: number; y: number }
   /** The intake rollers at the end of a belt catch the toaster and throw it back (`dirX`, `dirY`). */
   | { type: 'bite'; x: number; y: number; dirX: number; dirY: number; source: number }
+  /** A chunk of crates is marked on the floor (BossPhase.crates): `count` tiles round (x, y), down in `warn` s. */
+  | { type: 'crateMark'; x: number; y: number; count: number; warn: number }
+  /** And it lands: `count` stacks round (x, y), each at its spot (bottom-centre). */
+  | { type: 'crateLand'; x: number; y: number; count: number; spots: Array<{ x: number; y: number }> }
   /** Put through: the toaster went from (fromX, fromY) to (x, y), in department `dept` (1-4). */
   | { type: 'deptTransfer'; boss: number; fromX: number; fromY: number; x: number; y: number; dept: number }
   /** A boss breaks out of its shell (BossPhase.shed): the prop is left at (x, y) (bottom-centre). */
@@ -813,6 +825,8 @@ export interface World {
   ink: Ink[];
   /** Conveyor belts running in this room (src/sim/conveyors.ts): the Trituradora's, M12 (4b). */
   conveyors: Conveyor[];
+  /** Stacks of crates on their way down (src/sim/crates.ts): the Trituradora's, M12 (4c). */
+  crates: CrateDrop[];
   events: SimEvent[];
   nextId: number;
   /** Enemies taken apart so far. */
@@ -1091,6 +1105,7 @@ export function createWorld(opts: WorldOptions): World {
     frost: [],
     ink: [],
     conveyors: [],
+    crates: [],
     events: [],
     nextId,
     kills: 0,
@@ -1374,6 +1389,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.frost = [];
   w.ink = [];
   w.conveyors = [];
+  w.crates = [];
   layRoomBelts(w);
   w.enemies = [];
   w.dummies = [];
@@ -2998,7 +3014,8 @@ export function activeWarnings(w: World): Warning[] {
       if (a?.kind === 'menu') continue;
       const at = a ? bossWarnSpot(en, b, a) : { x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y };
       const k = Math.min(1, en.t / en.until);
-      out.push({ x: at.x, y: at.y, k, aim: 0, aimed: false, color: a?.kind === 'spit' || a?.kind === 'runway' ? 'red' : 'ice', bullets: true, source: en.id });
+      const color = a?.kind === 'spit' || a?.kind === 'runway' ? 'red' : a?.kind === 'frost' && a.sticker ? 'sticker' : 'ice';
+      out.push({ x: at.x, y: at.y, k, aim: 0, aimed: false, color, bullets: true, source: en.id });
       // The catwalk: its whole lane, from where it turns onto it to the far end.
       if (a?.kind === 'runway' && en.runTo && en.runVia) {
         const v = en.runVia;
@@ -3267,6 +3284,8 @@ export interface FrostOptions {
   product?: number;
   /** With `product`: the sprite it is drawn with instead of an expired product (Frost.look). */
   look?: string;
+  /** A label stuck on the floor instead of frost (Frost.sticker). */
+  sticker?: string;
   brick?: number;
   damage?: number;
   source: number;
@@ -3278,6 +3297,7 @@ export function throwFrost(w: World, x: number, y: number, h: number, tx: number
   if (opts.shatter) f.shatter = opts.shatter;
   if (opts.product !== undefined) f.product = opts.product;
   if (opts.look) f.look = opts.look;
+  if (opts.sticker) f.sticker = opts.sticker;
   if (opts.brick !== undefined) {
     f.brick = opts.brick;
     f.damage = opts.damage ?? 1;
@@ -3315,7 +3335,9 @@ function updateFrost(w: World): void {
             : { type: 'frostLand', x: f.x, y: f.y, r: f.r, product: f.product }
           : f.brick !== undefined
             ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, brick: f.brick }
-            : { type: 'frostLand', x: f.x, y: f.y, r: f.r },
+            : f.sticker
+              ? { type: 'frostLand', x: f.x, y: f.y, r: f.r, sticker: f.sticker }
+              : { type: 'frostLand', x: f.x, y: f.y, r: f.r },
       );
       // It shatters into splinters, unless whoever threw it is gone already.
       const def = f.shatter ? PATTERNS[f.shatter] : undefined;
@@ -4299,6 +4321,7 @@ export function step(w: World, input: Input): void {
   // Enemies that fell during their own update (a boss's relays when it reboots or goes down).
   reapEnemies(w);
   if (!paused) updateConveyors(w);
+  if (!paused) updateCrates(w);
   if (input.interact && !w.over) interact(w);
   updatePickups(w);
   updateRestock(w);
@@ -4355,6 +4378,7 @@ export function worldHash(w: World): string {
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));
   for (const k of w.ink) parts.push(k.x.toFixed(2), k.y.toFixed(2), k.t.toFixed(3));
   for (const c of w.conveyors) parts.push(c.id, c.dirX, c.t.toFixed(3));
+  for (const d of w.crates) parts.push(d.id, d.t.toFixed(3));
   if (w.lift) parts.push(w.lift.x.toFixed(2), w.lift.y.toFixed(2), w.won ? 'won' : 'lift');
   if (w.finale) parts.push(w.finale.t.toFixed(3), w.won ? 'won' : 'finale');
   return parts.join('|');

@@ -95,6 +95,7 @@ import {
   isDead,
   FROST_FLAT,
   frostSlow,
+  inFrost,
   gunPivot,
   isRolling,
   onLowProp,
@@ -562,6 +563,7 @@ export class GameScene extends Phaser.Scene {
     this.hubHeard = {};
     this.talkAt = null;
     this.frostViews = new Map();
+    this.crateViews = new Map();
     this.inkViews = new Map();
     this.beltViews = new Map();
     this.turnViews = new Map();
@@ -2566,6 +2568,14 @@ export class GameScene extends Phaser.Scene {
             this.sound2.play('atasco', { detune: -400 });
           } else this.sound2.play('ascensor', { detune: -900 });
           break;
+        case 'crateMark':
+          // Up in the dark, something creaks: the crates are on their way.
+          this.sound2.play('aviso', { detune: -500 });
+          this.sound2.play('chapa', { detune: -900, volume: 0.5 });
+          break;
+        case 'crateLand':
+          this.cratesLand(e);
+          break;
         case 'bite': {
           // Into the intake rollers: grinding, sparks and thrown back down the belt.
           this.shake(160, 0.008, true);
@@ -3016,6 +3026,14 @@ export class GameScene extends Phaser.Scene {
             this.shake(70, 0.003, true);
             for (let i = 0; i < 8; i++) this.goo(e.x + this.fx.range(-3, 3), e.y);
             this.puff(e.x, e.y - 2, 0.45);
+            break;
+          }
+          if (e.sticker) {
+            // An «APTO» label slaps onto the floor: the price gun's clack and a puff of dust.
+            this.sound2.play('pegatina', { detune: this.fx.range(-300, 0) });
+            this.sound2.play('etiqueta', { detune: this.fx.range(-200, 200), volume: 0.6 });
+            this.shake(50, 0.002, true);
+            this.puff(e.x, e.y, 0.35);
             break;
           }
           this.sound2.play('escarcha', { detune: this.fx.range(-200, 200) });
@@ -3736,6 +3754,9 @@ export class GameScene extends Phaser.Scene {
     const scale = readScale(settings());
     const w = textWidth(text) * scale;
     const h = 8 * scale;
+    // Never half out of the room (a boss shouting from against a side wall, M12 (4c)).
+    const room = this.world.room;
+    if (w + 8 < room.w) x = Math.max(4 + w / 2, Math.min(room.w - 4 - w / 2, x));
     const box = { x: Math.round(x - w / 2), y: Math.round(y) - h, w, h };
     const placed = this.floats.map((f) => {
       const b = f.t.getBounds();
@@ -4038,6 +4059,7 @@ export class GameScene extends Phaser.Scene {
     this.drawStatic();
     this.drawWind();
     this.drawFrost(dt);
+    this.drawFallingCrates();
     this.drawInk();
     this.drawConveyors();
     this.drawTurns();
@@ -4630,7 +4652,9 @@ export class GameScene extends Phaser.Scene {
             ? this.add.image(f.fromX, f.fromY, f.look ?? 'producto-caducado', f.look ? 0 : f.product)
             : f.brick !== undefined
               ? this.add.image(f.fromX, f.fromY, 'pieza', f.brick)
-              : this.add.image(f.fromX, f.fromY, 'bola-escarcha');
+              : f.sticker
+                ? this.add.image(f.fromX, f.fromY, `${f.sticker}-vuelo`, 0)
+                : this.add.image(f.fromX, f.fromY, 'bola-escarcha');
         v = { ball, shadow: this.add.image(f.fromX, f.fromY, shadowTexture(this, 4, 2)).setDepth(-50000), patch: null };
         this.frostViews.set(f.id, v);
       }
@@ -4640,7 +4664,10 @@ export class GameScene extends Phaser.Scene {
         const y = f.fromY + (f.y - f.fromY) * k;
         const h = f.fromH * (1 - k) + Math.sin(Math.PI * k) * 46;
         const spin = f.brick !== undefined ? (Math.floor(k * 8 + f.id) % 4) * (Math.PI / 2) : k * (f.product !== undefined ? 4 : 6);
-        v.ball.setPosition(Math.round(x), Math.round(y - h)).setDepth(y + 30).setRotation(spin);
+        v.ball.setPosition(Math.round(x), Math.round(y - h)).setDepth(y + 30);
+        // A label flutters (face up, edge on); the rest spin.
+        if (f.sticker) v.ball.setFrame(Math.floor(k * 8) % 2);
+        else v.ball.setRotation(spin);
         v.shadow.setPosition(Math.round(x), Math.round(y));
         // Where it will land: a cold ring that closes in, over a dark ellipse (a small cross for a piece).
         if (f.brick !== undefined) {
@@ -4660,7 +4687,7 @@ export class GameScene extends Phaser.Scene {
         g.fillStyle(0x0e0c16, 0.18 + 0.2 * k).fillEllipse(Math.round(f.x), Math.round(f.y), f.r * 2, f.r * 2 * FROST_FLAT);
         pixelEllipse(g, Math.round(f.x), Math.round(f.y) + 1, rx, ry, 0x0e0c16);
         // Frost marks its spot in cyan; expired products, in red.
-        if (k < 0.85 || Math.floor(this.time.now / 60) % 2 === 0) pixelEllipse(g, Math.round(f.x), Math.round(f.y), rx, ry, f.product !== undefined ? 0xe0453b : 0x69dbd8);
+        if (k < 0.85 || Math.floor(this.time.now / 60) % 2 === 0) pixelEllipse(g, Math.round(f.x), Math.round(f.y), rx, ry, f.product !== undefined ? 0xe0453b : f.sticker ? 0x8ef07a : 0x69dbd8);
         continue;
       }
       if (v.ball.visible) {
@@ -4680,9 +4707,11 @@ export class GameScene extends Phaser.Scene {
         v.shadow.setAlpha(a);
         continue;
       }
-      if (!v.patch) v.patch = this.add.sprite(Math.round(f.x), Math.round(f.y), 'escarcha', 0).setDepth(-60000);
+      if (!v.patch) v.patch = this.add.sprite(Math.round(f.x), Math.round(f.y), f.sticker ?? 'escarcha', 0).setDepth(-60000);
       const pop = Math.min(1, f.t / 0.12);
-      v.patch.setScale(0.5 + 0.5 * pop).setFrame(Math.floor(this.time.now / 420 + f.id) % 2);
+      v.patch.setScale(0.5 + 0.5 * pop);
+      // Frost sparkles (a label just lies there).
+      if (!f.sticker) v.patch.setFrame(Math.floor(this.time.now / 420 + f.id) % 2);
       // Melting: it blinks for its last second.
       v.patch.setAlpha(left < 1 ? (Math.floor(this.time.now / 90) % 2 === 0 ? 0.35 : 0.85) : 1);
     }
@@ -4695,8 +4724,14 @@ export class GameScene extends Phaser.Scene {
     }
     const p = this.world.player;
     if (!this.world.over && frostSlow(this.world, p.x, p.y) < 1) {
-      if (this.flashHero <= 0 && !(p.invulnerable > 0 && !isRolling(p))) this.hero.setTint(0xbfeff0);
-      if (Math.hypot(p.vx, p.vy) > 10 && this.fx.chance(dt * 14)) this.iceShard(p.x + this.fx.range(-4, 4), p.y);
+      // On a label it is glue, not cold: no tint, and the feet come up with a tacky tug now and then.
+      const glued = this.world.frost.some((f) => f.sticker && inFrost(f, p.x, p.y));
+      if (glued) {
+        if (Math.hypot(p.vx, p.vy) > 10 && this.fx.chance(dt * 3)) this.sound2.play('pegatina', { detune: this.fx.range(400, 800), volume: 0.25 });
+      } else {
+        if (this.flashHero <= 0 && !(p.invulnerable > 0 && !isRolling(p))) this.hero.setTint(0xbfeff0);
+        if (Math.hypot(p.vx, p.vy) > 10 && this.fx.chance(dt * 14)) this.iceShard(p.x + this.fx.range(-4, 4), p.y);
+      }
     }
   }
 
@@ -4770,7 +4805,7 @@ export class GameScene extends Phaser.Scene {
     for (const wn of activeWarnings(this.world)) {
       const k = wn.k;
       // A photocopier's scan is the green of its light, not a threat colour.
-      const col = wn.scan !== undefined ? 0xb8f07a : wn.color === 'red' || wn.color === 'cord' ? 0xe0453b : 0x69dbd8;
+      const col = wn.scan !== undefined ? 0xb8f07a : wn.color === 'red' || wn.color === 'cord' ? 0xe0453b : wn.color === 'sticker' ? 0x8ef07a : 0x69dbd8;
       if (wn.scan !== undefined) {
         this.scanned.add(wn.scan);
         // Corner brackets round whoever is being copied, closing in over the scan.
@@ -4836,6 +4871,68 @@ export class GameScene extends Phaser.Scene {
       const by = top - (k < 0.15 ? Math.round((0.15 - k) * 20) : 0);
       g.fillStyle(0x0e0c16, 1).fillRect(bx - 2, by - 1, 4, 10);
       g.fillStyle(0xf6c431, 1).fillRect(bx - 1, by, 2, 5).fillRect(bx - 1, by + 6, 2, 2);
+    }
+    this.drawCrateMarks(g);
+  }
+
+  /**
+   * «Control de calidad» (BossPhase.crates): where a stack of crates will land, its tile darkens
+   * and a hazard frame (yellow and black dashes that crawl round it) blinks faster and faster.
+   */
+  private drawCrateMarks(g: Phaser.GameObjects.Graphics): void {
+    for (const d of this.world.crates) {
+      const k = Math.min(1, d.t / d.warn);
+      const { x, y, w, h } = d.box;
+      g.fillStyle(0x0e0c16, 0.18 + 0.4 * k).fillRect(x + 1, y + 1, w - 2, h - 2);
+      const on = k < 0.6 ? Math.floor(this.time.now / 140) % 2 === 0 : Math.floor(this.time.now / 60) % 2 === 0;
+      // The frame, walked round clockwise, dashes of three that crawl along it.
+      const off = Math.floor(this.time.now / 80) % 6;
+      const x1 = x + w - 2;
+      const y1 = y + h - 2;
+      const edge: Array<[number, number]> = [];
+      for (let px = x + 1; px < x1; px++) edge.push([px, y + 1]);
+      for (let py = y + 1; py < y1; py++) edge.push([x1, py]);
+      for (let px = x1; px > x + 1; px--) edge.push([px, y1]);
+      for (let py = y1; py > y + 1; py--) edge.push([x + 1, py]);
+      edge.forEach(([px, py], i) => {
+        const yellow = Math.floor((i + off) / 3) % 2 === 0;
+        g.fillStyle(yellow ? (on ? 0xfff1a8 : 0xf6c431) : 0x0e0c16, 1).fillRect(px, py, 1, 1);
+      });
+    }
+  }
+
+  /** The stacks of crates in their last moment in the air: they drop out of the dark onto their marks. */
+  private crateViews = new Map<number, Phaser.GameObjects.Image>();
+
+  private drawFallingCrates(): void {
+    const alive = new Set<number>();
+    for (const d of this.world.crates) {
+      const left = d.warn - d.t;
+      if (left > CRATE_FALL) continue;
+      alive.add(d.id);
+      let v = this.crateViews.get(d.id);
+      if (!v) {
+        v = this.add.image(d.x, d.y, 'pila-cajas').setOrigin(0.5, 1);
+        this.crateViews.set(d.id, v);
+      }
+      const q = 1 - left / CRATE_FALL;
+      v.setPosition(d.x, Math.round(d.y - CRATE_DROP * (1 - q * q))).setDepth(d.y);
+    }
+    for (const [id, v] of this.crateViews) {
+      if (alive.has(id)) continue;
+      v.destroy();
+      this.crateViews.delete(id);
+    }
+  }
+
+  /** They land: a thud that shakes the room, dust out from under them and a few splinters of grey plastic. */
+  private cratesLand(e: Extract<SimEvent, { type: 'crateLand' }>): void {
+    this.sound2.play('derrumbe', { volume: 0.55, detune: this.fx.range(-200, 100) });
+    this.sound2.play('carton', { detune: -400 });
+    this.shake(170, 0.009, true);
+    for (const at of e.spots) {
+      this.puff(at.x + this.fx.range(-8, 8), at.y - 2, this.fx.range(0.4, 0.7));
+      if (this.fx.chance(0.5)) this.splinter(at.x + this.fx.range(-10, 10), at.y - this.fx.range(4, 20), this.fx.range(0, Math.PI * 2), this.fx.pick([0xb4baae, 0x868c80, 0x8ef07a]));
     }
   }
 
@@ -5268,6 +5365,9 @@ const BELT_ROLLERS_W = 16;
 const PLAYER_BULLET_R = 3;
 /** Tyre marks on the floor at once, at most (each is two dashes). */
 const SKID_MAX = 120;
+/** The last seconds of a crate mark, in which the stack is seen falling, and from how high (px). */
+const CRATE_FALL = 0.3;
+const CRATE_DROP = 140;
 
 /** Depth added to the toaster while it rolls over a low counter (deeper than the counter is tall). */
 const LOW_PROP_LIFT = 90;

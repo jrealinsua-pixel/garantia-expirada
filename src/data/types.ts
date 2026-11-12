@@ -557,6 +557,13 @@ export interface BossFrostAttack {
   life: number;
   slow: number;
   shatter?: string;
+  /**
+   * Not frost but a label (this sprite) stuck on the floor where it lands: the same slowing patch,
+   * drawn as the label (the Trituradora's «APTO», M12 (4c)).
+   */
+  sticker?: string;
+  /** Frame of the boss's sheet while it warns (as BossPatternAttack.pose). */
+  pose?: number;
   telegraph: number;
   weight: number;
 }
@@ -739,6 +746,14 @@ export interface BossPhase {
    * the toaster back down the belt. The belt keeps running in the phases after this one.
    */
   belt?: { speed: number; bite: number; move: number };
+  /**
+   * «Control de calidad» (the Trituradora, M12 (4c)): stacks of crates (prop `prop`, one per tile)
+   * come down and close the room bit by bit, from the side wall farthest from the boss inwards: a
+   * half column at a time (the top half, then the bottom one), the first `first` s after the phase
+   * starts and then every `every` s, each marked on the floor `warn` s before it lands. Whoever is
+   * under one when it lands takes `hurt` and is thrown out towards the boss. At most `cols` columns.
+   */
+  crates?: { prop: string; first: number; every: number; warn: number; hurt: number; cols: number };
 }
 
 /**

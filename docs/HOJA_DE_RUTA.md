@@ -492,10 +492,11 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
       de perfil); en la Línea de Desmontaje y en la sala nueva Cinta de Clasificación.
   - [x] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla). Hecho el
     2026-11-12 con la Carretilla Elevadora; el brazo de montaje queda para M14 si hace falta.
-- [ ] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.
+- [x] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.
   - [x] (4a) Sprites, sala y fase 1, «Diagnóstico».
   - [x] (4b) Fase 2, «Despiece».
-  - [ ] (4c) Fase 3, «Control de calidad».
+  - [x] (4c) Fase 3, «Control de calidad» (etiquetas «APTO» que frenan y pilas de cajas que cierran
+    la sala media columna cada vez; `src/sim/crates.ts`).
 - [ ] (5) El final verdadero (el jugador es el producto) y los créditos.
 - [ ] (6) Medir la planta 6 entera con el bot y ajustar.
 

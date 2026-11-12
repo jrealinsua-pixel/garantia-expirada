@@ -1701,6 +1701,38 @@ try {
   await shot('53f-despiece-piezas.png');
   await page.waitForFunction(`window.__GE__.scene.world.player.x < 120 || window.__GE__.scene.world.player.x > 500`, undefined, { timeout: 20000 });
   await shot('53g-despiece-rodillos.png');
+  // M12 (4c): down to 25 %, «Control de calidad»: «APTO» labels stuck on the floor (they slow you
+  // down) and stacks of crates coming down from the far wall in, half a column at a time.
+  await page.evaluate(`(() => { const s = window.__GE__.scene; s.world.bullets = []; s.world.emitters = [];
+    const p = s.world.player; const b = ${trituradoraJs}; p.x = s.world.room.w / 2; p.y = 200;
+    b.damageTaken = Math.ceil(b.def.hp * 0.76); })()`);
+  await page.waitForFunction(`${trituradoraJs}.bossPhase === 2`, undefined, { timeout: 5000 });
+  await page.waitForTimeout(700);
+  await shot('53h-calidad-cartel.png');
+  // Keep the toaster a few tiles in front of the crates (the belt would carry it off), so they are in the picture.
+  const holdFront = `{ const s = window.__GE__.scene; const w = s.world; const p = w.player;
+    const b = w.enemies.find((e) => e.def.id === 'trituradora'); const from = b.crates ? b.crates.from : -1;
+    const boxes = w.room.props.filter((pr) => pr.def.id === 'pila-cajas').map((pr) => pr.box).concat(w.crates.map((d) => d.box));
+    const front = from < 0 ? Math.max(24, ...boxes.map((k) => k.x + k.w)) : Math.min(w.room.w - 24, ...boxes.map((k) => k.x));
+    p.x = front - from * 46; }`;
+  // Half the room shut (four columns), the labels on the floor; then a chunk falling in the picture.
+  await page.waitForFunction(
+    `(() => { ${holdFront}; const w = window.__GE__.scene.world;
+      return w.room.props.filter((pr) => pr.def.id === 'pila-cajas').length >= 46 && w.frost.some((f) => f.sticker && f.t > 0.3); })()`,
+    undefined,
+    { timeout: 45000 },
+  );
+  await page.waitForTimeout(200);
+  await shot('53i-calidad-cajas.png');
+  await page.waitForFunction(
+    `(() => { ${holdFront}; const s = window.__GE__.scene; const v = s.cameras.main.worldView;
+      return s.world.crates.some((d) => d.warn - d.t < 0.08 && v.contains(d.x, d.y - 110)); })()`,
+    undefined,
+    { timeout: 15000 },
+  );
+  await shot('53j-calidad-caen.png');
+  const stacks = await page.evaluate<number>("window.__GE__.scene.world.room.props.filter((pr) => pr.def.id === 'pila-cajas').length");
+  if (stacks < 46) throw new Error(`Las cajas del control de calidad no caen (${stacks})`);
   await page.evaluate(`(() => { const r = ${JSON.stringify(recordBefore)}; const key = 'garantia-expirada/perfil';
     if (r === null) localStorage.removeItem(key); else localStorage.setItem(key, r); })()`);
 

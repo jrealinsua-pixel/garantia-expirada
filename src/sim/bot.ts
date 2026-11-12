@@ -145,6 +145,13 @@ export function dodge(w: World): Dodge {
     out.x += (dx / d) * 1.2;
     out.y += (dy / d) * 1.2;
   }
+  // Crates coming down (BossPhase.crates): out from under their tiles, towards the boss's side.
+  for (const d of w.crates) {
+    if (d.t < BOT_REACTION) continue;
+    const pad = 10;
+    if (p.x < d.box.x - pad || p.x > d.box.x + d.box.w + pad || p.y < d.box.y - pad || p.y > d.box.y + d.box.h + pad) continue;
+    out.x += d.out * 1.6;
+  }
   // An air conditioner's cone: step out of it sideways (in it the air pushes and the shots bend away).
   for (const en of w.enemies) {
     const b = en.def.brain;
