@@ -1336,6 +1336,11 @@
       "sesion": "2026-11-12 23:25",
       "tarea": "M14 (j2): la Lavadora Programa Eco, segundo jefe de la planta 1",
       "desde": "2026-11-12T22:41:55Z"
+    },
+    {
+      "sesion": "2026-11-12 23:30",
+      "tarea": "M14 (l3): contenido limitado que se desbloquea con logros",
+      "desde": "2026-11-12T23:31:00Z"
     }
   ]
 }
