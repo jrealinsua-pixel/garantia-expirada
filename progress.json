@@ -1245,6 +1245,11 @@
       "sesion": "2026-11-12 11:30",
       "tarea": "M13 (3): la Batidora de Vaso (sprite, Picahielos Turbo y el giro de cuchillas)",
       "desde": "2026-11-12T11:30:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 12:25",
+      "tarea": "M13 (5): el Becario Eterno (sprite, experiencia demostrable y sin remunerar)",
+      "desde": "2026-11-12T12:25:00+01:00"
     }
   ]
 }
