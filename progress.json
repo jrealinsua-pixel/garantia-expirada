@@ -1215,6 +1215,11 @@
       "sesion": "2026-11-12 07:10",
       "tarea": "M12 (3c): la carretilla elevadora, enemigo propio del taller",
       "desde": "2026-11-12T07:10:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 07:25",
+      "tarea": "M12 (4c): la fase 3 de la Trituradora, «Control de calidad»",
+      "desde": "2026-11-12T07:25:00+01:00"
     }
   ]
 }
