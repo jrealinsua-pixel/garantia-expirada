@@ -5,6 +5,7 @@
 import { ROSTER } from '../data/unlocks.ts';
 import { newUnlocks, serviceMet } from './unlocks.ts';
 import { LORE } from '../data/lore.ts';
+import { parseDailies, recordDaily, type DailyRecord, type DailyResult } from './daily.ts';
 
 /** The documents beating these bosses gives, in archivador order. */
 const bossDocs = (bosses: readonly string[]): string[] => LORE.filter((l) => 'boss' in l.source && bosses.includes(l.source.boss)).map((l) => l.id);
@@ -55,6 +56,8 @@ export interface Profile {
    * through `exhibited` (src/sim/unlocks.ts), which falls back to the Tostadora when it cannot be played.
    */
   chosen: string;
+  /** The daily challenges played (M14 (r1)), by day «AAAA-MM-DD»: the best attempt and how many. */
+  dailies: Record<string, DailyRecord>;
 }
 
 /** The last run, as the hub remembers it. */
@@ -119,6 +122,7 @@ export function emptyProfile(): Profile {
     service: false,
     endings: 0,
     chosen: STARTERS[0]!,
+    dailies: {},
   };
 }
 
@@ -291,7 +295,13 @@ export function parseProfile(raw: string | null): Profile {
   p.service = o.service === true || serviceMet(p);
   p.endings = count(o.endings);
   if (typeof o.chosen === 'string') p.chosen = o.chosen;
+  p.dailies = parseDailies(o.dailies);
   return p;
+}
+
+/** The profile after one more attempt at the challenge of day `key` (the run itself goes in with recordRun). */
+export function recordDailyRun(old: Profile, key: string, r: DailyResult): Profile {
+  return { ...old, dailies: recordDaily(old.dailies, key, r) };
 }
 
 /** The cause that has taken the player down most often («enemy:how»), or null. */

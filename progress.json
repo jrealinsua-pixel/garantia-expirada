@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T19:45:00+01:00",
+  "actualizado": "2026-11-12T19:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -130,13 +130,18 @@
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 873,
-    "tests_ok": 873,
+    "tests": 884,
+    "tests_ok": 884,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 31653
+    "lineas_codigo": 32244
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T19:55:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (r1): el reto del día. En la portada, «Reto del día» abre el «Boletín de ofertas del día»: una partida al día con la semilla fija, la misma para todo el mundo (la Tostadora, sin desbloqueos y con un regalo del día ya en la bolsa), con el número de boletín, la fecha, los intentos de hoy, el mejor y los días seguidos. El parte de baja dice «Intento 2 · Lo mejor de hoy: planta 2» y R lo intenta otra vez. Nada sale del navegador."
+    },
     {
       "fecha": "2026-11-12T19:45:00+01:00",
       "hito": "M14",
@@ -1251,6 +1256,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/reto-del-dia.png",
+      "pie": "M14 (r1): el «Boletín de ofertas del día» de la portada: la misma partida para todo el mundo, con su regalo «sin garantía», los intentos de hoy, el mejor y los días seguidos"
+    },
+    {
+      "archivo": "capturas/reto-regalo.png",
+      "pie": "El reto empieza con el regalo del día ya en la bolsa (hoy, la Garantía Extendida)"
+    },
+    {
       "archivo": "capturas/glosario.png",
       "pie": "M14: el «Catálogo de siniestros», el glosario de la pausa y la portada: lo que has desmontado, con su ficha y cuántos llevas; lo demás, «Sin catalogar»"
     },
@@ -1263,19 +1276,11 @@
       "pie": "M13: los cinco personajes en fila en el Mostrador, para el criterio de «se distinguen a la primera»"
     },
     {
-      "archivo": "capturas/tablon-desbloqueos.png",
-      "pie": "M13 (8): el tablón con las condiciones definitivas; la Plancha, la última, sale al vencer al Director de Recursos Inhumanos («Traiga camisa»)"
-    },
-    {
-      "archivo": "capturas/final-becario.png",
-      "pie": "M13 (7b): el final del Becario Eterno: en la estantería, con la etiqueta «Prácticas: 6 meses», a 0,00 € «Sin remunerar». Con experiencia. No cobra."
-    },
-    {
       "archivo": "capturas/muertes.png",
       "pie": "M13 (7c): cada uno se desmonta a su manera: la Batidora suelta la pajita y el vaso, la Plancha echa vapor y pierde un zapato, el Becario solo papeles y café (sin chispas: no es un aparato) y el Móvil la batería hinchada y la SIM"
     }
   ],
-  "proximo": "M14: salas especiales raras y retos diarios con semilla fija, o los jefes al azar por planta (nota del humano del 2026-10-30).",
+  "proximo": "M14 (r2): las salas especiales raras; o los jefes al azar por planta (nota del humano del 2026-10-30).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1301,7 +1306,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    { "sesion": "2026-11-12 19:25", "tarea": "M14 (r1): el reto del día con semilla fija", "desde": "2026-11-12T19:25:00+01:00" }
-  ]
+  "en_curso": []
 }

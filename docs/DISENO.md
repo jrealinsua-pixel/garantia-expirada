@@ -674,6 +674,17 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   o una partida con ella encima. Lo que falta sale como una silueta oscura «Sin catalogar», con
   una pista de cómo ficharlo. El perfil cuenta las bajas de cada tipo (`Profile.killed`), que
   servirán también para los logros.
+- **El reto del día, «Boletín de ofertas del día»** (M14 r1), en la portada: una partida al día
+  con la semilla fija (`reto-AAAA-MM-DD`, por el calendario del jugador), la misma para todo el
+  mundo ese día: mismas plantas, mismo botín. Siempre con la Tostadora, sin cita del Servicio
+  Técnico ni armas de otros personajes (si no, el desbloqueo de cada uno cambiaría la partida), y
+  con un **regalo del día**: un objeto pasivo de la planta 1 elegido por la fecha, ya en la bolsa
+  al empezar («Garantía Extendida (sin garantía)»). El boletín lleva número (el 1 es el 1 de enero
+  de 2026), la fecha, los intentos de hoy, el mejor (ganar antes que perder; luego la planta más
+  alta; luego más bajas o menos tiempo) y los días seguidos con algún intento. El parte de baja
+  del reto lo dice («Intento 3 · Lo mejor de hoy: planta 2») y R prueba el mismo reto otra vez.
+  Nada sale del navegador: no hay tabla de récords en ningún servidor. El perfil guarda los
+  últimos 60 días (`Profile.dailies`).
 
 ### El Servicio Técnico (planta secreta, hito M12)
 

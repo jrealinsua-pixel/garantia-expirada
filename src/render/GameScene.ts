@@ -10,7 +10,7 @@ import { activeLines, modifierLines, weaponLines, type EffectLine } from '../dat
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { INTERACT_VERBS, interactPrompt, REPORT_MENU_HINT } from '../data/texts.ts';
-import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
+import { ACTIVE_LINES, DAILY_GIFT_KIND, dailyReportLine, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, SERVICE_LIFT_LINE, SERVICE_WON_LINE } from '../data/texts.ts';
 import { SPECIAL_HEARTS } from '../data/hearts.ts';
 import { SURGE_HIT_LINE, SURGE_LINE, TURBO_END_LINE } from '../data/texts.ts';
@@ -130,7 +130,8 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
-import { profile, saveChosen, saveEnding, saveFloor, saveRun } from './save.ts';
+import { profile, saveChosen, saveDaily, saveEnding, saveFloor, saveRun } from './save.ts';
+import { dailyGift, startDaily } from '../sim/daily.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
 import type { PropInstance, StationKind, TipSide } from '../sim/room.ts';
 import { departmentOf, departmentRect, isSpinning, MENU_ZONE_H, MENU_ZONE_W } from '../sim/enemies.ts';
@@ -543,9 +544,13 @@ export class GameScene extends Phaser.Scene {
   /** Started from the title screen's practice option: that room instead of a floor (kept on restart). */
   private startSala: string | null = null;
 
-  init(data: { sala?: string; hub?: boolean } | undefined): void {
+  /** The daily challenge being played (its day, «AAAA-MM-DD»; M14 (r1)), kept on restart: R tries the same one again. */
+  private daily: string | null = null;
+
+  init(data: { sala?: string; hub?: boolean; daily?: string } | undefined): void {
     this.startSala = data?.sala ?? null;
     this.hubMode = !!data?.hub;
+    this.daily = data?.daily ?? null;
   }
 
   create(): void {
@@ -626,7 +631,8 @@ export class GameScene extends Phaser.Scene {
     this.carry = null;
     this.ending = null;
     // Off the Mostrador's conveyor: the run opens with the product's return slip (M13).
-    const offTheBelt = this.freshRun;
+    // The daily challenge opens with it too (its first floor, not when trying again from a later one).
+    const offTheBelt = this.freshRun || (!!this.daily && !carried);
     this.slip = null;
     this.slipFire = false;
     if (!carried || this.freshRun) {
@@ -651,6 +657,9 @@ export class GameScene extends Phaser.Scene {
       // The Mostrador de Devoluciones: where every run starts and ends. The Chatarrero comes once a boss has fallen.
       // The unlocked characters' starting weapons go with every run that leaves from here (weaponPool).
       this.world = createWorld({ seed: 'mostrador', character, hub: { chatarrero: chatarreroHere(profile()), service: profile().service }, unlocked: profile().unlocked });
+    } else if (this.daily) {
+      // The daily challenge (M14 (r1)): the day's seed, the Tostadora and the day's gift, whoever plays.
+      this.world = startDaily(this.daily);
     } else if (this.startSala && !params.get('sala')) {
       this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala, level, character });
     } else if (params.get('sala')) {
@@ -1282,6 +1291,14 @@ export class GameScene extends Phaser.Scene {
     this.hudObjs = this.hudObjs.filter((o) => !s.parts.includes(o as unknown as Phaser.GameObjects.GameObject));
     this.acc = 0;
     this.slipFire = true;
+    // The daily challenge: then the day's gift, already in the bag (M14 (r1)).
+    if (this.daily) this.showDailyGift();
+  }
+
+  /** The card of the daily challenge's gift, as if just picked up, with «Regalo del día» as its kind. */
+  private showDailyGift(): void {
+    const pas = ITEMS[dailyGift(this.daily!)];
+    if (pas) this.showCard(pas.sprite, pas.name, DAILY_GIFT_KIND, pas.description, modifierLines(pas.mod), 0xf6c431);
   }
 
   /**
@@ -1296,6 +1313,9 @@ export class GameScene extends Phaser.Scene {
       (n) => this.fx.int(0, n - 1),
       characterDown(w.player.base.def.id),
     );
+    // In the daily challenge, how many tries today and the best of them (M14 (r1)).
+    const day = this.daily ? profile().dailies[this.daily] : undefined;
+    if (day) lines.splice(lines.length - 1, 0, dailyReportLine(day));
     this.showForm(lines, { title: DOWN_TITLE, color: 0xe0453b, light: 0xffd0c8, stamp: DOWN_STAMP, hint: DOWN_HINT });
   }
 
@@ -1325,6 +1345,11 @@ export class GameScene extends Phaser.Scene {
     const ref = `Exp. ${String(1000 + ((w.tick * 7919) % 9000)).padStart(4, '0')}`;
     const hintText = `${look.hint} · ${REPORT_MENU_HINT}`;
     const F = formLayout(lines, look.title, ref, hintText, readScale(settings()), look.stamp);
+    // A description window still up (something picked up a moment before) would show through the form.
+    const c = this.card;
+    const cardParts = [c.plate, c.icon, c.name, c.kind, c.desc, ...c.lines];
+    this.tweens.killTweensOf(cardParts);
+    for (const o of cardParts) o.setAlpha(0);
     const parts: Array<Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor> = [];
     const add = <T extends Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor>(o: T): T => {
       this.hud(o).setDepth(96000 + parts.length);
@@ -1847,6 +1872,9 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.runRecorded = true;
+    if (this.daily) {
+      saveDaily(this.daily, { level: w.level, won: outcome === 'floor', seconds: this.runBefore.seconds + w.tick * DT, kills: this.runBefore.kills + w.kills });
+    }
     saveRun({
       character: p.base.def.id,
       outcome,

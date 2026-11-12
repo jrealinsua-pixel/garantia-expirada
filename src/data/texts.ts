@@ -600,6 +600,54 @@ export function historyLines(h: HistoryInfo): { label: string; text: string }[] 
   ];
 }
 
+/** The daily challenge (M14 (r1), src/sim/daily.ts): its screen on the title. */
+export const DAILY_MENU = 'Reto del día';
+export const DAILY_TITLE = 'Boletín de ofertas del día';
+export const DAILY_SUB = 'La misma partida para todo el mundo. Las mismas excusas también.';
+export const DAILY_START = 'Aprovechar la oferta';
+/** The kind line of the gift's card when the challenge starts. */
+export const DAILY_GIFT_KIND = 'Regalo del día · ya en la bolsa';
+export const DAILY_FOOT = 'Oferta válida hasta las 23:59 o fin de existencias.';
+const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+/** «AAAA-MM-DD» and its day of the week (0 Sunday) → «jueves 12 de noviembre». */
+export function dailyDate(key: string, weekday: number): string {
+  const [, m, d] = key.split('-').map(Number) as [number, number, number];
+  return `${WEEKDAYS[weekday]} ${d} de ${MONTHS[m - 1]}`;
+}
+
+export interface DailyInfo {
+  key: string;
+  /** 0 Sunday … 6 Saturday (src/sim/daily.ts, dayOfWeek). */
+  weekday: number;
+  number: number;
+  character: string;
+  gift: string;
+  best: { level: number; won: boolean; seconds: number; kills: number; tries: number } | null;
+  streak: number;
+}
+
+/** The lines of the day's bulletin, top to bottom. */
+export function dailyLines(i: DailyInfo): { label: string; text: string }[] {
+  const b = i.best;
+  return [
+    { label: `Boletín núm. ${i.number}`, text: dailyDate(i.key, i.weekday) },
+    { label: 'Producto', text: `${i.character} (no se admiten cambios)` },
+    { label: 'Regalo del día', text: `${i.gift} (sin garantía)` },
+    { label: 'Intentos hoy', text: b ? String(b.tries) : 'Ninguno. Aún.' },
+    {
+      label: 'Mejor intento',
+      text: !b ? 'Sin estrenar' : b.won ? `Incidencia cerrada en ${clock(b.seconds)}` : `Planta ${b.level} · ${b.kills} desmontados · ${clock(b.seconds)}`,
+    },
+    { label: 'Días seguidos', text: i.streak === 1 ? '1 (es un comienzo)' : String(i.streak) },
+  ];
+}
+
+/** The line the sick-leave report adds in a daily challenge: this attempt and the day's best. */
+export function dailyReportLine(r: { tries: number; level: number; won: boolean }): { label: string; text: string } {
+  return { label: 'Reto del día', text: `Intento ${r.tries} · Lo mejor de hoy: ${r.won ? 'incidencia cerrada' : `planta ${r.level}`}` };
+}
+
 // The tablón «Productos en Exposición» of the Mostrador (src/render/board.ts).
 export const BOARD_TITLE = 'Productos en Exposición';
 /** An unlocked character that cannot be played yet (they arrive in a later version). */

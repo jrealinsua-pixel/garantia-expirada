@@ -2348,6 +2348,49 @@ try {
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Glosario: seis enemigos y la Nevera fichados, el mando que te tumbó, el resto sin catalogar; tres armas.');
 
+  // M14 (r1): the daily challenge. From the title, the day's bulletin (with an attempt yesterday and
+  // one today already); «Aprovechar la oferta» starts it: the return slip, then the gift's card; the
+  // toaster down, the attempt is counted; the same day by link gives the same floor.
+  const dayKeyJs = (back: number): string => `(() => { const d = new Date(); d.setDate(d.getDate() - ${back}); const t = (n) => String(n).padStart(2, '0');
+    return \`\${d.getFullYear()}-\${t(d.getMonth() + 1)}-\${t(d.getDate())}\`; })()`;
+  const today = await page.evaluate<string>(dayKeyJs(0));
+  const yesterday = await page.evaluate<string>(dayKeyJs(1));
+  await page.evaluate(`localStorage.setItem('garantia-expirada/perfil', JSON.stringify({ runs: 2, dailies: {
+    '${yesterday}': { tries: 1, level: 1, won: false, seconds: 95, kills: 7 }, '${today}': { tries: 1, level: 2, won: false, seconds: 412, kills: 38 } } }))`);
+  await page.goto(url);
+  await page.waitForFunction("window.__GE_PHASER__ && window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 20000 });
+  await page.waitForTimeout(400);
+  await tapKeys('ArrowDown', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('59a-reto-del-dia.png');
+  if ((await page.evaluate<string>('window.__GE_PHASER__.scene.getScene("title").screen')) !== 'daily') throw new Error('El reto del día no se abre desde la portada');
+  await tapKeys('Enter');
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready && !!window.__GE__.scene.world.floor', undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('«Aprovechar la oferta» no empieza el reto'); });
+  await readSlip();
+  await page.waitForTimeout(500);
+  await shot('59b-reto-regalo.png');
+  const daily = await page.evaluate<{ seed: string; items: string[]; who: string; layout: string }>(`(() => { const w = window.__GE__.scene.world;
+    return { seed: w.seed, items: [...w.player.items], who: w.player.base.def.id, layout: JSON.stringify(w.floor.layout) }; })()`);
+  if (daily.seed !== `reto-${today}` || daily.items.length !== 1 || daily.who !== 'tostadora') throw new Error(`El reto no empieza como debe: ${JSON.stringify({ ...daily, layout: undefined })}`);
+  // The day's gift may be a second life (Copia de Seguridad): shots until the toaster stays down.
+  for (let i = 0; i < 12 && !(await state()).over; i++) {
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.hp = Math.min(w.player.hp, 1); w.player.invulnerable = 0; w.player.rollT = -1; })()`);
+    await page.evaluate(bulletAt(24));
+    await page.waitForTimeout(500);
+  }
+  await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 }).catch(() => { throw new Error('La tostadora del reto no cae'); });
+  await page.waitForTimeout(3600);
+  await shot('59c-reto-parte.png');
+  const afterDaily = JSON.parse((await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/perfil')")) ?? '{}') as { dailies?: Record<string, { tries: number; level: number }> };
+  if (afterDaily.dailies?.[today]?.tries !== 2 || afterDaily.dailies[today]!.level !== 2) throw new Error(`El reto no apunta el intento (o pisa el mejor): ${JSON.stringify(afterDaily.dailies)}`);
+  await page.goto(`${url}?reto=${today}`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready && !!window.__GE__.scene.world.floor', undefined, { timeout: 20000 });
+  const again = await page.evaluate<string>('JSON.stringify(window.__GE__.scene.world.floor.layout)');
+  if (again !== daily.layout) throw new Error('El mismo reto no da la misma planta');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
+  console.log('Reto del día: el boletín en la portada, la ficha y el regalo, el intento apuntado sin pisar el mejor, y la misma planta por enlace.');
+
   // M9: the secret room keeps a story document on the floor; walking over it files it.
   await page.goto(`${url}?semilla=e2e-documento&sala=secreta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

@@ -1,6 +1,7 @@
 // The player's record (src/sim/profile.ts), kept in the browser between games. If storage is
 // missing or fails, the game goes on with an empty record that lasts until the page is closed.
-import { emptyProfile, parseProfile, recordEnding, recordFloor, recordRun, type FloorResult, type Profile, type RunResult } from '../sim/profile.ts';
+import type { DailyResult } from '../sim/daily.ts';
+import { emptyProfile, parseProfile, recordDailyRun, recordEnding, recordFloor, recordRun, type FloorResult, type Profile, type RunResult } from '../sim/profile.ts';
 
 const KEY = 'garantia-expirada/perfil';
 let current: Profile | null = null;
@@ -54,6 +55,17 @@ export function saveChosen(id: string): Profile {
 /** The true ending was seen (M12 (5)): counts it, with the Trituradora and the workshop floor, and saves it. */
 export function saveEnding(f?: FloorResult): Profile {
   current = recordEnding(profile(), f);
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(current));
+  } catch {
+    // Private mode or blocked storage: kept in memory only.
+  }
+  return current;
+}
+
+/** One more attempt at the challenge of day `key` (M14 (r1)): keeps the best one, and saves it. */
+export function saveDaily(key: string, r: DailyResult): Profile {
+  current = recordDailyRun(profile(), key, r);
   try {
     window.localStorage.setItem(KEY, JSON.stringify(current));
   } catch {

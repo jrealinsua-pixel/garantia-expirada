@@ -572,6 +572,12 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
 
 - [ ] Mucha variedad: hasta 30 armas, 80 objetos, 30 enemigos y 8 jefes en total.
 - [ ] Salas especiales raras, retos diarios con semilla fija.
+  - [x] (r1) El reto del día: una partida al día con la semilla fija, la misma para todos (la
+    Tostadora, sin desbloqueos, con un regalo del día), en la portada como «Boletín de ofertas del
+    día», con el mejor intento, los intentos y los días seguidos en el perfil. Hecho el 2026-11-12:
+    `src/sim/daily.ts`, `tests/reto.test.ts`, e2e `59a`–`59c`, `?reto=AAAA-MM-DD`.
+  - [ ] (r2) Salas especiales raras: salas que salen pocas veces (por ejemplo, una por cada
+    varias plantas) con algo propio: un cambio de cupones, una apuesta, un PNJ o un desafío.
 - [ ] Jefes al azar: cada planta elige entre varios jefes (la planta 1, la Nevera u otros tres).
   (Nota del humano del 2026-10-30.)
 - [x] Glosario de enemigos y armas descubiertos, en el Mostrador o en la pausa.

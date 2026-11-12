@@ -2,6 +2,47 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 19:55 (hora peninsular, de `date`) — Hito M14 — Reto del día (r1): el «Boletín de ofertas del día»
+- Contexto: el clon local de `main` era superficial y estaba en un punto viejo (`git pull` decía
+  «ramas divergentes»); lo puse en `origin/main` con `git checkout -B main origin/main` (no había
+  nada local que perder). Salud al empezar: `check`, 879 tests, `build` y `bot` en verde.
+- Hecho: M14 (r1). La tarea «Salas especiales raras, retos diarios con semilla fija» partida en dos
+  en la hoja de ruta; hecha la de los retos. Lógica pura en `src/sim/daily.ts`: la clave del día
+  (`AAAA-MM-DD`, por el calendario del jugador), la semilla `reto-AAAA-MM-DD` (las plantas de arriba
+  derivan la suya, como siempre), el número de boletín (el 1 es el 1 de enero de 2026; hoy, el 316),
+  el día de la semana y las cuentas de fechas **sin `Date`** (el lint no deja relojes en `src/sim/`:
+  días desde 1970 con el algoritmo civil de toda la vida), el **regalo del día** (un objeto pasivo de
+  la planta 1 elegido con el `Rng` por la fecha, ya en la bolsa y sacado del mazo de la planta) y
+  `startDaily`. El perfil guarda `dailies` (el mejor intento de cada día, cuántos, los últimos 60 días)
+  y `dailyStreak` cuenta los días seguidos. En la portada, **«Reto del día»** (segunda línea) abre
+  el «Boletín de ofertas del día»: número y fecha («jueves 12 de noviembre»), producto «Tostadora
+  Reacondicionada (no se admiten cambios)», regalo «… (sin garantía)», intentos de hoy, mejor intento,
+  días seguidos y «Oferta válida hasta las 23:59 o fin de existencias»; «Aprovechar la oferta» lo
+  empieza. El reto abre con la ficha de devolución y, al cerrarla, la ventana del regalo («Regalo del
+  día · ya en la bolsa»). El parte de baja añade «Reto del día: Intento 2 · Lo mejor de hoy: planta 2»
+  y R prueba el mismo reto otra vez. Enlace directo `?reto` (hoy) o `?reto=AAAA-MM-DD`.
+  Arreglo de paso: **el parte de baja (y el de planta) esconde la ventana de descripción** que
+  hubiera abierta; si morías justo después de coger algo, se veía a través del formulario.
+  Tests nuevos en `tests/reto.test.ts` (5): el calendario, que el mismo día da la misma partida y otro
+  día otra, la Tostadora sin cita ni desbloqueos y con el regalo, el mejor intento y los días seguidos
+  en el perfil (y que un guardado roto no rompe nada), y que los textos se escriben con la fuente y
+  caben con todos los regalos posibles. e2e `59a`–`59c`: el boletín desde la portada, el regalo, el
+  intento apuntado sin pisar el mejor y la misma planta por enlace.
+- Decisiones: **siempre la Tostadora y sin desbloqueos** (`unlocked: []`, sin cita): las armas de los
+  personajes desbloqueados entran en los cofres (`weaponPool`), así que con el perfil de cada uno la
+  «misma» semilla daría partidas distintas. El reto termina en la planta 5 (sin Servicio Técnico).
+  El mejor intento: ganar antes que perder; luego la planta más alta; perdiendo, más bajas; luego
+  menos tiempo. **Nada sale del navegador**: no hay tabla de récords en ningún servidor (`CLAUDE.md`
+  prohíbe conectar con terceros). El reto cuenta también como partida normal en el historial y el
+  perfil (desbloqueos, glosario). La fecha se fija al abrir el boletín: pasada la medianoche, se sigue
+  jugando el de antes hasta volver a la portada. «Boletín núm.» y no «nº»: la fuente no tiene «º».
+- Medidas: no cambia el equilibrio. `npm run bot` 200 partidas, 0 fallos (como antes). 884 tests en
+  verde. e2e entero en verde.
+- Problemas conocidos: la ventana del regalo sale arriba, encima del cartel con el nombre de la
+  primera sala, como cualquier objeto cogido nada más entrar en una sala.
+- Siguiente paso: M14 (r2), las salas especiales raras; o los jefes al azar por planta (nota del
+  humano del 2026-10-30).
+
 ## 2026-11-12 19:45 (hora peninsular) — Hito M14 — Glosario (g2): el «Catálogo de siniestros»
 - Hecho: «Glosario» en la pausa (debajo de Inventario) y en la portada (antes de Historial) abre el
   «Catálogo de siniestros»: dos pestañas, Enemigos y Armas, que se cambian con izquierda y derecha

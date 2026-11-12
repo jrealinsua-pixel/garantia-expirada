@@ -55,6 +55,9 @@ import { downCause, GLOSSARY_MENU, GLOSSARY_TITLE, HISTORY_EMPTY, HISTORY_MENU, 
 import { glossary, glossaryProgress, GLOSSARY_TAB_ORDER, type GlossaryTab } from '../sim/glossary.ts';
 import { paintGlossary } from './glosario.ts';
 import { topCause } from '../sim/profile.ts';
+import { DAILY_CHARACTER, dailyKey, dayOfWeek, dailyNumber, dailyStreak, giftName } from '../sim/daily.ts';
+import { CHARACTERS } from '../data/characters.ts';
+import { DAILY_FOOT, DAILY_MENU, DAILY_START, DAILY_SUB, DAILY_TITLE, dailyLines } from '../data/texts.ts';
 import { profile } from './save.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { Menu, type MenuItem, type MenuResult } from './menu.ts';
@@ -73,7 +76,7 @@ const GOLD = 0xf6c431;
 const CREAM = 0xd6cdb2;
 const GREY = 0x858ea8;
 
-type Screen = 'main' | 'history' | 'glossary' | 'inventory' | 'options' | 'keys' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
+type Screen = 'main' | 'daily' | 'history' | 'glossary' | 'inventory' | 'options' | 'keys' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
 
 /** Where each first-screen action sits, so going back from a screen lands on what opened it. */
 const PAUSE_ITEMS: MenuItem[] = [
@@ -87,6 +90,7 @@ const PAUSE_ITEMS: MenuItem[] = [
 ];
 const TITLE_ITEMS: MenuItem[] = [
   { kind: 'action', id: 'start', label: TITLE_MENU.start },
+  { kind: 'action', id: 'daily', label: DAILY_MENU },
   { kind: 'action', id: 'practice', label: TITLE_MENU.practice },
   { kind: 'action', id: 'options', label: TITLE_MENU.options },
   { kind: 'action', id: 'controls', label: TITLE_MENU.controls },
@@ -97,6 +101,7 @@ const TITLE_ITEMS: MenuItem[] = [
 /** The credits, with the engine (named here: data files may not mention it). */
 const CREDITS: readonly string[] = [...CREDITS_LINES.slice(0, 2), 'Motor: Phaser 3 (licencia MIT)', ...CREDITS_LINES.slice(2)];
 const OPENED_BY: Partial<Record<Screen, string>> = {
+  daily: 'daily',
   history: 'history',
   glossary: 'glossary',
   inventory: 'inventory',
@@ -109,6 +114,8 @@ const OPENED_BY: Partial<Record<Screen, string>> = {
 
 export class PauseScene extends Phaser.Scene {
   protected readonly mode: 'pause' | 'title';
+  /** The day whose challenge the bulletin shows (M14 (r1)). */
+  private dayKey = dailyKey(new Date());
   private screen: Screen = 'main';
   /** Opciones › Teclas: the action waiting for its new key. */
   private waiting: Action | null = null;
@@ -307,6 +314,14 @@ export class PauseScene extends Phaser.Scene {
     snd.play('recargar');
     if (id === 'resume' || id === 'no' || id === 'back') this.back();
     else if (id === 'options' || id === 'controls' || id === 'credits' || id === 'inventory' || id === 'history') this.show(id);
+    else if (id === 'daily') {
+      // Today, by the player's clock: fixed when the bulletin opens (past midnight it is still this one).
+      this.dayKey = dailyKey(new Date());
+      this.show('daily');
+    } else if (id === 'dailyStart') {
+      snd.play('arma');
+      this.scene.start('game', { daily: this.dayKey });
+    }
     else if (id === 'glossary') {
       this.glossTab = 'enemies';
       this.show('glossary');
@@ -366,6 +381,11 @@ export class PauseScene extends Phaser.Scene {
       const lines: MenuItem[] = glossary(profile(), this.glossTab).map((e) => ({ kind: 'action', id: `gloss:${e.id}`, label: e.id }));
       lines.push({ kind: 'action', id: 'back', label: PAUSE_MENU.back });
       this.menu = new Menu(lines);
+    } else if (screen === 'daily') {
+      this.menu = new Menu([
+        { kind: 'action', id: 'dailyStart', label: DAILY_START },
+        { kind: 'action', id: 'back', label: PAUSE_MENU.back },
+      ]);
     } else if (screen === 'controls' || screen === 'credits' || screen === 'history') this.menu = new Menu([{ kind: 'action', id: 'back', label: PAUSE_MENU.back }]);
     else {
       const t = screen === 'confirmNew' ? CONFIRM_MENU : QUIT_MENU;
@@ -411,6 +431,7 @@ export class PauseScene extends Phaser.Scene {
     const titleMain = this.mode === 'title' && this.screen === 'main';
     const titles: Record<Screen, string> = {
       main: PAUSE_TITLE,
+      daily: DAILY_TITLE,
       history: HISTORY_TITLE,
       glossary: GLOSSARY_TITLE,
       inventory: INVENTORY_TITLE,
@@ -421,13 +442,13 @@ export class PauseScene extends Phaser.Scene {
       confirmNew: CONFIRM_TITLE,
       confirmQuit: QUIT_TITLE,
     };
-    const history = this.screen === 'history' ? this.historyRows() : [];
+    const history = this.screen === 'history' ? this.historyRows() : this.screen === 'daily' ? this.dailyRows() : [];
     const keysSub = this.waiting ? KEYS_WAITING : this.keysNote || KEYS_SUB;
-    const subs: Partial<Record<Screen, string>> = { history: HISTORY_SUB, main: this.subtitle, confirmNew: CONFIRM_TEXT, confirmQuit: QUIT_TEXT, keys: keysSub };
+    const subs: Partial<Record<Screen, string>> = { history: HISTORY_SUB, daily: DAILY_SUB, main: this.subtitle, confirmNew: CONFIRM_TEXT, confirmQuit: QUIT_TEXT, keys: keysSub };
     const sub = titleMain ? '' : subs[this.screen] ?? '';
     const rows = this.screen === 'controls' ? controlsRows(keyWords()).length + 1 : this.screen === 'credits' ? CREDITS.length : history.length;
     let h = 44 + (sub ? 12 : 0) + (rows ? rows * 11 + 8 : 0) + this.menu.items.length * 13 + 18;
-    let w = this.screen === 'controls' || this.screen === 'credits' || this.screen === 'history' ? 360 : PANEL_W;
+    let w = this.screen === 'controls' || this.screen === 'credits' || this.screen === 'history' || this.screen === 'daily' ? 360 : PANEL_W;
     let y0 = Math.round((VIEW_H - h) / 2) - 6;
     if (titleMain) {
       // The logo up top, the menu in a narrower panel under it, to the right of the toaster.
@@ -471,10 +492,11 @@ export class PauseScene extends Phaser.Scene {
         y += 11;
       }
       y += 8;
-    } else if (this.screen === 'history') {
+    } else if (this.screen === 'history' || this.screen === 'daily') {
+      const col = this.screen === 'daily' ? 110 : 160;
       for (const r of history) {
         text(x0 + 14, y, r.label, CREAM, 0);
-        text(x0 + 160, y, r.text, r.label ? 0xf4f1e8 : GREY, 0);
+        text(r.label ? x0 + col : mx, y, r.text, r.label ? 0xf4f1e8 : GREY, r.label ? 0 : 0.5);
         y += 11;
       }
       y += 8;
@@ -681,6 +703,25 @@ export class PauseScene extends Phaser.Scene {
   }
 
   /** The record of past runs, as lines (or a single one when there is none yet). */
+  /** The day's bulletin: what the challenge is, how it went today, and the foot. */
+  private dailyRows(): { label: string; text: string }[] {
+    const p = profile();
+    const key = this.dayKey;
+    const rec = p.dailies[key];
+    return [
+      ...dailyLines({
+        key,
+        weekday: dayOfWeek(key),
+        number: dailyNumber(key),
+        character: CHARACTERS[DAILY_CHARACTER]?.name ?? DAILY_CHARACTER,
+        gift: giftName(key),
+        best: rec ?? null,
+        streak: dailyStreak(p.dailies, key),
+      }),
+      { label: '', text: DAILY_FOOT },
+    ];
+  }
+
   private historyRows(): { label: string; text: string }[] {
     const p = profile();
     if (p.runs === 0) return [{ label: '', text: HISTORY_EMPTY }];
