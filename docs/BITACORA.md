@@ -2,6 +2,33 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 22:40 (hora peninsular) — Hito M14 — Salas raras (r2b): el Sorteo de Fidelización
+- Hecho: la segunda sala rara, plantilla `sorteo` («Sorteo de Fidelización (Participar No Implica
+  Ganar)»). Las dos raras se reparten con la baraja de plantillas de la planta, como las demás
+  (`stockRare` mira el id de la sala). La Caja de Autocobro vende tres **rascas** (`PickupKind`
+  `rasca`, solo existen en una balda, a la venta) a `RAFFLE_PRICE` = 5 cupones; al comprarla se rasca
+  en el acto con el generador del mundo y suelta el premio delante de la balda (`RAFFLE_PRIZES`):
+  «Siga participando» (52), diez cupones (20), un ticket (12), un corazón de recambio (8), una
+  Garantía Provisional (6) o el premio gordo, un cofre premium (2). La caja dice cada uno con su
+  chiste; virutas plateadas al rascar, timbre y chispas si toca. Sprite nuevo `rasca` (11 × 13, en
+  `tools/sprites/props.ts`: banda azul con estrella, tres casillas plateadas, la del medio rascada,
+  y la letra pequeña en rojo). El Sorteo tiene su moqueta roja, su cartel «SORTEO» y «SIGA
+  PARTICIPANDO» en el suelo, iguales en todas las plantas (`PaintableRoom.id`). «F: Rascar por 5».
+  Con esto queda hecha la tarea «Salas especiales raras, retos diarios con semilla fija» de M14.
+  Tests (4 más en `tests/sala-rara.test.ts`: el reparto entre las dos, cobrar y rascar, las
+  frecuencias de los premios y lo que devuelve de media, los textos) y e2e `60c`–`60d`.
+- Decisiones: de media devuelve más o menos lo que cuesta (con 600 rascas de prueba, unos 5 cupones
+  de valor si un cofre premium vale tres objetos de tienda): la gracia está en la varianza, no en
+  ganar dinero. **El bot tampoco rasca** (como no financia): sus cifras no dependen de la suerte.
+  La caja de la tienda otra vez, en vez de una máquina nueva: es el chiste de la sala (la misma
+  máquina que cobra, presta y sortea).
+- Medidas: `npm run bot`, 200 partidas, 0 fallos. Planta 1 con daño: la recorre el 65 % y la gana el
+  15 %; 10,8 salas visitadas y 7,1 de combate por planta (el bot no compra en las raras: nada cambia
+  salvo qué sala rara sale). 895 tests en verde; e2e entero en verde.
+- Problemas conocidos: ninguno nuevo. Otra sesión está con los logros (l2) en paralelo.
+- Siguiente paso: M14, los jefes al azar por planta (nota del humano del 2026-10-30), dividida en
+  partes (primero que cada planta elija de una lista, luego cada jefe nuevo); o los PNJs.
+
 ## 2026-11-12 21:48 (hora peninsular, de `date`) — Hito M14 — Logros (l1): los «Méritos del cliente»
 - Contexto: el clon local de `main` volvía a ser superficial y viejo; `git checkout -B main origin/main`.
   Salud al empezar: `check`, 884 tests, `build` y `bot` en verde. La (r2a) estaba cogida por otra

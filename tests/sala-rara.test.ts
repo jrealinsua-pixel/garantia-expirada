@@ -7,7 +7,7 @@ import { FONT_CHARS, fontText } from '../src/art/font.ts';
 import { ITEMS } from '../src/data/items.ts';
 import { WEAPONS } from '../src/data/weapons.ts';
 import { templatesOf } from '../src/data/rooms.ts';
-import { FINANCE, FINANCE_PRICE, financeHearts } from '../src/data/shop.ts';
+import { FINANCE, FINANCE_PRICE, financeHearts, GOOD_NAMES, RAFFLE, RAFFLE_COUPONS, RAFFLE_PRICE, RAFFLE_PRIZES, SHOP_PRICES } from '../src/data/shop.ts';
 import { generateFloor, generateWorkshop, RARE_ROOM_CHANCE, validateFloor } from '../src/sim/floor.ts';
 import { checkInvariants, createWorld, DT, enterRoom, NO_INPUT, step, worldHash, type Pickup, type SimEvent, type World } from '../src/sim/world.ts';
 import { Bot } from '../src/sim/bot.ts';
@@ -107,7 +107,7 @@ test('con un solo corazón de máximo, la caja no financia', () => {
 
 test('en una planta la sala rara se llena al entrar la primera vez, con cosas de la baraja de la planta', () => {
   let seen = 0;
-  for (let i = 0; seen < 4 && i < 200; i++) {
+  for (let i = 0; seen < 8 && i < 400; i++) {
     const w = createWorld({ seed: `planta-rara-${i}`, floor: true });
     const f = w.floor!;
     const fr = f.layout.rooms.find((r) => r.kind === 'rare');
@@ -115,7 +115,8 @@ test('en una planta la sala rara se llena al entrar la primera vez, con cosas de
     seen++;
     enterRoom(w, fr.id, fr.doors[0]!.dir);
     const goods = forSale(w);
-    assert.equal(goods.length, 2);
+    const n = w.room.id === 'sorteo' ? 3 : 2;
+    assert.equal(goods.length, n);
     for (const k of goods) {
       if (k.weapon) assert.ok(!f.weapons.includes(k.weapon), 'el arma sale de la baraja');
       if (k.item) assert.ok(!f.items.includes(k.item), 'el objeto sale de la baraja');
@@ -124,10 +125,10 @@ test('en una planta la sala rara se llena al entrar la primera vez, con cosas de
     const back = fr.doors[0]!;
     enterRoom(w, back.to, back.dir === 'N' ? 'S' : back.dir === 'S' ? 'N' : back.dir === 'E' ? 'W' : 'E');
     enterRoom(w, fr.id, fr.doors[0]!.dir);
-    assert.equal(forSale(w).length, 2);
+    assert.equal(forSale(w).length, n);
     assert.deepEqual(checkInvariants(w), []);
   }
-  assert.equal(seen, 4, 'hay plantas con sala rara');
+  assert.equal(seen, 8, 'hay plantas con sala rara');
 });
 
 test('el bot no se endeuda, recorre la sala rara y la planta sigue siendo determinista', () => {
@@ -165,4 +166,95 @@ test('los textos de la financiación caben y se escriben con la fuente del juego
   }
   assert.equal(financeHearts(2), '1 corazón');
   assert.equal(financeHearts(4), '2 corazones');
+});
+
+// ---------- M14 (r2b): el Sorteo de Fidelización ----------
+
+function raffle(seed = 'sorteo'): World {
+  const w = createWorld({ seed, room: 'sorteo' });
+  w.noDamage = true;
+  return w;
+}
+
+test('las salas raras se reparten al azar entre las de su tipo: la Financiación y el Sorteo', () => {
+  assert.deepEqual(templatesOf('rare').map((t) => t.id).sort(), ['financiacion', 'sorteo']);
+  const seen = new Set<string>();
+  for (let i = 0; i < 300 && seen.size < 2; i++) {
+    const w = createWorld({ seed: `reparto-${i}`, floor: true });
+    const fr = w.floor!.layout.rooms.find((r) => r.kind === 'rare');
+    if (fr) seen.add(w.floor!.rooms[fr.id]!.template.id);
+  }
+  assert.equal(seen.size, 2, 'salen las dos');
+});
+
+test('el Sorteo tiene la caja y tres rascas de cinco cupones; rascar cobra, da su premio y la caja lo dice', () => {
+  const w = raffle();
+  assert.ok(w.room.props.some((p) => p.def.id === 'autocobro'));
+  const cards = forSale(w).sort((a, b) => a.x - b.x);
+  assert.equal(cards.length, 3);
+  for (const k of cards) {
+    assert.equal(k.kind, 'rasca');
+    assert.equal(k.price, RAFFLE_PRICE);
+    assert.equal(k.pay, undefined);
+  }
+  w.player.coupons = 20;
+  const ev = finance(w, cards[0]!);
+  assert.equal(w.player.coupons, 20 - RAFFLE_PRICE);
+  const said = ev.find((e) => e.type === 'raffle');
+  assert.ok(said && said.type === 'raffle' && RAFFLE_PRIZES.some((r) => r.prize === said.prize));
+  assert.equal(forSale(w).length, 2);
+  // Too poor: the card stays.
+  w.player.coupons = RAFFLE_PRICE - 1;
+  const no = finance(w, cards[1]!).find((e) => e.type === 'shop');
+  assert.ok(no && no.type === 'shop' && no.outcome === 'poor');
+  assert.equal(forSale(w).length, 2);
+  assert.deepEqual(checkInvariants(w), []);
+});
+
+test('cada premio sale delante de la balda, con su frecuencia, y la casa gana un poco', () => {
+  const counts: Record<string, number> = {};
+  let coupons = 0;
+  let tickets = 0;
+  let hearts = 0;
+  let shields = 0;
+  let chests = 0;
+  const N = 600;
+  for (let i = 0; i < N; i++) {
+    const w = raffle(`sorteo-${i}`);
+    w.player.coupons = RAFFLE_PRICE;
+    const t0 = w.player.tickets;
+    const [card] = forSale(w);
+    const ev = finance(w, card!);
+    const said = ev.find((e) => e.type === 'raffle');
+    assert.ok(said && said.type === 'raffle');
+    counts[said.prize] = (counts[said.prize] ?? 0) + 1;
+    const loose = w.pickups.filter((k) => k.price === undefined);
+    // finance() walks the toaster away at once: what dropped is still there (or picked up on the way).
+    coupons += loose.filter((k) => k.kind === 'cupon').length + w.player.coupons;
+    tickets += loose.filter((k) => k.kind === 'ticket').length + w.player.tickets - t0;
+    hearts += loose.filter((k) => k.kind === 'corazon').length;
+    shields += loose.filter((k) => k.kind === 'garantia').length + w.player.shield;
+    chests += w.room.props.filter((p) => p.chest?.tier === 'premium').length;
+    if (said.prize === 'cupones') assert.ok(coupons >= RAFFLE_COUPONS, 'diez cupones');
+    if (said.prize === 'cofre') assert.ok(w.room.props.some((p) => p.chest && !p.chest.open && p.chest.tier === 'premium'), 'un cofre premium');
+  }
+  const total = RAFFLE_PRIZES.reduce((a, r) => a + r.weight, 0);
+  for (const r of RAFFLE_PRIZES) {
+    const share = (counts[r.prize] ?? 0) / N;
+    assert.ok(Math.abs(share - r.weight / total) < 0.06, `${r.prize}: ${share}`);
+  }
+  assert.ok(tickets > 0 && hearts > 0 && shields > 0 && chests > 0, `salen todos los premios: ${JSON.stringify({ tickets, hearts, shields, chests, counts })}`);
+  // In coupons: tickets at the shop's price, a heart at its price, a warranty like a heart, a premium chest like three items.
+  const back = (coupons + tickets * SHOP_PRICES.ticket + hearts * SHOP_PRICES.corazon + shields * SHOP_PRICES.corazon + chests * 3 * SHOP_PRICES.objeto) / N;
+  assert.ok(back > RAFFLE_PRICE * 0.6 && back < RAFFLE_PRICE * 1.1, `devuelve ${back.toFixed(2)} cupones por rasca de ${RAFFLE_PRICE}`);
+});
+
+test('los textos del Sorteo caben y se escriben con la fuente del juego', () => {
+  const glyphs = new Set([...FONT_CHARS, ' ']);
+  const lines = [...RAFFLE.greet, RAFFLE.soldOut, RAFFLE.verb, ...RAFFLE_PRIZES.map((r) => r.line), GOOD_NAMES.rasca, templatesOf('rare').find((t) => t.id === 'sorteo')!.name];
+  for (const t of lines) {
+    assert.ok(t.length <= 64, `«${t}» no cabe en un bocadillo`);
+    assert.ok(!t.includes('!'), `«${t}»: la caja no se emociona`);
+    for (const ch of fontText(t)) assert.ok(glyphs.has(ch), `«${t}»: falta «${ch}»`);
+  }
 });

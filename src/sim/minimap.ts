@@ -45,6 +45,8 @@ function lootOf(k: Pickup): MapLoot | null {
     case 'activo':
     case 'documento':
       return 'objeto';
+    case 'rasca':
+      return null;
   }
 }
 

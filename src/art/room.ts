@@ -21,6 +21,8 @@ export interface PaintableRoom {
   doors?: readonly { dir: string; x: number; y: number; w: number; h: number }[];
   /** What the room is for (src/data/types.ts RoomKind, or 'test'): picks the decoration. */
   kind?: string;
+  /** Its template's id: the rare rooms (M14 (r2)) share a kind and tell themselves apart by it. */
+  id?: string;
   /** The hub's stations and conveyor (src/sim/room.ts): what hangs on its back wall is kept clear of shelf signs. */
   stations?: readonly { kind: string; x: number }[];
   belt?: { x: number; w: number } | null;
@@ -256,6 +258,10 @@ const SIGNS_6: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, strin
   boss: [['TRITURACIÓN', '#1b1d2e', '#58b45a']],
   rare: [['EMBARGOS', '#2f5a3a', '#f6c431']],
 };
+
+/** The Sorteo de Fidelización (M14 (r2b)) has its own words and sign, the same on every floor. */
+const RAFFLE_STENCIL: readonly string[] = ['SIGA PARTICIPANDO'];
+const RAFFLE_SIGN: readonly [string, string, string] = ['SORTEO', '#a42f37', '#f6c431'];
 
 const STYLES: readonly W.RoomStyle[] = ['start', 'combat', 'treasure', 'shop', 'secret', 'boss', 'test', 'rare'];
 
@@ -573,7 +579,9 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
   // Words painted on the floor.
   const nStencils = style === 'combat' && area > 1.6 ? 2 : 1;
-  for (const text of rng.shuffle([...(six ? STENCILS_6 : five ? STENCILS_5 : four ? STENCILS_4 : three ? STENCILS_3 : two ? STENCILS_2 : STENCILS)[style]]).slice(0, nStencils)) {
+  const raffle = room.id === 'sorteo';
+  const words = rng.shuffle([...(six ? STENCILS_6 : five ? STENCILS_5 : four ? STENCILS_4 : three ? STENCILS_3 : two ? STENCILS_2 : STENCILS)[style]]).slice(0, nStencils);
+  for (const text of raffle ? RAFFLE_STENCIL : words) {
     const tw = W.stencilWidth(text);
     const p = place(tw + 4, 9);
     if (p) {
@@ -660,7 +668,9 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     // The Oficina de Financiación (M14 (r2)): the bank's carpet, green with a gold border, the
     // same on every floor (the bank is the same everywhere).
     const top = floorY0 + 2 * T;
-    W.carpet(S, midX - 30, top, 60, floorY1 - top - 2, hx('#24442e'), hx('#c9a23a'));
+    // The Sorteo's (M14 (r2b)), red: the colour of the numbers you never get.
+    if (room.id === 'sorteo') W.carpet(S, midX - 30, top, 60, floorY1 - top - 2, hx('#5a2430'), hx('#c9a23a'));
+    else W.carpet(S, midX - 30, top, 60, floorY1 - top - 2, hx('#24442e'), hx('#c9a23a'));
     count('alfombra-banco');
   } else if (style === 'boss' && six) {
     // The crusher's room: swarf all over the floor, and the cold of the workshop's tubes on everything.
@@ -898,7 +908,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       spans.push([x - half, x + half]);
       return x;
     };
-    const [text, bg, fg] = rng.pick((six ? SIGNS_6 : five ? SIGNS_5 : four ? SIGNS_4 : three ? SIGNS_3 : two ? SIGNS_2 : SIGNS)[style]);
+    const [text, bg, fg] = room.id === 'sorteo' ? (rng.next(), RAFFLE_SIGN) : rng.pick((six ? SIGNS_6 : five ? SIGNS_5 : four ? SIGNS_4 : three ? SIGNS_3 : two ? SIGNS_2 : SIGNS)[style]);
     const entrance = six && style === 'start';
     const signHalf = entrance ? Math.ceil(R.entranceSignWidth() / 2) + 2 : W.stencilWidth(text) / 2 + 6;
     // The entrance's light box is wide: try first the middle of the wall on each side of the north door.

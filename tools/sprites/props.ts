@@ -2052,3 +2052,30 @@ export function makeInkSquare(): Canvas {
   cv.set(3, 3, INK);
   return cv;
 }
+
+/**
+ * A scratch card of the Sorteo de Fidelización (M14 (r2b)), 11 × 13: the store's blue band with a
+ * yellow star at the top, three silver panels to scratch (one of them half done, the coin's
+ * scratch marks) and the red line of small print at the foot.
+ */
+export function makeScratchCard(): Canvas {
+  const cv = new Canvas(11, 13);
+  cv.rect(1, 1, 9, 11, WHITE);
+  cv.rect(1, 1, 1, 11, CREAM[1]!);
+  // The band, with its star.
+  cv.rect(1, 1, 9, 4, BLUE[1]!);
+  cv.rect(1, 4, 9, 1, BLUE[2]!);
+  cv.set(5, 1, YEL[1]!);
+  cv.rect(3, 2, 5, 1, YEL[0]!);
+  cv.set(5, 3, YEL[1]!);
+  // Three silver panels (the middle one already scratched: a coupon peeps out).
+  for (const x of [2, 4, 6]) {
+    cv.rect(x + (x === 6 ? 1 : 0), 6, 2, 3, STEEL[1]!);
+    cv.set(x + (x === 6 ? 1 : 0), 6, STEEL[0]!);
+  }
+  cv.rect(4, 6, 2, 3, YEL[1]!);
+  cv.set(5, 8, STEEL[1]!);
+  // The small print nobody reads.
+  cv.rect(2, 10, 7, 1, RED[1]!);
+  return outline(cv);
+}

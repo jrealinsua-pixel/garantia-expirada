@@ -4,7 +4,7 @@ import { budgetCapOf, floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, tough
 import { FINDABLE_WEAPONS, WEAPONS, weaponsUpTo } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
-import { FINANCE_PRICE, SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
+import { FINANCE_PRICE, RAFFLE_COUPONS, RAFFLE_PRICE, RAFFLE_PRIZES, SHOP_PRICES, SHOP_SHELVES, type RafflePrize, type ShopGood } from '../data/shop.ts';
 import type { BlowerBrain, BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
 import { SYNERGIES } from '../data/synergies.ts';
@@ -188,7 +188,8 @@ export interface Player {
  * A discount coupon (currency), a spare heart (gives back `value` life; left alone at full
  * life), a weapon or a passive item (these two wait on a pedestal).
  */
-export type PickupKind = 'cupon' | 'corazon' | 'garantia' | 'turbo' | 'sobretension' | 'ticket' | 'arma' | 'objeto' | 'activo' | 'documento';
+/** `rasca`: a scratch card of the Sorteo de Fidelización (M14 (r2b)); it is only ever on a shelf, for sale. */
+export type PickupKind = 'cupon' | 'corazon' | 'garantia' | 'turbo' | 'sobretension' | 'ticket' | 'arma' | 'objeto' | 'activo' | 'documento' | 'rasca';
 
 /** Something lying on the floor that the player picks up by walking over it. */
 export interface Pickup {
@@ -824,6 +825,8 @@ export type SimEvent =
   | { type: 'hurtRing'; x: number; y: number; count: number }
   /** Walked onto something for sale: bought it (`left` coupons after paying), or not (too poor, or a heart with all its life). */
   | { type: 'shop'; x: number; y: number; outcome: 'bought' | 'poor' | 'full' | 'insolvent'; good: PickupKind; price: number; left: number; item?: string; pay?: 'vida' }
+  /** A scratch card bought and scratched (M14 (r2b)): what it said (the prize lies in front of the shelf). */
+  | { type: 'raffle'; x: number; y: number; prize: RafflePrize }
   /** The active item was used (`effect` is its effect's type). */
   | { type: 'active'; item: string; effect: string; x: number; y: number }
   /** Q with an active item that cannot be used now (not charged, or nothing to heal). */
@@ -1221,7 +1224,7 @@ export function createWorld(opts: WorldOptions): World {
   if (room.kind === 'hub') return w;
   if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], [], []);
   else if (room.kind === 'shop') stockShop(w, decksOf(w));
-  else if (room.kind === 'rare') stockFinance(w, decksOf(w));
+  else if (room.kind === 'rare') stockRare(w, decksOf(w));
   else if (room.kind === 'treasure' || room.kind === 'secret') {
     const decks = lootDecks(opts.seed, opts.level ?? 1, pool(opts.level ?? 1));
     stockPedestals(w, decks.weapons, decks.items, decks.actives);
@@ -1543,7 +1546,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   if (first && kind === 'secret') stockChests(w, 1);
   if (first && kind === 'secret') placeStoryDoc(w);
   if (first && kind === 'shop') stockShop(w, f);
-  if (first && kind === 'rare') stockFinance(w, f);
+  if (first && kind === 'rare') stockRare(w, f);
   w.doorsShut = !st.cleared;
   w.shutTick = w.tick;
   setDoorTiles(w, !w.doorsShut);
@@ -1622,6 +1625,43 @@ function stockFinance(w: World, decks: { weapons: string[]; items: string[]; act
     const item = take(decks.items, (id) => ITEMS[id]?.quality === 'buena');
     if (item) w.pickups.push({ ...at, kind: 'objeto', item });
   });
+}
+
+/** A rare room's shelves, by template: the Sorteo de Fidelización or the Oficina de Financiación. */
+function stockRare(w: World, decks: { weapons: string[]; items: string[]; actives: string[] }): void {
+  if (w.room.id === 'sorteo') stockRaffle(w);
+  else stockFinance(w, decks);
+}
+
+/** El Sorteo de Fidelización (M14 (r2b)): a scratch card on every shelf, RAFFLE_PRICE coupons each. */
+function stockRaffle(w: World): void {
+  for (const s of w.room.slots) {
+    if (s.kind !== 'shelf') continue;
+    w.pickups.push({ id: w.nextId++, kind: 'rasca', value: 1, x: s.x, y: s.y, vx: 0, vy: 0, age: PICKUP_DELAY, price: RAFFLE_PRICE });
+  }
+}
+
+/**
+ * A scratch card bought is scratched there and then: a prize by RAFFLE_PRIZES' weights (the
+ * world's generator, so a run is still the same run), dropped in front of its shelf.
+ */
+function scratch(w: World, k: Pickup): void {
+  const total = RAFFLE_PRIZES.reduce((a, r) => a + r.weight, 0);
+  let roll = w.rng.range(0, total);
+  const prize = (RAFFLE_PRIZES.find((r) => (roll -= r.weight) < 0) ?? RAFFLE_PRIZES[0]!).prize;
+  const x = k.x;
+  const y = k.y + 18;
+  if (prize === 'cupones') {
+    for (let i = 0; i < RAFFLE_COUPONS; i++) {
+      const a = ((i + w.rng.range(0.2, 0.8)) / RAFFLE_COUPONS) * Math.PI * 2;
+      const sp = w.rng.range(50, 90);
+      const at = freeSpot(w, x, y, PICKUP_RADIUS);
+      w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: at.x, y: at.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
+    }
+  } else if (prize === 'ticket') dropTicket(w, x, y);
+  else if (prize === 'corazon' || prize === 'garantia') dropHeart(w, x, y, prize);
+  else if (prize === 'cofre') placeChest(w, x, y + 10, true, 'premium');
+  w.events.push({ type: 'raffle', x: k.x, y: k.y, prize });
 }
 
 /** Whether the toaster can pay `k`'s price in life: it never leaves it with less than one heart. */
@@ -4597,6 +4637,8 @@ function grab(w: World, k: Pickup): void {
   } else if (k.kind === 'activo' && k.item) {
     giveActive(w, k.item, k.charge);
     w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.active?.charge ?? 0, item: k.item });
+  } else if (k.kind === 'rasca') {
+    scratch(w, k);
   } else {
     if (k.kind === 'corazon') p.hp = Math.min(p.def.maxHp, p.hp + k.value);
     else if (k.kind === 'ticket') p.tickets += k.value;

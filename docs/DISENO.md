@@ -696,6 +696,13 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   de cada planta («Letra pequeña», «Crédito preaprobado», «Nómina domiciliada», «Embargado»…). En
   el minimapa, un «%» verde. El bot no se endeuda nunca, para que sus cifras midan el juego sin
   préstamos.
+  La segunda (M14 r2b) es el **Sorteo de Fidelización (Participar No Implica Ganar)**: la misma caja
+  vende tres rascas a 5 cupones. Se rascan en el acto: la mitad dicen «Siga participando»; el resto,
+  diez cupones, un ticket, un corazón de recambio («de segunda mano»), una Garantía Provisional o,
+  muy de vez en cuando, el premio gordo: un cofre premium («Revisaremos las cámaras»). De media
+  devuelve más o menos lo que cuesta: la gracia es la varianza, no la ganancia. Moqueta roja, cartel
+  «SORTEO» y «SIGA PARTICIPANDO» en el suelo, en todas las plantas. Cuál de las dos sale lo decide la
+  semilla de la planta (se reparten como las demás plantillas). El bot tampoco juega.
 
 ### El Servicio Técnico (planta secreta, hito M12)
 

@@ -429,8 +429,8 @@ export class Bot {
       k.kind === 'corazon' ? (p.hp <= p.def.maxHp - 2 ? 1 : -1) : k.kind === 'ticket' ? 2 : k.kind === 'activo' && p.active ? -1 : 0;
     let best: (typeof w.pickups)[number] | undefined;
     for (const k of w.pickups) {
-      // It never finances (the Oficina de Financiación, M14 (r2)): its numbers measure the game without loans.
-      if (k.price === undefined || k.pay || shopPrice(p, k.price) > p.coupons || rank(k) < 0) continue;
+      // It never finances nor gambles (the rare rooms, M14 (r2)): its numbers measure the game without loans or luck.
+      if (k.price === undefined || k.pay || k.kind === 'rasca' || shopPrice(p, k.price) > p.coupons || rank(k) < 0) continue;
       if (!best || rank(k) < rank(best)) best = k;
     }
     return best;

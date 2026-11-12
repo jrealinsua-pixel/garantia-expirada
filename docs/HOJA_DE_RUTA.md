@@ -571,20 +571,22 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
 ## M14 · Más contenido y rejugabilidad
 
 - [ ] Mucha variedad: hasta 30 armas, 80 objetos, 30 enemigos y 8 jefes en total.
-- [ ] Salas especiales raras, retos diarios con semilla fija.
+- [x] Salas especiales raras, retos diarios con semilla fija.
   - [x] (r1) El reto del día: una partida al día con la semilla fija, la misma para todos (la
     Tostadora, sin desbloqueos, con un regalo del día), en la portada como «Boletín de ofertas del
     día», con el mejor intento, los intentos y los días seguidos en el perfil. Hecho el 2026-11-12:
     `src/sim/daily.ts`, `tests/reto.test.ts`, e2e `59a`–`59c`, `?reto=AAAA-MM-DD`.
-  - [ ] (r2) Salas especiales raras: salas que salen pocas veces (por ejemplo, una por cada
+  - [x] (r2) Salas especiales raras: salas que salen pocas veces (por ejemplo, una por cada
     varias plantas) con algo propio: un cambio de cupones, una apuesta, un PNJ o un desafío.
     - [x] (r2a) La sala rara en la generación de plantas (un callejón sin salida que sobra, una
       planta de cada cinco más o menos, con su propio generador para no mover las demás plantas)
       y la primera: la Oficina de Financiación, un arma y un objeto buenos por un corazón de máximo
       cada uno. Hecho el 2026-11-12: `RARE_ROOM_CHANCE` en `src/sim/floor.ts`, `FINANCE` en
       `src/data/shop.ts`, `tests/sala-rara.test.ts`, e2e `60a`–`60b`.
-    - [ ] (r2b) Una segunda sala rara con otra cosa (una apuesta: el «Sorteo de Fidelización», o un
-      cambio de cupones por tickets), elegida al azar entre las raras.
+    - [x] (r2b) Una segunda sala rara con otra cosa (una apuesta: el «Sorteo de Fidelización», o un
+      cambio de cupones por tickets), elegida al azar entre las raras. Hecho el 2026-11-12: el
+      Sorteo de Fidelización (tres rascas de 5 cupones; `RAFFLE_PRIZES` en `src/data/shop.ts`),
+      e2e `60c`–`60d`. Más salas raras (un PNJ, un desafío) pueden venir con los PNJs de M14.
 - [ ] Jefes al azar: cada planta elige entre varios jefes (la planta 1, la Nevera u otros tres).
   (Nota del humano del 2026-10-30.)
 - [x] Glosario de enemigos y armas descubiertos, en el Mostrador o en la pausa.

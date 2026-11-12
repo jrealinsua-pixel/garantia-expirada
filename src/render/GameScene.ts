@@ -6,7 +6,7 @@ import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
 import { CHEST_NAME_PREMIUM } from '../data/texts.ts';
 import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, controlsHint, RELOADING, swapHint, TEST_ROOM_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
-import { FINANCE, financeHearts, GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
+import { FINANCE, financeHearts, GOOD_NAMES, RAFFLE, RAFFLE_PRIZES, SHOPKEEPER } from '../data/shop.ts';
 import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
@@ -748,7 +748,7 @@ export class GameScene extends Phaser.Scene {
       // A display stand under every shelf, and the till says hello (in the Oficina de
       // Financiación, M14 (r2), the same till offers credit).
       for (const sl of room.slots) if (sl.kind === 'shelf') this.add.image(sl.x, sl.y + 6, 'expositor').setOrigin(0.5, 1).setDepth(sl.y - 1);
-      const greet = room.kind === 'rare' ? FINANCE.greet : SHOPKEEPER.greet;
+      const greet = room.id === 'sorteo' ? RAFFLE.greet : room.kind === 'rare' ? FINANCE.greet : SHOPKEEPER.greet;
       this.time.delayedCall(700, () => this.tillSay(this.fx.pick(greet)));
     }
     for (const d of this.world.dummies) {
@@ -3119,7 +3119,8 @@ export class GameScene extends Phaser.Scene {
             } else {
               this.floatText(e.x, e.y + 4, `-${e.price}`, 0xf6c431);
               this.couponPop = 0.25;
-              this.tillSay(this.fx.pick(SHOPKEEPER.thanks), left ? null : SHOPKEEPER.soldOut);
+              // A scratch card: the till says what it won instead (the «raffle» event, right after).
+              if (e.good !== 'rasca') this.tillSay(this.fx.pick(SHOPKEEPER.thanks), left ? null : SHOPKEEPER.soldOut);
             }
           } else {
             // No: two flat notes, the screen goes red and the coupon counter shakes.
@@ -3129,6 +3130,21 @@ export class GameScene extends Phaser.Scene {
             this.tillSay(e.outcome === 'insolvent' ? this.fx.pick(FINANCE.insolvent) : e.outcome === 'poor' ? this.fx.pick(SHOPKEEPER.poor) : SHOPKEEPER.full);
           }
           break;
+        case 'raffle': {
+          // Scratched (M14 (r2b)): a shower of silver shavings, then the verdict. A prize rings the
+          // bell and glitters; nothing gets the till's flat «no».
+          for (let i = 0; i < 6; i++) this.spark(e.x, e.y - 6, this.fx.range(-Math.PI, 0), this.fx.range(20, 50), 1);
+          const won = e.prize !== 'nada';
+          this.time.delayedCall(220, () => {
+            this.sound2.play(won ? 'timbre' : 'vacio');
+            if (won) for (let i = 0; i < 10; i++) this.spark(e.x, e.y + 10, this.fx.range(0, Math.PI * 2), this.fx.range(40, 90), 1);
+          });
+          if (!won) this.tillNoT = 0.6;
+          const line = RAFFLE_PRIZES.find((r) => r.prize === e.prize)?.line ?? '';
+          const left = this.world.pickups.some((k) => k.price !== undefined);
+          this.time.delayedCall(30, () => this.tillSay(line, left ? null : RAFFLE.soldOut));
+          break;
+        }
         case 'swap': {
           const def = WEAPONS[e.weapon];
           if (!e.found) this.sound2.play('cambiar');
@@ -4158,7 +4174,7 @@ export class GameScene extends Phaser.Scene {
     // (The price goes in the line: it stands over the shelf's own price tag.)
     const buy = it?.kind !== 'shop' ? null
       : it.pickup.pay === 'vida' ? `${FINANCE.verb} por ${financeHearts(it.pickup.price ?? 0)}`
-      : `${INTERACT_VERBS.shop} por ${shopPrice(this.world.player, it.pickup.price ?? 0)}`;
+      : `${it.pickup.kind === 'rasca' ? RAFFLE.verb : INTERACT_VERBS.shop} por ${shopPrice(this.world.player, it.pickup.price ?? 0)}`;
     const verb = !it || busy ? null : it.kind === 'station' ? INTERACT_VERBS[it.station.kind] : (buy ?? INTERACT_VERBS[it.kind]);
     if (!verb) {
       this.prompt?.setVisible(false);
@@ -4654,7 +4670,8 @@ export class GameScene extends Phaser.Scene {
         const heart = k.kind === 'corazon';
         const arm = k.kind === 'arma' ? WEAPONS[k.weapon ?? ''] : undefined;
         const item = k.kind === 'objeto' ? ITEMS[k.item ?? ''] : k.kind === 'activo' ? ACTIVE_ITEMS[k.item ?? ''] : undefined;
-        const good = k.price !== undefined && (k.kind === 'corazon' || k.kind === 'ticket') ? { sprite: k.kind === 'corazon' ? 'corazon-suelo' : 'ticket', name: GOOD_NAMES[k.kind] } : null;
+        const good = k.price !== undefined && (k.kind === 'corazon' || k.kind === 'ticket' || k.kind === 'rasca')
+          ? { sprite: k.kind === 'corazon' ? 'corazon-suelo' : k.kind, name: GOOD_NAMES[k.kind] } : null;
         const doc = k.kind === 'documento' ? LORE.find((l) => l.id === k.doc) : undefined;
         const paper = doc ? { sprite: 'documento', name: doc.kind } : null;
         const shown = arm ? { sprite: arm.look.sprite, name: arm.name } : item ? { sprite: item.sprite, name: item.name } : (good ?? paper);

@@ -2408,6 +2408,22 @@ try {
   if (fin.max !== maxBefore - 2 || fin.arsenal !== 2 || fin.left !== 1) throw new Error(`Financiar no cobra un corazón o no da el arma: ${JSON.stringify(fin)}`);
   console.log('Sala rara: la Oficina de Financiación vende un arma y un objeto buenos por un corazón cada uno.');
 
+  // M14 (r2b): the second rare room, the Sorteo de Fidelización: three scratch cards, five coupons
+  // each; scratching one pays and says what it won (and drops it).
+  await page.goto(`${url}?semilla=e2e-sorteo&sala=sorteo&planta=3`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.player.coupons = 15;
+    const k = w.pickups.filter((p) => p.kind === 'rasca').sort((a, b) => a.x - b.x)[1]; w.player.x = k.x; w.player.y = k.y + 12; })()`);
+  await page.waitForTimeout(1500);
+  await shot('60c-sorteo.png');
+  await tapKeys('KeyF');
+  await page.waitForTimeout(700);
+  await shot('60d-sorteo-rascado.png');
+  const raffled = await page.evaluate<{ coupons: number; cards: number }>(`(() => { const w = window.__GE__.scene.world;
+    return { coupons: w.player.coupons, cards: w.pickups.filter((k) => k.kind === 'rasca').length }; })()`);
+  if (raffled.cards !== 2 || raffled.coupons < 10) throw new Error(`Rascar no cobra o no gasta la rasca: ${JSON.stringify(raffled)}`);
+  console.log('Sala rara: el Sorteo de Fidelización cobra cinco cupones por rasca y dice lo que ha tocado.');
+
   // M9: the secret room keeps a story document on the floor; walking over it files it.
   await page.goto(`${url}?semilla=e2e-documento&sala=secreta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

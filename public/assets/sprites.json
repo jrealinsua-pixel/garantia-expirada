@@ -1085,6 +1085,12 @@
     "frameH": 11,
     "frames": 2
   },
+  "rasca": {
+    "file": "rasca.png",
+    "frameW": 11,
+    "frameH": 13,
+    "frames": 1
+  },
   "documento": {
     "file": "documento.png",
     "frameW": 14,

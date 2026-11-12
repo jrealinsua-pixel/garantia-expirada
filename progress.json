@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T21:48:00+01:00",
+  "actualizado": "2026-11-12T22:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -112,7 +112,7 @@
       "id": "M14",
       "nombre": "Más contenido y rejugabilidad",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 7
     },
     {
@@ -129,14 +129,19 @@
     "jefes": 6,
     "armas": 8,
     "objetos": 55,
-    "plantillas_sala": 96,
-    "tests": 900,
-    "tests_ok": 900,
+    "plantillas_sala": 97,
+    "tests": 904,
+    "tests_ok": 904,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 32403
+    "lineas_codigo": 32760
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T22:40:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización («Participar No Implica Ganar»): la Caja de Autocobro vende tres rascas a 5 cupones que se rascan en el acto; la mitad no dan nada y el resto, cupones, un ticket, un corazón, una garantía o el premio gordo, un cofre premium. Cuál de las dos salas raras sale lo decide la semilla. Con esto, «Salas especiales raras, retos diarios» de M14 queda hecha."
+    },
     {
       "fecha": "2026-11-12T21:48:00+01:00",
       "hito": "M14",
@@ -1266,6 +1271,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sorteo.png",
+      "pie": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización: tres rascas a 5 cupones; casi siempre «Siga participando», a veces cupones, un ticket, un corazón, una garantía o, muy rara vez, un cofre premium"
+    },
+    {
       "archivo": "capturas/financiacion.png",
       "pie": "M14 (r2a): la primera sala rara, la Oficina de Financiación: un arma y un objeto buenos que no se pagan con cupones, sino con un corazón de máximo cada uno, para siempre. La misma caja de la tienda, pluriempleada"
     },
@@ -1282,15 +1291,11 @@
       "pie": "M14: el «Catálogo de siniestros», el glosario de la pausa y la portada: lo que has desmontado, con su ficha y cuántos llevas; lo demás, «Sin catalogar»"
     },
     {
-      "archivo": "capturas/glosario-armas.png",
-      "pie": "La pestaña de las armas: las que has llevado encima, con sus números de fábrica"
-    },
-    {
       "archivo": "capturas/los-cinco.png",
       "pie": "M13: los cinco personajes en fila en el Mostrador, para el criterio de «se distinguen a la primera»"
     }
   ],
-  "proximo": "M14 (l2): el aviso «Mérito conseguido» y la pestaña «Méritos» en el Catálogo de siniestros; o (r2b) el Sorteo de Fidelización si queda libre, o los jefes al azar por planta.",
+  "proximo": "M14: los jefes al azar por planta (nota del humano del 2026-10-30), dividida en partes; o los PNJs de las plantas. Los logros (l2, verlos en pantalla) los lleva otra sesión.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1317,11 +1322,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "https://claude.ai/code/session_01LyCe1QxMXtB1ffMd6SHaMz",
-      "tarea": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización (rasca y gana con cupones); toca src/data/shop.ts, rooms.ts, world.ts (stock y compra), GameScene (sala y premio), tools/sprites",
-      "desde": "2026-11-12T21:50:00+01:00"
-    },
     {
       "sesion": "https://claude.ai/code/session_01LyCe1RQnX1yWxUXeTGFYrb",
       "tarea": "M14 (l2): ver los logros (src/render/glosario.ts y src/sim/glossary.ts: pestaña «Méritos»; src/data/texts.ts; src/render/save.ts; en GameScene solo el aviso tras guardar el perfil; tests/logros.test.ts, e2e)",

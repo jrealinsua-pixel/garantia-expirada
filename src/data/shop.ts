@@ -23,7 +23,7 @@ export const SHOP_PRICES: Record<ShopGood, number> = {
 export const SHOP_SHELVES: readonly ('item' | 'corazon' | 'ticket')[] = ['item', 'corazon', 'ticket'];
 
 /** Names shown over goods that are not items (these have their own). */
-export const GOOD_NAMES = { corazon: 'Corazón de Recambio', ticket: 'Ticket de Compra' } as const;
+export const GOOD_NAMES = { corazon: 'Corazón de Recambio', ticket: 'Ticket de Compra', rasca: 'Rasca y Gana de Fidelización' } as const;
 
 /** The shopkeeper: a self-checkout till that runs the staff shop on its own. */
 export const SHOPKEEPER = {
@@ -90,3 +90,37 @@ export function financeHearts(life: number): string {
   const n = Math.max(1, Math.round(life / 2));
   return n === 1 ? '1 corazón' : `${n} corazones`;
 }
+
+/**
+ * El Sorteo de Fidelización (M14 (r2b), the second rare room): three scratch cards on the shelves,
+ * RAFFLE_PRICE coupons each. Scratched on the spot: most say «Siga participando»; the rest, a
+ * prize (dropped in front of the shelf). On average it gives back a little less than it costs:
+ * the house always wins, but not by much (a full floor gives some 40 coupons; RAFFLE_COUPONS is
+ * two cards' worth).
+ */
+export const RAFFLE_PRICE = 5;
+export const RAFFLE_COUPONS = 10;
+
+export type RafflePrize = 'nada' | 'cupones' | 'ticket' | 'corazon' | 'garantia' | 'cofre';
+
+/** What a card can say, how often (weights) and what the till says then. The jackpot is a premium chest. */
+export const RAFFLE_PRIZES: readonly { prize: RafflePrize; weight: number; line: string }[] = [
+  { prize: 'nada', weight: 52, line: 'Siga participando. Usted, siempre participando.' },
+  { prize: 'cupones', weight: 20, line: 'Premio: diez cupones. Caducan, como todo.' },
+  { prize: 'ticket', weight: 12, line: 'Le ha tocado un ticket. Gástelo aquí, que es lo suyo.' },
+  { prize: 'corazon', weight: 8, line: 'Premio: un corazón de recambio. De segunda mano.' },
+  { prize: 'garantia', weight: 6, line: 'Le ha tocado una garantía. Provisional, claro.' },
+  { prize: 'cofre', weight: 2, line: 'Premio gordo. Revisaremos las cámaras.' },
+];
+
+export const RAFFLE = {
+  /** In the prompt: «F: Rascar por 5». */
+  verb: 'Rascar',
+  greet: [
+    'Sorteo de fidelización. Participar no implica ganar.',
+    'Rasque y gane. Sobre todo, rasque.',
+    'Cliente fiel detectado. Tenemos algo para su bolsillo.',
+  ],
+  /** All three cards scratched. */
+  soldOut: 'Sorteo cerrado. Gracias por su fidelidad, ya no la necesitamos.',
+} as const;

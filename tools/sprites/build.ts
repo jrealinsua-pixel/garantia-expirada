@@ -285,6 +285,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     cofre: { canvas: P.makeChest(), frameW: 26, frameH: 24 },
     'cofre-premium': { canvas: P.makeChest(true), frameW: 26, frameH: 24 },
     ticket: { canvas: P.makeTicket(), frameW: 9, frameH: 11 },
+    rasca: { canvas: P.makeScratchCard(), frameW: 11, frameH: 13 },
     documento: one(P.makeStoryDoc()),
     autocobro: { canvas: P.makeSelfCheckout(), frameW: 30, frameH: 36 },
     expositor: one(P.makeShopStand()),
@@ -341,7 +342,7 @@ function main(): void {
   const row = ['caja', 'barril', 'carrito', 'bala-jugador', 'bala-roja', 'bala-cubito', 'bola-escarcha', 'escarcha', 'fogonazo'];
   const row2 = ['pelusa', 'polvo', 'mira', 'corazones', 'municion', 'mano', 'arma-secador', 'arma-grapadora', 'arma-plancha', 'bala-grapa', 'bala-vapor'];
   for (const k of [...row, ...row2, 'cupon', 'chatarra', 'despiece', 'montacargas', 'montacargas-servicio', 'corazon-suelo',
-    'garantia-provisional', 'garantias-hud', 'corazon-turbo', 'corazon-sobretension', 'turbo-hud', 'sobretension-hud', 'cofre', 'cofre-premium', 'ticket', 'autocobro', 'expositor']) {
+    'garantia-provisional', 'garantias-hud', 'corazon-turbo', 'corazon-sobretension', 'turbo-hud', 'sobretension-hud', 'cofre', 'cofre-premium', 'ticket', 'rasca', 'autocobro', 'expositor']) {
     const c = sheets[k]!.canvas;
     sheet.blit(c, x, 4);
     x += c.w + 3;

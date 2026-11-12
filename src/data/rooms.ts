@@ -394,6 +394,26 @@ const FLOOR_1: RoomTemplate[] = [
     ],
   },
   {
+    // M14 (r2b): the second rare room, the scratch cards. Like the Oficina de Financiación, the
+    // same on every floor.
+    id: 'sorteo',
+    kind: 'rare',
+    name: 'Sorteo de Fidelización (Participar No Implica Ganar)',
+    rows: [
+      '################',
+      '################',
+      '#cc..$.......cc#',
+      '#..............#',
+      '#...s..s..s....#',
+      '#..............#',
+      '#..............#',
+      '#..............#',
+      '#..............#',
+      '#k............k#',
+      '################',
+    ],
+  },
+  {
     id: 'secreta',
     kind: 'secret',
     name: 'Trastienda que No Sale en el Plano',
