@@ -1263,6 +1263,11 @@
       "sesion": "2026-11-12 14:26",
       "tarea": "M13 (6): el Móvil Reacondicionado (sprite, Notificaciones Push, carga en movimiento, batería al 1 %)",
       "desde": "2026-11-12T14:26:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 15:27",
+      "tarea": "M13 historia (7a): la ficha de devolución de cada personaje que lee la cinta al empezar (src/data/stories.ts)",
+      "desde": "2026-11-12T15:27:00+01:00"
     }
   ]
 }
