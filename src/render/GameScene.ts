@@ -3300,7 +3300,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < 5; i++) this.puff(e.x + this.fx.range(-10, 10), e.y - this.fx.range(2, 10), this.fx.range(0.4, 0.8));
     // A few planks stay on the floor.
     const lv = this.world.level;
-    const wood = lv >= 5 ? 0xa08458 : lv >= 4 ? 0x84838c : lv >= 3 ? 0xb08a2a : lv > 1 ? 0xa99b74 : 0x7d5a36;
+    const wood = lv >= 6 ? 0x86683e : lv >= 5 ? 0xa08458 : lv >= 4 ? 0x84838c : lv >= 3 ? 0xb08a2a : lv > 1 ? 0xa99b74 : 0x7d5a36;
     for (let i = 0; i < 3; i++) {
       this.add.rectangle(e.x + this.fx.range(-10, 10), e.y - this.fx.range(1, 9), this.fx.int(4, 7), 2, wood, 1).setAngle(this.fx.pick([0, 0, 90, 30, -30])).setDepth(-48990);
     }
@@ -3325,7 +3325,7 @@ export class GameScene extends Phaser.Scene {
   private splinter(x: number, y: number, a: number, tint?: number): void {
     const sp = this.fx.range(30, 80);
     const lv = this.world.level;
-    const wood = lv >= 5 ? 0xc8a874 : lv >= 4 ? 0xa8a7b0 : lv >= 3 ? 0xe0b23c : lv > 1 ? 0xd4c79f : 0xa77c4c;
+    const wood = lv >= 6 ? 0xa8865a : lv >= 5 ? 0xc8a874 : lv >= 4 ? 0xa8a7b0 : lv >= 3 ? 0xe0b23c : lv > 1 ? 0xd4c79f : 0xa77c4c;
     const s = this.add.image(x, y, 'chispas', this.fx.int(1, 2)).setTint(tint ?? wood);
     const vz = this.fx.range(40, 90);
     this.particles.push({ s, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.5, z: 4, vz, life: 0.6, maxLife: 0.6, gravity: true, spin: this.fx.range(-10, 10), fade: true, fadeTime: 0.2 });
@@ -3520,8 +3520,8 @@ export class GameScene extends Phaser.Scene {
 
   /** The texture of this floor for a sprite that changes from floor to floor (`<key>-2` upstairs), or the plain one. */
   private levelKey(key: string): string {
-    // The Servicio Técnico (level 6) has its own tiles (src/art/taller.ts) but floor 5's furniture and shutters until M12 (3b2).
-    const level = Math.min(this.world.level, LAST_LEVEL);
+    // Floors 2 to 6 (the Servicio Técnico) each have their own; anything without one uses the warehouse's.
+    const level = this.world.level;
     const own = `${key}-${level}`;
     return level > 1 && this.textures.exists(own) ? own : key;
   }

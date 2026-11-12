@@ -164,12 +164,17 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'caja-5': one(P.makeWaitingChairs()),
     'barril-5': one(P.makeComplaintsBox()),
     'carrito-5': one(P.makeWetFloorSign()),
+    // Floor 6 (Taller de Reacondicionado): crates of parts, a drum of used grease, a pallet jack.
+    'caja-6': one(P.makePartsCrates()),
+    'barril-6': one(P.makeGreaseDrum()),
+    'carrito-6': one(P.makePalletJack()),
     // M9b (13b): the table that tips over: 0 standing, tipped to face 1 N, 2 S, 3 E, 4 W.
     mesa: { canvas: strip(P.makeTableFrames(1)), frameW: 28, frameH: 28 },
     'mesa-2': { canvas: strip(P.makeTableFrames(2)), frameW: 28, frameH: 28 },
     'mesa-3': { canvas: strip(P.makeTableFrames(3)), frameW: 28, frameH: 28 },
     'mesa-4': { canvas: strip(P.makeTableFrames(4)), frameW: 28, frameH: 28 },
     'mesa-5': { canvas: strip(P.makeTableFrames(5)), frameW: 28, frameH: 28 },
+    'mesa-6': { canvas: strip(P.makeTableFrames(6)), frameW: 28, frameH: 28 },
     'bala-jugador': one(P.makeShot()),
     // Plastilina Mezclada: a stuck bullet (0-1 wobbling, 2-3 with glitter for Manualidades).
     'pegote-plastilina': { canvas: strip(P.makePegoteFrames()), frameW: 12, frameH: 10 },
@@ -220,6 +225,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'persiana-n-5': { canvas: P.makeShutterFrames(48, 33, 5), frameW: 48, frameH: 33 },
     'persiana-s-5': { canvas: P.makeShutterFrames(48, 24, 5), frameW: 48, frameH: 24 },
     'persiana-v-5': { canvas: P.makeShutterFrames(24, 48, 5), frameW: 24, frameH: 48 },
+    'persiana-n-6': { canvas: P.makeShutterFrames(48, 33, 6), frameW: 48, frameH: 33 },
+    'persiana-s-6': { canvas: P.makeShutterFrames(48, 24, 6), frameW: 48, frameH: 24 },
+    'persiana-v-6': { canvas: P.makeShutterFrames(24, 48, 6), frameW: 24, frameH: 48 },
     montacargas: { canvas: P.makeGoodsLift(), frameW: 44, frameH: 34 },
     'montacargas-servicio': { canvas: P.makeServiceLift(), frameW: 44, frameH: 44 },
     'corazon-suelo': { canvas: P.makeSpareHeart(), frameW: 13, frameH: 12 },

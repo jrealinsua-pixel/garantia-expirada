@@ -480,7 +480,7 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
     - [x] (3b1) El juego de losetas del taller (`src/art/taller.ts`: azulejo blanco con grasa, pared,
       fluorescentes fríos, jaulas de piezas como paredes interiores, carteles y plantillas del suelo)
       y el cartel de la entrada «Servicio Técnico Oficial».
-    - [ ] (3b2) Sus muebles (`-6`: cajas de piezas, bidones de grasa, transpaletas, bancos de trabajo)
+    - [x] (3b2) Sus muebles (`-6`: cajas de piezas, bidones de grasa, transpaletas, bancos de trabajo)
       y sus persianas.
     - [ ] (3b3) Las cintas transportadoras del suelo que arrastran a todo el que las pisa (letra de
       plantilla con dirección, empuje en la simulación, dibujo animado como la cinta del Mostrador,

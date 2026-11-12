@@ -372,6 +372,92 @@ export function makeWetFloorSign(): Canvas {
   return outline(cv);
 }
 
+// Floor 6 (the Taller de Reacondicionado) versions of the three obstacles: same footprint and collision box again.
+
+const CRATE = ramp('#a8aea4', '#7c8278', '#5a5e56', '#3a3d36');
+const WS_GREEN = ramp('#8ad88a', '#58b45a', '#3a7a3e', '#22482a');
+
+/** «Caja» on floor 6: two grey stacking crates of parts, the top one overflowing (a motor, a coil of cable), with the green label. */
+export function makePartsCrates(): Canvas {
+  const cv = new Canvas(24, 24);
+  // The bottom crate: ribbed grey plastic with the hand hole.
+  box(cv, 1, 13, 22, 10, CRATE);
+  for (let x = 4; x < 21; x += 4) cv.rect(x, 15, 1, 6, CRATE[2]!);
+  cv.rect(9, 15, 6, 2, CRATE[3]!);
+  // The top crate, shorter and a little to the left (stacked in a hurry).
+  box(cv, 2, 6, 18, 8, CRATE);
+  cv.rect(2, 6, 18, 2, CRATE[3]!);
+  cv.rect(3, 6, 16, 1, CRATE[2]!);
+  for (let x = 5; x < 18; x += 4) cv.rect(x, 9, 1, 4, CRATE[2]!);
+  // What sticks out of it: a small motor (a cylinder with its shaft) and a loop of red cable.
+  cv.rect(5, 2, 6, 5, DSTEEL[1]!);
+  cv.rect(5, 2, 6, 1, DSTEEL[0]!);
+  cv.rect(10, 2, 1, 5, DSTEEL[2]!);
+  cv.rect(11, 4, 2, 1, STEEL[1]!);
+  for (const [x, y] of [[14, 5], [15, 4], [16, 3], [17, 3], [18, 4], [18, 5]] as const) cv.set(x, y, RED[1]!);
+  // The label: «Reacondicionado · como nuevo», green with a white tick.
+  cv.rect(13, 16, 7, 4, WS_GREEN[1]!);
+  cv.rect(13, 16, 7, 1, WS_GREEN[0]!);
+  cv.set(14, 18, WHITE);
+  cv.set(15, 19, WHITE);
+  cv.set(16, 18, WHITE);
+  cv.set(17, 17, WHITE);
+  return outline(cv);
+}
+
+/** «Barril» on floor 6: a drum of used grease (it goes up the same): black-green steel, the yellow band, grease running down. */
+export function makeGreaseDrum(): Canvas {
+  const cv = new Canvas(16, 24);
+  const D = ramp('#5a6a52', '#3a4a36', '#26321f', '#151c12');
+  box(cv, 1, 4, 14, 19, D);
+  // The lid seen from above, with its bung.
+  cv.rect(2, 2, 12, 3, D[0]!);
+  cv.rect(3, 3, 10, 1, D[1]!);
+  cv.rect(10, 2, 2, 2, STEEL[2]!);
+  // The rolling hoops.
+  cv.rect(1, 9, 14, 1, D[3]!);
+  cv.rect(1, 18, 14, 1, D[3]!);
+  // The yellow band with the flame diamond.
+  cv.rect(1, 11, 14, 5, YEL[1]!);
+  cv.rect(1, 11, 14, 1, YEL[0]!);
+  cv.rect(14, 11, 1, 5, YEL[2]!);
+  cv.set(7, 12, RED[1]!);
+  cv.rect(6, 13, 3, 1, RED[1]!);
+  cv.set(7, 14, RED[1]!);
+  // Grease down the side, from the bung, and a puddle at the foot.
+  for (let j = 4; j < 22; j++) cv.set(11 + (j > 14 ? 1 : 0), j, hx('#1a1408'));
+  cv.set(12, 8, hx('#4a3a1a'));
+  cv.rect(9, 22, 6, 1, hx('#1a1408'));
+  return outline(cv);
+}
+
+/** «Carrito» on floor 6: a pallet jack, orange, its forks under an empty pallet and the handle up (low: bullets go over it). */
+export function makePalletJack(): Canvas {
+  const cv = new Canvas(28, 24);
+  const O = ramp('#ffb347', '#e07a2a', '#a8521c', '#5a2a10');
+  const PAL = ramp('#d2b184', '#a98258', '#7a5a3c', '#4f3a28');
+  // The pallet: three planks on top, the blocks at the front.
+  for (const y of [13, 16, 19]) {
+    cv.rect(9, y, 18, 2, PAL[1]!);
+    cv.rect(9, y, 18, 1, PAL[0]!);
+  }
+  for (const x of [9, 17, 25]) cv.rect(x, 21, 2, 2, PAL[2]!);
+  // The forks, sticking out from under it.
+  cv.rect(9, 22, 17, 1, O[2]!);
+  // The hydraulic unit and its wheel.
+  box(cv, 3, 13, 7, 9, O);
+  cv.rect(4, 15, 5, 1, O[3]!);
+  cv.rect(4, 21, 4, 2, K);
+  cv.set(5, 21, DSTEEL[0]!);
+  // The handle, leaning back, with its grip and the lever.
+  for (let j = 0; j < 11; j++) cv.set(5 - Math.floor(j / 4), 12 - j, O[1]!);
+  for (let j = 0; j < 11; j++) cv.set(6 - Math.floor(j / 4), 12 - j, O[2]!);
+  cv.rect(0, 1, 6, 2, K);
+  cv.rect(1, 1, 4, 1, DSTEEL[1]!);
+  cv.set(5, 4, YEL[1]!);
+  return outline(cv);
+}
+
 /** Player shot: 8x8 orange ball with a yellow core (build2.shot8). */
 export function makeShot(): Canvas {
   const cv = new Canvas(8, 8);
@@ -590,6 +676,8 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
   const [slat, groove, a, b] =
     level === 5
       ? ['#3a5266', '#2a3c4c', '#8aa0b0', '#263e50']
+      : level === 6
+      ? ['#4c4e46', '#383a32', '#58b45a', '#e2dccc']
       : level === 4
       ? ['#4a4952', '#36353c', '#6a6974', '#3a3940']
       : level === 3
@@ -607,6 +695,7 @@ export function makeShutterFrames(w: number, h: number, level = 1): Canvas {
     if (level === 3) fairLights(f, w, h);
     if (level === 4) meetingSign(f, w, h);
     if (level === 5) closedSign(f, w, h);
+    if (level === 6) brokenSign(f, w, h);
     out.blit(f, i * w, 0);
   });
   return out;
@@ -669,6 +758,40 @@ function closedSign(f: Canvas, w: number, h: number): void {
   f.set(x + tw, ay + 1, hx('#2f4a6a'));
   f.set(x + tw + 1, ay, hx('#2f4a6a'));
   // The tape at the corners.
+  f.rect(x, y - 1, 2, 2, [230, 226, 200, 200]);
+  f.rect(x + tw + 4, y - 1, 2, 2, [230, 226, 200, 200]);
+}
+
+/**
+ * «Averiada»: the Servicio Técnico's own shutter is out of order, with yellow and black tape
+ * across it and a hand-written card (nobody has opened a ticket).
+ */
+function brokenSign(f: Canvas, w: number, h: number): void {
+  // The tape, a diagonal across the whole shutter.
+  for (let x = 1; x < w - 1; x++) {
+    const y = Math.round(3 + ((h - 9) * x) / w);
+    for (let k = 0; k < 3; k++) f.set(x, y + k, Math.floor((x + k) / 3) % 2 === 0 ? hx('#f6c431') : hx('#191622'));
+  }
+  const word = 'AVERIADA';
+  const tw = stencilWidth(word);
+  if (tw + 6 > w - 4 || h < 22) {
+    // Side shutters: a small card with a red cross.
+    const x = Math.floor(w / 2) - 4;
+    const y = Math.min(h - 16, 14);
+    f.rect(x, y, 9, 9, K);
+    f.rect(x + 1, y + 1, 7, 7, hx('#e2dccc'));
+    for (let i = 0; i < 5; i++) {
+      f.set(x + 2 + i, y + 2 + i, RED[1]!);
+      f.set(x + 6 - i, y + 2 + i, RED[1]!);
+    }
+    return;
+  }
+  const x = Math.floor((w - tw) / 2) - 3;
+  const y = Math.min(h - 15, 12);
+  f.rect(x, y - 1, tw + 6, 9, K);
+  f.rect(x + 1, y, tw + 4, 7, hx('#e2dccc'));
+  f.rect(x + 1, y, tw + 4, 1, WHITE);
+  stencil(f, x + 3, y + 3, word, RED[2]!);
   f.rect(x, y - 1, 2, 2, [230, 226, 200, 200]);
   f.rect(x + tw + 4, y - 1, 2, 2, [230, 226, 200, 200]);
 }
@@ -1563,7 +1686,7 @@ interface TableLook {
   tag: (cv: Canvas, x: number, y: number) => void;
 }
 
-const TABLE_LOOKS: Record<1 | 2 | 3 | 4 | 5, TableLook> = {
+const TABLE_LOOKS: Record<1 | 2 | 3 | 4 | 5 | 6, TableLook> = {
   1: {
     top: ramp('#c99e6a', '#a77c4c', '#7d5a36', '#553c24'),
     under: ramp('#8f6c40', '#6e5232', '#523c24', '#3a2a1a'),
@@ -1660,6 +1783,34 @@ const TABLE_LOOKS: Record<1 | 2 | 3 | 4 | 5, TableLook> = {
       cv.rect(x + 1, y + 1, 3, 1, WHITE);
     },
   },
+  // Floor 6: a workbench, a thick beech top black with oil on green steel legs; a vice, and a toaster opened up on it.
+  6: {
+    top: ramp('#a8865a', '#86683e', '#5e4a2c', '#3e301c'),
+    under: ramp('#6a7a62', '#4e5c48', '#3a4636', '#262e22'),
+    leg: ramp('#7a8c72', '#4e5c48', '#3a4636', '#262e22'),
+    dress: (cv, edgeY) => {
+      // The vice bolted to the corner, its jaws and handle.
+      cv.rect(4, edgeY - 5, 5, 4, DSTEEL[1]!);
+      cv.rect(4, edgeY - 5, 5, 1, DSTEEL[0]!);
+      cv.rect(3, edgeY - 2, 7, 1, DSTEEL[2]!);
+      cv.rect(6, edgeY - 1, 1, 3, STEEL[1]!);
+      // A toaster with its casing off: the element glowing faintly, a screw beside it.
+      cv.rect(13, edgeY - 6, 7, 5, STEEL[2]!);
+      cv.rect(13, edgeY - 6, 7, 1, STEEL[1]!);
+      cv.rect(14, edgeY - 5, 5, 1, hx('#ff7a1f'));
+      cv.rect(14, edgeY - 3, 5, 1, hx('#a8521c'));
+      cv.set(21, edgeY - 2, STEEL[0]!);
+      // Oil soaked into the wood.
+      cv.rect(10, edgeY - 3, 2, 1, hx('#3e301c'));
+      // The green label on the edge.
+      cv.rect(19, edgeY, 4, 3, WS_GREEN[1]!);
+      cv.rect(20, edgeY + 1, 2, 1, WHITE);
+    },
+    tag: (cv, x, y) => {
+      cv.rect(x, y, 5, 3, WS_GREEN[1]!);
+      cv.rect(x + 1, y + 1, 3, 1, WHITE);
+    },
+  },
 };
 
 function tableStanding(L: TableLook): Canvas {
@@ -1750,7 +1901,7 @@ function mirror(cv: Canvas): Canvas {
   return out;
 }
 
-export function makeTableFrames(level: 1 | 2 | 3 | 4 | 5): Canvas[] {
+export function makeTableFrames(level: 1 | 2 | 3 | 4 | 5 | 6): Canvas[] {
   const L = TABLE_LOOKS[level];
   const east = tableEast(L);
   return [tableStanding(L), tableNorth(L), tableSouth(L), east, mirror(east)];

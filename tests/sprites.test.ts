@@ -58,11 +58,11 @@ test('cada hoja de sprites se divide en fotogramas enteros', async () => {
   }
 });
 
-test('las versiones de las plantas 2 a 5 (<id>-2 … <id>-5) miden lo mismo que las del almacén, fotograma a fotograma', async () => {
+test('las versiones de las plantas 2 a 6 (<id>-2 … <id>-6) miden lo mismo que las del almacén, fotograma a fotograma', async () => {
   const { allSheets } = await import('../tools/sprites/build.ts');
   const sheets = allSheets();
-  const upstairs = Object.keys(sheets).filter((k) => /-[2345]$/.test(k));
-  for (const lv of [2, 3, 4, 5]) {
+  const upstairs = Object.keys(sheets).filter((k) => /-[23456]$/.test(k));
+  for (const lv of [2, 3, 4, 5, 6]) {
     for (const want of ['caja', 'barril', 'carrito', 'mesa', 'persiana-n', 'persiana-s', 'persiana-v']) assert.ok(upstairs.includes(`${want}-${lv}`), `falta ${want}-${lv}`);
   }
   for (const k of upstairs) {
