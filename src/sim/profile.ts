@@ -45,6 +45,11 @@ export interface Profile {
   service: boolean;
   /** Times the true ending has been seen (M12 (5)): the Trituradora beaten and the toaster boxed. */
   endings: number;
+  /**
+   * The character «en exposición» on the tablón (M13 (1)): the one the next run starts with. Read it
+   * through `exhibited` (src/sim/unlocks.ts), which falls back to the Tostadora when it cannot be played.
+   */
+  chosen: string;
 }
 
 /** The last run, as the hub remembers it. */
@@ -105,6 +110,7 @@ export function emptyProfile(): Profile {
     docs: [],
     service: false,
     endings: 0,
+    chosen: STARTERS[0]!,
   };
 }
 
@@ -259,6 +265,7 @@ export function parseProfile(raw: string | null): Profile {
   // The appointment is for good; a save that already meets the requirements gets it.
   p.service = o.service === true || serviceMet(p);
   p.endings = count(o.endings);
+  if (typeof o.chosen === 'string') p.chosen = o.chosen;
   return p;
 }
 

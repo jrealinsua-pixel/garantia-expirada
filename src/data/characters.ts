@@ -15,5 +15,6 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     rollCooldown: 0.3,
     startWeapon: 'secador',
     footRadius: 5,
+    look: { sheet: 'tostadora', w: 40, h: 41, feetX: 17.5, feetY: 36, spinY: 22 },
   },
 };

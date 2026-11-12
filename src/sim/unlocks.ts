@@ -61,6 +61,24 @@ export function rosterBoard(p: Profile): { id: string; name: string; text: strin
   });
 }
 
+/** Characters that can be picked now: unlocked and in this version, in tablón order. */
+export function playableNow(p: Profile): string[] {
+  return ROSTER.filter((r) => p.unlocked.includes(r.id) && CHARACTERS[r.id]).map((r) => r.id);
+}
+
+/** The character on display (Profile.chosen) if it can be played, otherwise the first that can (the Tostadora). */
+export function exhibited(p: Profile): string {
+  const can = playableNow(p);
+  return can.includes(p.chosen) ? p.chosen : (can[0] ?? 'tostadora');
+}
+
+/** The next one to put on display (the tablón's use key): the following playable one, round the end. */
+export function nextExhibited(p: Profile): string {
+  const can = playableNow(p);
+  const i = can.indexOf(exhibited(p));
+  return can[(i + 1) % can.length] ?? exhibited(p);
+}
+
 /** Whether the Servicio Técnico's requirements are all met now (the appointment, once given, is kept in Profile.service). */
 export const serviceMet = (p: Profile): boolean => SERVICE_REQUIREMENTS.every((r) => meets(r.condition, p));
 

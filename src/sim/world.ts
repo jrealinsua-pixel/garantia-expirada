@@ -1160,6 +1160,30 @@ export function leaveHub(w: World, seed: string): World | null {
   return createWorld({ seed, floor: true, level: 1, character: w.player.base.def.id, service: w.service });
 }
 
+/**
+ * Swaps the body in the Mostrador (the tablón's use key, M13 (1)): the character on display walks
+ * on with its own life and starting weapon, where the other one stood. Only in the hub, where
+ * nobody carries anything yet; false (and nothing changes) elsewhere or for an unknown id.
+ */
+export function setCharacter(w: World, id: string): boolean {
+  const def = CHARACTERS[id];
+  const wdef = def ? WEAPONS[def.startWeapon] : undefined;
+  if (w.room.kind !== 'hub' || !def || !wdef) return false;
+  const p = w.player;
+  p.base = { def };
+  p.def = def;
+  p.mods = [];
+  p.synergies = [];
+  p.weapon = newWeapon(wdef);
+  p.arsenal = [p.weapon];
+  p.slot = 0;
+  p.hp = def.maxHp;
+  p.rollT = -1;
+  p.rollCooldown = 0;
+  refreshPlayer(p);
+  return true;
+}
+
 /** How close (px) the toaster's feet must be to a station of the hub to use it. */
 export const STATION_REACH = 30;
 

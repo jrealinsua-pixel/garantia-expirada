@@ -71,6 +71,7 @@ import {
   ALLEN_LINE,
   TURBO_LINE,
   archiveHint,
+  boardHint,
   hubHint,
   docFoundLine,
 } from '../data/texts.ts';
@@ -103,7 +104,7 @@ import {
   step,
   BODY_HEIGHT,
 } from '../sim/world.ts';
-import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
+import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, setCharacter, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { pairUp, spawnEnemy, tapesOf, TIP_FACING, type HeartKind, type Player } from '../sim/world.ts';
 import { dummyHurtBox, type Dummy } from '../sim/world.ts';
 import { MARKDOWN_LINES } from '../data/texts.ts';
@@ -123,11 +124,11 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
-import { profile, saveEnding, saveFloor, saveRun } from './save.ts';
+import { profile, saveChosen, saveEnding, saveFloor, saveRun } from './save.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
 import type { PropInstance, StationKind, TipSide } from '../sim/room.ts';
 import { departmentOf, departmentRect, isSpinning, MENU_ZONE_H, MENU_ZONE_W } from '../sim/enemies.ts';
-import { rosterBoard, serviceBoard } from '../sim/unlocks.ts';
+import { exhibited, nextExhibited, playableNow, rosterBoard, serviceBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
 import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
 import { citaLayout, type CitaRole } from './cita.ts';
@@ -178,10 +179,6 @@ interface PickupView {
 }
 export const VIEW_H = 270;
 
-const HERO_FEET_X = 17.5;
-const HERO_FEET_Y = 36;
-const HERO_W = 40;
-const HERO_H = 41;
 /** Grip of the hair dryer in its 18x11 sprite. */
 const GUN_GRIP = { x: 6.5, y: 8.5 };
 /** Frames of the toaster sheet: squeezed face when hit, and broken (slices gone, eyes crossed out). */
@@ -600,24 +597,27 @@ export class GameScene extends Phaser.Scene {
     // Oficinas. ?planta=5: Atención al Cliente, the last floor of a run (until La Centralita, M11 5b, the Director fights there).
     // ?planta=6: the Servicio Técnico (M12), as if with the appointment.
     const level = Math.max(1, Math.min(SERVICE_LEVEL, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
+    // Who plays (M13 (1)): the one on display on the tablón; ?personaje=<id> tries any character there is.
+    const asked = params.get('personaje');
+    const character = asked && CHARACTERS[asked] ? asked : exhibited(profile());
     if (carried) {
       // Walked through a door: same run, next room. The controls hint was read already.
       this.world = carried;
       this.hintT = 0;
     } else if (this.hubMode) {
       // The Mostrador de Devoluciones: where every run starts and ends. The Chatarrero comes once a boss has fallen.
-      this.world = createWorld({ seed: 'mostrador', hub: { chatarrero: chatarreroHere(profile()), service: profile().service } });
+      this.world = createWorld({ seed: 'mostrador', character, hub: { chatarrero: chatarreroHere(profile()), service: profile().service } });
     } else if (this.startSala && !params.get('sala')) {
-      this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala, level });
+      this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala, level, character });
     } else if (params.get('sala')) {
       // ?sala=<id>&profundidad=<n>: one room template, its slots filled for that depth (the test
       // room is ?sala=sala-pruebas).
-      this.world = createWorld({ seed: params.get('semilla') ?? params.get('sala')!, room: params.get('sala')!, depth: Number(params.get('profundidad') ?? 3), level });
+      this.world = createWorld({ seed: params.get('semilla') ?? params.get('sala')!, room: params.get('sala')!, depth: Number(params.get('profundidad') ?? 3), level, character });
     } else {
       // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
       // ?cita=1: as if the Servicio Técnico's appointment were granted (otherwise, the profile's).
       const service = level === SERVICE_LEVEL || params.get('cita') === '1' || profile().service;
-      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service });
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service, character });
     }
     const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);
@@ -695,7 +695,7 @@ export class GameScene extends Phaser.Scene {
     for (const en of this.world.enemies) this.makeEnemyView(en);
 
     this.heroShadow = this.add.image(0, 0, shadowTexture(this, 9, 3)).setDepth(-50000);
-    this.hero = this.add.sprite(0, 0, 'tostadora', 0);
+    this.hero = this.add.sprite(0, 0, this.world.player.base.def.look.sheet, 0);
     this.gun = this.add.image(0, 0, 'arma-secador').setOrigin(GUN_GRIP.x / 18, GUN_GRIP.y / 11);
     this.hand = this.add.image(0, 0, 'mano');
     this.muzzle = this.add.image(0, 0, 'fogonazo', 0).setOrigin(0.15, 0.5).setVisible(false);
@@ -1441,7 +1441,10 @@ export class GameScene extends Phaser.Scene {
 
   /** The tablón's five, from the saved profile (the unlocked ones that are not playable yet say so). */
   private boardEntries(): BoardEntry[] {
-    return rosterBoard(profile()).map((r) => ({ ...r, soon: r.unlocked && !CHARACTERS[r.id] }));
+    const pr = profile();
+    const shown = exhibited(pr);
+    const several = playableNow(pr).length > 1;
+    return rosterBoard(pr).map((r) => ({ ...r, soon: r.unlocked && !CHARACTERS[r.id], shown: several && r.id === shown }));
   }
 
   /** The panel low on the screen while the toaster stands at the board or the archivador. */
@@ -1473,7 +1476,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private showBoard(): void {
-    const L = boardLayout(this.boardEntries(), readScale(settings()));
+    const L = boardLayout(this.boardEntries(), readScale(settings()), boardHint(keyWords()));
     // Cork edge and the board's red header.
     const g = this.panelPaper(L, 0xb97d48, 0xe0453b);
     for (const r of L.rules) for (let x = L.x + 6; x < L.x + L.w - 6; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, r, 2, 1);
@@ -1481,7 +1484,7 @@ export class GameScene extends Phaser.Scene {
       this.panelAdd(this.add.rectangle(f.x - 1, f.y - 1, 6 * f.zoom + 2, 7 * f.zoom + 2, 0xf4efdc, 1).setOrigin(0, 0));
       this.panelAdd(this.add.image(f.x, f.y, 'fichas-tablon', f.frame).setOrigin(0, 0).setScale(f.zoom));
     }
-    const tints: Record<BoardRole, number> = { title: 0xf4f1e8, name: 0xf4f1e8, locked: 0x858ea8, text: 0xd6cdb2, progress: 0xf6c431, soon: 0x69dbd8, foot: 0x5d647e };
+    const tints: Record<BoardRole, number> = { title: 0xf4f1e8, name: 0xf4f1e8, locked: 0x858ea8, text: 0xd6cdb2, progress: 0xf6c431, soon: 0x69dbd8, shown: 0x58b45a, foot: 0x5d647e, hint: 0xf6c431 };
     for (const t of L.texts) this.panelAdd(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
   }
 
@@ -1498,6 +1501,24 @@ export class GameScene extends Phaser.Scene {
     }
     const tints: Record<CitaRole, number> = { title: 0xf4f1e8, text: 0xd6cdb2, met: 0x858ea8, progress: 0xf6c431, done: 0x58b45a, foot: 0x5d647e, granted: 0x58b45a };
     for (const t of L.texts) this.panelAdd(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
+  }
+
+  /**
+   * The use key at the open tablón (M13 (1)): the next character that can be played goes on
+   * display, and walks on in place of the one standing there; the panel is redrawn with its mark.
+   */
+  private putOnDisplay(): void {
+    const id = nextExhibited(profile());
+    if (id === this.world.player.base.def.id) return;
+    saveChosen(id);
+    setCharacter(this.world, id);
+    for (const o of this.panel) o.destroy();
+    this.panel = [];
+    this.showBoard();
+    this.sound2.play('recargar', { detune: 400 });
+    this.flashHero = 0.12;
+    const p = this.world.player;
+    for (let i = 0; i < 6; i++) this.puff(p.x + this.fx.range(-10, 10), p.y - this.fx.range(2, 20), 0.7);
   }
 
   /** Which document and page the archivador has open (src/sim/archive.ts). */
@@ -1571,6 +1592,7 @@ export class GameScene extends Phaser.Scene {
       // The board and the archivador do not talk: they open a panel (src/render/board.ts,
       // archivo.ts); pressing again at the open archivador turns the sheet.
       if (st.kind === 'archivador' && this.panel.length) this.turnArchivePage();
+      else if (st.kind === 'tablon' && this.panel.length) this.putOnDisplay();
       else if (!this.panel.length) {
         if (st.kind === 'tablon') this.showBoard();
         else if (st.kind === 'cita') this.showCita();
@@ -3834,8 +3856,9 @@ export class GameScene extends Phaser.Scene {
     this.drawHub(dt);
     const p = w.player;
     const rolling = isRolling(p);
-
-    // Hero body.
+    // Hero body: the character's own sheet (it changes in the Mostrador when another goes on display).
+    const look = p.base.def.look;
+    if (this.hero.texture.key !== look.sheet) this.hero.setTexture(look.sheet, 0);
     const moving = Math.hypot(p.vx, p.vy) > 12;
     let frame: number;
     if (rolling) frame = 3;
@@ -3845,11 +3868,11 @@ export class GameScene extends Phaser.Scene {
     this.hero.setScale(p.facing, 1);
     if (rolling) {
       const k = p.rollT / p.def.rollTime;
-      this.hero.setOrigin(HERO_FEET_X / HERO_W, 22 / HERO_H);
-      this.hero.setPosition(Math.round(p.x), Math.round(p.y - 14));
+      this.hero.setOrigin(look.feetX / look.w, look.spinY / look.h);
+      this.hero.setPosition(Math.round(p.x), Math.round(p.y - (look.feetY - look.spinY)));
       this.hero.setRotation(Math.min(1, k / 0.85) * Math.PI * 2 * (p.rollDirX >= 0 ? 1 : -1));
     } else {
-      this.hero.setOrigin(HERO_FEET_X / HERO_W, HERO_FEET_Y / HERO_H);
+      this.hero.setOrigin(look.feetX / look.w, look.feetY / look.h);
       this.hero.setPosition(Math.round(p.x), Math.round(p.y));
       this.hero.setRotation(0);
     }
@@ -3906,8 +3929,8 @@ export class GameScene extends Phaser.Scene {
         const d = Math.round(k * k * 34);
         const edge = (w.lift ? w.lift.y : p.y) + 13;
         this.hero.setY(Math.round(p.y) + d);
-        const rows = Math.max(0, Math.round(edge - (p.y + d - HERO_FEET_Y)));
-        this.hero.setCrop(0, 0, HERO_W, Math.min(HERO_H, rows));
+        const rows = Math.max(0, Math.round(edge - (p.y + d - look.feetY)));
+        this.hero.setCrop(0, 0, look.w, Math.min(look.h, rows));
         this.hero.setVisible(rows > 0);
       }
       if (this.ending) {

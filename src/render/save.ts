@@ -40,6 +40,17 @@ export function saveFloor(f: FloorResult): Profile {
   return current;
 }
 
+/** Puts another character on display on the tablón (M13 (1)) and saves it. */
+export function saveChosen(id: string): Profile {
+  current = { ...profile(), chosen: id };
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(current));
+  } catch {
+    // Private mode or blocked storage: kept in memory only.
+  }
+  return current;
+}
+
 /** The true ending was seen (M12 (5)): counts it, with the Trituradora and the workshop floor, and saves it. */
 export function saveEnding(f?: FloorResult): Profile {
   current = recordEnding(profile(), f);

@@ -3,7 +3,7 @@
 // both text sizes.
 import { FONT_LINE, textWidth, wrapLines } from '../art/font.ts';
 import { HUD_H, HUD_W } from './hud.ts';
-import { BOARD_FOOT, BOARD_RESTOCK, BOARD_TITLE } from '../data/texts.ts';
+import { BOARD_FOOT, BOARD_RESTOCK, BOARD_SHOWN, BOARD_TITLE } from '../data/texts.ts';
 
 /** One character on the board, as src/sim/unlocks.ts `rosterBoard` gives it (plus whether it can be played yet). */
 export interface BoardEntry {
@@ -15,10 +15,12 @@ export interface BoardEntry {
   progress: { done: number; needed: number }[];
   /** Unlocked but not in the game yet (the others arrive in M13). */
   soon?: boolean;
+  /** On display: the one the next run starts with (marked only when there is more than one to pick). */
+  shown?: boolean;
 }
 
 /** What a text on the panel is, which decides its colour. */
-export type BoardRole = 'title' | 'name' | 'locked' | 'text' | 'progress' | 'soon' | 'foot';
+export type BoardRole = 'title' | 'name' | 'locked' | 'text' | 'progress' | 'soon' | 'shown' | 'foot' | 'hint';
 
 export interface BoardText {
   text: string;
@@ -61,9 +63,10 @@ const FACES = 5;
  * The panel low on the screen (the board hangs high, so the toaster is up there): a red title bar and one row per character, its face
  * on the left. At the font's size, each row has the name (with how far along it is, or «Reposición
  * pronto») and under it the blurb or the condition. At double size there is room for one thing
- * per row: the name once unlocked, the condition (and how far along) while locked.
+ * per row: the name once unlocked, the condition (and how far along) while locked. With more than
+ * one to pick, the one on display says so and the foot is `hint` (how to put another on display).
  */
-export function boardLayout(entries: readonly BoardEntry[], scale = 1): BoardLayout {
+export function boardLayout(entries: readonly BoardEntry[], scale = 1, hint = ''): BoardLayout {
   const s = scale;
   const big = s > 1;
   const line = FONT_LINE * s;
@@ -80,24 +83,25 @@ export function boardLayout(entries: readonly BoardEntry[], scale = 1): BoardLay
   let y = barH + 4;
   entries.forEach((e, i) => {
     const top = y;
-    const right = e.unlocked ? (e.soon ? BOARD_RESTOCK : '') : progressLabel(e.progress);
+    const right = e.unlocked ? (e.soon ? BOARD_RESTOCK : e.shown ? BOARD_SHOWN : '') : progressLabel(e.progress);
     let lines = 0;
     if (!big) {
       texts.push({ text: e.name, x: textX, y, role: e.unlocked ? 'name' : 'locked' });
-      if (right) texts.push({ text: right, x: w - 8, y, role: e.unlocked ? 'soon' : 'progress', right: true });
+      if (right) texts.push({ text: right, x: w - 8, y, role: e.shown ? 'shown' : e.unlocked ? 'soon' : 'progress', right: true });
       for (const l of wrapLines(e.text, room, s)) texts.push({ text: l, x: textX, y: y + line * ++lines, role: 'text' });
       lines++;
     } else {
-      const main = e.unlocked ? e.name : right ? `${e.text} ${right}` : e.text;
-      for (const l of wrapLines(main, room, s)) texts.push({ text: l, x: textX, y: y + line * lines++, role: e.unlocked ? 'name' : 'text' });
+      const main = e.unlocked ? (e.shown ? `${e.name} · ${BOARD_SHOWN}` : e.name) : right ? `${e.text} ${right}` : e.text;
+      for (const l of wrapLines(main, room, s)) texts.push({ text: l, x: textX, y: y + line * lines++, role: e.shown ? 'shown' : e.unlocked ? 'name' : 'text' });
     }
     const rowH = Math.max(faceH + 2, lines * line);
     faces.push({ frame: e.unlocked ? i : FACES + i, x: 8, y: top + Math.floor((rowH - faceH) / 2), zoom });
     y = top + rowH + 3;
     if (i < entries.length - 1) rules.push(y - 2);
   });
-  if (!big) {
-    texts.push({ text: BOARD_FOOT, x: w - 8, y: y + 1, role: 'foot', right: true });
+  const choosing = hint !== '' && entries.some((e) => e.shown);
+  if (!big || choosing) {
+    texts.push({ text: choosing ? hint : BOARD_FOOT, x: w - 8, y: y + 1, role: choosing ? 'hint' : 'foot', right: true });
     y += line + 1;
   }
   const h = y + 2;

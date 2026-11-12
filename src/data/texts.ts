@@ -571,6 +571,10 @@ export function historyLines(h: HistoryInfo): { label: string; text: string }[] 
 export const BOARD_TITLE = 'Productos en Exposición';
 /** An unlocked character that cannot be played yet (they arrive in a later version). */
 export const BOARD_RESTOCK = 'Reposición pronto';
+/** Next to the character on display, once there are several to pick (M13 (1)). */
+export const BOARD_SHOWN = 'En exposición';
+/** The tablón's foot while there are several to pick: how to put another on display. */
+export const boardHint = (k: KeyWords): string => `${k.interact.own}: cambiar el producto en exposición`;
 export const BOARD_FOOT = 'Unidades limitadas. Condiciones sujetas a cambios sin previo aviso.';
 
 // The archivador «Reclamaciones sin Resolver» of the Mostrador (src/render/archivo.ts).

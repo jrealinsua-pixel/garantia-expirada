@@ -319,6 +319,25 @@ export interface CharacterDef {
   startWeapon: string;
   /** Half size of the feet collision box (px). */
   footRadius: number;
+  /** How it is drawn (the render reads it; the simulation does not). */
+  look: CharacterLook;
+}
+
+/**
+ * A playable character's sprite sheet (public/assets/<sheet>.png). Every character's sheet has
+ * the same eight frames, in this order: idle ×2 (0–1), walk ×4 (2–5, the roll spins frame 3),
+ * hurt (6) and broken (7).
+ */
+export interface CharacterLook {
+  sheet: string;
+  /** Frame size (px). */
+  w: number;
+  h: number;
+  /** Where the feet are in the frame (the body's position in the world). */
+  feetX: number;
+  feetY: number;
+  /** Height in the frame of the point it spins around while rolling. */
+  spinY: number;
 }
 
 export interface PropDef {

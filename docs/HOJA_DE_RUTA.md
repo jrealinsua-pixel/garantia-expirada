@@ -514,9 +514,11 @@ sin ellos la partida acaba en la planta 5.
   Eterno y el Móvil Reacondicionado, cada uno con estadísticas, arma inicial y una habilidad propias.
   - [x] (0) El diseño de los cinco (tabla y historias en «Los cinco, en detalle» de
     `docs/DISENO.md`) y esta lista de tareas.
-  - [ ] (1) Elegir personaje: el tablón pone «en exposición» al desbloqueado que se mire y se
+  - [x] (1) Elegir personaje: el tablón pone «en exposición» al desbloqueado que se mire y se
     guarda en el perfil; la partida y el Mostrador lo usan (`?personaje=` para probar); el dibujo
     del jugador sale de los datos del personaje (textura y medidas), no de la tostadora fija.
+    Hecho el 2026-11-12: `Profile.chosen`, `exhibited`/`nextExhibited`, `setCharacter` y
+    `CharacterDef.look`; la captura del tablón con dos se hace en la (3).
   - [ ] (2) La habilidad de la Tostadora, «Una de cada dos» (tostadas al recargar).
   - [ ] (3) La Batidora de Vaso: sprite, Picahielos Turbo y el giro de cuchillas.
   - [ ] (4) La Plancha de Vapor: sprite, Pulverizador de Almidón y la suela caliente.
