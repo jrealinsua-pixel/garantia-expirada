@@ -560,6 +560,11 @@ sin ellos la partida acaba en la planta 5.
 
 **Criterios de aceptación:** cada personaje tiene un test de su habilidad; el bot gana la
 planta 1 con todos; los cinco se distinguen a la primera en una captura.
+Comprobado el 2026-11-12: habilidades en `tostadora-habilidad`, `batidora-vaso`, `plancha-vapor`,
+`becario` y `movil` (tests); el bot gana la planta 1 con los cinco (`medir-personajes`, 60 partidas:
+del 23 % al 35 %); la captura es la `47c-los-cinco` del e2e (los cinco en fila en el Mostrador) y
+`tests/cinco-juntos.test.ts` vigila que no haya dos con el mismo color dominante ni con casi la
+misma silueta. Solo falta la (7c) para cerrar M13.
 
 ## M14 · Más contenido y rejugabilidad
 

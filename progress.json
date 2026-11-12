@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T17:50:00+01:00",
+  "actualizado": "2026-11-12T18:35:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -137,6 +137,11 @@
     "lineas_codigo": 31485
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T18:35:00+01:00",
+      "hito": "M13",
+      "resumen": "M13, criterio de aceptación: la foto de los cinco en fila en el Mostrador (tostadora gris, batidora violeta, plancha verde azulada, el becario y el móvil oro rosa), sacada por el e2e, y un test que vigila que no haya dos con el mismo color dominante ni con casi la misma silueta. Los tres criterios de M13 se cumplen; solo falta la muerte propia de cada uno (7c) para cerrarlo."
+    },
     {
       "fecha": "2026-11-12T17:50:00+01:00",
       "hito": "M13",
@@ -1231,12 +1236,12 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/tablon-desbloqueos.png",
-      "pie": "M13 (8): el tablón con las condiciones definitivas; la Plancha, la última, sale al vencer al Director de Recursos Inhumanos («Traiga camisa»)"
+      "archivo": "capturas/los-cinco.png",
+      "pie": "M13: los cinco personajes en fila en el Mostrador, para el criterio de «se distinguen a la primera»"
     },
     {
-      "archivo": "capturas/picahielos-tesoro.png",
-      "pie": "Con la Batidora desbloqueada, su Picahielos Turbo puede salir en el tesoro de la tostadora"
+      "archivo": "capturas/tablon-desbloqueos.png",
+      "pie": "M13 (8): el tablón con las condiciones definitivas; la Plancha, la última, sale al vencer al Director de Recursos Inhumanos («Traiga camisa»)"
     },
     {
       "archivo": "capturas/final-becario.png",
@@ -1255,7 +1260,7 @@
       "pie": "M13 (6): el Móvil Reacondicionado dispara de frente y sus Notificaciones Push, globitos naranjas lentos, se tuercen solas hacia los enemigos de abajo"
     }
   ],
-  "proximo": "M13: la muerte propia de cada personaje (7c, cogida por otra sesión) y una captura con los cinco juntos para el criterio de «se distinguen a la primera»; con eso, M13 terminado.",
+  "proximo": "M13 (7c), la muerte propia de cada personaje (cogida por otra sesión): con ella, M13 terminado. M14 ya ha empezado por el glosario (g1).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1286,11 +1291,6 @@
       "sesion": "2026-11-12 17:30",
       "tarea": "M13 historia (7c): la muerte propia de cada personaje (src/data/bajas.ts nuevo, downReport en src/data/texts.ts, popToaster y showDownPanel en src/render/GameScene.ts, tools/sprites/despiece.ts nuevo, tests/bajas.test.ts)",
       "desde": "2026-11-12T17:30:00+01:00"
-    },
-    {
-      "sesion": "2026-11-12 17:55",
-      "tarea": "M13 criterio: la captura con los cinco personajes juntos (solo tools/e2e.ts, un paso junto al del tablón, y tests/personajes.test.ts)",
-      "desde": "2026-11-12T17:55:00+01:00"
     },
     {
       "sesion": "2026-11-12 18:30",

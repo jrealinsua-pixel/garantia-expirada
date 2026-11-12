@@ -6,6 +6,8 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, requirePackage } from './lib/deps.ts';
 import { serve } from './lib/serve.ts';
+import { CHARACTERS } from '../src/data/characters.ts';
+import { ROSTER } from '../src/data/unlocks.ts';
 
 interface State {
   ready: boolean;
@@ -2389,6 +2391,24 @@ try {
   // Walking away closes it.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.y += 60; })()`);
   await page.waitForFunction('window.__GE__.scene.panel.length === 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no se cierra al irse'); });
+  // M13, criterion «the five tell apart at first sight in a screenshot»: the other four stand in a
+  // row next to the Batidora on display, drawn from their own sheets (first idle frame, the feet
+  // where the game puts them, a shadow each), and are taken away after the shot.
+  const looks = JSON.stringify(ROSTER.map((r) => ({ id: r.id, ...CHARACTERS[r.id]!.look })));
+  const lineup = await page.evaluate<string>(`(() => { const s = window.__GE__.scene; const p = s.world.player; const looks = ${looks};
+    s.world.noDamage = true; p.vx = 0; p.vy = 0; p.facing = 1;
+    p.x = Math.round(p.x); const i0 = looks.findIndex((l) => l.id === p.base.def.id);
+    const made = []; const missing = [];
+    looks.forEach((l, i) => { if (i === i0) return;
+      if (!s.textures.exists(l.sheet)) { missing.push(l.sheet); return; }
+      const x = p.x + (i - i0) * 46, y = p.y;
+      made.push(s.add.image(x, y + 1, s.heroShadow.texture.key).setDepth(-50000));
+      made.push(s.add.sprite(x, y, l.sheet, 0).setOrigin(l.feetX / l.w, l.feetY / l.h).setDepth(y)); });
+    window.__lineup = made; return missing.join(',') || String(made.length / 2); })()`);
+  if (lineup !== '4') throw new Error(`Los cinco no se ponen en fila: ${lineup}`);
+  await page.waitForTimeout(300);
+  await shot('47c-los-cinco.png');
+  await page.evaluate('(() => { for (const o of window.__lineup) o.destroy(); window.__lineup = []; })()');
   // The archivador: the Nevera's albarán is in (beating her filed it); F (interact) turns the sheet.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'archivador'); w.player.x = c.x + 14; w.player.y = c.y + 4; })()`);
   await page.waitForTimeout(150);
