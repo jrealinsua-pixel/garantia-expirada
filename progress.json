@@ -1257,6 +1257,11 @@
       "sesion": "2026-11-12 13:26",
       "tarea": "M13 (4): la Plancha de Vapor (sprite, Pulverizador de Almidón y la suela caliente)",
       "desde": "2026-11-12T13:26:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 14:26",
+      "tarea": "M13 (6): el Móvil Reacondicionado (sprite, Notificaciones Push, carga en movimiento, batería al 1 %)",
+      "desde": "2026-11-12T14:26:00+01:00"
     }
   ]
 }
