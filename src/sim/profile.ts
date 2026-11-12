@@ -3,7 +3,7 @@
 // unlock things (M9's hub, M12's secret floor: beat every boss, win with three characters).
 
 import { ROSTER } from '../data/unlocks.ts';
-import { newUnlocks } from './unlocks.ts';
+import { newUnlocks, serviceMet } from './unlocks.ts';
 import { LORE } from '../data/lore.ts';
 
 /** The documents beating these bosses gives, in archivador order. */
@@ -22,6 +22,8 @@ export interface Profile {
   bosses: Record<string, number>;
   /** Floors cleared with each character (character id). */
   wins: Record<string, number>;
+  /** Games won (floor 5 beaten) with each character (character id). */
+  victories: Record<string, number>;
   kills: number;
   /** Coupons carried at the end of each run, added up. */
   coupons: number;
@@ -39,6 +41,8 @@ export interface Profile {
   unlocked: string[];
   /** Story documents found (ids, src/data/lore.ts), in the order found. */
   docs: string[];
+  /** The Servicio Técnico's appointment (M12): its requirements were met once, for good. */
+  service: boolean;
 }
 
 /** The last run, as the hub remembers it. */
@@ -54,6 +58,8 @@ export interface LastRun {
   unlocked?: string[];
   /** Story documents this run found. */
   docs?: string[];
+  /** This run met the Servicio Técnico's requirements (for the hub to announce). */
+  service?: true;
 }
 
 /** How a run ended and what it carried. */
@@ -85,6 +91,7 @@ export function emptyProfile(): Profile {
     floorsCleared: 0,
     bosses: {},
     wins: {},
+    victories: {},
     kills: 0,
     coupons: 0,
     bestFloorSeconds: null,
@@ -94,6 +101,7 @@ export function emptyProfile(): Profile {
     last: null,
     unlocked: [...STARTERS],
     docs: [],
+    service: false,
   };
 }
 
@@ -141,6 +149,8 @@ export function recordRun(old: Profile, r: RunResult): Profile {
     if (r.cause) bump(p.causes, `${r.cause.by}:${r.cause.how}`);
   } else {
     addFloor(p, { ...r, seconds: r.floorSeconds ?? r.seconds });
+    // A run that ends on a floor ends on the last one: the game is won.
+    bump(p.victories, r.character);
   }
   p.found.items = union(p.found.items, r.items);
   p.found.actives = union(p.found.actives, r.active ? [r.active] : []);
@@ -162,6 +172,10 @@ export function recordRun(old: Profile, r: RunResult): Profile {
   if (fresh.length) {
     p.unlocked = [...p.unlocked, ...fresh];
     p.last.unlocked = fresh;
+  }
+  if (!p.service && serviceMet(p)) {
+    p.service = true;
+    p.last.service = true;
   }
   return p;
 }
@@ -185,6 +199,7 @@ function parseLast(v: unknown): LastRun | null {
   if (u.length) last.unlocked = u;
   const d = ids(o.docs);
   if (d.length) last.docs = d;
+  if (o.service === true) last.service = true;
   return last;
 }
 
@@ -204,6 +219,12 @@ export function parseProfile(raw: string | null): Profile {
   p.floorsCleared = count(o.floorsCleared);
   p.bosses = counts(o.bosses);
   p.wins = counts(o.wins);
+  p.victories = counts(o.victories);
+  // A save from before victories were kept: beating the Centralita was winning, with whoever won
+  // the last run (or the Tostadora, the only one there was).
+  if (!Object.keys(p.victories).length && (p.bosses['centralita'] ?? 0) > 0) {
+    p.victories[p.last?.outcome === 'floor' ? p.last.character : STARTERS[0]!] = p.bosses['centralita']!;
+  }
   p.kills = count(o.kills);
   p.coupons = count(o.coupons);
   p.bestFloorSeconds = typeof o.bestFloorSeconds === 'number' && o.bestFloorSeconds > 0 ? Math.round(o.bestFloorSeconds) : null;
@@ -218,6 +239,8 @@ export function parseProfile(raw: string | null): Profile {
   p.unlocked = [...p.unlocked, ...newUnlocks(p)];
   // Documents kept as saved; the bosses' are given again to a save from before they existed.
   p.docs = union(ids(o.docs), bossDocs(Object.keys(p.bosses)));
+  // The appointment is for good; a save that already meets the requirements gets it.
+  p.service = o.service === true || serviceMet(p);
   return p;
 }
 

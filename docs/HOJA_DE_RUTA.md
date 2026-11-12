@@ -465,11 +465,24 @@ M10: llegando a la 5 con lo que se recoge en las de abajo).
 
 ## M12 · El Servicio Técnico (piso final secreto)
 
-- [ ] Requisitos de desbloqueo guardados entre partidas (por ejemplo: vencer a los 5 jefes,
-  ganar con 3 personajes distintos y reunir las piezas de historia). Se ven en el centro.
-- [ ] Piso final especial, distinto de los demás: la trituradora del Servicio Técnico, con su
-  jefe final en varias fases.
-- [ ] Final verdadero (el jugador es el producto) y créditos.
+Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DISENO.md`).
+
+- [x] (1) Requisitos de desbloqueo guardados entre partidas: vencer a los 5 jefes, ganar con 3
+  productos distintos (con los que haya hasta M13) y el expediente completo del archivador. Se
+  ven en el Mostrador: el cartel «Cita previa» en la pared, con su panel; el teléfono confirma la cita.
+- [ ] (2) El acceso: con la cita, vencer a la Centralita apunta la victoria y abre el montacargas
+  del Servicio Técnico; sin ella, la partida acaba en la planta 5 (test).
+- [ ] (3) La planta 6, el Taller de Reacondicionado: su generación (corta, casi en línea, sin
+  tienda ni tesoro), sus plantillas y su arte (azulejo de taller, cintas que arrastran).
+  - [ ] (3a) La planta y sus salas con enemigos reacondicionados de las cinco plantas.
+  - [ ] (3b) Las cintas transportadoras del suelo y el arte del taller.
+  - [ ] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla).
+- [ ] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.
+  - [ ] (4a) Sprites, sala y fase 1, «Diagnóstico».
+  - [ ] (4b) Fase 2, «Despiece».
+  - [ ] (4c) Fase 3, «Control de calidad».
+- [ ] (5) El final verdadero (el jugador es el producto) y los créditos.
+- [ ] (6) Medir la planta 6 entera con el bot y ajustar.
 
 **Criterios de aceptación:** el piso final solo aparece si se cumplen los requisitos (test);
 sin ellos la partida acaba en la planta 5.

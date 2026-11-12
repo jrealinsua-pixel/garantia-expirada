@@ -30,6 +30,7 @@ export function holds(w: DialogueWhen | undefined, p: Profile): boolean {
   if (w.lastUnder !== undefined && (!last || last.seconds >= w.lastUnder)) return false;
   if (w.minFound !== undefined && p.found.items.length < w.minFound) return false;
   if (w.maxFound !== undefined && p.found.items.length >= w.maxFound) return false;
+  if (w.service !== undefined && p.service !== w.service) return false;
   return true;
 }
 

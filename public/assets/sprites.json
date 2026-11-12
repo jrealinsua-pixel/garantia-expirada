@@ -935,6 +935,24 @@
     "frameH": 32,
     "frames": 2
   },
+  "cita-previa": {
+    "file": "cita-previa.png",
+    "frameW": 50,
+    "frameH": 44,
+    "frames": 1
+  },
+  "cita-marcas": {
+    "file": "cita-marcas.png",
+    "frameW": 7,
+    "frameH": 7,
+    "frames": 1
+  },
+  "cita-sello": {
+    "file": "cita-sello.png",
+    "frameW": 40,
+    "frameH": 11,
+    "frames": 1
+  },
   "cinta-almacen": {
     "file": "cinta-almacen.png",
     "frameW": 48,

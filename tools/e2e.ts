@@ -2145,6 +2145,17 @@ try {
     .catch(async () => { throw new Error(`F no pasa la hoja del archivador: ${await sheet()}`); });
   await page.waitForTimeout(300);
   await shot('49-archivador.png');
+  // M12: the Servicio Técnico's «Cita previa» by the board: each requirement, how far along, and F opens it.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.y += 80; })()`);
+  await page.waitForFunction('window.__GE__.scene.panel.length === 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El archivador no se cierra al irse'); });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.stations.find((s) => s.kind === 'cita'); w.player.x = c.x; w.player.y = c.y + 6; })()`);
+  await page.waitForTimeout(150);
+  await page.keyboard.press('f');
+  await page.waitForFunction('window.__GE__.scene.panel.length > 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('La cita previa no enseña nada'); });
+  const cita = await sheet();
+  if (!cita.includes('CITA PREVIA') || !cita.includes('1/5') || !cita.includes('PLAZO DE RESOLUCI')) throw new Error(`La cita previa no cuenta lo que falta: ${cita}`);
+  await page.waitForTimeout(300);
+  await shot('49b-cita-previa.png');
   // With big text it still fits: one line per character.
   await page.evaluate(`localStorage.setItem('garantia-expirada/opciones', JSON.stringify({ bigText: true }))`);
   await page.goto(`${url}?mostrador`);
@@ -2158,7 +2169,7 @@ try {
   await page.evaluate("localStorage.removeItem('garantia-expirada/opciones')");
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve; la Caja, la máquina de turnos, el teléfono y el Chatarrero hablan;'
-    + ' el tablón enseña a los cinco y el archivador sus documentos.');
+    + ' el tablón enseña a los cinco, el archivador sus documentos y la cita previa sus requisitos.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

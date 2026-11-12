@@ -25,6 +25,8 @@ export interface DialogueWhen {
   minFound?: number;
   /** Fewer than this many different passive items ever found. */
   maxFound?: number;
+  /** Whether the Servicio Técnico's appointment has been granted (M12). */
+  service?: boolean;
 }
 
 /** One thing to say: one or more pages, shown one after another in the bubble. */
@@ -170,6 +172,17 @@ export const TELEFONO = {
         'Está en curso desde que salió de fábrica. Es un curso muy largo.',
       ],
     },
+    {
+      // M12: the requirements of the «Cita previa» met. The secret floor itself, from M12 (2).
+      id: 'tel-cita',
+      when: { service: true },
+      priority: 9,
+      pages: [
+        'Le confirmamos su cita previa con el Servicio Técnico Oficial. Es usted el primero.',
+        'Preséntese en ventanilla cuando cierre la incidencia de Atención al Cliente.',
+        'Traiga el producto. Si el producto es usted, tráigase.',
+      ],
+    },
   ] satisfies readonly DialogueLine[],
 } as const;
 
@@ -232,6 +245,12 @@ export const CHATARRERO = {
       when: { minBosses: 2 },
       priority: 1,
       pages: ['Dicen que en cada planta hay una sala que no sale en el plano.', 'Yo no la he visto. Pero yo no veo casi nada: soy un carrito.'],
+    },
+    {
+      id: 'chat-cita',
+      when: { minBosses: 3, service: false },
+      priority: 1,
+      pages: ['¿Has leído el papel de la cita previa? Lo cuelgan para que nadie lo cumpla.', 'Los jefes, el expediente entero y ganar. Yo lo intenté. Mírame: un carrito.'],
     },
     {
       id: 'chat-expo',

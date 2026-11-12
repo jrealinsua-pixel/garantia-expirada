@@ -7,7 +7,7 @@ import { Canvas, hx, type RGBA } from '../../src/art/canvas.ts';
 import { GLYPHS } from '../../src/art/font.ts';
 import { BLUE, BROWN, CARD, CREAM, DSTEEL, GLOVE, GREEN, ICE, K, RED, RUSTR, STEEL, WHITE, YEL } from '../../src/art/lib.ts';
 import { box, cube, ellipse, hand, outline, ramp } from '../../src/art/lib.ts';
-import { BOARD_CARDS, TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../../src/art/hub.ts';
+import { BOARD_CARDS, CITA_BOXES, CITA_H, CITA_STAMP, CITA_W, TAPE_Y, WALL_BOARD_Y, WALL_CITA_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../../src/art/hub.ts';
 
 /** The counter's melamine front: the store's grey-blue with the red «Devoluciones» stripe. */
 const FRONT = DSTEEL;
@@ -481,6 +481,76 @@ export function makeStripCurtain(): Canvas {
   return sheet;
 }
 
+/**
+ * El cartel de «Cita previa» del Servicio Técnico (M12), CITA_W × CITA_H: a laminated sheet taped
+ * to the wall under the phone's cord, with a red header and three requirements, each with its
+ * empty tick box (the game ticks them: makeNoticeTicks) and two lines of small print. A coffee ring
+ * in the corner: somebody has been waiting here a while.
+ */
+export function makeAppointmentNotice(): Canvas {
+  const cv = new Canvas(CITA_W, CITA_H);
+  const w = CITA_W - 2;
+  const h = CITA_H - 3;
+  box(cv, 1, 2, w, h, CREAM);
+  cv.rect(2, 3, w - 2, h - 2, WHITE);
+  cv.rect(2, h, w - 2, 1, CREAM[1]!);
+  // The red header with its white letters.
+  cv.rect(2, 3, w - 2, 9, RED[1]!);
+  cv.rect(2, 3, w - 2, 1, RED[0]!);
+  cv.rect(2, 11, w - 2, 1, RED[2]!);
+  letters(cv, 4, 3, 'Cita previa', WHITE);
+  for (const [i, b] of CITA_BOXES.entries()) {
+    // The empty box: a dark frame, paper inside.
+    cv.rect(b.x, b.y, 5, 5, CREAM[3]!);
+    cv.rect(b.x + 1, b.y + 1, 3, 3, WHITE);
+    // Small print: two lines of different lengths.
+    cv.rect(b.x + 7, b.y + 1, 32 - i * 4, 1, CREAM[2]!);
+    cv.rect(b.x + 7, b.y + 3, 20 + ((i * 7) % 12), 1, CREAM[2]!);
+  }
+  // Under them, where the stamp goes: «Plazo de resolución: indefinido» and a signature.
+  cv.rect(5, 33, 38, 1, CREAM[1]!);
+  cv.rect(5, 35, 24, 1, CREAM[1]!);
+  for (let x = 28; x < 40; x++) cv.set(x, 38 - Math.round(Math.sin(x * 1.3) * 1.2), CREAM[3]!);
+  // The coffee ring, on the right of the first requirement.
+  for (const [x, y] of [[42, 15], [43, 14], [44, 14], [45, 15], [45, 16], [42, 16], [43, 17], [44, 17]] as const) cv.set(x, y, CORK[1]!);
+  const out = outline(cv);
+  // Yellowed tape on the top corners, over the outline.
+  out.rect(0, 0, 6, 4, YEL[0]!);
+  out.rect(CITA_W - 6, 0, 6, 4, YEL[0]!);
+  out.rect(0, 3, 6, 1, YEL[1]!);
+  out.rect(CITA_W - 6, 3, 6, 1, YEL[1]!);
+  return out;
+}
+
+/** The tick for a notice's box, 7 × 7 (drawn one up from the box's top-left: it overflows it up and to the right, as a pen does). */
+export function makeNoticeTicks(): Canvas {
+  const sheet = new Canvas(7, 7);
+  for (const [x, y] of [[1, 3], [1, 4], [2, 5], [3, 4], [4, 3], [5, 2], [6, 1], [6, 0]] as const) sheet.set(x, y, hx('#2f8a3e'));
+  for (const [x, y] of [[2, 4], [3, 3], [5, 1]] as const) sheet.set(x, y, GREEN);
+  return sheet;
+}
+
+/** The «Concedida» stamp, 40 × 11: green ink, a frame, a little crooked (one step down halfway) and patchy, as a rubber stamp prints. */
+export function makeGrantedStamp(): Canvas {
+  const ink = hx('#2f8a3e');
+  const W_ = 40;
+  const cv = new Canvas(W_, 11);
+  const step = (x: number): number => (x >= W_ / 2 ? 1 : 0);
+  for (let x = 0; x < W_; x++) {
+    cv.set(x, step(x), ink);
+    cv.set(x, 9 + step(x), ink);
+  }
+  for (let y = 0; y < 10; y++) {
+    cv.set(0, y, ink);
+    cv.set(W_ - 1, y + 1, ink);
+  }
+  const word = new Canvas(W_, 8);
+  letters(word, 2, 0, 'Concedida', ink);
+  // The letters all at one height (a step through a word does not read); a few dry pixels.
+  for (let y = 0; y < 8; y++) for (let x = 0; x < W_; x++) if (word.get(x, y)[3] > 0 && (x * 5 + y * 3) % 19 !== 0) cv.set(x, y + 1, ink);
+  return cv;
+}
+
 /** The «Mercancía devuelta» sign over the curtain: a yellow plate, black letters, 79 × 13. */
 export function makeReturnedGoodsSign(): Canvas {
   const cv = new Canvas(79, 13);
@@ -523,6 +593,13 @@ export function previewHub(
       BOARD_CARDS.forEach((c, i) => cv.blit(frame(sheets['fichas-tablon']!, i === 0 ? 0 : BOARD_FACES.length + i), st.x - 25 + c.x, WALL_BOARD_Y + c.y));
     }
     if (st.kind === 'telefono') cv.blit(frame(sheets.telefono!), st.x - 9, WALL_PHONE_Y);
+    if (st.kind === 'cita') {
+      // As with everything met: every box ticked and the stamp.
+      const x0 = st.x - CITA_W / 2;
+      cv.blit(sheets['cita-previa']!.canvas, x0, WALL_CITA_Y);
+      for (const b of CITA_BOXES) cv.blit(sheets['cita-marcas']!.canvas, x0 + b.x, WALL_CITA_Y + b.y - 1);
+      cv.blit(sheets['cita-sello']!.canvas, x0 + CITA_STAMP.x, WALL_CITA_Y + CITA_STAMP.y);
+    }
   }
   const at = (key: string, x: number, y: number, i = 0): void => {
     const f = frame(sheets[key]!, i);

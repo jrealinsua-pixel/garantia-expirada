@@ -551,6 +551,46 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
 - Un pequeño **centro**: el mostrador de Devoluciones del vertedero, con PNJs (el Servicio
   Técnico al teléfono, un vendedor ambulante de piezas) que cambian con el progreso.
 
+### El Servicio Técnico (planta secreta, hito M12)
+
+**Los requisitos** (la «Cita previa», datos en `src/data/servicio.ts`): vencer alguna vez a los
+cinco jefes de planta; ganar la partida (vencer a la Centralita) con **tres productos
+distintos** (mientras haya menos de tres jugables, con los que haya: hasta M13, con uno); y
+reunir el **expediente completo** del archivador (todos los documentos, de jefes y de salas
+secretas). Valen de cualquier partida y se comprueban al acabar cada una. Cumplidos una vez, la
+cita es para siempre. En el Mostrador, un **cartel de «Cita previa»** pegado con celo en la pared,
+a la izquierda del tablón, con una casilla por requisito que se marca al cumplirlo y, al final,
+el sello verde «Concedida». Con el botón de interactuar se abre como panel, con lo que falta
+(«2/5», «6/10») o «Cumplido». El teléfono lo confirma («Le confirmamos su cita previa… Si el
+producto es usted, tráigase») y el Chatarrero, desde el tercer jefe, señala el cartel.
+
+**El acceso** (M12 (2)): con la cita, al vencer a la Centralita la partida cuenta como ganada
+(la victoria se apunta en ese momento), pero en vez de cerrarse se abre una ventanilla con el
+cartel «Servicio Técnico Oficial · Solo con cita previa»: un montacargas que sube a la planta
+secreta. Sin cita, todo sigue como ahora: la partida acaba en la planta 5.
+
+**La planta** (el Taller de Reacondicionado): corta, 5 o 6 salas casi en línea (recepción,
+taller, almacén de piezas, la sala del jefe; ni tienda ni tesoro: aquí no se regala nada).
+Azulejo blanco de taller con grasa, fluorescentes fríos, jaulas de piezas con la etiqueta
+verde «REACONDICIONADO · COMO NUEVO», cintas transportadoras en el suelo que arrastran a todo
+el que las pisa. Sus enemigos son los de las cinco plantas **reacondicionados**: el mismo
+comportamiento, más vida, la carcasa gris y una etiqueta verde pegada; y alguno propio del
+taller (un brazo de montaje anclado al suelo que barre, una carretilla elevadora que embiste).
+
+**El jefe final, la Trituradora** (el Servicio Técnico en persona): una trituradora industrial
+del tamaño de una pared, con la tolva por boca, dos pilotos de «En servicio» por ojos y una
+cinta transportadora delante que lleva hacia ella. Fase 1, «Diagnóstico»: un haz la recorre a
+la tostadora y responde con un patrón de cada jefe vencido, uno por turno, en versión
+reacondicionada. Fase 2, «Despiece» (desde el 60 %): la cinta del suelo arrastra hacia la tolva
+y ella escupe piezas (tornillos, muelles, teclas) en abanicos; hay que andar contra la cinta.
+Fase 3, «Control de calidad» (desde el 25 %): pega etiquetas de «APTO» que frenan, y caen
+pilas de cajas que cierran la sala por trozos.
+
+**El final verdadero** (M12 (4)): al vencerla, la tostadora no sale por ninguna puerta. La cinta
+se la lleva, la limpian, le cambian la resistencia y la meten en una caja con la etiqueta
+«Reacondicionado. Como nuevo. Garantía: 6 meses». La última imagen es esa caja en la estantería
+de la planta 1, con precio de nuevo. El jugador era el producto. Después, los créditos.
+
 ### El Mostrador de Devoluciones (el centro, hito M9)
 
 Donde empieza y acaba cada partida: el mostrador de Devoluciones del sótano del Megamarket,

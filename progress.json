@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T02:05:00+01:00",
+  "actualizado": "2026-11-12T02:11:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -98,8 +98,8 @@
       "id": "M12",
       "nombre": "El Servicio Técnico (piso final secreto)",
       "estado": "en_curso",
-      "hechas": 0,
-      "total": 3
+      "hechas": 1,
+      "total": 6
     },
     {
       "id": "M13",
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 88,
-    "tests": 753,
-    "tests_ok": 753,
+    "tests": 764,
+    "tests_ok": 764,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 27212
+    "lineas_codigo": 27534
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T02:11:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (1): el Servicio Técnico ya tiene requisitos, y M12 partido en seis tareas con su diseño. Para pedir cita hay que vencer a los cinco jefes, ganar la partida con tres productos distintos (mientras solo se pueda jugar con la tostadora, basta con ella) y reunir el expediente completo del archivador. Se guarda entre partidas y se ve en el Mostrador: un cartel de «Cita previa» pegado en la pared con una casilla por requisito y el sello «Concedida»; con F se abre y dice lo que falta. El teléfono confirma la cita y el Chatarrero señala el cartel.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T02:05:00+01:00",
       "hito": "M11",
@@ -1112,6 +1118,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/cita-previa.png",
+      "pie": "M12 (1): el cartel de «Cita previa» del Servicio Técnico, en la pared del Mostrador, abierto con F: los cinco jefes, ganar la partida y el expediente completo, con lo que falta de cada uno"
+    },
+    {
       "archivo": "capturas/planta5-espera.png",
       "pie": "Una sala de espera de la planta 5 tras la medida (7): un enemigo más que en las Oficinas, entre las filas de sillas atornilladas"
     },
@@ -1124,10 +1134,6 @@
       "pie": "Los cables barren la sala: cuatro brazos de rizos que giran; hay que andar con el hueco o rodar a través de un brazo"
     },
     {
-      "archivo": "capturas/centralita-menu.png",
-      "pie": "La Centralita, fase 1, con las zonas del menú de voz abajo del todo: la barra de vida se aparta (casi transparente) para que se vean enteras; los nombres de los departamentos, pintados en el centro de cada cuarto, lejos de los dispensadores y del HUD"
-    },
-    {
       "archivo": "capturas/centralita-departamento.png",
       "pie": "Fase 2, «Le paso con el departamento»: el timbre, el círculo sobre la tostadora y, a los 0,8 s, a Reclamaciones, donde la espera un abanico de clavijas desde la esquina"
     },
@@ -1136,7 +1142,7 @@
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M12: partirlo en tareas (como M10 y M11) y empezar por los requisitos de desbloqueo del Servicio Técnico, guardados entre partidas y visibles en el Mostrador.",
+  "proximo": "M12 (2): con la cita concedida, vencer a la Centralita apunta la victoria y abre el montacargas al Servicio Técnico (planta 6); sin ella, la partida acaba en la planta 5 (test).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1162,11 +1168,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 (programada)",
-      "tarea": "M12 (1): partir M12 en tareas y los requisitos del Servicio Técnico (guardados y visibles en el Mostrador)",
-      "desde": "2026-11-12T00:25"
-    }
-  ]
+  "en_curso": []
 }

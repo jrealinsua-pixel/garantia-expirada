@@ -124,9 +124,10 @@ import { profile, saveFloor, saveRun } from './save.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
 import type { PropInstance, StationKind, TipSide } from '../sim/room.ts';
 import { departmentOf, departmentRect, isSpinning, MENU_ZONE_H, MENU_ZONE_W } from '../sim/enemies.ts';
-import { rosterBoard } from '../sim/unlocks.ts';
+import { rosterBoard, serviceBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
 import { boardLayout, type BoardEntry, type BoardRole } from './board.ts';
+import { citaLayout, type CitaRole } from './cita.ts';
 import { archiveLayout, type ArchiveRole } from './archivo.ts';
 import { archive, firstCursor, nextCursor, type ArchiveCursor } from '../sim/archive.ts';
 import { LORE } from '../data/lore.ts';
@@ -139,8 +140,8 @@ type BoardPart = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.T
 const TABLE_FRAME: Record<TipSide, number> = { N: 1, S: 2, E: 3, W: 4 };
 /** Seconds the table takes to go over (the drawing; the simulation tips it at once). */
 const TIP_ANIM = 0.18;
-const STATION_TOP: Record<StationKind, number> = { caja: 46, telefono: 50, turnos: 34, chatarrero: 34, tablon: 52, archivador: 34 };
-import { BOARD_CARDS, TAPE_Y, WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
+const STATION_TOP: Record<StationKind, number> = { caja: 46, telefono: 50, turnos: 34, chatarrero: 34, tablon: 52, archivador: 34, cita: 52 };
+import { BOARD_CARDS, CITA_BOXES, CITA_STAMP, CITA_W, TAPE_Y, WALL_BOARD_Y, WALL_CITA_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../art/hub.ts';
 import { addCanvasTexture, FONT, shadowTexture } from './textures.ts';
 import { frameAxis, scrollRange } from './camera.ts';
 import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
@@ -1310,6 +1311,17 @@ export class GameScene extends Phaser.Scene {
         });
       }
       if (st.kind === 'telefono') phone = this.add.image(st.x, WALL_PHONE_Y, 'telefono', 0).setOrigin(0.5, 0).setDepth(-90000);
+      if (st.kind === 'cita') {
+        // The Servicio Técnico's notice (M12): a tick for each requirement met, the stamp once granted.
+        const x0 = st.x - CITA_W / 2;
+        this.add.image(x0, WALL_CITA_Y, 'cita-previa').setOrigin(0, 0).setDepth(-90000);
+        const b = serviceBoard(profile());
+        b.rows.forEach((r, i) => {
+          const c = CITA_BOXES[i];
+          if (r.met && c) this.add.image(x0 + c.x, WALL_CITA_Y + c.y - 1, 'cita-marcas').setOrigin(0, 0).setDepth(-89999);
+        });
+        if (b.granted) this.add.image(x0 + CITA_STAMP.x, WALL_CITA_Y + CITA_STAMP.y, 'cita-sello').setOrigin(0, 0).setDepth(-89998);
+      }
     }
     this.hubViews = { belt, curtain, phone, turnos: this.hubPending.turnos ?? null, chatarrero: this.hubPending.chatarrero ?? null, t: 0 };
     this.hubPending = {};
@@ -1358,6 +1370,21 @@ export class GameScene extends Phaser.Scene {
       this.panelAdd(this.add.image(f.x, f.y, 'fichas-tablon', f.frame).setOrigin(0, 0).setScale(f.zoom));
     }
     const tints: Record<BoardRole, number> = { title: 0xf4f1e8, name: 0xf4f1e8, locked: 0x858ea8, text: 0xd6cdb2, progress: 0xf6c431, soon: 0x69dbd8, foot: 0x5d647e };
+    for (const t of L.texts) this.panelAdd(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
+  }
+
+  /** The Servicio Técnico's «Cita previa» (M12): the requirements, how far along, and the stamp. */
+  private showCita(): void {
+    const L = citaLayout(serviceBoard(profile()), readScale(settings()));
+    // Laminated paper edge and the notice's red header.
+    const g = this.panelPaper(L, 0xd6cdb2, 0xe0453b);
+    for (const r of L.rules) for (let x = L.x + 6; x < L.x + L.w - 6; x += 4) g.fillStyle(0x3a3f5c, 1).fillRect(x, r, 2, 1);
+    for (const b of L.boxes) {
+      g.fillStyle(0x756e5a, 1).fillRect(b.x, b.y, b.side, b.side);
+      g.fillStyle(0xf4f1e8, 1).fillRect(b.x + 1, b.y + 1, b.side - 2, b.side - 2);
+      if (b.ticked) this.panelAdd(this.add.image(b.x, b.y - b.side / 8, 'cita-marcas').setOrigin(0, 0).setScale(b.side > 8 ? 2 : 1));
+    }
+    const tints: Record<CitaRole, number> = { title: 0xf4f1e8, text: 0xd6cdb2, met: 0x858ea8, progress: 0xf6c431, done: 0x58b45a, foot: 0x5d647e, granted: 0x58b45a };
     for (const t of L.texts) this.panelAdd(this.add.bitmapText(t.x, t.y, FONT, fontText(t.text), L.size).setOrigin(t.right ? 1 : 0, 0)).setTint(tints[t.role]);
   }
 
@@ -1428,12 +1455,13 @@ export class GameScene extends Phaser.Scene {
       if (this.bubble) this.bubbleT = Math.min(this.bubbleT, 0.01);
       if (this.panel.length) this.hidePanel();
     }
-    if (st && asked && (st.kind === 'tablon' || st.kind === 'archivador')) {
+    if (st && asked && (st.kind === 'tablon' || st.kind === 'archivador' || st.kind === 'cita')) {
       // The board and the archivador do not talk: they open a panel (src/render/board.ts,
       // archivo.ts); pressing again at the open archivador turns the sheet.
       if (st.kind === 'archivador' && this.panel.length) this.turnArchivePage();
       else if (!this.panel.length) {
         if (st.kind === 'tablon') this.showBoard();
+        else if (st.kind === 'cita') this.showCita();
         else {
           this.archiveCursor = firstCursor(archive(profile()));
           this.showArchive();

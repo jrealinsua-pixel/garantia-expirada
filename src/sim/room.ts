@@ -74,12 +74,12 @@ export interface Room {
 }
 
 /** What can be talked to or looked at in the Mostrador de Devoluciones (the hub). */
-export type StationKind = 'caja' | 'telefono' | 'turnos' | 'chatarrero' | 'tablon' | 'archivador';
+export type StationKind = 'caja' | 'telefono' | 'turnos' | 'chatarrero' | 'tablon' | 'archivador' | 'cita';
 
 /**
  * A station of the hub. `x, y` is where the toaster's feet go to use it: the bottom-centre of a
  * prop that stands (the Caja, the ticket machine, the cabinet, the Chatarrero), or the middle of
- * the tile under something that hangs on the back wall (the board, the phone).
+ * the tile under something that hangs on the back wall (the board, the phone, the notice).
  */
 export interface Station {
   kind: StationKind;
@@ -94,6 +94,8 @@ const STATION_CHARS: Record<string, { kind: StationKind; prop?: string }> = {
   h: { kind: 'chatarrero', prop: 'chatarrero' },
   B: { kind: 'tablon' },
   t: { kind: 'telefono' },
+  // The Servicio Técnico's «Cita previa» notice (M12), on the back wall.
+  y: { kind: 'cita' },
 };
 
 export interface RoomDoor {

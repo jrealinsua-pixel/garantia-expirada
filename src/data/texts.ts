@@ -585,6 +585,7 @@ export const INTERACT_VERBS = {
   chatarrero: 'Hablar',
   tablon: 'Mirar',
   archivador: 'Abrir cajón',
+  cita: 'Leer la letra pequeña',
 } as const;
 export const interactPrompt = (k: KeyWords, verb: string): string => `${k.interact.own}: ${verb}`;
 export const archiveHint = (k: KeyWords): string => `${k.interact.own}: pasar hoja`;

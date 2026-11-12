@@ -10,6 +10,7 @@ import * as I from './informatica.ts';
 import * as J from './jugueteria.ts';
 import * as O from './oficinas.ts';
 import * as A from './atencion.ts';
+import { hubHung } from './hub.ts';
 
 export interface PaintableRoom {
   cols: number;
@@ -19,6 +20,9 @@ export interface PaintableRoom {
   doors?: readonly { dir: string; x: number; y: number; w: number; h: number }[];
   /** What the room is for (src/data/types.ts RoomKind, or 'test'): picks the decoration. */
   kind?: string;
+  /** The hub's stations and conveyor (src/sim/room.ts): what hangs on its back wall is kept clear of shelf signs. */
+  stations?: readonly { kind: string; x: number }[];
+  belt?: { x: number; w: number } | null;
   /** Which floor of the store (1: the warehouse, 2: Informática, 3: Juguetería, 4: Oficinas, 5 and up: Atención al Cliente). Picks the tile set. Default 1. */
   level?: number;
 }
@@ -785,8 +789,12 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     // On floor 5 the wall pieces are wider (the slogan), so it also checks whole spans, and the north door's.
     const spans: Array<readonly [number, number]> = [];
     const clear = (s: number, half: number): boolean => Math.abs(s - nx) > half + 30 && spans.every(([a, b]) => s + half + 8 < a || s - half - 8 > b);
+    // The Mostrador's board, phone, notice and curtain hang on the shelving: nothing behind them.
+    // The room's name plate, at the top of the screen, also covers the middle of it (the hub is never scrolled sideways).
+    const hung = room.kind === 'hub' ? [...hubHung(room.stations ?? [], room.belt ?? null), [W_ / 2 - 58, W_ / 2 + 58] as const] : [];
+    const bare = (s: number, half: number): boolean => hung.every(([a, b]) => s + half + 4 < a || s - half - 4 > b);
     const spot = (half: number): number | null => {
-      const x = spots.find((s) => s - half > 20 && s + half < W_ - 20 && taken.every((t) => Math.abs(t - s) > half + 34) && (!five || clear(s, half)));
+      const x = spots.find((s) => s - half > 20 && s + half < W_ - 20 && taken.every((t) => Math.abs(t - s) > half + 34) && (!five || clear(s, half)) && bare(s, half));
       if (x === undefined) return null;
       taken.push(x);
       spans.push([x - half, x + half]);

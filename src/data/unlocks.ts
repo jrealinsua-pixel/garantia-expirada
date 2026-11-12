@@ -13,6 +13,13 @@ export interface UnlockCondition {
   minFound?: number;
   /** Floors cleared, adding up every run. */
   minFloors?: number;
+  /**
+   * Different characters that have won the game (beaten floor 5). Never more than the characters
+   * there are to play (src/data/characters.ts): until M13 brings the others, one is enough.
+   */
+  minWinners?: number;
+  /** Every story document of the archivador (src/data/lore.ts) found. */
+  allDocs?: boolean;
 }
 
 export interface RosterEntry {

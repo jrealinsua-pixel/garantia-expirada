@@ -8,11 +8,11 @@ import { PROPS } from '../src/data/props.ts';
 import { steer } from '../src/sim/nav.ts';
 import { crossHub } from '../src/sim/bot.ts';
 import type { StationKind } from '../src/sim/room.ts';
-import { WALL_BOARD_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../src/art/hub.ts';
+import { WALL_BOARD_Y, WALL_CITA_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../src/art/hub.ts';
 import { checkInvariants, createWorld, DT, leaveHub, NO_INPUT, nearStation, onBelt, step, worldHash } from '../src/sim/world.ts';
 import type { Input, SimEvent, World } from '../src/sim/world.ts';
 
-const ALL: StationKind[] = ['caja', 'telefono', 'turnos', 'tablon', 'archivador', 'chatarrero'];
+const ALL: StationKind[] = ['caja', 'telefono', 'turnos', 'tablon', 'archivador', 'chatarrero', 'cita'];
 
 const hub = (chatarrero = true): World => createWorld({ seed: 'mostrador', hub: { chatarrero } });
 
@@ -192,7 +192,7 @@ test('cada cosa del Mostrador tiene su sprite, y lo que cuelga cabe en la pared 
   // El cartel tapa como mucho el tercio de arriba de las cortinas (que empiezan 33 px sobre el suelo).
   const curtainTop = 48 - sheets.cortinas!.frameH;
   assert.ok(WALL_SIGN_Y + sheets['cartel-mercancia']!.frameH <= curtainTop + sheets.cortinas!.frameH / 3, 'el cartel tapa las cortinas');
-  for (const [k, y] of [['tablon', WALL_BOARD_Y], ['telefono', WALL_PHONE_Y]] as const) assert.ok(y + sheets[k]!.frameH <= 48, `${k} se sale de la pared`);
+  for (const [k, y] of [['tablon', WALL_BOARD_Y], ['telefono', WALL_PHONE_Y], ['cita-previa', WALL_CITA_Y]] as const) assert.ok(y + sheets[k]!.frameH <= 48, `${k} se sale de la pared`);
   assert.ok(b.x + b.w / 2 + sheets['cartel-mercancia']!.frameW / 2 <= w.room.w - 24, 'el cartel se sale por la derecha');
 });
 
@@ -200,7 +200,7 @@ test('el bot cruza el Mostrador: pasa por cada cosa y la cinta le lleva a la pla
   for (const chatarrero of [false, true]) {
     const c = crossHub('cruce', { chatarrero });
     assert.deepEqual(c.errors, []);
-    assert.equal(c.visited.length, chatarrero ? 6 : 5, `pasa por todo: ${c.visited.join(', ')}`);
+    assert.equal(c.visited.length, chatarrero ? 7 : 6, `pasa por todo: ${c.visited.join(', ')}`);
     assert.ok(c.run && c.run.floor && c.run.level === 1);
     assert.equal(worldHash(c.run), worldHash(createWorld({ seed: 'cruce', floor: true, level: 1 })), 'la misma partida que sin pasar por el Mostrador');
     assert.ok(c.seconds < 20, `tarda ${c.seconds} s`);
