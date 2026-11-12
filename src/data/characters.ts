@@ -83,4 +83,26 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     // «Suela caliente»: a puff of steam every 7 px walked, 1.2 s on the floor, 2 damage a second.
     ability: { kind: 'sole', every: 7, radius: 7, life: 1.2, damage: 0.5, tick: 0.25 },
   },
+  /**
+   * M13 (6): it charges walking and switches itself off standing still. Its notifications chase
+   * whoever is nearest, so it can keep moving instead of aiming.
+   */
+  movil: {
+    id: 'movil',
+    name: 'Móvil Reacondicionado',
+    description: 'Vendido «como nuevo» con la pantalla rajada y la batería al 1 %. Se carga andando. Si se para a pensar, se apaga.',
+    maxHp: 6,
+    speed: 100,
+    accel: 1500,
+    friction: 1900,
+    rollSpeed: 175,
+    rollTime: 0.42,
+    rollIframes: 0.4,
+    rollCooldown: 0.3,
+    startWeapon: 'notificaciones',
+    footRadius: 5,
+    look: { sheet: 'movil', w: 40, h: 41, feetX: 17.5, feetY: 36, spinY: 22, off: 'movil-apagado' },
+    // «Carga en movimiento»: a battery every 600 px walked in a fight. «Batería al 1 %»: 3 s still, 1 s off.
+    ability: { kind: 'phone', chargeEvery: 600, idleTime: 3, offTime: 1 },
+  },
 };

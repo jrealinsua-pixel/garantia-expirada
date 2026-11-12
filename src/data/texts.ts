@@ -54,6 +54,9 @@ export const STARS_LOST_LINE = 'Valoración retirada';
 /** El Becario Eterno, «Experiencia demostrable» (M13 (5)): a point earned (+4 % each), or half of it lost to a hit. */
 export const meritLine = (level: number, max: number): string => (level >= max ? 'Experiencia: no hay más que aprender' : `Experiencia demostrable: ${level}`);
 export const MERIT_LOST_LINE = 'No se valora';
+/** The Móvil Reacondicionado, «Batería al 1 %» (M13 (6)): switched off by standing still, and back on. */
+export const PHONE_OFF_LINE = 'Batería: 1 %';
+export const PHONE_ON_LINE = 'Reiniciado. 17 actualizaciones pendientes';
 /** Número de Turno (M11 6b1): over the toaster each time the queue moves on (it never gets to the 87). */
 export const queueLine = (level: number, top: boolean): string => (top ? 'Siguiente, por favor' : `Van por el ${12 + level}`);
 export const punchLine = (secs: number): string => `Fichado: 0:${String(Math.floor(secs)).padStart(2, '0')}`;

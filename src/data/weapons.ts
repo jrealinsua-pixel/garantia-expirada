@@ -158,6 +158,31 @@ export const WEAPONS: Record<string, WeaponDef> = {
     bullets: { slow: { mul: 0.75, time: 1, look: 'starch' } },
     look: { sprite: 'arma-almidon', bullet: 'bala-almidon', sound: 'almidon', shake: 0.001, swell: { from: 0.8, to: 1.25, fade: 0.35 } },
   },
+  /**
+   * M13 (6): the Móvil Reacondicionado's starting weapon. Notifications nobody asked for: slow
+   * little bubbles that chase the nearest enemy for two seconds. The only one that seeks, and the
+   * slowest bullets of all (they take their time getting there, and can be outrun).
+   */
+  notificaciones: {
+    id: 'notificaciones',
+    name: 'Notificaciones Push',
+    description: 'Llegan aunque las desactives. Te encuentran aunque te escondas. «¿Permitir?» no era una pregunta.',
+    fireRate: 3.2,
+    magazine: 14,
+    reloadTime: 1.5,
+    spreadDeg: 12,
+    bulletSpeed: 150,
+    bulletLife: 2.2,
+    // 1 a bubble and 12 a magazine: the bot won floor 1 18 % of the time (the toaster, 32 %), with
+    // rooms 5 s slower; slow bullets that chase lose time getting there (tools/medir-personajes.ts).
+    damage: 1.4,
+    bulletRadius: 3,
+    recoil: 10,
+    knockback: 20,
+    pellets: 1,
+    bullets: { homing: { turnDeg: 260, time: 2.2, range: 150 } },
+    look: { sprite: 'arma-notificaciones', bullet: 'bala-notificacion', sound: 'notificacion', shake: 0.001 },
+  },
 };
 
 /** Weapons the toaster can find, in the order a floor hands them out (seeded shuffle). */

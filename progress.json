@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T14:45:00+01:00",
+  "actualizado": "2026-11-12T15:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -105,7 +105,7 @@
       "id": "M13",
       "nombre": "Cinco personajes jugables",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 3
     },
     {
@@ -124,19 +124,25 @@
     }
   ],
   "metricas": {
-    "personajes": 4,
+    "personajes": 5,
     "enemigos": 27,
     "jefes": 6,
-    "armas": 7,
+    "armas": 8,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 849,
-    "tests_ok": 849,
+    "tests": 855,
+    "tests_ok": 855,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 30817
+    "lineas_codigo": 30984
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T15:40:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (6): el Móvil Reacondicionado, quinto y último personaje jugable: un móvil de pie con funda «oro rosa», la pantalla rajada por cara, la batería en rojo y el cable de carga arrastrando. Sus Notificaciones Push son globitos lentos que persiguen al enemigo más cercano. En combate, andar le carga el objeto activo (una pila cada 600 px), pero si se queda 3 s quieto se apaga un segundo: pantalla negra, ni anda ni dispara. Medido con el bot: gana la planta 1 como la tostadora (31,7 %). Ya están los cinco.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T14:45:00+01:00",
       "hito": "M13",
@@ -1208,6 +1214,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/movil-notificaciones.png",
+      "pie": "M13 (6): el Móvil Reacondicionado dispara hacia arriba y sus Notificaciones Push, globitos naranjas lentos, tuercen solas hacia los enemigos"
+    },
+    {
+      "archivo": "capturas/movil-apagado.png",
+      "pie": "«Batería al 1 %»: tres segundos quieto en combate y se apaga un segundo, con la pantalla en negro y el logo; ni anda ni dispara"
+    },
+    {
       "archivo": "capturas/plancha-suela.png",
       "pie": "M13 (4): la Plancha de Vapor pasa junto a dos enemigos: la suela caliente deja un rastro de vapor que quema a quien lo pisa"
     },
@@ -1222,17 +1236,9 @@
     {
       "archivo": "capturas/becario-experiencia.png",
       "pie": "«Experiencia demostrable: 3»: cada sala limpiada sin que le hieran le sube un 4 % el daño; un golpe le deja la mitad («No se valora»)"
-    },
-    {
-      "archivo": "capturas/batidora-giro.png",
-      "pie": "M13 (3): la Batidora de Vaso rueda entre tres enemigos y una ristra de balas: el giro de cuchillas tritura a cada uno una vez y rompe las balas que atraviesa"
-    },
-    {
-      "archivo": "capturas/batidora-picahielos.png",
-      "pie": "El Picahielos Turbo: cubitos de zumo de naranja de dos en dos, muchos, abiertos y de poco alcance"
     }
   ],
-  "proximo": "M13 (6), el Móvil, lo tiene otra sesión; después, la historia de cada personaje (la ficha que lee la cinta y su final) y su muerte propia.",
+  "proximo": "M13: la historia de cada personaje (la (7a), la ficha que lee la cinta, la tiene otra sesión; luego su propio final), su muerte propia y una captura con los cinco juntos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1259,11 +1265,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 14:26",
-      "tarea": "M13 (6): el Móvil Reacondicionado (sprite, Notificaciones Push, carga en movimiento, batería al 1 %)",
-      "desde": "2026-11-12T14:26:00+01:00"
-    },
     {
       "sesion": "2026-11-12 15:27",
       "tarea": "M13 historia (7a): la ficha de devolución de cada personaje que lee la cinta al empezar (src/data/stories.ts)",

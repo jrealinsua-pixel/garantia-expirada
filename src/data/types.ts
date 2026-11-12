@@ -385,7 +385,20 @@ export interface SoleAbility {
   tick: number;
 }
 
-export type CharacterAbility = ToastAbility | BladesAbility | MeritAbility | SoleAbility;
+/**
+ * The Móvil Reacondicionado's «Carga en movimiento» and «Batería al 1 %» (M13 (6)). Only while a
+ * fight is on (enemies in the room): every `chargeEvery` px walked put a battery into its active
+ * item; and standing still for `idleTime` s (not walking nor rolling) switches it off for `offTime`
+ * s, in which it neither moves, rolls, shoots nor reloads (bullets still hit it).
+ */
+export interface PhoneAbility {
+  kind: 'phone';
+  chargeEvery: number;
+  idleTime: number;
+  offTime: number;
+}
+
+export type CharacterAbility = ToastAbility | BladesAbility | MeritAbility | SoleAbility | PhoneAbility;
 
 /**
  * A playable character's sprite sheet (public/assets/<sheet>.png). Every character's sheet has
@@ -404,6 +417,8 @@ export interface CharacterLook {
   spinY: number;
   /** The texture of its floating front hand (default «mano», the toaster's grey glove). */
   hand?: string;
+  /** A one-frame texture drawn instead of the sheet while it is switched off (the Móvil's battery). */
+  off?: string;
 }
 
 export interface PropDef {

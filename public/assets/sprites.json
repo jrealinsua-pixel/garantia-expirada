@@ -65,6 +65,36 @@
     "frameH": 8,
     "frames": 1
   },
+  "movil": {
+    "file": "movil.png",
+    "frameW": 40,
+    "frameH": 41,
+    "frames": 8
+  },
+  "movil-apagado": {
+    "file": "movil-apagado.png",
+    "frameW": 40,
+    "frameH": 41,
+    "frames": 1
+  },
+  "arma-notificaciones": {
+    "file": "arma-notificaciones.png",
+    "frameW": 18,
+    "frameH": 11,
+    "frames": 1
+  },
+  "bala-notificacion": {
+    "file": "bala-notificacion.png",
+    "frameW": 7,
+    "frameH": 8,
+    "frames": 1
+  },
+  "bateria-baja": {
+    "file": "bateria-baja.png",
+    "frameW": 11,
+    "frameH": 7,
+    "frames": 1
+  },
   "aspirador": {
     "file": "aspirador.png",
     "frameW": 32,

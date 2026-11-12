@@ -132,6 +132,22 @@ igual que la Batidora: gana la planta 1 el 31,7 %, lo mismo que la tostadora con
 semillas, con 1,46 heridas por sala (la tostadora, 1,13) y 29 s por sala (21): aguanta más y tarda
 más.
 
+**Móvil Reacondicionado** (M13 (6), 2026-11-12): un móvil de pie, en tres cuartos, con la funda en
+«oro rosa» (el canto oscuro a la izquierda con los botones de volumen), la pantalla por cara (dos
+ojos blancos, una boca de preocupación, la hora y la batería en rojo a la vista, el globo rojo de
+una notificación sin leer en la esquina) rajada desde una esquina, zapatillas blancas y el cable de
+carga arrastrando, con cinta aislante amarilla donde se pela; roto, la pantalla negra rajada entera
+y el cable suelto. **Notificaciones Push**: globitos naranjas con «!» a 150 px/s (las balas más
+lentas) que persiguen al enemigo más cercano durante 2,2 s (260°/s, a 150 px); 1,4 de daño,
+3,2 por segundo, 14 de cargador; no sale en cofres. **Carga en movimiento**: solo con enemigos en la
+sala (si no, pasearse por una sala vacía rellenaba cualquier objeto activo gratis), 600 px andando
+(no rodando, ni llevado por una cinta o el viento) son una pila; los objetos que cargan más deprisa
+no cuentan aquí. **Batería al 1 %**: solo en combate, 3 s sin andar ni rodar (disparar quieto no
+cuenta como moverse) y se apaga 1 s: ni anda, ni rueda, ni dispara, ni cambia de arma, ni usa el
+objeto, y las balas le siguen dando; el último segundo parpadea una pila vacía sobre su cabeza, y
+al apagarse se ve la pantalla negra con el logo (`movil-apagado`). Medido (`medir-personajes`, 60
+partidas): gana la planta 1 el 31,7 %, como la tostadora, con 1,16 heridas y 22,5 s por sala.
+
 Desbloqueos (los de `src/data/unlocks.ts`, sin cambios): Batidora al vencer a la Nevera, Plancha
 al vencer al Router, Becario tras diez bajas, Móvil al encontrar veinte objetos distintos. Con
 cada personaje nuevo, el requisito de «ganar con varios personajes» del Servicio Técnico pide

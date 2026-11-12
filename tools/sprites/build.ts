@@ -27,6 +27,7 @@ import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
 import * as H from './mostrador.ts';
 import * as BV from './batidora-vaso.ts';
+import * as MV from './movil.ts';
 import { makeBecarioFrames, makeBecarioHand } from './becario.ts';
 import * as PV from './plancha-vapor.ts';
 import { encodePng } from './png.ts';
@@ -65,6 +66,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'vapor-suela': { canvas: strip(PV.makeSteamFrames()), frameW: PV.STEAM_W, frameH: PV.STEAM_H },
     'arma-almidon': one(PV.makeMiniStarchSpray()),
     'bala-almidon': one(PV.makeStarchDrop()),
+    movil: { canvas: strip(MV.makePhoneFrames()), frameW: MV.PHONE_W, frameH: MV.PHONE_H },
+    'movil-apagado': one(MV.makePhoneOff()),
+    'arma-notificaciones': one(MV.makeNotifier()),
+    'bala-notificacion': one(MV.makeNotification()),
+    'bateria-baja': one(MV.makeLowBattery()),
     // Frame 0 of every enemy sheet is its approved (or first) sprite; the order of the rest is in
     // the enemy's `anim` (src/data/enemies.ts).
     aspirador: { canvas: strip(narrowPoseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },

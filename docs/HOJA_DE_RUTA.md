@@ -510,7 +510,7 @@ sin ellos la partida acaba en la planta 5.
 
 ## M13 · Cinco personajes jugables
 
-- [ ] 5 personajes: Tostadora Reacondicionada, Batidora de Vaso, Plancha de Vapor, el Becario
+- [x] 5 personajes: Tostadora Reacondicionada, Batidora de Vaso, Plancha de Vapor, el Becario
   Eterno y el Móvil Reacondicionado, cada uno con estadísticas, arma inicial y una habilidad propias.
   - [x] (0) El diseño de los cinco (tabla y historias en «Los cinco, en detalle» de
     `docs/DISENO.md`) y esta lista de tareas.
@@ -534,8 +534,11 @@ sin ellos la partida acaba en la planta 5.
   - [x] (5) El Becario Eterno: sprite, experiencia demostrable y sin remunerar. Hecho el
     2026-11-12: `MeritAbility` (+4 % por sala sin daño, hasta 6; un golpe deja la mitad), la mitad
     exacta de cupones, `CharacterLook.hand`, «Experiencia» en el inventario y `npm run bot -- --personaje`.
-  - [ ] (6) El Móvil Reacondicionado: sprite, Notificaciones Push, carga en movimiento y batería
-    al 1 %.
+  - [x] (6) El Móvil Reacondicionado: sprite, Notificaciones Push, carga en movimiento y batería
+    al 1 %. Hecho el 2026-11-12: `PhoneAbility` (una pila cada 600 px andando en combate; quieto 3 s
+    en combate, apagado 1 s), el arma `notificaciones` (balas lentas que persiguen), sprites
+    (`movil`, `movil-apagado`, la pila que avisa), `tests/movil.test.ts` y e2e `19bc`–`19be`; el bot
+    gana la planta 1 con él el 31,7 %.
 - [ ] Una historia distinta por personaje: por qué está en el vertedero, una escena al empezar
   y su propio final.
 - [ ] Desbloqueo de cada personaje con una condición propia.

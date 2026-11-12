@@ -100,6 +100,13 @@ export interface Player {
   merit?: number;
   meritHurt?: boolean;
   unpaid?: number;
+  /**
+   * The Móvil Reacondicionado (CharacterDef.ability, 'phone'): px walked in a fight towards the next
+   * battery, seconds it has stood still, and seconds left switched off («Batería al 1 %»).
+   */
+  phoneWalk?: number;
+  stillT?: number;
+  offT?: number;
   /** Pilas No Incluidas (Perks.rush): seconds left of firing faster after a reload. */
   rushT?: number;
   /** Número de Turno (Perks.queue): the steps its damage has gone up in this room (announced one by one). */
@@ -721,6 +728,8 @@ export type SimEvent =
   | { type: 'markdown'; target: number; x: number; y: number; radius: number; hit: number }
   /** Valoración de Cinco Estrellas: a star earned (`stars` of `need`), the heart they pay (`paid`), or the stars wiped by a hit (`stars` 0, `was`). */
   | { type: 'stars'; stars: number; need: number; x: number; y: number; paid?: boolean; was?: number }
+  /** The Móvil Reacondicionado: switched off by standing still (`on` false) or back on (`on` true). */
+  | { type: 'phoneOff'; on: boolean; x: number; y: number }
   /** «Experiencia demostrable»: a point earned (`level` of `max`), or points lost to a hit (`was` before it). */
   | { type: 'merit'; level: number; max: number; x: number; y: number; was?: number }
   /** Contrato en Prácticas: up a floor, and the contract is over (the item has left the inventory). */
@@ -818,7 +827,8 @@ export type SimEvent =
   /** Q with an active item that cannot be used now (not charged, or nothing to heal). */
   | { type: 'activeEmpty'; item: string | null; charge: number; needs: number }
   /** A battery went into the active item (a combat room was cleared): `charge` of `needs`. */
-  | { type: 'battery'; item: string; charge: number; needs: number }
+  /** A battery into the active item: a room cleared, or (`walked`) the Móvil's «Carga en movimiento». */
+  | { type: 'battery'; item: string; charge: number; needs: number; walked?: boolean }
   /** A hold (Música de Espera) ended: enemies and their bullets move again. */
   | { type: 'holdEnd' }
   /** The shutters of the room come down (shut) or roll up. */
@@ -2163,7 +2173,74 @@ function updatePlayer(w: World, input: Input): void {
   // A conveyor belt carries it along too (rolling or not; down, it lies still).
   const belt = w.over ? { x: 0, y: 0 } : conveyorPush(w, p.x, p.y);
   slide(w, p, p.def.footRadius, (p.vx + wind.x + belt.x) * DT, (p.vy + wind.y + belt.y) * DT, isRolling(p));
-  if (!isRolling(p)) p.walked += Math.hypot(p.x - ox, p.y - oy);
+  if (!isRolling(p)) {
+    const dist = Math.hypot(p.x - ox, p.y - oy);
+    p.walked += dist;
+    // «Carga en movimiento»: what its own legs did (a conveyor or a gust carrying it does not count).
+    if (ml > 0.1) chargeWalking(w, Math.min(dist, d.speed * DT));
+  }
+}
+
+/** A fight is on: there are enemies standing in the room (the Móvil's ability only works then). */
+function fightOn(w: World): boolean {
+  return !w.over && w.enemies.some((e) => !isDead(e) && e.state !== 'gone' && e.state !== 'dying');
+}
+
+/**
+ * «Batería al 1 %» (M13 (6), the Móvil Reacondicionado): in a fight, standing still (not walking
+ * nor rolling) for `idleTime` s switches it off for `offTime` s; while off, the input does nothing
+ * (it cannot move, roll, shoot, reload, change weapon, use its item nor talk). Returns the input
+ * the tick plays with.
+ */
+function phoneBattery(w: World, input: Input): Input {
+  const p = w.player;
+  const ab = p.def.ability;
+  if (ab?.kind !== 'phone') return input;
+  if ((p.offT ?? 0) > 0) {
+    p.offT = Math.max(0, p.offT! - DT);
+    if (p.offT === 0) {
+      p.stillT = 0;
+      w.events.push({ type: 'phoneOff', on: true, x: p.x, y: p.y - PLAYER_HURT_Y });
+    }
+    return { ...NO_INPUT, aimX: input.aimX, aimY: input.aimY };
+  }
+  const moving = Math.hypot(input.moveX, input.moveY) > 0.1 || input.roll || isRolling(p);
+  if (moving || !fightOn(w)) {
+    p.stillT = 0;
+    return input;
+  }
+  p.stillT = (p.stillT ?? 0) + DT;
+  if (p.stillT < ab.idleTime - 1e-9) return input;
+  p.stillT = 0;
+  p.offT = ab.offTime;
+  w.events.push({ type: 'phoneOff', on: false, x: p.x, y: p.y - PLAYER_HURT_Y });
+  return { ...NO_INPUT, aimX: input.aimX, aimY: input.aimY };
+}
+
+/** Whether the Móvil is switched off right now («Batería al 1 %»). */
+export function phoneIsOff(p: Player): boolean {
+  return (p.offT ?? 0) > 0;
+}
+
+/**
+ * «Carga en movimiento» (M13 (6)): in a fight, every `chargeEvery` px the Móvil walks put one
+ * battery into its active item (the items that charge faster do nothing here: one is one).
+ */
+function chargeWalking(w: World, dist: number): void {
+  const p = w.player;
+  const ab = p.def.ability;
+  if (ab?.kind !== 'phone' || dist <= 0 || !fightOn(w)) return;
+  const a = p.active;
+  const def = a ? ACTIVE_ITEMS[a.id] : undefined;
+  if (!a || !def || def.singleUse || a.charge >= def.charges) {
+    p.phoneWalk = 0;
+    return;
+  }
+  p.phoneWalk = (p.phoneWalk ?? 0) + dist;
+  if (p.phoneWalk < ab.chargeEvery) return;
+  p.phoneWalk -= ab.chargeEvery;
+  a.charge = Math.min(def.charges, a.charge + 1);
+  w.events.push({ type: 'battery', item: a.id, charge: a.charge, needs: def.charges, walked: true });
 }
 
 /** The fields a bullet needs for the weapon's item behaviours. */
@@ -4554,6 +4631,8 @@ export function step(w: World, input: Input): void {
   // Once down, the toaster lies there: the room goes on without it.
   const ox = w.player.x;
   const oy = w.player.y;
+  // The Móvil Reacondicionado: switched off, nothing it presses does anything.
+  input = phoneBattery(w, input);
   updatePlayer(w, w.over ? { ...NO_INPUT, aimX: w.player.x + Math.cos(w.player.aim), aimY: w.player.y - HAND_HEIGHT + Math.sin(w.player.aim) } : input);
   // Queue tapes: the side the toaster was on is the side it stays on.
   holdTapes(w, ox, oy);

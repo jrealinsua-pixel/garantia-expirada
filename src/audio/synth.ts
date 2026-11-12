@@ -85,6 +85,8 @@ export const SFX: Record<string, SfxParams> = {
   // The price gun: the clack of its lever with the label torn off; «Rebajado», the till's bell.
   // M13 (3): the Picahielos Turbo (a crunchy click of ice) and the Batidora's blades grinding an enemy.
   picahielos: { wave: 'noise', freq: 4200, freqEnd: 1600, attack: 0.001, sustain: 0.006, decay: 0.03, volume: 0.13, lowpass: 0.6, crush: 3 },
+  // M13 (6): a push notification (the bright two-tone «ding» everybody hears in their sleep).
+  notificacion: { wave: 'sine', freq: 1320, freqEnd: 1980, attack: 0.002, sustain: 0.04, decay: 0.12, volume: 0.16, vibrato: 0.02, vibratoSpeed: 20 },
   cuchillas: { wave: 'saw', freq: 520, freqEnd: 140, attack: 0.002, sustain: 0.07, decay: 0.12, volume: 0.24, vibrato: 0.35, vibratoSpeed: 70, lowpass: 0.5, crush: 3 },
   // M13 (4): the starch spray (a short «pssst» of a trigger bottle) and the soleplate scalding a foot (a sizzle).
   almidon: { wave: 'noise', freq: 5200, freqEnd: 3000, attack: 0.004, sustain: 0.03, decay: 0.07, volume: 0.1, lowpass: 0.35 },

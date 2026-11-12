@@ -1779,6 +1779,32 @@ try {
   await shot('19bb-becario-experiencia.png');
   console.log('Becario: su hoja y su mano; vaciar la sala de pruebas sin daño le da un punto de experiencia.');
 
+  // M13 (6): el Móvil Reacondicionado in the test room: its rose sheet, the Notificaciones Push
+  // fired straight up that bend towards the enemies; then standing still: the empty battery
+  // blinks over it, and it switches off (the black screen with the logo).
+  await page.goto(`${url}?semilla=e2e-movil&sala=sala-pruebas&personaje=movil`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  const phone = await page.evaluate<string>("(() => { const s = window.__GE__.scene; return s.world.player.base.def.id + ' ' + s.hero.texture.key + ' ' + s.world.player.weapon.base.id; })()");
+  if (phone !== 'movil movil notificaciones') throw new Error(`El móvil no sale: ${phone}`);
+  // Beside the nearest enemy, a bit above it, shooting straight ahead: the bubbles bend down onto it.
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const w = s.world; const p = w.player; w.noDamage = true;
+    const e = w.enemies.filter((x) => x.state !== 'gone').sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+    if (e) { p.x = e.x - 130; p.y = e.y - 50; }
+    s.controls.override = { aimX: p.x + 200, aimY: p.y - 14, fire: true }; })()`);
+  await page.waitForTimeout(700);
+  const bent = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player' && Math.abs(b.vx) > Math.abs(b.vy) * 0.3).length");
+  await shot('19bc-movil-notificaciones.png');
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const w = s.world; const p = w.player;
+    s.controls.override = { aimX: p.x + 80, aimY: p.y - 10 }; p.stillT = 2.2; })()`);
+  await page.waitForFunction('(window.__GE__.scene.world.player.stillT || 0) > 2.3 && window.__GE__.scene.lowBattery.visible', undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('La pila vacía no avisa antes de apagarse'); });
+  await shot('19bd-movil-bateria.png');
+  await page.waitForFunction("window.__GE__.scene.world.player.offT > 0.5 && window.__GE__.scene.hero.texture.key === 'movil-apagado'", undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('Quieto en combate, el móvil no se apaga'); });
+  await shot('19be-movil-apagado.png');
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  console.log(`Móvil: su hoja y sus notificaciones (${bent} torciendo hacia los enemigos); quieto, avisa y se apaga.`);
+
   // M5: weapons. The test room has the Grapadora and the Plancha on their pedestals: walk onto
   // them, fire each at the enemies, and change weapon with E and the mouse wheel.
   await page.goto(`${url}?semilla=e2e-armas&sala=sala-pruebas`);

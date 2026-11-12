@@ -10,6 +10,7 @@ import { box, cube, ellipse, hand, outline, ramp } from '../../src/art/lib.ts';
 import { BOARD_CARDS, CITA_BOXES, CITA_H, CITA_STAMP, CITA_W, TAPE_Y, WALL_BOARD_Y, WALL_CITA_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../../src/art/hub.ts';
 import { VIOLET } from './batidora-vaso.ts';
 import { TEAL } from './plancha-vapor.ts';
+import { ROSE, SCREEN } from './movil.ts';
 
 const TEAL_SIDE = TEAL[3]!;
 
@@ -361,8 +362,8 @@ const BOARD_FACES: readonly string[][] = [
   ['.BBBB.', '.B..B.', 'qQQQ..', 'qKQKQ.', 'qQQQQQ', 'WWWWWW', '.SSSSS'],
   // El Becario Eterno: messy hair, a face, a white shirt and the lanyard with its badge.
   ['.HHHH.', 'HFFFF.', '.KFFK.', '.FFFF.', 'WWYWWW', 'WWYWWW', 'WYYYWW'],
-  // El Móvil Reacondicionado: a cracked screen and the battery at 1 %.
-  ['GGGGGG', 'GbbWbG', 'GKWbKG', 'GbWbbG', 'GbbWbG', 'GRbbbG', 'GGGGGG'],
+  // El Móvil Reacondicionado (M13 (6)): the case in «oro rosa», the dark screen, two white eyes and the crack across it.
+  ['PPPPPR', 'PnnnnP', 'PWnWnP', 'PWcWnP', 'PncnnP', 'PnWWnP', 'PPPPPP'],
 ];
 
 /** A card's silhouette (the locked ones): the same shape, all in the board's darkest cork. */
@@ -376,6 +377,7 @@ export function makeBoardFaces(): Canvas {
   const pal: Record<string, RGBA> = {
     T: TOAST, S: STEEL[1]!, s: STEEL[2]!, K: K, R: RED[1]!, r: RED[2]!, G: GLOVE[1]!, I: ICE[1]!, W: WHITE,
     B: BLUE[1]!, c: ICE[2]!, H: BROWN[2]!, F: SKIN, Y: YEL[1]!, b: BLUE[2]!, V: VIOLET[1]!, v: VIOLET[3]!, E: hx('#93b84c'), Q: TEAL[1]!, q: TEAL_SIDE,
+    P: ROSE[1]!, n: SCREEN[1]!,
   };
   const n = BOARD_FACES.length;
   const sheet = new Canvas(6 * n * 2, 7);

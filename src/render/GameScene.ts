@@ -65,6 +65,8 @@ import {
   starsLine,
   meritLine,
   MERIT_LOST_LINE,
+  PHONE_OFF_LINE,
+  PHONE_ON_LINE,
   STARS_PAID_LINE,
   STARS_LOST_LINE,
   queueLine,
@@ -83,6 +85,7 @@ import { minimap, type MapLoot } from '../sim/minimap.ts';
 import {
   activeWarnings,
   addModifier,
+  phoneIsOff,
   createWorld,
   LAST_LEVEL,
   SERVICE_LEVEL,
@@ -327,6 +330,8 @@ export class GameScene extends Phaser.Scene {
   private flashHero = 0;
   /** Giro de cuchillas (M13 (3)): the whirl of blades round a rolling blender. */
   private whirl!: Phaser.GameObjects.Sprite;
+  /** «Batería al 1 %» (M13 (6)): the empty battery that blinks over the Móvil before it switches off. */
+  private lowBattery!: Phaser.GameObjects.Image;
   private muzzle!: Phaser.GameObjects.Image;
   private muzzleT = 0;
   private crosshair!: Phaser.GameObjects.Image;
@@ -706,6 +711,7 @@ export class GameScene extends Phaser.Scene {
     this.heroShadow = this.add.image(0, 0, shadowTexture(this, 9, 3)).setDepth(-50000);
     this.hero = this.add.sprite(0, 0, this.world.player.base.def.look.sheet, 0);
     this.whirl = this.add.sprite(0, 0, 'giro-cuchillas', 0).setVisible(false);
+    this.lowBattery = this.add.image(0, 0, 'bateria-baja').setVisible(false);
     this.gun = this.add.image(0, 0, 'arma-secador').setOrigin(GUN_GRIP.x / 18, GUN_GRIP.y / 11);
     this.hand = this.add.image(0, 0, 'mano');
     this.muzzle = this.add.image(0, 0, 'fogonazo', 0).setOrigin(0.15, 0.5).setVisible(false);
@@ -2941,7 +2947,20 @@ export class GameScene extends Phaser.Scene {
           this.activeShake = 0.3;
           if (e.item) this.floatText(this.world.player.x, this.world.player.y - 30, fontText(NO_CHARGE_LINE), 0x858ea8);
           break;
+        case 'phoneOff':
+          if (!e.on) {
+            // «Batería al 1 %»: the power-down blip, the screen goes black and a wisp of smoke.
+            this.sound2.play('apagar', { detune: -200, volume: 0.8 });
+            this.floatText(e.x, e.y - 20, fontText(PHONE_OFF_LINE), 0xd8574a, 'phone', -10, 1.1);
+            this.puff(e.x, e.y - 10, 0.6);
+          } else {
+            this.sound2.play('notificacion', { detune: -500, volume: 0.7 });
+            this.floatText(e.x, e.y - 20, fontText(PHONE_ON_LINE), 0x8a92a8, 'phone', -10, 1.1);
+          }
+          break;
         case 'battery':
+          // «Carga en movimiento»: the Móvil walked a battery in; a little spark off its body.
+          if (e.walked) for (let i = 0; i < 3; i++) this.spark(this.world.player.x, this.world.player.y - 16, -Math.PI / 2 + this.fx.range(-1, 1), this.fx.range(30, 60), 1, 0xf0c838);
           this.sound2.play('pila', { detune: e.charge * 200 });
           this.activeFlash = e.charge >= e.needs ? 0.6 : 0.25;
           break;
@@ -3928,6 +3947,8 @@ export class GameScene extends Phaser.Scene {
     else if (moving) frame = 2 + (Math.floor(p.walked / 7) % 4);
     else frame = Math.floor(this.time.now / 500) % 2;
     this.hero.setFrame(frame);
+    // The Móvil switched off by standing still: the black screen with the logo instead.
+    if (look.off && phoneIsOff(p) && !w.over) this.hero.setTexture(look.off);
     this.hero.setScale(p.facing, 1);
     if (rolling) {
       const k = p.rollT / p.def.rollTime;
@@ -4019,6 +4040,11 @@ export class GameScene extends Phaser.Scene {
       this.whirl.setDepth(heroDepth + 0.5);
       this.whirl.setAlpha(p.rollT > p.def.rollTime * 0.8 ? 0.5 : 1);
     }
+    // «Batería al 1 %»: the last second standing still, an empty battery blinks over its head.
+    const ph = p.def.ability?.kind === 'phone' ? p.def.ability : null;
+    const warn = !!ph && !w.over && !phoneIsOff(p) && (p.stillT ?? 0) > ph.idleTime - 1;
+    this.lowBattery.setVisible(warn && Math.floor(this.time.now / 140) % 2 === 0);
+    if (warn) this.lowBattery.setPosition(Math.round(p.x), Math.round(p.y - p.base.def.look.feetY - 2)).setDepth(heroDepth + 0.6);
     if (!(w.won && this.winT >= 0 && w.lift?.service)) this.hero.setAlpha(1);
     this.heroShadow.setVisible(!w.won);
     this.heroShadow.setPosition(Math.round(p.x), Math.round(p.y));
