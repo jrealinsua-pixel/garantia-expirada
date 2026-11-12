@@ -71,7 +71,34 @@ export interface Room {
   stations: Station[];
   /** The Mostrador's conveyor into the warehouse (pixels): stepping on it starts a run. */
   belt: Rect | null;
+  /**
+   * The workshop's conveyor belts (M12 (3b3)): `←` and `→` in the template, each run of the same
+   * arrow a rectangle (pixels), the way it runs and, if it ends against a wall, its intake rollers.
+   * The world lays them as Conveyors (src/sim/conveyors.ts layRoomBelts) on entering the room.
+   */
+  conveyors: RoomBelt[];
 }
+
+/** A conveyor belt drawn in a room template (see Room.conveyors). */
+export interface RoomBelt {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  dirX: number;
+  dirY: number;
+  /** px of intake rollers at its downstream end (0: it just ends on the floor). */
+  bite: number;
+}
+
+/** Template arrows of a conveyor belt and the way each runs (M12 (3b3)). Only sideways: the belt's sprite is drawn side-on. */
+export const BELT_CHARS: Record<string, number> = { '→': 1, '←': -1 };
+/** Mirrors a belt arrow left to right (fillTemplate's mirrored rooms). */
+export const MIRROR_CHARS: Record<string, string> = { '→': '←', '←': '→' };
+/** Speed (px/s) of the workshop's belts: under half the toaster's walk, a bit slower than the Trituradora's. */
+export const ROOM_BELT_SPEED = 40;
+/** Rollers of a belt that runs into a wall (px, as the Trituradora's). */
+export const ROOM_BELT_BITE = 16;
 
 /** What can be talked to or looked at in the Mostrador de Devoluciones (the hub). */
 export type StationKind = 'caja' | 'telefono' | 'turnos' | 'chatarrero' | 'tablon' | 'archivador' | 'cita';
@@ -166,6 +193,7 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
   const slots: Room['slots'] = [];
   const stations: Station[] = [];
   const belt: Cell[] = [];
+  const arrows: Array<Cell & { ch: string }> = [];
   let playerStart: Vec | null = null;
   t.rows.forEach((line, r) => {
     if (line.length !== cols) throw new Error(`Room ${t.id}: row ${r} has ${line.length} columns, expected ${cols}`);
@@ -191,6 +219,7 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
           stations.push({ kind: st.kind, x: cx, y: bottom });
         } else stations.push({ kind: st.kind, x: cx, y: r * TILE + TILE / 2 + 4 });
       } else if (ch === '>') belt.push({ c, r });
+      else if (BELT_CHARS[ch] !== undefined) arrows.push({ c, r, ch });
       else if (ch === 'M') dummySpawns.push({ def: DUMMIES.maniqui!, x: cx, y: bottom });
       else if (ENEMY_CHARS[ch]) enemySpawns.push({ def: ENEMIES[ENEMY_CHARS[ch]]!, x: cx, y: r * TILE + TILE / 2 + 4 });
       else if (PROP_CHARS[ch]) {
@@ -239,7 +268,54 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
     slots,
     stations,
     belt: beltRect(belt),
+    conveyors: roomBelts(t.id, arrows, tiles, cols),
   };
+}
+
+/**
+ * The template's belts: each 4-connected run of one arrow must make a rectangle. One that runs
+ * into a wall (every row of its downstream end against one) ends in intake rollers.
+ */
+function roomBelts(id: string, arrows: Array<Cell & { ch: string }>, tiles: Uint8Array, cols: number): RoomBelt[] {
+  const out: RoomBelt[] = [];
+  const left = new Map(arrows.map((a) => [`${a.c},${a.r}`, a]));
+  for (const start of arrows) {
+    if (!left.has(`${start.c},${start.r}`)) continue;
+    const run: Cell[] = [];
+    const q = [start];
+    left.delete(`${start.c},${start.r}`);
+    while (q.length) {
+      const k = q.pop()!;
+      run.push(k);
+      for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+        const key = `${k.c + dc},${k.r + dr}`;
+        const n = left.get(key);
+        if (n && n.ch === start.ch) {
+          left.delete(key);
+          q.push(n);
+        }
+      }
+    }
+    const c0 = Math.min(...run.map((k) => k.c));
+    const c1 = Math.max(...run.map((k) => k.c));
+    const r0 = Math.min(...run.map((k) => k.r));
+    const r1 = Math.max(...run.map((k) => k.r));
+    if ((c1 - c0 + 1) * (r1 - r0 + 1) !== run.length) throw new Error(`Room ${id}: the belt (${start.ch}) at ${start.c},${start.r} is not a rectangle`);
+    const dirX = BELT_CHARS[start.ch]!;
+    const end = dirX > 0 ? c1 + 1 : c0 - 1;
+    let walled = true;
+    for (let r = r0; r <= r1; r++) if (!tiles[r * cols + end]) walled = false;
+    out.push({
+      x: c0 * TILE,
+      y: r0 * TILE,
+      w: (c1 - c0 + 1) * TILE,
+      h: (r1 - r0 + 1) * TILE,
+      dirX,
+      dirY: 0,
+      bite: walled ? ROOM_BELT_BITE : 0,
+    });
+  }
+  return out;
 }
 
 /** The rectangle the conveyor's tiles cover (they must make one), or null without any. */
@@ -396,7 +472,13 @@ export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): Room
   });
   // Floor templates are symmetric around the doors (the centre of each wall), so a mirrored
   // room keeps them; the back wall stays at the top.
-  if (opts.vary && t.kind === 'combat' && rng.chance(0.5)) for (const line of grid) line.reverse();
+  // A belt's arrows turn round with it.
+  if (opts.vary && t.kind === 'combat' && rng.chance(0.5)) {
+    for (const line of grid) {
+      line.reverse();
+      line.forEach((ch, c) => (line[c] = MIRROR_CHARS[ch] ?? ch));
+    }
+  }
   return { ...t, rows: grid.map((l) => l.join('')) };
 }
 

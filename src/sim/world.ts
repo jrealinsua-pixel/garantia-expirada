@@ -10,7 +10,7 @@ import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.
 import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from './enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
-import { conveyorPush, updateConveyors, type Conveyor } from './conveyors.ts';
+import { conveyorPush, layRoomBelts, updateConveyors, type Conveyor } from './conveyors.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type Pause, type PatternDef, type ShotSpec } from './patterns.ts';
 import { generateFloor, generateWorkshop, OPPOSITE, type Dir, type Floor } from './floor.ts';
@@ -1111,6 +1111,7 @@ export function createWorld(opts: WorldOptions): World {
     leftHub: false,
   };
   w.player.arsenal.push(w.player.weapon);
+  layRoomBelts(w);
   if (floor) {
     floor.rooms[floor.current]!.visited = true;
     setDoorTiles(w, true);
@@ -1373,6 +1374,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.frost = [];
   w.ink = [];
   w.conveyors = [];
+  layRoomBelts(w);
   w.enemies = [];
   w.dummies = [];
   w.pickups = st.pickups;

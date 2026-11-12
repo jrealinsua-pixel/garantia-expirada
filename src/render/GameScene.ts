@@ -4319,11 +4319,13 @@ export class GameScene extends Phaser.Scene {
       }
       // The slats move with the belt (the texture is drawn running right; flipped, the same scroll runs left).
       v.belt.tilePositionX = -((c.t * c.speed) % 48);
-      v.belt.setAlpha(Math.min(1, c.t / 0.4));
+      // A boss's belt fades in as it starts; the room's own were running before anyone came in.
+      const shown = c.source === undefined ? 1 : Math.min(1, c.t / 0.4);
+      v.belt.setAlpha(shown);
       if (v.rollers) {
         v.rollers.setFrame(Math.floor(c.t * 10) % 2);
         v.rollers.tilePositionY = -((c.t * 12) % 24);
-        v.rollers.setAlpha(Math.min(1, c.t / 0.4));
+        v.rollers.setAlpha(shown);
       }
     }
     for (const [id, v] of this.beltViews) {

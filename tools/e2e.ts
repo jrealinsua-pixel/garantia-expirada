@@ -1635,6 +1635,19 @@ try {
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
   await page.waitForTimeout(1500);
   await shot('17x-taller-almacen.png');
+  // M12 (3b3): the workshop's belts. The toaster put on the top one, standing still: carried
+  // towards the rollers at the cage; the shot as it gets there.
+  await page.goto(`${url}?semilla=e2e-taller-3&sala=cinta-clasificacion&planta=6`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  if (await page.evaluate<number>('window.__GE__.scene.world.conveyors.length') !== 2) throw new Error('La Cinta de Clasificación sin sus dos cintas');
+  const putOnBelt = 'const w = window.__GE__.scene.world; const c = w.conveyors.find((k) => k.bite > 0 && k.y < 150);';
+  await page.evaluate(`(() => { ${putOnBelt} w.player.x = c.dirX > 0 ? c.x + c.w - 150 : c.x + 150; w.player.y = c.y + c.h / 2; })()`);
+  const beltX0 = await page.evaluate<number>('window.__GE__.scene.world.player.x');
+  await page.waitForTimeout(2600);
+  const beltX1 = await page.evaluate<number>('window.__GE__.scene.world.player.x');
+  if (Math.abs(beltX1 - beltX0) < 40) throw new Error(`La cinta no arrastra a la tostadora (${beltX0} → ${beltX1})`);
+  await shot('17y-taller-cinta.png');
   // M12 (4a): La Trituradora, the final boss, at the end of the workshop: her card, the scanner
   // beam over the toaster with the diagnosis, and the refurbished pattern that answers it.
   await page.goto(`${url}?semilla=e2e-trituradora&sala=jefe-taller&planta=6`);

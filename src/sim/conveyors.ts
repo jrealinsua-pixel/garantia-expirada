@@ -3,7 +3,7 @@
 // bite. The Trituradora lays one over its whole room in phase 2, «Despiece» (BossPhase.belt); the
 // workshop's own belts (M12 (3b3)) can be laid the same way from the room templates.
 import { isDead, DT, hurtPlayer, type Enemy, type World } from './world.ts';
-import { TILE, BACK_WALL_ROWS } from './room.ts';
+import { TILE, BACK_WALL_ROWS, ROOM_BELT_SPEED } from './room.ts';
 
 export interface Conveyor {
   id: number;
@@ -85,6 +85,16 @@ export function layFloorBelt(w: World, boss: Enemy, speed: number, bite: number)
   w.conveyors.push(c);
   w.events.push({ type: 'conveyor', id: c.id, on: true, x: c.x + c.w / 2, y: c.y + c.h / 2 });
   return c;
+}
+
+/**
+ * Lays the room's own belts (Room.conveyors, from the template's arrows): they run from the
+ * start, for good, and carry everyone (see updateEnemies).
+ */
+export function layRoomBelts(w: World): void {
+  for (const b of w.room.conveyors) {
+    w.conveyors.push({ id: w.nextId++, x: b.x, y: b.y, w: b.w, h: b.h, dirX: b.dirX, dirY: b.dirY, speed: ROOM_BELT_SPEED, bite: b.bite, biteCd: 0, t: 0, by: 'cinta' });
+  }
 }
 
 /** The belts run on; those of a fallen boss stop; the rollers bite. */

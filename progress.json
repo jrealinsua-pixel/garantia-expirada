@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T06:20:00+01:00",
+  "actualizado": "2026-11-12T07:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 6,
     "armas": 5,
     "objetos": 55,
-    "plantillas_sala": 94,
-    "tests": 785,
-    "tests_ok": 785,
+    "plantillas_sala": 95,
+    "tests": 790,
+    "tests_ok": 790,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 29025
+    "lineas_codigo": 29192
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T07:05:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (3b3): las cintas transportadoras del taller. Las plantillas las dibujan con flechas (→ ←); corren desde que se entra, arrastran a la tostadora y a los enemigos a pie, y si acaban contra una jaula, sus rodillos muerden. Dos cintas al pie de los bancos de la Línea de Desmontaje y una sala nueva, la Cinta de Clasificación (Lo Que Entra, Sale).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T06:20:00+01:00",
       "hito": "M12",
@@ -1154,6 +1160,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/taller-cinta.png",
+      "pie": "M12 (3b3): la Cinta de Clasificación. Dos cintas cruzan la sala en sentidos contrarios; quieta encima, la tostadora va de viaje hacia los rodillos que acaban en la jaula de piezas"
+    },
+    {
       "archivo": "capturas/despiece-piezas.png",
       "pie": "M12 (4b): fase 2 de la Trituradora, «Despiece»: el suelo entero es una cinta que lleva hacia ella; sube y baja por su pared con los pilotos en rojo y escupe tornillos, muelles y teclas en abanicos"
     },
@@ -1172,13 +1182,9 @@
     {
       "archivo": "capturas/servicio-montacargas.png",
       "pie": "M12 (2): con la cita previa, la Centralita deja el montacargas del Servicio Técnico: borde verde y blanco, flecha hacia arriba y el cartel de la ventanilla detrás"
-    },
-    {
-      "archivo": "capturas/partida-ganada.png",
-      "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M12 (3b3): las cintas transportadoras del suelo en las salas del taller (letra de plantilla; el motor ya existe: src/sim/conveyors.ts, con dibujo y bot); luego (3c), un enemigo propio del taller, y (4c), la fase 3 «Control de calidad».",
+  "proximo": "M12 (3c): uno o dos enemigos propios del taller (brazo de montaje, carretilla); o la (4c), la fase 3 de la Trituradora, «Control de calidad».",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1204,11 +1210,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 06:30",
-      "tarea": "M12 (3b3): las cintas transportadoras en las plantillas del taller",
-      "desde": "2026-11-12T06:30:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

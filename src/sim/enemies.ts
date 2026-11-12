@@ -10,7 +10,7 @@ import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
 import { PATTERNS } from '../data/patterns.ts';
 import { EXPIRED_PRODUCTS, PROPS } from '../data/props.ts';
 import { patternDuration } from './patterns.ts';
-import { layFloorBelt } from './conveyors.ts';
+import { inConveyor, layFloorBelt } from './conveyors.ts';
 import { normalize, overlaps, type Rect } from './vec.ts';
 import { BACK_WALL_ROWS, isWallAt, TILE, wallRectsNear } from './room.ts';
 import {
@@ -150,9 +150,23 @@ export function updateEnemies(w: World): void {
       en.rush.t -= DT;
       if (en.rush.t <= 0) delete en.rush;
     }
+    carry(w, en);
     contact(w, en);
   }
   separate(w);
+}
+
+/**
+ * The room's own conveyor belts (M12 (3b3)) carry whoever walks on them, enemies too: those on
+ * foot (not flyers, the Router's repeaters or bosses; the Trituradora's belt is hers and carries
+ * only the toaster).
+ */
+function carry(w: World, en: Enemy): void {
+  if (w.conveyors.length === 0 || isDead(en)) return;
+  const k = en.def.brain.kind;
+  if (k === 'moth' || k === 'boss' || k === 'relay' || en.def.boss) return;
+  const belt = w.conveyors.find((c) => c.source === undefined && inConveyor(c, en.x, en.y));
+  if (belt) slide(w, en, en.def.footRadius, belt.dirX * belt.speed * DT, belt.dirY * belt.speed * DT);
 }
 
 /** Room each walking enemy keeps round itself, as a share of its body width. */

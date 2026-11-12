@@ -2067,7 +2067,9 @@ const FLOOR_6: RoomTemplate[] = [
     kind: 'combat',
     level: 6,
     name: 'Línea de Desmontaje (No Tocar)',
-    idea: 'Una línea larga de bancos parte la sala de lado a lado con un hueco en el centro y otros en los extremos según el día: los de arriba disparan por encima mientras se busca el paso.',
+    idea:
+      'Una línea larga de bancos parte la sala de lado a lado con un hueco en el centro y otros en los extremos según el día; ' +
+      'al pie de los bancos, dos cintas llevan hacia el hueco del centro: los de arriba disparan por encima mientras se busca el paso.',
     rows: [
       '########################',
       '########################',
@@ -2075,7 +2077,7 @@ const FLOOR_6: RoomTemplate[] = [
       '#......................#',
       '#...c..............c...#',
       '#vv11vvvvvvv..vvvvvvv22#',
-      '#......................#',
+      '#.→→→→→→→→→..←←←←←←←←←.#',
       '#......................#',
       '#......................#',
       '#....o....e........o...#',
@@ -2106,6 +2108,33 @@ const FLOOR_6: RoomTemplate[] = [
       '#...e..........e...#',
       '#b......o..o......b#',
       '####################',
+    ],
+  },
+  {
+    // M12 (3b3): two long belts the opposite way, each into the rollers against a cage of parts.
+    id: 'cinta-clasificacion',
+    kind: 'combat',
+    level: 6,
+    name: 'Cinta de Clasificación (Lo Que Entra, Sale)',
+    idea:
+      'Dos cintas largas cruzan la sala en sentidos contrarios y acaban en rodillos contra las jaulas de piezas: hay que cruzarlas ' +
+      'para pelear, los enemigos que las pisan también van de viaje, y quien se queda quieto encima acaba en los rodillos.',
+    rows: [
+      '########################',
+      '########################',
+      '#e....................e#',
+      '#......................#',
+      '#→→→→→→→→→→→→→→→→→→→→###',
+      '#......................#',
+      '#...c....e....e....c...#',
+      '#......................#',
+      '#......o........o......#',
+      '#......................#',
+      '###←←←←←←←←←←←←←←←←←←←←#',
+      '#......................#',
+      '#..e................e..#',
+      '#b....................b#',
+      '########################',
     ],
   },
   {

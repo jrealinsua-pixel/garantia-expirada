@@ -10,7 +10,7 @@ import { checkInvariants, createWorld, DT, step } from '../src/sim/world.ts';
 
 const DIRS: Dir[] = ['N', 'S', 'E', 'W'];
 const FLOOR = Object.values(ROOMS).filter((t) => t.kind);
-const OPEN = new Set(['.', 'e', 'o', '*', '$', 's', 'J', 'P', 'M']);
+const OPEN = new Set(['.', 'e', 'o', '*', '$', 's', 'J', 'P', 'M', '→', '←']);
 const ENEMY_LETTERS = new Set(['A', 'O', 'L', 'T', 'Z']);
 const at = (t: RoomTemplate, c: Cell): string => t.rows[c.r]![c.c]!;
 

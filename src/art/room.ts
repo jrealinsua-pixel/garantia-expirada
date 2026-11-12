@@ -24,6 +24,8 @@ export interface PaintableRoom {
   /** The hub's stations and conveyor (src/sim/room.ts): what hangs on its back wall is kept clear of shelf signs. */
   stations?: readonly { kind: string; x: number }[];
   belt?: { x: number; w: number } | null;
+  /** The workshop's conveyor belts (src/sim/room.ts RoomBelt): kept clear of decoration, framed in steel. */
+  conveyors?: readonly { x: number; y: number; w: number; h: number; dirX: number; bite: number }[];
   /** Which floor of the store (1: the warehouse, 2: Informática, 3: Juguetería, 4: Oficinas, 5: Atención al Cliente, 6 and up: the Taller de Reacondicionado). Picks the tile set. Default 1. */
   level?: number;
 }
@@ -261,6 +263,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const S = new Canvas(W_, H, K);
   const wall = (c: number, r: number): boolean => c < 0 || r < 0 || c >= room.cols || r >= room.rows || room.tiles[r * room.cols + c] === 1;
   const doorsIn = room.doors ?? [];
+  const belts = room.conveyors ?? [];
 
   // Where floor decoration may go: whole floor tiles, not in front of a door, not on top of
   // another piece of decoration.
@@ -273,6 +276,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     }
     const me = { x, y, w, h };
     for (const d of doorsIn) if (hit(me, { x: d.x - T, y: d.y - T, w: d.w + 2 * T, h: d.h + 2 * T })) return false;
+    for (const b of belts) if (hit(me, { x: b.x - 4, y: b.y - 4, w: b.w + 8, h: b.h + 8 })) return false;
     return !used.some((u) => hit(me, u));
   };
   const place = (w: number, h: number, tries = 30, snap = 1): { x: number; y: number } | null => {
@@ -959,6 +963,34 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     W.cobweb(S, floorX0, floorY1 - 1, 1, -1);
     W.cobweb(S, floorX1 - 1, floorY1 - 1, -1, -1);
     count('telarañas');
+  }
+
+  // Conveyor belts (M12 (3b3)): the renderer runs the belt itself over its rectangle; here, its
+  // steel frame (a lit lip along the top, a dark one with its shadow along the bottom, bolts every
+  // tile) and the drum at the end it comes from. The rollers end is the renderer's.
+  for (const b of belts) {
+    const lip = R.C.frame;
+    const lipD = R.C.frameDark;
+    S.rect(b.x, b.y - 3, b.w, 3, lip);
+    S.rect(b.x, b.y - 3, b.w, 1, hx('#b4b8ae'));
+    S.rect(b.x, b.y + b.h, b.w, 3, lipD);
+    S.rect(b.x, b.y + b.h + 3, b.w, 2, [0, 0, 0, 90]);
+    for (let x = b.x + 5; x < b.x + b.w; x += T) {
+      S.set(x, b.y - 2, R.C.seam);
+      S.set(x, b.y + b.h + 1, R.C.seam);
+    }
+    // The tail drum: a steel cap, rounded, where the belt comes up from under the floor.
+    const tx = b.dirX > 0 ? b.x - 4 : b.x + b.w;
+    S.rect(tx, b.y - 3, 4, b.h + 6, lipD);
+    S.rect(tx + (b.dirX > 0 ? 1 : 0), b.y - 2, 3, b.h + 4, lip);
+    for (let y = b.y + 2; y < b.y + b.h; y += 6) S.rect(tx + 1, y, 2, 2, R.C.seam);
+    // No rollers: the far end just drops off onto the floor, with a worn yellow edge.
+    if (b.bite === 0) {
+      const ex = b.dirX > 0 ? b.x + b.w : b.x - 3;
+      S.rect(ex, b.y - 3, 3, b.h + 6, lipD);
+      for (let y = b.y - 3; y < b.y + b.h + 3; y++) if (((y - b.y) >> 2) % 2 === 0) S.rect(ex, y, 3, 1, hx('#a08a3a'));
+    }
+    count('cinta-transportadora');
   }
 
   // Doorways: a dark hole in the wall with a steel frame; the renderer puts the shutter on top.

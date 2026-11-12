@@ -475,19 +475,21 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
 - [ ] (3) La planta 6, el Taller de Reacondicionado: su generación (corta, casi en línea, sin
   tienda ni tesoro), sus plantillas y su arte (azulejo de taller, cintas que arrastran).
   - [x] (3a) La planta y sus salas con enemigos reacondicionados de las cinco plantas.
-  - [ ] (3b) Las cintas transportadoras del suelo y el arte del taller (partida el 2026-11-12: el
+  - [x] (3b) Las cintas transportadoras del suelo y el arte del taller (partida el 2026-11-12: el
     pintor de salas tiene una rama por planta en unos 30 sitios, y es una sesión por parte).
     - [x] (3b1) El juego de losetas del taller (`src/art/taller.ts`: azulejo blanco con grasa, pared,
       fluorescentes fríos, jaulas de piezas como paredes interiores, carteles y plantillas del suelo)
       y el cartel de la entrada «Servicio Técnico Oficial».
     - [x] (3b2) Sus muebles (`-6`: cajas de piezas, bidones de grasa, transpaletas, bancos de trabajo)
       y sus persianas.
-    - [ ] (3b3) Las cintas transportadoras del suelo que arrastran a todo el que las pisa (letra de
+    - [x] (3b3) Las cintas transportadoras del suelo que arrastran a todo el que las pisa (letra de
       plantilla con dirección, empuje en la simulación, dibujo animado como la cinta del Mostrador,
       el bot las tiene en cuenta).
       (El motor ya está desde la (4b): `src/sim/conveyors.ts` empuja, muerde con los rodillos, se
       dibuja con `cinta-despiece`/`rodillos-despiece` y el bot anda en contra; falta ponerlas en las
       plantillas con una letra y quizá en otras direcciones que no sean de lado.)
+      Hecho el 2026-11-12: flechas `→`/`←` en las plantillas, solo de lado (el sprite de la cinta es
+      de perfil); en la Línea de Desmontaje y en la sala nueva Cinta de Clasificación.
   - [ ] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla).
 - [ ] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.
   - [x] (4a) Sprites, sala y fase 1, «Diagnóstico».
