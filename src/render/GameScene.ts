@@ -1,6 +1,9 @@
 // Draws the simulation and plays its events. Phaser only draws and reads input: all the rules
 // live in src/sim/.
 import { deedsOf } from '../sim/achievements.ts';
+import { ACHIEVEMENTS } from '../data/logros.ts';
+import { MERIT_SPRITE } from '../sim/glossary.ts';
+import { MERIT_TOAST } from '../data/texts.ts';
 import { paintRoom } from '../art/room.ts';
 import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
 import { CHEST_NAME_PREMIUM } from '../data/texts.ts';
@@ -242,6 +245,8 @@ interface FloatText {
 
 export interface GameStateForTests {
   ready: boolean;
+  /** Achievements announced in this scene (M14 (l2)), in the order they came up. */
+  merits: string[];
   tick: number;
   x: number;
   y: number;
@@ -536,6 +541,8 @@ export class GameScene extends Phaser.Scene {
 
   /** Bosses taken down in this run, and whether its end is already in the record (src/render/save.ts). */
   private runBosses: string[] = [];
+  /** Achievements announced since this scene started (M14 (l2)). */
+  private meritsShown: string[] = [];
   private runRecorded = false;
   /**
    * The Trituradora fell (M12 (5)): instead of the run's report, the true ending (FinalScene) plays.
@@ -1871,6 +1878,8 @@ export class GameScene extends Phaser.Scene {
   private recordRun(outcome: 'down' | 'floor'): void {
     const w = this.world;
     if (this.runRecorded || !w.floor) return;
+    const had = profile().achievements.length;
+    this.time.delayedCall(0, () => this.announceMerits(profile().achievements.slice(had)));
     const p = w.player;
     if (outcome === 'floor' && w.level < LAST_LEVEL) {
       // A floor cleared, but the run goes on upstairs: it counts as a floor, not as a run.
@@ -1898,6 +1907,40 @@ export class GameScene extends Phaser.Scene {
       items: p.items,
       ...(p.active ? { active: p.active.id } : {}),
       weapons: p.arsenal.map((ws) => ws.base.id),
+    });
+  }
+
+  /**
+   * «Mérito conseguido» (M14 (l2)): for each achievement just earned, a gold-rimmed plate slides in
+   * at the top right with the seal, the notice and its name, stays a moment and slides out; several
+   * come one after another. Over everything, the reports included.
+   */
+  private announceMerits(ids: readonly string[]): void {
+    const STAY = 2600;
+    ids.forEach((id, k) => {
+      const def = ACHIEVEMENTS.find((a) => a.id === id);
+      if (!def) return;
+      this.meritsShown.push(id);
+      const name = fontText(def.name);
+      const w = Math.max(textWidth(fontText(MERIT_TOAST)), textWidth(name)) + 46;
+      const h = 36;
+      const x = VIEW_W - w - 6;
+      const y = 6;
+      const box = this.add.container(VIEW_W + 4, y).setScrollFactor(0).setDepth(97500);
+      const g = this.add.graphics();
+      g.fillStyle(0x0e0c16, 1).fillRect(-1, -1, w + 2, h + 2);
+      g.fillStyle(0x101420, 0.96).fillRect(0, 0, w, h);
+      g.lineStyle(1, 0xf6c431, 0.95).strokeRect(0.5, 0.5, w - 1, h - 1);
+      for (let i = 1; i < w - 1; i++) g.fillStyle(Math.floor(i / 4) % 2 === 0 ? 0xb08a1c : 0x191622, 1).fillRect(i, 1, 1, 2);
+      const seal = this.add.image(18, h / 2 + 1, MERIT_SPRITE).setOrigin(0.5, 0.5);
+      const head = this.add.bitmapText(36, 8, FONT, fontText(MERIT_TOAST), 8).setTint(0xf6c431);
+      const line = this.add.bitmapText(36, 20, FONT, name, 8).setTint(0xf4f1e8);
+      box.add([g, seal, head, line]);
+      const delay = k * (STAY + 700);
+      this.time.delayedCall(delay, () => this.sound2.play('desbloquear', { volume: 0.6 }));
+      this.tweens.add({ targets: box, x, delay, duration: 260, ease: 'Back.easeOut' });
+      this.tweens.add({ targets: seal, angle: { from: -25, to: 0 }, scale: { from: 1.6, to: 1 }, delay: delay + 120, duration: 300, ease: 'Back.easeOut' });
+      this.tweens.add({ targets: box, x: VIEW_W + 4, delay: delay + STAY, duration: 300, ease: 'Quad.easeIn', onComplete: () => box.destroy() });
     });
   }
 
@@ -2344,6 +2387,7 @@ export class GameScene extends Phaser.Scene {
     const p = this.world.player;
     return {
       ready: true,
+      merits: [...this.meritsShown],
       tick: this.world.tick,
       x: p.x,
       y: p.y,

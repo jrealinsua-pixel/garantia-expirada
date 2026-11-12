@@ -3,16 +3,24 @@
 import { ENEMIES } from '../data/enemies.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import type { Profile } from './profile.ts';
+import { achievementBoard } from './achievements.ts';
 
-export type GlossaryTab = 'enemies' | 'weapons';
-export const GLOSSARY_TAB_ORDER: readonly GlossaryTab[] = ['enemies', 'weapons'];
+export type GlossaryTab = 'enemies' | 'weapons' | 'merits';
+export const GLOSSARY_TAB_ORDER: readonly GlossaryTab[] = ['enemies', 'weapons', 'merits'];
+
+/** The seal every achievement shows (tools/sprites/meritos.ts). */
+export const MERIT_SPRITE = 'sello-merito';
 
 export interface GlossaryEntry {
   id: string;
   /** Met: taken apart (or beaten, or it took the player down) / carried at the end of a floor or a run. */
   known: boolean;
-  /** Times taken apart (bosses: beaten); 0 for weapons. */
+  /** Times taken apart (bosses: beaten); 0 for weapons; achievements: how far along. */
   count: number;
+  /** Achievements: the number they ask for. */
+  needed?: number;
+  /** Achievements: earned and not seen on this screen yet. */
+  fresh?: boolean;
   boss: boolean;
   /** Texture key and the frame to show. */
   sprite: string;
@@ -38,6 +46,9 @@ export const GLOSSARY_WEAPONS: readonly string[] = Object.keys(WEAPONS);
 
 /** The entries of one tab, with what the profile says about each. */
 export function glossary(p: Profile, tab: GlossaryTab): GlossaryEntry[] {
+  if (tab === 'merits') {
+    return achievementBoard(p).map((r) => ({ id: r.id, known: r.earned, count: r.done, needed: r.needed, fresh: r.fresh, boss: false, sprite: MERIT_SPRITE, frame: 0 }));
+  }
   if (tab === 'weapons') {
     return GLOSSARY_WEAPONS.map((id) => ({ id, known: p.found.weapons.includes(id), count: 0, boss: false, sprite: WEAPONS[id]!.look.sprite, frame: 0 }));
   }

@@ -172,3 +172,32 @@ test('la partida apunta cada sinergia encendida, aunque luego se apague', () => 
   giveItem(w, s.items[0]!);
   assert.deepEqual(w.synergiesSeen, [s.id], 'una vez');
 });
+
+test('la pestaña «Méritos» del catálogo: todos con su nombre, el progreso y los nuevos marcados', async () => {
+  const { glossary, glossaryProgress, GLOSSARY_TAB_ORDER, MERIT_SPRITE } = await import('../src/sim/glossary.ts');
+  const { entryName, GLOSSARY } = await import('../src/render/glosario.ts');
+  const { GLOSSARY_TABS, glossaryMenuLabel, glossaryTab, MERIT_NEW, MERIT_PENDING, MERIT_TOAST, meritProgress } = await import('../src/data/texts.ts');
+  assert.ok(GLOSSARY_TAB_ORDER.includes('merits'));
+  const p = recordRun(emptyProfile(), down);
+  const list = glossary(p, 'merits');
+  assert.equal(list.length, ACHIEVEMENTS.length);
+  assert.ok(list.every((e) => e.sprite === MERIT_SPRITE));
+  assert.deepEqual(glossaryProgress(p, 'merits'), { known: 1, total: ACHIEVEMENTS.length });
+  const first = list.find((e) => e.id === 'primera-reclamacion')!;
+  assert.ok(first.known && first.fresh);
+  assert.ok(!glossary(seenAchievements(p), 'merits').some((e) => e.fresh));
+  const glyphs = new Set([...FONT_CHARS, ' ']);
+  const fits = (t: string, w: number): void => {
+    for (const ch of fontText(t)) assert.ok(glyphs.has(ch), `«${t}»: falta «${ch}»`);
+    assert.ok(textWidth(t) <= w, `«${t}» no cabe (${textWidth(t)} > ${w})`);
+  };
+  // Every name is shown, earned or not, and leaves room for «Nuevo» in the list.
+  for (const e of list) {
+    assert.equal(entryName('merits', { ...e, known: false }), ACHIEVEMENTS.find((a) => a.id === e.id)!.name);
+    fits(entryName('merits', e) + '  ' + MERIT_NEW, GLOSSARY.listW - 12);
+  }
+  for (const t of [meritProgress(0, 1, false), meritProgress(999, 1000, false), meritProgress(1, 1, true), MERIT_PENDING, MERIT_TOAST]) fits(t, 440);
+  fits(glossaryTab(GLOSSARY_TABS.merits, 99, 99) + ' «»', 110);
+  fits(glossaryMenuLabel(true), 200);
+  assert.equal(glossaryMenuLabel(false), 'Glosario');
+});

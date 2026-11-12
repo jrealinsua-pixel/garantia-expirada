@@ -551,6 +551,12 @@
     "frameH": 11,
     "frames": 1
   },
+  "sello-merito": {
+    "file": "sello-merito.png",
+    "frameW": 26,
+    "frameH": 30,
+    "frames": 1
+  },
   "bala-onda": {
     "file": "bala-onda.png",
     "frameW": 7,

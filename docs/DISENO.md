@@ -674,6 +674,15 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   o una partida con ella encima. Lo que falta sale como una silueta oscura «Sin catalogar», con
   una pista de cómo ficharlo. El perfil cuenta las bajas de cada tipo (`Profile.killed`), que
   servirán también para los logros.
+- **Los logros, «Méritos del cliente»** (M14 l1–l2): 19 en `src/data/logros.ts`, cada uno mira un
+  solo número del perfil (bajas de un mismo modelo, jefes vencidos sin perder vida desde su
+  entrada, sinergias encendidas alguna vez, plantas, una planta en 4 minutos, retos del día
+  seguidos, el final de verdad, ganar con los cinco…). Se ganan para siempre al guardar una planta
+  o una partida; en la partida sale el aviso «Mérito conseguido» con el sello dorado arriba a la
+  derecha, y el Catálogo de siniestros tiene una tercera pestaña, «Méritos», con todos (no son
+  secretos: lo que piden es la gracia), lo que llevas («Llevas 7 de 25») y, ganados, su chiste. Los
+  que no has mirado salen como «Nuevo» y el menú dice «Glosario · ¡Mérito nuevo!». Después (l3),
+  algunos desbloquearán armas y objetos.
 - **El reto del día, «Boletín de ofertas del día»** (M14 r1), en la portada: una partida al día
   con la semilla fija (`reto-AAAA-MM-DD`, por el calendario del jugador), la misma para todo el
   mundo ese día: mismas plantas, mismo botín. Siempre con la Tostadora, sin cita del Servicio

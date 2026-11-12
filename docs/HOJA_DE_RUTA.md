@@ -605,8 +605,10 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
     `Profile.unseen`). La partida apunta las sinergias encendidas y los jefes vencidos sin perder
     vida desde su entrada (`World.synergiesSeen`, `World.flawless`). Hecho el 2026-11-12:
     `src/sim/achievements.ts`, `tests/logros.test.ts`.
-  - [ ] (l2) Verlos: un aviso en la partida al ganar uno («Mérito conseguido») y una pestaña
+  - [x] (l2) Verlos: un aviso en la partida al ganar uno («Mérito conseguido») y una pestaña
     «Méritos» en el Catálogo de siniestros con cada logro, su progreso («23/100») y su chiste.
+    Hecho el 2026-11-12: el sello `sello-merito` (`tools/sprites/meritos.ts`), la tercera pestaña,
+    «Glosario · ¡Mérito nuevo!» en los menús y el aviso en la partida; e2e `62a`–`62e`.
   - [ ] (l3) Contenido limitado: algunas armas y objetos solo entran en los cofres y la tienda
     después de ganar un logro concreto (la recompensa, en los datos del logro), con su aviso.
 - [ ] PNJs que aparecen a veces en las plantas, piden cosas o proponen desafíos y, encontrados

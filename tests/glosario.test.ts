@@ -117,6 +117,7 @@ test('el glosario: cada ficha tiene dibujo y fotograma, y sus textos se escriben
       assert.ok(e.frame < s.frames, `${e.id}: fotograma ${e.frame} de ${s.frames}`);
       assert.ok(pictureScale(s.frameW, s.frameH) * s.frameH <= Math.max(GLOSSARY.picH, s.frameH), `${e.id}: el dibujo se sale del recuadro`);
       fits(entryName(tab, { ...e, known: true }), GLOSSARY.listW - 12);
+      if (tab === 'merits') continue; // their texts: tests/logros.test.ts
       const desc = tab === 'weapons' ? WEAPONS[e.id]!.description : ENEMIES[e.id]!.description;
       for (const ch of fontText(desc)) assert.ok(glyphs.has(ch), `«${desc}»: falta «${ch}»`);
     }

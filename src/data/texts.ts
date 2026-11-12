@@ -548,9 +548,11 @@ export const inventoryBatteries = (charge: number, needs: number): string => `Pi
 
 /** The glossary (M14), in the pause menu and on the title: what has been taken apart and carried. */
 export const GLOSSARY_MENU = 'Glosario';
+/** The menu line when there are achievements not seen yet. */
+export const glossaryMenuLabel = (news: boolean): string => (news ? `${GLOSSARY_MENU} · ¡Mérito nuevo!` : GLOSSARY_MENU);
 export const GLOSSARY_TITLE = 'Catálogo de siniestros';
 export const GLOSSARY_SUB = 'Fichas técnicas de todo lo que has desmontado o empuñado.';
-export const GLOSSARY_TABS = { enemies: 'Enemigos', weapons: 'Armas' } as const;
+export const GLOSSARY_TABS = { enemies: 'Enemigos', weapons: 'Armas', merits: 'Méritos' } as const;
 export const GLOSSARY_UNKNOWN = 'Sin catalogar';
 export const GLOSSARY_UNKNOWN_ENEMY = 'Desmonta uno y se abre su ficha. El catálogo no se rellena solo: eso sería automatizar un puesto.';
 export const GLOSSARY_UNKNOWN_BOSS = 'Jefe de planta. Se cataloga cuando deja de serlo.';
@@ -558,7 +560,14 @@ export const GLOSSARY_UNKNOWN_WEAPON = 'Termina una planta o una partida con ell
 /** The line under a known enemy: how many have been taken apart (a boss: how many times beaten). */
 export const glossaryCount = (n: number, boss: boolean): string =>
   boss ? (n === 1 ? 'Derrotado una vez' : n > 1 ? `Derrotado ${n} veces` : 'Te ha derrotado, de momento') : n > 0 ? `Desmontados: ${n}` : 'Te ha desmontado, de momento';
-export const GLOSSARY_HINT = 'Arriba y abajo: elegir · Izquierda y derecha: enemigos o armas · Esc: volver';
+export const GLOSSARY_HINT = 'Arriba y abajo: elegir · Izquierda y derecha: cambiar de pestaña · Esc: volver';
+/** The achievements' tab (M14 (l2)): how far along one is, and what an unearned one says under it. */
+export const meritProgress = (done: number, needed: number, earned: boolean): string =>
+  earned ? 'Conseguido' : needed > 1 ? `Llevas ${done} de ${needed}` : 'Sin conseguir';
+export const MERIT_PENDING = 'Sin conseguir. El chiste viene con el mérito, como las pilas: no incluido.';
+export const MERIT_NEW = 'Nuevo';
+/** The notice that comes up in a run when one is earned. */
+export const MERIT_TOAST = 'Mérito conseguido';
 export const glossaryTab = (label: string, known: number, total: number): string => `${label} (${known}/${total})`;
 
 /** The title screen's record of past runs (src/sim/profile.ts). */

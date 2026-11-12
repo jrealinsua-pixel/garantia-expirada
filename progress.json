@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T22:40:00+01:00",
+  "actualizado": "2026-11-12T22:28:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -137,6 +137,11 @@
     "lineas_codigo": 32760
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T22:28:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (l2): los logros ya se ven. El Catálogo de siniestros tiene una tercera pestaña, «Méritos», con los 19, su sello dorado, lo que llevas y, ganados, su chiste; los nuevos salen marcados y el menú avisa «Glosario · ¡Mérito nuevo!». Al ganar uno, en la partida entra el aviso «Mérito conseguido» con el sello."
+    },
     {
       "fecha": "2026-11-12T22:40:00+01:00",
       "hito": "M14",
@@ -1271,6 +1276,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/meritos.png",
+      "pie": "M14 (l2): la pestaña «Méritos» del Catálogo de siniestros: los 19 logros, el nuevo marcado, lo que piden y, ganados, su chiste"
+    },
+    {
+      "archivo": "capturas/merito-conseguido.png",
+      "pie": "El aviso «Mérito conseguido» en la partida, con su sello dorado (aquí, la primera baja: «Primera reclamación»)"
+    },
+    {
       "archivo": "capturas/sorteo.png",
       "pie": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización: tres rascas a 5 cupones; casi siempre «Siga participando», a veces cupones, un ticket, un corazón, una garantía o, muy rara vez, un cofre premium"
     },
@@ -1283,19 +1296,11 @@
       "pie": "M14 (r1): el «Boletín de ofertas del día» de la portada: la misma partida para todo el mundo, con su regalo «sin garantía», los intentos de hoy, el mejor y los días seguidos"
     },
     {
-      "archivo": "capturas/reto-regalo.png",
-      "pie": "El reto empieza con el regalo del día ya en la bolsa (hoy, la Garantía Extendida)"
-    },
-    {
       "archivo": "capturas/glosario.png",
       "pie": "M14: el «Catálogo de siniestros», el glosario de la pausa y la portada: lo que has desmontado, con su ficha y cuántos llevas; lo demás, «Sin catalogar»"
-    },
-    {
-      "archivo": "capturas/los-cinco.png",
-      "pie": "M13: los cinco personajes en fila en el Mostrador, para el criterio de «se distinguen a la primera»"
     }
   ],
-  "proximo": "M14: los jefes al azar por planta (nota del humano del 2026-10-30), dividida en partes; o los PNJs de las plantas. Los logros (l2, verlos en pantalla) los lleva otra sesión.",
+  "proximo": "M14 (l3): armas y objetos que solo salen después de ganar un logro; o los jefes al azar por planta (j) si quedan libres.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1322,11 +1327,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "https://claude.ai/code/session_01LyCe1RQnX1yWxUXeTGFYrb",
-      "tarea": "M14 (l2): ver los logros (src/render/glosario.ts y src/sim/glossary.ts: pestaña «Méritos»; src/data/texts.ts; src/render/save.ts; en GameScene solo el aviso tras guardar el perfil; tests/logros.test.ts, e2e)",
-      "desde": "2026-11-12T22:05:00+01:00"
-    },
     {
       "sesion": "https://claude.ai/code/session_01LyCe1MqXgZfNxidXm3g8dR",
       "tarea": "M14 (j1): jefes al azar, cada planta elige su jefe de una lista con la semilla (src/data/rooms.ts, src/sim/world.ts planFloor, src/data/unlocks.ts, src/data/servicio.ts, src/data/lore.ts, src/sim/unlocks.ts; tests/jefes-azar.test.ts)",

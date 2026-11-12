@@ -2348,6 +2348,50 @@ try {
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Glosario: seis enemigos y la Nevera fichados, el mando que te tumbó, el resto sin catalogar; tres armas.');
 
+  // M14 (l2): the achievements. A record with two earned (one not seen yet) and others on the way:
+  // the title's «Glosario» says there is a new one; the «Méritos» tab lists them all, the new one
+  // marked, and opening it clears the notice. Then a first breakdown earns «Primera reclamación» in
+  // the run: its notice slides in over the report.
+  await page.evaluate(`localStorage.setItem('garantia-expirada/perfil', JSON.stringify({
+    runs: 7, downs: 0, floorsCleared: 4, kills: 312, killed: { aspirador: 64, microondas: 40 }, coupons: 120, bosses: { 'nevera-suprema': 2, 'router-wifi': 1 },
+    synergies: ['sobrecarga'], flawless: ['nevera-suprema'], achievements: ['venta-cruzada', 'ni-un-aranazo'], unseen: ['ni-un-aranazo'],
+    found: { items: ['pila', 'resistencia'], actives: [], weapons: ['secador', 'grapadora'] } }))`);
+  await page.goto(url);
+  await page.waitForFunction("window.__GE_PHASER__ && window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 20000 });
+  await page.waitForTimeout(400);
+  await tapKeys('ArrowUp', 'ArrowUp', 'ArrowUp');
+  await page.waitForTimeout(150);
+  await shot('62a-portada-merito-nuevo.png');
+  await tapKeys('Enter', 'ArrowRight', 'ArrowRight');
+  await page.waitForTimeout(150);
+  if (await page.evaluate<string>('window.__GE_PHASER__.scene.getScene("title").glossTab') !== 'merits') throw new Error('La tercera pestaña del glosario no son los méritos');
+  await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown');
+  await page.waitForTimeout(150);
+  await shot('62b-meritos.png');
+  const seen = JSON.parse((await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/perfil')")) ?? '{}') as { unseen?: string[]; achievements?: string[] };
+  if (seen.unseen?.length || !seen.achievements?.includes('ni-un-aranazo')) throw new Error(`Ver los méritos no los da por vistos: ${JSON.stringify(seen)}`);
+  await tapKeys('ArrowDown', 'ArrowDown');
+  await page.waitForTimeout(150);
+  await shot('62c-meritos-en-progreso.png');
+  await tapKeys('Escape');
+  await page.waitForTimeout(150);
+  await tapKeys('Escape');
+  await page.goto(url + '?mostrador');
+  await throughHub();
+  await page.waitForTimeout(400);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const p = w.player; w.noDamage = false; p.hp = 1; p.invulnerable = 0; p.rollT = -1;
+    w.bullets.push({ id: w.nextId++, owner: 'enemy', x: p.x - 24, y: p.y - 9, vx: 140, vy: 0, r: 2.5, life: 3, damage: 1, knockback: 0,
+      color: 'red', age: 0, dir: 0, speed: 140, by: 'microondas' }); })()`);
+  await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 });
+  await page.waitForFunction("window.__GE__.state().merits.includes('primera-reclamacion')", undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('La primera baja no anuncia «Primera reclamación»'); });
+  await page.waitForTimeout(500);
+  await shot('62d-merito-conseguido.png');
+  await page.waitForTimeout(2700);
+  await shot('62e-merito-y-parte.png');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
+  console.log('Méritos: el aviso en la portada, la pestaña con el nuevo marcado y el aviso de «Primera reclamación» en la partida.');
+
   // M14 (r1): the daily challenge. From the title, the day's bulletin (with an attempt yesterday and
   // one today already); «Aprovechar la oferta» starts it: the return slip, then the gift's card; the
   // toaster down, the attempt is counted; the same day by link gives the same floor.

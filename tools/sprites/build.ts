@@ -24,6 +24,7 @@ import * as TL from './taller.ts';
 import * as TR from './trituradora.ts';
 import * as FN from './final.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
+import { makeMeritSeal } from './meritos.ts';
 import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
 import * as H from './mostrador.ts';
 import * as BV from './batidora-vaso.ts';
@@ -185,6 +186,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-vapor': one(P.makeSteam()),
     // Floor 5's weapons (M11 6c).
     'arma-megafono': one(makeMiniMegaphone()),
+    // M14 (l2): the achievements' seal.
+    'sello-merito': one(makeMeritSeal()),
     'bala-onda': one(makeSoundWave()),
     'arma-etiquetadora': one(makeMiniLabeller()),
     'bala-etiqueta': one(makeLabelShot()),

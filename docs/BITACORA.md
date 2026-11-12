@@ -2,6 +2,35 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 22:28 (hora peninsular, de `date`) — Hito M14 — Logros (l2): verlos
+- Hecho: la (l2), en la misma sesión que la (l1). **El sello del mérito** (`sello-merito`, 26×30,
+  `tools/sprites/meritos.ts`): una roseta de papel dorado con su dentado, una marca en relieve, dos
+  cintas rojas cortadas en V y la etiqueta del precio aún atada (estaba de oferta). **La tercera
+  pestaña del Catálogo de siniestros, «Méritos (2/19)»**: todos los logros por su nombre (no son
+  secretos: lo que piden es la gracia), con el cuadrado dorado si está ganado; a la derecha el sello
+  (oscuro hasta ganarlo), «Conseguido» o «Llevas 7 de 25» con su barra, lo que pide y, debajo, el
+  chiste o «Sin conseguir. El chiste viene con el mérito, como las pilas: no incluido.» Los no vistos
+  llevan «Nuevo» en rojo mientras la pestaña está abierta, y al abrirla se dan por vistos
+  (`saveSeenAchievements`). Mientras haya alguno sin ver, el menú de la portada y el de la pausa dicen
+  **«Glosario · ¡Mérito nuevo!»**. **El aviso en la partida**: al guardar una planta, una partida o
+  el final, por cada logro nuevo entra por la derecha una placa con el borde dorado, el sello (gira y
+  se asienta), «Mérito conseguido» y el nombre, con el sonido de desbloquear; dura 2,6 s y si hay
+  varios salen uno tras otro. Va por encima de todo, partes incluidos. Las tres pestañas se reparten
+  el ancho y la ayuda dice «Izquierda y derecha: cambiar de pestaña».
+  Tests: uno nuevo en `tests/logros.test.ts` (la pestaña, los nuevos, que todo cabe y se escribe con
+  la fuente) y el del glosario mira también el sello de los méritos. e2e `62a`–`62e`: el aviso del
+  menú, la pestaña con el nuevo marcado (y que el perfil los da por vistos), uno en progreso, y la
+  primera baja que anuncia «Primera reclamación» sobre la partida antes del parte.
+- Decisiones: el aviso sale **al guardar** (fin de planta o de partida), no en mitad del combate:
+  los logros se calculan sobre el perfil, y así no tapa nada mientras se esquivan balas. El aviso y
+  la marca «Nuevo» son cosas distintas: el aviso sale siempre al ganarlo; «Nuevo» se queda hasta que
+  se mira la pestaña. La placa tapa el minimapa un par de segundos; al acabar la planta da igual.
+- Medidas: no cambia el equilibrio. `npm run bot` 200 partidas, 0 fallos. 901 tests en verde. e2e
+  entero en verde.
+- Problemas conocidos: si el final verdadero da un logro, su aviso apenas se ve antes del fundido al
+  taller (queda «Nuevo» en el catálogo).
+- Siguiente paso: (l3) el contenido limitado: algunas armas y objetos que solo entran en los cofres
+  y la tienda después de un logro concreto.
 ## 2026-11-12 22:40 (hora peninsular) — Hito M14 — Salas raras (r2b): el Sorteo de Fidelización
 - Hecho: la segunda sala rara, plantilla `sorteo` («Sorteo de Fidelización (Participar No Implica
   Ganar)»). Las dos raras se reparten con la baraja de plantillas de la planta, como las demás

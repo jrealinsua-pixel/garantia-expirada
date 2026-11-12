@@ -1,11 +1,14 @@
 // The glossary screen (M14), drawn by the pause menu (src/render/PauseScene.ts): a tab for the
 // enemies and one for the weapons; on the left the list (the unknown ones as «Sin catalogar»), on
 // the right the chosen one's card: its picture (a dark silhouette until it is known), its name,
-// its line and how many have been taken apart (the weapons, their numbers).
+// its line and how many have been taken apart (the weapons, their numbers). The third tab (M14 (l2))
+// lists the achievements: all of them by name, the earned ones with their seal in gold and their
+// joke, the rest with how far along they are; the ones not seen yet marked «Nuevo».
 import { fontText, textWidth } from '../art/font.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { weaponStatRows } from '../data/describe.ts';
+import { ACHIEVEMENTS } from '../data/logros.ts';
 import {
   GLOSSARY_HINT,
   GLOSSARY_SUB,
@@ -17,6 +20,9 @@ import {
   GLOSSARY_UNKNOWN_WEAPON,
   glossaryCount,
   glossaryTab,
+  MERIT_NEW,
+  MERIT_PENDING,
+  meritProgress,
   PAUSE_MENU,
 } from '../data/texts.ts';
 import { GLOSSARY_TAB_ORDER, type GlossaryEntry, type GlossaryTab } from '../sim/glossary.ts';
@@ -46,6 +52,8 @@ export interface GlossaryPaint {
 
 /** The name an entry shows in the list and on its card. */
 export function entryName(tab: GlossaryTab, e: GlossaryEntry): string {
+  // Achievements are never secret: what is asked is the point.
+  if (tab === 'merits') return ACHIEVEMENTS.find((a) => a.id === e.id)?.name ?? e.id;
   if (!e.known) return GLOSSARY_UNKNOWN;
   return (tab === 'weapons' ? WEAPONS[e.id]?.name : ENEMIES[e.id]?.name) ?? e.id;
 }
@@ -80,13 +88,13 @@ export function paintGlossary(scene: Phaser.Scene, objs: Phaser.GameObjects.Game
   text(cx, y0 + 9, GLOSSARY_TITLE, GOLD, 0.5);
   text(cx, y0 + 20, GLOSSARY_SUB, GREY, 0.5);
 
-  // The two tabs, side by side: the open one gold and underlined, like a folder's label.
+  // The tabs, side by side: the open one gold and underlined, like a folder's label.
   const ty = y0 + 34;
   GLOSSARY_TAB_ORDER.forEach((t, i) => {
     const on = t === v.tab;
     const pr = v.progress[t];
     const label = glossaryTab(GLOSSARY_TABS[t], pr.known, pr.total);
-    const tx = cx + (i === 0 ? -60 : 60);
+    const tx = cx + (i - (GLOSSARY_TAB_ORDER.length - 1) / 2) * 140;
     const lt = text(tx, ty, (on ? '« ' : '') + label + (on ? ' »' : ''), on ? GOLD : GREY, 0.5);
     lt.setInteractive({ useHandCursor: true }).on('pointerdown', () => v.tabTo(t));
     if (on) {
@@ -106,9 +114,12 @@ export function paintGlossary(scene: Phaser.Scene, objs: Phaser.GameObjects.Game
     const on = i === v.index;
     const y = top + k * GLOSSARY.rowH;
     if (on) g.fillStyle(0x2c3048, 1).fillRect(lx - 4, y - 2, GLOSSARY.listW - 2, GLOSSARY.rowH);
-    // A small mark: a boss gets a gold square, the rest a dot; the unknown ones, dimmed.
-    g.fillStyle(e.known ? (e.boss ? GOLD : TEAL) : DIM, 1).fillRect(lx, y + 2, e.boss ? 3 : 2, e.boss ? 3 : 2);
-    const t = text(lx + 7, y, entryName(v.tab, e), on ? GOLD : e.known ? CREAM : DIM);
+    // A small mark: a boss (or an earned achievement) gets a gold square, the rest a dot; the unknown ones, dimmed.
+    const merit = v.tab === 'merits';
+    const big = e.boss || (merit && e.known);
+    g.fillStyle(e.known ? (big ? GOLD : TEAL) : DIM, 1).fillRect(lx, y + 2, big ? 3 : 2, big ? 3 : 2);
+    const t = text(lx + 7, y, entryName(v.tab, e), on ? GOLD : e.known ? CREAM : merit ? GREY : DIM);
+    if (e.fresh) text(lx + GLOSSARY.listW - 10, y, MERIT_NEW, 0xe0453b, 1);
     t.setInteractive({ useHandCursor: true }).on('pointerover', () => i !== v.index && v.hover(i));
   });
   if (n > GLOSSARY.visible) {
@@ -149,6 +160,19 @@ export function paintGlossary(scene: Phaser.Scene, objs: Phaser.GameObjects.Game
         ny += 12;
       }
       if (e.known) text(nx, ny + 4, glossaryCount(e.count, e.boss), e.count > 0 ? 0x7ef0a0 : 0xe0453b).setMaxWidth(nw);
+    } else if (v.tab === 'merits') {
+      // What it asks for, and how far along it is (with a bar when it is a count).
+      const def = ACHIEVEMENTS.find((a) => a.id === e.id);
+      const needed = e.needed ?? 1;
+      text(nx, ny, meritProgress(e.count, needed, e.known), e.known ? 0x7ef0a0 : GREY);
+      ny += 11;
+      if (!e.known && needed > 1) {
+        const bw = Math.min(nw, 120);
+        g.fillStyle(0x2c3048, 1).fillRect(nx, ny, bw, 4);
+        g.fillStyle(GOLD, 1).fillRect(nx, ny, Math.round((bw * Math.min(e.count, needed)) / needed), 4);
+        ny += 9;
+      }
+      if (def) text(nx, ny + 2, def.text, CREAM).setMaxWidth(nw);
     } else if (e.known) {
       // The weapon's numbers, as they come out of the box.
       const def = WEAPONS[e.id]!;
@@ -159,7 +183,11 @@ export function paintGlossary(scene: Phaser.Scene, objs: Phaser.GameObjects.Game
       }
     }
     // Under the picture: its line (or how to fill the card in).
-    const desc = e.known
+    const desc = v.tab === 'merits'
+      ? e.known
+        ? (ACHIEVEMENTS.find((a) => a.id === e.id)?.quip ?? '')
+        : MERIT_PENDING
+      : e.known
       ? (v.tab === 'weapons' ? WEAPONS[e.id]?.description : ENEMIES[e.id]?.description) ?? ''
       : v.tab === 'weapons'
         ? GLOSSARY_UNKNOWN_WEAPON

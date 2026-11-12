@@ -51,14 +51,14 @@ import {
 import { activeLines, characterStatRows, meritRows, modifierLines, weaponStatRows, type EffectLine, type StatRow } from '../data/describe.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
 import { FINDABLE_WEAPONS } from '../data/weapons.ts';
-import { downCause, GLOSSARY_MENU, GLOSSARY_TITLE, HISTORY_EMPTY, HISTORY_MENU, HISTORY_SUB, HISTORY_TITLE, historyLines } from '../data/texts.ts';
+import { downCause, GLOSSARY_MENU, glossaryMenuLabel, GLOSSARY_TITLE, HISTORY_EMPTY, HISTORY_MENU, HISTORY_SUB, HISTORY_TITLE, historyLines } from '../data/texts.ts';
 import { glossary, glossaryProgress, GLOSSARY_TAB_ORDER, type GlossaryTab } from '../sim/glossary.ts';
 import { paintGlossary } from './glosario.ts';
 import { topCause } from '../sim/profile.ts';
 import { DAILY_CHARACTER, dailyKey, dayOfWeek, dailyNumber, dailyStreak, giftName } from '../sim/daily.ts';
 import { CHARACTERS } from '../data/characters.ts';
 import { DAILY_FOOT, DAILY_MENU, DAILY_START, DAILY_SUB, DAILY_TITLE, dailyLines } from '../data/texts.ts';
-import { profile } from './save.ts';
+import { profile, saveSeenAchievements } from './save.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { Menu, type MenuItem, type MenuResult } from './menu.ts';
 import { keyWords, saveSettings, settings } from './settings.ts';
@@ -132,6 +132,8 @@ export class PauseScene extends Phaser.Scene {
   private hero: Phaser.GameObjects.Image | null = null;
   /** The glossary's open tab (enemies or weapons). */
   private glossTab: GlossaryTab = 'enemies';
+  /** The achievements still to be seen when the «Méritos» tab was opened (marked «Nuevo» while it stays open). */
+  private freshMerits: string[] | null = null;
 
   constructor(key = 'pause', mode: 'pause' | 'title' = 'pause') {
     super(key);
@@ -346,7 +348,12 @@ export class PauseScene extends Phaser.Scene {
   /** Builds a screen's menu and draws it; `index` is where the cursor starts. */
   private show(screen: Screen, index = 0): void {
     this.screen = screen;
-    if (screen === 'main') this.menu = new Menu((this.mode === 'title' ? TITLE_ITEMS : PAUSE_ITEMS).map((it) => ({ ...it })));
+    if (screen !== 'glossary') this.freshMerits = null;
+    if (screen === 'main') {
+      // «Glosario» says so when there are achievements nobody has looked at yet.
+      const news = profile().unseen.length > 0;
+      this.menu = new Menu((this.mode === 'title' ? TITLE_ITEMS : PAUSE_ITEMS).map((it) => ({ ...it, ...(it.id === 'glossary' && news ? { label: glossaryMenuLabel(true) } : {}) })));
+    }
     else if (screen === 'options') {
       const s = settings();
       this.menu = new Menu([
@@ -408,10 +415,20 @@ export class PauseScene extends Phaser.Scene {
     }
     if (this.screen === 'glossary') {
       const p = profile();
+      let entries = glossary(p, this.glossTab);
+      if (this.glossTab === 'merits') {
+        // Seen now: the profile forgets them, but this visit keeps the «Nuevo» marks.
+        if (!this.freshMerits) {
+          this.freshMerits = [...p.unseen];
+          if (p.unseen.length) saveSeenAchievements();
+        }
+        const fresh = this.freshMerits;
+        entries = entries.map((e) => ({ ...e, fresh: fresh.includes(e.id) }));
+      }
       paintGlossary(this, this.objs, {
         tab: this.glossTab,
-        entries: glossary(p, this.glossTab),
-        progress: { enemies: glossaryProgress(p, 'enemies'), weapons: glossaryProgress(p, 'weapons') },
+        entries,
+        progress: { enemies: glossaryProgress(p, 'enemies'), weapons: glossaryProgress(p, 'weapons'), merits: glossaryProgress(p, 'merits') },
         index: this.menu.index,
         hover: (i) => {
           this.menu.index = i;
