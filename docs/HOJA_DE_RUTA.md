@@ -463,7 +463,7 @@ aspecto). En partes, como M10:
 la quinta; el bot completa la partida entera alguna vez (medido con `npm run plantas`, como en
 M10: llegando a la 5 con lo que se recoge en las de abajo).
 
-## M12 · El Servicio Técnico (piso final secreto)
+## M12 · El Servicio Técnico (piso final secreto) (hecho)
 
 Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DISENO.md`).
 
@@ -501,7 +501,9 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
   `FinalScene` (cinta, limpieza, resistencia, caja, estantería de la planta 1, «El producto era
   usted.») y créditos con todo el reparto; `Profile.endings` lo cuenta y la garantía de la caja
   encoge cada vez.
-- [ ] (6) Medir la planta 6 entera con el bot y ajustar.
+- [x] (6) Medir la planta 6 entera con el bot y ajustar. Hecho el 2026-11-12: `node tools/medir-plantas.ts
+  N 0 6` llega con la cita; la fase 3 de la Trituradora empieza al 35 % y dispara más (la planta 6
+  la gana el 13 % de quien llega, la 5 el 12 %).
 
 **Criterios de aceptación:** el piso final solo aparece si se cumplen los requisitos (test);
 sin ellos la partida acaba en la planta 5.

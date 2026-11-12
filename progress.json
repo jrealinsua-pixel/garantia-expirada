@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-11-12T09:35:00+01:00",
+  "actualizado": "2026-11-12T10:40:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M12",
+  "hito_actual": "M13",
   "hitos": [
     {
       "id": "M0",
@@ -97,14 +97,14 @@
     {
       "id": "M12",
       "nombre": "El Servicio Técnico (piso final secreto)",
-      "estado": "en_curso",
-      "hechas": 5,
+      "estado": "hecho",
+      "hechas": 6,
       "total": 6
     },
     {
       "id": "M13",
       "nombre": "Cinco personajes jugables",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 3
     },
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 807,
-    "tests_ok": 807,
+    "tests": 810,
+    "tests_ok": 810,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 30159
+    "lineas_codigo": 30163
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T10:40:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (6): la planta 6 medida con el bot y ajustada; M12 terminado. Con lo que se trae de abajo, quien llegaba a la fase 3 de la Trituradora ganaba casi siempre: ahora «Control de calidad» empieza al 35 %, descansa menos, pega menos etiquetas y escupe también muelles. La planta secreta la gana el 13 % de quien llega (antes el 20 %; la 5, el 12 %).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T09:35:00+01:00",
       "hito": "M12",
@@ -1202,7 +1208,7 @@
       "pie": "Media columna de cajas marcada con franjas amarillas y negras a punto de caer; la Trituradora ya apunta la siguiente tanda de «APTO»"
     }
   ],
-  "proximo": "M12 (6): medir la planta 6 entera con el bot y ajustar (con ella M12 queda terminado); luego M13, los cinco personajes jugables.",
+  "proximo": "M13: los cinco personajes jugables, empezando por su diseño (0) y la Batidora de Vaso (1).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1229,11 +1235,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 09:27",
-      "tarea": "M12 (6): medir la planta 6 entera con el bot y ajustar",
-      "desde": "2026-11-12T09:27:00+01:00"
-    },
     {
       "sesion": "2026-11-12 10:25",
       "tarea": "M13 (1): elegir personaje en el tablón y dibujar al jugador desde los datos",
