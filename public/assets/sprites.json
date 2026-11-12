@@ -797,6 +797,12 @@
     "frameH": 34,
     "frames": 2
   },
+  "montacargas-servicio": {
+    "file": "montacargas-servicio.png",
+    "frameW": 44,
+    "frameH": 44,
+    "frames": 2
+  },
   "corazon-suelo": {
     "file": "corazon-suelo.png",
     "frameW": 13,

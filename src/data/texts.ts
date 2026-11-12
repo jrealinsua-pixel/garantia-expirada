@@ -237,6 +237,10 @@ export function downReport(info: DownReportInfo, pick: (n: number) => number): {
 
 /** Over the goods lift when it is ready to go down after the boss. */
 export const LIFT_LINE = 'Montacargas a la planta 2 · Carga máxima: una tostadora';
+/** Over the Servicio Técnico's lift (M12 (2)) when it is ready to go up, with the appointment. */
+export const SERVICE_LIFT_LINE = 'Servicio Técnico Oficial · Solo con cita previa';
+/** Over the fallen Centralita with the appointment: the run is won, and there is more. */
+export const SERVICE_WON_LINE = 'Incidencia cerrada. Su cita le espera arriba.';
 /** Floats up when the toaster picks up a spare heart. */
 export const HEART_LINE = 'Recambio original';
 /** Over the toaster when it picks up a Garantía Provisional (M9b 12a). */
@@ -262,6 +266,7 @@ export const FLOOR_NAMES: Record<number, string> = {
   3: 'Planta 3: Juguetería. Edad recomendada: ninguna.',
   4: 'Planta 4: Oficinas. Horario flexible: siempre.',
   5: 'Planta 5: Atención al Cliente. Espere su turno.',
+  6: 'Servicio Técnico Oficial. Solo con cita previa.',
 };
 /** Neutral on purpose: the boss of a floor may be the Nevera (she), the Router (he) or whoever comes next. */
 export const WIN_RESULT = 'Jefatura de planta dada de baja';

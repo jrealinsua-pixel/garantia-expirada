@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T02:11:00+01:00",
+  "actualizado": "2026-11-12T03:10:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -98,7 +98,7 @@
       "id": "M12",
       "nombre": "El Servicio Técnico (piso final secreto)",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 6
     },
     {
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 88,
-    "tests": 764,
-    "tests_ok": 764,
+    "tests": 768,
+    "tests_ok": 768,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 27534
+    "lineas_codigo": 27609
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T03:10:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (2): con la cita previa, vencer a la Centralita gana la partida (se apunta en ese momento) y, en vez de cerrarse, sube un montacargas del Servicio Técnico, verde y blanco, con su cartel de ventanilla; la tostadora sube en un haz de luz. Sin cita, todo sigue igual: la partida acaba en la planta 5 (test). Hasta que exista la planta 6, arriba se genera como la 5.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T02:11:00+01:00",
       "hito": "M12",
@@ -1118,6 +1124,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/servicio-montacargas.png",
+      "pie": "M12 (2): con la cita previa, la Centralita deja el montacargas del Servicio Técnico: borde verde y blanco, flecha hacia arriba y el cartel de la ventanilla detrás"
+    },
+    {
       "archivo": "capturas/cita-previa.png",
       "pie": "M12 (1): el cartel de «Cita previa» del Servicio Técnico, en la pared del Mostrador, abierto con F: los cinco jefes, ganar la partida y el expediente completo, con lo que falta de cada uno"
     },
@@ -1134,15 +1144,11 @@
       "pie": "Los cables barren la sala: cuatro brazos de rizos que giran; hay que andar con el hueco o rodar a través de un brazo"
     },
     {
-      "archivo": "capturas/centralita-departamento.png",
-      "pie": "Fase 2, «Le paso con el departamento»: el timbre, el círculo sobre la tostadora y, a los 0,8 s, a Reclamaciones, donde la espera un abanico de clavijas desde la esquina"
-    },
-    {
       "archivo": "capturas/partida-ganada.png",
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M12 (2): con la cita concedida, vencer a la Centralita apunta la victoria y abre el montacargas al Servicio Técnico (planta 6); sin ella, la partida acaba en la planta 5 (test).",
+  "proximo": "M12 (3a): la planta 6, el Taller de Reacondicionado: corta y casi en línea, sin tienda ni tesoro, con enemigos reacondicionados de las cinco plantas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1168,11 +1174,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 02:25",
-      "tarea": "M12 (2), el acceso al Servicio Técnico",
-      "desde": "2026-11-12T02:25:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

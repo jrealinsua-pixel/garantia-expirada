@@ -567,7 +567,12 @@ producto es usted, tráigase») y el Chatarrero, desde el tercer jefe, señala e
 **El acceso** (M12 (2)): con la cita, al vencer a la Centralita la partida cuenta como ganada
 (la victoria se apunta en ese momento), pero en vez de cerrarse se abre una ventanilla con el
 cartel «Servicio Técnico Oficial · Solo con cita previa»: un montacargas que sube a la planta
-secreta. Sin cita, todo sigue como ahora: la partida acaba en la planta 5.
+secreta. Sin cita, todo sigue como ahora: la partida acaba en la planta 5. Hecho así: la cita va
+en el perfil, el Mostrador se la pasa a la partida (`World.service`) y viaja de planta en planta;
+el montacargas del Servicio Técnico (`montacargas-servicio`) tiene el borde verde y blanco, la
+flecha hacia arriba y detrás el cartel de la ventanilla; la tostadora sube en un haz de luz fría.
+Morir arriba no quita la partida ganada (no se apunta otra). Mientras no exista la planta 6
+(M12 (3)), arriba se genera como la planta 5.
 
 **La planta** (el Taller de Reacondicionado): corta, 5 o 6 salas casi en línea (recepción,
 taller, almacén de piezas, la sala del jefe; ni tienda ni tesoro: aquí no se regala nada).

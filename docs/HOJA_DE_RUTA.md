@@ -470,7 +470,7 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
 - [x] (1) Requisitos de desbloqueo guardados entre partidas: vencer a los 5 jefes, ganar con 3
   productos distintos (con los que haya hasta M13) y el expediente completo del archivador. Se
   ven en el Mostrador: el cartel «Cita previa» en la pared, con su panel; el teléfono confirma la cita.
-- [ ] (2) El acceso: con la cita, vencer a la Centralita apunta la victoria y abre el montacargas
+- [x] (2) El acceso: con la cita, vencer a la Centralita apunta la victoria y abre el montacargas
   del Servicio Técnico; sin ella, la partida acaba en la planta 5 (test).
 - [ ] (3) La planta 6, el Taller de Reacondicionado: su generación (corta, casi en línea, sin
   tienda ni tesoro), sus plantillas y su arte (azulejo de taller, cintas que arrastran).

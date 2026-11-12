@@ -1076,6 +1076,74 @@ export function makeGoodsLift(): Canvas {
 }
 
 /**
+ * The Servicio Técnico's lift (M12 (2)), 44 × 44 a frame: the goods lift's plate with its hazard
+ * edge in official green and white and a painted arrow pointing up, and behind it the window's
+ * sign on two poles, a laminated board with the red header of the «Cita previa» notice. Frame 0
+ * coming up (pilot red, arrow dull); frame 1 ready (pilot green, arrow lit). The plate is 10 px
+ * lower than in `montacargas`, so its centre is at y 30.
+ */
+export function makeServiceLift(): Canvas {
+  const W = 44;
+  const H = 44;
+  const out = new Canvas(W * 2, H);
+  const OFF = hx('#e8ecef');
+  const DARK = hx('#2f6b3c');
+  for (let k = 0; k < 2; k++) {
+    const cv = new Canvas(W, H);
+    const x0 = 2;
+    const y0 = 20;
+    const pw = 40;
+    const ph = 20;
+    // The sign's poles first (the plate covers their feet).
+    for (const px of [x0 + 6, x0 + pw - 7]) {
+      cv.rect(px, 9, 2, y0 - 7, hx('#5d647e'));
+      cv.rect(px, 9, 1, y0 - 7, hx('#838ca6'));
+    }
+    // The board: cream, red header, three lines of small print and a green tick box.
+    const bx = x0 + 3;
+    const bw = pw - 6;
+    cv.rect(bx, 0, bw, 11, CREAM[1]!);
+    cv.rect(bx, 0, bw, 1, CREAM[0]!);
+    cv.rect(bx, 0, bw, 3, RED[1]!);
+    cv.rect(bx, 0, bw, 1, RED[0]!);
+    for (let i = 0; i < 4; i++) cv.rect(bx + 3 + i * 7, 1, 5, 1, CREAM[0]!);
+    cv.rect(bx + 3, 5, 20, 1, CREAM[3]!);
+    cv.rect(bx + 3, 7, 16, 1, CREAM[3]!);
+    cv.rect(bx + 3, 9, 22, 1, CREAM[2]!);
+    cv.rect(bx + bw - 7, 5, 4, 4, CREAM[3]!);
+    cv.rect(bx + bw - 6, 6, 2, 2, k === 1 ? GREEN : CREAM[0]!);
+    cv.rect(bx, 10, bw, 1, CREAM[2]!);
+    // Front face of the plate.
+    cv.rect(x0, y0 + ph, pw, 3, hx('#2c3048'));
+    cv.rect(x0, y0 + ph, pw, 1, hx('#434963'));
+    // Official edge: green and white diagonal stripes, a little worn.
+    for (let y = y0; y < y0 + ph; y++) {
+      for (let x = x0; x < x0 + pw; x++) {
+        const edge = x < x0 + 3 || x >= x0 + pw - 3 || y < y0 + 3 || y >= y0 + ph - 3;
+        if (!edge) continue;
+        cv.set(x, y, Math.floor((x + y) / 3) % 2 === 0 ? (k === 1 ? GREEN : DARK) : OFF);
+      }
+    }
+    for (const [x, y] of [[x0 + 7, y0], [x0 + 22, y0 + ph - 1], [x0 + pw - 1, y0 + 6]] as const) cv.set(x, y, hx('#8a9a8c'));
+    cv.rect(x0 + 3, y0 + 3, pw - 6, ph - 6, hx('#5d647e'));
+    for (let y = y0 + 4; y < y0 + ph - 3; y += 3) for (let x = x0 + 4 + ((y >> 1) % 2); x < x0 + pw - 4; x += 3) cv.set(x, y, hx('#838ca6'));
+    cv.rect(x0 + 3, y0 + 3, pw - 6, 1, hx('#838ca6'));
+    cv.rect(x0 + 3, y0 + ph - 4, pw - 6, 1, hx('#434963'));
+    // Painted arrow pointing up (to the floor nobody gets to).
+    const arrow = ['...X...', '..XXX..', '.XXXXX.', 'XXXXXXX', '..XXX..', '..XXX..', '..XXX..'];
+    const ac = k === 1 ? YEL[1]! : hx('#8f7a3c');
+    const al = k === 1 ? YEL[0]! : hx('#a8915a');
+    arrow.forEach((row, j) => [...row].forEach((ch, i) => ch === 'X' && cv.set(x0 + 17 + i, y0 + 6 + j, j <= 1 || (j === 3 && i < 2) ? al : ac)));
+    for (const [x, y] of [[x0 + 4, y0 + 4], [x0 + pw - 5, y0 + 4], [x0 + 4, y0 + ph - 5], [x0 + pw - 5, y0 + ph - 5]] as const) cv.set(x, y, hx('#b7bed0'));
+    // The pilot light on the right pole: red while it comes up, green once it takes you.
+    cv.rect(x0 + pw - 8, 13, 4, 3, K);
+    cv.rect(x0 + pw - 7, 14, 2, 1, k === 1 ? GREEN : RED[1]!);
+    out.blit(outline(cv), k * W, 0);
+  }
+  return out;
+}
+
+/**
  * A spare heart lying on the floor (a boss's reward): a red heart with a highlight and a little
  * «original part» tag, 13 × 12. Two frames: the second catches the light.
  */

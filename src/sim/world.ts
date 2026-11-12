@@ -720,8 +720,11 @@ export type SimEvent =
   | { type: 'pickup'; x: number; y: number; kind: PickupKind; value: number; total: number; weapon?: string; item?: string }
   /** The player took weapon `weapon` in hand (`slot` of `count` it carries); `found` when it was just picked up. */
   | { type: 'swap'; weapon: string; slot: number; count: number; found: boolean }
-  /** The goods lift came up where the boss fell (it can be used once it is `ready`). */
-  | { type: 'lift'; x: number; y: number }
+  /**
+   * The goods lift came up where the boss fell (it can be used once it is `ready`). `service`: it
+   * is the Servicio Técnico's (M12 (2)), going up, and the run is already won (record it now).
+   */
+  | { type: 'lift'; x: number; y: number; service?: true }
   | { type: 'liftReady'; x: number; y: number }
   /** The toaster stepped on the Mostrador's conveyor: the hub is done and a run starts (see leaveHub). */
   | { type: 'leaveHub'; x: number; y: number }
@@ -834,6 +837,11 @@ export interface World {
   finale?: { x: number; y: number; t: number } | null;
   /** The toaster took the lift (or the last floor's boss fell): the floor is done and the world stands still. */
   won: boolean;
+  /**
+   * This run has the Servicio Técnico's appointment (Profile.service, M12): beating the last
+   * floor's boss opens the lift up to SERVICE_LEVEL instead of ending the run.
+   */
+  service: boolean;
   /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
   holdT: number;
   /** The last tick the player bumped into a queue tape with a noise (holdTapes). */
@@ -852,6 +860,8 @@ export interface World {
 export interface Lift {
   x: number;
   y: number;
+  /** The Servicio Técnico's lift, up to the secret floor (on the last floor, with the appointment). */
+  service?: true;
   /** Seconds since it came up: it takes the toaster from LIFT_READY on. */
   t: number;
 }
@@ -989,6 +999,8 @@ export interface WorldOptions {
   floor?: boolean;
   /** Which floor of the store (default 1). */
   level?: number;
+  /** The run has the Servicio Técnico's appointment (World.service). In the hub, see HubOptions. */
+  service?: boolean;
   /** The Mostrador de Devoluciones (the hub between runs) instead of a room or a floor. */
   hub?: HubOptions;
 }
@@ -997,6 +1009,8 @@ export interface WorldOptions {
 export interface HubOptions {
   /** The Chatarrero turns up once a boss has fallen; without him his spot is clear floor. */
   chatarrero?: boolean;
+  /** The appointment with the Servicio Técnico is granted: the runs started here carry it (World.service). */
+  service?: boolean;
 }
 
 export function createWorld(opts: WorldOptions): World {
@@ -1077,6 +1091,7 @@ export function createWorld(opts: WorldOptions): World {
     intro: null,
     lift: null,
     won: false,
+    service: opts.service ?? opts.hub?.service ?? false,
     holdT: 0,
     leftHub: false,
   };
@@ -1111,7 +1126,7 @@ export function createWorld(opts: WorldOptions): World {
  */
 export function leaveHub(w: World, seed: string): World | null {
   if (w.room.kind !== 'hub' || !w.leftHub) return null;
-  return createWorld({ seed, floor: true, level: 1, character: w.player.base.def.id });
+  return createWorld({ seed, floor: true, level: 1, character: w.player.base.def.id, service: w.service });
 }
 
 /** How close (px) the toaster's feet must be to a station of the hub to use it. */
@@ -1158,11 +1173,30 @@ export const LEVEL_DEPTH = 3;
  */
 export const LAST_LEVEL = 5;
 
+/**
+ * The Servicio Técnico (M12): the secret floor over the last one, for runs with the appointment.
+ * Until its own floor exists (M12 (3)), it is laid out like floor 5.
+ */
+export const SERVICE_LEVEL = 6;
+
+/** The top floor of this run: the Servicio Técnico's with the appointment, the fifth without it. */
+export function topLevelOf(w: { service: boolean }): number {
+  return w.service ? SERVICE_LEVEL : LAST_LEVEL;
+}
+
 /** Seconds from the last floor's boss falling to the run being won (the coupons burst out meanwhile). */
 export const FINALE_DELAY = 3;
 
 /** Whether this world is the last floor of a run: its boss leaves no lift, it ends the run. */
 export function isLastFloor(w: World): boolean {
+  return w.floor !== null && w.level >= topLevelOf(w);
+}
+
+/**
+ * Whether beating this floor's boss wins the run: on the fifth floor always (M11 (3)), also with
+ * the appointment, when the lift up to the Servicio Técnico comes up instead of the run ending.
+ */
+export function winsRun(w: World): boolean {
   return w.floor !== null && w.level >= LAST_LEVEL;
 }
 
@@ -1173,9 +1207,9 @@ export function isLastFloor(w: World): boolean {
  * out of the new floor's loot decks. Null on the last floor (the run ends there).
  */
 export function nextFloor(w: World): World | null {
-  if (!w.won || !w.floor || w.level >= LAST_LEVEL) return null;
+  if (!w.won || !w.floor || w.level >= topLevelOf(w)) return null;
   const p = w.player;
-  const n = createWorld({ seed: `${w.seed}:planta${w.level + 1}`, floor: true, level: w.level + 1, character: p.base.def.id });
+  const n = createWorld({ seed: `${w.seed}:planta${w.level + 1}`, floor: true, level: w.level + 1, character: p.base.def.id, service: w.service });
   const q = n.player;
   n.player = { ...p, x: q.x, y: q.y, vx: 0, vy: 0, aim: q.aim, facing: q.facing, rollT: q.rollT, rollDirX: q.rollDirX, rollDirY: q.rollDirY, rollCooldown: 0, invulnerable: q.invulnerable };
   // What was on loan expires with the floor: the warranty and the special hearts.
@@ -3657,8 +3691,10 @@ function openLift(w: World, x: number, y: number): void {
       }
     }
   }
-  w.lift = { x: at.x, y: at.y, t: 0 };
-  w.events.push({ type: 'lift', x: at.x, y: at.y });
+  // On the fifth floor with the appointment, it is the Servicio Técnico's, going up.
+  const service = winsRun(w) && !isLastFloor(w);
+  w.lift = { x: at.x, y: at.y, t: 0, ...(service ? { service: true as const } : {}) };
+  w.events.push({ type: 'lift', x: at.x, y: at.y, ...(service ? { service: true as const } : {}) });
 }
 
 /** Whether (x, y) is on the lift's plate (well inside it). */

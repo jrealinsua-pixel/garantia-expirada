@@ -218,6 +218,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'persiana-s-5': { canvas: P.makeShutterFrames(48, 24, 5), frameW: 48, frameH: 24 },
     'persiana-v-5': { canvas: P.makeShutterFrames(24, 48, 5), frameW: 24, frameH: 48 },
     montacargas: { canvas: P.makeGoodsLift(), frameW: 44, frameH: 34 },
+    'montacargas-servicio': { canvas: P.makeServiceLift(), frameW: 44, frameH: 44 },
     'corazon-suelo': { canvas: P.makeSpareHeart(), frameW: 13, frameH: 12 },
     'garantia-provisional': { canvas: P.makeShieldPickup(), frameW: 13, frameH: 12 },
     'garantias-hud': { canvas: P.makeShieldHearts(), frameW: 9, frameH: 8 },
@@ -277,7 +278,7 @@ function main(): void {
   x = 4;
   const row = ['caja', 'barril', 'carrito', 'bala-jugador', 'bala-roja', 'bala-cubito', 'bola-escarcha', 'escarcha', 'fogonazo'];
   const row2 = ['pelusa', 'polvo', 'mira', 'corazones', 'municion', 'mano', 'arma-secador', 'arma-grapadora', 'arma-plancha', 'bala-grapa', 'bala-vapor'];
-  for (const k of [...row, ...row2, 'cupon', 'chatarra', 'despiece', 'montacargas', 'corazon-suelo',
+  for (const k of [...row, ...row2, 'cupon', 'chatarra', 'despiece', 'montacargas', 'montacargas-servicio', 'corazon-suelo',
     'garantia-provisional', 'garantias-hud', 'corazon-turbo', 'corazon-sobretension', 'turbo-hud', 'sobretension-hud', 'cofre', 'cofre-premium', 'ticket', 'autocobro', 'expositor']) {
     const c = sheets[k]!.canvas;
     sheet.blit(c, x, 4);

@@ -1589,6 +1589,42 @@ try {
   await page.evaluate(`(() => { const r = ${JSON.stringify(recordBefore)}; const key = 'garantia-expirada/perfil';
     if (r === null) localStorage.removeItem(key); else localStorage.setItem(key, r); })()`);
 
+  // M12 (2): with the appointment (?cita=1), the Centralita falling wins the run and raises the
+  // Servicio Técnico's lift instead (here she is set down at the entrance and beaten by hand: the
+  // way it happens in her room is tested in tests/servicio-acceso.test.ts).
+  await page.goto(`${url}?semilla=e2e-cita&planta=5&cita=1`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = [];
+    window.__GE__.spawnIdle('centralita', w.player.x + 70, w.player.y - 40);
+    const b = w.enemies[w.enemies.length - 1]; b.damageTaken = b.def.hp; })()`);
+  await page.waitForFunction('!!window.__GE__.scene.world.lift', undefined, { timeout: 8000 });
+  if (!(await page.evaluate<boolean>('!!window.__GE__.scene.world.lift.service'))) throw new Error('Con cita, el montacargas no es el del Servicio Técnico');
+  if (await page.evaluate<boolean>('!!window.__GE__.scene.world.finale')) throw new Error('Con cita, la partida se cierra en la planta 5');
+  await page.waitForTimeout(900);
+  await shot('17r-servicio-incidencia-cerrada.png');
+  await page.waitForFunction('window.__GE__.scene.world.lift.t > 3.1', undefined, { timeout: 6000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = w.lift.x - 40; w.player.y = w.lift.y; })()`);
+  await page.waitForTimeout(150);
+  await shot('17s-servicio-montacargas.png');
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.state().won', undefined, { timeout: 5000 });
+  await page.keyboard.up('d');
+  await page.waitForTimeout(600);
+  await shot('17t-servicio-subiendo.png');
+  await page.waitForFunction('window.__GE__.state().report.length > 0', undefined, { timeout: 5000 });
+  await page.waitForTimeout(900);
+  await shot('17u-servicio-parte.png');
+  const upReport = await state();
+  if (!upReport.report.some((l: string) => l.includes('Servicio Técnico'))) throw new Error(`El parte no anuncia el Servicio Técnico: ${upReport.report.join(' | ')}`);
+  console.log(`Con cita: ${upReport.report.join(' | ')}`);
+  await page.waitForTimeout(400);
+  await page.keyboard.press('r');
+  await page.waitForFunction('window.__GE__.state().ready && !window.__GE__.state().won && window.__GE__.scene.world.level === 6', undefined, { timeout: 5000 });
+  await page.waitForTimeout(600);
+  await shot('17v-servicio-planta-6.png');
+  await page.evaluate(`(() => { const r = ${JSON.stringify(recordBefore)}; const key = 'garantia-expirada/perfil';
+    if (r === null) localStorage.removeItem(key); else localStorage.setItem(key, r); })()`);
+
   // M5: modifiers. In the test room the toaster gets three bullets per shot, bigger and bouncing,
   // and a longer magazine (the HUD grows a second row of pips).
   await page.goto(`${url}?semilla=e2e-mods&sala=sala-pruebas`);

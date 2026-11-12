@@ -11,7 +11,7 @@ import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
 import { INTERACT_VERBS, interactPrompt, REPORT_MENU_HINT } from '../data/texts.ts';
 import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHARGE_LINE } from '../data/texts.ts';
-import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE } from '../data/texts.ts';
+import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, SERVICE_LIFT_LINE, SERVICE_WON_LINE } from '../data/texts.ts';
 import { SPECIAL_HEARTS } from '../data/hearts.ts';
 import { SURGE_HIT_LINE, SURGE_LINE, TURBO_END_LINE } from '../data/texts.ts';
 import { RUN_WIN_HINT, RUN_WIN_STAMP, RUN_WIN_TITLE, runWinReport, SHIELD_GONE_LINE, SHIELD_HIT_LINE, SHIELD_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
@@ -82,6 +82,7 @@ import {
   addModifier,
   createWorld,
   LAST_LEVEL,
+  topLevelOf,
   leaveHub,
   nearStation,
   LIFT_READY,
@@ -476,7 +477,7 @@ export class GameScene extends Phaser.Scene {
   /** Seconds to the next blast on a boss that is coming apart. */
   private blastT = 0;
   /** The goods lift (once the boss has fallen) and the dark shaft it leaves when it goes down. */
-  private liftView: { s: Phaser.GameObjects.Image; hole: Phaser.GameObjects.Rectangle; arrow: Phaser.GameObjects.Graphics; upT: number } | null = null;
+  private liftView: { s: Phaser.GameObjects.Image; hole: Phaser.GameObjects.Rectangle; arrow: Phaser.GameObjects.Graphics; upT: number; service: boolean } | null = null;
   /** Seconds since the toaster stepped on the lift (-1 before). */
   private winT = -1;
 
@@ -587,7 +588,7 @@ export class GameScene extends Phaser.Scene {
       this.hintT = 0;
     } else if (this.hubMode) {
       // The Mostrador de Devoluciones: where every run starts and ends. The Chatarrero comes once a boss has fallen.
-      this.world = createWorld({ seed: 'mostrador', hub: { chatarrero: chatarreroHere(profile()) } });
+      this.world = createWorld({ seed: 'mostrador', hub: { chatarrero: chatarreroHere(profile()), service: profile().service } });
     } else if (this.startSala && !params.get('sala')) {
       this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala, level });
     } else if (params.get('sala')) {
@@ -596,7 +597,8 @@ export class GameScene extends Phaser.Scene {
       this.world = createWorld({ seed: params.get('semilla') ?? params.get('sala')!, room: params.get('sala')!, depth: Number(params.get('profundidad') ?? 3), level });
     } else {
       // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
-      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level });
+      // ?cita=1: as if the Servicio Técnico's appointment were granted (otherwise, the profile's).
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service: params.get('cita') === '1' || profile().service });
     }
     const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);
@@ -822,7 +824,7 @@ export class GameScene extends Phaser.Scene {
     // Back in the boss room after walking out: the lift is still there, waiting.
     const lift = this.world.lift;
     if (lift) {
-      this.raiseLift(lift.x, lift.y, true);
+      this.raiseLift(lift.x, lift.y, true, lift.service);
       if (lift.t >= LIFT_READY) this.liftView!.s.setFrame(1);
     }
   }
@@ -1024,7 +1026,7 @@ export class GameScene extends Phaser.Scene {
       this.showForm(done, { title: RUN_WIN_TITLE, color: 0xd9932a, light: 0xfff1a8, stamp: RUN_WIN_STAMP, hint: RUN_WIN_HINT });
       return;
     }
-    const next = w.level < LAST_LEVEL ? w.level + 1 : undefined;
+    const next = w.level < topLevelOf(w) ? w.level + 1 : undefined;
     const lines = winReport({ room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, next }, (n) => this.fx.int(0, n - 1));
     this.showForm(lines, { title: WIN_TITLE, color: 0x3a9ea6, light: 0xb6f1f0, stamp: WIN_STAMP, hint: next ? WIN_HINT_NEXT : WIN_HINT });
   }
@@ -1697,14 +1699,17 @@ export class GameScene extends Phaser.Scene {
    * The goods lift rises out of the floor where the boss fell, with dust and a rumble; `already`
    * (back in the room after walking out) puts it there, up and silent.
    */
-  private raiseLift(x: number, y: number, already = false): void {
+  private raiseLift(x: number, y: number, already = false, service = false): void {
     this.liftView?.s.destroy();
     this.liftView?.hole.destroy();
     this.liftView?.arrow.destroy();
     const hole = this.add.rectangle(Math.round(x) - 20, Math.round(y) - 10, 40, 23, 0x0e0c16, 1).setOrigin(0, 0).setDepth(-60001).setAlpha(0);
-    const s = this.add.image(Math.round(x), Math.round(y), 'montacargas', 0).setOrigin(0.5, 20 / 34).setDepth(-60000);
+    // The Servicio Técnico's (M12 (2)) is taller (its sign stands behind the plate) and goes up.
+    const s = service
+      ? this.add.image(Math.round(x), Math.round(y), 'montacargas-servicio', 0).setOrigin(0.5, 30 / 44).setDepth(-60000)
+      : this.add.image(Math.round(x), Math.round(y), 'montacargas', 0).setOrigin(0.5, 20 / 34).setDepth(-60000);
     const arrow = this.add.graphics().setDepth(85000);
-    this.liftView = { s, hole, arrow, upT: already ? 1 : 0 };
+    this.liftView = { s, hole, arrow, upT: already ? 1 : 0, service };
     if (already) return;
     this.sound2.play('ascensor', { detune: 300 });
     this.time.delayedCall(300, () => this.sound2.play('persiana', { volume: 0.6 }));
@@ -1717,10 +1722,18 @@ export class GameScene extends Phaser.Scene {
     const l = this.world.lift;
     if (!v || !l) return;
     const W = 44;
-    const H = 34;
+    const H = v.service ? 44 : 34;
     v.upT += dt;
-    let d = Math.round((1 - Math.min(1, v.upT / 0.6)) * 22);
-    if (this.winT >= 0) {
+    let d = Math.round((1 - Math.min(1, v.upT / 0.6)) * (v.service ? 30 : 22));
+    if (this.winT >= 0 && v.service) {
+      // Going up: the plate stays and a cold beam of light takes the toaster (see the hero's rise).
+      d = 0;
+      const k = Math.min(1, this.winT / WIN_SINK);
+      v.arrow.clear();
+      v.arrow.fillStyle(0xb6f1c0, 0.18 * Math.sin(k * Math.PI) + 0.06).fillRect(Math.round(l.x) - 16, Math.round(l.y) - 120, 32, 128);
+      v.arrow.fillStyle(0xf4f1e8, 0.2 * Math.sin(k * Math.PI)).fillRect(Math.round(l.x) - 8, Math.round(l.y) - 120, 16, 128);
+      v.arrow.setDepth(Math.round(l.y) + 1);
+    } else if (this.winT >= 0) {
       const k = Math.min(1, this.winT / WIN_SINK);
       d = Math.round(k * k * 34);
       v.hole.setAlpha(1);
@@ -1728,12 +1741,12 @@ export class GameScene extends Phaser.Scene {
     v.s.setPosition(Math.round(l.x), Math.round(l.y) + d);
     v.s.setCrop(0, 0, W, Math.max(0, H - d));
     v.s.setVisible(d < H);
-    v.arrow.clear();
+    if (this.winT < 0 || !v.service) v.arrow.clear();
     if (l.t >= LIFT_READY && this.winT < 0) {
       // A bouncing yellow arrow over it: step on here.
       const bob = Math.round(Math.abs(Math.sin(this.time.now / 180)) * 4);
       const ax = Math.round(l.x);
-      const ay = Math.round(l.y) - 30 - bob;
+      const ay = Math.round(l.y) - (v.service ? 40 : 30) - bob;
       v.arrow.fillStyle(0x0e0c16, 1).fillTriangle(ax - 6, ay - 1, ax + 6, ay - 1, ax, ay + 7);
       v.arrow.fillStyle(0xf6c431, 1).fillTriangle(ax - 4, ay, ax + 4, ay, ax, ay + 5);
     }
@@ -2934,12 +2947,18 @@ export class GameScene extends Phaser.Scene {
           break;
         }
         case 'lift':
-          this.raiseLift(e.x, e.y);
+          this.raiseLift(e.x, e.y, false, e.service);
+          if (e.service) {
+            // The fifth floor with the appointment (M12 (2)): the run is won now, whatever comes upstairs.
+            this.recordRun('floor');
+          }
           break;
         case 'liftReady':
           this.sound2.play('desbloquear');
           if (this.liftView) this.liftView.s.setFrame(1);
-          this.setBanner(LIFT_LINE).setTint(0x69dbd8).setAlpha(1);
+          // The Servicio Técnico's: once «Liquidación total» is gone, the run is said to be won.
+          if (this.world.lift?.service) this.floatText(e.x, e.y - 58, fontText(SERVICE_WON_LINE), 0x58b45a, 'service', -8, 3.2);
+          this.setBanner(this.world.lift?.service ? SERVICE_LIFT_LINE : LIFT_LINE).setTint(this.world.lift?.service ? 0x58b45a : 0x69dbd8).setAlpha(1);
           this.tweens.killTweensOf(this.banner);
           this.tweens.add({ targets: this.banner, alpha: 0, delay: 3200, duration: 600, onComplete: () => this.banner.setTint(0xf6c431) });
           break;
@@ -3393,8 +3412,10 @@ export class GameScene extends Phaser.Scene {
 
   /** The texture of this floor for a sprite that changes from floor to floor (`<key>-2` upstairs), or the plain one. */
   private levelKey(key: string): string {
-    const own = `${key}-${this.world.level}`;
-    return this.world.level > 1 && this.textures.exists(own) ? own : key;
+    // The Servicio Técnico (level 6) looks like floor 5 until its own art (M12 (3b)).
+    const level = Math.min(this.world.level, LAST_LEVEL);
+    const own = `${key}-${level}`;
+    return level > 1 && this.textures.exists(own) ? own : key;
   }
 
   private makeShutters(doors: ReadonlyArray<{ dir: string; x: number; y: number; w: number; h: number }>): void {
@@ -3701,6 +3722,12 @@ export class GameScene extends Phaser.Scene {
         const hop = this.winT < 1.2 ? Math.abs(Math.sin((this.winT / 0.6) * Math.PI)) : 0;
         this.hero.setY(Math.round(p.y - hop * 6));
         this.hero.setVisible(true);
+      } else if (w.lift?.service) {
+        // Up to the Servicio Técnico (M12 (2)): it floats up in the beam and fades away.
+        const k = Math.min(1, this.winT / WIN_SINK);
+        this.hero.setY(Math.round(p.y - k * k * 60));
+        this.hero.setAlpha(1 - k);
+        this.hero.setVisible(k < 1);
       } else {
         const k = Math.min(1, this.winT / WIN_SINK);
         const d = Math.round(k * k * 34);
@@ -3720,7 +3747,7 @@ export class GameScene extends Phaser.Scene {
     // Rolling over a low counter: on top of it, not behind.
     const heroDepth = isRolling(p) && onLowProp(w, p) ? p.y + LOW_PROP_LIFT : p.y;
     this.hero.setDepth(heroDepth);
-    this.hero.setAlpha(1);
+    if (!(w.won && this.winT >= 0 && w.lift?.service)) this.hero.setAlpha(1);
     this.heroShadow.setVisible(!w.won);
     this.heroShadow.setPosition(Math.round(p.x), Math.round(p.y));
     if (this.flashHero > 0) {
