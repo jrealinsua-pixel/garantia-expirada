@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T00:50:00+01:00",
+  "actualizado": "2026-11-12T02:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 88,
-    "tests": 752,
-    "tests_ok": 752,
+    "tests": 753,
+    "tests_ok": 753,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 27212
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T02:05:00+01:00",
+      "hito": "M11",
+      "resumen": "Dos sesiones hicieron a la vez la medida de la planta 5 y llegaron a lo mismo; se queda la que llegó antes a main. De la otra queda un retoque: el Sello de Denegado, si un mueble lo frena mientras planea para estampar, cae corto en vez de recorrer de golpe lo que le faltaba.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T00:50:00+01:00",
       "hito": "M11",

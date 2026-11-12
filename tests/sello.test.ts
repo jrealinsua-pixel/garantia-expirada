@@ -13,7 +13,7 @@ import { DOWN_CAUSES, ROLL_DENIED_LINE, STAMP_LINE } from '../src/data/texts.ts'
 import type { StamperBrain } from '../src/data/types.ts';
 import { enemyFrame } from '../src/render/enemyAnim.ts';
 import {
-  activeWarnings, createWorld, DT, enterRoom, dummyHurtBox, enemyAltitude, inkUnder, isRolling, NO_INPUT, spawnEnemy, stampInk, step, worldHash, type Enemy, type World,
+  activeWarnings, checkInvariants, createWorld, slide, DT, enterRoom, dummyHurtBox, enemyAltitude, inkUnder, isRolling, NO_INPUT, spawnEnemy, stampInk, step, worldHash, type Enemy, type World,
 } from '../src/sim/world.ts';
 
 const def = ENEMIES.sello!;
@@ -96,6 +96,26 @@ test('para estampar sube, planea hasta encima de la tostadora con una sombra cua
   untilStamp(w, st);
   assert.equal(enemyAltitude(st), 0, 'ya en el suelo');
   assert.equal(enemyFrame(st, 0), def.anim!.out, 'aplastado');
+});
+
+test('si algo lo frena mientras planea, cae corto: no atraviesa muebles de un salto (planta 5, «enemy inside a wall»)', () => {
+  // A stamp whose glide was held back by a wall used to cover what was left in the warning's last
+  // tick: 50 px at once, through the wall (medir-plantas-35, Punto de Información).
+  const { w, st } = office('frenado', 90);
+  untilRise(w, st);
+  const thin = { x: st.x - 40, y: st.y - 60, w: 8, h: 120 };
+  w.room.props = [{ def: { id: 'muro-de-prueba' } as never, x: thin.x, y: thin.y, box: thin }];
+  st.dest = { x: st.x - 80, y: st.y };
+  st.t = st.until - DT; // its last tick of glide, with all the way still to go
+  const x0 = st.x;
+  step(w, NO_INPUT);
+  assert.ok(st.x > thin.x + thin.w, 'sigue a este lado del mueble');
+  assert.ok(x0 - st.x <= 320 * DT + 1e-6, 'como mucho a su velocidad de planeo');
+  assert.deepEqual(checkInvariants(w), []);
+  // And slide itself never jumps a solid, however long the move.
+  const b = { x: thin.x + thin.w + 10, y: thin.y + 60, vx: 0, vy: 0 };
+  const h = slide(w, b, 6, -70, 0);
+  assert.ok(h.hitX && b.x > thin.x + thin.w, 'choca y se queda a este lado');
 });
 
 test('no estampa más lejos de su alcance', () => {

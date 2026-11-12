@@ -2505,6 +2505,9 @@ function swapPlaces(w: World, en: Enemy, mate: Enemy): void {
   w.events.push({ type: 'transferDone', ax, ay, bx: en.x, by: en.y, source: en.id, to: mate.id });
 }
 
+/** The stamp's fastest glide while it warns, px/s. */
+const STAMP_GLIDE = 320;
+
 /**
  * The DENEGADO stamp: hops towards the player (state `charge`, like the envelope) and every
  * `stampEvery` hops it stamps: it rises over the player's spot (state `warn`, gliding there while a
@@ -2538,7 +2541,15 @@ function updateStamper(w: World, en: Enemy, b: StamperBrain): void {
       const left = Math.max(DT, en.until - en.t + DT);
       const ox = en.x;
       const oy = en.y;
-      slide(w, en, en.def.footRadius, ((d.x - en.x) / left) * DT, ((d.y - en.y) / left) * DT);
+      // Never faster than STAMP_GLIDE: if something held it back, it comes down short rather than leaping.
+      let gx = ((d.x - en.x) / left) * DT;
+      let gy = ((d.y - en.y) / left) * DT;
+      const g = Math.hypot(gx, gy);
+      if (g > STAMP_GLIDE * DT) {
+        gx *= (STAMP_GLIDE * DT) / g;
+        gy *= (STAMP_GLIDE * DT) / g;
+      }
+      slide(w, en, en.def.footRadius, gx, gy);
       en.moved += Math.hypot(en.x - ox, en.y - oy);
       if (en.t >= en.until) {
         en.dest = { x: en.x, y: en.y };
