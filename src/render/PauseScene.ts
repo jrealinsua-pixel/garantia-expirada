@@ -48,7 +48,7 @@ import {
   TITLE_MENU,
   TITLE_TAGLINE,
 } from '../data/texts.ts';
-import { activeLines, characterStatRows, modifierLines, weaponStatRows, type EffectLine, type StatRow } from '../data/describe.ts';
+import { activeLines, characterStatRows, meritRows, modifierLines, weaponStatRows, type EffectLine, type StatRow } from '../data/describe.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
 import { FINDABLE_WEAPONS } from '../data/weapons.ts';
 import { downCause, HISTORY_EMPTY, HISTORY_MENU, HISTORY_SUB, HISTORY_TITLE, historyLines } from '../data/texts.ts';
@@ -507,6 +507,7 @@ export class PauseScene extends Phaser.Scene {
     text(lx, y, p.def.name, GOLD);
     y += 12;
     rows(characterStatRows(p.base.def, p.def));
+    rows(meritRows(p.def, p.merit ?? 0));
     y += 6;
     text(lx, y, INVENTORY_SYNERGIES, GOLD);
     y += 12;

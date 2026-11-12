@@ -356,7 +356,21 @@ export interface BladesAbility {
   knockback: number;
 }
 
-export type CharacterAbility = ToastAbility | BladesAbility;
+/**
+ * El Becario Eterno's «Experiencia demostrable» and «Sin remunerar»: every combat room cleared
+ * without being hurt adds a point of experience (each one, `step` more damage, up to `max`); a hit
+ * keeps only `kept` of them, rounded down («no se valora»). And the enemies leave it `couponMul`
+ * of their coupons (the rest, carried over: exactly that share, with no dice).
+ */
+export interface MeritAbility {
+  kind: 'merit';
+  step: number;
+  max: number;
+  kept: number;
+  couponMul: number;
+}
+
+export type CharacterAbility = ToastAbility | BladesAbility | MeritAbility;
 
 /**
  * A playable character's sprite sheet (public/assets/<sheet>.png). Every character's sheet has
@@ -373,6 +387,8 @@ export interface CharacterLook {
   feetY: number;
   /** Height in the frame of the point it spins around while rolling. */
   spinY: number;
+  /** The texture of its floating front hand (default «mano», the toaster's grey glove). */
+  hand?: string;
 }
 
 export interface PropDef {

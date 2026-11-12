@@ -40,4 +40,24 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     look: { sheet: 'batidora-vaso', w: 40, h: 41, feetX: 18.5, feetY: 36, spinY: 22 },
     ability: { kind: 'blades', damage: 4, reach: 9, knockback: 150 },
   },
+  becario: {
+    id: 'becario',
+    name: 'El Becario Eterno',
+    description: 'No es un electrodoméstico. Llegó en la caja del material de oficina y nadie firmó su baja. Aprende mucho. No cobra nada.',
+    maxHp: 6,
+    speed: 104,
+    accel: 1500,
+    friction: 1900,
+    rollSpeed: 175,
+    rollTime: 0.42,
+    rollIframes: 0.4,
+    rollCooldown: 0.3,
+    startWeapon: 'grapadora',
+    footRadius: 5,
+    look: { sheet: 'becario', w: 40, h: 41, feetX: 17.5, feetY: 36, spinY: 22, hand: 'mano-becario' },
+    // «Experiencia demostrable»: +4 % damage per room cleared unhurt (up to 6); a hit halves it.
+    // «Sin remunerar»: half the coupons. (With +5 % up to 8 the bot won floor 1 a third more often
+    // than with the toaster: the Grapadora already hits harder in its hands.)
+    ability: { kind: 'merit', step: 0.04, max: 6, kept: 0.5, couponMul: 0.5 },
+  },
 };

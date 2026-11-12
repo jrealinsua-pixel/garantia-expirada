@@ -27,6 +27,7 @@ import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
 import * as H from './mostrador.ts';
 import * as BV from './batidora-vaso.ts';
+import { makeBecarioFrames, makeBecarioHand } from './becario.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
 
@@ -55,6 +56,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'giro-cuchillas': { canvas: strip(BV.makeWhirlFrames()), frameW: BV.WHIRL_SIZE, frameH: BV.WHIRL_SIZE },
     'arma-picahielos': one(BV.makeMiniIceCrusher()),
     'bala-cubito-zumo': one(BV.makeJuiceCube()),
+    // The playable characters (M13): the same eight frames as the toaster (CharacterLook).
+    becario: { canvas: strip(makeBecarioFrames()), frameW: 40, frameH: 41 },
+    'mano-becario': one(makeBecarioHand()),
     // Frame 0 of every enemy sheet is its approved (or first) sprite; the order of the rest is in
     // the enemy's `anim` (src/data/enemies.ts).
     aspirador: { canvas: strip(narrowPoseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },

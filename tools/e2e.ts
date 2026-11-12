@@ -1759,6 +1759,26 @@ try {
   const bounced = await page.evaluate<number>("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player' && b.bounce < 2).length");
   console.log(`Modificadores: cargador ${mag}, ${bounced} balas ya rebotadas en pantalla.`);
 
+  // M13 (5): El Becario Eterno in the test room (?personaje=): its own sheet and bare hand,
+  // stapling the dummies; then the room emptied and restocked counts as a room cleared unhurt,
+  // and the green «Experiencia demostrable» rises over its head.
+  await page.goto(`${url}?semilla=e2e-becario&sala=sala-pruebas&personaje=becario`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  const intern = await page.evaluate<string>("(() => { const s = window.__GE__.scene; return s.world.player.base.def.id + ' ' + s.hero.texture.key + ' ' + s.hand.texture.key; })()");
+  if (intern !== 'becario becario mano-becario') throw new Error(`El becario no sale: ${intern}`);
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const w = s.world; const p = w.player; w.noDamage = true;
+    const e = w.enemies.filter((x) => x.state !== 'gone').sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+    s.controls.override = e ? { aimX: e.x, aimY: e.y - 14, fire: true } : { aimX: p.x + 80, aimY: p.y - 10, fire: true }; })()`);
+  await page.waitForTimeout(450);
+  await shot('19ba-becario.png');
+  await page.evaluate(`(() => { const s = window.__GE__.scene; const w = s.world; s.controls.override = null;
+    w.player.merit = 2; for (const e of w.enemies) e.damageTaken = e.def.hp; })()`);
+  await page.waitForFunction('window.__GE__.scene.world.player.merit === 3', undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('Vaciar la sala no le da experiencia al becario'); });
+  await page.waitForTimeout(250);
+  await shot('19bb-becario-experiencia.png');
+  console.log('Becario: su hoja y su mano; vaciar la sala de pruebas sin daño le da un punto de experiencia.');
+
   // M5: weapons. The test room has the Grapadora and the Plancha on their pedestals: walk onto
   // them, fire each at the enemies, and change weapon with E and the mouse wheel.
   await page.goto(`${url}?semilla=e2e-armas&sala=sala-pruebas`);

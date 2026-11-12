@@ -93,7 +93,7 @@ personaje está desbloqueado.
 | Tostadora Reacondicionada | 3 corazones | 100 | normal | Secador Mágnum | **Una de cada dos**: al acabar una recarga que ha rellenado al menos medio cargador salta una tostada hacia donde apunta (atraviesa, 1 de daño); una de cada dos sale **quemada** (el doble, y su humo borra las balas enemigas que toca) | Nada: es la de referencia |
 | Batidora de Vaso | 2 corazones | 118 | más larga (190 × 0,5 s), menos espera (0,26 s) | **Picahielos Turbo** (cubitos de zumo de naranja, dos por disparo: la que más balas echa, 16 por segundo; alcance de la plancha, unos 100 px; la que más se abre, 28°) | **Giro de cuchillas**: rodar tritura a los enemigos que toca (4 de daño, una vez por enemigo y vuelta) y rompe las balas que atraviesa | Muy poca vida; el arma no llega lejos |
 | Plancha de Vapor | 4 corazones | 84 | corta y lenta | **Pulverizador de Almidón** (chorros cortos que dejan almidonados, más lentos, a los enemigos) | **Suela caliente**: por donde anda queda un rastro de vapor (1,2 s) que quema a los enemigos que lo pisan (2 de daño por segundo) | Lenta, rueda poco: lo esquiva todo mal |
-| El Becario Eterno | 3 corazones | 104 | normal | Grapadora Táctica | **Experiencia demostrable**: cada sala limpiada sin que le hieran suma un punto (+5 % de daño, hasta 8); una herida le quita la mitad («no se valora») | **Sin remunerar**: los enemigos le dejan la mitad de cupones |
+| El Becario Eterno | 3 corazones | 104 | normal | Grapadora Táctica | **Experiencia demostrable**: cada sala limpiada sin que le hieran suma un punto (+4 % de daño, hasta 6; se lleva de planta en planta); una herida le deja la mitad, redondeando hacia abajo («no se valora») | **Sin remunerar**: los enemigos (jefes incluidos) le dejan la mitad exacta de cupones, sin dados |
 | Móvil Reacondicionado | 3 corazones | 100 | normal | **Notificaciones Push** (balitas lentas que persiguen al enemigo más cercano) | **Carga en movimiento**: andar carga el objeto activo (una pila cada 600 px) | **Batería al 1 %**: si se queda quieto 3 s se apaga 1 s (no dispara ni se mueve; la pantalla en negro con el logo) |
 
 Historias (cada una en una línea; la escena al empezar es la ficha de devolución que la cinta
@@ -106,7 +106,7 @@ lee en voz alta, y el final cambia el texto de la caja y de la estantería):
   vez sí».
 - **Plancha de Vapor**: quemó una camisa de cuello en una entrevista de trabajo; la culpa fue
   «de la plancha». Final: vendida en un pack «Vuelta al Cole» con una tabla que cojea.
-- **El Becario Eterno**: no es un electrodoméstico. Lo metieron en el contenedor de devoluciones
+- **El Becario Eterno** (hecho en M13 (5): camisa blanca con una mancha de café, pelo sin peinar con un pósit amarillo pegado, ojeras y la acreditación «BECARIO» sin foto; mano desnuda, `mano-becario`): no es un electrodoméstico. Lo metieron en el contenedor de devoluciones
   junto con el material de oficina al cerrar la delegación, y nadie firmó su baja. Final: la caja
   dice «Becario Reacondicionado. Con experiencia. Prácticas: 6 meses»; y no cobra.
 - **Móvil Reacondicionado**: cambiado por el modelo nuevo, que es igual pero con otro color; su

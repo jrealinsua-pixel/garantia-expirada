@@ -29,6 +29,18 @@
     "frameH": 6,
     "frames": 1
   },
+  "becario": {
+    "file": "becario.png",
+    "frameW": 40,
+    "frameH": 41,
+    "frames": 8
+  },
+  "mano-becario": {
+    "file": "mano-becario.png",
+    "frameW": 5,
+    "frameH": 5,
+    "frames": 1
+  },
   "aspirador": {
     "file": "aspirador.png",
     "frameW": 32,

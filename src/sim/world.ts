@@ -93,6 +93,13 @@ export interface Player {
    */
   toasts?: number;
   toastPrimed?: boolean;
+  /**
+   * El Becario Eterno's «Experiencia demostrable» (CharacterDef.ability): points earned, whether
+   * this room has hurt it, and the share of a coupon owed to it («Sin remunerar», carried over).
+   */
+  merit?: number;
+  meritHurt?: boolean;
+  unpaid?: number;
   /** Pilas No Incluidas (Perks.rush): seconds left of firing faster after a reload. */
   rushT?: number;
   /** Número de Turno (Perks.queue): the steps its damage has gone up in this room (announced one by one). */
@@ -694,6 +701,8 @@ export type SimEvent =
   | { type: 'markdown'; target: number; x: number; y: number; radius: number; hit: number }
   /** Valoración de Cinco Estrellas: a star earned (`stars` of `need`), the heart they pay (`paid`), or the stars wiped by a hit (`stars` 0, `was`). */
   | { type: 'stars'; stars: number; need: number; x: number; y: number; paid?: boolean; was?: number }
+  /** «Experiencia demostrable»: a point earned (`level` of `max`), or points lost to a hit (`was` before it). */
+  | { type: 'merit'; level: number; max: number; x: number; y: number; was?: number }
   /** Contrato en Prácticas: up a floor, and the contract is over (the item has left the inventory). */
   | { type: 'trialEnd'; item: string; x: number; y: number }
   | { type: 'empty' }
@@ -1420,8 +1429,9 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.room = floorRoomOf(f, id);
   // A recorded shot is not played back in the next room.
   delete w.player.echo;
-  // Valoración de Cinco Estrellas: each room is rated on its own.
+  // Valoración de Cinco Estrellas and «Experiencia demostrable»: each room is rated on its own.
   w.player.starsHurt = false;
+  w.player.meritHurt = false;
   w.bullets = [];
   w.emitters = [];
   w.frost = [];
@@ -2273,7 +2283,37 @@ export function removeModifier(w: World, id: string): boolean {
 /** What every bullet the toaster fires does on top of its weapon's damage: turbo, pet, mug and queue. */
 function shotScale(w: World): number {
   const p = w.player;
-  return (p.turbo ? TURBO_DAMAGE : 1) * petScale(p) * fullHpScale(p) * queueScale(w);
+  return (p.turbo ? TURBO_DAMAGE : 1) * petScale(p) * fullHpScale(p) * queueScale(w) * meritScale(p);
+}
+
+/** «Experiencia demostrable»: the damage its points add (1 without the ability). */
+export function meritScale(p: Player): number {
+  const ab = p.def.ability;
+  return ab?.kind === 'merit' ? 1 + ab.step * (p.merit ?? 0) : 1;
+}
+
+/**
+ * El Becario Eterno, at a combat room cleared: a point of experience if it went through it unhurt
+ * (up to the ability's max; at the top nothing is said).
+ */
+function reviewIntern(w: World): void {
+  const p = w.player;
+  const ab = p.def.ability;
+  const hurt = !!p.meritHurt;
+  p.meritHurt = false;
+  if (ab?.kind !== 'merit' || hurt || (p.merit ?? 0) >= ab.max) return;
+  p.merit = (p.merit ?? 0) + 1;
+  w.events.push({ type: 'merit', level: p.merit, max: ab.max, x: p.x, y: p.y - PLAYER_HURT_Y });
+}
+
+/** «Sin remunerar»: how many of an enemy's `n` coupons it actually leaves (the share owed is carried over). */
+function payIntern(p: Player, n: number): number {
+  const ab = p.def.ability;
+  if (ab?.kind !== 'merit' || n <= 0) return n;
+  const owed = (p.unpaid ?? 0) + n * ab.couponMul;
+  const paid = Math.floor(owed + 1e-9);
+  p.unpaid = owed - paid;
+  return paid;
 }
 
 /** A reload starts: it will pop a slice of toast when it ends if it refills enough («Una de cada dos»). */
@@ -3568,6 +3608,14 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
     w.events.push({ type: 'stars', stars: 0, need: playerPerks(p).stars.need, x: p.x, y: p.y - PLAYER_HURT_Y, was: p.stars });
     p.stars = 0;
   }
+  // «Experiencia demostrable»: a hit keeps only part of it («no se valora»), and this room gives none.
+  p.meritHurt = true;
+  const ab = p.def.ability;
+  if (ab?.kind === 'merit' && (p.merit ?? 0) > 0) {
+    const was = p.merit!;
+    p.merit = Math.floor(was * ab.kept);
+    w.events.push({ type: 'merit', level: p.merit, max: ab.max, x: p.x, y: p.y - PLAYER_HURT_Y, was });
+  }
   // Mascota Virtual: a hit and it is back to square one (and this room will not feed it).
   p.petHurt = true;
   if ((p.pet ?? 0) > 0) {
@@ -3788,6 +3836,8 @@ function reapEnemies(w: World): void {
     // Third-party cookies: now and then, one more coupon (no roll without the item).
     const extra = en.def.boss ? 0 : playerPerks(w.player).coupons;
     if (!copy && extra > 0 && w.rng.chance(extra)) n++;
+    // El Becario Eterno, «Sin remunerar»: half of it (no dice: the share owed is carried over).
+    n = payIntern(w.player, n);
     // Loot starts on clear floor: right under the enemy, or the nearest free spot if it flew
     // over a box or stood with its feet against a wall.
     const spot = n > 0 ? freeSpot(w, en.x, en.y, PICKUP_RADIUS) : { x: en.x, y: en.y };
@@ -4056,6 +4106,7 @@ function updateRestock(w: World): void {
     chargeActive(w);
     feedPet(w);
     rateService(w);
+    reviewIntern(w);
   }
 }
 
@@ -4067,6 +4118,7 @@ function updateDoors(w: World): void {
     chargeActive(w);
     feedPet(w);
     rateService(w);
+    reviewIntern(w);
     punchOut(w);
     // The turbo lasts until the next combat room is cleared (this one, if it was already on).
     if (w.player.turbo) {

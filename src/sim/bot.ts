@@ -677,8 +677,8 @@ export interface HubCrossing {
  * conveyor. Fails if it gets stuck, steps on the conveyor on the way, something shoots or an
  * invariant breaks. The run it starts is the floor 1 of `seed` (as createWorld would make it).
  */
-export function crossHub(seed: string, opts: { chatarrero?: boolean } = {}): HubCrossing {
-  const w = createWorld({ seed: 'mostrador', hub: { chatarrero: !!opts.chatarrero } });
+export function crossHub(seed: string, opts: { chatarrero?: boolean; character?: string } = {}): HubCrossing {
+  const w = createWorld({ seed: 'mostrador', hub: { chatarrero: !!opts.chatarrero }, ...(opts.character ? { character: opts.character } : {}) });
   const r = w.player.def.footRadius;
   const blocked = blockedTiles(w, r);
   const visited: string[] = [];

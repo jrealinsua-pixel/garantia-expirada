@@ -1,4 +1,4 @@
-// npm run bot [-- --partidas N --segundos S]: plays N headless games with the bot and fails on
+// npm run bot [-- --partidas N --segundos S --personaje ID]: plays N headless games with the bot and fails on
 // exceptions, broken invariants, non-determinism or a bot that gets stuck for good.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -112,6 +112,12 @@ function arg(name: string, def: number): number {
   return i >= 0 ? Number(process.argv[i + 1]) : def;
 }
 
+/** Who the bot plays (`--personaje becario`; M13: «el bot gana la planta 1 con todos»). */
+const CHARACTER = ((): string => {
+  const i = process.argv.indexOf('--personaje');
+  return i >= 0 ? process.argv[i + 1]! : 'tostadora';
+})();
+
 interface GameResult {
   hash: string;
   shots: number;
@@ -129,7 +135,7 @@ interface GameResult {
 }
 
 function playOne(seed: string, seconds: number): GameResult {
-  const w = createWorld({ seed });
+  const w = createWorld({ seed, character: CHARACTER });
   const bot = new Bot(seed);
   let shots = 0;
   let bullets = 0;
@@ -208,7 +214,7 @@ interface FloorResult {
  * floor of a run, see nextFloor) instead of a new one.
  */
 export function playFloor(seed: string, maxSeconds: number, noDamage: boolean, full = false, level = 1, start?: World): FloorResult {
-  const w = start ?? createWorld({ seed, floor: true, level });
+  const w = start ?? createWorld({ seed, floor: true, level, character: CHARACTER });
   w.noDamage = noDamage;
   const bot = new Bot(seed);
   const errors: string[] = [];
@@ -324,7 +330,7 @@ export function runBoss(fights: number, maxSeconds = 240, room = 'jefe', level =
   for (let i = 0; i < fights; i++) {
     const seed = `jefe-${i}`;
     let phase = 0;
-    const w = createWorld({ seed, room, level });
+    const w = createWorld({ seed, room, level, character: CHARACTER });
     w.intro = null;
     const bot = new Bot(seed);
     try {
@@ -439,7 +445,7 @@ export function runFloors(floors: number, maxSeconds = 600): { report: FloorRepo
     }
     walkT += a.seconds;
     // The whole run starts in the Mostrador, as in the game (half of them with the Chatarrero there).
-    const hub = crossHub(`planta-${i}`, { chatarrero: i % 2 === 1 });
+    const hub = crossHub(`planta-${i}`, { chatarrero: i % 2 === 1, character: CHARACTER });
     if (hub.errors.length) {
       failed++;
       errors.push(...hub.errors);

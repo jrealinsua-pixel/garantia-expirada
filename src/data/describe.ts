@@ -204,3 +204,10 @@ export function characterStatRows(base: CharacterDef, now: CharacterDef): StatRo
     row('Voltereta cada', base.rollCooldown, now.rollCooldown, (n) => `${String(Math.round(n * 100) / 100).replace('.', ',')} s`, false),
   ];
 }
+
+/** El Becario Eterno's experience points in the inventory (none for the others): the points and the damage they add. */
+export function meritRows(def: CharacterDef, merit: number): StatRow[] {
+  const ab = def.ability;
+  if (ab?.kind !== 'merit') return [];
+  return [{ label: 'Experiencia', base: '0', now: `${merit} (daño +${Math.round(ab.step * merit * 100)} %)`, delta: merit > 0 ? 1 : 0 }];
+}

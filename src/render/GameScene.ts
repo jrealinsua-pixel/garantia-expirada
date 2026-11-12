@@ -63,6 +63,8 @@ import {
   RECORDED_LINE,
   COMPLAINT_LINE,
   starsLine,
+  meritLine,
+  MERIT_LOST_LINE,
   STARS_PAID_LINE,
   STARS_LOST_LINE,
   queueLine,
@@ -2345,6 +2347,18 @@ export class GameScene extends Phaser.Scene {
             this.floatText(e.x, e.y - 30, fontText(STARS_LOST_LINE), 0x8a92a8, 'stars', -10, 1.2);
           }
           break;
+        case 'merit':
+          if (e.was === undefined) {
+            // «Experiencia demostrable»: a point on the CV, with a little chime that climbs.
+            this.sound2.play('clinc', { detune: 300 + 150 * e.level, volume: 0.55 });
+            for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 6, -Math.PI / 2 + this.fx.range(-1, 1), this.fx.range(30, 60), 1, 0x58b45a);
+            this.floatText(e.x, e.y - 18, fontText(meritLine(e.level, e.max)), 0x58b45a, 'merit', -12, 1.2);
+          } else {
+            // A hit: half of it «no se valora».
+            this.sound2.play('apagar', { detune: 300, volume: 0.6 });
+            this.floatText(e.x, e.y - 30, fontText(MERIT_LOST_LINE), 0x8a92a8, 'merit', -10, 1.2);
+          }
+          break;
         case 'expired':
           // Código Promocional Caducado: no chest here. A flat buzz and the stamp, in tired red.
           this.sound2.play('vacio', { detune: -300, volume: 0.6 });
@@ -3887,6 +3901,8 @@ export class GameScene extends Phaser.Scene {
     // Hero body: the character's own sheet (it changes in the Mostrador when another goes on display).
     const look = p.base.def.look;
     if (this.hero.texture.key !== look.sheet) this.hero.setTexture(look.sheet, 0);
+    const handKey = look.hand ?? 'mano';
+    if (this.hand.texture.key !== handKey) this.hand.setTexture(handKey);
     const moving = Math.hypot(p.vx, p.vy) > 12;
     let frame: number;
     if (rolling) frame = 3;
