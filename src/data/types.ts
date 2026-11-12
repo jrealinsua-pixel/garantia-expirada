@@ -321,7 +321,30 @@ export interface CharacterDef {
   footRadius: number;
   /** How it is drawn (the render reads it; the simulation does not). */
   look: CharacterLook;
+  /** Its own ability (M13): what makes it play differently. None needs a button of its own. */
+  ability?: CharacterAbility;
 }
+
+/**
+ * The Tostadora's «Una de cada dos»: when a reload that refilled at least `minSpent` of the
+ * magazine ends, a slice of toast pops out towards where it aims, going through every enemy in
+ * its way. Every second one comes out burnt: `burntMul` times the damage, and its smoke wipes out
+ * the enemy bullets it touches.
+ */
+export interface ToastAbility {
+  kind: 'toast';
+  damage: number;
+  burntMul: number;
+  /** px/s, and seconds it flies. */
+  speed: number;
+  life: number;
+  radius: number;
+  knockback: number;
+  /** Share of the magazine that must have been spent for the reload to pop one (0 to 1). */
+  minSpent: number;
+}
+
+export type CharacterAbility = ToastAbility;
 
 /**
  * A playable character's sprite sheet (public/assets/<sheet>.png). Every character's sheet has

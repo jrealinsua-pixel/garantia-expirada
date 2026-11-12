@@ -87,6 +87,12 @@ export interface WeaponState {
 }
 
 export interface Player {
+  /**
+   * The Tostadora's «Una de cada dos» (CharacterDef.ability): slices popped so far (the odd ones
+   * come out burnt), and whether the reload under way spent enough to pop one when it ends.
+   */
+  toasts?: number;
+  toastPrimed?: boolean;
   /** Pilas No Incluidas (Perks.rush): seconds left of firing faster after a reload. */
   rushT?: number;
   /** Número de Turno (Perks.queue): the steps its damage has gone up in this room (announced one by one). */
@@ -247,6 +253,8 @@ export interface Bullet {
   cut?: boolean;
   /** Player bullets: id of the weapon that fired it (how it is drawn). */
   weapon?: string;
+  /** Player bullets: a slice of toast popped by a reload («Una de cada dos»); a burnt one wipes out enemy bullets. */
+  toast?: 'golden' | 'burnt';
   /** Player bullets: a critical hit (its damage is already multiplied). */
   crit?: boolean;
   /** Player bullets: the last of the magazine with the limited-edition sticker (BulletBehaviour.last). */
@@ -656,6 +664,8 @@ export type SimEvent =
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
   | { type: 'reloadStart'; time: number }
   | { type: 'reloadEnd' }
+  /** The Tostadora popped a slice of toast at the end of a reload (burnt: every second one). */
+  | { type: 'toast'; x: number; y: number; angle: number; burnt: boolean }
   /** Pilas No Incluidas: a fresh magazine fires faster for `time` s. */
   | { type: 'rush'; x: number; y: number; time: number }
   /** Caja de Cartón Vacía: a hit that did nothing («Era solo la caja»). */
@@ -2205,6 +2215,46 @@ function shotScale(w: World): number {
   return (p.turbo ? TURBO_DAMAGE : 1) * petScale(p) * fullHpScale(p) * queueScale(w);
 }
 
+/** A reload starts: it will pop a slice of toast when it ends if it refills enough («Una de cada dos»). */
+function primeToast(p: Player, ws: WeaponState): void {
+  const ab = p.def.ability;
+  p.toastPrimed = ab?.kind === 'toast' && ws.ammo <= ws.def.magazine * (1 - ab.minSpent);
+}
+
+/**
+ * The Tostadora's «Una de cada dos»: a slice of toast pops out of the slots, towards where it
+ * aims, and goes through every enemy in its way; every second one is burnt (more damage, and its
+ * smoke wipes out the enemy bullets it touches). Items that make shots hit harder count.
+ */
+function popToast(w: World): void {
+  const p = w.player;
+  const ab = p.def.ability;
+  if (ab?.kind !== 'toast') return;
+  p.toasts = (p.toasts ?? 0) + 1;
+  const burnt = p.toasts % 2 === 0;
+  const pivot = gunPivot(p);
+  w.bullets.push({
+    id: w.nextId++,
+    owner: 'player',
+    x: pivot.x,
+    y: pivot.y,
+    vx: Math.cos(p.aim) * ab.speed,
+    vy: Math.sin(p.aim) * ab.speed,
+    r: ab.radius,
+    life: ab.life,
+    damage: ab.damage * (burnt ? ab.burntMul : 1) * shotScale(w),
+    knockback: ab.knockback,
+    color: 'red',
+    age: 0,
+    dir: p.aim,
+    speed: ab.speed,
+    h: HAND_HEIGHT,
+    pierce: 99,
+    toast: burnt ? 'burnt' : 'golden',
+  });
+  w.events.push({ type: 'toast', x: pivot.x, y: pivot.y, angle: p.aim, burnt });
+}
+
 /**
  * Contestador Automático: the recorder counts down to the next recording, and a recorded shot is
  * played back when its delay is up: the same pull of the trigger (every pellet), from where the
@@ -2272,6 +2322,8 @@ function updateWeapon(w: World, input: Input): void {
       ws.reload = 0;
       ws.ammo = def.magazine;
       w.events.push({ type: 'reloadEnd' });
+      if (p.toastPrimed) popToast(w);
+      p.toastPrimed = false;
       // Pilas No Incluidas: a fresh magazine goes faster for a while.
       const rush = playerPerks(p).rush;
       if (rush.time > 0) {
@@ -2289,12 +2341,14 @@ function updateWeapon(w: World, input: Input): void {
   if (input.reload && ws.ammo < def.magazine) {
     ws.burstN = 0;
     ws.reload = def.reloadTime;
+    primeToast(p, ws);
     w.events.push({ type: 'reloadStart', time: def.reloadTime });
     return;
   }
   if (!input.fire || isRolling(p) || ws.cooldown > 0) return;
   if (ws.ammo <= 0) {
     ws.reload = def.reloadTime;
+    primeToast(p, ws);
     w.events.push({ type: 'empty' }, { type: 'reloadStart', time: def.reloadTime });
     return;
   }
@@ -2366,6 +2420,7 @@ function updateWeapon(w: World, input: Input): void {
   }
   if (ws.ammo === 0) {
     ws.reload = def.reloadTime;
+    primeToast(p, ws);
     w.events.push({ type: 'reloadStart', time: def.reloadTime });
   }
 }
@@ -2561,15 +2616,17 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
           }
         }
         if (!alive) break;
-        // Loyalty cards can be shot down: both bullets are lost.
+        // Loyalty cards can be shot down: both bullets are lost. A burnt slice's smoke wipes out
+        // every enemy bullet it touches, and flies on.
         for (const o of w.bullets) {
-          if (o.owner !== 'enemy' || !o.shootable || o.cut) continue;
+          if (o.owner !== 'enemy' || (!o.shootable && b.toast !== 'burnt') || o.cut) continue;
           const dx = o.x - b.x;
           const dy = o.y - b.y;
-          const rr = o.r + b.r + 1;
+          const rr = o.r + b.r + (b.toast === 'burnt' ? 2 : 1);
           if (dx * dx + dy * dy < rr * rr) {
             o.cut = true;
             w.events.push({ type: 'bulletCut', x: o.x, y: o.y, color: o.color });
+            if (b.toast === 'burnt') continue;
             alive = false;
             break;
           }

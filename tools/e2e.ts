@@ -1766,6 +1766,22 @@ try {
   const slotOf0 = (): Promise<string> => page.evaluate<string>('window.__GE__.scene.world.player.weapon.base.id');
   const goTo = (id: string, dx: number): Promise<unknown> =>
     page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const k = w.pickups.find((p) => p.weapon === '${id}'); w.player.x = k.x + ${dx}; w.player.y = k.y + 2; })()`);
+  // M13 (2): the toaster's «Una de cada dos». A reload that refilled the magazine pops a slice of
+  // toast towards where it aims (the second one burnt, smoking); both seen in flight.
+  for (const [n, name] of [[0, '19aa-tostada.png'], [1, '19ab-tostada-quemada.png']] as const) {
+    await page.evaluate(`(() => { const s = window.__GE__.scene; const w = s.world; const p = w.player; w.noDamage = true;
+      p.toasts = ${n}; p.weapon.ammo = 0; p.weapon.reload = 0.05; p.toastPrimed = true;
+      s.controls.override = { aimX: p.x + 120, aimY: p.y - 20, fire: false }; })()`);
+    await page.waitForFunction("window.__GE__.scene.world.bullets.some((b) => b.toast)", undefined, { timeout: 3000 })
+      .catch(() => { throw new Error('La recarga no hace saltar la tostada'); });
+    await page.waitForTimeout(180);
+    await shot(name);
+    const kind = await page.evaluate<string>("(window.__GE__.scene.world.bullets.find((b) => b.toast) || {}).toast || ''");
+    if (kind !== (n ? 'burnt' : 'golden')) throw new Error(`Tostada equivocada: ${kind}`);
+    await page.waitForFunction("!window.__GE__.scene.world.bullets.some((b) => b.toast)", undefined, { timeout: 3000 });
+  }
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  console.log('Tostadora: la recarga hace saltar una tostada dorada y luego una quemada que humea.');
   await goTo('grapadora', -40);
   await page.waitForTimeout(500);
   await shot('19a-arma-en-pedestal.png');

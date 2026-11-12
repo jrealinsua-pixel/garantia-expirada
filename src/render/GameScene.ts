@@ -2242,6 +2242,12 @@ export class GameScene extends Phaser.Scene {
         case 'reloadEnd':
           this.sound2.play('recargado');
           break;
+        case 'toast':
+          // «Una de cada dos»: the spring pops a slice out of the slots; the burnt one smokes.
+          this.sound2.play('muelle', { detune: e.burnt ? -300 : 200 });
+          this.gunKick = 2;
+          for (let i = 0; i < (e.burnt ? 5 : 2); i++) this.puff(e.x + this.fx.range(-3, 3), e.y - this.fx.range(0, 4), e.burnt ? 0.8 : 0.4);
+          break;
         case 'rush':
           // Pilas No Incluidas: borrowed batteries in, a zap and a few sparks off the gun.
           this.sound2.play('pila', { detune: 500 });
@@ -3651,8 +3657,9 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: this.banner, alpha: 0, delay: 1800, duration: 600 });
   }
 
-  private puff(x: number, y: number, life: number): void {
+  private puff(x: number, y: number, life: number, tint?: number): void {
     const s = this.add.image(x, y, 'polvo', 0);
+    if (tint !== undefined) s.setTint(tint).setDepth(y + 19);
     this.particles.push({
       s,
       vx: this.fx.range(-8, 8),
@@ -4130,8 +4137,10 @@ export class GameScene extends Phaser.Scene {
       let s = this.bulletSprites.get(b.id);
       if (!s) {
         const look = b.owner === 'player' ? WEAPONS[b.weapon ?? '']?.look : undefined;
-        const tex = b.owner === 'player' ? look?.bullet ?? 'bala-jugador' : BULLET_TEXTURES[b.color];
+        const tex = b.toast ? 'despiece' : b.owner === 'player' ? look?.bullet ?? 'bala-jugador' : BULLET_TEXTURES[b.color];
         s = this.bulletPool.pop()?.setTexture(tex).setVisible(true).setAlpha(1).setRotation(0) ?? this.add.image(b.x, b.y, tex);
+        // The Tostadora's slices of toast: golden or burnt (frames of the bits she breaks into).
+        if (b.toast) s.setFrame(b.toast === 'burnt' ? 1 : 0);
         // In turbo, the toaster's shots come out orange-hot.
         if (b.owner === 'player' && w.player.turbo) s.setTint(0xffb36b);
         else s.clearTint();
@@ -4146,6 +4155,15 @@ export class GameScene extends Phaser.Scene {
       const wdef = b.owner === 'player' ? WEAPONS[b.weapon ?? ''] : undefined;
       let size = b.owner === 'player' ? b.r / (wdef?.bulletRadius ?? PLAYER_BULLET_R) : 1;
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);
+      if (b.toast) {
+        // A slice tumbles as it flies; the burnt one leaves a trail of smoke.
+        s.setRotation(b.age * 14 * (b.vx >= 0 ? 1 : -1));
+        if (b.toast === 'burnt') {
+          // Dark smoke, and embers so it reads on a dark floor.
+          if (this.fx.chance(dt * 40)) this.puff(b.x - b.vx * 0.02, b.y - b.vy * 0.02, 0.55, 0x8a8f9c);
+          if (this.fx.chance(dt * 25)) this.spark(b.x, b.y, this.fx.range(0, Math.PI * 2), this.fx.range(10, 30), 0, 0xff8a3a);
+        }
+      }
       if (wdef?.look.turn) s.setRotation(Math.atan2(b.vy, b.vx));
       const swell = wdef?.look.swell;
       if (swell) {

@@ -16,5 +16,7 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     startWeapon: 'secador',
     footRadius: 5,
     look: { sheet: 'tostadora', w: 40, h: 41, feetX: 17.5, feetY: 36, spinY: 22 },
+    // «Una de cada dos»: a reload after spending half the magazine pops a slice (every second one burnt).
+    ability: { kind: 'toast', damage: 1, burntMul: 2, speed: 230, life: 1.1, radius: 4, knockback: 60, minSpent: 0.5 },
   },
 };

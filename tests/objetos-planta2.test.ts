@@ -21,6 +21,11 @@ function range(seed: string, ...items: string[]): World {
     d.x = i === 0 ? 220 : 30;
     d.y = i === 0 ? 200 : 360;
   });
+  // Only the dryer's hits are counted: the toaster's own slices of toast (M13 (2)) stay out.
+  const plain = { ...w.player.base.def };
+  delete plain.ability;
+  w.player.base = { def: plain };
+  w.player.def = plain;
   for (const id of items) giveItem(w, id);
   return w;
 }

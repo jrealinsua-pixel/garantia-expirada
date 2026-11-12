@@ -519,7 +519,8 @@ sin ellos la partida acaba en la planta 5.
     del jugador sale de los datos del personaje (textura y medidas), no de la tostadora fija.
     Hecho el 2026-11-12: `Profile.chosen`, `exhibited`/`nextExhibited`, `setCharacter` y
     `CharacterDef.look`; la captura del tablón con dos se hace en la (3).
-  - [ ] (2) La habilidad de la Tostadora, «Una de cada dos» (tostadas al recargar).
+  - [x] (2) La habilidad de la Tostadora, «Una de cada dos» (tostadas al recargar). Hecho el
+    2026-11-12: `CharacterDef.ability` (`ToastAbility`), `popToast`, la quemada borra balas.
   - [ ] (3) La Batidora de Vaso: sprite, Picahielos Turbo y el giro de cuchillas.
   - [ ] (4) La Plancha de Vapor: sprite, Pulverizador de Almidón y la suela caliente.
   - [ ] (5) El Becario Eterno: sprite, experiencia demostrable y sin remunerar.

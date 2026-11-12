@@ -90,7 +90,7 @@ personaje está desbloqueado.
 
 | Personaje | Vida | Andar | Rodar | Arma inicial | Habilidad | A cambio |
 | --- | ---: | ---: | --- | --- | --- | --- |
-| Tostadora Reacondicionada | 3 corazones | 100 | normal | Secador Mágnum | **Una de cada dos**: al acabar cada recarga salta una tostada hacia donde apunta (atraviesa, 3 de daño); una de cada dos sale **quemada** (el doble, y deja humo que tapa balas un momento) | Nada: es la de referencia |
+| Tostadora Reacondicionada | 3 corazones | 100 | normal | Secador Mágnum | **Una de cada dos**: al acabar una recarga que ha rellenado al menos medio cargador salta una tostada hacia donde apunta (atraviesa, 1 de daño); una de cada dos sale **quemada** (el doble, y su humo borra las balas enemigas que toca) | Nada: es la de referencia |
 | Batidora de Vaso | 2 corazones | 118 | más larga, menos espera | **Picahielos Turbo** (ráfagas de cubitos: mucha cadencia, poco alcance, dispersión alta) | **Giro de cuchillas**: rodar tritura a los enemigos que toca (4 de daño, una vez por enemigo y vuelta) y rompe las balas que atraviesa | Muy poca vida; el arma no llega lejos |
 | Plancha de Vapor | 4 corazones | 84 | corta y lenta | **Pulverizador de Almidón** (chorros cortos que dejan almidonados, más lentos, a los enemigos) | **Suela caliente**: por donde anda queda un rastro de vapor (1,2 s) que quema a los enemigos que lo pisan (2 de daño por segundo) | Lenta, rueda poco: lo esquiva todo mal |
 | El Becario Eterno | 3 corazones | 104 | normal | Grapadora Táctica | **Experiencia demostrable**: cada sala limpiada sin que le hieran suma un punto (+5 % de daño, hasta 8); una herida le quita la mitad («no se valora») | **Sin remunerar**: los enemigos le dejan la mitad de cupones |
