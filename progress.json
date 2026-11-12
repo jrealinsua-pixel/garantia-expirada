@@ -1180,5 +1180,11 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": []
+  "en_curso": [
+    {
+      "sesion": "2026-11-12 03:29",
+      "tarea": "M12 (4a), la Trituradora: sprites, sala y fase 1 «Diagnóstico»",
+      "desde": "2026-11-12T03:29:00+01:00"
+    }
+  ]
 }
