@@ -585,7 +585,7 @@ y si no giran, sin tocar ninguna sala que no sea la de al lado); la Recepción d
 salas de combate (Banco de Pruebas, Almacén de Piezas, Línea de Desmontaje, Zona de Embalaje);
 cupones, corazones y garantías sí, tickets y cofres no; los enemigos de las cinco plantas con
 dureza 1,6 (la 5, 1,4) y tope 16, dibujados con la carcasa a gris y la pegatina verde en una
-esquina del cuerpo (`refurbishedOf`, en la escena). Hasta su arte (3b) se pinta como la planta 5,
+esquina del cuerpo (`refurbishedOf`, en la escena). Su suelo y sus paredes (M12 (3b1), `src/art/taller.ts`): azulejo pequeño que fue blanco y la grasa ha dejado color hueso (caqui sucio, igual de oscuro que las otras plantas para que las balas se lean), con grasa, gotas de aceite, desagües, pernos de una máquina que se llevaron, azulejos que faltan y salpicaduras de soldadura; una pasarela peatonal pintada en amarillo; jaulas de piezas con la etiqueta verde como paredes interiores; pared verde de fábrica con azulejo abajo, gavetas de piezas, un panel de herramientas con el contorno de las que faltan y el cartel «Días sin incidencias: 0»; cercha de acero con fluorescentes colgados de cadenas, tubería de aire comprimido en las paredes; virutas en la sala del jefe, y en la Recepción el rótulo luminoso «Servicio Técnico Oficial · Solo con cita previa». Los muebles y las persianas, hasta la (3b2), son los de la planta 5,
 y hasta la Trituradora (4a) la sala del jefe es la de la Centralita.
 
 **El jefe final, la Trituradora** (el Servicio Técnico en persona): una trituradora industrial

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T04:40:00+01:00",
+  "actualizado": "2026-11-12T05:01:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 94,
-    "tests": 777,
-    "tests_ok": 777,
+    "tests": 781,
+    "tests_ok": 781,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 28120
+    "lineas_codigo": 28696
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T05:01:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (3b1): el Taller de Reacondicionado ya tiene su suelo y sus paredes: azulejo que fue blanco y la grasa ha dejado color hueso, desagües, pernos de máquinas que se llevaron, la pasarela peatonal pintada, jaulas de piezas con la etiqueta verde «Como nuevo», un panel de herramientas con el contorno de las que faltan, el cartel «Días sin incidencias: 0», fluorescentes colgados de una cercha y, en la Recepción, el rótulo luminoso «Servicio Técnico Oficial · Solo con cita previa».",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T04:40:00+01:00",
       "hito": "M12",
@@ -1136,16 +1142,16 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/taller-recepcion.png",
+      "pie": "M12 (3b1): la Recepción de Averías con el arte del taller: azulejo engrasado, gavetas, panel de herramientas, «Días sin incidencias: 0» y el rótulo «Servicio Técnico Oficial · Solo con cita previa»"
+    },
+    {
       "archivo": "capturas/trituradora-diagnostico.png",
       "pie": "M12 (4a): la Trituradora diagnostica: el láser rojo del escáner sobre la tostadora, los pilotos en ámbar y el veredicto, «Diagnóstico: le falta frío.» (y luego los cubitos de la Nevera, reacondicionados)"
     },
     {
       "archivo": "capturas/trituradora-cobertura.png",
       "pie": "El segundo turno: la cobertura del Router en tres anillos con el hueco que gira, saliendo de la boca de la Trituradora"
-    },
-    {
-      "archivo": "capturas/taller-banco.png",
-      "pie": "M12 (3a): el Banco de Pruebas del Servicio Técnico, con los enemigos reacondicionados (carcasa gris y pegatina verde); hasta su arte, con los muebles de la planta 5"
     },
     {
       "archivo": "capturas/servicio-montacargas.png",
@@ -1160,7 +1166,7 @@
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M12 (3b): el arte del taller (losetas, muebles -6 y las cintas que arrastran; la (3b1) la tiene otra sesión) y M12 (4b), la fase 2 de la Trituradora, «Despiece».",
+  "proximo": "M12 (3b2): los muebles del taller (-6: cajas de piezas, bidones de grasa, transpaletas, bancos de trabajo) y sus persianas; luego (3b3), las cintas que arrastran, y (4b), la fase 2 de la Trituradora.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1186,11 +1192,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 04:26",
-      "tarea": "M12 (3b1), el juego de losetas del Taller de Reacondicionado y el cartel de su entrada",
-      "desde": "2026-11-12T04:26:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

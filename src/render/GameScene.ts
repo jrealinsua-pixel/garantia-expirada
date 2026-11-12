@@ -3520,7 +3520,7 @@ export class GameScene extends Phaser.Scene {
 
   /** The texture of this floor for a sprite that changes from floor to floor (`<key>-2` upstairs), or the plain one. */
   private levelKey(key: string): string {
-    // The Servicio Técnico (level 6) looks like floor 5 until its own art (M12 (3b)).
+    // The Servicio Técnico (level 6) has its own tiles (src/art/taller.ts) but floor 5's furniture and shutters until M12 (3b2).
     const level = Math.min(this.world.level, LAST_LEVEL);
     const own = `${key}-${level}`;
     return level > 1 && this.textures.exists(own) ? own : key;

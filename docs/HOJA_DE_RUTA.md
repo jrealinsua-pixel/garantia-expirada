@@ -477,7 +477,7 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
   - [x] (3a) La planta y sus salas con enemigos reacondicionados de las cinco plantas.
   - [ ] (3b) Las cintas transportadoras del suelo y el arte del taller (partida el 2026-11-12: el
     pintor de salas tiene una rama por planta en unos 30 sitios, y es una sesión por parte).
-    - [ ] (3b1) El juego de losetas del taller (`src/art/taller.ts`: azulejo blanco con grasa, pared,
+    - [x] (3b1) El juego de losetas del taller (`src/art/taller.ts`: azulejo blanco con grasa, pared,
       fluorescentes fríos, jaulas de piezas como paredes interiores, carteles y plantillas del suelo)
       y el cartel de la entrada «Servicio Técnico Oficial».
     - [ ] (3b2) Sus muebles (`-6`: cajas de piezas, bidones de grasa, transpaletas, bancos de trabajo)
