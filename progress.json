@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T07:50:00+01:00",
+  "actualizado": "2026-11-12T08:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -98,7 +98,7 @@
       "id": "M12",
       "nombre": "El Servicio Técnico (piso final secreto)",
       "estado": "en_curso",
-      "hechas": 3,
+      "hechas": 4,
       "total": 6
     },
     {
@@ -130,13 +130,19 @@
     "armas": 5,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 792,
-    "tests_ok": 792,
+    "tests": 800,
+    "tests_ok": 800,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 29235
+    "lineas_codigo": 29541
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T08:50:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (4c): la fase 3 de la Trituradora, «Control de calidad». Desde el 25 % saca una etiquetadora de su tamaño y pega etiquetas «APTO» en el suelo que frenan como pegamento, y caen del techo pilas de cajas, media columna cada vez, que cierran la sala desde el fondo hacia ella. Su placa «EN SERVICIO» ya se lee también cuando mira a la izquierda.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T07:50:00+01:00",
       "hito": "M12",
@@ -1166,6 +1172,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/calidad-cajas.png",
+      "pie": "M12 (4c): fase 3 de la Trituradora, «Control de calidad». Las pilas de cajas ya cierran el fondo de la sala, hay etiquetas «APTO» pegadas en el suelo (frenan) y ella escupe tornillos desde su pared"
+    },
+    {
+      "archivo": "capturas/calidad-caen.png",
+      "pie": "Media columna de cajas marcada con franjas amarillas y negras a punto de caer; la Trituradora, con los pilotos en verde y su etiquetadora, ya apunta la siguiente tanda de «APTO»"
+    },
+    {
       "archivo": "capturas/taller-carretilla.png",
       "pie": "M12 (3c): la Carretilla Elevadora, propia del taller (en su mostaza, no gris), acaba de embestir a la tostadora en la Zona de Embalaje; a la izquierda, una webcam reacondicionada"
     },
@@ -1180,17 +1194,9 @@
     {
       "archivo": "capturas/despiece-cinta.png",
       "pie": "Al bajar del 60 %: «Procedemos al despiece. No se mueva.» La cinta arranca y la Trituradora se va a la pared más lejana de la tostadora, con los rodillos de entrada a sus pies"
-    },
-    {
-      "archivo": "capturas/taller-recepcion.png",
-      "pie": "M12 (3b): la Recepción de Averías con el arte del taller: azulejo engrasado, cajas de piezas, bidones de grasa, transpaleta, bancos de trabajo, el panel de herramientas y el rótulo «Servicio Técnico Oficial · Solo con cita previa»"
-    },
-    {
-      "archivo": "capturas/trituradora-diagnostico.png",
-      "pie": "M12 (4a): la Trituradora diagnostica: el láser rojo del escáner sobre la tostadora, los pilotos en ámbar y el veredicto, «Diagnóstico: le falta frío.» (y luego los cubitos de la Nevera, reacondicionados)"
     }
   ],
-  "proximo": "M12 (4c): la fase 3 de la Trituradora, «Control de calidad» (etiquetas de «APTO» que frenan y pilas de cajas que cierran la sala por trozos); luego (5), el final verdadero y los créditos.",
+  "proximo": "M12 (5): el final verdadero (la tostadora acaba en una caja «Reacondicionado. Como nuevo» en la estantería de la planta 1) y los créditos; luego (6), medir la planta 6 entera con el bot.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1217,11 +1223,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 07:25",
-      "tarea": "M12 (4c): la fase 3 de la Trituradora, «Control de calidad»",
-      "desde": "2026-11-12T07:25:00+01:00"
-    },
     {
       "sesion": "2026-11-12 08:30",
       "tarea": "M12 (5): el final verdadero y los créditos",
