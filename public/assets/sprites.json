@@ -95,6 +95,30 @@
     "frameH": 7,
     "frames": 1
   },
+  "despiece-batidora": {
+    "file": "despiece-batidora.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 4
+  },
+  "despiece-plancha": {
+    "file": "despiece-plancha.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 4
+  },
+  "despiece-becario": {
+    "file": "despiece-becario.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 4
+  },
+  "despiece-movil": {
+    "file": "despiece-movil.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 4
+  },
   "aspirador": {
     "file": "aspirador.png",
     "frameW": 32,

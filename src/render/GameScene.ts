@@ -14,6 +14,7 @@ import { ACTIVE_LINES, itemKindActive, ITEM_KIND_PASSIVE, itemKindWeapon, NO_CHA
 import { BOSS_CARD_SKIP, BOSS_CARD_SUBTITLE, BOSS_DOWN_LINE, BOSS_DOWN_STAMP, bossPhaseLabel, HEART_LINE, LIFT_LINE, SERVICE_LIFT_LINE, SERVICE_WON_LINE } from '../data/texts.ts';
 import { SPECIAL_HEARTS } from '../data/hearts.ts';
 import { SURGE_HIT_LINE, SURGE_LINE, TURBO_END_LINE } from '../data/texts.ts';
+import { characterDown } from '../data/bajas.ts';
 import { RUN_WIN_HINT, RUN_WIN_STAMP, RUN_WIN_TITLE, runWinReport, SHIELD_GONE_LINE, SHIELD_HIT_LINE, SHIELD_LINE, WIN_HINT, WIN_HINT_NEXT, WIN_STAMP, WIN_TITLE, winReport } from '../data/texts.ts';
 import {
   DOORS_OPEN_LINES,
@@ -1293,6 +1294,7 @@ export class GameScene extends Phaser.Scene {
     const lines = downReport(
       { by: cause.by, how: cause.how, room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons },
       (n) => this.fx.int(0, n - 1),
+      characterDown(w.player.base.def.id),
     );
     this.showForm(lines, { title: DOWN_TITLE, color: 0xe0453b, light: 0xffd0c8, stamp: DOWN_STAMP, hint: DOWN_HINT });
   }
@@ -1303,16 +1305,17 @@ export class GameScene extends Phaser.Scene {
    */
   private showWinPanel(): void {
     const w = this.world;
+    const unit = characterDown(w.player.base.def.id).unit;
     if (w.finale) {
       // The last floor (M11 3): the whole run is won and the incident closed, in Liquidación yellow.
       const totalSeconds = Math.round(this.runBefore.seconds + w.tick * DT);
-      const info = { room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, floors: w.level, totalSeconds, totalKills: this.runBefore.kills + w.kills };
+      const info = { unit, room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, floors: w.level, totalSeconds, totalKills: this.runBefore.kills + w.kills };
       const done = runWinReport(info, (n) => this.fx.int(0, n - 1));
       this.showForm(done, { title: RUN_WIN_TITLE, color: 0xd9932a, light: 0xfff1a8, stamp: RUN_WIN_STAMP, hint: RUN_WIN_HINT });
       return;
     }
     const next = w.level < topLevelOf(w) ? w.level + 1 : undefined;
-    const lines = winReport({ room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, next }, (n) => this.fx.int(0, n - 1));
+    const lines = winReport({ unit, room: w.room.name, seconds: Math.round(w.tick / 60), kills: w.kills, coupons: w.player.coupons, next }, (n) => this.fx.int(0, n - 1));
     this.showForm(lines, { title: WIN_TITLE, color: 0x3a9ea6, light: 0xb6f1f0, stamp: WIN_STAMP, hint: next ? WIN_HINT_NEXT : WIN_HINT });
   }
 
@@ -1397,22 +1400,23 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * The toaster comes apart: both slices pop out of the slots, the lever spring shoots off with
-   * a «boing», the knob and screws scatter, and the empty body tips over.
+   * The character comes apart (M13 (7c): each its own way, src/data/bajas.ts). The toaster: both
+   * slices pop out of the slots, the lever spring shoots off with a «boing», the knob and screws
+   * scatter and the empty body tips over. The others fling their own four pieces the same way.
    */
   private popToaster(): void {
     const p = this.world.player;
     const f = p.facing;
+    const down = characterDown(p.base.def.id);
     this.popped = true;
     this.hitstop = 0.06;
     this.shake(160, 0.01, true);
     this.sound2.play('saltar');
-    this.time.delayedCall(90, () => this.sound2.play('muelle'));
     this.flashHero = 0.05;
     // Slots are 2 and 6 px right of the feet (facing right), 30 px up.
     const flung = (frame: number, dx: number, z: number, vx: number, vz: number, spin: number, life = 99): void => {
       this.particles.push({
-        s: this.add.image(p.x + dx * f, p.y + this.fx.range(-2, 3), 'despiece', frame).setFlipX(f < 0),
+        s: this.add.image(p.x + dx * f, p.y + this.fx.range(-2, 3), down.debris, frame).setFlipX(f < 0),
         vx,
         vy: this.fx.range(-8, 14),
         z,
@@ -1426,21 +1430,38 @@ export class GameScene extends Phaser.Scene {
         hh: 4,
       });
     };
-    if (p.base.def.id === 'tostadora') {
-      flung(0, -1, 30, f * this.fx.range(-40, -15), this.fx.range(130, 155), this.fx.range(-10, -5));
-      flung(1, 5, 29, f * this.fx.range(25, 55), this.fx.range(115, 140), this.fx.range(6, 12));
-    } else if (p.base.def.id === 'plancha') {
-      // The Plancha: the tank bursts, a last cloud of steam and the water everywhere.
-      this.sound2.play('vapor', { detune: -400 });
-      for (let i = 0; i < 8; i++) this.puff(p.x + this.fx.range(-12, 14), p.y - this.fx.range(8, 26), this.fx.range(0.6, 1.1), 0xf4f1e8);
-      for (let i = 0; i < 12; i++) this.spark(p.x + f * this.fx.range(-8, 2), p.y - 18, this.fx.range(-Math.PI, 0), this.fx.range(40, 110), i % 2, 0xb6f1f0);
-    } else {
-      // The others have no slices to pop (the Batidora: the old smoothie splashes out of the jar).
-      for (let i = 0; i < 12; i++) this.spark(p.x + f * this.fx.range(-4, 6), p.y - 30, this.fx.range(-Math.PI, 0), this.fx.range(40, 110), i % 2, 0x93b84c);
+    switch (down.burst) {
+      case 'crumbs':
+        this.time.delayedCall(90, () => this.sound2.play('muelle'));
+        break;
+      case 'steam':
+        // The Plancha: the tank bursts, a last cloud of steam and the water everywhere.
+        this.sound2.play('vapor', { detune: -400 });
+        for (let i = 0; i < 8; i++) this.puff(p.x + this.fx.range(-12, 14), p.y - this.fx.range(8, 26), this.fx.range(0.6, 1.1), 0xf4f1e8);
+        for (let i = 0; i < 12; i++) this.spark(p.x + f * this.fx.range(-8, 2), p.y - 18, this.fx.range(-Math.PI, 0), this.fx.range(40, 110), i % 2, 0xb6f1f0);
+        break;
+      case 'smoothie':
+        // The Batidora: the jar cracks and the old smoothie splashes out.
+        this.time.delayedCall(60, () => this.sound2.play('cubitos', { detune: -300 }));
+        for (let i = 0; i < 12; i++) this.spark(p.x + f * this.fx.range(-4, 6), p.y - 30, this.fx.range(-Math.PI, 0), this.fx.range(40, 110), i % 2, 0x93b84c);
+        break;
+      case 'coffee':
+        // The Becario: the coffee goes everywhere and his papers fly (no smoke: he is not an appliance).
+        this.time.delayedCall(80, () => this.sound2.play('carta'));
+        for (let i = 0; i < 10; i++) this.spark(p.x + f * this.fx.range(-2, 6), p.y - 20, this.fx.range(-Math.PI, 0), this.fx.range(40, 100), i % 2, 0x7a4e3c);
+        for (let i = 0; i < 6; i++) this.spark(p.x + this.fx.range(-6, 6), p.y - 26, this.fx.range(-Math.PI, 0), this.fx.range(30, 70), 1, 0xf4f1e8);
+        break;
+      case 'glass':
+        // The Móvil: the screen shatters, glittering, and the battery pops.
+        this.time.delayedCall(70, () => this.sound2.play('clinc', { detune: 300 }));
+        for (let i = 0; i < 14; i++) this.spark(p.x + f * this.fx.range(-2, 8), p.y - 20, this.fx.range(-Math.PI, 0), this.fx.range(50, 130), i % 2, 0xb0bed6);
+        break;
     }
+    flung(0, -1, 30, f * this.fx.range(-40, -15), this.fx.range(130, 155), this.fx.range(-10, -5));
+    flung(1, 5, 29, f * this.fx.range(25, 55), this.fx.range(115, 140), this.fx.range(6, 12));
     flung(2, -6, 14, -f * this.fx.range(50, 80), this.fx.range(120, 150), this.fx.range(-20, 20));
     flung(3, -8, 16, -f * this.fx.range(20, 45), this.fx.range(90, 120), this.fx.range(-14, 14));
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; down.scrap && i < 5; i++) {
       this.particles.push({
         s: this.add.image(p.x + this.fx.range(-6, 6), p.y + this.fx.range(-2, 2), 'chatarra', this.fx.int(0, 3)),
         vx: this.fx.range(-80, 80),
@@ -1456,6 +1477,7 @@ export class GameScene extends Phaser.Scene {
         hh: 3,
       });
     }
+    if (!down.scrap) return;
     for (let i = 0; i < 6; i++) this.puff(p.x + this.fx.range(-8, 8) + 2 * f, p.y - 26 + this.fx.range(-4, 4), this.fx.range(0.5, 0.9));
     for (let i = 0; i < 12; i++) this.spark(p.x + 2 * f, p.y - 26, this.fx.range(-Math.PI, 0), this.fx.range(60, 150), this.fx.int(0, 3));
   }
@@ -4143,7 +4165,8 @@ export class GameScene extends Phaser.Scene {
         // A last shudder with the face screwed up...
         this.hero.setFrame(HERO_HURT);
         this.hero.setX(Math.round(p.x) + (Math.floor(this.time.now / 35) % 2 === 0 ? 1 : -1));
-        if (this.fx.chance(dt * 30)) this.spark(p.x + this.fx.range(-8, 8), p.y - this.fx.range(6, 26), this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), 0);
+        // (Sparks from the appliances; the Becario only shakes.)
+        if (characterDown(p.base.def.id).sparks && this.fx.chance(dt * 30)) this.spark(p.x + this.fx.range(-8, 8), p.y - this.fx.range(6, 26), this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), 0);
       } else {
         // ...then the slices pop out and the empty body tips over with a little bounce.
         if (!this.popped) this.popToaster();
@@ -4152,9 +4175,12 @@ export class GameScene extends Phaser.Scene {
         const bounce = t > 0.28 && t < 0.5 ? Math.sin(((t - 0.28) / 0.22) * Math.PI) * 0.12 : 0;
         this.hero.setFrame(HERO_BROKEN);
         this.hero.setRotation((k * k - bounce) * (Math.PI / 2) * p.facing);
-        // Smoke from the empty slots (now on its side) and sparks from the frayed cord.
-        if (this.fx.chance(dt * 7)) this.puff(p.x + p.facing * this.fx.range(22, 30), p.y - 6 + this.fx.range(-3, 3), 0.9);
-        if (this.fx.chance(dt * 2.5)) for (let i = 0; i < 3; i++) this.spark(p.x - p.facing * 12, p.y - 2, this.fx.range(0, Math.PI * 2), this.fx.range(20, 60), 0);
+        // Smoke (the toaster's slots, the Plancha's steam) and sparks from the frayed cord: each its own.
+        const down = characterDown(p.base.def.id);
+        const sm = down.smoke;
+        if (sm && this.fx.chance(dt * 7)) this.puff(p.x + p.facing * (sm.x + this.fx.range(-4, 4)), p.y + sm.y + this.fx.range(-3, 3), 0.9, sm.steam ? 0xf4f1e8 : undefined);
+        const sp = down.sparks;
+        if (sp && this.fx.chance(dt * 2.5)) for (let i = 0; i < 3; i++) this.spark(p.x + p.facing * sp.x, p.y + sp.y, this.fx.range(0, Math.PI * 2), this.fx.range(20, 60), 0);
       }
       if (this.downT > DOWN_REPORT && this.downPanel.length === 0) this.showDownPanel();
       if (this.canAskNewUnit()) {

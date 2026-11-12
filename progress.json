@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-11-12T18:35:00+01:00",
+  "actualizado": "2026-11-12T18:45:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M13",
+  "hito_actual": "M14",
   "hitos": [
     {
       "id": "M0",
@@ -104,14 +104,14 @@
     {
       "id": "M13",
       "nombre": "Cinco personajes jugables",
-      "estado": "en_curso",
-      "hechas": 2,
+      "estado": "hecho",
+      "hechas": 3,
       "total": 3
     },
     {
       "id": "M14",
       "nombre": "Más contenido y rejugabilidad",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 0,
       "total": 7
     },
@@ -130,13 +130,18 @@
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 866,
-    "tests_ok": 866,
+    "tests": 873,
+    "tests_ok": 873,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 31485
+    "lineas_codigo": 31653
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T18:45:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (7c): la muerte propia de cada personaje. Cada uno suelta sus cuatro piezas (la Batidora, la tapa, la pajita, una cuchilla y un trozo de vaso con batido; la Plancha, el selector en LINO, el cuello quemado, el tapón y un zapato; el Becario, acreditación, café, convenio y boli, sin chatarra ni chispas; el Móvil, la batería hinchada, cristal, la SIM y el enchufe) y el parte de baja lleva su nombre y sus propias excusas y recomendaciones («Sin contrato no hay nada que cubrir.», «Haga una copia de seguridad. Ah, ya es tarde.»). Con esto, M13 terminado: cinco personajes con habilidad, historia, final y muerte propios."
+    },
     {
       "fecha": "2026-11-12T18:35:00+01:00",
       "hito": "M13",
@@ -1256,11 +1261,11 @@
       "pie": "La ficha leída y sellada: «Fuera de plazo». La partida espera hasta que se dispara"
     },
     {
-      "archivo": "capturas/movil-notificaciones.png",
-      "pie": "M13 (6): el Móvil Reacondicionado dispara de frente y sus Notificaciones Push, globitos naranjas lentos, se tuercen solas hacia los enemigos de abajo"
+      "archivo": "capturas/muertes.png",
+      "pie": "M13 (7c): cada uno se desmonta a su manera: la Batidora suelta la pajita y el vaso, la Plancha echa vapor y pierde un zapato, el Becario solo papeles y café (sin chispas: no es un aparato) y el Móvil la batería hinchada y la SIM"
     }
   ],
-  "proximo": "M13 (7c), la muerte propia de cada personaje (cogida por otra sesión): con ella, M13 terminado. M14 ya ha empezado por el glosario (g1).",
+  "proximo": "M14: el glosario (g1, cogido por otra sesión) y lo siguiente de la lista de M14.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1287,11 +1292,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 17:30",
-      "tarea": "M13 historia (7c): la muerte propia de cada personaje (src/data/bajas.ts nuevo, downReport en src/data/texts.ts, popToaster y showDownPanel en src/render/GameScene.ts, tools/sprites/despiece.ts nuevo, tests/bajas.test.ts)",
-      "desde": "2026-11-12T17:30:00+01:00"
-    },
     {
       "sesion": "2026-11-12 18:30",
       "tarea": "M14 glosario (g1): el perfil cuenta las bajas de cada tipo de enemigo (src/sim/profile.ts, World.killsBy en src/sim/world.ts, recordRun/saveFloor en GameScene, tests/glosario.test.ts)",

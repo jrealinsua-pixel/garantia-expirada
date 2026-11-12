@@ -170,6 +170,21 @@ remunerar»; el **Móvil**, la batería cambiada por otra al 1 % («Las fotos no
 purpurina», a 599,99 € de nuevo. La etiqueta, oscura con letra amarilla: la letra lleva contorno
 oscuro y sobre amarillo se emborrona.
 
+**Las muertes** (M13 (7c), 2026-11-12): cada uno se desmonta a su manera (`CHARACTER_DOWNS` en
+`src/data/bajas.ts`, piezas en `tools/sprites/despiece.ts`). La **Tostadora**, como siempre (las
+tostadas, el muelle y la palanca); la **Batidora**, la tapa del vaso, la pajita de rayas, una cuchilla
+y un trozo del vaso con el batido seco, y salpica verde; la **Plancha**, el selector clavado en LINO,
+el cuello de camisa quemado, el tapón del depósito y un zapato de entrevista, y revienta en vapor
+(en el suelo sigue echando vapor blanco); el **Becario**, que no es un electrodoméstico, no suelta
+chatarra ni echa chispas ni humo: vuelan la acreditación sin foto, el vaso de café, el convenio de
+prácticas sin firmar y el boli, y salpica café; el **Móvil**, la batería hinchada, un trozo de pantalla
+rajada, la SIM y el enchufe con cinta, entre cristalitos (sin humo: solo chispas del cable). El parte
+de baja dice quién era («Unidad»: el Becario, «Becario Eterno (sin número de serie)», y su línea de
+tiempo se llama «Prácticas») y trae sus propias excusas y recomendaciones («Uso real: una semana.
+Garantía: dos años. No cuadra.», «La camisa no figuraba en la póliza.», «Sin contrato no hay nada que
+cubrir.», «Haga una copia de seguridad. Ah, ya es tarde.»). La causa (quién le dio) sigue siendo la
+del enemigo. Los partes de planta superada y de partida ganada también llevan su nombre.
+
 Desbloqueos (definitivos desde M13 (8), `src/data/unlocks.ts`), cada uno con una condición propia
 que tiene que ver con su historia: **Batidora** al vencer a la Nevera Suprema (la jefa de la
 cocina), **Móvil** al vencer al Router del Wifi («Por fin, cobertura»), **Becario** tras diez bajas

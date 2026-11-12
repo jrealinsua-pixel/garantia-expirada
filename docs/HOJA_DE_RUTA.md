@@ -508,7 +508,7 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
 **Criterios de aceptación:** el piso final solo aparece si se cumplen los requisitos (test);
 sin ellos la partida acaba en la planta 5.
 
-## M13 · Cinco personajes jugables
+## M13 · Cinco personajes jugables (hecho)
 
 - [x] 5 personajes: Tostadora Reacondicionada, Batidora de Vaso, Plancha de Vapor, el Becario
   Eterno y el Móvil Reacondicionado, cada uno con estadísticas, arma inicial y una habilidad propias.
@@ -539,7 +539,7 @@ sin ellos la partida acaba en la planta 5.
     en combate, apagado 1 s), el arma `notificaciones` (balas lentas que persiguen), sprites
     (`movil`, `movil-apagado`, la pila que avisa), `tests/movil.test.ts` y e2e `19bc`–`19be`; el bot
     gana la planta 1 con él el 31,7 %.
-- [ ] Una historia distinta por personaje: por qué está en el vertedero, una escena al empezar
+- [x] Una historia distinta por personaje: por qué está en el vertedero, una escena al empezar
   y su propio final.
   - [x] (7a) La escena al empezar: la ficha de devolución de cada uno, que la cinta lee al pisarla.
     Hecho el 2026-11-12: `src/data/stories.ts` (las cinco historias, también la del Móvil),
@@ -550,8 +550,10 @@ sin ellos la partida acaba en la planta 5.
     Hecho el 2026-11-12: `ENDINGS` en `src/data/final.ts` (reparación, etiqueta de la caja,
     estantería, cartel y precio), el dibujo de cada uno en el final (el de la Plancha salía como la
     tostadora), `tests/final.test.ts` y e2e `54h`–`54j`.
-  - [ ] (7c) La muerte propia de cada uno: su despiece (ahora todos sueltan las tostadas o casi
-    nada) y la causa en el parte de baja.
+  - [x] (7c) La muerte propia de cada uno: su despiece (ahora todos sueltan las tostadas o casi
+    nada) y la causa en el parte de baja. Hecho el 2026-11-12: `src/data/bajas.ts` (piezas,
+    reventón, humo y chispas, «Unidad», excusas y recomendaciones de cada uno), las cuatro hojas
+    `despiece-*` (`tools/sprites/despiece.ts`), `tests/bajas.test.ts` y e2e `57-baja-*`.
 - [x] Desbloqueo de cada personaje con una condición propia. Hecho el 2026-11-12 (8): Batidora
   con la Nevera, Móvil con el Router, Becario tras diez bajas y Plancha con el Director (antes,
   Plancha con el Router y Móvil con veinte objetos); y sus armas iniciales salen en los cofres
@@ -564,7 +566,7 @@ Comprobado el 2026-11-12: habilidades en `tostadora-habilidad`, `batidora-vaso`,
 `becario` y `movil` (tests); el bot gana la planta 1 con los cinco (`medir-personajes`, 60 partidas:
 del 23 % al 35 %); la captura es la `47c-los-cinco` del e2e (los cinco en fila en el Mostrador) y
 `tests/cinco-juntos.test.ts` vigila que no haya dos con el mismo color dominante ni con casi la
-misma silueta. Solo falta la (7c) para cerrar M13.
+misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
 
 ## M14 · Más contenido y rejugabilidad
 

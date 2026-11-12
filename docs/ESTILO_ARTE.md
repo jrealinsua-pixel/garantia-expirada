@@ -75,6 +75,11 @@ jugador, en naranja y amarillo. Nunca se confunden.
 | Golpe | 1–2 | Destello blanco de 1 fotograma |
 | Muerte | 4–8 | Se desmonta en piezas (tornillos, muelles, chispas) |
 
+Cada personaje jugable suelta sus propias cuatro piezas de 8 × 8 (`despiece`, `despiece-batidora`,
+`despiece-plancha`, `despiece-becario`, `despiece-movil`), con sus colores, para que el montón diga de
+quién era: las dos primeras salen de arriba y las otras dos de abajo. El Becario no es un aparato:
+sus piezas son papeles y oficina, y no echa chispas ni humo.
+
 ### Animación de los enemigos
 
 Las mismas reglas que la tostadora: piernas en una capa y cuerpo en otra; respiración bajando

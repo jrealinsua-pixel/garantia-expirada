@@ -1844,6 +1844,32 @@ try {
   await page.evaluate('window.__GE__.scene.controls.override = null');
   console.log(`Móvil: su hoja y sus notificaciones (${bent} torciendo hacia los enemigos); quieto, avisa y se apaga.`);
 
+  // M13 (7c): each of the other four goes down its own way: its own pieces fly off (the Becario,
+  // no scrap: he is not an appliance) and the sick-leave report has its name and its excuses.
+  for (const who of ['batidora-vaso', 'plancha', 'becario', 'movil']) {
+    await page.goto(`${url}?semilla=e2e-baja-${who}&sala=sala-pruebas&personaje=${who}`);
+    await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world; const p = w.player; w.noDamage = false; p.hp = 1; p.invulnerable = 0; p.rollT = -1;
+      for (const e of w.enemies) e.state = 'gone';
+      w.bullets.push({ id: w.nextId++, owner: 'enemy', x: p.x - 20, y: p.y - 9, vx: 140, vy: 0, r: 2.5, life: 3, damage: 1, knockback: 0,
+        color: 'red', age: 0, dir: 0, speed: 140, by: 'microondas' }); })()`);
+    await page.waitForFunction('window.__GE__.state().over', undefined, { timeout: 3000 })
+      .catch(() => { throw new Error(`${who}: una bala con medio corazón no le da de baja`); });
+    await page.waitForTimeout(1000);
+    const bits = await page.evaluate<string[]>("[...new Set(window.__GE__.scene.particles.map((q) => q.s.texture.key))]");
+    await shot(`57-baja-${who}.png`);
+    const want = { 'batidora-vaso': 'despiece-batidora', plancha: 'despiece-plancha', becario: 'despiece-becario', movil: 'despiece-movil' }[who]!;
+    if (!bits.includes(want) || bits.includes('despiece')) throw new Error(`${who} no suelta sus piezas: ${bits.join(', ')}`);
+    if ((who === 'becario') === bits.includes('chatarra')) throw new Error(`${who}: chatarra donde no toca (${bits.join(', ')})`);
+    await page.waitForTimeout(2000);
+    const rep = await page.evaluate<string[]>('window.__GE__.state().report');
+    if (who === 'becario') await shot('57-parte-becario.png');
+    const unit = rep.find((l) => l.startsWith('Unidad: ')) ?? '';
+    if (unit.includes('Tostadora')) throw new Error(`El parte de baja de ${who} dice «${unit}»`);
+    console.log(`Baja de ${who}: ${bits.filter((k) => k.startsWith('despiece')).join(', ')} · ${rep.slice(0, 3).join(' | ')}`);
+  }
+  console.log('Muertes: cada personaje suelta sus piezas y su parte de baja lleva su nombre y sus excusas.');
+
   // M5: weapons. The test room has the Grapadora and the Plancha on their pedestals: walk onto
   // them, fire each at the enemies, and change weapon with E and the mouse wheel.
   await page.goto(`${url}?semilla=e2e-armas&sala=sala-pruebas`);

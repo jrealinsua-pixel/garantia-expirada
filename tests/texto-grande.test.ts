@@ -14,6 +14,7 @@ import { activeLines, modifierLines, weaponLines } from '../src/data/describe.ts
 import { inventoryBatteries } from '../src/data/texts.ts';
 import { DOORS_OPEN_LINES, ITEM_KIND_ACTIVE, ITEM_KIND_PASSIVE, ITEM_KIND_WEAPON, LIFT_LINE, RESTOCK_LINE, SWAP_HINT, SYNERGY_LINE } from '../src/data/texts.ts';
 import { SHOPKEEPER } from '../src/data/shop.ts';
+import { CHARACTER_DOWNS } from '../src/data/bajas.ts';
 import { DOWN_ADVICE, DOWN_CAUSE_DEFAULT, DOWN_CAUSES, DOWN_COVERAGE, DOWN_HINT, DOWN_STAMP, DOWN_TITLE, downReport } from '../src/data/texts.ts';
 import { REPORT_MENU_HINT, WIN_HINT, WIN_HINT_NEXT, WIN_NEXT, WIN_NOTES, WIN_STAMP, WIN_TITLE, winReport } from '../src/data/texts.ts';
 import { formContentBottom, formLayout, stampBox } from '../src/render/form.ts';
@@ -149,6 +150,18 @@ function reports(): { lines: { label: string; text: string }[]; title: string; h
         lines[1] = { label: lines[1]!.label, text: cause };
         out.push({ lines, title: DOWN_TITLE, hint: hintDown, stamp: DOWN_STAMP });
       }
+    }
+    // Each character's own wording (M13 (7c)), with the longest causes, and its name on the win report.
+    const longCauses = [...causes].sort((a, b) => textWidth(b) - textWidth(a)).slice(0, 2);
+    for (const who of Object.values(CHARACTER_DOWNS)) {
+      for (let i = 0; i < Math.max(who.coverage.length, who.advice.length); i++) {
+        for (const cause of longCauses) {
+          const lines = downReport({ by: 'x', how: 'bullet', room, seconds: 5999, kills: 999, coupons: 999 }, (n) => i % n, who);
+          lines[1] = { label: lines[1]!.label, text: cause };
+          out.push({ lines, title: DOWN_TITLE, hint: hintDown, stamp: DOWN_STAMP });
+        }
+      }
+      out.push({ lines: winReport({ room, seconds: 5999, kills: 999, coupons: 999, unit: who.unit }, () => 0), title: WIN_TITLE, hint: hintWin, stamp: WIN_STAMP });
     }
     for (let i = 0; i < Math.max(WIN_NEXT.length, WIN_NOTES.length); i++) {
       out.push({ lines: winReport({ room, seconds: 5999, kills: 999, coupons: 999 }, (n) => i % n), title: WIN_TITLE, hint: hintWin, stamp: WIN_STAMP });

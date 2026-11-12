@@ -30,6 +30,7 @@ import * as BV from './batidora-vaso.ts';
 import * as MV from './movil.ts';
 import { makeBecarioFrames, makeBecarioHand } from './becario.ts';
 import * as PV from './plancha-vapor.ts';
+import * as DS from './despiece.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
 
@@ -71,6 +72,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'arma-notificaciones': one(MV.makeNotifier()),
     'bala-notificacion': one(MV.makeNotification()),
     'bateria-baja': one(MV.makeLowBattery()),
+    // M13 (7c): what flies off each character when it goes down (the toaster's is `despiece`).
+    'despiece-batidora': { canvas: DS.makeBlenderBits(), frameW: 8, frameH: 8 },
+    'despiece-plancha': { canvas: DS.makeIronBits(), frameW: 8, frameH: 8 },
+    'despiece-becario': { canvas: DS.makeInternBits(), frameW: 8, frameH: 8 },
+    'despiece-movil': { canvas: DS.makePhoneBits(), frameW: 8, frameH: 8 },
     // Frame 0 of every enemy sheet is its approved (or first) sprite; the order of the rest is in
     // the enemy's `anim` (src/data/enemies.ts).
     aspirador: { canvas: strip(narrowPoseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },

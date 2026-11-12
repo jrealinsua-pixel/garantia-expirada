@@ -234,16 +234,26 @@ export interface DownReportInfo {
  * The lines of the sick-leave report, top to bottom. `pick(n)` chooses an index in [0, n): the
  * coverage excuse and the manufacturer's advice change every time.
  */
-export function downReport(info: DownReportInfo, pick: (n: number) => number): { label: string; text: string }[] {
+export function downReport(info: DownReportInfo, pick: (n: number) => number, who: DownWording = TOASTER_WORDING): { label: string; text: string }[] {
   return [
-    { label: 'Unidad', text: DOWN_UNIT },
+    { label: 'Unidad', text: who.unit },
     { label: 'Causa', text: downCause(info.by, info.how) },
-    { label: '', text: DOWN_COVERAGE[pick(DOWN_COVERAGE.length)]! },
+    { label: '', text: who.coverage[pick(who.coverage.length)]! },
     { label: 'Sala', text: info.room },
-    { label: 'Vida útil', text: `${clock(info.seconds)} · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
-    { label: 'Recomendación del fabricante', text: DOWN_ADVICE[pick(DOWN_ADVICE.length)]! },
+    { label: who.lifeLabel, text: `${clock(info.seconds)} · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
+    { label: 'Recomendación del fabricante', text: who.advice[pick(who.advice.length)]! },
   ];
 }
+
+/** How a character's sick-leave report is worded (M13 (7c): each one's is in src/data/bajas.ts). */
+export interface DownWording {
+  unit: string;
+  lifeLabel: string;
+  coverage: readonly string[];
+  advice: readonly string[];
+}
+
+const TOASTER_WORDING: DownWording = { unit: DOWN_UNIT, lifeLabel: 'Vida útil', coverage: DOWN_COVERAGE, advice: DOWN_ADVICE };
 
 /** Over the goods lift when it is ready to go down after the boss. */
 export const LIFT_LINE = 'Montacargas a la planta 2 · Carga máxima: una tostadora';
@@ -323,12 +333,14 @@ export interface WinReportInfo {
   coupons: number;
   /** The floor that comes next, if there is one (its number). */
   next?: number;
+  /** «Unidad»: who won it (M13 (7c)); the toaster if not said. */
+  unit?: string;
 }
 
 /** The lines of the floor-done report, top to bottom (same layout as the sick-leave report). */
 export function winReport(info: WinReportInfo, pick: (n: number) => number): { label: string; text: string }[] {
   return [
-    { label: 'Unidad', text: DOWN_UNIT },
+    { label: 'Unidad', text: info.unit ?? DOWN_UNIT },
     { label: 'Resultado', text: WIN_RESULT },
     { label: 'Sala', text: info.room },
     { label: 'Jornada', text: `${clock(info.seconds)} · Bajas: ${info.kills} · Cupones: ${info.coupons}` },
@@ -340,7 +352,7 @@ export function winReport(info: WinReportInfo, pick: (n: number) => number): { l
 /** The lines of the run-won report (the last floor's boss has fallen), same layout as the others. */
 export function runWinReport(info: WinReportInfo & { floors: number; totalSeconds: number; totalKills: number }, pick: (n: number) => number): { label: string; text: string }[] {
   return [
-    { label: 'Unidad', text: DOWN_UNIT },
+    { label: 'Unidad', text: info.unit ?? DOWN_UNIT },
     { label: 'Resultado', text: RUN_WIN_RESULT },
     { label: 'Sala', text: info.room },
     { label: 'Expediente', text: `${info.floors} plantas · ${clock(info.totalSeconds)} · Bajas: ${info.totalKills} · Cupones: ${info.coupons}` },
