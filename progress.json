@@ -1311,6 +1311,11 @@
       "sesion": "https://claude.ai/code/session_01LyCe1QxMXtB1ffMd6SHaMz",
       "tarea": "M14 (r2a): la primera sala rara, la Oficina de Financiación (se paga con corazones)",
       "desde": "2026-11-12T20:26:00+01:00"
+    },
+    {
+      "sesion": "https://claude.ai/code/session_01LyCe1RQnX1yWxUXeTGFYrb",
+      "tarea": "M14 (l1): los logros (src/data/logros.ts, src/sim/achievements.ts, src/sim/profile.ts; en src/sim/world.ts solo dos registros: sinergias vistas y jefes sin recibir daño; GameScene.recordRun; tests/logros.test.ts)",
+      "desde": "2026-11-12T21:40:00+01:00"
     }
   ]
 }
