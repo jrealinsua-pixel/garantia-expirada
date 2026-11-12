@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T19:55:00+01:00",
+  "actualizado": "2026-11-12T21:10:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -129,14 +129,19 @@
     "jefes": 6,
     "armas": 8,
     "objetos": 55,
-    "plantillas_sala": 95,
-    "tests": 884,
-    "tests_ok": 884,
+    "plantillas_sala": 96,
+    "tests": 891,
+    "tests_ok": 891,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 32244
+    "lineas_codigo": 32403
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T21:10:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (r2a): las salas raras. De vez en cuando (una planta de cada cinco, más o menos) un callejón sin salida que sobra es una sala rara; la primera, la Oficina de Financiación («Financiación al Momento, TAE: Sí»): la Caja de Autocobro vende un arma y un objeto buenos por un corazón de máximo cada uno, para siempre, y con un solo corazón no hay crédito. Su moqueta de banco, su cartel en cada planta y un «%» verde en el minimapa. El bot nunca se endeuda."
+    },
     {
       "fecha": "2026-11-12T19:55:00+01:00",
       "hito": "M14",
@@ -1256,6 +1261,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/financiacion.png",
+      "pie": "M14 (r2a): la primera sala rara, la Oficina de Financiación: un arma y un objeto buenos que no se pagan con cupones, sino con un corazón de máximo cada uno, para siempre. La misma caja de la tienda, pluriempleada"
+    },
+    {
       "archivo": "capturas/reto-del-dia.png",
       "pie": "M14 (r1): el «Boletín de ofertas del día» de la portada: la misma partida para todo el mundo, con su regalo «sin garantía», los intentos de hoy, el mejor y los días seguidos"
     },
@@ -1274,13 +1283,9 @@
     {
       "archivo": "capturas/los-cinco.png",
       "pie": "M13: los cinco personajes en fila en el Mostrador, para el criterio de «se distinguen a la primera»"
-    },
-    {
-      "archivo": "capturas/muertes.png",
-      "pie": "M13 (7c): cada uno se desmonta a su manera: la Batidora suelta la pajita y el vaso, la Plancha echa vapor y pierde un zapato, el Becario solo papeles y café (sin chispas: no es un aparato) y el Móvil la batería hinchada y la SIM"
     }
   ],
-  "proximo": "M14 (r2): las salas especiales raras; o los jefes al azar por planta (nota del humano del 2026-10-30).",
+  "proximo": "M14 (r2b): una segunda sala rara (una apuesta, el «Sorteo de Fidelización», o un cambio de cupones por tickets); o los jefes al azar por planta (nota del humano del 2026-10-30).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1307,11 +1312,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "https://claude.ai/code/session_01LyCe1QxMXtB1ffMd6SHaMz",
-      "tarea": "M14 (r2a): la primera sala rara, la Oficina de Financiación (se paga con corazones)",
-      "desde": "2026-11-12T20:26:00+01:00"
-    },
     {
       "sesion": "https://claude.ai/code/session_01LyCe1RQnX1yWxUXeTGFYrb",
       "tarea": "M14 (l1): los logros (src/data/logros.ts, src/sim/achievements.ts, src/sim/profile.ts; en src/sim/world.ts solo dos registros: sinergias vistas y jefes sin recibir daño; GameScene.recordRun; tests/logros.test.ts)",

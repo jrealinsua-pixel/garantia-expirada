@@ -48,6 +48,12 @@ const DIRS: readonly { dir: Dir; dx: number; dy: number; back: Dir }[] = [
   { dir: 'W', dx: -1, dy: 0, back: 'E' },
 ];
 
+/**
+ * How often a floor gets a rare room (M14 (r2)), when it has a spare dead end (nearly all of them
+ * do): about one floor in five, once in a run of five floors, more or less.
+ */
+export const RARE_ROOM_CHANCE = 0.2;
+
 /** The grid is at most this many cells across, so a floor never sprawls off the minimap. */
 const GRID = 9;
 const MAX_TRIES = 200;
@@ -122,6 +128,9 @@ function tryLayout(seed: string, rng: Rng, target: number): Floor | null {
   const rest = rng.shuffle(ends.slice(1));
   rest[0]!.kind = 'treasure';
   rest[1]!.kind = 'shop';
+  // A rare room (M14 (r2)) now and then, on a spare dead end. Its own generator, so the floors
+  // that have none are exactly the ones they were before there were rare rooms.
+  if (rest.length > 2 && new Rng(`rara:${seed}`).chance(RARE_ROOM_CHANCE)) rest[2]!.kind = 'rare';
 
   // Secret room: an empty cell touching at least two rooms (three is better), never the boss's
   // room nor the start, joined to all of them by secret doors.
@@ -208,7 +217,7 @@ export function validateWorkshop(f: Floor): string[] {
   const [lo, hi] = WORKSHOP_ROOMS;
   const errs: string[] = [];
   if (f.rooms.length < lo || f.rooms.length > hi) errs.push(`${f.rooms.length} rooms, expected ${lo}-${hi}`);
-  for (const k of ['treasure', 'shop', 'secret'] as const) if (f.rooms.some((r) => r.kind === k)) errs.push(`a ${k} room in the workshop`);
+  for (const k of ['treasure', 'shop', 'secret', 'rare'] as const) if (f.rooms.some((r) => r.kind === k)) errs.push(`a ${k} room in the workshop`);
   if (f.rooms[f.start]?.kind !== 'start') errs.push('no start');
   if (f.rooms[f.boss]?.kind !== 'boss') errs.push('no boss');
   const cells = new Set<string>();
@@ -302,14 +311,15 @@ export function validateFloor(f: Floor, opts: FloorOptions = {}): string[] {
     if (boss.depth < Math.max(...normal.map((r) => r.depth))) errs.push('the boss room is not the farthest');
   }
   for (const r of f.rooms) if (r.kind === 'secret' && r.doors.length < 2) errs.push('the secret room touches fewer than two rooms');
-  for (const k of ['treasure', 'shop'] as const) {
+  if (count('rare') > 1) errs.push(`${count('rare')} rare rooms, expected one at most`);
+  for (const k of ['treasure', 'shop', 'rare'] as const) {
     const r = f.rooms.find((x) => x.kind === k);
     if (r && r.doors.filter((d) => !d.secret).length !== 1) errs.push(`the ${k} room is not a dead end`);
   }
   return errs;
 }
 
-const GLYPH: Record<RoomKind, string> = { start: 'E', combat: 'o', treasure: 'T', shop: '$', secret: '?', boss: 'J' };
+const GLYPH: Record<RoomKind, string> = { start: 'E', combat: 'o', treasure: 'T', shop: '$', secret: '?', boss: 'J', rare: 'R' };
 
 /** ASCII map for logs and debugging: E start, o combat, T treasure, $ shop, ? secret, J boss. */
 export function floorToText(f: Floor): string {

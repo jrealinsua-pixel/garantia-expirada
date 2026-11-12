@@ -2391,6 +2391,23 @@ try {
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Reto del día: el boletín en la portada, la ficha y el regalo, el intento apuntado sin pisar el mejor, y la misma planta por enlace.');
 
+  // M14 (r2): the rare room, the Oficina de Financiación. A good weapon and a good item on its
+  // shelves, for a heart each; financing one takes a heart container for good.
+  await page.goto(`${url}?semilla=e2e-financiacion&sala=financiacion`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const k = w.pickups.find((p) => p.pay === 'vida' && p.weapon);
+    w.player.x = k.x; w.player.y = k.y + 12; })()`);
+  await page.waitForTimeout(1500);
+  await shot('60a-financiacion.png');
+  const maxBefore = await page.evaluate<number>('window.__GE__.scene.world.player.def.maxHp');
+  await tapKeys('KeyF');
+  await page.waitForTimeout(500);
+  await shot('60b-financiacion-firmada.png');
+  const fin = await page.evaluate<{ max: number; arsenal: number; left: number }>(`(() => { const w = window.__GE__.scene.world;
+    return { max: w.player.def.maxHp, arsenal: w.player.arsenal.length, left: w.pickups.filter((k) => k.pay === 'vida').length }; })()`);
+  if (fin.max !== maxBefore - 2 || fin.arsenal !== 2 || fin.left !== 1) throw new Error(`Financiar no cobra un corazón o no da el arma: ${JSON.stringify(fin)}`);
+  console.log('Sala rara: la Oficina de Financiación vende un arma y un objeto buenos por un corazón cada uno.');
+
   // M9: the secret room keeps a story document on the floor; walking over it files it.
   await page.goto(`${url}?semilla=e2e-documento&sala=secreta`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });

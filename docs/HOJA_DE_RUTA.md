@@ -578,6 +578,13 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
     `src/sim/daily.ts`, `tests/reto.test.ts`, e2e `59a`–`59c`, `?reto=AAAA-MM-DD`.
   - [ ] (r2) Salas especiales raras: salas que salen pocas veces (por ejemplo, una por cada
     varias plantas) con algo propio: un cambio de cupones, una apuesta, un PNJ o un desafío.
+    - [x] (r2a) La sala rara en la generación de plantas (un callejón sin salida que sobra, una
+      planta de cada cinco más o menos, con su propio generador para no mover las demás plantas)
+      y la primera: la Oficina de Financiación, un arma y un objeto buenos por un corazón de máximo
+      cada uno. Hecho el 2026-11-12: `RARE_ROOM_CHANCE` en `src/sim/floor.ts`, `FINANCE` en
+      `src/data/shop.ts`, `tests/sala-rara.test.ts`, e2e `60a`–`60b`.
+    - [ ] (r2b) Una segunda sala rara con otra cosa (una apuesta: el «Sorteo de Fidelización», o un
+      cambio de cupones por tickets), elegida al azar entre las raras.
 - [ ] Jefes al azar: cada planta elige entre varios jefes (la planta 1, la Nevera u otros tres).
   (Nota del humano del 2026-10-30.)
 - [x] Glosario de enemigos y armas descubiertos, en el Mostrador o en la pausa.

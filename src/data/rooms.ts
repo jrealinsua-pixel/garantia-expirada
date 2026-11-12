@@ -374,6 +374,26 @@ const FLOOR_1: RoomTemplate[] = [
     ],
   },
   {
+    // M14 (r2): the rare room. The other floors have none of their own and take this one
+    // (templatesOf), painted with their floor's walls and words.
+    id: 'financiacion',
+    kind: 'rare',
+    name: 'Financiación al Momento (TAE: Sí)',
+    rows: [
+      '################',
+      '################',
+      '#cc..$.......cc#',
+      '#..............#',
+      '#....s....s....#',
+      '#..............#',
+      '#..............#',
+      '#..............#',
+      '#..............#',
+      '#k............k#',
+      '################',
+    ],
+  },
+  {
     id: 'secreta',
     kind: 'secret',
     name: 'Trastienda que No Sale en el Plano',

@@ -458,8 +458,11 @@ export interface DummyDef {
   box: { x: number; y: number; w: number; h: number };
 }
 
-/** What a room is for on a floor (src/sim/floor.ts); `test` is the Sala de Pruebas. */
-export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'boss';
+/**
+ * What a room is for on a floor (src/sim/floor.ts); `test` is the Sala de Pruebas. `rare`: a room
+ * that comes up only now and then (M14 (r2)), on a spare dead end: the Oficina de Financiación.
+ */
+export type RoomKind = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'boss' | 'rare';
 
 /**
  * Room templates are drawn as text. Legend:

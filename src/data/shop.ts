@@ -52,3 +52,41 @@ export const SHOPKEEPER = {
   /** Every shelf empty. */
   soldOut: 'Agotado. Repondremos cuando sea rentable.',
 } as const;
+
+/**
+ * La Oficina de Financiación (M14 (r2), the first rare room): two good things (quality «buena»)
+ * that are not paid in coupons but in hearts. Each one takes a whole heart container for the rest
+ * of the run (FINANCE_PRICE in life points: one heart). Nobody is financed down to their last
+ * heart. The same till of the shop, moonlighting.
+ */
+export const FINANCE_PRICE = 2;
+
+export const FINANCE = {
+  /** Over the price, instead of a coupon: the heart it costs. */
+  verb: 'Financiar',
+  /** When the toaster walks in. */
+  greet: [
+    'Compre ahora y pague después. Con el corazón.',
+    'Sin intereses. Solo le cobramos la vida.',
+    'Financiación al momento. Firme aquí, aquí y en el pecho.',
+  ],
+  /** When something is financed. */
+  thanks: [
+    'Operación aprobada. Su corazón ya es nuestro.',
+    'Cuota descontada. Primer plazo: ya.',
+    'Enhorabuena: ahora tiene algo y le falta algo.',
+  ],
+  /** Down to the last heart: no more credit. */
+  insolvent: [
+    'Riesgo de impago. Con un corazón no le financiamos.',
+    'Su perfil no es solvente. Vuelva con más vida.',
+  ],
+  /** Every shelf empty. */
+  soldOut: 'Cupo de crédito agotado. Gracias por endeudarse.',
+} as const;
+
+/** A price in life points, said in hearts: «1 corazón», «2 corazones». */
+export function financeHearts(life: number): string {
+  const n = Math.max(1, Math.round(life / 2));
+  return n === 1 ? '1 corazón' : `${n} corazones`;
+}

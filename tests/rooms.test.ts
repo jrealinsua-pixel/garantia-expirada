@@ -232,7 +232,8 @@ test('salas especiales de la planta 2: lo mismo que las del almacén donde impor
   for (const [level, own] of [[1, 1], [2, 2]] as const) {
     for (let i = 0; i < 10; i++) {
       const w = createWorld({ seed: `especiales-${level}-${i}`, floor: true, level });
-      for (const r of w.floor!.rooms) assert.equal(r.template.level ?? 1, own, `planta ${level}: ${r.template.id}`);
+      // (The rare room, M14 (r2), is the same on every floor: the bank is the same everywhere.)
+      for (const r of w.floor!.rooms) if (r.template.kind !== 'rare') assert.equal(r.template.level ?? 1, own, `planta ${level}: ${r.template.id}`);
     }
   }
 });
@@ -259,7 +260,7 @@ test('plantillas de la planta 3: doce salas de combate y las especiales, todas s
   let withToys = 0;
   for (let i = 0; i < 10; i++) {
     const w = createWorld({ seed: `juguetes-${i}`, floor: true, level: 3 });
-    for (const r of w.floor!.rooms) assert.equal(r.template.level, 3, r.template.id);
+    for (const r of w.floor!.rooms) if (r.template.kind !== 'rare') assert.equal(r.template.level, 3, r.template.id);
     for (const r of w.floor!.rooms.filter((x) => x.template.kind === 'combat')) {
       if ([...r.template.rows.join('')].some((ch) => toys.has(ch))) withToys++;
     }
@@ -291,7 +292,7 @@ test('plantillas de la planta 4: doce salas de combate y las especiales, todas s
   // A generated floor 4 fights only in its own rooms.
   for (let i = 0; i < 10; i++) {
     const w = createWorld({ seed: `oficinas-${i}`, floor: true, level: 4 });
-    for (const r of w.floor!.rooms) assert.equal(r.template.level, 4, r.template.id);
+    for (const r of w.floor!.rooms) if (r.template.kind !== 'rare') assert.equal(r.template.level, 4, r.template.id);
   }
 });
 

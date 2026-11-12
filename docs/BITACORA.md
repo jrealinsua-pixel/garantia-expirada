@@ -2,6 +2,43 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 21:10 (hora peninsular) — Hito M14 — Salas raras (r2a): la Oficina de Financiación
+- Contexto: el clon local volvía a estar en una historia vieja; `git checkout -B main origin/main`
+  (nada local que perder). Salud al empezar: `check`, 884 tests, `build` y `bot` en verde.
+- Hecho: M14 (r2) partida en (r2a) y (r2b); hecha la (r2a). Nuevo tipo de sala `rare`: al generar
+  una planta (1–5, no el taller), si sobra un callejón sin salida después del jefe, el tesoro y la
+  tienda, con probabilidad `RARE_ROOM_CHANCE` (0,2) ese callejón es la sala rara. La tirada usa su
+  propio generador (`rara:<semilla>`), así que las plantas sin sala rara son idénticas a las de
+  antes. `validateFloor` acepta como mucho una y exige que sea un callejón sin salida. La primera
+  sala rara, plantilla `financiacion` («Financiación al Momento (TAE: Sí)»): la Caja de Autocobro de
+  la tienda, pluriempleada, vende en dos baldas un arma y un objeto pasivo de calidad «buena» (los
+  primeros de la baraja de la planta; si no hay, el siguiente), cada uno por **un corazón de máximo
+  para siempre** (`Pickup.pay = 'vida'`, `FINANCE_PRICE`, un modificador `financiacion` de −2 de
+  vida máxima). Con un solo corazón de máximo no financia (`canFinance`, «Riesgo de impago»). Sus
+  textos en `FINANCE` (`src/data/shop.ts`). En pantalla: el precio con un corazón rojo (gris sin
+  crédito), «F: Financiar por 1 corazón», «−1 corazón» en rojo y un destello rojo al firmar; su
+  moqueta verde de borde dorado; el cartel y la palabra del suelo de cada planta («FINANCIACIÓN»,
+  «PAGO APLAZADO», «COMPRE AHORA», «CRÉDITOS AL PERSONAL», «EMBARGOS»; «LETRA PEQUEÑA», «CRÉDITO
+  PREAPROBADO», «NÓMINA DOMICILIADA»…); en el minimapa, un «%» verde. Arreglo de paso: el bocadillo
+  de la caja ya no tapa ni lo tapa el cartel de aviso (el de «E o rueda: cambiar de arma»): cuenta
+  como techo, igual que el nombre de la sala. Tests en `tests/sala-rara.test.ts` (7) y e2e
+  `60a`–`60b`.
+- Decisiones: **una sola plantilla para todas las plantas** (el banco es el mismo en todas partes;
+  los tests de «cada planta solo usa sus plantillas» lo exceptúan). Se paga con un **corazón de
+  máximo**, no con vida actual: así es una decisión de verdad (el humano pidió dificultad media-alta
+  y objetos que dan y quitan). **El bot nunca financia**, para que sus cifras midan el juego sin
+  préstamos. Probabilidad 0,2: con 0,35 salían en un tercio de las plantas, demasiado para «rara».
+  La caja de la tienda y no un PNJ nuevo: cuesta cero sprites y el chiste (la misma máquina que te
+  cobra, ahora te presta) funciona.
+- Medidas: `npm run bot`, 200 partidas, 0 fallos. Planta 1 con daño: la recorre el 60 % (antes 65 %)
+  y la gana el 15 % (igual); 10,4 salas visitadas y 6,9 de combate limpias por planta (antes 10,8 y
+  7,3): en las plantas con sala rara hay una sala de combate menos. Jefes, sin cambios. 891 tests en
+  verde; e2e entero en verde.
+- Problemas conocidos: la sala rara usa la caja y el expositor de la tienda; si algún día tiene su
+  propio PNJ, irá aquí.
+- Siguiente paso: M14 (r2b), una segunda sala rara (el «Sorteo de Fidelización», una apuesta; o un
+  cambio de cupones por tickets) elegida al azar entre las raras; o los jefes al azar por planta.
+
 ## 2026-11-12 19:55 (hora peninsular, de `date`) — Hito M14 — Reto del día (r1): el «Boletín de ofertas del día»
 - Contexto: el clon local de `main` era superficial y estaba en un punto viejo (`git pull` decía
   «ramas divergentes»); lo puse en `origin/main` con `git checkout -B main origin/main` (no había

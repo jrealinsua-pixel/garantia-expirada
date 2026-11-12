@@ -11,7 +11,7 @@ import { K, WHITE } from './lib.ts';
 
 export const T = 24;
 
-export type RoomStyle = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'boss' | 'test';
+export type RoomStyle = 'start' | 'combat' | 'treasure' | 'shop' | 'secret' | 'boss' | 'test' | 'rare';
 
 export const shade = (c: RGBA, d: number): RGBA => [
   Math.max(0, Math.min(255, c[0] + d)),

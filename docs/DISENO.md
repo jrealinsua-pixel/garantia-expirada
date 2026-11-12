@@ -685,6 +685,17 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   del reto lo dice («Intento 3 · Lo mejor de hoy: planta 2») y R prueba el mismo reto otra vez.
   Nada sale del navegador: no hay tabla de récords en ningún servidor. El perfil guarda los
   últimos 60 días (`Profile.dailies`).
+- **Salas raras** (M14 r2): de vez en cuando (una planta de cada cinco, más o menos) un callejón sin
+  salida que sobra se convierte en una sala rara. La primera es la **Oficina de Financiación
+  (Financiación al Momento, TAE: Sí)**: la misma Caja de Autocobro de la tienda, pluriempleada, vende
+  un arma buena y un objeto pasivo bueno, y no cobra en cupones: cada cosa cuesta **un corazón de
+  máximo, para siempre** («Compre ahora y pague después. Con el corazón»). Con un solo corazón no
+  financia («Riesgo de impago»). La sátira: el crédito al consumo que te vende lo que no puedes
+  pagar y te cobra en lo que más falta te hace. Es la misma en todas las plantas (el banco es el
+  mismo en todas partes), con su moqueta verde de borde dorado y el cartel y la palabra del suelo
+  de cada planta («Letra pequeña», «Crédito preaprobado», «Nómina domiciliada», «Embargado»…). En
+  el minimapa, un «%» verde. El bot no se endeuda nunca, para que sus cifras midan el juego sin
+  préstamos.
 
 ### El Servicio Técnico (planta secreta, hito M12)
 

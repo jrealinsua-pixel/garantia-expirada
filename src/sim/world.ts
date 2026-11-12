@@ -4,7 +4,7 @@ import { budgetCapOf, floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, tough
 import { FINDABLE_WEAPONS, WEAPONS, weaponsUpTo } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
-import { SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
+import { FINANCE_PRICE, SHOP_PRICES, SHOP_SHELVES, type ShopGood } from '../data/shop.ts';
 import type { BlowerBrain, BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
 import { SYNERGIES } from '../data/synergies.ts';
@@ -213,6 +213,8 @@ export interface Pickup {
   stepOff?: boolean;
   /** For sale on a shop shelf: its price in coupons (the interact button buys it, if it can be paid). */
   price?: number;
+  /** Paid in life instead of coupons (the Oficina de Financiación, M14 (r2)): `price` is maximum life points taken for good. */
+  pay?: 'vida';
 }
 
 /** Seconds after changing weapon before the new one fires (it is being drawn). */
@@ -821,7 +823,7 @@ export type SimEvent =
   /** Mando con Vibración: hurt, the toaster shakes out a ring of its own bullets. */
   | { type: 'hurtRing'; x: number; y: number; count: number }
   /** Walked onto something for sale: bought it (`left` coupons after paying), or not (too poor, or a heart with all its life). */
-  | { type: 'shop'; x: number; y: number; outcome: 'bought' | 'poor' | 'full'; good: PickupKind; price: number; left: number; item?: string }
+  | { type: 'shop'; x: number; y: number; outcome: 'bought' | 'poor' | 'full' | 'insolvent'; good: PickupKind; price: number; left: number; item?: string; pay?: 'vida' }
   /** The active item was used (`effect` is its effect's type). */
   | { type: 'active'; item: string; effect: string; x: number; y: number }
   /** Q with an active item that cannot be used now (not charged, or nothing to heal). */
@@ -1210,6 +1212,7 @@ export function createWorld(opts: WorldOptions): World {
   if (room.kind === 'hub') return w;
   if (room.kind === 'test') stockPedestals(w, [...FINDABLE_WEAPONS], [], []);
   else if (room.kind === 'shop') stockShop(w, decksOf(w));
+  else if (room.kind === 'rare') stockFinance(w, decksOf(w));
   else if (room.kind === 'treasure' || room.kind === 'secret') {
     const decks = lootDecks(opts.seed, opts.level ?? 1, pool(opts.level ?? 1));
     stockPedestals(w, decks.weapons, decks.items, decks.actives);
@@ -1531,6 +1534,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   if (first && kind === 'secret') stockChests(w, 1);
   if (first && kind === 'secret') placeStoryDoc(w);
   if (first && kind === 'shop') stockShop(w, f);
+  if (first && kind === 'rare') stockFinance(w, f);
   w.doorsShut = !st.cleared;
   w.shutTick = w.tick;
   setDoorTiles(w, !w.doorsShut);
@@ -1585,6 +1589,35 @@ function placeStoryDoc(w: World): void {
     y = w.room.h / 2;
   }
   w.pickups.push({ id: w.nextId++, kind: 'documento', doc: doc.id, x, y, vx: 0, vy: 0, age: PICKUP_DELAY, value: 1 });
+}
+
+/**
+ * La Oficina de Financiación (M14 (r2)): on its shelves, left to right, a good weapon and a good
+ * passive item (quality «buena», the first of each deck; if a deck has none, its next one), each
+ * for one heart container (FINANCE_PRICE) instead of coupons. Taken out of the floor's decks, like
+ * the shop's goods.
+ */
+function stockFinance(w: World, decks: { weapons: string[]; items: string[]; actives: string[] }): void {
+  const shelves = w.room.slots.filter((s) => s.kind === 'shelf').sort((a, b) => a.x - b.x || a.y - b.y);
+  const take = (deck: string[], good: (id: string) => boolean): string | undefined => {
+    const at = deck.findIndex(good);
+    return deck.splice(at < 0 ? 0 : at, 1)[0];
+  };
+  shelves.forEach((s, i) => {
+    const at = { id: w.nextId++, x: s.x, y: s.y, vx: 0, vy: 0, age: PICKUP_DELAY, value: 1, price: FINANCE_PRICE, pay: 'vida' as const };
+    if (i % 2 === 0) {
+      const weapon = take(decks.weapons, (id) => WEAPONS[id]?.quality === 'buena');
+      if (weapon) w.pickups.push({ ...at, kind: 'arma', weapon });
+      return;
+    }
+    const item = take(decks.items, (id) => ITEMS[id]?.quality === 'buena');
+    if (item) w.pickups.push({ ...at, kind: 'objeto', item });
+  });
+}
+
+/** Whether the toaster can pay `k`'s price in life: it never leaves it with less than one heart. */
+export function canFinance(p: Player, k: Pickup): boolean {
+  return k.pay === 'vida' && p.def.maxHp - (k.price ?? 0) >= 2;
 }
 
 /**
@@ -4508,6 +4541,21 @@ function buy(w: World, k: Pickup): void {
   if (k.price === undefined) return;
   const good = k.kind;
   const item = k.item ?? k.weapon;
+  if (k.pay === 'vida') {
+    // Financed: a heart container goes for good (no discount here: the bank does not take coupons).
+    const price = k.price;
+    if (!canFinance(p, k)) {
+      w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: 'insolvent', good, price, left: p.def.maxHp, item, pay: 'vida' });
+      return;
+    }
+    addModifier(w, { id: 'financiacion', stats: [{ stat: 'maxHp', add: -price }] });
+    w.events.push({ type: 'shop', x: k.x, y: k.y, outcome: 'bought', good, price, left: p.def.maxHp, item, pay: 'vida' });
+    delete k.price;
+    delete k.pay;
+    w.pickups = w.pickups.filter((o) => o !== k);
+    grab(w, k);
+    return;
+  }
   const price = shopPrice(p, k.price);
   const refuse = good === 'corazon' && p.hp >= p.def.maxHp ? 'full' : p.coupons < price ? 'poor' : null;
   if (refuse) {

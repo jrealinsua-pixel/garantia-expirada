@@ -92,6 +92,7 @@ const STENCILS: Record<W.RoomStyle, readonly string[]> = {
   shop: ['PAGUE AQUÍ'],
   secret: ['ESTA SALA NO EXISTE'],
   boss: ['SOLO PERSONAL DIRECTIVO'],
+  rare: ['LETRA PEQUEÑA'],
 };
 
 /** The sign bolted to the back shelving: text, plate colour, letters. */
@@ -103,6 +104,7 @@ const SIGNS: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]
   shop: [['OFERTAS', '#a42f37', '#fff1a8']],
   secret: [['ARCHIVO MUERTO', '#434963', '#858ea8']],
   boss: [['DIRECCIÓN', '#1b1d2e', '#69dbd8']],
+  rare: [['FINANCIACIÓN', '#2f5a3a', '#f6c431']],
 };
 
 /** Floor 2: the same jokes, with a computer department's vocabulary. */
@@ -114,6 +116,7 @@ const STENCILS_2: Record<W.RoomStyle, readonly string[]> = {
   shop: ['PAGUE AQUÍ'],
   secret: ['ARCHIVO NO ENCONTRADO'],
   boss: ['SOLO ADMINISTRADORES'],
+  rare: ['CRÉDITO PREAPROBADO'],
 };
 
 const SIGNS_2: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]>> = {
@@ -130,6 +133,7 @@ const SIGNS_2: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, strin
   shop: [['OFERTAS FLASH', '#a42f37', '#fff1a8']],
   secret: [['PAPELERA DE RECICLAJE', '#434963', '#858ea8']],
   boss: [['SALA DE SERVIDORES', '#1b1d2e', '#58b45a']],
+  rare: [['PAGO APLAZADO', '#2f5a3a', '#f6c431']],
 };
 
 /** Floor 3: the toy department's vocabulary. */
@@ -141,6 +145,7 @@ const STENCILS_3: Record<W.RoomStyle, readonly string[]> = {
   shop: ['PAGUE AQUÍ'],
   secret: ['RETIRADO DEL MERCADO'],
   boss: ['NOVEDAD'],
+  rare: ['PAGUE EN 3 PLAZOS'],
 };
 
 const SIGNS_3: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]>> = {
@@ -158,6 +163,7 @@ const SIGNS_3: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, strin
   shop: [['TODO A UN TICKET', '#a42f37', '#fff1a8']],
   secret: [['RETIRADOS POR SEGURIDAD', '#434963', '#858ea8']],
   boss: [['ESCAPARATE DE NOVEDADES', '#1b1d2e', '#e88fa4']],
+  rare: [['COMPRE AHORA', '#2f5a3a', '#f6c431']],
 };
 
 /** Floor 4: the offices' vocabulary (tape on the carpet, not paint: nobody paints a carpet). */
@@ -169,6 +175,7 @@ const STENCILS_4: Record<W.RoomStyle, readonly string[]> = {
   shop: ['PAGUE AQUÍ'],
   secret: ['PARA DESTRUIR'],
   boss: ['ORDEN DEL DÍA'],
+  rare: ['NÓMINA DOMICILIADA'],
 };
 
 const SIGNS_4: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]>> = {
@@ -186,6 +193,7 @@ const SIGNS_4: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, strin
   shop: [['ECONOMATO', '#a42f37', '#fff1a8']],
   secret: [['CONFIDENCIAL', '#434963', '#858ea8']],
   boss: [['SALA DE JUNTAS', '#1b1d2e', '#d8dbe0']],
+  rare: [['CRÉDITOS AL PERSONAL', '#2f5a3a', '#f6c431']],
 };
 
 /** Floor 5: the customer service vocabulary (the yellow paint of the line that leads nowhere). */
@@ -197,6 +205,7 @@ const STENCILS_5: Record<W.RoomStyle, readonly string[]> = {
   shop: ['PAGUE AQUÍ'],
   secret: ['LLAMADA GRABADA'],
   boss: ['NO CUELGUE'],
+  rare: ['SU CUOTA ESPERA'],
 };
 
 const SIGNS_5: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]>> = {
@@ -214,6 +223,7 @@ const SIGNS_5: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, strin
   shop: [['REPUESTOS ORIGINALES', '#a42f37', '#fff1a8']],
   secret: [['GRABACIONES', '#434963', '#858ea8']],
   boss: [['CENTRALITA', '#1b1d2e', '#f6c431']],
+  rare: [['FINANCIACIÓN', '#2f5a3a', '#f6c431']],
 };
 
 /** Floor 6: the workshop's vocabulary (green paint, the colour of the labels). There is no shop, treasure or secret room up here, but every style has its words. */
@@ -225,6 +235,7 @@ const STENCILS_6: Record<W.RoomStyle, readonly string[]> = {
   shop: ['PAGUE AQUÍ'],
   secret: ['DESGUACE'],
   boss: ['TRITURACIÓN'],
+  rare: ['EMBARGADO'],
 };
 
 const SIGNS_6: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, string]>> = {
@@ -243,9 +254,10 @@ const SIGNS_6: Record<W.RoomStyle, ReadonlyArray<readonly [string, string, strin
   shop: [['RECAMBIOS', '#a42f37', '#fff1a8']],
   secret: [['DESGUACE', '#434963', '#858ea8']],
   boss: [['TRITURACIÓN', '#1b1d2e', '#58b45a']],
+  rare: [['EMBARGOS', '#2f5a3a', '#f6c431']],
 };
 
-const STYLES: readonly W.RoomStyle[] = ['start', 'combat', 'treasure', 'shop', 'secret', 'boss', 'test'];
+const STYLES: readonly W.RoomStyle[] = ['start', 'combat', 'treasure', 'shop', 'secret', 'boss', 'test', 'rare'];
 
 export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const rng = new Rng('room-art:' + seed);
@@ -454,7 +466,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
 
   // Grime: oil puddles and rust stains (more of both in the forgotten rooms).
   const area = (W_ * H) / (480 * 288);
-  const dirt = style === 'secret' ? 2 : style === 'shop' || style === 'start' ? 0.5 : 1;
+  const dirt = style === 'secret' ? 2 : style === 'shop' || style === 'start' || style === 'rare' ? 0.5 : 1;
   if (three) {
     // Crayon on the mats, glitter that will never come off.
     for (let i = 0; i < Math.round(4 * area * dirt); i++) {
@@ -590,7 +602,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     if (n > 0) count('flechas');
   }
   // Odds and ends: receipts, screws, a cable.
-  const litter = style === 'shop' ? 0.4 : style === 'secret' ? 1.6 : 1;
+  const litter = style === 'shop' || style === 'rare' ? 0.4 : style === 'secret' ? 1.6 : 1;
   for (let i = 0; i < Math.round(9 * area * litter); i++) {
     const { x, y } = randFloor(4);
     if (onFloor(x, y) && onFloor(x + 5, y + 2)) W.receipt(S, rng, x, y);
@@ -644,6 +656,12 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     else if (two) W.carpet(S, midX - 22, top, 44, floorY1 - top - 2, hx('#2a4a7a'), hx('#9aa2c0'));
     else W.carpet(S, midX - 22, top, 44, floorY1 - top - 2);
     count('alfombra');
+ } else if (style === 'rare') {
+    // The Oficina de Financiación (M14 (r2)): the bank's carpet, green with a gold border, the
+    // same on every floor (the bank is the same everywhere).
+    const top = floorY0 + 2 * T;
+    W.carpet(S, midX - 30, top, 60, floorY1 - top - 2, hx('#24442e'), hx('#c9a23a'));
+    count('alfombra-banco');
   } else if (style === 'boss' && six) {
     // The crusher's room: swarf all over the floor, and the cold of the workshop's tubes on everything.
     R.swarf(S, rng, floorX0, floorY0, floorX1, floorY1);

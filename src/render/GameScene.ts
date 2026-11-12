@@ -5,7 +5,7 @@ import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
 import { CHEST_NAME_PREMIUM } from '../data/texts.ts';
 import { CHEST_LOCKED_LINES, CHEST_NAME, CHEST_OPEN_LINES, controlsHint, RELOADING, swapHint, TEST_ROOM_HINT, SYNERGY_LINE, TICKET_LINE, WEAPON_FOUND_LINES } from '../data/texts.ts';
 import { SYNERGIES } from '../data/synergies.ts';
-import { GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
+import { FINANCE, financeHearts, GOOD_NAMES, SHOPKEEPER } from '../data/shop.ts';
 import { activeLines, modifierLines, weaponLines, type EffectLine } from '../data/describe.ts';
 import { WEAPONS } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
@@ -96,6 +96,7 @@ import {
   LIFT_READY,
   nextFloor,
   shopPrice,
+  canFinance,
   PICKUP_DELAY,
   DT,
   enemyAltitude,
@@ -281,6 +282,8 @@ const MAP_ICONS: Partial<Record<string, { rows: string[]; color: number }>> = {
   shop: { rows: ['#....', '.####', '.###.', '.#.#.'], color: 0xf6c431 },
   // A gift box with its bow: the treasure.
   treasure: { rows: ['.#.#.', '#####', '#.#.#', '#####'], color: 0x5cc2c0 },
+  // A pound-sign-ish «%» (the interest): the rare room, the Oficina de Financiación (M14 (r2)).
+  rare: { rows: ['#..#', '..#.', '.#..', '#..#'], color: 0x58b45a },
   // A question mark: the secret room (only once found).
   secret: { rows: ['##.', '..#', '.#.', '...', '.#.'], color: 0xd3849a },
 };
@@ -740,10 +743,12 @@ export class GameScene extends Phaser.Scene {
     }
     if (room.kind === 'hub') this.makeHub();
     if (room.id === 'jefe-atencion') this.paintDepartments();
-    if (room.kind === 'shop') {
-      // A display stand under every shelf, and the till says hello.
+    if (room.kind === 'shop' || room.kind === 'rare') {
+      // A display stand under every shelf, and the till says hello (in the Oficina de
+      // Financiación, M14 (r2), the same till offers credit).
       for (const sl of room.slots) if (sl.kind === 'shelf') this.add.image(sl.x, sl.y + 6, 'expositor').setOrigin(0.5, 1).setDepth(sl.y - 1);
-      this.time.delayedCall(700, () => this.tillSay(this.fx.pick(SHOPKEEPER.greet)));
+      const greet = room.kind === 'rare' ? FINANCE.greet : SHOPKEEPER.greet;
+      this.time.delayedCall(700, () => this.tillSay(this.fx.pick(greet)));
     }
     for (const d of this.world.dummies) {
       this.add.image(d.x, d.y - 1, shadowTexture(this, 8, 3)).setDepth(-50000);
@@ -3099,15 +3104,26 @@ export class GameScene extends Phaser.Scene {
             // Sold: the scanner beeps, the price flies off and the till thanks you (and says when it is empty).
             this.sound2.play('escaner');
             this.time.delayedCall(90, () => this.sound2.play('escaner', { detune: 300 }));
-            this.floatText(e.x, e.y + 4, `-${e.price}`, 0xf6c431);
-            this.couponPop = 0.25;
-            this.tillSay(this.fx.pick(SHOPKEEPER.thanks), this.world.pickups.some((k) => k.price !== undefined) ? null : SHOPKEEPER.soldOut);
+            const left = this.world.pickups.some((k) => k.price !== undefined);
+            if (e.pay === 'vida') {
+              // Financed: a heart goes for good. The heart counter jolts, red, like a hit without the hit.
+              this.floatText(e.x, e.y + 4, `-${financeHearts(e.price)}`, 0xe0453b);
+              this.hurtFlash.setAlpha(0.18);
+              this.tweens.add({ targets: this.hurtFlash, alpha: 0, duration: 260 });
+              // Said a moment later: the weapon's hint (the banner) comes up with the same purchase.
+              const line = this.fx.pick(FINANCE.thanks);
+              this.time.delayedCall(30, () => this.tillSay(line, left ? null : FINANCE.soldOut));
+            } else {
+              this.floatText(e.x, e.y + 4, `-${e.price}`, 0xf6c431);
+              this.couponPop = 0.25;
+              this.tillSay(this.fx.pick(SHOPKEEPER.thanks), left ? null : SHOPKEEPER.soldOut);
+            }
           } else {
             // No: two flat notes, the screen goes red and the coupon counter shakes.
             this.sound2.play('cajaError');
             this.tillNoT = 1.1;
             if (e.outcome === 'poor') this.couponPop = -0.4;
-            this.tillSay(e.outcome === 'poor' ? this.fx.pick(SHOPKEEPER.poor) : SHOPKEEPER.full);
+            this.tillSay(e.outcome === 'insolvent' ? this.fx.pick(FINANCE.insolvent) : e.outcome === 'poor' ? this.fx.pick(SHOPKEEPER.poor) : SHOPKEEPER.full);
           }
           break;
         case 'swap': {
@@ -3883,7 +3899,7 @@ export class GameScene extends Phaser.Scene {
         g.fillStyle(c.state === 'here' ? 0xb9b3a3 : 0x4a4f6e, 1).fillRect(p.x, p.y + MAP_CELL_H - 1, MAP_CELL_W, 1);
       }
       // A room left behind with things in it shows them (the boss and the shop keep their icon).
-      if (c.state === 'visited' && c.loot.length > 0 && c.kind !== 'boss' && c.kind !== 'shop') {
+      if (c.state === 'visited' && c.loot.length > 0 && c.kind !== 'boss' && c.kind !== 'shop' && c.kind !== 'rare') {
         const marks = c.loot.slice(0, 3);
         const w = marks.length * 4 - 1;
         let ix = p.x + Math.floor((MAP_CELL_W - w) / 2);
@@ -4050,7 +4066,9 @@ export class GameScene extends Phaser.Scene {
     // the view or under the room's name (big text, a till against the back wall), beside it, with
     // the tail pointing at it.
     // While the room's name is up, its plate counts as the top.
-    const nameUp = this.roomTitle && this.roomTitle.alpha > 0 ? this.roomTitle.getBounds().bottom + 2 : 2;
+    let nameUp = this.roomTitle && this.roomTitle.alpha > 0 ? this.roomTitle.getBounds().bottom + 2 : 2;
+    // And the banner's (a hint like «E o rueda: cambiar de arma» when a weapon is financed, M14 (r2)).
+    if (this.banner.alpha > 0 && this.banner.text) nameUp = Math.max(nameUp, this.banner.y + this.banner.height + 4);
     const viewTop = this.cameras.main.scrollY + nameUp;
     const top = this.talkAt?.top ?? this.tillTop;
     const above = till.y - top - h >= viewTop;
@@ -4134,7 +4152,9 @@ export class GameScene extends Phaser.Scene {
     // Not while something is being said or shown there (the bubble, a panel).
     const busy = it?.kind === 'station' && (this.bubble || this.panel.length > 0);
     // (The price goes in the line: it stands over the shelf's own price tag.)
-    const buy = it?.kind === 'shop' ? `${INTERACT_VERBS.shop} por ${shopPrice(this.world.player, it.pickup.price ?? 0)}` : null;
+    const buy = it?.kind !== 'shop' ? null
+      : it.pickup.pay === 'vida' ? `${FINANCE.verb} por ${financeHearts(it.pickup.price ?? 0)}`
+      : `${INTERACT_VERBS.shop} por ${shopPrice(this.world.player, it.pickup.price ?? 0)}`;
     const verb = !it || busy ? null : it.kind === 'station' ? INTERACT_VERBS[it.station.kind] : (buy ?? INTERACT_VERBS[it.kind]);
     if (!verb) {
       this.prompt?.setVisible(false);
@@ -4647,14 +4667,21 @@ export class GameScene extends Phaser.Scene {
           v = { s: this.add.image(k.x, k.y, key, 0).setOrigin(0.5, 1), shadow: this.add.image(k.x, k.y, shadowTexture(this, heart || shield ? 5 : 4, 2)).setDepth(-50000) };
         }
         if (k.price !== undefined) {
-          // For sale: its price under the stand, with a coupon (gold if it can be paid, grey if not).
-          v.price = this.add.bitmapText(k.x + 5, k.y + 8, FONT, String(k.price), 8).setOrigin(0.5, 0).setDepth(k.y + 1);
-          v.priceIcon = this.add.image(k.x - 5 - Math.ceil(v.price.width / 2), k.y + 8, 'cupon', 0).setOrigin(0.5, 0).setDepth(k.y + 1);
+          // For sale: its price under the stand, with a coupon (gold if it can be paid, grey if not);
+          // financed (M14 (r2)), the hearts it costs, with a heart.
+          const life = k.pay === 'vida';
+          v.price = this.add.bitmapText(k.x + 5, k.y + 8, FONT, life ? String(k.price / 2) : String(k.price), 8).setOrigin(0.5, 0).setDepth(k.y + 1);
+          v.priceIcon = this.add.image(k.x - 5 - Math.ceil(v.price.width / 2), k.y + 8, life ? 'corazones' : 'cupon', 0).setOrigin(0.5, 0).setDepth(k.y + 1);
           v.shadow.setVisible(false);
         }
         this.pickupSprites.set(k.id, v);
       }
-      if (v.price && k.price !== undefined) {
+      if (v.price && k.price !== undefined && k.pay === 'vida') {
+        // Financed: red while there is credit (a heart to spare), grey when there is not.
+        const can = canFinance(this.world.player, k);
+        v.price.setTint(can ? 0xe0453b : 0x858ea8);
+        v.priceIcon?.setTint(can ? 0xffffff : 0x858ea8);
+      } else if (v.price && k.price !== undefined) {
         const p = this.world.player;
         // Acreditación de Visitante: the label follows the price the toaster pays, if it changes.
         const price = shopPrice(p, k.price);
