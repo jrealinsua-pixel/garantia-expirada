@@ -1321,6 +1321,11 @@
       "sesion": "https://claude.ai/code/session_01LyCe1QxMXtB1ffMd6SHaMz",
       "tarea": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización (rasca y gana con cupones); toca src/data/shop.ts, rooms.ts, world.ts (stock y compra), GameScene (sala y premio), tools/sprites",
       "desde": "2026-11-12T21:50:00+01:00"
+    },
+    {
+      "sesion": "https://claude.ai/code/session_01LyCe1RQnX1yWxUXeTGFYrb",
+      "tarea": "M14 (l2): ver los logros (src/render/glosario.ts y src/sim/glossary.ts: pestaña «Méritos»; src/data/texts.ts; src/render/save.ts; en GameScene solo el aviso tras guardar el perfil; tests/logros.test.ts, e2e)",
+      "desde": "2026-11-12T22:05:00+01:00"
     }
   ]
 }
