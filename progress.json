@@ -1286,6 +1286,11 @@
       "sesion": "2026-11-12 17:30",
       "tarea": "M13 historia (7c): la muerte propia de cada personaje (src/data/bajas.ts nuevo, downReport en src/data/texts.ts, popToaster y showDownPanel en src/render/GameScene.ts, tools/sprites/despiece.ts nuevo, tests/bajas.test.ts)",
       "desde": "2026-11-12T17:30:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 17:55",
+      "tarea": "M13 criterio: la captura con los cinco personajes juntos (solo tools/e2e.ts, un paso junto al del tablón, y tests/personajes.test.ts)",
+      "desde": "2026-11-12T17:55:00+01:00"
     }
   ]
 }
