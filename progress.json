@@ -139,6 +139,11 @@
   "sesiones": [
     {
       "fecha": "2026-11-12T18:45:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 glosario (g1): la partida cuenta las bajas de cada tipo de enemigo y el perfil las va sumando entre partidas. Es lo que necesitará el glosario para saber qué enemigos has «descubierto» (los que has desmontado alguna vez) y lo que pedirán los logros como «matar 100 de un tipo». Todavía no se ve: la pantalla del glosario es la siguiente tarea."
+    },
+    {
+      "fecha": "2026-11-12T18:45:00+01:00",
       "hito": "M13",
       "resumen": "M13 (7c): la muerte propia de cada personaje. Cada uno suelta sus cuatro piezas (la Batidora, la tapa, la pajita, una cuchilla y un trozo de vaso con batido; la Plancha, el selector en LINO, el cuello quemado, el tapón y un zapato; el Becario, acreditación, café, convenio y boli, sin chatarra ni chispas; el Móvil, la batería hinchada, cristal, la SIM y el enchufe) y el parte de baja lleva su nombre y sus propias excusas y recomendaciones («Sin contrato no hay nada que cubrir.», «Haga una copia de seguridad. Ah, ya es tarde.»). Con esto, M13 terminado: cinco personajes con habilidad, historia, final y muerte propios."
     },
@@ -1265,7 +1270,7 @@
       "pie": "M13 (7c): cada uno se desmonta a su manera: la Batidora suelta la pajita y el vaso, la Plancha echa vapor y pierde un zapato, el Becario solo papeles y café (sin chispas: no es un aparato) y el Móvil la batería hinchada y la SIM"
     }
   ],
-  "proximo": "M14: el glosario (g1, cogido por otra sesión) y lo siguiente de la lista de M14.",
+  "proximo": "M14: la pantalla del glosario en la pausa (g2): enemigos descubiertos y armas encontradas, los que faltan como siluetas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1291,11 +1296,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 18:30",
-      "tarea": "M14 glosario (g1): el perfil cuenta las bajas de cada tipo de enemigo (src/sim/profile.ts, World.killsBy en src/sim/world.ts, recordRun/saveFloor en GameScene, tests/glosario.test.ts)",
-      "desde": "2026-11-12T18:30:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

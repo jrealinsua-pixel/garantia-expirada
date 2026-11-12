@@ -2,6 +2,27 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 18:45 (hora peninsular) — Hito M14 — Glosario (g1): las bajas de cada tipo en el perfil
+- Contexto: las dos tareas que quedaban de M13 (7c, la muerte de cada personaje, y la captura de los
+  cinco) estaban cogidas en `en_curso` por sesiones de hace menos de 90 minutos, así que esta empezó
+  M14 por algo que no toca sus archivos (mientras tanto las otras cerraron M13). Al arrancar, la copia local de `main` era una historia vieja
+  sin relación con `origin/main`; se cambió a `origin/main` con `git checkout -B main origin/main`
+  (nada local se perdió: no había commits propios).
+- Hecho: el glosario de M14 dividido en (g1) datos y (g2) pantalla. (g1): `World.killsBy` cuenta cada
+  enemigo desmontado por su id junto a `w.kills`; el perfil lo suma en `Profile.killed` desde
+  `recordRun`, `recordFloor` y `recordEnding` (cada planta lleva las suyas, sin contar dos veces la
+  última de una partida ganada); `parseProfile` lo lee con el mismo cuidado que el resto (un guardado
+  viejo empieza vacío). `tests/glosario.test.ts`: suman lo mismo que las bajas, el perfil acumula
+  bien y un guardado raro no rompe nada.
+- Decisiones: «descubierto» = desmontado al menos una vez (no «visto»): es lo que se puede contar sin
+  ambigüedad y es lo que los logros necesitarán. Los guardados anteriores no recuperan sus bajas por
+  tipo: no hay de dónde sacarlas.
+- Medidas: 869 tests en verde; el bot como antes (el cambio no toca la simulación salvo un contador).
+- Problemas conocidos: si te tumban en la planta del Servicio Técnico, sus bajas no van al perfil
+  (la partida ya se apuntó en la Centralita y `recordRun` no vuelve a guardar); lo mismo pasaba ya con
+  sus objetos. `found.weapons` solo guarda las armas que llevabas al acabar la planta, no las que
+  soltaste: la (g2) debería apuntar también las que se cogen.
+- Siguiente paso: (g2) la pantalla del glosario en la pausa.
 ## 2026-11-12 18:40 (hora peninsular) — Hito M13 — La muerte propia de cada personaje
 - Contexto: al empezar, la (8) y la (7b) estaban cogidas desde hacía menos de 90 minutos; elegí la (7c), que solo toca el despiece y el parte de baja de `GameScene.ts` (no `createWorld` ni `FinalScene`). Al apuntarla, el push chocó con el commit de la (7b) (conflicto solo en `en_curso` de `progress.json`, resuelto a mano). La (8) terminó mientras tanto: conflictos solo en la hoja de ruta y el diseño, resueltos dejando lo de las dos.
 - Hecho: M13 (7c). Datos nuevos en `src/data/bajas.ts` (`CHARACTER_DOWNS`, `characterDown`): por personaje, su hoja de piezas, cómo revienta, si suelta chatarra, de dónde le sale humo (o vapor) y chispas en el suelo, y la redacción del parte («Unidad», la etiqueta de la línea del tiempo, excusas y recomendaciones). Cuatro hojas nuevas de 4 piezas de 8×8 en `tools/sprites/despiece.ts`: **Batidora** (tapa del vaso con su tapón rojo, pajita de rayas, una cuchilla, trozo de vaso con el batido seco; salpica verde y suena a cubitos), **Plancha** (selector clavado en LINO, el cuello de camisa quemado, el tapón del depósito, un zapato de entrevista; revienta en vapor y en el suelo sigue echando vapor blanco), **Becario** (acreditación sin foto, vaso de café, convenio sin firmar, boli azul; salpica café y vuelan papeles; **sin chatarra, sin humo y sin chispas**, tampoco en el temblor de antes: no es un aparato) y **Móvil** (batería hinchada, cristal de la pantalla rajada, la SIM, el enchufe con su cinta; cristalitos y un «clinc»; sin humo, solo chispas del cable). La Tostadora, igual que antes píxel a píxel. `popToaster` ya no tira las tostadas, el muelle y la palanca a todos. El parte de baja dice quién era («Becario Eterno (sin número de serie)», su línea de tiempo se llama «Prácticas») con excusas y recomendaciones propias más alguna de las de siempre; los partes de planta superada y de partida ganada también llevan su nombre (`WinReportInfo.unit`). Tests nuevos en `tests/bajas.test.ts` (4); `tests/texto-grande.test.ts` mira también los partes de cada personaje a los dos tamaños. e2e: paso nuevo `57-baja-*` (los otros cuatro caen en la Sala de Pruebas; comprueba sus piezas, que el Becario no suelta chatarra y que el parte no dice «Tostadora»).

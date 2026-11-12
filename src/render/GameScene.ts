@@ -1843,7 +1843,7 @@ export class GameScene extends Phaser.Scene {
     const p = w.player;
     if (outcome === 'floor' && w.level < LAST_LEVEL) {
       // A floor cleared, but the run goes on upstairs: it counts as a floor, not as a run.
-      saveFloor({ character: p.base.def.id, seconds: w.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons: p.arsenal.map((ws) => ws.base.id) });
+      saveFloor({ character: p.base.def.id, seconds: w.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons: p.arsenal.map((ws) => ws.base.id), killsBy: w.killsBy });
       return;
     }
     this.runRecorded = true;
@@ -1857,6 +1857,7 @@ export class GameScene extends Phaser.Scene {
       coupons: p.coupons,
       bosses: this.runBosses,
       docs: w.docs,
+      killsBy: w.killsBy,
       ...(outcome === 'down' && this.downCause ? { cause: this.downCause } : {}),
       items: p.items,
       ...(p.active ? { active: p.active.id } : {}),
@@ -3426,7 +3427,14 @@ export class GameScene extends Phaser.Scene {
             // The Servicio Técnico's last floor: the true ending (the run was recorded at the Centralita).
             const p = this.world.player;
             const before = profile().endings;
-            saveEnding({ character: p.base.def.id, seconds: this.world.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons: p.arsenal.map((ws) => ws.base.id) });
+            saveEnding({
+              character: p.base.def.id,
+              seconds: this.world.tick * DT,
+              items: p.items,
+              ...(p.active ? { active: p.active.id } : {}),
+              weapons: p.arsenal.map((ws) => ws.base.id),
+              killsBy: this.world.killsBy,
+            });
             this.ending = { times: before, started: false };
           }
           // The last floor has no lift: the run is won where the toaster stands (M11 3).

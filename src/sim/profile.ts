@@ -25,6 +25,11 @@ export interface Profile {
   /** Games won (floor 5 beaten) with each character (character id). */
   victories: Record<string, number>;
   kills: number;
+  /**
+   * Enemies taken apart, by enemy id (M14 glosario): an enemy is «descubierto» once it has fallen
+   * at least once. Counted from this version on (older saves start it empty).
+   */
+  killed: Record<string, number>;
   /** Coupons carried at the end of each run, added up. */
   coupons: number;
   /** Fastest floor cleared (s), null until one is. */
@@ -84,6 +89,8 @@ export interface RunResult {
   level?: number;
   /** Story documents picked up in the run (the secret rooms'); the bosses' come from `bosses`. */
   docs?: readonly string[];
+  /** Enemies taken apart on the last floor, by id (World.killsBy); the earlier floors went in with `recordFloor`. */
+  killsBy?: Readonly<Record<string, number>>;
   cause?: { by: string; how: 'bullet' | 'contact' };
   items: readonly string[];
   active?: string;
@@ -100,6 +107,7 @@ export function emptyProfile(): Profile {
     wins: {},
     victories: {},
     kills: 0,
+    killed: {},
     coupons: 0,
     bestFloorSeconds: null,
     longestRun: 0,
@@ -126,6 +134,17 @@ export interface FloorResult {
   items: readonly string[];
   active?: string;
   weapons: readonly string[];
+  /** Enemies taken apart on this floor, by id (World.killsBy). */
+  killsBy?: Readonly<Record<string, number>>;
+}
+
+/** Adds one floor's kills by enemy id to the profile's tally. */
+function addKills(p: Profile, by: Readonly<Record<string, number>> | undefined): void {
+  if (!by) return;
+  for (const [id, n] of Object.entries(by)) {
+    const k = Math.max(0, Math.round(n));
+    if (k > 0) p.killed[id] = (p.killed[id] ?? 0) + k;
+  }
 }
 
 function addFloor(p: Profile, f: FloorResult): void {
@@ -142,6 +161,7 @@ function addFloor(p: Profile, f: FloorResult): void {
 export function recordFloor(old: Profile, f: FloorResult): Profile {
   const p: Profile = structuredClone(old);
   addFloor(p, f);
+  addKills(p, f.killsBy);
   return p;
 }
 
@@ -154,7 +174,10 @@ export function recordEnding(old: Profile, floor?: FloorResult): Profile {
   const p: Profile = structuredClone(old);
   p.endings++;
   bump(p.bosses, 'trituradora');
-  if (floor) addFloor(p, floor);
+  if (floor) {
+    addFloor(p, floor);
+    addKills(p, floor.killsBy);
+  }
   p.docs = union(p.docs, bossDocs(['trituradora']));
   return p;
 }
@@ -164,6 +187,7 @@ export function recordRun(old: Profile, r: RunResult): Profile {
   const p: Profile = structuredClone(old);
   p.runs++;
   p.kills += Math.max(0, Math.round(r.kills));
+  addKills(p, r.killsBy);
   p.coupons += Math.max(0, Math.round(r.coupons));
   p.longestRun = Math.max(p.longestRun, Math.round(r.seconds));
   for (const b of r.bosses) bump(p.bosses, b);
@@ -249,6 +273,7 @@ export function parseProfile(raw: string | null): Profile {
     p.victories[p.last?.outcome === 'floor' ? p.last.character : STARTERS[0]!] = p.bosses['centralita']!;
   }
   p.kills = count(o.kills);
+  p.killed = counts(o.killed);
   p.coupons = count(o.coupons);
   p.bestFloorSeconds = typeof o.bestFloorSeconds === 'number' && o.bestFloorSeconds > 0 ? Math.round(o.bestFloorSeconds) : null;
   p.longestRun = count(o.longestRun);

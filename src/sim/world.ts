@@ -886,6 +886,8 @@ export interface World {
   nextId: number;
   /** Enemies taken apart so far. */
   kills: number;
+  /** The same, by enemy id (M14 glosario): what the profile adds up for the glossary and the achievements. */
+  killsBy: Record<string, number>;
   /** Story documents picked up in this run (src/data/lore.ts), carried up from floor to floor. */
   docs: string[];
   /** Seconds the room has been empty, counting towards its restock. */
@@ -1177,6 +1179,7 @@ export function createWorld(opts: WorldOptions): World {
     events: [],
     nextId,
     kills: 0,
+    killsBy: {},
     docs: [],
     emptyT: 0,
     shutTick: 0,
@@ -3992,6 +3995,7 @@ function reapEnemies(w: World): void {
       continue;
     }
     w.kills++;
+    w.killsBy[en.def.id] = (w.killsBy[en.def.id] ?? 0) + 1;
     // Whatever it was about to fire dies with it.
     w.emitters = w.emitters.filter((e) => e.source !== en.id);
     const alt = enemyAltitude(en);
