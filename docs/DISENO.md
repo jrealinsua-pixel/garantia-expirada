@@ -636,7 +636,7 @@ cinta transportadora delante que lleva hacia ella. Fase 1, «Diagnóstico»: un 
 la tostadora y responde con un patrón de cada jefe vencido, uno por turno, en versión
 reacondicionada. Fase 2, «Despiece» (desde el 60 %): la cinta del suelo arrastra hacia la tolva
 y ella escupe piezas (tornillos, muelles, teclas) en abanicos; hay que andar contra la cinta.
-Fase 3, «Control de calidad» (desde el 25 %): pega etiquetas de «APTO» que frenan, y caen
+Fase 3, «Control de calidad» (desde el 35 %): pega etiquetas de «APTO» que frenan, y caen
 pilas de cajas que cierran la sala por trozos.
 Hecha la fase 1 (M12 (4a)): 300 de vida (más que cualquier jefe de planta); rueda sobre orugas;
 manos grandes con guantes de nitrilo azules; una rebanada de tostada quemada asoma entre las
@@ -660,10 +660,10 @@ rodillos dentados con su franja amarilla y negra; tocarlos quita un corazón (cu
 para reacondicionar») y te devuelve cinta abajo unos 60 px. La cinta sigue en las fases de
 después y se para cuando ella cae. Es la primera cinta del juego (`src/sim/conveyors.ts`): las del
 taller (3b3) usarán el mismo motor.
-Hecha la fase 3 (M12 (4c)), «Control de calidad», desde el 25 %: grita «Control de calidad. Todo
+Hecha la fase 3 (M12 (4c)), «Control de calidad», desde el 25 % (el 35 % desde la (6)): grita «Control de calidad. Todo
 APTO, sin mirar.» (el control de calidad que lo aprueba todo) y saca una **etiquetadora de precios
 de su tamaño** (los pilotos en verde brillante, con un visto bueno en cada uno). Sigue en su pared,
-la cinta sigue corriendo, y alterna los abanicos de tornillos y teclas con **las etiquetas «APTO»**:
+la cinta sigue corriendo, y alterna los abanicos de tornillos, muelles (desde la (6)) y teclas con **las etiquetas «APTO»**:
 cuatro, una donde estás y las otras alrededor, que revolotean por el aire (el aro verde marca dónde
 caerán) y se quedan pegadas en el suelo seis segundos: una etiqueta blanca con la franja verde y
 «APTO» en letra de plantilla; pisarla es como andar sobre pegamento (al 55 % de la velocidad, igual

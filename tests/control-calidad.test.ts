@@ -1,4 +1,4 @@
-// La Trituradora, fase 3 «Control de calidad» (M12 (4c)): desde el 25 % pega etiquetas de «APTO»
+// La Trituradora, fase 3 «Control de calidad» (M12 (4c)): desde el 35 % pega etiquetas de «APTO»
 // en el suelo (frenan como la escarcha) y caen pilas de cajas, media columna cada vez, que cierran
 // la sala desde la pared más lejana hacia ella.
 import { test } from 'node:test';
@@ -37,10 +37,10 @@ function calidad(seed = 'calidad', at = { x: 160, y: 200 }): { w: World; boss: E
   return { w, boss };
 }
 
-test('la fase 3 es «Control de calidad», desde el 25 %, con sus etiquetas y sus cajas', () => {
+test('la fase 3 es «Control de calidad», desde el 35 %, con sus etiquetas y sus cajas', () => {
   assert.equal(brain.phases.length, 3);
   assert.equal(phase.name, 'Control de calidad');
-  assert.equal(phase.from, 0.25);
+  assert.equal(phase.from, 0.35);
   assert.ok(phase.line && textWidth(phase.line) <= 220);
   const label = phase.attacks.find((a): a is BossFrostAttack => a.kind === 'frost');
   assert.ok(label?.sticker, 'pega etiquetas');
@@ -142,7 +142,7 @@ test('nextChunk se salta lo que ya está en pie (los muebles de las esquinas)', 
 test('las etiquetas «APTO» se quedan en el suelo y frenan', () => {
   const { w, boss } = calidad('etiquetas');
   let landed = false;
-  for (let i = 0; i < ticks(25) && !landed; i++) {
+  for (let i = 0; i < ticks(60) && !landed; i++) {
     step(w, { ...NO_INPUT, moveX: -0.3, aimX: boss.x, aimY: boss.y });
     if (boss.damageTaken >= def.hp - 1) boss.damageTaken = def.hp - 2;
     const f = w.frost.find((x) => x.sticker && x.t > 0.1);
@@ -153,7 +153,7 @@ test('las etiquetas «APTO» se quedan en el suelo y frenan', () => {
       assert.equal(f.slow, (phase.attacks.find((a) => a.kind === 'frost') as BossFrostAttack).slow);
     }
   }
-  assert.ok(landed, 'pega alguna en 25 s');
+  assert.ok(landed, 'pega alguna en 60 s');
 });
 
 test('si se salta la fase 2 (de golpe al 24 %), las cajas empiezan por la pared lejana a ella', () => {

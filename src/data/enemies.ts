@@ -1142,7 +1142,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
       'El Servicio Técnico Oficial en persona: una trituradora industrial del tamaño de una pared, con ' +
       'la tolva por boca y dos pilotos de «En servicio» por ojos. Todo lo que entra sale reacondicionado.',
     // M12 (4a). The final boss: more life than the Centralita (240), spread over three phases
-    // (phase 2 at 60 %, M12 (4b); phase 3 at 25 %, M12 (4c)).
+    // (phase 2 at 60 %, M12 (4b); phase 3 at 35 %, M12 (4c) and (6)).
     hp: 300,
     sprite: 'trituradora',
     anchor: { x: 47, y: 85 },
@@ -1204,16 +1204,20 @@ export const ENEMIES: Record<string, EnemyDef> = {
           // «Control de calidad» (M12 (4c)): everything passes. It sticks «APTO» labels on the floor
           // (they slow you down like frost) between its fans of parts, and stacks of crates come down
           // from the far wall in, half a column at a time, closing the room towards the rollers.
+          // M12 (6): from 35 % (was 25 %), with less rest, fewer labels and a fan of springs: measured
+          // with what the bot brings from below, phase 3 hurt 0.9 times per fight and whoever reached
+          // it won almost always; the stacks of crates never got near the toaster.
           name: 'Control de calidad',
-          from: 0.25,
+          from: 0.35,
           walkSpeed: 48,
           keep: 150,
-          rest: [0.55, 0.85],
+          rest: [0.4, 0.7],
           line: 'Control de calidad. Todo APTO, sin mirar.',
           crates: { prop: 'pila-cajas', first: 2.5, every: 3.2, warn: 1.2, hurt: 1, cols: 8 },
           attacks: [
-            { kind: 'frost', count: 4, spread: 64, flight: 0.8, radius: 18, life: 6, slow: 0.55, sticker: 'etiqueta-apto', telegraph: 0.7, weight: 1.3, pose: 8 },
+            { kind: 'frost', count: 4, spread: 64, flight: 0.8, radius: 18, life: 6, slow: 0.55, sticker: 'etiqueta-apto', telegraph: 0.7, weight: 0.8, pose: 8 },
             { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1, pose: 7 },
+            { kind: 'pattern', pattern: 'despiece-muelles', telegraph: 0.8, weight: 1, pose: 7 },
             { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 0.8, pose: 7 },
           ],
         },

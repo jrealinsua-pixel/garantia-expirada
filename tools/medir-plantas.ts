@@ -4,9 +4,10 @@
 // (the bot gathers weapons, items and coupons as it would by playing well) and each floor is then
 // played with damage from that arrival, with full life: the floor's pass rate for whoever gets
 // there. The wall is the floor with the lowest pass rate. With [planta], only that floor is played
-// with damage (the ones below are still crossed without it to get there).
+// with damage (the ones below are still crossed without it to get there). [planta] 6 is the
+// Servicio Técnico (M12 (6)): the runs carry the appointment, so winning the fifth floor goes up.
 import { crossHub } from '../src/sim/bot.ts';
-import { LAST_LEVEL, nextFloor, type World } from '../src/sim/world.ts';
+import { LAST_LEVEL, nextFloor, SERVICE_LEVEL, type World } from '../src/sim/world.ts';
 import { playFloor, upperTime } from './bot.ts';
 
 export interface FloorPass {
@@ -27,7 +28,9 @@ export function measureFloors(runs: number, maxSeconds = 600, prefix = 'medir-pl
   const errors: string[] = [];
   const floors: FloorPass[] = [];
   const acc = new Map<number, { arrived: number; won: number; downAtBoss: number; hurts: number; rooms: number[]; weapons: number; items: number }>();
-  for (let l = 1; l <= LAST_LEVEL; l++) acc.set(l, { arrived: 0, won: 0, downAtBoss: 0, hurts: 0, rooms: [], weapons: 0, items: 0 });
+  const service = only >= SERVICE_LEVEL;
+  const top = service ? SERVICE_LEVEL : LAST_LEVEL;
+  for (let l = 1; l <= top; l++) acc.set(l, { arrived: 0, won: 0, downAtBoss: 0, hurts: 0, rooms: [], weapons: 0, items: 0 });
   for (let i = from; i < from + runs; i++) {
     const seed = `${prefix}-${i}`;
     const hub = crossHub(seed, { chatarrero: i % 2 === 1 });
@@ -35,10 +38,11 @@ export function measureFloors(runs: number, maxSeconds = 600, prefix = 'medir-pl
       errors.push(...hub.errors);
       continue;
     }
-    for (let l = only || 1; l <= (only || LAST_LEVEL); l++) {
+    hub.run.service = service;
+    for (let l = only || 1; l <= (only || top); l++) {
       // playFloor plays on in the world it is given, so each floor starts from an arrival rebuilt
       // from the floors below (all deterministic).
-      const start = l === 1 ? hub.run : rebuild(seed, i, l, maxSeconds, errors);
+      const start = l === 1 ? hub.run : rebuild(seed, i, l, maxSeconds, errors, service);
       if (!start) break;
       const a = acc.get(l)!;
       a.arrived++;
@@ -68,8 +72,9 @@ export function measureFloors(runs: number, maxSeconds = 600, prefix = 'medir-pl
 }
 
 /** The world arriving at `level` after winning the floors below without damage (null if one of them was not won). */
-function rebuild(seed: string, i: number, level: number, maxSeconds: number, errors: string[]): World | null {
+export function rebuild(seed: string, i: number, level: number, maxSeconds: number, errors: string[], service = false): World | null {
   let w: World | null = crossHub(seed, { chatarrero: i % 2 === 1 }).run;
+  if (w) w.service = service;
   for (let l = 1; l < level && w; l++) {
     const r = playFloor(seed, upperTime(maxSeconds, l), true, true, l, w);
     if (r.errors.length) errors.push(...r.errors);

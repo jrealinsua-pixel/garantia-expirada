@@ -1701,7 +1701,7 @@ try {
   await shot('53f-despiece-piezas.png');
   await page.waitForFunction(`window.__GE__.scene.world.player.x < 120 || window.__GE__.scene.world.player.x > 500`, undefined, { timeout: 20000 });
   await shot('53g-despiece-rodillos.png');
-  // M12 (4c): down to 25 %, «Control de calidad»: «APTO» labels stuck on the floor (they slow you
+  // M12 (4c): down to 35 %, «Control de calidad»: «APTO» labels stuck on the floor (they slow you
   // down) and stacks of crates coming down from the far wall in, half a column at a time.
   await page.evaluate(`(() => { const s = window.__GE__.scene; s.world.bullets = []; s.world.emitters = [];
     const p = s.world.player; const b = ${trituradoraJs}; p.x = s.world.room.w / 2; p.y = 200;
