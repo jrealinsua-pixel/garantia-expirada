@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T18:45:00+01:00",
+  "actualizado": "2026-11-12T19:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -112,7 +112,7 @@
       "id": "M14",
       "nombre": "Más contenido y rejugabilidad",
       "estado": "en_curso",
-      "hechas": 0,
+      "hechas": 1,
       "total": 7
     },
     {
@@ -137,6 +137,11 @@
     "lineas_codigo": 31653
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T19:45:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 glosario (g2): el «Catálogo de siniestros», en la pausa y en la portada. Dos pestañas, enemigos y armas: lo que has desmontado o llevado encima sale con su dibujo, su descripción y cuántos llevas (los jefes, cuántas veces los has derrotado; las armas, sus números de fábrica); lo demás, una silueta oscura «Sin catalogar» con una pista de cómo ficharlo. El que te tumbó también queda fichado: «Te ha desmontado, de momento»."
+    },
     {
       "fecha": "2026-11-12T18:45:00+01:00",
       "hito": "M14",
@@ -1246,6 +1251,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/glosario.png",
+      "pie": "M14: el «Catálogo de siniestros», el glosario de la pausa y la portada: lo que has desmontado, con su ficha y cuántos llevas; lo demás, «Sin catalogar»"
+    },
+    {
+      "archivo": "capturas/glosario-armas.png",
+      "pie": "La pestaña de las armas: las que has llevado encima, con sus números de fábrica"
+    },
+    {
       "archivo": "capturas/los-cinco.png",
       "pie": "M13: los cinco personajes en fila en el Mostrador, para el criterio de «se distinguen a la primera»"
     },
@@ -1258,19 +1271,11 @@
       "pie": "M13 (7b): el final del Becario Eterno: en la estantería, con la etiqueta «Prácticas: 6 meses», a 0,00 € «Sin remunerar». Con experiencia. No cobra."
     },
     {
-      "archivo": "capturas/ficha-leyendo.png",
-      "pie": "M13 (7a): al pisar la cinta del Mostrador, la cinta lee en voz alta la ficha de devolución de la tostadora, letra a letra"
-    },
-    {
-      "archivo": "capturas/ficha-sellada.png",
-      "pie": "La ficha leída y sellada: «Fuera de plazo». La partida espera hasta que se dispara"
-    },
-    {
       "archivo": "capturas/muertes.png",
       "pie": "M13 (7c): cada uno se desmonta a su manera: la Batidora suelta la pajita y el vaso, la Plancha echa vapor y pierde un zapato, el Becario solo papeles y café (sin chispas: no es un aparato) y el Móvil la batería hinchada y la SIM"
     }
   ],
-  "proximo": "M14: la pantalla del glosario en la pausa (g2): enemigos descubiertos y armas encontradas, los que faltan como siluetas.",
+  "proximo": "M14: salas especiales raras y retos diarios con semilla fija, o los jefes al azar por planta (nota del humano del 2026-10-30).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1296,11 +1301,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 18:30",
-      "tarea": "M14 glosario (g2): la pantalla del glosario en la pausa y el título (src/render/PauseScene.ts, src/render/glosario.ts nuevo, src/data/texts.ts, tools/e2e.ts, tests/glosario.test.ts)",
-      "desde": "2026-11-12T18:50:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

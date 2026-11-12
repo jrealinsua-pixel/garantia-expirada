@@ -6,6 +6,23 @@ import { ENEMIES } from '../src/data/enemies.ts';
 import { emptyProfile, parseProfile, recordEnding, recordFloor, recordRun, type RunResult } from '../src/sim/profile.ts';
 import { checkInvariants, createWorld, step } from '../src/sim/world.ts';
 import { Bot } from '../src/sim/bot.ts';
+import { readFileSync } from 'node:fs';
+import { WEAPONS } from '../src/data/weapons.ts';
+import { FONT_CHARS, fontText, textWidth } from '../src/art/font.ts';
+import { glossary, GLOSSARY_ENEMIES, glossaryProgress, GLOSSARY_TAB_ORDER, GLOSSARY_WEAPONS } from '../src/sim/glossary.ts';
+import { entryName, GLOSSARY, listWindow, pictureScale } from '../src/render/glosario.ts';
+import {
+  GLOSSARY_HINT,
+  GLOSSARY_SUB,
+  GLOSSARY_TABS,
+  GLOSSARY_TITLE,
+  GLOSSARY_UNKNOWN,
+  GLOSSARY_UNKNOWN_BOSS,
+  GLOSSARY_UNKNOWN_ENEMY,
+  GLOSSARY_UNKNOWN_WEAPON,
+  glossaryCount,
+  glossaryTab,
+} from '../src/data/texts.ts';
 
 const run: RunResult = {
   character: 'tostadora',
@@ -59,4 +76,62 @@ test('las bajas por tipo se guardan, y un guardado viejo o raro no rompe nada', 
   assert.deepEqual(parseProfile(JSON.stringify(old)).killed, {});
   assert.deepEqual(parseProfile(JSON.stringify({ ...p, killed: { microondas: -2, batidora: 'mucho', nevera: 2.7 } })).killed, { nevera: 2 });
   assert.deepEqual(parseProfile(JSON.stringify({ ...p, killed: [1, 2] })).killed, {});
+});
+
+// (g2) The glossary screen: which entries, what each one says and that it all fits.
+test('el glosario: todos los enemigos salvo las piezas de jefe, los jefes al final y por plantas, y todas las armas', () => {
+  assert.ok(!GLOSSARY_ENEMIES.includes('silla-director') && !GLOSSARY_ENEMIES.includes('repetidor'));
+  const bosses = GLOSSARY_ENEMIES.filter((id) => ENEMIES[id]!.boss);
+  assert.deepEqual(bosses, ['nevera-suprema', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora']);
+  assert.deepEqual(GLOSSARY_ENEMIES.slice(-bosses.length), bosses);
+  assert.equal(GLOSSARY_ENEMIES.length, Object.values(ENEMIES).filter((e) => e.glossary !== false).length);
+  assert.deepEqual([...GLOSSARY_WEAPONS].sort(), Object.keys(WEAPONS).sort());
+});
+
+test('el glosario lee el perfil: desmontado, derrotado o el que te tumbó, y las armas llevadas', () => {
+  const p0 = emptyProfile();
+  assert.ok(glossary(p0, 'enemies').every((e) => !e.known && e.count === 0));
+  assert.deepEqual(glossaryProgress(p0, 'weapons'), { known: 0, total: GLOSSARY_WEAPONS.length });
+  const p = recordRun(p0, { ...run, cause: { by: 'impresora', how: 'bullet' }, weapons: ['secador', 'grapadora'] });
+  p.bosses['nevera-suprema'] = 2; // a save from before the tally: its bosses still count
+  const by = (id: string) => glossary(p, 'enemies').find((e) => e.id === id)!;
+  assert.deepEqual([by('microondas').known, by('microondas').count], [true, 3]);
+  assert.deepEqual([by('impresora').known, by('impresora').count], [true, 0], 'el que te tumbó, conocido aunque no lo hayas desmontado');
+  assert.deepEqual([by('nevera-suprema').known, by('nevera-suprema').count, by('nevera-suprema').boss], [true, 2, true]);
+  assert.equal(by('webcam').known, false);
+  assert.deepEqual(glossaryProgress(p, 'enemies').known, 4);
+  assert.deepEqual(glossary(p, 'weapons').filter((e) => e.known).map((e) => e.id), ['secador', 'grapadora']);
+});
+
+test('el glosario: cada ficha tiene dibujo y fotograma, y sus textos se escriben con la fuente y caben', () => {
+  const sheets = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames: number; frameW: number; frameH: number }>;
+  const glyphs = new Set([...FONT_CHARS, ' ']);
+  const fits = (t: string, w: number): void => {
+    for (const ch of fontText(t)) assert.ok(glyphs.has(ch), `«${t}»: falta «${ch}»`);
+    assert.ok(textWidth(t) <= w, `«${t}» no cabe (${textWidth(t)} > ${w})`);
+  };
+  for (const tab of GLOSSARY_TAB_ORDER) {
+    for (const e of glossary(emptyProfile(), tab)) {
+      const s = sheets[e.sprite];
+      assert.ok(s, `${e.id}: no hay hoja «${e.sprite}»`);
+      assert.ok(e.frame < s.frames, `${e.id}: fotograma ${e.frame} de ${s.frames}`);
+      assert.ok(pictureScale(s.frameW, s.frameH) * s.frameH <= Math.max(GLOSSARY.picH, s.frameH), `${e.id}: el dibujo se sale del recuadro`);
+      fits(entryName(tab, { ...e, known: true }), GLOSSARY.listW - 12);
+      const desc = tab === 'weapons' ? WEAPONS[e.id]!.description : ENEMIES[e.id]!.description;
+      for (const ch of fontText(desc)) assert.ok(glyphs.has(ch), `«${desc}»: falta «${ch}»`);
+    }
+  }
+  fits(GLOSSARY_TITLE, 440);
+  fits(GLOSSARY_SUB, 440);
+  fits(GLOSSARY_HINT, 440);
+  fits(GLOSSARY_UNKNOWN, GLOSSARY.listW - 12);
+  const counts = [glossaryCount(0, false), glossaryCount(3, false), glossaryCount(0, true), glossaryCount(1, true), glossaryCount(12, true)];
+  for (const t of [GLOSSARY_UNKNOWN_ENEMY, GLOSSARY_UNKNOWN_BOSS, GLOSSARY_UNKNOWN_WEAPON, ...counts]) {
+    for (const ch of fontText(t)) assert.ok(glyphs.has(ch), `«${t}»: falta «${ch}»`);
+  }
+  for (const t of GLOSSARY_TAB_ORDER) fits(glossaryTab(GLOSSARY_TABS[t], 99, 99) + ' «»', 110);
+  // The cursor stays in the window, and the window never runs past the end.
+  assert.equal(listWindow(5, 14, 3), 0);
+  assert.equal(listWindow(31, 14, 30), 17);
+  assert.equal(listWindow(31, 14, 15), 8);
 });

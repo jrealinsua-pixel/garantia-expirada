@@ -51,7 +51,9 @@ import {
 import { activeLines, characterStatRows, meritRows, modifierLines, weaponStatRows, type EffectLine, type StatRow } from '../data/describe.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, FINDABLE_ITEMS, ITEMS } from '../data/items.ts';
 import { FINDABLE_WEAPONS } from '../data/weapons.ts';
-import { downCause, HISTORY_EMPTY, HISTORY_MENU, HISTORY_SUB, HISTORY_TITLE, historyLines } from '../data/texts.ts';
+import { downCause, GLOSSARY_MENU, GLOSSARY_TITLE, HISTORY_EMPTY, HISTORY_MENU, HISTORY_SUB, HISTORY_TITLE, historyLines } from '../data/texts.ts';
+import { glossary, glossaryProgress, GLOSSARY_TAB_ORDER, type GlossaryTab } from '../sim/glossary.ts';
+import { paintGlossary } from './glosario.ts';
 import { topCause } from '../sim/profile.ts';
 import { profile } from './save.ts';
 import { SYNERGIES } from '../data/synergies.ts';
@@ -71,12 +73,13 @@ const GOLD = 0xf6c431;
 const CREAM = 0xd6cdb2;
 const GREY = 0x858ea8;
 
-type Screen = 'main' | 'history' | 'inventory' | 'options' | 'keys' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
+type Screen = 'main' | 'history' | 'glossary' | 'inventory' | 'options' | 'keys' | 'controls' | 'credits' | 'confirmNew' | 'confirmQuit';
 
 /** Where each first-screen action sits, so going back from a screen lands on what opened it. */
 const PAUSE_ITEMS: MenuItem[] = [
   { kind: 'action', id: 'resume', label: PAUSE_MENU.resume },
   { kind: 'action', id: 'inventory', label: INVENTORY_MENU },
+  { kind: 'action', id: 'glossary', label: GLOSSARY_MENU },
   { kind: 'action', id: 'options', label: PAUSE_MENU.options },
   { kind: 'action', id: 'controls', label: PAUSE_MENU.controls },
   { kind: 'action', id: 'newUnit', label: PAUSE_MENU.newUnit },
@@ -87,6 +90,7 @@ const TITLE_ITEMS: MenuItem[] = [
   { kind: 'action', id: 'practice', label: TITLE_MENU.practice },
   { kind: 'action', id: 'options', label: TITLE_MENU.options },
   { kind: 'action', id: 'controls', label: TITLE_MENU.controls },
+  { kind: 'action', id: 'glossary', label: GLOSSARY_MENU },
   { kind: 'action', id: 'history', label: HISTORY_MENU },
   { kind: 'action', id: 'credits', label: TITLE_MENU.credits },
 ];
@@ -94,6 +98,7 @@ const TITLE_ITEMS: MenuItem[] = [
 const CREDITS: readonly string[] = [...CREDITS_LINES.slice(0, 2), 'Motor: Phaser 3 (licencia MIT)', ...CREDITS_LINES.slice(2)];
 const OPENED_BY: Partial<Record<Screen, string>> = {
   history: 'history',
+  glossary: 'glossary',
   inventory: 'inventory',
   options: 'options',
   controls: 'controls',
@@ -118,6 +123,8 @@ export class PauseScene extends Phaser.Scene {
   private padDirPrev = 0;
   /** Title screen: the toaster standing in front of the warehouse. */
   private hero: Phaser.GameObjects.Image | null = null;
+  /** The glossary's open tab (enemies or weapons). */
+  private glossTab: GlossaryTab = 'enemies';
 
   constructor(key = 'pause', mode: 'pause' | 'title' = 'pause') {
     super(key);
@@ -191,10 +198,27 @@ export class PauseScene extends Phaser.Scene {
     }
     if (code === 'ArrowUp' || code === 'KeyW') this.move(-1);
     else if (code === 'ArrowDown' || code === 'KeyS') this.move(1);
-    else if (code === 'ArrowLeft' || code === 'KeyA') this.apply(this.menu.adjust(-1));
-    else if (code === 'ArrowRight' || code === 'KeyD') this.apply(this.menu.adjust(1));
+    else if (code === 'ArrowLeft' || code === 'KeyA') this.side(-1);
+    else if (code === 'ArrowRight' || code === 'KeyD') this.side(1);
     else if (code === 'Enter' || code === 'Space' || code === 'NumpadEnter') this.apply(this.menu.confirm());
     else if (code === 'Escape' || code === 'KeyP' || code === 'Backspace') this.back();
+  }
+
+  /** Left or right: changes a setting, or in the glossary, the tab. */
+  private side(d: number): void {
+    if (this.screen !== 'glossary') {
+      this.apply(this.menu.adjust(d));
+      return;
+    }
+    const i = GLOSSARY_TAB_ORDER.indexOf(this.glossTab);
+    this.switchTab(GLOSSARY_TAB_ORDER[(i + d + GLOSSARY_TAB_ORDER.length) % GLOSSARY_TAB_ORDER.length]!);
+  }
+
+  private switchTab(t: GlossaryTab): void {
+    if (t === this.glossTab) return;
+    this.glossTab = t;
+    this.game_.sound2.play('cambiar', { volume: 0.6 });
+    this.show('glossary');
   }
 
   private move(d: number): void {
@@ -278,11 +302,15 @@ export class PauseScene extends Phaser.Scene {
       this.show('keys');
       return;
     }
-    // A line of the inventory: nothing to do but read it.
+    // A line of the inventory or the glossary: nothing to do but read it.
     if (id.includes(':')) return;
     snd.play('recargar');
     if (id === 'resume' || id === 'no' || id === 'back') this.back();
     else if (id === 'options' || id === 'controls' || id === 'credits' || id === 'inventory' || id === 'history') this.show(id);
+    else if (id === 'glossary') {
+      this.glossTab = 'enemies';
+      this.show('glossary');
+    }
     else if (id === 'newUnit') this.show('confirmNew');
     else if (id === 'quit') this.show('confirmQuit');
     else if (id === 'start' || id === 'practice') {
@@ -333,6 +361,11 @@ export class PauseScene extends Phaser.Scene {
       for (const id of p.synergies) lines.push({ kind: 'action', id: `syn:${id}`, label: SYNERGIES[id]?.name ?? id });
       lines.push({ kind: 'action', id: 'back', label: PAUSE_MENU.back });
       this.menu = new Menu(lines);
+    } else if (screen === 'glossary') {
+      // One line per entry of the open tab, then back.
+      const lines: MenuItem[] = glossary(profile(), this.glossTab).map((e) => ({ kind: 'action', id: `gloss:${e.id}`, label: e.id }));
+      lines.push({ kind: 'action', id: 'back', label: PAUSE_MENU.back });
+      this.menu = new Menu(lines);
     } else if (screen === 'controls' || screen === 'credits' || screen === 'history') this.menu = new Menu([{ kind: 'action', id: 'back', label: PAUSE_MENU.back }]);
     else {
       const t = screen === 'confirmNew' ? CONFIRM_MENU : QUIT_MENU;
@@ -353,6 +386,22 @@ export class PauseScene extends Phaser.Scene {
       this.paintInventory();
       return;
     }
+    if (this.screen === 'glossary') {
+      const p = profile();
+      paintGlossary(this, this.objs, {
+        tab: this.glossTab,
+        entries: glossary(p, this.glossTab),
+        progress: { enemies: glossaryProgress(p, 'enemies'), weapons: glossaryProgress(p, 'weapons') },
+        index: this.menu.index,
+        hover: (i) => {
+          this.menu.index = i;
+          this.paint();
+        },
+        tabTo: (t) => this.switchTab(t),
+        back: () => this.back(),
+      });
+      return;
+    }
     const text = (x: number, y: number, s: string, tint: number, origin = 0.5): Phaser.GameObjects.BitmapText => {
       const t = this.add.bitmapText(x, y, FONT, fontText(s), 8).setOrigin(origin, 0).setTint(tint);
       this.objs.push(t);
@@ -363,6 +412,7 @@ export class PauseScene extends Phaser.Scene {
     const titles: Record<Screen, string> = {
       main: PAUSE_TITLE,
       history: HISTORY_TITLE,
+      glossary: GLOSSARY_TITLE,
       inventory: INVENTORY_TITLE,
       options: OPTIONS_TITLE,
       keys: KEYS_TITLE,
@@ -671,7 +721,7 @@ export class PauseScene extends Phaser.Scene {
     const dir = now[12] || ay < -0.6 ? -1 : now[13] || ay > 0.6 ? 1 : now[14] || ax < -0.6 ? -2 : now[15] || ax > 0.6 ? 2 : 0;
     if (dir !== this.padDirPrev && dir !== 0) {
       if (Math.abs(dir) === 1) this.move(dir);
-      else this.apply(this.menu.adjust(Math.sign(dir)));
+      else this.side(Math.sign(dir));
     }
     this.padDirPrev = dir;
     if (hit(0)) this.apply(this.menu.confirm());

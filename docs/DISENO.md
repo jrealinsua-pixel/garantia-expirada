@@ -668,6 +668,12 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   conjunto de botín y salas raras.
 - Un pequeño **centro**: el mostrador de Devoluciones del vertedero, con PNJs (el Servicio
   Técnico al teléfono, un vendedor ambulante de piezas) que cambian con el progreso.
+- **El glosario, «Catálogo de siniestros»** (M14), en la pausa y en la portada: dos pestañas,
+  enemigos y armas. Un enemigo queda fichado cuando lo desmontas una vez (o, si te tumba, con
+  «Te ha desmontado, de momento»); un jefe, cuando lo derrotas; un arma, cuando terminas una planta
+  o una partida con ella encima. Lo que falta sale como una silueta oscura «Sin catalogar», con
+  una pista de cómo ficharlo. El perfil cuenta las bajas de cada tipo (`Profile.killed`), que
+  servirán también para los logros.
 
 ### El Servicio Técnico (planta secreta, hito M12)
 

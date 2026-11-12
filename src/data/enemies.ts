@@ -1228,6 +1228,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
   'silla-director': {
     id: 'silla-director',
     name: 'Silla Ergonómica de Dirección',
+    glossary: false,
     description:
       'Polipiel granate, respaldo lumbar y cinco ruedas: cuesta lo que un sueldo y nadie más se ' +
       'sienta en ella. Ahora rueda sola, todavía caliente.',
@@ -1262,6 +1263,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
   repetidor: {
     id: 'repetidor',
     name: 'Repetidor de Señal',
+    glossary: false,
     description: 'Amplía la cobertura del router a toda la casa, menos a la habitación donde estás.',
     hp: 8,
     sprite: 'repetidor',

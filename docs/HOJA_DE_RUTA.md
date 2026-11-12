@@ -574,13 +574,15 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
 - [ ] Salas especiales raras, retos diarios con semilla fija.
 - [ ] Jefes al azar: cada planta elige entre varios jefes (la planta 1, la Nevera u otros tres).
   (Nota del humano del 2026-10-30.)
-- [ ] Glosario de enemigos y armas descubiertos, en el Mostrador o en la pausa.
+- [x] Glosario de enemigos y armas descubiertos, en el Mostrador o en la pausa.
   - [x] (g1) El perfil cuenta las bajas de cada tipo de enemigo (`Profile.killed`, `World.killsBy`):
     un enemigo está «descubierto» cuando ha caído una vez. Hecho el 2026-11-12, `tests/glosario.test.ts`.
     También sirve para los logros («matar 100 de un tipo»).
-  - [ ] (g2) La pantalla del glosario en la pausa: enemigos descubiertos (dibujo, nombre, una línea
+  - [x] (g2) La pantalla del glosario en la pausa: enemigos descubiertos (dibujo, nombre, una línea
     con el tono del juego y cuántos llevas) y armas encontradas; los que faltan, como siluetas «sin
-    catalogar».
+    catalogar». Hecho el 2026-11-12: «Glosario» en la pausa y en la portada abre el «Catálogo de
+    siniestros» (`src/sim/glossary.ts`, `src/render/glosario.ts`), dos pestañas con izquierda y
+    derecha; e2e `58a`–`58d`.
 - [ ] Contenido limitado y desbloqueable con logros (matar 100 de un tipo, ganar a un jefe sin
   recibir daño, conseguir una sinergia…).
 - [ ] PNJs que aparecen a veces en las plantas, piden cosas o proponen desafíos y, encontrados

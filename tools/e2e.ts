@@ -2136,7 +2136,7 @@ try {
   await page.waitForTimeout(400);
   if ((await page.evaluate<number>('window.__GE__.scene.world.tick')) !== pausedAt) throw new Error('El juego sigue en pausa');
   await shot('25a-pausa.png');
-  await tapKeys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter');
+  await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('25b-opciones.png');
   const saved = await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/opciones')");
@@ -2158,7 +2158,7 @@ try {
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
   await page.evaluate('window.__GE__.scene.world.noDamage = true');
   await page.waitForTimeout(300);
-  await tapKeys('Escape', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter');
+  await tapKeys('Escape', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter');
   await page.waitForTimeout(150);
   await shot('32a-teclas.png');
   await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'Enter');
@@ -2319,6 +2319,34 @@ try {
   await shot('29-historial.png');
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Historial: una reclamación, una baja por microondas.');
+
+  // M14 (g2): the glossary, from the title. A record with a few enemies taken apart, a boss beaten,
+  // one that took the toaster down and three weapons carried: the rest, silhouettes «Sin catalogar».
+  await page.evaluate(`localStorage.setItem('garantia-expirada/perfil', JSON.stringify({
+    runs: 3, downs: 2, kills: 40, killed: { aspirador: 12, microondas: 9, bombilla: 6, polilla: 8, batidora: 4, 'nevera-suprema': 1 },
+    bosses: { 'nevera-suprema': 1 }, causes: { 'mando:bullet': 1 }, found: { items: [], actives: [], weapons: ['secador', 'grapadora', 'plancha'] } }))`);
+  await page.goto(url);
+  await page.waitForFunction("window.__GE_PHASER__ && window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 20000 });
+  await page.waitForTimeout(400);
+  await tapKeys('ArrowUp', 'ArrowUp', 'ArrowUp', 'Enter');
+  await page.waitForTimeout(150);
+  await shot('58a-glosario.png');
+  const glossaryOpen = await page.evaluate<string>('window.__GE_PHASER__.scene.getScene("title").screen');
+  if (glossaryOpen !== 'glossary') throw new Error(`El glosario no se abre desde la portada (${glossaryOpen})`);
+  await tapKeys('ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown');
+  await page.waitForTimeout(150);
+  await shot('58b-glosario-sin-catalogar.png');
+  await tapKeys('ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp');
+  await page.waitForTimeout(150);
+  await shot('58c-glosario-jefa.png');
+  await tapKeys('ArrowRight', 'ArrowDown');
+  await page.waitForTimeout(150);
+  await shot('58d-glosario-armas.png');
+  const tab = await page.evaluate<string>('window.__GE_PHASER__.scene.getScene("title").glossTab');
+  if (tab !== 'weapons') throw new Error('Derecha no cambia el glosario a las armas');
+  await tapKeys('Escape');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
+  console.log('Glosario: seis enemigos y la Nevera fichados, el mando que te tumbó, el resto sin catalogar; tres armas.');
 
   // M9: the secret room keeps a story document on the floor; walking over it files it.
   await page.goto(`${url}?semilla=e2e-documento&sala=secreta`);

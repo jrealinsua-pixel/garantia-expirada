@@ -546,6 +546,21 @@ export const INVENTORY_NO_SYNERGY = 'Ninguna encendida';
 export const INVENTORY_BEFORE = 'antes';
 export const inventoryBatteries = (charge: number, needs: number): string => `Pilas: ${charge} de ${needs}`;
 
+/** The glossary (M14), in the pause menu and on the title: what has been taken apart and carried. */
+export const GLOSSARY_MENU = 'Glosario';
+export const GLOSSARY_TITLE = 'Catálogo de siniestros';
+export const GLOSSARY_SUB = 'Fichas técnicas de todo lo que has desmontado o empuñado.';
+export const GLOSSARY_TABS = { enemies: 'Enemigos', weapons: 'Armas' } as const;
+export const GLOSSARY_UNKNOWN = 'Sin catalogar';
+export const GLOSSARY_UNKNOWN_ENEMY = 'Desmonta uno y se abre su ficha. El catálogo no se rellena solo: eso sería automatizar un puesto.';
+export const GLOSSARY_UNKNOWN_BOSS = 'Jefe de planta. Se cataloga cuando deja de serlo.';
+export const GLOSSARY_UNKNOWN_WEAPON = 'Termina una planta o una partida con ella encima y queda fichada.';
+/** The line under a known enemy: how many have been taken apart (a boss: how many times beaten). */
+export const glossaryCount = (n: number, boss: boolean): string =>
+  boss ? (n === 1 ? 'Derrotado una vez' : n > 1 ? `Derrotado ${n} veces` : 'Te ha derrotado, de momento') : n > 0 ? `Desmontados: ${n}` : 'Te ha desmontado, de momento';
+export const GLOSSARY_HINT = 'Arriba y abajo: elegir · Izquierda y derecha: enemigos o armas · Esc: volver';
+export const glossaryTab = (label: string, known: number, total: number): string => `${label} (${known}/${total})`;
+
 /** The title screen's record of past runs (src/sim/profile.ts). */
 export const HISTORY_MENU = 'Historial';
 export const HISTORY_TITLE = 'Historial de reclamaciones';

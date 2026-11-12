@@ -2,6 +2,30 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 19:45 (hora peninsular) — Hito M14 — Glosario (g2): el «Catálogo de siniestros»
+- Hecho: «Glosario» en la pausa (debajo de Inventario) y en la portada (antes de Historial) abre el
+  «Catálogo de siniestros»: dos pestañas, Enemigos y Armas, que se cambian con izquierda y derecha
+  (o con un clic en la pestaña), cada una con «fichados/total». A la izquierda la lista con barra de
+  desplazamiento; a la derecha la ficha del elegido: su dibujo a escala entera (los enemigos a 2×,
+  los jefes a 1×, las armas a 4×), el nombre, el título del jefe, «Desmontados: N» o «Derrotado N
+  veces» y su descripción; las armas, sus números de fábrica. Lo que falta sale como «Sin catalogar»
+  con su silueta oscura y una pista de cómo ficharlo. Lógica pura en `src/sim/glossary.ts`, dibujo
+  en `src/render/glosario.ts`, textos en `src/data/texts.ts`; tests en `tests/glosario.test.ts`
+  (qué entra y en qué orden, qué lee del perfil, que los dibujos existen y los textos caben) y e2e
+  `58a`–`58d`.
+- Decisiones: un enemigo cuenta como fichado si lo has desmontado, si es un jefe que has derrotado
+  (así los guardados de antes de las bajas por tipo ya ven sus jefes) o si te ha tumbado alguna vez
+  («Te ha desmontado, de momento»). Las piezas de jefe (la silla del Director, los repetidores del
+  Router) no son enemigos de por sí: `EnemyDef.glossary: false` las deja fuera, como dato. Los jefes
+  van al final y por plantas. La lista sin dibujos pequeños: escalar el pixel art a la mitad lo
+  estropea, y el dibujo grande de la derecha ya lo enseña. Al meter «Glosario» en los menús se
+  movieron dos recorridos de teclas del e2e (Opciones y Teclas, una flecha más).
+- Medidas: tests y bot en verde (sin cambios de equilibrio).
+- Problemas conocidos: el glosario no tiene objetos todavía (la hoja de ruta pide enemigos y armas);
+  sería la tercera pestaña si hace falta.
+- Siguiente paso: M14, la siguiente sin hacer: salas especiales raras y retos diarios con semilla fija,
+  o los jefes al azar por planta (nota del humano del 2026-10-30).
+
 ## 2026-11-12 18:45 (hora peninsular) — Hito M14 — Glosario (g1): las bajas de cada tipo en el perfil
 - Contexto: las dos tareas que quedaban de M13 (7c, la muerte de cada personaje, y la captura de los
   cinco) estaban cogidas en `en_curso` por sesiones de hace menos de 90 minutos, así que esta empezó

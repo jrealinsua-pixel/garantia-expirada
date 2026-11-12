@@ -1308,6 +1308,8 @@ export interface EnemyDef {
   boss?: { title: string; motto: string; subtitle?: string };
   /** Which frames of its sprite sheet to show standing and walking (see `enemyFrame`). */
   anim?: EnemyAnim;
+  /** false: a piece of a boss, not an enemy of its own (the Director's chair): left out of the glossary (M14). */
+  glossary?: false;
 }
 
 /** Frames of an enemy's sprite sheet (indices). Frame 0 is always its rest pose. */
