@@ -510,6 +510,17 @@ sin ellos la partida acaba en la planta 5.
 
 - [ ] 5 personajes: Tostadora Reacondicionada, Batidora de Vaso, Plancha de Vapor, el Becario
   Eterno y el Móvil Reacondicionado, cada uno con estadísticas, arma inicial y una habilidad propias.
+  - [x] (0) El diseño de los cinco (tabla y historias en «Los cinco, en detalle» de
+    `docs/DISENO.md`) y esta lista de tareas.
+  - [ ] (1) Elegir personaje: el tablón pone «en exposición» al desbloqueado que se mire y se
+    guarda en el perfil; la partida y el Mostrador lo usan (`?personaje=` para probar); el dibujo
+    del jugador sale de los datos del personaje (textura y medidas), no de la tostadora fija.
+  - [ ] (2) La habilidad de la Tostadora, «Una de cada dos» (tostadas al recargar).
+  - [ ] (3) La Batidora de Vaso: sprite, Picahielos Turbo y el giro de cuchillas.
+  - [ ] (4) La Plancha de Vapor: sprite, Pulverizador de Almidón y la suela caliente.
+  - [ ] (5) El Becario Eterno: sprite, experiencia demostrable y sin remunerar.
+  - [ ] (6) El Móvil Reacondicionado: sprite, Notificaciones Push, carga en movimiento y batería
+    al 1 %.
 - [ ] Una historia distinta por personaje: por qué está en el vertedero, una escena al empezar
   y su propio final.
 - [ ] Desbloqueo de cada personaje con una condición propia.

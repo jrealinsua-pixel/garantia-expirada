@@ -77,6 +77,47 @@ Pantalla de muerte: en vez de «Has muerto», un **parte de baja** del producto 
 Son **cinco personajes jugables**, cada uno con su historia: por qué acabó en el vertedero, una
 escena al empezar la partida y su propio final (hito M13).
 
+#### Los cinco, en detalle (diseño de M13, 2026-11-12)
+
+Reglas comunes: cada uno se elige en el tablón «Productos en Exposición» del Mostrador (el que
+está en exposición es el que pisa la cinta); tiene **estadísticas, arma inicial y una habilidad**
+propias, todo en datos (`src/data/characters.ts`), y la habilidad no pide botón nuevo (sale de
+andar, rodar, recargar o limpiar salas). Ninguno es mejor que otro: el que gana en algo pierde en
+otra cosa, como las armas. La silueta tiene que distinguirse a la primera (contorno, color
+dominante y tamaño distintos) y el tamaño en pantalla parecido al de la tostadora (26–34 px de
+alto). Sus armas iniciales cuentan para las 30 de M14 y no salen en los cofres hasta que el
+personaje está desbloqueado.
+
+| Personaje | Vida | Andar | Rodar | Arma inicial | Habilidad | A cambio |
+| --- | ---: | ---: | --- | --- | --- | --- |
+| Tostadora Reacondicionada | 3 corazones | 100 | normal | Secador Mágnum | **Una de cada dos**: al acabar cada recarga salta una tostada hacia donde apunta (atraviesa, 3 de daño); una de cada dos sale **quemada** (el doble, y deja humo que tapa balas un momento) | Nada: es la de referencia |
+| Batidora de Vaso | 2 corazones | 118 | más larga, menos espera | **Picahielos Turbo** (ráfagas de cubitos: mucha cadencia, poco alcance, dispersión alta) | **Giro de cuchillas**: rodar tritura a los enemigos que toca (4 de daño, una vez por enemigo y vuelta) y rompe las balas que atraviesa | Muy poca vida; el arma no llega lejos |
+| Plancha de Vapor | 4 corazones | 84 | corta y lenta | **Pulverizador de Almidón** (chorros cortos que dejan almidonados, más lentos, a los enemigos) | **Suela caliente**: por donde anda queda un rastro de vapor (1,2 s) que quema a los enemigos que lo pisan (2 de daño por segundo) | Lenta, rueda poco: lo esquiva todo mal |
+| El Becario Eterno | 3 corazones | 104 | normal | Grapadora Táctica | **Experiencia demostrable**: cada sala limpiada sin que le hieran suma un punto (+5 % de daño, hasta 8); una herida le quita la mitad («no se valora») | **Sin remunerar**: los enemigos le dejan la mitad de cupones |
+| Móvil Reacondicionado | 3 corazones | 100 | normal | **Notificaciones Push** (balitas lentas que persiguen al enemigo más cercano) | **Carga en movimiento**: andar carga el objeto activo (una pila cada 600 px) | **Batería al 1 %**: si se queda quieto 3 s se apaga 1 s (no dispara ni se mueve; la pantalla en negro con el logo) |
+
+Historias (cada una en una línea; la escena al empezar es la ficha de devolución que la cinta
+lee en voz alta, y el final cambia el texto de la caja y de la estantería):
+
+- **Tostadora**: devuelta por «quemar las tostadas»; el fabricante la rechazó porque la
+  garantía «acababa el lunes». Final: ya escrito (M12 (5)).
+- **Batidora de Vaso**: comprada para una dieta de batidos que duró una semana; motivo de
+  devolución: «no se usa». Final: en la estantería, con un recetario de regalo «para que esta
+  vez sí».
+- **Plancha de Vapor**: quemó una camisa de cuello en una entrevista de trabajo; la culpa fue
+  «de la plancha». Final: vendida en un pack «Vuelta al Cole» con una tabla que cojea.
+- **El Becario Eterno**: no es un electrodoméstico. Lo metieron en el contenedor de devoluciones
+  junto con el material de oficina al cerrar la delegación, y nadie firmó su baja. Final: la caja
+  dice «Becario Reacondicionado. Con experiencia. Prácticas: 6 meses»; y no cobra.
+- **Móvil Reacondicionado**: cambiado por el modelo nuevo, que es igual pero con otro color; su
+  dueño perdió con él las fotos de diez años porque «no se hizo copia». Final: vendido «como
+  nuevo», con la batería al 1 % y una funda con purpurina.
+
+Desbloqueos (los de `src/data/unlocks.ts`, sin cambios): Batidora al vencer a la Nevera, Plancha
+al vencer al Router, Becario tras diez bajas, Móvil al encontrar veinte objetos distintos. Con
+cada personaje nuevo, el requisito de «ganar con varios personajes» del Servicio Técnico pide
+uno más, hasta tres.
+
 ### Enemigos de la primera planta (Electrodomésticos)
 
 | Enemigo | Estado | Comportamiento |
