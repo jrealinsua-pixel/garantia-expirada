@@ -1179,6 +1179,11 @@
       "sesion": "2026-11-12 03:15",
       "tarea": "M12 (3a), la planta 6 y sus salas con enemigos reacondicionados",
       "desde": "2026-11-12T03:15:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 03:29",
+      "tarea": "M12 (4a), la Trituradora: sprites y fase 1 «Diagnóstico» (sin tocar la generación de la planta 6)",
+      "desde": "2026-11-12T03:29:00+01:00"
     }
   ]
 }
