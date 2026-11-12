@@ -44,18 +44,31 @@ test('vencer a un jefe desbloquea al acabar la partida, y la partida lo apunta',
   assert.deepEqual(q.unlocked, ['tostadora', 'batidora-vaso'], 'no se pierde');
   assert.equal(q.last?.unlocked, undefined, 'la siguiente partida no lo vuelve a anunciar');
   const r = recordRun(q, run({ level: 2, bosses: ['router-wifi'] }));
-  assert.deepEqual(r.last?.unlocked, ['plancha'], 'vencer al jefe cuenta aunque luego caigas');
+  assert.deepEqual(r.last?.unlocked, ['movil'], 'vencer al jefe cuenta aunque luego caigas');
+  const s = recordRun(r, run({ level: 4, bosses: ['director-rrhh'] }));
+  assert.deepEqual(s.last?.unlocked, ['plancha']);
 });
 
-test('el Becario sale tras diez bajas y el Móvil al encontrar veinte objetos', () => {
+test('el Becario sale tras diez bajas; encontrar objetos no desbloquea a nadie', () => {
   const nine = played(...Array.from({ length: 9 }, () => run()));
   assert.ok(!nine.unlocked.includes('becario'));
   assert.deepEqual(unlockProgress(ROSTER.find((r) => r.id === 'becario')!.condition, nine), [{ done: 9, needed: 10 }]);
   assert.ok(recordRun(nine, run()).unlocked.includes('becario'));
-  const items = Array.from({ length: 20 }, (_, i) => `o${i}`);
-  const few = played(run({ items: items.slice(0, 19) }));
-  assert.ok(!few.unlocked.includes('movil'));
-  assert.ok(recordRun(few, run({ items: items.slice(10) })).unlocked.includes('movil'));
+  const items = Array.from({ length: 40 }, (_, i) => `o${i}`);
+  assert.deepEqual(played(run({ outcome: 'floor', items })).unlocked, ['tostadora']);
+});
+
+test('cada personaje se desbloquea con una condición propia (M13 (8))', () => {
+  const keys = ROSTER.filter((r) => r.condition).map((r) => JSON.stringify(r.condition));
+  assert.equal(new Set(keys).size, keys.length, 'no hay dos condiciones iguales');
+  const bosses = ROSTER.flatMap((r) => r.condition?.beaten ?? []);
+  assert.equal(new Set(bosses).size, bosses.length, 'ningún jefe desbloquea a dos');
+  const by = (id: string) => ROSTER.find((r) => r.id === id)!.condition;
+  assert.deepEqual(by('batidora-vaso'), { beaten: ['nevera-suprema'] }, 'la de la cocina, con la Nevera');
+  assert.deepEqual(by('movil'), { beaten: ['router-wifi'] }, 'el móvil, con el wifi');
+  assert.deepEqual(by('plancha'), { beaten: ['director-rrhh'] }, 'la plancha, con el de la entrevista');
+  assert.deepEqual(by('becario'), { minDowns: 10 });
+  for (const r of ROSTER.filter((x) => x.condition)) assert.ok(CHARACTERS[r.id], `${r.id} es jugable`);
 });
 
 test('las condiciones se comprueban con todos sus campos', () => {
@@ -83,7 +96,7 @@ test('el tablón enseña nombre y frase a los desbloqueados, y condición y avan
   const board = rosterBoard(played(run({ outcome: 'floor', bosses: ['nevera-suprema'] })));
   assert.deepEqual(board.map((b) => b.unlocked), [true, true, false, false, false]);
   const plancha = board.find((b) => b.id === 'plancha')!;
-  assert.equal(plancha.text, 'Disponible al vencer al Router del Wifi.');
+  assert.equal(plancha.text, 'Disponible al vencer al Director de Recursos Inhumanos. Traiga camisa.');
   assert.deepEqual(plancha.progress, [{ done: 0, needed: 1 }]);
   assert.equal(board[1]!.text, ROSTER[1]!.blurb);
   assert.deepEqual(board[1]!.progress, []);

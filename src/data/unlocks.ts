@@ -1,7 +1,9 @@
 // The tablón «Productos en Exposición» of the hub: the five playable characters and what unlocks
 // each one (docs/DISENO.md). Conditions are data, checked by src/sim/unlocks.ts at the end of every
-// run. Only the Tostadora is playable until M13 brings the others; the conditions are provisional
-// until the floors 3–5 and their bosses exist (M10–M11), and then they will ask for more.
+// run. Each one is its own (M13 (8), final): the Batidora comes out of the kitchen floor's boss, the
+// Móvil out of the floor where the wifi lives, the Becario out of failing enough times, and the
+// Plancha, the last, out of the interview she burned a shirt in: the Director de Recursos Inhumanos.
+// Once unlocked, their starting weapons can turn up in the others' runs (weaponPool in world.ts).
 
 /** What has to have happened, in any number of runs. Every field given must hold. */
 export interface UnlockCondition {
@@ -53,8 +55,8 @@ export const ROSTER: readonly RosterEntry[] = [
     id: 'plancha',
     name: 'Plancha de Vapor',
     blurb: 'Lenta y dura. No deja una arruga ni un enemigo.',
-    condition: { beaten: ['router-wifi'] },
-    conditionText: 'Disponible al vencer al Router del Wifi.',
+    condition: { beaten: ['director-rrhh'] },
+    conditionText: 'Disponible al vencer al Director de Recursos Inhumanos. Traiga camisa.',
   },
   {
     id: 'becario',
@@ -67,7 +69,7 @@ export const ROSTER: readonly RosterEntry[] = [
     id: 'movil',
     name: 'Móvil Reacondicionado',
     blurb: 'Como nuevo. Salvo la pantalla, la batería y el sistema.',
-    condition: { minFound: 20 },
-    conditionText: 'Disponible al encontrar veinte objetos distintos.',
+    condition: { beaten: ['router-wifi'] },
+    conditionText: 'Disponible al vencer al Router del Wifi. Por fin, cobertura.',
   },
 ];

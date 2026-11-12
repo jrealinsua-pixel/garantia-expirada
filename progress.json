@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T17:45:00+01:00",
+  "actualizado": "2026-11-12T17:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -105,7 +105,7 @@
       "id": "M13",
       "nombre": "Cinco personajes jugables",
       "estado": "en_curso",
-      "hechas": 1,
+      "hechas": 2,
       "total": 3
     },
     {
@@ -130,13 +130,18 @@
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 860,
-    "tests_ok": 860,
+    "tests": 866,
+    "tests_ok": 866,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 31449
+    "lineas_codigo": 31485
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T17:50:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (8): cada personaje se desbloquea con una condición propia que tiene que ver con su historia: la Batidora con la Nevera Suprema, el Móvil con el Router del Wifi («Por fin, cobertura»), el Becario tras diez bajas y la Plancha, la última, con el Director de Recursos Inhumanos («Traiga camisa»). Y una vez desbloqueados, sus armas iniciales salen en los cofres y pedestales de los demás: el Picahielos desde la planta 1, las Notificaciones desde la 2 y el Almidón desde la 3; nadie encuentra la suya."
+    },
     {
       "fecha": "2026-11-12T17:45:00+01:00",
       "hito": "M13",
@@ -1226,6 +1231,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/tablon-desbloqueos.png",
+      "pie": "M13 (8): el tablón con las condiciones definitivas; la Plancha, la última, sale al vencer al Director de Recursos Inhumanos («Traiga camisa»)"
+    },
+    {
+      "archivo": "capturas/picahielos-tesoro.png",
+      "pie": "Con la Batidora desbloqueada, su Picahielos Turbo puede salir en el tesoro de la tostadora"
+    },
+    {
       "archivo": "capturas/final-becario.png",
       "pie": "M13 (7b): el final del Becario Eterno: en la estantería, con la etiqueta «Prácticas: 6 meses», a 0,00 € «Sin remunerar». Con experiencia. No cobra."
     },
@@ -1240,17 +1253,9 @@
     {
       "archivo": "capturas/movil-notificaciones.png",
       "pie": "M13 (6): el Móvil Reacondicionado dispara de frente y sus Notificaciones Push, globitos naranjas lentos, se tuercen solas hacia los enemigos de abajo"
-    },
-    {
-      "archivo": "capturas/movil-apagado.png",
-      "pie": "«Batería al 1 %»: tres segundos quieto en combate y se apaga un segundo, con la pantalla en negro y el logo; ni anda ni dispara"
-    },
-    {
-      "archivo": "capturas/plancha-suela.png",
-      "pie": "M13 (4): la Plancha de Vapor pasa junto a dos enemigos: la suela caliente deja un rastro de vapor que quema a quien lo pisa"
     }
   ],
-  "proximo": "M13 (7c): la muerte propia de cada personaje (su despiece y la causa en el parte de baja); después cerrar M13 con la captura de los cinco.",
+  "proximo": "M13: la muerte propia de cada personaje (7c, cogida por otra sesión) y una captura con los cinco juntos para el criterio de «se distinguen a la primera»; con eso, M13 terminado.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1277,11 +1282,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 16:30",
-      "tarea": "M13 desbloqueo (8): condiciones propias definitivas de cada personaje (src/data/unlocks.ts) y sus armas iniciales en los cofres al desbloquearlo (src/data/weapons.ts; en src/sim/world.ts solo WorldOptions.unlocked y lootDecks; en src/render/GameScene.ts solo pasar unlocked a createWorld; tests/desbloqueo-armas.test.ts)",
-      "desde": "2026-11-12T16:30:00+01:00"
-    },
     {
       "sesion": "2026-11-12 17:30",
       "tarea": "M13 historia (7c): la muerte propia de cada personaje (src/data/bajas.ts nuevo, downReport en src/data/texts.ts, popToaster y showDownPanel en src/render/GameScene.ts, tools/sprites/despiece.ts nuevo, tests/bajas.test.ts)",

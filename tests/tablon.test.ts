@@ -50,15 +50,15 @@ test('el tablón: los desbloqueados a color, los otros en silueta, con su condic
   assert.deepEqual(fresh.faces.map((f) => f.frame), [0, 6, 7, 8, 9], 'solo la Tostadora a color');
   const texts = fresh.texts.map((t) => t.text);
   assert.ok(texts.includes('Disponible al vencer a la Nevera Suprema.'));
-  assert.ok(texts.includes('0/10') && texts.includes('0/20'), 'las bajas y los objetos que faltan');
+  assert.ok(texts.includes('0/10'), 'las bajas que faltan');
   assert.equal(fresh.texts.filter((t) => t.role === 'soon').length, 0);
   const four = boardLayout(entries(profiles()[1]!));
   assert.ok(four.texts.some((t) => t.text === '4/10'));
   const beaten = boardLayout(entries(profiles()[2]!));
-  assert.deepEqual(beaten.faces.map((f) => f.frame), [0, 1, 2, 8, 9]);
+  assert.deepEqual(beaten.faces.map((f) => f.frame), [0, 1, 7, 8, 4], 'la Nevera trae a la Batidora y el Router al Móvil');
   // Unlocked but not playable yet (M13 brings them one by one): «Reposición pronto», and the blurb
   // instead of the condition. The Batidora is already playable (M13 (3)).
-  const notYet = ['batidora-vaso', 'plancha'].filter((id) => !CHARACTERS[id]).length;
+  const notYet = ['batidora-vaso', 'movil'].filter((id) => !CHARACTERS[id]).length;
   assert.equal(beaten.texts.filter((t) => t.text === BOARD_RESTOCK).length, notYet);
   assert.ok(beaten.texts.some((t) => t.text.startsWith('Rápida y frágil')));
   assert.ok(!beaten.texts.some((t) => t.text.includes('Nevera Suprema')));

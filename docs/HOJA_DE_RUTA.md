@@ -552,7 +552,11 @@ sin ellos la partida acaba en la planta 5.
     tostadora), `tests/final.test.ts` y e2e `54h`–`54j`.
   - [ ] (7c) La muerte propia de cada uno: su despiece (ahora todos sueltan las tostadas o casi
     nada) y la causa en el parte de baja.
-- [ ] Desbloqueo de cada personaje con una condición propia.
+- [x] Desbloqueo de cada personaje con una condición propia. Hecho el 2026-11-12 (8): Batidora
+  con la Nevera, Móvil con el Router, Becario tras diez bajas y Plancha con el Director (antes,
+  Plancha con el Router y Móvil con veinte objetos); y sus armas iniciales salen en los cofres
+  de los demás una vez desbloqueados (`WorldOptions.unlocked`, `weaponPool`,
+  `tests/desbloqueo-armas.test.ts`).
 
 **Criterios de aceptación:** cada personaje tiene un test de su habilidad; el bot gana la
 planta 1 con todos; los cinco se distinguen a la primera en una captura.

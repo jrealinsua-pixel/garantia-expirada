@@ -86,7 +86,9 @@ andar, rodar, recargar o limpiar salas). Ninguno es mejor que otro: el que gana 
 otra cosa, como las armas. La silueta tiene que distinguirse a la primera (contorno, color
 dominante y tamaño distintos) y el tamaño en pantalla parecido al de la tostadora (26–34 px de
 alto). Sus armas iniciales cuentan para las 30 de M14 y no salen en los cofres hasta que el
-personaje está desbloqueado.
+personaje está desbloqueado; desde entonces, sí, en las partidas de los demás (hecho en M13 (8):
+`weaponPool` en `src/sim/world.ts`; el Picahielos desde la planta 1, las Notificaciones desde la 2,
+el Almidón desde la 3 y el Secador para todos menos la Tostadora; nadie encuentra la suya).
 
 | Personaje | Vida | Andar | Rodar | Arma inicial | Habilidad | A cambio |
 | --- | ---: | ---: | --- | --- | --- | --- |
@@ -119,8 +121,7 @@ enrollado aún con el alambre de la caja y zapatillas de correr verde lima sin e
 un remolino de tres cuchillas alrededor (`giro-cuchillas`). Medida con el bot
 (`node tools/medir-personajes.ts`, 60 partidas por personaje, mismas semillas): gana la planta 1 el
 23,3 %, lo mismo que la tostadora, con 0,75 heridas por sala (la tostadora, 1,3) y dos corazones en
-vez de tres. Sus armas iniciales no salen en los cofres (aún no se reparten según quién está
-desbloqueado).
+vez de tres. Su Picahielos sale en los cofres de los demás una vez desbloqueada (M13 (8)).
 
 **Plancha de Vapor** (M13 (4), 2026-11-12): carcasa verde azulada (ni gris, ni violeta, ni la
 menta de la Batidora de Mano, ni la plancha blanca de los cofres), ancha y baja con la punta de la
@@ -169,10 +170,15 @@ remunerar»; el **Móvil**, la batería cambiada por otra al 1 % («Las fotos no
 purpurina», a 599,99 € de nuevo. La etiqueta, oscura con letra amarilla: la letra lleva contorno
 oscuro y sobre amarillo se emborrona.
 
-Desbloqueos (los de `src/data/unlocks.ts`, sin cambios): Batidora al vencer a la Nevera, Plancha
-al vencer al Router, Becario tras diez bajas, Móvil al encontrar veinte objetos distintos. Con
-cada personaje nuevo, el requisito de «ganar con varios personajes» del Servicio Técnico pide
-uno más, hasta tres.
+Desbloqueos (definitivos desde M13 (8), `src/data/unlocks.ts`), cada uno con una condición propia
+que tiene que ver con su historia: **Batidora** al vencer a la Nevera Suprema (la jefa de la
+cocina), **Móvil** al vencer al Router del Wifi («Por fin, cobertura»), **Becario** tras diez bajas
+(«Se valorará experiencia demostrable») y **Plancha**, la última, al vencer al Director de
+Recursos Inhumanos, el de la entrevista de la camisa quemada («Traiga camisa»). Antes, la Plancha
+salía con el Router y el Móvil con veinte objetos distintos: encontrar objetos no tenía que ver con
+él, y la Plancha, la más dura, es premio de quien ya ha llegado a la planta 4. Lo desbloqueado no
+se pierde aunque la condición cambie. Con cada personaje nuevo, el requisito de «ganar con varios
+personajes» del Servicio Técnico pide uno más, hasta tres.
 
 ### Enemigos de la primera planta (Electrodomésticos)
 

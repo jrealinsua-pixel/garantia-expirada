@@ -142,6 +142,8 @@ export const WEAPONS: Record<string, WeaponDef> = {
    */
   almidon: {
     id: 'almidon',
+    // Once the Plancha is unlocked, others can find it from floor 3 up (weaponPool).
+    level: 3,
     name: 'Pulverizador de Almidón',
     description: 'Almidón aroma «Brisa de Limón». Deja tieso a cualquiera. No huele a limón ni a brisa.',
     fireRate: 3.5,
@@ -165,6 +167,8 @@ export const WEAPONS: Record<string, WeaponDef> = {
    */
   notificaciones: {
     id: 'notificaciones',
+    // Once the Móvil is unlocked, others can find it from floor 2 up (weaponPool).
+    level: 2,
     name: 'Notificaciones Push',
     description: 'Llegan aunque las desactives. Te encuentran aunque te escondas. «¿Permitir?» no era una pregunta.',
     fireRate: 3.2,
@@ -188,7 +192,12 @@ export const WEAPONS: Record<string, WeaponDef> = {
 /** Weapons the toaster can find, in the order a floor hands them out (seeded shuffle). */
 export const FINDABLE_WEAPONS: readonly string[] = ['grapadora', 'plancha', 'megafono', 'etiquetadora'];
 
-/** The findable weapons floor `level` can hand out: its own and the lower floors' (like itemsUpTo). */
-export function weaponsUpTo(level: number): string[] {
-  return FINDABLE_WEAPONS.filter((id) => (WEAPONS[id]!.level ?? 1) <= level);
+/**
+ * The findable weapons floor `level` can hand out: its own and the lower floors' (like itemsUpTo).
+ * `extra` adds more (the starting weapons of unlocked characters, see weaponPool in
+ * src/sim/world.ts) after them, once each and by the same floor rule.
+ */
+export function weaponsUpTo(level: number, extra: readonly string[] = []): string[] {
+  const ids = [...FINDABLE_WEAPONS, ...extra.filter((id, i) => !FINDABLE_WEAPONS.includes(id) && extra.indexOf(id) === i && WEAPONS[id])];
+  return ids.filter((id) => (WEAPONS[id]!.level ?? 1) <= level);
 }

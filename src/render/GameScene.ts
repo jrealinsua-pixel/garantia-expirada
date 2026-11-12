@@ -648,18 +648,20 @@ export class GameScene extends Phaser.Scene {
       this.hintT = 0;
     } else if (this.hubMode) {
       // The Mostrador de Devoluciones: where every run starts and ends. The Chatarrero comes once a boss has fallen.
-      this.world = createWorld({ seed: 'mostrador', character, hub: { chatarrero: chatarreroHere(profile()), service: profile().service } });
+      // The unlocked characters' starting weapons go with every run that leaves from here (weaponPool).
+      this.world = createWorld({ seed: 'mostrador', character, hub: { chatarrero: chatarreroHere(profile()), service: profile().service }, unlocked: profile().unlocked });
     } else if (this.startSala && !params.get('sala')) {
       this.world = createWorld({ seed: `pruebas-${Date.now().toString(36)}`, room: this.startSala, level, character });
     } else if (params.get('sala')) {
       // ?sala=<id>&profundidad=<n>: one room template, its slots filled for that depth (the test
       // room is ?sala=sala-pruebas).
-      this.world = createWorld({ seed: params.get('semilla') ?? params.get('sala')!, room: params.get('sala')!, depth: Number(params.get('profundidad') ?? 3), level, character });
+      const sala = params.get('sala')!;
+      this.world = createWorld({ seed: params.get('semilla') ?? sala, room: sala, depth: Number(params.get('profundidad') ?? 3), level, character, unlocked: profile().unlocked });
     } else {
       // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
       // ?cita=1: as if the Servicio Técnico's appointment were granted (otherwise, the profile's).
       const service = level === SERVICE_LEVEL || params.get('cita') === '1' || profile().service;
-      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service, character });
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service, character, unlocked: profile().unlocked });
     }
     const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);

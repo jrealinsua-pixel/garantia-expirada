@@ -2375,6 +2375,9 @@ try {
   const boardTexts = await page.evaluate<string[]>("window.__GE__.scene.panel.filter((o) => o.type === 'BitmapText').map((o) => o.text)");
   const boardOk = boardTexts.some((t) => t.startsWith('RÁPIDA Y FRÁGIL')) && boardTexts.some((t) => t.includes('ROUTER'));
   if (!boardOk) throw new Error(`El tablón no enseña lo desbloqueado y lo que falta: ${boardTexts.join(' | ')}`);
+  // M13 (8): the Mostrador knows who is unlocked, so the runs that leave from it can hand out the
+  // Batidora's Picahielos to the others (weaponPool).
+  if (!(await page.evaluate<boolean>("window.__GE__.scene.world.unlocked.includes('batidora-vaso')"))) throw new Error('El Mostrador no se lleva los desbloqueos del perfil');
   await page.waitForTimeout(400);
   await shot('47-tablon.png');
   // M13 (3): F again puts the Batidora de Vaso on display, and the toaster becomes her right there.
