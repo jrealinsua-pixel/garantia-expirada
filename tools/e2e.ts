@@ -2528,6 +2528,22 @@ try {
     .catch(() => { throw new Error('Tras los créditos no se vuelve a la portada'); });
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Final verdadero: la cinta, la limpieza, la resistencia, la caja, la estantería de la planta 1, los créditos y la portada.');
+
+  // M13 (7b): each one its own ending. The Plancha's: her sheet (not the toaster's), what the workshop
+  // repairs, the «Pack Vuelta al Cole» label on the box, and her shelf and price.
+  await page.goto(`${url}?semilla=e2e-final-plancha&planta=6&personaje=plancha`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = [];
+    window.__GE__.spawnIdle('trituradora', w.player.x + 90, w.player.y - 30);
+    const b = w.enemies[w.enemies.length - 1]; b.damageTaken = b.def.hp; })()`);
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('final')", undefined, { timeout: 15000 })
+    .catch(() => { throw new Error('Con la plancha, vencida la Trituradora, no empieza el final'); });
+  if (await page.evaluate<string>("window.__GE_PHASER__.scene.getScene('final').character") !== 'plancha-vapor') throw new Error('El final de la plancha sale con otro dibujo');
+  await finalAt('resistencia', 12.4, '54h-final-plancha-reparacion.png');
+  await finalAt('caja', 20.2, '54i-final-plancha-caja.png');
+  await finalAt('estanteria', 25.6, '54j-final-plancha-estanteria.png');
+  await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
+  console.log('Final de la plancha: su dibujo, su reparación, la etiqueta del pack en la caja y su estantería.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

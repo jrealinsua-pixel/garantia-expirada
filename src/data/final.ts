@@ -52,6 +52,78 @@ export function endingWarranty(times: number): string {
   return `Garantía: ${WARRANTIES[i]}`;
 }
 
+/**
+ * Each character's own ending (M13 (7b), «Los cinco, en detalle» in docs/DISENO.md): what the
+ * workshop repairs (the caption of step 3), the extra label slapped on the box next to the
+ * sticker, what the shelf says, its header card and the price tag. The last line is the same for
+ * everyone: they were all the product.
+ */
+export interface CharacterEnding {
+  repair: string;
+  /** A yellow label on the box, beside the «Reacondicionado» sticker. Empty: none. */
+  label: string;
+  shelf: string;
+  shelfCard: string;
+  price: string;
+  priceNote: string;
+}
+
+export const ENDINGS: Record<string, CharacterEnding> = {
+  tostadora: {
+    repair: 'Se sustituye la resistencia por otra de igual o menor calidad.',
+    label: '',
+    shelf: 'Reacondicionado. Como nuevo. A precio de nuevo.',
+    shelfCard: ENDING_SHELF_CARD,
+    price: ENDING_PRICE,
+    priceNote: ENDING_PRICE_NOTE,
+  },
+  'batidora-vaso': {
+    repair: 'Se afilan las cuchillas. El batido verde del fondo se queda: es de serie.',
+    label: 'Recetario de regalo',
+    shelf: 'Con recetario de regalo. Para que esta vez sí.',
+    shelfCard: 'VIDA SANA',
+    price: '79,99 €',
+    priceNote: 'PVP de nuevo',
+  },
+  plancha: {
+    repair: 'Se rasca el cuello de camisa de la suela. Casi todo.',
+    label: 'Pack Vuelta al Cole',
+    shelf: 'Pack «Vuelta al Cole»: con una tabla de planchar que cojea.',
+    shelfCard: 'VUELTA AL COLE',
+    price: '34,99 €',
+    priceNote: 'Pack ahorro',
+  },
+  becario: {
+    repair: 'Se le renueva el contrato en prácticas. Seis meses. Otra vez.',
+    label: 'Prácticas: 6 meses',
+    shelf: 'Becario reacondicionado. Con experiencia. No cobra.',
+    shelfCard: 'MATERIAL OFICINA',
+    price: '0,00 €',
+    priceNote: 'Sin remunerar',
+  },
+  movil: {
+    repair: 'Se cambia la batería por otra al 1 %. Las fotos no vuelven.',
+    label: 'Funda con purpurina',
+    shelf: 'Como nuevo. Batería al 1 %. Funda con purpurina de regalo.',
+    shelfCard: ENDING_SHELF_CARD,
+    price: '599,99 €',
+    priceNote: 'PVP de nuevo',
+  },
+};
+
+/** The ending of `id` (the toaster's for anyone without one). */
+export function endingFor(id: string): CharacterEnding {
+  return ENDINGS[id] ?? ENDINGS['tostadora']!;
+}
+
+/** The caption of a shot for `id`: the repair and the shelf are each one's own. */
+export function shotCaption(shot: EndingShot, id: string): string {
+  const e = endingFor(id);
+  if (shot.id === 'resistencia') return e.repair;
+  if (shot.id === 'estanteria') return e.shelf;
+  return shot.caption;
+}
+
 /** Hint at the bottom while it plays. */
 export const ENDING_SKIP = 'Disparar: saltar';
 /** After the credits. */

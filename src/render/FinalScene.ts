@@ -6,10 +6,11 @@
 import { fontText, textWidth, wrapLines } from '../art/font.ts';
 import { paintRoom } from '../art/room.ts';
 import {
-  ENDING_BACK, ENDING_LAST_LINE, ENDING_PRICE, ENDING_PRICE_NOTE, ENDING_SHELF_CARD, ENDING_SHOTS, ENDING_SKIP, ENDING_THANKS,
-  endingCredits, endingShotAt, endingWarranty, type CreditLine, type EndingShotId,
+  ENDING_BACK, ENDING_LAST_LINE, ENDING_SHOTS, ENDING_SKIP, ENDING_THANKS,
+  endingCredits, endingFor, endingShotAt, endingWarranty, shotCaption, type CharacterEnding, type CreditLine, type EndingShotId,
 } from '../data/final.ts';
 import { buildRoom } from '../sim/room.ts';
+import { CHARACTERS } from '../data/characters.ts';
 import type { GameScene } from './GameScene.ts';
 import { readScale, settings } from './settings.ts';
 import { addCanvasTexture, FONT } from './textures.ts';
@@ -40,7 +41,10 @@ export interface FinalData {
 }
 
 export class FinalScene extends Phaser.Scene {
+  /** The product's sprite sheet. */
   private character = 'tostadora';
+  /** Its own ending: the repair, the label on the box, the shelf and the price (M13 (7b)). */
+  private end: CharacterEnding = endingFor('tostadora');
   private times = 0;
   private t = 0;
   private shot = -1;
@@ -48,7 +52,7 @@ export class FinalScene extends Phaser.Scene {
   /** What the current shot put on screen (destroyed when it ends). */
   private objs: Obj[] = [];
   /** Per-shot moving parts. */
-  private parts: Record<string, Phaser.GameObjects.Image | Phaser.GameObjects.TileSprite | Phaser.GameObjects.BitmapText | Phaser.GameObjects.Rectangle> = {};
+  private parts: Record<string, Phaser.GameObjects.Image | Phaser.GameObjects.TileSprite | Phaser.GameObjects.BitmapText | Phaser.GameObjects.Rectangle | Phaser.GameObjects.Container> = {};
   private drops: { o: Phaser.GameObjects.Rectangle; vy: number; floor: number }[] = [];
   private cues = new Set<string>();
   private credits: Phaser.GameObjects.BitmapText[] = [];
@@ -65,7 +69,11 @@ export class FinalScene extends Phaser.Scene {
   }
 
   init(data: FinalData): void {
-    this.character = data.character && this.textures.exists(data.character) ? data.character : 'tostadora';
+    // (The sheet is not always the id: the Plancha's is «plancha-vapor».)
+    const sheet = data.character ? CHARACTERS[data.character]?.look.sheet : undefined;
+    const known = !!sheet && this.textures.exists(sheet);
+    this.character = known ? sheet : 'tostadora';
+    this.end = endingFor(known ? data.character! : 'tostadora');
     this.times = Math.max(0, Math.floor(data.times ?? 0));
   }
 
@@ -158,7 +166,7 @@ export class FinalScene extends Phaser.Scene {
     this.shot = i;
     this.armed = ARM;
     const s = ENDING_SHOTS[i]!;
-    this.caption(s.step, s.caption);
+    this.caption(s.step, shotCaption(s, this.idOf()));
     if (s.id === 'cinta') {
       this.set('final-taller', 0.45);
       this.parts.belt = this.add_(this.add.tileSprite(0, 150, W / 2, 24, 'cinta-despiece').setOrigin(0, 0).setScale(2));
@@ -185,6 +193,7 @@ export class FinalScene extends Phaser.Scene {
       this.parts.hero = this.add_(this.add.image(left + SLOT.x * 3, top + SLOT.y * 3 - 160, this.character, HERO.idle).setOrigin(0, 0).setScale(3).setDepth(2));
       this.parts.front = this.add_(this.add.image(bx, by, 'final-caja', 1).setOrigin(0.5, 1).setScale(3).setDepth(3));
       this.parts.sticker = this.add_(this.add.image(left + 46 * 3, top + 48 * 3, 'final-pegatina').setScale(3).setRotation(-0.12).setDepth(4).setVisible(false));
+      if (this.end.label) this.parts.label = this.boxLabel(left, top, 3, 3.5).setVisible(false);
       const wt = endingWarranty(this.times);
       this.parts.warranty = this.text(Math.min(396, W - 10 - textWidth(wt)), 92, wt, 16, 0xe0453b).setRotation(-0.16).setDepth(4).setVisible(false);
     } else {
@@ -198,7 +207,7 @@ export class FinalScene extends Phaser.Scene {
     const sx = W / 2 - SHELF.w / 2;
     const sy = 12;
     this.add_(this.add.image(sx, sy, 'final-estanteria').setOrigin(0, 0).setDepth(1));
-    if (textWidth(ENDING_SHELF_CARD) <= 84) this.text(sx + 118, sy + 2, ENDING_SHELF_CARD, 8, 0xf4f1e8).setDepth(2);
+    if (textWidth(this.end.shelfCard) <= 84) this.text(sx + 118, sy + 2, this.end.shelfCard, 8, 0xf4f1e8).setDepth(2);
     this.boxOnShelf(sx + SHELF.slotX, sy + SHELF.slotY, 1, 3);
     this.priceTag(sx + SHELF.slotX + 36, sy + SHELF.slotY + 7, 1);
     this.parts.wide = this.add_(this.add.rectangle(0, 0, 1, 1, 0, 0));
@@ -212,17 +221,42 @@ export class FinalScene extends Phaser.Scene {
     this.add_(this.add.image(left + SLOT.x * scale, top + SLOT.y * scale, this.character, HERO.idle).setOrigin(0, 0).setScale(scale).setDepth(depth + 0.1));
     this.add_(this.add.image(x, y, 'final-caja', 2).setOrigin(0.5, 1).setScale(scale).setDepth(depth + 0.2));
     this.add_(this.add.image(left + 46 * scale, top + 48 * scale, 'final-pegatina').setScale(scale).setRotation(-0.12).setDepth(depth + 0.3));
+    // Up close, each one's label can be read (at game size it would be a smudge).
+    if (this.end.label && scale >= 2) this.boxLabel(left, top, scale, depth + 0.25);
+  }
+
+  /**
+   * The label on the box (M13 (7b)): «Recetario de regalo», «Pack Vuelta al Cole»… Under
+   * the sticker, low on the left of the front. Returns its container.
+   */
+  private boxLabel(left: number, top: number, scale: number, depth: number): Phaser.GameObjects.Container {
+    const text = fontText(this.end.label);
+    const tw = textWidth(this.end.label);
+    const x = left + 5 * scale;
+    const y = top + 49 * scale;
+    // (Straight: tilted, the small letters break up.)
+    const c = this.add_(this.add.container(x, y).setDepth(depth));
+    // Dark with yellow print: the font's letters carry a dark outline, so dark print on yellow blurs.
+    c.add(this.add.rectangle(0, 0, tw + 8, 13, 0x2a2e44, 1).setOrigin(0, 0.5).setStrokeStyle(1, 0xf6c431));
+    c.add(this.add.bitmapText(4, -5, FONT, text, 8).setTint(0xf6c431));
+    return c;
+  }
+
+  /** The character id of the product (for the texts; the sheet may be named otherwise). */
+  private idOf(): string {
+    return Object.values(CHARACTERS).find((c) => c.look.sheet === this.character)?.id ?? 'tostadora';
   }
 
   /** The price tag (Rojo Oferta, as every offer in the store): the price of a new one. */
   private priceTag(x: number, y: number, scale: number): void {
     const big = 8 * scale;
-    const w = Math.max(textWidth(ENDING_PRICE), textWidth(ENDING_PRICE_NOTE)) * scale + 8 * scale;
+    const { price, priceNote } = this.end;
+    const w = Math.max(textWidth(price), textWidth(priceNote)) * scale + 8 * scale;
     const h = 22 * scale;
     this.add_(this.add.rectangle(x, y, w, h, 0xe0453b, 1).setOrigin(0, 0).setStrokeStyle(scale, 0x0e0c16).setDepth(6));
     this.add_(this.add.rectangle(x, y, w, scale, 0xff8a70, 1).setOrigin(0, 0).setDepth(6));
-    this.text(x + w / 2, y + 2 * scale, ENDING_PRICE, big, 0xf4f1e8).setDepth(7);
-    this.text(x + w / 2, y + 12 * scale, ENDING_PRICE_NOTE, 8 * Math.max(1, scale - 1), 0xfff1a8).setDepth(7);
+    this.text(x + w / 2, y + 2 * scale, price, big, 0xf4f1e8).setDepth(7);
+    this.text(x + w / 2, y + 12 * scale, priceNote, 8 * Math.max(1, scale - 1), 0xfff1a8).setDepth(7);
   }
 
   private closeUp(): void {
@@ -230,7 +264,7 @@ export class FinalScene extends Phaser.Scene {
     for (const o of this.objs) o.destroy();
     this.objs = [];
     const s = ENDING_SHOTS[this.shot]!;
-    this.caption(s.step, s.caption);
+    this.caption(s.step, shotCaption(s, this.idOf()));
     this.add_(this.add.rectangle(0, 0, W, H, 0x2a2e44, 1).setOrigin(0, 0).setDepth(-10));
     const k = 3;
     const slotX = W / 2;
@@ -382,6 +416,11 @@ export class FinalScene extends Phaser.Scene {
           this.snd.play('pegatina');
           this.cameras.main.shake(90, 0.005);
         });
+      }
+      if (P.label && this.cue('etiqueta', 3.25)) {
+        const l = P.label.setVisible(true).setScale(1.8);
+        this.tweens.add({ targets: l, scale: 1, duration: 110, ease: 'Quad.easeIn' });
+        this.time.delayedCall(110, () => this.snd.play('pegatina', { detune: 300 }));
       }
       if (this.cue('garantia', 3.7)) {
         const w = (P.warranty as Phaser.GameObjects.BitmapText).setVisible(true).setScale(1.6).setAlpha(0);

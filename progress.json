@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T16:55:00+01:00",
+  "actualizado": "2026-11-12T17:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -130,13 +130,19 @@
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 859,
-    "tests_ok": 859,
+    "tests": 860,
+    "tests_ok": 860,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 31344
+    "lineas_codigo": 31449
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T17:45:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (7b): cada personaje tiene su final. El final verdadero sigue acabando con «El producto era usted.», pero la reparación, la etiqueta de la caja, la estantería y el precio son de cada uno: la Batidora con «Recetario de regalo. Para que esta vez sí.», la Plancha en el «Pack Vuelta al Cole» con una tabla que cojea, el Becario a 0,00 € «Sin remunerar» («Con experiencia. No cobra.») y el Móvil a 599,99 € con la batería al 1 % y funda con purpurina. Arreglado: en el final, la Plancha salía dibujada como la tostadora.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T16:55:00+01:00",
       "hito": "M13",
@@ -1220,6 +1226,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/final-becario.png",
+      "pie": "M13 (7b): el final del Becario Eterno: en la estantería, con la etiqueta «Prácticas: 6 meses», a 0,00 € «Sin remunerar». Con experiencia. No cobra."
+    },
+    {
       "archivo": "capturas/ficha-leyendo.png",
       "pie": "M13 (7a): al pisar la cinta del Mostrador, la cinta lee en voz alta la ficha de devolución de la tostadora, letra a letra"
     },
@@ -1238,13 +1248,9 @@
     {
       "archivo": "capturas/plancha-suela.png",
       "pie": "M13 (4): la Plancha de Vapor pasa junto a dos enemigos: la suela caliente deja un rastro de vapor que quema a quien lo pisa"
-    },
-    {
-      "archivo": "capturas/plancha-almidon.png",
-      "pie": "El Pulverizador de Almidón: gotas amarillo limón de corto alcance que dejan tiesos (más lentos) a los enemigos"
     }
   ],
-  "proximo": "M13 (7b): el final propio de cada personaje (la caja y la estantería del final verdadero según quién llegue); después la (7c), su muerte propia, y el desbloqueo de cada uno con su condición.",
+  "proximo": "M13 (7c): la muerte propia de cada personaje (su despiece y la causa en el parte de baja); después cerrar M13 con la captura de los cinco.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1275,11 +1281,6 @@
       "sesion": "2026-11-12 16:30",
       "tarea": "M13 desbloqueo (8): condiciones propias definitivas de cada personaje (src/data/unlocks.ts) y sus armas iniciales en los cofres al desbloquearlo (src/data/weapons.ts; en src/sim/world.ts solo WorldOptions.unlocked y lootDecks; en src/render/GameScene.ts solo pasar unlocked a createWorld; tests/desbloqueo-armas.test.ts)",
       "desde": "2026-11-12T16:30:00+01:00"
-    },
-    {
-      "sesion": "2026-11-12 16:58",
-      "tarea": "M13 historia (7b): el final propio de cada personaje (src/data/final.ts ENDINGS y src/render/FinalScene.ts; tests/final.test.ts)",
-      "desde": "2026-11-12T16:58:00+01:00"
     }
   ]
 }

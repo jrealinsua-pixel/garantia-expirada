@@ -157,6 +157,18 @@ cada tres), y la partida espera: disparar, usar o rodar la lee de golpe y la sel
 echar a andar), a jugar. Rosa de copia en papel de calco, para no confundirla con el parte de baja
 (rojo) ni con la planta superada (cian). Solo en la planta 1 de una partida que sale de la cinta.
 
+**Los finales** (M13 (7b), 2026-11-12): el final verdadero es el mismo para todos (la cinta, la
+limpieza, la reparación, la caja, la estantería y «El producto era usted.»), pero cada uno tiene su
+reparación, una etiqueta en la caja junto a la pegatina, su estantería, su cartel y su precio
+(`ENDINGS` en `src/data/final.ts`): la **Batidora**, cuchillas afiladas y el batido del fondo «de
+serie», «Recetario de regalo», «Para que esta vez sí», en VIDA SANA a 79,99 €; la **Plancha**, el
+cuello de camisa rascado «casi todo», «Pack Vuelta al Cole» con una tabla que cojea, a 34,99 €
+«Pack ahorro»; el **Becario**, «Se le renueva el contrato en prácticas. Seis meses. Otra vez.»,
+«Prácticas: 6 meses», «Con experiencia. No cobra.», en MATERIAL OFICINA a 0,00 € «Sin
+remunerar»; el **Móvil**, la batería cambiada por otra al 1 % («Las fotos no vuelven»), «Funda con
+purpurina», a 599,99 € de nuevo. La etiqueta, oscura con letra amarilla: la letra lleva contorno
+oscuro y sobre amarillo se emborrona.
+
 Desbloqueos (los de `src/data/unlocks.ts`, sin cambios): Batidora al vencer a la Nevera, Plancha
 al vencer al Router, Becario tras diez bajas, Móvil al encontrar veinte objetos distintos. Con
 cada personaje nuevo, el requisito de «ganar con varios personajes» del Servicio Técnico pide

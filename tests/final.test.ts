@@ -6,8 +6,9 @@ import assert from 'node:assert/strict';
 import { BOSS_DEATH, createWorld, DT, enterRoom, FINALE_DELAY, isLastFloor, NO_INPUT, nextFloor, SERVICE_LEVEL, step, type SimEvent } from '../src/sim/world.ts';
 import {
   ENDING_LAST_LINE, ENDING_PRICE, ENDING_PRICE_NOTE, ENDING_SECONDS, ENDING_SHELF_CARD, ENDING_SHOTS, ENDING_STICKER, ENDING_THANKS,
-  endingCredits, endingShotAt, endingWarranty,
+  ENDINGS, endingCredits, endingFor, endingShotAt, endingWarranty, shotCaption,
 } from '../src/data/final.ts';
+import { ROSTER } from '../src/data/unlocks.ts';
 import { CHARACTERS } from '../src/data/characters.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { emptyProfile, parseProfile, recordEnding } from '../src/sim/profile.ts';
@@ -136,4 +137,35 @@ test('los sprites del final: la caja (con su ventana), la pegatina, el guante, l
   assert.equal(shelf.canvas.h, SHELF_H);
   // The gap for the box: nothing stands on the bottom beam right over the slot.
   assert.equal(shelf.canvas.get(SHELF_SLOT.x - 24, SHELF_SLOT.y - 20)[3], 0);
+});
+
+// M13 (7b): each character's own ending.
+test('cada personaje tiene su final: la reparación, la etiqueta, la estantería y el precio, y caben', () => {
+  for (const r of ROSTER) {
+    const e = ENDINGS[r.id];
+    assert.ok(e, `${r.id} sin final`);
+    const capRepair = shotCaption(ENDING_SHOTS.find((s) => s.id === 'resistencia')!, r.id);
+    const capShelf = shotCaption(ENDING_SHOTS.find((s) => s.id === 'estanteria')!, r.id);
+    assert.equal(capRepair, e.repair);
+    assert.equal(capShelf, e.shelf);
+    for (const c of [capRepair, capShelf]) {
+      assert.ok(wrapLines(fontText(c), 480 - 24, 1).length <= 1, `«${c}» en una línea`);
+      assert.ok(wrapLines(fontText(c), 480 - 24, 2).length <= 2, `«${c}» en dos líneas con texto grande`);
+    }
+    assert.ok(textWidth(e.shelfCard) <= 84, `${r.id}: el cartel de la estantería`);
+    assert.ok(Math.max(textWidth(e.price), textWidth(e.priceNote)) < 60, `${r.id}: la etiqueta del precio`);
+    // The label sits on the front of the box, under the sticker: no wider than the box at ×3 (180 px).
+    assert.ok(textWidth(e.label) + 8 <= 60 * 3 - 15, `${r.id}: «${e.label}» no cabe en la caja`);
+    // The other shots say the same for everyone.
+    assert.equal(shotCaption(ENDING_SHOTS[0]!, r.id), ENDING_SHOTS[0]!.caption);
+  }
+  // The toaster's is the one there was; anyone unknown gets it.
+  assert.equal(endingFor('tostadora').repair, ENDING_SHOTS.find((s) => s.id === 'resistencia')!.caption);
+  assert.equal(endingFor('tostadora').price, ENDING_PRICE);
+  assert.equal(endingFor('nadie'), endingFor('tostadora'));
+  // The others have a label and a shelf of their own.
+  for (const id of ['batidora-vaso', 'plancha', 'becario', 'movil']) {
+    assert.ok(ENDINGS[id]!.label, `${id}: sin etiqueta`);
+    assert.notEqual(ENDINGS[id]!.shelf, ENDINGS['tostadora']!.shelf);
+  }
 });

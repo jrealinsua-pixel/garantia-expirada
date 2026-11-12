@@ -545,8 +545,11 @@ sin ellos la partida acaba en la planta 5.
     Hecho el 2026-11-12: `src/data/stories.ts` (las cinco historias, también la del Móvil),
     `src/render/ficha.ts` (la ficha, que cabe a los dos tamaños), la partida espera mientras se
     lee; `tests/ficha-devolucion.test.ts` y e2e `41a`–`41b`.
-  - [ ] (7b) El final propio de cada uno: el texto de la caja y de la estantería del final
+  - [x] (7b) El final propio de cada uno: el texto de la caja y de la estantería del final
     verdadero según quién llegue (`FinalScene`), con las frases de «Los cinco, en detalle».
+    Hecho el 2026-11-12: `ENDINGS` en `src/data/final.ts` (reparación, etiqueta de la caja,
+    estantería, cartel y precio), el dibujo de cada uno en el final (el de la Plancha salía como la
+    tostadora), `tests/final.test.ts` y e2e `54h`–`54j`.
   - [ ] (7c) La muerte propia de cada uno: su despiece (ahora todos sueltan las tostadas o casi
     nada) y la causa en el parte de baja.
 - [ ] Desbloqueo de cada personaje con una condición propia.
