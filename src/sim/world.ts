@@ -154,6 +154,8 @@ export interface Player {
   rollCooldown: number;
   /** Giro de cuchillas (CharacterDef.ability, 'blades'): the enemies (and dummies) this roll has already ground. */
   bladeHits?: number[];
+  /** Suela caliente (CharacterDef.ability, 'sole'): px walked since the last puff of steam. */
+  soleWalked?: number;
   invulnerable: number;
   /** The weapon in hand: always one of `arsenal`, the one at `slot`. */
   weapon: WeaponState;
@@ -362,6 +364,8 @@ export interface Dummy {
   /** Etiquetadora (BulletBehaviour.tag): labels stuck on it, and seconds before they peel off. */
   tags?: number;
   tagT?: number;
+  /** Suela caliente (SoleAbility): seconds before the steam scalds it again. */
+  scaldCd?: number;
 }
 
 /**
@@ -439,6 +443,10 @@ export interface Enemy {
   /** Glitter (BulletBehaviour.slow): seconds left of going at `slowMul` of its speed. */
   slowT?: number;
   slowMul?: number;
+  /** What it was slowed with, for the look: starch (the Plancha's Pulverizador, M13 (4)) instead of glitter. */
+  slowLook?: 'starch';
+  /** Suela caliente (SoleAbility): seconds before the steam scalds it again. */
+  scaldCd?: number;
   /** Llamada Grabada (Perks.recorded): seconds left of taking `markMul` times the player's bullets. */
   markT?: number;
   markMul?: number;
@@ -513,6 +521,16 @@ export interface Enemy {
  * flying from (fromX, fromY) to (x, y); at 0 it lands and the patch slows the player down
  * (to `slow` of its speed) inside an ellipse of `r` by `r` × FROST_FLAT until `t` reaches `life`.
  */
+/** A puff of steam the Plancha de Vapor leaves on the floor (SoleAbility): `t` s old, gone at `life`. */
+export interface Steam {
+  id: number;
+  x: number;
+  y: number;
+  r: number;
+  t: number;
+  life: number;
+}
+
 export interface Frost {
   id: number;
   x: number;
@@ -612,6 +630,8 @@ export type SimEvent =
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
   /** Giro de cuchillas: the rolling blender ground `target` (an enemy or a dummy) at (x, y), coming from `angle`. */
   | { type: 'blade'; x: number; y: number; angle: number; damage: number; target: number }
+  /** Suela caliente: the steam on the floor scalded `target` (an enemy or a dummy) standing at (x, y). */
+  | { type: 'scald'; x: number; y: number; damage: number; target: number }
   | { type: 'revive'; item: string; x: number; y: number; hp: number }
   | { type: 'jam'; x: number; y: number; source: number }
   /** A wind-up toy sets off, bounces off something, runs down, or starts winding itself up. */
@@ -850,6 +870,8 @@ export interface World {
   conveyors: Conveyor[];
   /** Stacks of crates on their way down (src/sim/crates.ts): the Trituradora's, M12 (4c). */
   crates: CrateDrop[];
+  /** Suela caliente (M13 (4), the Plancha de Vapor): the puffs of steam she leaves as she walks. */
+  steam: Steam[];
   events: SimEvent[];
   nextId: number;
   /** Enemies taken apart so far. */
@@ -1129,6 +1151,7 @@ export function createWorld(opts: WorldOptions): World {
     ink: [],
     conveyors: [],
     crates: [],
+    steam: [],
     events: [],
     nextId,
     kills: 0,
@@ -1438,6 +1461,7 @@ export function enterRoom(w: World, id: number, via: Dir): void {
   w.ink = [];
   w.conveyors = [];
   w.crates = [];
+  w.steam = [];
   layRoomBelts(w);
   w.enemies = [];
   w.dummies = [];
@@ -2263,6 +2287,57 @@ function rollBlades(w: World): void {
   }
 }
 
+/** Most puffs of steam on the floor at once: the oldest go first (a long walk leaves no more trail). */
+const STEAM_MAX = 80;
+
+/**
+ * Suela caliente (M13 (4), the Plancha de Vapor): every `every` px she walks (on her feet, not
+ * rolling, and not once she is down) a puff of steam is left where her soleplate was; puffs fade
+ * after `life` s. An enemy whose feet are on one is scalded: `damage` at once and again every
+ * `tick` s while it stays on the trail. A boss roaring between phases takes nothing (as with
+ * bullets), nor anything off the floor (a moth, a remote car in mid-hop): it scalds feet.
+ */
+function updateSole(w: World, ox: number, oy: number): void {
+  for (const s of w.steam) s.t += DT;
+  if (w.steam.length && w.steam[0]!.t >= w.steam[0]!.life) w.steam = w.steam.filter((s) => s.t < s.life);
+  const p = w.player;
+  const ab = p.def.ability;
+  if (ab?.kind !== 'sole') return;
+  if (!isRolling(p) && !w.over && w.room.kind !== 'hub') {
+    const d = Math.hypot(p.x - ox, p.y - oy);
+    // A teleport (a new room, the lift) is not a walk.
+    if (d < 20) {
+      p.soleWalked = (p.soleWalked ?? 0) + d;
+      while (p.soleWalked >= ab.every) {
+        p.soleWalked -= ab.every;
+        w.steam.push({ id: w.nextId++, x: p.x, y: p.y, r: ab.radius, t: 0, life: ab.life });
+      }
+      if (w.steam.length > STEAM_MAX) w.steam.splice(0, w.steam.length - STEAM_MAX);
+    }
+  }
+  for (const en of w.enemies) if (en.scaldCd) en.scaldCd = Math.max(0, en.scaldCd - DT);
+  for (const d of w.dummies) if (d.scaldCd) d.scaldCd = Math.max(0, d.scaldCd - DT);
+  if (!w.steam.length) return;
+  const onSteam = (x: number, y: number, foot: number): boolean => w.steam.some((s) => (s.x - x) ** 2 + ((s.y - y) / 0.7) ** 2 < (s.r + foot) ** 2);
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || en.state === 'dying' || (en.scaldCd ?? 0) > 0) continue;
+    if (enemyAltitude(en) > 2 || !onSteam(en.x, en.y, en.def.footRadius)) continue;
+    const damage = en.state === 'roar' ? 0 : ab.damage * takenScale(en);
+    en.scaldCd = ab.tick;
+    if (damage <= 0) continue;
+    en.hitT = Math.max(en.hitT, 0.08);
+    en.damageTaken += damage;
+    w.events.push({ type: 'scald', x: en.x, y: en.y, damage, target: en.id });
+  }
+  for (const d of w.dummies) {
+    if ((d.scaldCd ?? 0) > 0 || !onSteam(d.x, d.y, 6)) continue;
+    d.scaldCd = ab.tick;
+    d.hitT = Math.max(d.hitT, 0.08);
+    d.damageTaken += ab.damage;
+    w.events.push({ type: 'scald', x: d.x, y: d.y, damage: ab.damage, target: d.id });
+  }
+}
+
 /** Gives the player a modifier (picking up an item). */
 export function addModifier(w: World, m: Modifier): void {
   w.player.mods.push(m);
@@ -2703,6 +2778,10 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
             if (b.slow && damage > 0) {
               en.slowMul = (en.slowT ?? 0) > 0 ? Math.min(en.slowMul ?? 1, b.slow.mul) : b.slow.mul;
               en.slowT = Math.max(en.slowT ?? 0, b.slow.time);
+              if (en.slowMul === b.slow.mul) {
+                if (b.slow.look) en.slowLook = b.slow.look;
+                else delete en.slowLook;
+              }
             }
             const k = b.knockback * en.def.knockbackScale;
             en.vx += Math.cos(angle) * k;
@@ -4501,6 +4580,7 @@ export function step(w: World, input: Input): void {
   if (!paused) updateEmitters(w);
   if (isRolling(w.player) && !w.over) rollCut(w);
   if (isRolling(w.player) && !w.over) rollBlades(w);
+  updateSole(w, ox, oy);
   updateBullets(w, held, slowed ? HOLD_BOSS_SCALE : 1);
   if (w.pendingBullets?.length) {
     w.bullets.push(...w.pendingBullets);
@@ -4574,6 +4654,7 @@ export function worldHash(w: World): string {
   for (const k of w.ink) parts.push(k.x.toFixed(2), k.y.toFixed(2), k.t.toFixed(3));
   for (const c of w.conveyors) parts.push(c.id, c.dirX, c.t.toFixed(3));
   for (const d of w.crates) parts.push(d.id, d.t.toFixed(3));
+  for (const s of w.steam) parts.push(s.id, s.x.toFixed(2), s.t.toFixed(3));
   if (w.lift) parts.push(w.lift.x.toFixed(2), w.lift.y.toFixed(2), w.won ? 'won' : 'lift');
   if (w.finale) parts.push(w.finale.t.toFixed(3), w.won ? 'won' : 'finale');
   return parts.join('|');

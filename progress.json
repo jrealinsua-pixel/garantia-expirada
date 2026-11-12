@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T13:50:00+01:00",
+  "actualizado": "2026-11-12T14:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -124,19 +124,25 @@
     }
   ],
   "metricas": {
-    "personajes": 3,
+    "personajes": 4,
     "enemigos": 27,
     "jefes": 6,
-    "armas": 6,
+    "armas": 7,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 838,
-    "tests_ok": 838,
+    "tests": 849,
+    "tests_ok": 849,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 30623
+    "lineas_codigo": 30817
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T14:45:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (4): la Plancha de Vapor, cuarto personaje jugable: verde azulada, ancha y baja, con la punta de la suela por delante, el selector en LINO, el trozo de cuello de camisa quemado aún pegado y zapatos de entrevista. Cuatro corazones, la más lenta y la que peor rueda. Por donde anda deja vapor que quema a quien lo pisa (2 por segundo), y su Pulverizador de Almidón deja tiesos (más lentos) a los enemigos. Medida con el bot: gana la planta 1 como la tostadora (31,7 %).",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T13:50:00+01:00",
       "hito": "M13",
@@ -1202,6 +1208,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/plancha-suela.png",
+      "pie": "M13 (4): la Plancha de Vapor pasa junto a dos enemigos: la suela caliente deja un rastro de vapor que quema a quien lo pisa"
+    },
+    {
+      "archivo": "capturas/plancha-almidon.png",
+      "pie": "El Pulverizador de Almidón: gotas amarillo limón de corto alcance que dejan tiesos (más lentos) a los enemigos"
+    },
+    {
       "archivo": "capturas/becario.png",
       "pie": "M13 (5): El Becario Eterno en la sala de pruebas, grapando: camisa con mancha de café, pósit en el pelo, ojeras y la acreditación sin foto; la mano, desnuda"
     },
@@ -1216,17 +1230,9 @@
     {
       "archivo": "capturas/batidora-picahielos.png",
       "pie": "El Picahielos Turbo: cubitos de zumo de naranja de dos en dos, muchos, abiertos y de poco alcance"
-    },
-    {
-      "archivo": "capturas/tablon-batidora.png",
-      "pie": "El tablón del Mostrador con la Batidora «En exposición»: F cambia de producto y de cuerpo ahí mismo"
-    },
-    {
-      "archivo": "capturas/final-el-producto.png",
-      "pie": "M12 (5): el final verdadero. La tostadora, en su caja con ventana y la pegatina verde «Reacondicionado», en la estantería de la planta 1 con la etiqueta «49,99 € · PVP de nuevo». Arriba, la última frase"
     }
   ],
-  "proximo": "M13 (4): la Plancha de Vapor (la tiene otra sesión); luego (6), el Móvil Reacondicionado, y la muerte propia de cada personaje.",
+  "proximo": "M13 (6), el Móvil, lo tiene otra sesión; después, la historia de cada personaje (la ficha que lee la cinta y su final) y su muerte propia.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1253,11 +1259,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 13:26",
-      "tarea": "M13 (4): la Plancha de Vapor (sprite, Pulverizador de Almidón y la suela caliente)",
-      "desde": "2026-11-12T13:26:00+01:00"
-    },
     {
       "sesion": "2026-11-12 14:26",
       "tarea": "M13 (6): el Móvil Reacondicionado (sprite, Notificaciones Push, carga en movimiento, batería al 1 %)",

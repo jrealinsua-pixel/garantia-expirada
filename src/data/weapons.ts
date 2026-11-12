@@ -134,6 +134,30 @@ export const WEAPONS: Record<string, WeaponDef> = {
     pellets: 2,
     look: { sprite: 'arma-picahielos', bullet: 'bala-cubito-zumo', sound: 'picahielos', shake: 0.0012 },
   },
+  /**
+   * M13 (4): the Plancha de Vapor's starting weapon. Short sprays of starch, two drops a pull,
+   * that leave whatever they hit stiff (at three quarters of its pace for a second). Wins at slowing (no other
+   * weapon does); loses on damage per second (the weakest of all, even under the Secador): her
+   * damage is in the steam.
+   */
+  almidon: {
+    id: 'almidon',
+    name: 'Pulverizador de Almidón',
+    description: 'Almidón aroma «Brisa de Limón». Deja tieso a cualquiera. No huele a limón ni a brisa.',
+    fireRate: 3.5,
+    magazine: 10,
+    reloadTime: 2,
+    spreadDeg: 16,
+    bulletSpeed: 240,
+    bulletLife: 0.43,
+    damage: 0.75,
+    bulletRadius: 3,
+    recoil: 18,
+    knockback: 15,
+    pellets: 2,
+    bullets: { slow: { mul: 0.75, time: 1, look: 'starch' } },
+    look: { sprite: 'arma-almidon', bullet: 'bala-almidon', sound: 'almidon', shake: 0.001, swell: { from: 0.8, to: 1.25, fade: 0.35 } },
+  },
 };
 
 /** Weapons the toaster can find, in the order a floor hands them out (seeded shuffle). */

@@ -28,6 +28,7 @@ import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora
 import * as H from './mostrador.ts';
 import * as BV from './batidora-vaso.ts';
 import { makeBecarioFrames, makeBecarioHand } from './becario.ts';
+import * as PV from './plancha-vapor.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
 
@@ -59,6 +60,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // The playable characters (M13): the same eight frames as the toaster (CharacterLook).
     becario: { canvas: strip(makeBecarioFrames()), frameW: 40, frameH: 41 },
     'mano-becario': one(makeBecarioHand()),
+    // M13 (4): the Plancha de Vapor, her starch spray and the steam her soleplate leaves.
+    'plancha-vapor': { canvas: strip(PV.makeIronFrames()), frameW: PV.IRON_W, frameH: PV.IRON_H },
+    'vapor-suela': { canvas: strip(PV.makeSteamFrames()), frameW: PV.STEAM_W, frameH: PV.STEAM_H },
+    'arma-almidon': one(PV.makeMiniStarchSpray()),
+    'bala-almidon': one(PV.makeStarchDrop()),
     // Frame 0 of every enemy sheet is its approved (or first) sprite; the order of the rest is in
     // the enemy's `anim` (src/data/enemies.ts).
     aspirador: { canvas: strip(narrowPoseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },

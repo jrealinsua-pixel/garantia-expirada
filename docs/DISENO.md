@@ -92,7 +92,7 @@ personaje está desbloqueado.
 | --- | ---: | ---: | --- | --- | --- | --- |
 | Tostadora Reacondicionada | 3 corazones | 100 | normal | Secador Mágnum | **Una de cada dos**: al acabar una recarga que ha rellenado al menos medio cargador salta una tostada hacia donde apunta (atraviesa, 1 de daño); una de cada dos sale **quemada** (el doble, y su humo borra las balas enemigas que toca) | Nada: es la de referencia |
 | Batidora de Vaso | 2 corazones | 118 | más larga (190 × 0,5 s), menos espera (0,26 s) | **Picahielos Turbo** (cubitos de zumo de naranja, dos por disparo: la que más balas echa, 16 por segundo; alcance de la plancha, unos 100 px; la que más se abre, 28°) | **Giro de cuchillas**: rodar tritura a los enemigos que toca (4 de daño, una vez por enemigo y vuelta) y rompe las balas que atraviesa | Muy poca vida; el arma no llega lejos |
-| Plancha de Vapor | 4 corazones | 84 | corta y lenta | **Pulverizador de Almidón** (chorros cortos que dejan almidonados, más lentos, a los enemigos) | **Suela caliente**: por donde anda queda un rastro de vapor (1,2 s) que quema a los enemigos que lo pisan (2 de daño por segundo) | Lenta, rueda poco: lo esquiva todo mal |
+| Plancha de Vapor | 4 corazones | 80 | corta y lenta (150 × 0,36 s), tarda en volver (0,48 s) | **Pulverizador de Almidón** (dos gotas de almidón amarillo limón por disparo, unos 100 px de alcance; los enemigos que toca quedan almidonados, pálidos y a tres cuartos de su ritmo durante 1 s; la que menos daño por segundo hace) | **Suela caliente**: por donde anda (no rodando) queda un rastro de vapor (1,2 s) que quema a los enemigos que lo pisan (2 de daño por segundo; lo que vuela, no) | Lenta, rueda poco: lo esquiva todo mal |
 | El Becario Eterno | 3 corazones | 104 | normal | Grapadora Táctica | **Experiencia demostrable**: cada sala limpiada sin que le hieran suma un punto (+4 % de daño, hasta 6; se lleva de planta en planta); una herida le deja la mitad, redondeando hacia abajo («no se valora») | **Sin remunerar**: los enemigos (jefes incluidos) le dejan la mitad exacta de cupones, sin dados |
 | Móvil Reacondicionado | 3 corazones | 100 | normal | **Notificaciones Push** (balitas lentas que persiguen al enemigo más cercano) | **Carga en movimiento**: andar carga el objeto activo (una pila cada 600 px) | **Batería al 1 %**: si se queda quieto 3 s se apaga 1 s (no dispara ni se mueve; la pantalla en negro con el logo) |
 
@@ -121,6 +121,16 @@ un remolino de tres cuchillas alrededor (`giro-cuchillas`). Medida con el bot
 23,3 %, lo mismo que la tostadora, con 0,75 heridas por sala (la tostadora, 1,3) y dos corazones en
 vez de tres. Sus armas iniciales no salen en los cofres (aún no se reparten según quién está
 desbloqueado).
+
+**Plancha de Vapor** (M13 (4), 2026-11-12): carcasa verde azulada (ni gris, ni violeta, ni la
+menta de la Batidora de Mano, ni la plancha blanca de los cofres), ancha y baja con la punta de la
+suela hacia delante y el asa azul marino por encima: la silueta que ninguna otra tiene. Párpados
+planos y boca recta («he planchado cosas peores que usted»), el depósito de agua como ventana, el
+selector clavado en LINO, el trozo de cuello de camisa quemado aún pegado a la suela (la
+entrevista) y zapatos negros de entrevista. Al caer revienta el depósito: vapor y agua. Medida
+igual que la Batidora: gana la planta 1 el 31,7 %, lo mismo que la tostadora con las mismas
+semillas, con 1,46 heridas por sala (la tostadora, 1,13) y 29 s por sala (21): aguanta más y tarda
+más.
 
 Desbloqueos (los de `src/data/unlocks.ts`, sin cambios): Batidora al vencer a la Nevera, Plancha
 al vencer al Router, Becario tras diez bajas, Móvil al encontrar veinte objetos distintos. Con

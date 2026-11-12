@@ -201,6 +201,8 @@ test('cada arma gana claramente en algo y pierde en otra cosa (nota del humano)'
     'balas por segundo': (id) => WEAPONS[id]!.fireRate * WEAPONS[id]!.pellets,
     'enemigos que atraviesa': (id) => WEAPONS[id]!.bullets?.pierce ?? 0,
     'estallido de etiquetas': (id) => WEAPONS[id]!.bullets?.tag?.mul ?? 0,
+    // Stiffening what it hits: the Plancha's starch spray (M13 (4)).
+    'frena al enemigo': (id) => 1 - (WEAPONS[id]!.bullets?.slow?.mul ?? 1),
   };
   for (const id of ids) {
     const wins: string[] = [];

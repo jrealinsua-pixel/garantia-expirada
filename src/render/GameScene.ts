@@ -348,6 +348,10 @@ export class GameScene extends Phaser.Scene {
   private frostViews = new Map<number, { ball: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; patch: Phaser.GameObjects.Sprite | null }>();
   /** The squares of DENEGADO ink on the floor, by Ink id. */
   private inkViews = new Map<number, Phaser.GameObjects.Image>();
+  /** Suela caliente: the puffs of steam on the floor (World.steam), by id. */
+  private steamViews = new Map<number, Phaser.GameObjects.Image>();
+  /** When the steam last sizzled (ms), so a crowd on the trail does not buzz. */
+  private scaldHeard = 0;
   /** Conveyor belts on the floor (M12 (4b)): the scrolling belt and the intake rollers at its end. */
   private beltViews = new Map<number, { belt: Phaser.GameObjects.TileSprite; rollers: Phaser.GameObjects.TileSprite | null }>();
   /** Ticket dispensers' turns on the floor, by the dispenser's id: the circle, its number and the countdown. */
@@ -571,6 +575,7 @@ export class GameScene extends Phaser.Scene {
     this.frostViews = new Map();
     this.crateViews = new Map();
     this.inkViews = new Map();
+    this.steamViews = new Map();
     this.beltViews = new Map();
     this.turnViews = new Map();
     this.tapeViews = new Map();
@@ -1259,6 +1264,11 @@ export class GameScene extends Phaser.Scene {
     if (p.base.def.id === 'tostadora') {
       flung(0, -1, 30, f * this.fx.range(-40, -15), this.fx.range(130, 155), this.fx.range(-10, -5));
       flung(1, 5, 29, f * this.fx.range(25, 55), this.fx.range(115, 140), this.fx.range(6, 12));
+    } else if (p.base.def.id === 'plancha') {
+      // The Plancha: the tank bursts, a last cloud of steam and the water everywhere.
+      this.sound2.play('vapor', { detune: -400 });
+      for (let i = 0; i < 8; i++) this.puff(p.x + this.fx.range(-12, 14), p.y - this.fx.range(8, 26), this.fx.range(0.6, 1.1), 0xf4f1e8);
+      for (let i = 0; i < 12; i++) this.spark(p.x + f * this.fx.range(-8, 2), p.y - 18, this.fx.range(-Math.PI, 0), this.fx.range(40, 110), i % 2, 0xb6f1f0);
     } else {
       // The others have no slices to pop (the Batidora: the old smoothie splashes out of the jar).
       for (let i = 0; i < 12; i++) this.spark(p.x + f * this.fx.range(-4, 6), p.y - 30, this.fx.range(-Math.PI, 0), this.fx.range(40, 110), i % 2, 0x93b84c);
@@ -3130,6 +3140,15 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 8; i++) this.spark(e.x, e.y, e.angle + this.fx.range(-1.2, 1.2), this.fx.range(60, 140), i % 3 === 0 ? 0 : 1, i % 2 ? 0x93b84c : 0xe4e8f0);
           break;
         }
+        case 'scald': {
+          // Suela caliente: a sizzle (not every tick: it would buzz) and a few wisps off its feet.
+          if (this.time.now - this.scaldHeard > 140) {
+            this.scaldHeard = this.time.now;
+            this.sound2.play('suela', { detune: this.fx.range(-300, 300) });
+          }
+          for (let i = 0; i < 3; i++) this.spark(e.x + this.fx.range(-6, 6), e.y - this.fx.range(0, 4), -Math.PI / 2 + this.fx.range(-0.6, 0.6), this.fx.range(25, 55), i % 2, i ? 0xf4f1e8 : 0xff9a2f);
+          break;
+        }
         case 'bulletCut':
           // A loyalty card shot down: a snip and a few red and white bits.
           this.sound2.play('tarjeta', { detune: this.fx.range(-200, 200) });
@@ -4119,6 +4138,8 @@ export class GameScene extends Phaser.Scene {
       } else if (this.scanned.has(en.id)) s.setTint(0xd8ffb0);
       // Llamada Grabada: a marked enemy blinks red, like the light of a recording.
       else if ((en.markT ?? 0) > 0 && Math.floor(this.time.now / 220) % 2 === 0) s.setTint(0xff8a80);
+      // Starched (the Plancha's Pulverizador): pale and stiff while it lasts.
+      else if (en.slowLook === 'starch' && (en.slowT ?? 0) > 0) s.setTint(0xe6ead6);
       else s.clearTint();
       // A copy whose photocopier broke fades out, flickering like a bad print.
       if (en.fadeT !== undefined) s.setAlpha(Math.max(0.1, en.fadeT) * (Math.floor(this.time.now / 60) % 2 === 0 ? 1 : 0.6));
@@ -4131,11 +4152,16 @@ export class GameScene extends Phaser.Scene {
         if (this.fx.chance(0.2)) this.puff(en.x + this.fx.range(-24, 24), en.y - this.fx.range(10, 60), 0.7);
       }
       if (en.state === 'dying') this.dyingFx(en, v, dt);
-      // Glitter on it (Bote de Purpurina): it sheds pink and gold specks as it goes.
-      if ((en.slowT ?? 0) > 0 && this.fx.chance(0.25)) {
+      // Glitter on it (Bote de Purpurina): it sheds pink and gold specks as it goes. Starch (the
+      // Plancha's Pulverizador): it goes stiff and pale, and white flakes fall off it.
+      if ((en.slowT ?? 0) > 0) {
         const hb = en.def.hurt;
-        const tint = this.fx.pick([0xea93a8, 0xf6c431, 0xf4f1e8]);
-        this.spark(en.x + this.fx.range(hb.x, hb.x + hb.w), en.y + this.fx.range(hb.y, hb.y + hb.h), this.fx.range(0, Math.PI * 2), this.fx.range(5, 20), 0, tint);
+        const starch = en.slowLook === 'starch';
+        if (this.fx.chance(starch ? 0.5 : 0.25)) {
+          const tint = starch ? this.fx.pick([0xf4f1e8, 0xfff1a8, 0xdfe6ee]) : this.fx.pick([0xea93a8, 0xf6c431, 0xf4f1e8]);
+          const a = starch ? Math.PI / 2 + this.fx.range(-0.4, 0.4) : this.fx.range(0, Math.PI * 2);
+          this.spark(en.x + this.fx.range(hb.x, hb.x + hb.w), en.y + this.fx.range(hb.y, hb.y + hb.h), a, this.fx.range(5, 20), 0, tint);
+        }
       }
       if (v.badge) this.drawBadge(en, v, frame);
       // In TURBO the mixer shakes and throws sparks and batter.
@@ -4165,6 +4191,7 @@ export class GameScene extends Phaser.Scene {
     this.drawFrost(dt);
     this.drawFallingCrates();
     this.drawInk();
+    this.drawSteam();
     this.drawConveyors();
     this.drawTurns();
     this.drawMenus(dt);
@@ -4414,6 +4441,32 @@ export class GameScene extends Phaser.Scene {
    * DENEGADO ink: the square lands a little too big and settles (the thud of the stamp), lies on the
    * floor, and blinks for its last second before it dries.
    */
+  /**
+   * Suela caliente (M13 (4)): each puff of steam the Plancha leaves on the floor plays the four
+   * frames of `vapor-suela` over its life (the hot print fading from orange, the cloud thinning),
+   * drawn over the floor and under everyone.
+   */
+  private drawSteam(): void {
+    const alive = new Set<number>();
+    for (const k of this.world.steam) {
+      alive.add(k.id);
+      let v = this.steamViews.get(k.id);
+      if (!v) {
+        v = this.add.image(Math.round(k.x), Math.round(k.y) - 3, 'vapor-suela', 0).setDepth(-60400);
+        this.steamViews.set(k.id, v);
+      }
+      v.setFrame(Math.min(3, Math.floor((k.t / k.life) * 4)));
+      // The cloud drifts up a little as it thins.
+      v.setY(Math.round(k.y - 3 - (k.t / k.life) * 4));
+      v.setAlpha(k.t > k.life - 0.15 ? 0.55 : 1);
+    }
+    for (const [id, v] of this.steamViews) {
+      if (alive.has(id)) continue;
+      v.destroy();
+      this.steamViews.delete(id);
+    }
+  }
+
   private drawInk(): void {
     const alive = new Set<number>();
     for (const k of this.world.ink) {

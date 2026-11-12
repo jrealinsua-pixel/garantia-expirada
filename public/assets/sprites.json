@@ -41,6 +41,30 @@
     "frameH": 5,
     "frames": 1
   },
+  "plancha-vapor": {
+    "file": "plancha-vapor.png",
+    "frameW": 40,
+    "frameH": 41,
+    "frames": 8
+  },
+  "vapor-suela": {
+    "file": "vapor-suela.png",
+    "frameW": 18,
+    "frameH": 12,
+    "frames": 4
+  },
+  "arma-almidon": {
+    "file": "arma-almidon.png",
+    "frameW": 18,
+    "frameH": 11,
+    "frames": 1
+  },
+  "bala-almidon": {
+    "file": "bala-almidon.png",
+    "frameW": 8,
+    "frameH": 8,
+    "frames": 1
+  },
   "aspirador": {
     "file": "aspirador.png",
     "frameW": 32,

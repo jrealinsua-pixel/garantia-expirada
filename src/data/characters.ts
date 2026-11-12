@@ -60,4 +60,27 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     // than with the toaster: the Grapadora already hits harder in its hands.)
     ability: { kind: 'merit', step: 0.04, max: 6, kept: 0.5, couponMul: 0.5 },
   },
+  /**
+   * M13 (4): slow and tough. Four hearts, the slowest on foot, a short and slow roll that comes
+   * back late; her soleplate leaves a trail of steam that scalds whatever steps on it, and her
+   * starch spray stiffens (slows) what it hits.
+   */
+  plancha: {
+    id: 'plancha',
+    name: 'Plancha de Vapor',
+    description: 'Quemó el cuello de una camisa en una entrevista de trabajo. La culpa fue «de la plancha». No deja una arruga ni un enemigo.',
+    maxHp: 8,
+    speed: 80,
+    accel: 1250,
+    friction: 1700,
+    rollSpeed: 150,
+    rollTime: 0.36,
+    rollIframes: 0.34,
+    rollCooldown: 0.48,
+    startWeapon: 'almidon',
+    footRadius: 5,
+    look: { sheet: 'plancha-vapor', w: 40, h: 41, feetX: 19.5, feetY: 36, spinY: 22 },
+    // «Suela caliente»: a puff of steam every 7 px walked, 1.2 s on the floor, 2 damage a second.
+    ability: { kind: 'sole', every: 7, radius: 7, life: 1.2, damage: 0.5, tick: 0.25 },
+  },
 };

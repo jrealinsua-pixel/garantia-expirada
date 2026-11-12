@@ -32,7 +32,8 @@ test('de serie, en exposición está la Tostadora; un personaje que no se puede 
   assert.equal(nextExhibited(p), 'tostadora', 'con una sola, no hay a quién cambiar');
   // Locked, or unlocked but not in this version yet: back to the Tostadora.
   assert.equal(exhibited({ ...p, chosen: 'plancha' }), 'tostadora');
-  assert.equal(exhibited({ ...p, chosen: 'plancha', unlocked: ['tostadora', 'plancha'] }), 'tostadora');
+  // (The Móvil is the last to come, M13 (6).)
+  assert.equal(exhibited({ ...p, chosen: 'movil', unlocked: ['tostadora', 'movil'] }), 'tostadora');
   assert.equal(exhibited({ ...p, chosen: 'no-existe' }), 'tostadora');
 });
 

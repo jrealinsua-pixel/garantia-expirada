@@ -526,7 +526,11 @@ sin ellos la partida acaba en la planta 5.
     el arma `picahielos` (dos cubitos por disparo), sprites, sonidos, `tests/batidora-vaso.test.ts`,
     e2e `47b` y `55a`–`55c`; el bot gana la planta 1 con ella como con la tostadora
     (`node tools/medir-personajes.ts`).
-  - [ ] (4) La Plancha de Vapor: sprite, Pulverizador de Almidón y la suela caliente.
+  - [x] (4) La Plancha de Vapor: sprite, Pulverizador de Almidón y la suela caliente.
+    Hecho el 2026-11-12: `SoleAbility` (un rastro de vapor cada 7 px andados que quema 2 por
+    segundo a quien lo pisa), el arma `almidon` (dos gotas que dejan tiesos, más lentos, a los
+    enemigos: `slow.look`), sprites, sonidos, `tests/plancha-vapor.test.ts` y e2e `56a`–`56c`; el
+    bot gana la planta 1 con ella como con la tostadora (31,7 % las dos).
   - [x] (5) El Becario Eterno: sprite, experiencia demostrable y sin remunerar. Hecho el
     2026-11-12: `MeritAbility` (+4 % por sala sin daño, hasta 6; un golpe deja la mitad), la mitad
     exacta de cupones, `CharacterLook.hand`, «Experiencia» en el inventario y `npm run bot -- --personaje`.

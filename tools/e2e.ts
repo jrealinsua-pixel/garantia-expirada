@@ -2395,6 +2395,38 @@ try {
   if (ground.cut < 3) throw new Error(`El giro de cuchillas no rompe las balas que atraviesa: ${ground.cut} de 6`);
   console.log(`Batidora de Vaso: ${cubes} disparos del Picahielos; rodando tritura a ${ground.hit} de 3 y rompe ${ground.cut} de 6 balas.`);
 
+  // M13 (4): the Plancha de Vapor in the test room: her starch spray leaves an enemy stiff (pale,
+  // flakes falling, slower), then she irons her way past two enemies standing just off her path:
+  // the trail of steam she leaves scalds both.
+  await page.goto(`${url}?semilla=e2e-plancha&sala=sala-pruebas&personaje=plancha`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  if ((await page.evaluate<string>('window.__GE__.scene.world.player.base.def.id')) !== 'plancha') throw new Error('?personaje=plancha no juega con la Plancha');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const p = w.player;
+    for (const d of w.dummies) { d.x = 40; d.y = 360; }
+    window.__GE__.spawnIdle('aspirador', p.x + 70, p.y - 10); })()`);
+  await page.waitForTimeout(300);
+  const starchAt = await page.evaluate<{ x: number; y: number }>('(() => { const p = window.__GE__.scene.world.player; return { x: p.x + 70, y: p.y - 22 }; })()');
+  await aimAt(starchAt.x, starchAt.y);
+  await page.mouse.down();
+  await page.waitForTimeout(650);
+  await shot('56a-plancha-almidon.png');
+  await page.mouse.up();
+  const starched = await page.evaluate<boolean>("window.__GE__.scene.world.enemies.some((e) => e.slowLook === 'starch' && e.slowT > 0)");
+  if (!starched) throw new Error('El Pulverizador de Almidón no deja tieso a nadie');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.enemies = []; w.bullets = []; const p = w.player;
+    window.__GE__.spawnIdle('microondas', p.x + 40, p.y + 7); window.__GE__.spawnIdle('aspirador', p.x + 80, p.y - 7); })()`);
+  await aimAt(starchAt.x + 120, starchAt.y - 40);
+  await page.keyboard.down('d');
+  await page.waitForTimeout(1100);
+  await shot('56b-plancha-suela-caliente.png');
+  await page.keyboard.up('d');
+  await page.waitForTimeout(500);
+  const scalded = await page.evaluate<{ hurt: number; steam: number }>(`(() => { const w = window.__GE__.scene.world;
+    return { hurt: w.enemies.filter((e) => e.damageTaken > 0).length, steam: w.steam.length }; })()`);
+  await shot('56c-plancha-rastro.png');
+  if (scalded.hurt < 2) throw new Error(`La suela caliente no quema a los que pisan el vapor: ${scalded.hurt} de 2`);
+  console.log(`Plancha de Vapor: el almidón deja tieso; el rastro (${scalded.steam} nubes) quema a ${scalded.hurt} de 2.`);
+
   // M12 (5): the true ending. On the Servicio Técnico's floor the Trituradora falling (set down and
   // beaten by hand: her fall in her room is tested in tests/final.test.ts) gives no report: the screen
   // goes dark and the workshop takes the toaster: the belt, the wash, the new heating element, the box,

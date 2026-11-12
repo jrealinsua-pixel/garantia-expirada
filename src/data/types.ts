@@ -75,7 +75,7 @@ export interface BulletBehaviour {
    * The enemies it hits go at `mul` of their speed (and think that much slower) for `time` s (the
    * glitter): they skip one tick in every 1 / (1 − mul). The strongest wins.
    */
-  slow?: { mul: number; time: number };
+  slow?: { mul: number; time: number; look?: 'starch' };
   /**
    * The last bullet of each magazine (Pegatina de Edición Limitada): `mul` times the damage (the
    * biggest wins) and `pierce` more enemies to go through (they add up).
@@ -370,7 +370,22 @@ export interface MeritAbility {
   couponMul: number;
 }
 
-export type CharacterAbility = ToastAbility | BladesAbility | MeritAbility;
+/**
+ * The Plancha de Vapor's «Suela caliente» (M13 (4)): every `every` px she walks (not while
+ * rolling) she leaves a puff of steam on the floor, of radius `radius`, that lasts `life` s. An
+ * enemy (or dummy) standing on one is scalded: `damage` at once and again every `tick` s while it
+ * stays on the trail (`damage / tick` per second).
+ */
+export interface SoleAbility {
+  kind: 'sole';
+  every: number;
+  radius: number;
+  life: number;
+  damage: number;
+  tick: number;
+}
+
+export type CharacterAbility = ToastAbility | BladesAbility | MeritAbility | SoleAbility;
 
 /**
  * A playable character's sprite sheet (public/assets/<sheet>.png). Every character's sheet has
