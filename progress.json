@@ -1281,6 +1281,11 @@
       "sesion": "2026-11-12 16:30",
       "tarea": "M13 desbloqueo (8): condiciones propias definitivas de cada personaje (src/data/unlocks.ts) y sus armas iniciales en los cofres al desbloquearlo (src/data/weapons.ts; en src/sim/world.ts solo WorldOptions.unlocked y lootDecks; en src/render/GameScene.ts solo pasar unlocked a createWorld; tests/desbloqueo-armas.test.ts)",
       "desde": "2026-11-12T16:30:00+01:00"
+    },
+    {
+      "sesion": "2026-11-12 17:30",
+      "tarea": "M13 historia (7c): la muerte propia de cada personaje (src/data/bajas.ts nuevo, downReport en src/data/texts.ts, popToaster y showDownPanel en src/render/GameScene.ts, tools/sprites/despiece.ts nuevo, tests/bajas.test.ts)",
+      "desde": "2026-11-12T17:30:00+01:00"
     }
   ]
 }
