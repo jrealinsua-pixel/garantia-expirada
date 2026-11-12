@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T21:10:00+01:00",
+  "actualizado": "2026-11-12T21:48:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -137,6 +137,11 @@
     "lineas_codigo": 32403
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T21:48:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (l1): los logros, «Méritos del cliente». 19 logros en los datos (100 de un mismo modelo, un jefe sin perder vida, una sinergia, los cinco jefes de planta, una planta en 4 minutos, tres retos del día seguidos…), cada uno con su chiste. El perfil los gana para siempre y guarda los pendientes de anunciar; la partida apunta las sinergias encendidas y los jefes vencidos sin un rasguño. Todavía no se ven en pantalla: eso viene ahora."
+    },
     {
       "fecha": "2026-11-12T21:10:00+01:00",
       "hito": "M14",
@@ -1285,7 +1290,7 @@
       "pie": "M13: los cinco personajes en fila en el Mostrador, para el criterio de «se distinguen a la primera»"
     }
   ],
-  "proximo": "M14 (r2b): una segunda sala rara (una apuesta, el «Sorteo de Fidelización», o un cambio de cupones por tickets); o los jefes al azar por planta (nota del humano del 2026-10-30).",
+  "proximo": "M14 (l2): el aviso «Mérito conseguido» y la pestaña «Méritos» en el Catálogo de siniestros; o (r2b) el Sorteo de Fidelización si queda libre, o los jefes al azar por planta.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1312,11 +1317,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "https://claude.ai/code/session_01LyCe1RQnX1yWxUXeTGFYrb",
-      "tarea": "M14 (l1): los logros (src/data/logros.ts, src/sim/achievements.ts, src/sim/profile.ts; en src/sim/world.ts solo dos registros: sinergias vistas y jefes sin recibir daño; GameScene.recordRun; tests/logros.test.ts)",
-      "desde": "2026-11-12T21:40:00+01:00"
-    },
     {
       "sesion": "https://claude.ai/code/session_01LyCe1QxMXtB1ffMd6SHaMz",
       "tarea": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización (rasca y gana con cupones); toca src/data/shop.ts, rooms.ts, world.ts (stock y compra), GameScene (sala y premio), tools/sprites",

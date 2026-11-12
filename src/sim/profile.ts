@@ -6,6 +6,9 @@ import { ROSTER } from '../data/unlocks.ts';
 import { newUnlocks, serviceMet } from './unlocks.ts';
 import { LORE } from '../data/lore.ts';
 import { parseDailies, recordDaily, type DailyRecord, type DailyResult } from './daily.ts';
+import { grantAchievements } from './achievements.ts';
+import { SYNERGIES } from '../data/synergies.ts';
+import { ENEMIES } from '../data/enemies.ts';
 
 /** The documents beating these bosses gives, in archivador order. */
 const bossDocs = (bosses: readonly string[]): string[] => LORE.filter((l) => 'boss' in l.source && bosses.includes(l.source.boss)).map((l) => l.id);
@@ -58,6 +61,14 @@ export interface Profile {
   chosen: string;
   /** The daily challenges played (M14 (r1)), by day «AAAA-MM-DD»: the best attempt and how many. */
   dailies: Record<string, DailyRecord>;
+  /** Synergies ever switched on (ids, src/data/synergies.ts), in the order first seen (M14 logros). */
+  synergies: string[];
+  /** Bosses ever beaten without losing life after their entrance (enemy ids, M14 logros). */
+  flawless: string[];
+  /** Achievements earned (ids, src/data/logros.ts), in the order earned. For good. */
+  achievements: string[];
+  /** Earned achievements the game has not announced yet (the screen clears them with `seenAchievements`). */
+  unseen: string[];
 }
 
 /** The last run, as the hub remembers it. */
@@ -94,6 +105,10 @@ export interface RunResult {
   docs?: readonly string[];
   /** Enemies taken apart on the last floor, by id (World.killsBy); the earlier floors went in with `recordFloor`. */
   killsBy?: Readonly<Record<string, number>>;
+  /** Synergies switched on during the last floor (World.synergiesSeen plus the ones still on). */
+  synergies?: readonly string[];
+  /** Bosses beaten on the last floor without losing life after their entrance (World.flawless). */
+  flawless?: readonly string[];
   cause?: { by: string; how: 'bullet' | 'contact' };
   items: readonly string[];
   active?: string;
@@ -123,6 +138,10 @@ export function emptyProfile(): Profile {
     endings: 0,
     chosen: STARTERS[0]!,
     dailies: {},
+    synergies: [],
+    flawless: [],
+    achievements: [],
+    unseen: [],
   };
 }
 
@@ -140,6 +159,16 @@ export interface FloorResult {
   weapons: readonly string[];
   /** Enemies taken apart on this floor, by id (World.killsBy). */
   killsBy?: Readonly<Record<string, number>>;
+  /** Synergies switched on during this floor. */
+  synergies?: readonly string[];
+  /** Bosses beaten on this floor without losing life after their entrance. */
+  flawless?: readonly string[];
+}
+
+/** The synergies and spotless bosses of a floor or a run, into the profile (only ids this version has). */
+function addDeeds(p: Profile, r: { synergies?: readonly string[]; flawless?: readonly string[] }): void {
+  p.synergies = union(p.synergies, (r.synergies ?? []).filter((id) => SYNERGIES[id]));
+  p.flawless = union(p.flawless, (r.flawless ?? []).filter((id) => ENEMIES[id]?.boss));
 }
 
 /** Adds one floor's kills by enemy id to the profile's tally. */
@@ -166,6 +195,8 @@ export function recordFloor(old: Profile, f: FloorResult): Profile {
   const p: Profile = structuredClone(old);
   addFloor(p, f);
   addKills(p, f.killsBy);
+  addDeeds(p, f);
+  grantAchievements(p);
   return p;
 }
 
@@ -181,8 +212,10 @@ export function recordEnding(old: Profile, floor?: FloorResult): Profile {
   if (floor) {
     addFloor(p, floor);
     addKills(p, floor.killsBy);
+    addDeeds(p, floor);
   }
   p.docs = union(p.docs, bossDocs(['trituradora']));
+  grantAchievements(p);
   return p;
 }
 
@@ -192,6 +225,7 @@ export function recordRun(old: Profile, r: RunResult): Profile {
   p.runs++;
   p.kills += Math.max(0, Math.round(r.kills));
   addKills(p, r.killsBy);
+  addDeeds(p, r);
   p.coupons += Math.max(0, Math.round(r.coupons));
   p.longestRun = Math.max(p.longestRun, Math.round(r.seconds));
   for (const b of r.bosses) bump(p.bosses, b);
@@ -228,6 +262,7 @@ export function recordRun(old: Profile, r: RunResult): Profile {
     p.service = true;
     p.last.service = true;
   }
+  grantAchievements(p);
   return p;
 }
 
@@ -296,12 +331,27 @@ export function parseProfile(raw: string | null): Profile {
   p.endings = count(o.endings);
   if (typeof o.chosen === 'string') p.chosen = o.chosen;
   p.dailies = parseDailies(o.dailies);
+  p.synergies = ids(o.synergies);
+  p.flawless = ids(o.flawless);
+  // Earned ones are kept as saved (even if this version no longer has them), and a save from before
+  // the achievements existed gets the ones it has earned, quietly (no flood of announcements).
+  p.achievements = ids(o.achievements);
+  p.unseen = ids(o.unseen).filter((id) => p.achievements.includes(id));
+  const quiet = grantAchievements(p);
+  p.unseen = p.unseen.filter((id) => !quiet.includes(id));
   return p;
 }
 
 /** The profile after one more attempt at the challenge of day `key` (the run itself goes in with recordRun). */
 export function recordDailyRun(old: Profile, key: string, r: DailyResult): Profile {
-  return { ...old, dailies: recordDaily(old.dailies, key, r) };
+  const p: Profile = { ...old, dailies: recordDaily(old.dailies, key, r) };
+  grantAchievements(p);
+  return p;
+}
+
+/** The profile once the earned achievements have been announced (a new object). */
+export function seenAchievements(old: Profile): Profile {
+  return { ...old, unseen: [] };
 }
 
 /** The cause that has taken the player down most often («enemy:how»), or null. */

@@ -1,5 +1,6 @@
 // Draws the simulation and plays its events. Phaser only draws and reads input: all the rules
 // live in src/sim/.
+import { deedsOf } from '../sim/achievements.ts';
 import { paintRoom } from '../art/room.ts';
 import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
 import { CHEST_NAME_PREMIUM } from '../data/texts.ts';
@@ -1873,7 +1874,8 @@ export class GameScene extends Phaser.Scene {
     const p = w.player;
     if (outcome === 'floor' && w.level < LAST_LEVEL) {
       // A floor cleared, but the run goes on upstairs: it counts as a floor, not as a run.
-      saveFloor({ character: p.base.def.id, seconds: w.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons: p.arsenal.map((ws) => ws.base.id), killsBy: w.killsBy });
+      const weapons = p.arsenal.map((ws) => ws.base.id);
+      saveFloor({ character: p.base.def.id, seconds: w.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons, killsBy: w.killsBy, ...deedsOf(w) });
       return;
     }
     this.runRecorded = true;
@@ -1891,6 +1893,7 @@ export class GameScene extends Phaser.Scene {
       bosses: this.runBosses,
       docs: w.docs,
       killsBy: w.killsBy,
+      ...deedsOf(w),
       ...(outcome === 'down' && this.downCause ? { cause: this.downCause } : {}),
       items: p.items,
       ...(p.active ? { active: p.active.id } : {}),
@@ -3478,6 +3481,7 @@ export class GameScene extends Phaser.Scene {
               ...(p.active ? { active: p.active.id } : {}),
               weapons: p.arsenal.map((ws) => ws.base.id),
               killsBy: this.world.killsBy,
+              ...deedsOf(this.world),
             });
             this.ending = { times: before, started: false };
           }

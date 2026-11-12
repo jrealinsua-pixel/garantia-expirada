@@ -2,6 +2,36 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-12 21:48 (hora peninsular, de `date`) — Hito M14 — Logros (l1): los «Méritos del cliente»
+- Contexto: el clon local de `main` volvía a ser superficial y viejo; `git checkout -B main origin/main`.
+  Salud al empezar: `check`, 884 tests, `build` y `bot` en verde. La (r2a) estaba cogida por otra
+  sesión desde hacía 59 minutos, así que elegí los logros, que casi no tocan sus archivos (en
+  `world.ts` solo tres campos y cuatro líneas; en `GameScene.ts`, lo que se guarda en el perfil).
+- Hecho: la tarea «Contenido limitado y desbloqueable con logros» partida en tres en la hoja de ruta;
+  hecha la (l1). **19 logros** como datos en `src/data/logros.ts`: cada uno lee un único número del
+  perfil (`stat` y `n`), para que la pantalla pueda pintar «23/100». Entre ellos los que pidió el
+  humano: «Retirada del mercado» (100 de un mismo modelo), «Ni un arañazo en la caja» (un jefe sin
+  perder vida), «Venta cruzada» (una sinergia); y «Pack ahorro», «Estado: como nuevo», «Hoja de
+  reclamaciones completa», «Montaje exprés», «Cliente fiel» (3 retos del día seguidos), «Fin de la
+  garantía», «Toda la gama»… Cada uno con su chiste para cuando se gana. `src/sim/achievements.ts`
+  calcula el número, si se cumple, el progreso y el tablón (`achievementBoard`). El perfil guarda
+  `achievements` (para siempre), `unseen` (ganados sin anunciar; `seenAchievements` los limpia),
+  `synergies` (las encendidas alguna vez) y `flawless` (jefes vencidos sin perder vida). La partida
+  apunta `World.synergiesSeen` (aunque luego se apague) y `World.flawless`: un golpe que quita vida
+  (o que se come la garantía o el corazón especial) desde la entrada del jefe lo estropea; el «era
+  solo la caja» no. `deedsOf(w)` lo pasa a `saveFloor`, `saveRun` y `saveEnding`.
+  Tests nuevos en `tests/logros.test.ts` (9).
+- Decisiones: **un número por logro** (más fácil de mostrar y de equilibrar que condiciones
+  compuestas). Un guardado de antes recibe los logros que ya tenía ganados **sin anunciarlos**
+  (si no, un jugador veterano vería una lluvia de avisos). «Sin perder vida» cuenta desde la entrada
+  del jefe, no desde que se entra en la planta. La Trituradora no cuenta para «los 5 jefes de planta»
+  (tiene su logro: el final). Los números (30 objetos, 6 armas, 8 sinergias) se comprueban en los
+  tests contra lo que hay, para que nunca pidan más de lo que existe. Aún no se ven: eso es la (l2).
+- Medidas: no cambia el equilibrio. `npm run bot` 200 partidas, 0 fallos. 893 tests en verde.
+- Problemas conocidos: los retos del día solo se recuerdan 60 días, así que «Cliente fiel» mira las
+  rachas de ese tiempo (basta, porque el logro se gana al momento).
+- Siguiente paso: (l2) el aviso «Mérito conseguido» en la partida y la pestaña «Méritos» en el
+  Catálogo de siniestros.
 ## 2026-11-12 21:10 (hora peninsular) — Hito M14 — Salas raras (r2a): la Oficina de Financiación
 - Contexto: el clon local volvía a estar en una historia vieja; `git checkout -B main origin/main`
   (nada local que perder). Salud al empezar: `check`, 884 tests, `build` y `bot` en verde.

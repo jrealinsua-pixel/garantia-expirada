@@ -890,6 +890,12 @@ export interface World {
   kills: number;
   /** The same, by enemy id (M14 glosario): what the profile adds up for the glossary and the achievements. */
   killsBy: Record<string, number>;
+  /** Synergies switched on at some point of this floor (M14 logros), in the order they came. */
+  synergiesSeen: string[];
+  /** Bosses beaten on this floor without the player losing life since their entrance (M14 logros). */
+  flawless: string[];
+  /** Whether the player has been hurt since the last boss entrance (what `flawless` reads). */
+  hurtSinceIntro: boolean;
   /** Story documents picked up in this run (src/data/lore.ts), carried up from floor to floor. */
   docs: string[];
   /** Seconds the room has been empty, counting towards its restock. */
@@ -1182,6 +1188,9 @@ export function createWorld(opts: WorldOptions): World {
     nextId,
     kills: 0,
     killsBy: {},
+    synergiesSeen: [],
+    flawless: [],
+    hurtSinceIntro: true,
     docs: [],
     emptyT: 0,
     shutTick: 0,
@@ -1754,6 +1763,7 @@ function startIntro(w: World): void {
   const boss = w.enemies.find((en) => en.def.boss);
   if (!boss) return;
   w.intro = { boss: boss.id, t: 0, armed: false };
+  w.hurtSinceIntro = false;
   w.events.push({ type: 'bossIntro', boss: boss.id, duration: BOSS_INTRO });
 }
 
@@ -2346,7 +2356,11 @@ function refreshSynergies(w: World): void {
   refreshPlayer(w.player);
   const now = w.player.synergies;
   for (const id of before) if (!now.includes(id)) w.events.push({ type: 'synergy', id, added: false });
-  for (const id of now) if (!before.includes(id)) w.events.push({ type: 'synergy', id, added: true });
+  for (const id of now) {
+    if (before.includes(id)) continue;
+    w.events.push({ type: 'synergy', id, added: true });
+    if (!w.synergiesSeen.includes(id)) w.synergiesSeen.push(id);
+  }
 }
 
 /** What the player's items (and the synergies that change no weapon) do beyond stats and bullets. */
@@ -3816,6 +3830,7 @@ export function hurtPlayer(w: World, damage: number, source: number, dirX: numbe
   if (wasFull && p.hp < p.def.maxHp && p.hp > 0 && playerPerks(p).fullHpDamage > 1) w.events.push({ type: 'mugLost', x: p.x, y: p.y - PLAYER_HURT_Y });
   const extra = covered > 0 ? { covered, shield: p.shield, ...(bySurge > 0 ? { surge: p.surge } : {}) } : {};
   w.events.push({ type: 'hurt', x: p.x, y: p.y - PLAYER_HURT_Y, damage, hp: p.hp, dirX, dirY, source, ...extra });
+  w.hurtSinceIntro = true;
   recordCaller(w, source);
   fileComplaint(w, source);
   // Valoración de Cinco Estrellas: a hit wipes the stars (and this room will not give one).
@@ -4023,6 +4038,7 @@ function reapEnemies(w: World): void {
         // The helpers it called (BossPhase.summon) go down with it.
         for (const o of w.enemies) if (o.owner === en.id && o.def.brain.kind !== 'relay' && !isDead(o)) o.damageTaken = o.def.hp;
         w.events.push({ type: 'bossDying', boss: en.id, x: en.x, y: en.y, duration: BOSS_DEATH, enemy: en.def.id });
+        if (!w.hurtSinceIntro && !w.flawless.includes(en.def.id)) w.flawless.push(en.def.id);
       }
       keep.push(en);
       continue;

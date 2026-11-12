@@ -598,6 +598,15 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
     derecha; e2e `58a`–`58d`.
 - [ ] Contenido limitado y desbloqueable con logros (matar 100 de un tipo, ganar a un jefe sin
   recibir daño, conseguir una sinergia…).
+  - [x] (l1) Los logros, «Méritos del cliente»: 19 en los datos (`src/data/logros.ts`), cada uno
+    con un número del perfil; ganados para siempre y pendientes de anunciar (`Profile.achievements`,
+    `Profile.unseen`). La partida apunta las sinergias encendidas y los jefes vencidos sin perder
+    vida desde su entrada (`World.synergiesSeen`, `World.flawless`). Hecho el 2026-11-12:
+    `src/sim/achievements.ts`, `tests/logros.test.ts`.
+  - [ ] (l2) Verlos: un aviso en la partida al ganar uno («Mérito conseguido») y una pestaña
+    «Méritos» en el Catálogo de siniestros con cada logro, su progreso («23/100») y su chiste.
+  - [ ] (l3) Contenido limitado: algunas armas y objetos solo entran en los cofres y la tienda
+    después de ganar un logro concreto (la recompensa, en los datos del logro), con su aviso.
 - [ ] PNJs que aparecen a veces en las plantas, piden cosas o proponen desafíos y, encontrados
   (según lo que se haya hecho antes), se quedan en el Mostrador: cuentan historia y desbloquean
   cosas. El Mostrador, más grande y con más cosas.
