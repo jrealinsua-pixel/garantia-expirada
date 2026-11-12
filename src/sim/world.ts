@@ -145,6 +145,8 @@ export interface Player {
   rollDirX: number;
   rollDirY: number;
   rollCooldown: number;
+  /** Giro de cuchillas (CharacterDef.ability, 'blades'): the enemies (and dummies) this roll has already ground. */
+  bladeHits?: number[];
   invulnerable: number;
   /** The weapon in hand: always one of `arsenal`, the one at `slot`. */
   weapon: WeaponState;
@@ -601,6 +603,8 @@ export type SimEvent =
   | { type: 'synergy'; id: string; added: boolean }
   /** A player bullet broke an enemy bullet that can be shot (a loyalty card). */
   | { type: 'bulletCut'; x: number; y: number; color: BulletColor }
+  /** Giro de cuchillas: the rolling blender ground `target` (an enemy or a dummy) at (x, y), coming from `angle`. */
+  | { type: 'blade'; x: number; y: number; angle: number; damage: number; target: number }
   | { type: 'revive'; item: string; x: number; y: number; hp: number }
   | { type: 'jam'; x: number; y: number; source: number }
   /** A wind-up toy sets off, bounces off something, runs down, or starts winding itself up. */
@@ -2065,6 +2069,7 @@ function updatePlayer(w: World, input: Input): void {
     p.rollDirX = dir.x;
     p.rollDirY = dir.y;
     p.invulnerable = d.rollIframes;
+    p.bladeHits = [];
     w.events.push({ type: 'roll', x: p.x, y: p.y, dirX: dir.x, dirY: dir.y });
     // Pósit de Urgente: the next shot is urgent.
     if (playerPerks(p).urgent > 1) p.urgent = true;
@@ -2189,6 +2194,62 @@ function rollCut(w: World): void {
       b.cut = true;
       w.events.push({ type: 'bulletCut', x: b.x, y: b.y, color: b.color });
     }
+  }
+}
+
+/** Whether a circle of radius `r` round (cx, cy) touches the rectangle. */
+function circleTouches(cx: number, cy: number, r: number, b: Rect): boolean {
+  const nx = Math.max(b.x, Math.min(cx, b.x + b.w));
+  const ny = Math.max(b.y, Math.min(cy, b.y + b.h));
+  return (nx - cx) ** 2 + (ny - cy) ** 2 < r * r;
+}
+
+/**
+ * Giro de cuchillas (M13 (3), the Batidora de Vaso): while rolling, every enemy (and dummy) the
+ * blades touch takes its `damage` once per roll and is thrown away from her, and the enemy
+ * bullets she rolls through are cut. A shredder's mouth and a boss's roar do not stop it (it is
+ * not a bullet), but a roaring boss takes nothing, as with bullets.
+ */
+function rollBlades(w: World): void {
+  const p = w.player;
+  const bl = p.def.ability;
+  if (bl?.kind !== 'blades') return;
+  const cx = p.x;
+  const cy = p.y - PLAYER_HURT_Y;
+  const hits = (p.bladeHits ??= []);
+  for (const b of w.bullets) {
+    if (b.owner !== 'enemy' || b.cut) continue;
+    const rr = b.r + bl.reach;
+    if ((b.x - cx) ** 2 + (b.y - cy) ** 2 < rr * rr) {
+      b.cut = true;
+      w.events.push({ type: 'bulletCut', x: b.x, y: b.y, color: b.color });
+    }
+  }
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || en.state === 'dying' || hits.includes(en.id)) continue;
+    const hb = dummyHurtBox(en);
+    if (!circleTouches(cx, cy, bl.reach, hb)) continue;
+    hits.push(en.id);
+    const angle = Math.atan2(hb.y + hb.h / 2 - cy, hb.x + hb.w / 2 - cx);
+    const damage = en.state === 'roar' ? 0 : bl.damage * takenScale(en) * markScale(en);
+    en.hitT = damage > 0 ? 0.16 : 0.04;
+    en.damageTaken += damage;
+    en.lastHit = angle;
+    const k = bl.knockback * en.def.knockbackScale;
+    en.vx += Math.cos(angle) * k;
+    en.vy += Math.sin(angle) * k;
+    w.events.push({ type: 'blade', x: cx + Math.cos(angle) * bl.reach, y: cy + Math.sin(angle) * bl.reach, angle, damage, target: en.id });
+  }
+  for (const d of w.dummies) {
+    if (hits.includes(d.id)) continue;
+    const hb = dummyHurtBox(d);
+    if (!circleTouches(cx, cy, bl.reach, hb)) continue;
+    hits.push(d.id);
+    const angle = Math.atan2(hb.y + hb.h / 2 - cy, hb.x + hb.w / 2 - cx);
+    d.hitT = 0.16;
+    d.damageTaken += bl.damage;
+    d.leanV += Math.cos(angle) * bl.knockback * 0.06;
+    w.events.push({ type: 'blade', x: cx + Math.cos(angle) * bl.reach, y: cy + Math.sin(angle) * bl.reach, angle, damage: bl.damage, target: d.id });
   }
 }
 
@@ -4387,6 +4448,7 @@ export function step(w: World, input: Input): void {
   }
   if (!paused) updateEmitters(w);
   if (isRolling(w.player) && !w.over) rollCut(w);
+  if (isRolling(w.player) && !w.over) rollBlades(w);
   updateBullets(w, held, slowed ? HOLD_BOSS_SCALE : 1);
   if (w.pendingBullets?.length) {
     w.bullets.push(...w.pendingBullets);

@@ -344,7 +344,19 @@ export interface ToastAbility {
   minSpent: number;
 }
 
-export type CharacterAbility = ToastAbility;
+/**
+ * The Batidora de Vaso's «Giro de cuchillas» (M13 (3)): while rolling, every enemy (or dummy) its
+ * body touches takes `damage` once per roll and is thrown back `knockback`, and the enemy bullets it
+ * goes through are cut. `reach`: px round the body (its hurt circle) at which it touches.
+ */
+export interface BladesAbility {
+  kind: 'blades';
+  damage: number;
+  reach: number;
+  knockback: number;
+}
+
+export type CharacterAbility = ToastAbility | BladesAbility;
 
 /**
  * A playable character's sprite sheet (public/assets/<sheet>.png). Every character's sheet has

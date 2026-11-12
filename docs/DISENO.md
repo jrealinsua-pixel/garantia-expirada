@@ -91,7 +91,7 @@ personaje está desbloqueado.
 | Personaje | Vida | Andar | Rodar | Arma inicial | Habilidad | A cambio |
 | --- | ---: | ---: | --- | --- | --- | --- |
 | Tostadora Reacondicionada | 3 corazones | 100 | normal | Secador Mágnum | **Una de cada dos**: al acabar una recarga que ha rellenado al menos medio cargador salta una tostada hacia donde apunta (atraviesa, 1 de daño); una de cada dos sale **quemada** (el doble, y su humo borra las balas enemigas que toca) | Nada: es la de referencia |
-| Batidora de Vaso | 2 corazones | 118 | más larga, menos espera | **Picahielos Turbo** (ráfagas de cubitos: mucha cadencia, poco alcance, dispersión alta) | **Giro de cuchillas**: rodar tritura a los enemigos que toca (4 de daño, una vez por enemigo y vuelta) y rompe las balas que atraviesa | Muy poca vida; el arma no llega lejos |
+| Batidora de Vaso | 2 corazones | 118 | más larga (190 × 0,5 s), menos espera (0,26 s) | **Picahielos Turbo** (cubitos de zumo de naranja, dos por disparo: la que más balas echa, 16 por segundo; alcance de la plancha, unos 100 px; la que más se abre, 28°) | **Giro de cuchillas**: rodar tritura a los enemigos que toca (4 de daño, una vez por enemigo y vuelta) y rompe las balas que atraviesa | Muy poca vida; el arma no llega lejos |
 | Plancha de Vapor | 4 corazones | 84 | corta y lenta | **Pulverizador de Almidón** (chorros cortos que dejan almidonados, más lentos, a los enemigos) | **Suela caliente**: por donde anda queda un rastro de vapor (1,2 s) que quema a los enemigos que lo pisan (2 de daño por segundo) | Lenta, rueda poco: lo esquiva todo mal |
 | El Becario Eterno | 3 corazones | 104 | normal | Grapadora Táctica | **Experiencia demostrable**: cada sala limpiada sin que le hieran suma un punto (+5 % de daño, hasta 8); una herida le quita la mitad («no se valora») | **Sin remunerar**: los enemigos le dejan la mitad de cupones |
 | Móvil Reacondicionado | 3 corazones | 100 | normal | **Notificaciones Push** (balitas lentas que persiguen al enemigo más cercano) | **Carga en movimiento**: andar carga el objeto activo (una pila cada 600 px) | **Batería al 1 %**: si se queda quieto 3 s se apaga 1 s (no dispara ni se mueve; la pantalla en negro con el logo) |
@@ -112,6 +112,15 @@ lee en voz alta, y el final cambia el texto de la caja y de la estantería):
 - **Móvil Reacondicionado**: cambiado por el modelo nuevo, que es igual pero con otro color; su
   dueño perdió con él las fotos de diez años porque «no se hizo copia». Final: vendido «como
   nuevo», con la batería al 1 % y una funda con purpurina.
+
+Hechos: **Batidora de Vaso** (M13 (3), 2026-11-12): bloque del motor violeta con cara de no haber
+dormido desde la dieta, vaso de cristal con el batido verde seco al fondo, pajita de rayas, cable
+enrollado aún con el alambre de la caja y zapatillas de correr verde lima sin estrenar; al rodar,
+un remolino de tres cuchillas alrededor (`giro-cuchillas`). Medida con el bot
+(`node tools/medir-personajes.ts`, 60 partidas por personaje, mismas semillas): gana la planta 1 el
+23,3 %, lo mismo que la tostadora, con 0,75 heridas por sala (la tostadora, 1,3) y dos corazones en
+vez de tres. Sus armas iniciales no salen en los cofres (aún no se reparten según quién está
+desbloqueado).
 
 Desbloqueos (los de `src/data/unlocks.ts`, sin cambios): Batidora al vencer a la Nevera, Plancha
 al vencer al Router, Becario tras diez bajas, Móvil al encontrar veinte objetos distintos. Con

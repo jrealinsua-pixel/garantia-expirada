@@ -56,8 +56,10 @@ test('el tablón: los desbloqueados a color, los otros en silueta, con su condic
   assert.ok(four.texts.some((t) => t.text === '4/10'));
   const beaten = boardLayout(entries(profiles()[2]!));
   assert.deepEqual(beaten.faces.map((f) => f.frame), [0, 1, 2, 8, 9]);
-  // Unlocked but not playable until M13: «Reposición pronto», and the blurb instead of the condition.
-  assert.equal(beaten.texts.filter((t) => t.text === BOARD_RESTOCK).length, 2);
+  // Unlocked but not playable yet (M13 brings them one by one): «Reposición pronto», and the blurb
+  // instead of the condition. The Batidora is already playable (M13 (3)).
+  const notYet = ['batidora-vaso', 'plancha'].filter((id) => !CHARACTERS[id]).length;
+  assert.equal(beaten.texts.filter((t) => t.text === BOARD_RESTOCK).length, notYet);
   assert.ok(beaten.texts.some((t) => t.text.startsWith('Rápida y frágil')));
   assert.ok(!beaten.texts.some((t) => t.text.includes('Nevera Suprema')));
 });

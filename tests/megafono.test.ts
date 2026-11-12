@@ -50,7 +50,8 @@ test('en el papel: atraviesa a todos y empuja más que nada; corto alcance, y da
   assert.ok((M.bullets?.pierce ?? 0) >= 20);
   assert.ok(others.every((d) => M.knockback > d.knockback));
   // Reach: about the iron's (a little more, so the iron is still the shortest), half the stapler's.
-  assert.ok(others.every((d) => d.id === 'plancha' || weaponProfile(M).range < weaponProfile(d).range / 2));
+  // (The Batidora's Picahielos, M13 (3), reaches about as far: both are weapons for close up.)
+  assert.ok(others.every((d) => d.id === 'plancha' || d.id === 'picahielos' || weaponProfile(M).range < weaponProfile(d).range / 2));
   assert.ok(weaponProfile(M).range < weaponProfile(WEAPONS.plancha!).range * 1.15);
   assert.ok(others.every((d) => M.damage < d.damage));
   assert.ok(others.every((d) => M.fireRate < d.fireRate));

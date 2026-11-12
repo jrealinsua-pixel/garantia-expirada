@@ -75,10 +75,13 @@ test('la cita llega al cumplirse todo, en la partida que lo cumple, y se queda p
   assert.equal(serviceBoard(p).rows[2]!.met, false, 'faltan las secretas');
   // Una partida que cae pero encuentra lo que faltaba la cumple (los requisitos valen de cualquier partida).
   p = recordRun(p, run({ docs: SECRETS }));
-  if (Object.keys(CHARACTERS).length < 3) {
-    assert.equal(p.service, true);
-    assert.equal(p.last?.service, true, 'la partida lo apunta para anunciarlo en el Mostrador');
+  // With more than one to play, it also needs a win with the others (one each, up to three).
+  for (const c of Object.keys(CHARACTERS).slice(1, 3)) {
+    assert.equal(p.service, false, `falta ganar con ${c}`);
+    p = recordRun(p, win([], c));
   }
+  assert.equal(p.service, true);
+  assert.equal(p.last?.service, true, 'la partida lo apunta para anunciarlo en el Mostrador');
   // La siguiente ya no lo anuncia, pero la cita sigue.
   const q = recordRun({ ...p, service: true }, run());
   assert.equal(q.service, true);

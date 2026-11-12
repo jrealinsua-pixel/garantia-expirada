@@ -8,6 +8,7 @@ import { boardTextBox } from '../src/render/board.ts';
 import { HUD_H, HUD_W } from '../src/render/hud.ts';
 import { emptyProfile, recordRun, type Profile, type RunResult } from '../src/sim/profile.ts';
 import { serviceBoard } from '../src/sim/unlocks.ts';
+import { CHARACTERS } from '../src/data/characters.ts';
 import { buildRoom } from '../src/sim/room.ts';
 import { HUB } from '../src/data/rooms.ts';
 import { FLOOR_BOSSES, SERVICE } from '../src/data/servicio.ts';
@@ -27,6 +28,8 @@ const profiles = (): Profile[] => {
   p = recordRun(p, run({ bosses: ['nevera-suprema', 'router-wifi'], level: 3, docs: SECRETS.slice(0, 2) }));
   out.push(p);
   p = recordRun(p, run({ outcome: 'floor', level: 5, bosses: [...FLOOR_BOSSES], cause: undefined }));
+  // A win with each of the others that can be played (up to three winners: M13).
+  for (const character of Object.keys(CHARACTERS).slice(1, 3)) p = recordRun(p, run({ character, outcome: 'floor', level: 5, bosses: ['centralita'], cause: undefined }));
   out.push(p);
   p = recordRun(p, run({ docs: SECRETS }));
   out.push(p);

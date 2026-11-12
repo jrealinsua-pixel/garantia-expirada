@@ -2292,6 +2292,12 @@ try {
   if (!boardOk) throw new Error(`El tablón no enseña lo desbloqueado y lo que falta: ${boardTexts.join(' | ')}`);
   await page.waitForTimeout(400);
   await shot('47-tablon.png');
+  // M13 (3): F again puts the Batidora de Vaso on display, and the toaster becomes her right there.
+  await page.keyboard.press('f');
+  await page.waitForFunction("window.__GE__.scene.world.player.base.def.id === 'batidora-vaso'", undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('F en el tablón no pone en exposición a la Batidora'); });
+  await page.waitForTimeout(500);
+  await shot('47b-tablon-batidora.png');
   // Walking away closes it.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.y += 60; })()`);
   await page.waitForFunction('window.__GE__.scene.panel.length === 0', undefined, { timeout: 3000 }).catch(() => { throw new Error('El tablón no se cierra al irse'); });
@@ -2333,6 +2339,41 @@ try {
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve; la Caja, la máquina de turnos, el teléfono y el Chatarrero hablan;'
     + ' el tablón enseña a los cinco, el archivador sus documentos y la cita previa sus requisitos.');
+
+  // M13 (3): the Batidora de Vaso in a room of the store: her ice crusher (two orange cubes a
+  // pull), then a roll through three enemies standing still and a spray of bullets: the blades grind
+  // each one once and cut the bullets they go through.
+  await page.goto(`${url}?semilla=e2e-batidora&sala=sala-pruebas&personaje=batidora-vaso`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  if ((await page.evaluate<string>('window.__GE__.scene.world.player.base.def.id')) !== 'batidora-vaso') throw new Error('?personaje=batidora-vaso no juega con la Batidora');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; const p = w.player;
+    for (const d of w.dummies) { d.x = 40; d.y = 360; }
+    window.__GE__.spawnIdle('aspirador', p.x + 150, p.y - 40); window.__GE__.spawnIdle('microondas', p.x + 150, p.y + 30); })()`);
+  await page.waitForTimeout(300);
+  const tgt = await page.evaluate<{ x: number; y: number }>('(() => { const p = window.__GE__.scene.world.player; return { x: p.x + 150, y: p.y - 20 }; })()');
+  await aimAt(tgt.x, tgt.y);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await shot('55a-batidora-picahielos.png');
+  await page.mouse.up();
+  const cubes = await page.evaluate<number>('window.__GE__.scene.shots');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.enemies = []; w.bullets = []; const p = w.player;
+    window.__GE__.spawnIdle('aspirador', p.x + 34, p.y - 2); window.__GE__.spawnIdle('microondas', p.x + 62, p.y + 4); window.__GE__.spawnIdle('aspirador', p.x + 88, p.y - 4);
+    for (let i = 0; i < 6; i++) w.bullets.push({ id: w.nextId++, owner: 'enemy', x: p.x + 50 + i * 10, y: p.y - 9 + (i % 2 ? 6 : -6),
+      vx: -20, vy: 0, r: 3.5, life: 6, damage: 1, knockback: 0, color: i % 2 ? 'red' : 'cyan', age: 0, dir: Math.PI, speed: 20, h: 0 }); })()`);
+  await aimAt(tgt.x + 60, tgt.y + 20);
+  await page.keyboard.down('d');
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(200);
+  await shot('55b-batidora-giro-cuchillas.png');
+  await page.waitForTimeout(450);
+  await page.keyboard.up('d');
+  const ground = await page.evaluate<{ hit: number; cut: number }>(`(() => { const w = window.__GE__.scene.world;
+    return { hit: w.enemies.filter((e) => e.damageTaken >= 4).length, cut: 6 - w.bullets.filter((b) => b.owner === 'enemy').length }; })()`);
+  await shot('55c-batidora-despues.png');
+  if (ground.hit < 2) throw new Error(`El giro de cuchillas no tritura a los que toca: ${ground.hit} de 3`);
+  if (ground.cut < 3) throw new Error(`El giro de cuchillas no rompe las balas que atraviesa: ${ground.cut} de 6`);
+  console.log(`Batidora de Vaso: ${cubes} disparos del Picahielos; rodando tritura a ${ground.hit} de 3 y rompe ${ground.cut} de 6 balas.`);
 
   // M12 (5): the true ending. On the Servicio Técnico's floor the Trituradora falling (set down and
   // beaten by hand: her fall in her room is tested in tests/final.test.ts) gives no report: the screen

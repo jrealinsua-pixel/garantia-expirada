@@ -5,6 +5,30 @@
     "frameH": 41,
     "frames": 8
   },
+  "batidora-vaso": {
+    "file": "batidora-vaso.png",
+    "frameW": 40,
+    "frameH": 41,
+    "frames": 8
+  },
+  "giro-cuchillas": {
+    "file": "giro-cuchillas.png",
+    "frameW": 34,
+    "frameH": 34,
+    "frames": 4
+  },
+  "arma-picahielos": {
+    "file": "arma-picahielos.png",
+    "frameW": 18,
+    "frameH": 11,
+    "frames": 1
+  },
+  "bala-cubito-zumo": {
+    "file": "bala-cubito-zumo.png",
+    "frameW": 6,
+    "frameH": 6,
+    "frames": 1
+  },
   "aspirador": {
     "file": "aspirador.png",
     "frameW": 32,

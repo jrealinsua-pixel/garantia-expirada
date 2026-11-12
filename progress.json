@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T12:15:00+01:00",
+  "actualizado": "2026-11-12T12:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M13",
   "hitos": [
@@ -124,19 +124,25 @@
     }
   ],
   "metricas": {
-    "personajes": 1,
+    "personajes": 2,
     "enemigos": 27,
     "jefes": 6,
-    "armas": 5,
+    "armas": 6,
     "objetos": 55,
     "plantillas_sala": 95,
-    "tests": 822,
-    "tests_ok": 822,
+    "tests": 833,
+    "tests_ok": 833,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 30364
+    "lineas_codigo": 30513
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T12:30:00+01:00",
+      "hito": "M13",
+      "resumen": "M13 (3): la Batidora de Vaso, segundo personaje jugable. Violeta, con el vaso encima y el batido verde de una dieta que duró una semana. Dos corazones, más rápida y rueda más; al rodar, el giro de cuchillas tritura a los enemigos que toca y rompe las balas que atraviesa. Empieza con el Picahielos Turbo: cubitos de zumo de naranja de dos en dos, muchos y de poco alcance. Medida con el bot: gana la planta 1 como la tostadora.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T12:15:00+01:00",
       "hito": "M13",
@@ -1190,6 +1196,18 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/batidora-giro.png",
+      "pie": "M13 (3): la Batidora de Vaso rueda entre tres enemigos y una ristra de balas: el giro de cuchillas tritura a cada uno una vez y rompe las balas que atraviesa"
+    },
+    {
+      "archivo": "capturas/batidora-picahielos.png",
+      "pie": "El Picahielos Turbo: cubitos de zumo de naranja de dos en dos, muchos, abiertos y de poco alcance"
+    },
+    {
+      "archivo": "capturas/tablon-batidora.png",
+      "pie": "El tablón del Mostrador con la Batidora «En exposición»: F cambia de producto y de cuerpo ahí mismo"
+    },
+    {
       "archivo": "capturas/tostada-quemada.png",
       "pie": "M13 (2): «Una de cada dos». Al acabar la recarga, la tostadora escupe una tostada quemada que vuela dando vueltas y dejando ascuas: borra las balas enemigas que toca"
     },
@@ -1200,21 +1218,9 @@
     {
       "archivo": "capturas/final-el-producto.png",
       "pie": "M12 (5): el final verdadero. La tostadora, en su caja con ventana y la pegatina verde «Reacondicionado», en la estantería de la planta 1 con la etiqueta «49,99 € · PVP de nuevo». Arriba, la última frase"
-    },
-    {
-      "archivo": "capturas/final-estanteria.png",
-      "pie": "El plano general: el almacén de la planta 1, la estantería de palés llena de cajas reacondicionadas, el cartel rojo y la caja de la tostadora en el hueco del medio"
-    },
-    {
-      "archivo": "capturas/final-caja.png",
-      "pie": "Paso 4 · Embalaje: cerrada con cinta, la pegatina verde y el sello rojo «Garantía: 6 meses» (cada vez que se ve el final, la garantía encoge)"
-    },
-    {
-      "archivo": "capturas/final-resistencia.png",
-      "pie": "Paso 3 · Reparación: un guante de nitrilo saca por la ranura la resistencia vieja, quemada; la nueva será «de igual o menor calidad»"
     }
   ],
-  "proximo": "M13 (3), la Batidora de Vaso (la tiene otra sesión); luego (4) la Plancha de Vapor, (5) el Becario Eterno y (6) el Móvil Reacondicionado.",
+  "proximo": "M13 (4): la Plancha de Vapor (sprite, Pulverizador de Almidón y la suela caliente); la (5), el Becario, la tiene otra sesión.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1241,11 +1247,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-12 11:30",
-      "tarea": "M13 (3): la Batidora de Vaso (sprite, Picahielos Turbo y el giro de cuchillas)",
-      "desde": "2026-11-12T11:30:00+01:00"
-    },
     {
       "sesion": "2026-11-12 12:25",
       "tarea": "M13 (5): el Becario Eterno (sprite, experiencia demostrable y sin remunerar)",

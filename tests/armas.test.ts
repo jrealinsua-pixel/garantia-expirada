@@ -197,6 +197,8 @@ test('cada arma gana claramente en algo y pierde en otra cosa (nota del humano)'
     'segundos de cargador': (id) => weaponProfile(WEAPONS[id]!).magazineSeconds,
     puntería: (id) => -WEAPONS[id]!.spreadDeg,
     cadencia: (id) => WEAPONS[id]!.fireRate,
+    // Bullets in the air: what a weapon of many pellets has (the Picahielos, M13 (3)).
+    'balas por segundo': (id) => WEAPONS[id]!.fireRate * WEAPONS[id]!.pellets,
     'enemigos que atraviesa': (id) => WEAPONS[id]!.bullets?.pierce ?? 0,
     'estallido de etiquetas': (id) => WEAPONS[id]!.bullets?.tag?.mul ?? 0,
   };

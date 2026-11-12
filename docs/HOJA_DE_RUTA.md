@@ -521,7 +521,11 @@ sin ellos la partida acaba en la planta 5.
     `CharacterDef.look`; la captura del tablón con dos se hace en la (3).
   - [x] (2) La habilidad de la Tostadora, «Una de cada dos» (tostadas al recargar). Hecho el
     2026-11-12: `CharacterDef.ability` (`ToastAbility`), `popToast`, la quemada borra balas.
-  - [ ] (3) La Batidora de Vaso: sprite, Picahielos Turbo y el giro de cuchillas.
+  - [x] (3) La Batidora de Vaso: sprite, Picahielos Turbo y el giro de cuchillas.
+    Hecho el 2026-11-12: `BladesAbility` (tritura una vez por enemigo y voltereta, rompe balas),
+    el arma `picahielos` (dos cubitos por disparo), sprites, sonidos, `tests/batidora-vaso.test.ts`,
+    e2e `47b` y `55a`–`55c`; el bot gana la planta 1 con ella como con la tostadora
+    (`node tools/medir-personajes.ts`).
   - [ ] (4) La Plancha de Vapor: sprite, Pulverizador de Almidón y la suela caliente.
   - [ ] (5) El Becario Eterno: sprite, experiencia demostrable y sin remunerar.
   - [ ] (6) El Móvil Reacondicionado: sprite, Notificaciones Push, carga en movimiento y batería

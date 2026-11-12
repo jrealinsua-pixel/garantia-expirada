@@ -105,7 +105,7 @@ import {
   BODY_HEIGHT,
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, setCharacter, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
-import { pairUp, spawnEnemy, tapesOf, TIP_FACING, type HeartKind, type Player } from '../sim/world.ts';
+import { pairUp, spawnEnemy, tapesOf, TIP_FACING, PLAYER_HURT_Y, type HeartKind, type Player } from '../sim/world.ts';
 import { dummyHurtBox, type Dummy } from '../sim/world.ts';
 import { MARKDOWN_LINES } from '../data/texts.ts';
 
@@ -323,6 +323,8 @@ export class GameScene extends Phaser.Scene {
   private hand!: Phaser.GameObjects.Image;
   private gunKick = 0;
   private flashHero = 0;
+  /** Giro de cuchillas (M13 (3)): the whirl of blades round a rolling blender. */
+  private whirl!: Phaser.GameObjects.Sprite;
   private muzzle!: Phaser.GameObjects.Image;
   private muzzleT = 0;
   private crosshair!: Phaser.GameObjects.Image;
@@ -696,6 +698,7 @@ export class GameScene extends Phaser.Scene {
 
     this.heroShadow = this.add.image(0, 0, shadowTexture(this, 9, 3)).setDepth(-50000);
     this.hero = this.add.sprite(0, 0, this.world.player.base.def.look.sheet, 0);
+    this.whirl = this.add.sprite(0, 0, 'giro-cuchillas', 0).setVisible(false);
     this.gun = this.add.image(0, 0, 'arma-secador').setOrigin(GUN_GRIP.x / 18, GUN_GRIP.y / 11);
     this.hand = this.add.image(0, 0, 'mano');
     this.muzzle = this.add.image(0, 0, 'fogonazo', 0).setOrigin(0.15, 0.5).setVisible(false);
@@ -1251,8 +1254,13 @@ export class GameScene extends Phaser.Scene {
         hh: 4,
       });
     };
-    flung(0, -1, 30, f * this.fx.range(-40, -15), this.fx.range(130, 155), this.fx.range(-10, -5));
-    flung(1, 5, 29, f * this.fx.range(25, 55), this.fx.range(115, 140), this.fx.range(6, 12));
+    if (p.base.def.id === 'tostadora') {
+      flung(0, -1, 30, f * this.fx.range(-40, -15), this.fx.range(130, 155), this.fx.range(-10, -5));
+      flung(1, 5, 29, f * this.fx.range(25, 55), this.fx.range(115, 140), this.fx.range(6, 12));
+    } else {
+      // The others have no slices to pop (the Batidora: the old smoothie splashes out of the jar).
+      for (let i = 0; i < 12; i++) this.spark(p.x + f * this.fx.range(-4, 6), p.y - 30, this.fx.range(-Math.PI, 0), this.fx.range(40, 110), i % 2, 0x93b84c);
+    }
     flung(2, -6, 14, -f * this.fx.range(50, 80), this.fx.range(120, 150), this.fx.range(-20, 20));
     flung(3, -8, 16, -f * this.fx.range(20, 45), this.fx.range(90, 120), this.fx.range(-14, 14));
     for (let i = 0; i < 5; i++) {
@@ -3095,6 +3103,19 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 14; i++) this.spark(e.x, e.y, (i / 14) * Math.PI * 2, this.fx.range(60, 120), i % 3);
           this.floatText(e.x, e.y - 24, fontText(REVIVE_LINE), 0x69dbd8, 'revive', -12, 1.6);
           break;
+        case 'blade': {
+          // Giro de cuchillas: a grinding stop, the blades' snarl and a spray of steel and smoothie.
+          if (e.damage <= 0) {
+            this.sound2.play('clinc', { detune: this.fx.range(-200, 200) });
+            break;
+          }
+          this.hitstop = 0.06;
+          this.shake(90, 0.005, true);
+          this.sound2.play('cuchillas', { detune: this.fx.range(-250, 250) });
+          this.sound2.play('golpeRuido', { volume: 0.6 });
+          for (let i = 0; i < 8; i++) this.spark(e.x, e.y, e.angle + this.fx.range(-1.2, 1.2), this.fx.range(60, 140), i % 3 === 0 ? 0 : 1, i % 2 ? 0x93b84c : 0xe4e8f0);
+          break;
+        }
         case 'bulletCut':
           // A loyalty card shot down: a snip and a few red and white bits.
           this.sound2.play('tarjeta', { detune: this.fx.range(-200, 200) });
@@ -3952,6 +3973,17 @@ export class GameScene extends Phaser.Scene {
     // Rolling over a low counter: on top of it, not behind.
     const heroDepth = isRolling(p) && onLowProp(w, p) ? p.y + LOW_PROP_LIFT : p.y;
     this.hero.setDepth(heroDepth);
+    // The blender's blades whirl round her body while she rolls (they turn the way she rolls).
+    const blades = rolling && p.def.ability?.kind === 'blades' && !w.over;
+    this.whirl.setVisible(blades);
+    if (blades) {
+      const f = Math.floor(p.rollT / 0.035) % 4;
+      this.whirl.setFrame(p.rollDirX >= 0 ? f : 3 - f);
+      this.whirl.setScale(p.rollDirX >= 0 ? 1 : -1, 1);
+      this.whirl.setPosition(Math.round(p.x), Math.round(p.y - PLAYER_HURT_Y));
+      this.whirl.setDepth(heroDepth + 0.5);
+      this.whirl.setAlpha(p.rollT > p.def.rollTime * 0.8 ? 0.5 : 1);
+    }
     if (!(w.won && this.winT >= 0 && w.lift?.service)) this.hero.setAlpha(1);
     this.heroShadow.setVisible(!w.won);
     this.heroShadow.setPosition(Math.round(p.x), Math.round(p.y));

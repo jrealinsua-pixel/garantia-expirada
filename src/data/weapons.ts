@@ -112,6 +112,28 @@ export const WEAPONS: Record<string, WeaponDef> = {
     bullets: { tag: { need: 3, mul: 3.5, radius: 26, time: 3 } },
     look: { sprite: 'arma-etiquetadora', bullet: 'bala-etiqueta', turn: true, sound: 'etiqueta', shake: 0.0015 },
   },
+  /**
+   * M13 (3): the Batidora de Vaso's starting weapon. Bursts of frozen orange juice cubes, two a
+   * pull: the most bullets in the air of all, but they melt before they get anywhere (about the
+   * iron's reach), and they spread the widest of all.
+   */
+  picahielos: {
+    id: 'picahielos',
+    name: 'Picahielos Turbo',
+    description: 'Cubitos de zumo de naranja, de dos en dos. Del zumo, solo el color: el resto es «sabor natural».',
+    fireRate: 8,
+    magazine: 17,
+    reloadTime: 2,
+    spreadDeg: 28,
+    bulletSpeed: 300,
+    bulletLife: 0.34,
+    damage: 0.75,
+    bulletRadius: 2,
+    recoil: 12,
+    knockback: 20,
+    pellets: 2,
+    look: { sprite: 'arma-picahielos', bullet: 'bala-cubito-zumo', sound: 'picahielos', shake: 0.0012 },
+  },
 };
 
 /** Weapons the toaster can find, in the order a floor hands them out (seeded shuffle). */

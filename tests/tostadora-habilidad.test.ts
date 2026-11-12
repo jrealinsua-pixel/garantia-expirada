@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CHARACTERS } from '../src/data/characters.ts';
+import type { ToastAbility } from '../src/data/types.ts';
 import { createWorld, DT, NO_INPUT, step, type Bullet, type Input, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
@@ -51,7 +52,7 @@ test('la Tostadora tiene su habilidad en los datos', () => {
 
 test('vaciar el cargador y recargar hace saltar una tostada dorada; la siguiente sale quemada y hace el doble', () => {
   const w = bare('tostada-dos');
-  const ab = CHARACTERS['tostadora']!.ability!;
+  const ab = CHARACTERS['tostadora']!.ability as ToastAbility;
   emptyMagazine(w);
   const first = finishReload(w, aimRight(w));
   assert.equal(first.length, 1, 'una tostada');

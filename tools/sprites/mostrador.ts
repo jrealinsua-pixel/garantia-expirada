@@ -8,6 +8,7 @@ import { GLYPHS } from '../../src/art/font.ts';
 import { BLUE, BROWN, CARD, CREAM, DSTEEL, GLOVE, GREEN, ICE, K, RED, RUSTR, STEEL, WHITE, YEL } from '../../src/art/lib.ts';
 import { box, cube, ellipse, hand, outline, ramp } from '../../src/art/lib.ts';
 import { BOARD_CARDS, CITA_BOXES, CITA_H, CITA_STAMP, CITA_W, TAPE_Y, WALL_BOARD_Y, WALL_CITA_Y, WALL_PHONE_Y, WALL_SIGN_Y } from '../../src/art/hub.ts';
+import { VIOLET } from './batidora-vaso.ts';
 
 /** The counter's melamine front: the store's grey-blue with the red «Devoluciones» stripe. */
 const FRONT = DSTEEL;
@@ -349,8 +350,9 @@ export function makeBoard(): Canvas {
 const BOARD_FACES: readonly string[][] = [
   // La Tostadora: toast peeking out, chrome, the red band.
   ['.T..T.', 'SSSSSS', 'SKSSKS', 'SSSSSS', 'RRRRRR', 'ssssss', '.K..K.'],
-  // La Batidora de Vaso: lid, the glass jug with its blades, the red base.
-  ['.GGGG.', '.IIIIG', '.KIKIG', '.IIII.', '.IWWI.', 'rRRRRr', 'rrrrrr'],
+  // La Batidora de Vaso (M13 (3)): lid, the glass jar with the green smoothie dried at the bottom,
+  // and the violet motor block with her eyes and her grin.
+  ['.GGGG.', 'GIIII.', 'GEEEE.', 'VVVVVV', 'VWKVWK', 'VVKKKV', 'vvvvvv'],
   // La Plancha de Vapor: the handle, the white shell, the soleplate and its steam holes.
   ['..BBB.', '..B.B.', '.WWWWW', 'WKWWKW', 'WWWWWW', 'SSSSSS', '.c.c..'],
   // El Becario Eterno: messy hair, a face, a white shirt and the lanyard with its badge.
@@ -369,7 +371,7 @@ const SILHOUETTE = hx('#3b3348');
 export function makeBoardFaces(): Canvas {
   const pal: Record<string, RGBA> = {
     T: TOAST, S: STEEL[1]!, s: STEEL[2]!, K: K, R: RED[1]!, r: RED[2]!, G: GLOVE[1]!, I: ICE[1]!, W: WHITE,
-    B: BLUE[1]!, c: ICE[2]!, H: BROWN[2]!, F: SKIN, Y: YEL[1]!, b: BLUE[2]!,
+    B: BLUE[1]!, c: ICE[2]!, H: BROWN[2]!, F: SKIN, Y: YEL[1]!, b: BLUE[2]!, V: VIOLET[1]!, v: VIOLET[3]!, E: hx('#93b84c'),
   };
   const n = BOARD_FACES.length;
   const sheet = new Canvas(6 * n * 2, 7);
