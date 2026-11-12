@@ -82,6 +82,7 @@ import {
   addModifier,
   createWorld,
   LAST_LEVEL,
+  SERVICE_LEVEL,
   topLevelOf,
   leaveHub,
   nearStation,
@@ -581,7 +582,8 @@ export class GameScene extends Phaser.Scene {
     }
     // ?planta=2: floor 2 (Informática): its look, its rooms and its loot. ?planta=3: the Juguetería. ?planta=4: the
     // Oficinas. ?planta=5: Atención al Cliente, the last floor of a run (until La Centralita, M11 5b, the Director fights there).
-    const level = Math.max(1, Math.min(5, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
+    // ?planta=6: the Servicio Técnico (M12), as if with the appointment.
+    const level = Math.max(1, Math.min(SERVICE_LEVEL, Math.trunc(Number(params.get('planta') ?? 1)) || 1));
     if (carried) {
       // Walked through a door: same run, next room. The controls hint was read already.
       this.world = carried;
@@ -598,7 +600,8 @@ export class GameScene extends Phaser.Scene {
     } else {
       // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
       // ?cita=1: as if the Servicio Técnico's appointment were granted (otherwise, the profile's).
-      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service: params.get('cita') === '1' || profile().service });
+      const service = level === SERVICE_LEVEL || params.get('cita') === '1' || profile().service;
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service });
     }
     const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);
@@ -835,7 +838,9 @@ export class GameScene extends Phaser.Scene {
     const shadow = this.add.image(en.x, en.y, flying ? shadowTexture(this, 4, 2) : big ? shadowTexture(this, en.def.footRadius + 8, 5) : shadowTexture(this, 10, 3)).setDepth(-50000);
     const sheet = this.textures.get(en.def.sprite);
     // A photocopy is drawn from a grey, toner-streaked copy of its original's sheet.
-    const key = en.copyOf !== undefined ? this.photocopyOf(en.def.sprite) : en.def.sprite;
+    // In the Servicio Técnico (M12 (3a)) they are all reconditioned: grey shell and a green sticker.
+    const refurb = this.world.level >= SERVICE_LEVEL && !en.def.boss;
+    const key = en.copyOf !== undefined ? this.photocopyOf(en.def.sprite) : refurb ? this.refurbishedOf(en.def.sprite) : en.def.sprite;
     const s = this.add.image(en.x, en.y, key, sheet.frameTotal > 2 ? 0 : undefined);
     s.setOrigin(en.def.anchor.x / s.width, en.def.anchor.y / s.height);
     const v: EnemyView = { s, shadow };
@@ -891,6 +896,95 @@ export class GameScene extends Phaser.Scene {
     }
     ctx.putImageData(im, 0, 0);
     for (const name of src.getFrameNames()) {
+      const fr = src.get(name);
+      ct.add(name, 0, fr.cutX, fr.cutY, fr.cutWidth, fr.cutHeight);
+    }
+    ct.refresh();
+    return tex;
+  }
+
+  /**
+   * A reconditioned copy of a sprite sheet (the Servicio Técnico's enemies, M12 (3a)): the shell
+   * goes three quarters of the way to a cold workshop grey (outlines stay as they are) and, on each
+   * frame, a green «REACONDICIONADO» sticker is stuck on the body, a little right of centre and
+   * above the middle, only where there is body under it. Same frames. Made once per sheet.
+   */
+  private refurbishedOf(key: string): string {
+    const tex = `${key}-reacondicionado`;
+    if (this.textures.exists(tex)) return tex;
+    const src = this.textures.get(key);
+    const img = src.getSourceImage() as HTMLImageElement | HTMLCanvasElement;
+    const ct = this.textures.createCanvas(tex, img.width, img.height);
+    if (!ct) return key;
+    const ctx = ct.getContext();
+    ctx.drawImage(img as CanvasImageSource, 0, 0);
+    const im = ctx.getImageData(0, 0, img.width, img.height);
+    const d = im.data;
+    const W = img.width;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3]! === 0) continue;
+      const lum = 0.3 * d[i]! + 0.59 * d[i + 1]! + 0.11 * d[i + 2]!;
+      if (lum < 30) continue;
+      const g = 40 + lum * 0.78;
+      d[i] = d[i]! * 0.25 + g * 0.72;
+      d[i + 1] = d[i + 1]! * 0.25 + g * 0.76;
+      d[i + 2] = Math.min(255, d[i + 2]! * 0.25 + g * 0.82);
+    }
+    const names = src.getFrameNames();
+    const frames = names.length ? names.map((n) => src.get(n)) : [src.get()];
+    const STICKER = ['aaaaa', 'gwwwg', 'ggggg', 'ddddd'];
+    const SMALL = ['aaa', 'ggg', 'ddd'];
+    const ink: Record<string, [number, number, number]> = { a: [168, 232, 154], g: [88, 180, 90], w: [232, 244, 226], d: [47, 107, 60] };
+    for (const fr of frames) {
+      let x0 = Infinity;
+      let y0 = Infinity;
+      let x1 = -1;
+      let y1 = -1;
+      for (let y = fr.cutY; y < fr.cutY + fr.cutHeight; y++) {
+        for (let x = fr.cutX; x < fr.cutX + fr.cutWidth; x++) {
+          if (d[(y * W + x) * 4 + 3]! === 0) continue;
+          x0 = Math.min(x0, x);
+          x1 = Math.max(x1, x);
+          y0 = Math.min(y0, y);
+          y1 = Math.max(y1, y);
+        }
+      }
+      if (x1 < 0) continue;
+      const pat = x1 - x0 >= 12 && y1 - y0 >= 10 ? STICKER : SMALL;
+      const pw = pat[0]!.length;
+      const ph = pat.length;
+      // On the shell's top right-hand corner: the first spot from there (down, then leftwards)
+      // with body under all of it and no outline (so not over an eye or off the edge).
+      const solid = (x: number, y: number): boolean => {
+        const p = (y * W + x) * 4;
+        return d[p + 3]! > 0 && 0.3 * d[p]! + 0.59 * d[p + 1]! + 0.11 * d[p + 2]! > 60;
+      };
+      let sx = Math.round(x0 + (x1 - x0) * 0.62 - pw / 2);
+      let sy = Math.round(y0 + (y1 - y0) * 0.4 - ph / 2);
+      search: for (let dy = 0; dy <= (y1 - y0) * 0.6; dy++) {
+        for (let dx = 0; dx <= (x1 - x0) * 0.5; dx++) {
+          const tx = x1 - 2 - pw - dx;
+          const ty = y0 + 2 + dy;
+          let ok = true;
+          for (let j = -1; j <= ph && ok; j++) for (let i = -1; i <= pw && ok; i++) ok = solid(tx + i, ty + j);
+          if (ok) {
+            sx = tx;
+            sy = ty;
+            break search;
+          }
+        }
+      }
+      pat.forEach((row, j) => [...row].forEach((ch, i) => {
+        const p = ((sy + j) * W + sx + i) * 4;
+        if (d[p + 3]! === 0) return;
+        const [r, g, b] = ink[ch]!;
+        d[p] = r;
+        d[p + 1] = g;
+        d[p + 2] = b;
+      }));
+    }
+    ctx.putImageData(im, 0, 0);
+    for (const name of names) {
       const fr = src.get(name);
       ct.add(name, 0, fr.cutX, fr.cutY, fr.cutWidth, fr.cutHeight);
     }

@@ -1622,6 +1622,19 @@ try {
   await page.waitForFunction('window.__GE__.state().ready && !window.__GE__.state().won && window.__GE__.scene.world.level === 6', undefined, { timeout: 5000 });
   await page.waitForTimeout(600);
   await shot('17v-servicio-planta-6.png');
+  const noShop = "window.__GE__.scene.world.floor.rooms.every((st) => st.template.kind !== 'shop' && st.template.kind !== 'treasure')";
+  if (!(await page.evaluate<boolean>(noShop))) throw new Error('El Servicio Técnico tiene tienda o tesoro');
+  // M12 (3a): a workshop room, its enemies reconditioned (grey, with the green sticker).
+  await page.goto(`${url}?semilla=e2e-taller&sala=banco-pruebas&planta=6`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  await page.waitForTimeout(1500);
+  await shot('17w-taller-banco-pruebas.png');
+  await page.goto(`${url}?semilla=e2e-taller-2&sala=almacen-piezas&planta=6`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  await page.waitForTimeout(1500);
+  await shot('17x-taller-almacen.png');
   await page.evaluate(`(() => { const r = ${JSON.stringify(recordBefore)}; const key = 'garantia-expirada/perfil';
     if (r === null) localStorage.removeItem(key); else localStorage.setItem(key, r); })()`);
 

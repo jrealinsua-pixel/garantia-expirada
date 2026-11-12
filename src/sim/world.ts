@@ -12,7 +12,7 @@ import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from '
 import { PATTERNS } from '../data/patterns.ts';
 import { Rng } from './rng.ts';
 import { expandPattern, isAimed, type BulletColor, type Homing, type Pause, type PatternDef, type ShotSpec } from './patterns.ts';
-import { generateFloor, OPPOSITE, type Dir, type Floor } from './floor.ts';
+import { generateFloor, generateWorkshop, OPPOSITE, type Dir, type Floor } from './floor.ts';
 import {
   BACK_WALL_ROWS,
   buildRoom,
@@ -1175,7 +1175,7 @@ export const LAST_LEVEL = 5;
 
 /**
  * The Servicio Técnico (M12): the secret floor over the last one, for runs with the appointment.
- * Until its own floor exists (M12 (3)), it is laid out like floor 5.
+ * A short line of rooms (generateWorkshop) with the five floors' enemies reconditioned.
  */
 export const SERVICE_LEVEL = 6;
 
@@ -1238,7 +1238,9 @@ export function nextFloor(w: World): World | null {
  * filled for the room's depth. Seeded by the world's seed.
  */
 function planFloor(seed: string, level: number): FloorRun {
-  const layout = generateFloor(seed);
+  // The Servicio Técnico (M12 (3a)) is a short line of rooms: no treasure, no shop, no secret.
+  const workshop = level >= SERVICE_LEVEL;
+  const layout = workshop ? generateWorkshop(seed) : generateFloor(seed);
   const rng = new Rng(`salas:${seed}`);
   const decks = new Map<string, RoomTemplate[]>();
   const deal = (kind: NonNullable<RoomTemplate['kind']>): RoomTemplate => {
@@ -1265,7 +1267,10 @@ function planFloor(seed: string, level: number): FloorRun {
   const shields = new Rng(`garantias:${seed}`);
   const specials = new Rng(`especiales:${seed}`);
   combat.forEach((id, i) => {
-    if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
+    // Nothing is given away in the workshop: no tickets (there is no shop) and no chests; spare
+    // hearts and warranties, yes (parts it fits to whoever is still standing).
+    if (workshop) prize.chance(CLEAR_CHEST_CHANCE);
+    else if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
     else if (prize.chance(CLEAR_CHEST_CHANCE)) rooms[id]!.reward = 'chest';
     // Every die is rolled every time, so one chance does not move the other's rooms. The rarer
     // (and stronger) reward is decided first: surge, turbo, warranty, heart.

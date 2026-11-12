@@ -1990,6 +1990,126 @@ const FLOOR_5: RoomTemplate[] = [
   },
 ];
 
+/**
+ * The Servicio Técnico (M12 (3a)), the Taller de Reacondicionado: its reception and its combat rooms
+ * (the boss's is still floor 5's, until the Trituradora's, M12 (4a)). Long benches (`v`), crates of
+ * parts (`c`), drums of grease (`b`) and pallet trolleys (`k`); the inner walls are the parts racks.
+ * Until its own art (M12 (3b)) they are drawn with floor 5's.
+ */
+const FLOOR_6: RoomTemplate[] = [
+  {
+    // Where the products are handed in: a counter with nobody behind it and the crates of the day.
+    id: 'recepcion-taller',
+    kind: 'start',
+    level: 6,
+    name: 'Recepción de Averías (Sin Cita, No)',
+    rows: [
+      '################',
+      '################',
+      '#cc..........cc#',
+      '#..............#',
+      '#..v..........v#',
+      '#..............#',
+      '#.......P......#',
+      '#..............#',
+      '#c............k#',
+      '#cb..........bc#',
+      '################',
+    ],
+  },
+  {
+    id: 'banco-pruebas',
+    kind: 'combat',
+    level: 6,
+    name: 'Banco de Pruebas (Todo Falla)',
+    idea: 'Tres bancos largos en fila hacen de trincheras de taller: se pelea por los pasillos entre bancos; los de las esquinas de arriba disparan por encima de las cajas.',
+    rows: [
+      '######################',
+      '######################',
+      '#e..cc..........cc..e#',
+      '#....................#',
+      '#..vvvv........vvvv..#',
+      '#....................#',
+      '#.....e..o..o..e.....#',
+      '#....................#',
+      '#..vvvv........vvvv..#',
+      '#....e..........e....#',
+      '#....................#',
+      '#b..c............c..b#',
+      '######################',
+    ],
+  },
+  {
+    id: 'almacen-piezas',
+    kind: 'combat',
+    level: 6,
+    name: 'Almacén de Piezas (Clasificadas por Peso)',
+    idea: 'Pasillos de estanterías de piezas, unas quitadas según el día: los enemigos asoman al final de cada pasillo y hay que cruzar por los huecos.',
+    rows: [
+      '########################',
+      '########################',
+      '#e.....e.........e....e#',
+      '#......................#',
+      '#..##111##....##222##..#',
+      '#......e...............#',
+      '#......................#',
+      '#..##222##....##111##..#',
+      '#..........o.....e.....#',
+      '#..e...................#',
+      '#..##111##....##222##..#',
+      '#......................#',
+      '#b....c...........c...b#',
+      '########################',
+    ],
+  },
+  {
+    id: 'linea-desmontaje',
+    kind: 'combat',
+    level: 6,
+    name: 'Línea de Desmontaje (No Tocar)',
+    idea: 'Una línea larga de bancos parte la sala de lado a lado con un hueco en el centro y otros en los extremos según el día: los de arriba disparan por encima mientras se busca el paso.',
+    rows: [
+      '########################',
+      '########################',
+      '#..e..e..........e..e..#',
+      '#......................#',
+      '#...c..............c...#',
+      '#vv11vvvvvvv..vvvvvvv22#',
+      '#......................#',
+      '#......................#',
+      '#......................#',
+      '#....o....e........o...#',
+      '#......................#',
+      '#..e................e..#',
+      '#......................#',
+      '#b.......k....k.......b#',
+      '########################',
+    ],
+  },
+  {
+    id: 'zona-embalaje',
+    kind: 'combat',
+    level: 6,
+    name: 'Zona de Embalaje (Como Nuevo)',
+    idea: 'Pilas de cajas ya embaladas en una rejilla: se juega al escondite entre las pilas; los bidones de grasa de las esquinas estallan si alguien falla.',
+    rows: [
+      '####################',
+      '####################',
+      '#e................e#',
+      '#..................#',
+      '#..cc....cc....cc..#',
+      '#..cc....cc....cc..#',
+      '#..................#',
+      '#.....e......e.....#',
+      '#..cc....cc....cc..#',
+      '#..cc....cc....cc..#',
+      '#...e..........e...#',
+      '#b......o..o......b#',
+      '####################',
+    ],
+  },
+];
+
 export const ROOMS: Record<string, RoomTemplate> = {
   // 26 x 16 tiles of 24 px: a bit bigger than the screen, so the camera has to move.
   'sala-pruebas': {
@@ -2021,6 +2141,7 @@ export const ROOMS: Record<string, RoomTemplate> = {
   ...Object.fromEntries(FLOOR_3.map((t) => [t.id, t])),
   ...Object.fromEntries(FLOOR_4.map((t) => [t.id, t])),
   ...Object.fromEntries(FLOOR_5.map((t) => [t.id, t])),
+  ...Object.fromEntries(FLOOR_6.map((t) => [t.id, t])),
 };
 
 /** Template letter of floor 1's boss (src/sim/room.ts ENEMY_CHARS): La Nevera Suprema. */
@@ -2114,7 +2235,9 @@ export const SLOT_ENEMIES_5: readonly SlotEnemy[] = [
 // Atención al Cliente (5), measured in M11 (7): one enemy more a room (FLOOR_BUDGET_CAP) and a
 // little less life than the Oficinas', so its rooms are longer and somewhat harder with the same
 // weapon but whoever arrives loaded still gets through more often than through the Juguetería.
-export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.5, 5: 1.4 };
+// The Servicio Técnico (6, M12 (3a)): its enemies are the five floors' reconditioned, «como
+// nuevos» and with more life (measured in M12 (6)).
+export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.5, 5: 1.4, 6: 1.6 };
 
 /**
  * Most a combat room of each floor may spend on enemies (BUDGET_CAP, 14, if not here). From the
@@ -2122,7 +2245,7 @@ export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.
  * this is what makes a floor's rooms more crowded. Atención al Cliente (M11 (7)): its waiting
  * rooms are fuller than the Oficinas, one enemy more a room, on templates with slots to spare.
  */
-export const FLOOR_BUDGET_CAP: Readonly<Record<number, number>> = { 5: 16 };
+export const FLOOR_BUDGET_CAP: Readonly<Record<number, number>> = { 5: 16, 6: 16 };
 
 export function budgetCapOf(level: number): number | undefined {
   return FLOOR_BUDGET_CAP[level];
@@ -2142,7 +2265,7 @@ export function slotEnemiesOf(level: number): readonly SlotEnemy[] {
 /** Floor templates of one kind for a floor of the store (1 by default); a floor without its own of that kind uses the nearest floor's below. */
 export function templatesOf(kind: NonNullable<RoomTemplate['kind']>, level = 1): RoomTemplate[] {
   // The nearest floor below that has its own (every floor has all its kinds now; kept for the next).
-  const floors = [FLOOR_1, FLOOR_2, FLOOR_3, FLOOR_4, FLOOR_5];
+  const floors = [FLOOR_1, FLOOR_2, FLOOR_3, FLOOR_4, FLOOR_5, FLOOR_6];
   for (let l = Math.min(level, floors.length); l >= 1; l--) {
     const own = floors[l - 1]!.filter((t) => t.kind === kind);
     if (own.length > 0) return own;

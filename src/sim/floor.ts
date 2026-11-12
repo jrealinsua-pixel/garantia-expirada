@@ -150,6 +150,92 @@ function tryLayout(seed: string, rng: Rng, target: number): Floor | null {
   return { seed, rooms, start: start.id, boss: boss.id };
 }
 
+/** Rooms of the Servicio Técnico's workshop (M12 (3a)): start, combat rooms and the boss's, start and boss included. */
+export const WORKSHOP_ROOMS: readonly [number, number] = [5, 6];
+
+/**
+ * The Servicio Técnico's floor (M12 (3a), the Taller de Reacondicionado): short and almost a
+ * straight line, like a production line. A walk over the grid that never touches a room it does
+ * not come from, mostly straight on and turning now and then: the start (reception), the combat
+ * rooms (workshop, parts store) and the boss's at the end. No treasure, no shop, no secret room:
+ * nothing is given away here. Pure and seeded like generateFloor.
+ */
+export function generateWorkshop(seed: string): Floor {
+  const [lo, hi] = WORKSHOP_ROOMS;
+  const rng = new Rng(`taller:${seed}`);
+  for (let attempt = 0; attempt < MAX_TRIES; attempt++) {
+    const f = tryLine(seed, rng.fork(`intento${attempt}`), rng.int(lo, hi));
+    if (f) return f;
+  }
+  throw new Error(`No workshop layout for seed ${seed}`);
+}
+
+function tryLine(seed: string, rng: Rng, target: number): Floor | null {
+  const c = Math.floor(GRID / 2);
+  const cells = new Set<string>([key(c, c)]);
+  const path = [{ x: c, y: c }];
+  let dir = rng.pick(DIRS);
+  while (path.length < target) {
+    const cur = path[path.length - 1]!;
+    // Straight on two times in three; a turn otherwise (never back).
+    const turns = rng.shuffle(DIRS.filter((d) => d.dir !== dir.dir && d.dir !== dir.back));
+    const order = rng.chance(2 / 3) ? [dir, ...turns] : [...turns, dir];
+    const next = order.find((d) => {
+      const nx = cur.x + d.dx;
+      const ny = cur.y + d.dy;
+      if (nx < 0 || ny < 0 || nx >= GRID || ny >= GRID || cells.has(key(nx, ny))) return false;
+      // Touches only the room it comes from: one way through, no shortcuts.
+      return DIRS.filter((o) => cells.has(key(nx + o.dx, ny + o.dy))).length === 1;
+    });
+    if (!next) return null;
+    dir = next;
+    cells.add(key(cur.x + next.dx, cur.y + next.dy));
+    path.push({ x: cur.x + next.dx, y: cur.y + next.dy });
+  }
+  const rooms: FloorRoom[] = path.map((p, i) => ({ id: i, gx: p.x, gy: p.y, kind: i === 0 ? 'start' : i === path.length - 1 ? 'boss' : 'combat', doors: [], depth: i }));
+  for (let i = 0; i + 1 < rooms.length; i++) {
+    const a = rooms[i]!;
+    const b = rooms[i + 1]!;
+    const d = DIRS.find((x) => a.gx + x.dx === b.gx && a.gy + x.dy === b.gy)!;
+    a.doors.push({ dir: d.dir, to: b.id, secret: false });
+    b.doors.push({ dir: d.back, to: a.id, secret: false });
+  }
+  return { seed, rooms, start: 0, boss: rooms.length - 1 };
+}
+
+/** Everything that must hold for the workshop (generateWorkshop); empty when it is fine. */
+export function validateWorkshop(f: Floor): string[] {
+  const [lo, hi] = WORKSHOP_ROOMS;
+  const errs: string[] = [];
+  if (f.rooms.length < lo || f.rooms.length > hi) errs.push(`${f.rooms.length} rooms, expected ${lo}-${hi}`);
+  for (const k of ['treasure', 'shop', 'secret'] as const) if (f.rooms.some((r) => r.kind === k)) errs.push(`a ${k} room in the workshop`);
+  if (f.rooms[f.start]?.kind !== 'start') errs.push('no start');
+  if (f.rooms[f.boss]?.kind !== 'boss') errs.push('no boss');
+  const cells = new Set<string>();
+  for (const r of f.rooms) {
+    if (cells.has(key(r.gx, r.gy))) errs.push(`two rooms in cell ${r.gx},${r.gy}`);
+    cells.add(key(r.gx, r.gy));
+    const ends = r.id === f.start || r.id === f.boss;
+    if (r.doors.length !== (ends ? 1 : 2)) errs.push(`room ${r.id} has ${r.doors.length} doors`);
+    for (const d of r.doors) {
+      const o = f.rooms[d.to];
+      const dd = DIRS.find((x) => x.dir === d.dir)!;
+      if (!o || o.gx !== r.gx + dd.dx || o.gy !== r.gy + dd.dy) errs.push(`door ${r.id}->${d.to} is not between neighbours`);
+      else if (!o.doors.some((b) => b.to === r.id && b.dir === dd.back)) errs.push(`door ${r.id}->${o.id} has no way back`);
+      if (d.secret) errs.push(`secret door in room ${r.id}`);
+    }
+    if (r.depth !== r.id) errs.push(`room ${r.id} at depth ${r.depth}`);
+  }
+  // No room touches one it is not joined to (it would look like a shortcut on the minimap).
+  for (const r of f.rooms) {
+    for (const o of f.rooms) {
+      if (o.id <= r.id || Math.abs(o.gx - r.gx) + Math.abs(o.gy - r.gy) !== 1) continue;
+      if (Math.abs(o.id - r.id) !== 1) errs.push(`rooms ${r.id} and ${o.id} touch without a door`);
+    }
+  }
+  return errs;
+}
+
 /** Breadth-first depth from the start through normal doors. */
 function setDepths(rooms: FloorRoom[], from: number): void {
   for (const r of rooms) r.depth = -1;

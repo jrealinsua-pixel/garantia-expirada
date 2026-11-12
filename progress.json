@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-12T03:10:00+01:00",
+  "actualizado": "2026-11-12T03:39:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M12",
   "hitos": [
@@ -129,14 +129,20 @@
     "jefes": 5,
     "armas": 5,
     "objetos": 55,
-    "plantillas_sala": 88,
-    "tests": 768,
-    "tests_ok": 768,
+    "plantillas_sala": 93,
+    "tests": 771,
+    "tests_ok": 771,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 27609
+    "lineas_codigo": 27911
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-12T03:39:00+01:00",
+      "hito": "M12",
+      "resumen": "M12 (3a): la planta 6, el Taller de Reacondicionado, ya se genera: de 5 a 6 salas en fila (recepción, banco de pruebas, almacén de piezas, línea de desmontaje, zona de embalaje y el jefe), sin tienda, tesoro ni secreta, y sin tickets ni cofres. Sus enemigos son los de las cinco plantas reacondicionados: más vida, la carcasa gris y una pegatina verde. Aún se pinta como la planta 5; su arte es lo siguiente.",
+      "commit": ""
+    },
     {
       "fecha": "2026-11-12T03:10:00+01:00",
       "hito": "M12",
@@ -1124,16 +1130,16 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/taller-banco.png",
+      "pie": "M12 (3a): el Banco de Pruebas del Servicio Técnico, con los enemigos reacondicionados (carcasa gris y pegatina verde); hasta su arte, con los muebles de la planta 5"
+    },
+    {
       "archivo": "capturas/servicio-montacargas.png",
       "pie": "M12 (2): con la cita previa, la Centralita deja el montacargas del Servicio Técnico: borde verde y blanco, flecha hacia arriba y el cartel de la ventanilla detrás"
     },
     {
       "archivo": "capturas/cita-previa.png",
       "pie": "M12 (1): el cartel de «Cita previa» del Servicio Técnico, en la pared del Mostrador, abierto con F: los cinco jefes, ganar la partida y el expediente completo, con lo que falta de cada uno"
-    },
-    {
-      "archivo": "capturas/planta5-espera.png",
-      "pie": "Una sala de espera de la planta 5 tras la medida (7): un enemigo más que en las Oficinas, entre las filas de sillas atornilladas"
     },
     {
       "archivo": "capturas/centralita-aviso-cables.png",
@@ -1148,7 +1154,7 @@
       "pie": "La partida entera ganada en la planta 5: sin montacargas, el parte amarillo «Su incidencia ha sido cerrada» con el expediente de las cinco plantas, y vuelta al Mostrador"
     }
   ],
-  "proximo": "M12 (3a): la planta 6, el Taller de Reacondicionado: corta y casi en línea, sin tienda ni tesoro, con enemigos reacondicionados de las cinco plantas.",
+  "proximo": "M12 (3b): el arte del Taller de Reacondicionado (azulejo de taller con grasa, fluorescentes fríos, jaulas de piezas, sus muebles) y las cintas transportadoras que arrastran.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1174,16 +1180,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 03:15",
-      "tarea": "M12 (3a), la planta 6 y sus salas con enemigos reacondicionados",
-      "desde": "2026-11-12T03:15:00+01:00"
-    },
-    {
-      "sesion": "2026-11-12 03:29",
-      "tarea": "M12 (4a), la Trituradora: sprites y fase 1 «Diagnóstico» (sin tocar la generación de la planta 6)",
-      "desde": "2026-11-12T03:29:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

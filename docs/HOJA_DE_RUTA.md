@@ -474,7 +474,7 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
   del Servicio Técnico; sin ella, la partida acaba en la planta 5 (test).
 - [ ] (3) La planta 6, el Taller de Reacondicionado: su generación (corta, casi en línea, sin
   tienda ni tesoro), sus plantillas y su arte (azulejo de taller, cintas que arrastran).
-  - [ ] (3a) La planta y sus salas con enemigos reacondicionados de las cinco plantas.
+  - [x] (3a) La planta y sus salas con enemigos reacondicionados de las cinco plantas.
   - [ ] (3b) Las cintas transportadoras del suelo y el arte del taller.
   - [ ] (3c) Uno o dos enemigos propios del taller (brazo de montaje, carretilla).
 - [ ] (4) El jefe final, la Trituradora, en tres fases, con su sala y sus sprites.

@@ -571,8 +571,7 @@ secreta. Sin cita, todo sigue como ahora: la partida acaba en la planta 5. Hecho
 en el perfil, el Mostrador se la pasa a la partida (`World.service`) y viaja de planta en planta;
 el montacargas del Servicio Técnico (`montacargas-servicio`) tiene el borde verde y blanco, la
 flecha hacia arriba y detrás el cartel de la ventanilla; la tostadora sube en un haz de luz fría.
-Morir arriba no quita la partida ganada (no se apunta otra). Mientras no exista la planta 6
-(M12 (3)), arriba se genera como la planta 5.
+Morir arriba no quita la partida ganada (no se apunta otra).
 
 **La planta** (el Taller de Reacondicionado): corta, 5 o 6 salas casi en línea (recepción,
 taller, almacén de piezas, la sala del jefe; ni tienda ni tesoro: aquí no se regala nada).
@@ -580,7 +579,14 @@ Azulejo blanco de taller con grasa, fluorescentes fríos, jaulas de piezas con l
 verde «REACONDICIONADO · COMO NUEVO», cintas transportadoras en el suelo que arrastran a todo
 el que las pisa. Sus enemigos son los de las cinco plantas **reacondicionados**: el mismo
 comportamiento, más vida, la carcasa gris y una etiqueta verde pegada; y alguno propio del
-taller (un brazo de montaje anclado al suelo que barre, una carretilla elevadora que embiste).
+taller (un brazo de montaje anclado al suelo que barre, una carretilla elevadora que embiste). Hecho
+en M12 (3a): `generateWorkshop` (de 5 a 6 salas en fila, que siguen recto dos de cada tres veces
+y si no giran, sin tocar ninguna sala que no sea la de al lado); la Recepción de Averías y cuatro
+salas de combate (Banco de Pruebas, Almacén de Piezas, Línea de Desmontaje, Zona de Embalaje);
+cupones, corazones y garantías sí, tickets y cofres no; los enemigos de las cinco plantas con
+dureza 1,6 (la 5, 1,4) y tope 16, dibujados con la carcasa a gris y la pegatina verde en una
+esquina del cuerpo (`refurbishedOf`, en la escena). Hasta su arte (3b) se pinta como la planta 5,
+y hasta la Trituradora (4a) la sala del jefe es la de la Centralita.
 
 **El jefe final, la Trituradora** (el Servicio Técnico en persona): una trituradora industrial
 del tamaño de una pared, con la tolva por boca, dos pilotos de «En servicio» por ojos y una
