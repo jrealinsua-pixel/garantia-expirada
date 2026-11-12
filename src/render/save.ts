@@ -1,6 +1,6 @@
 // The player's record (src/sim/profile.ts), kept in the browser between games. If storage is
 // missing or fails, the game goes on with an empty record that lasts until the page is closed.
-import { emptyProfile, parseProfile, recordFloor, recordRun, type FloorResult, type Profile, type RunResult } from '../sim/profile.ts';
+import { emptyProfile, parseProfile, recordEnding, recordFloor, recordRun, type FloorResult, type Profile, type RunResult } from '../sim/profile.ts';
 
 const KEY = 'garantia-expirada/perfil';
 let current: Profile | null = null;
@@ -32,6 +32,17 @@ export function saveRun(r: RunResult): Profile {
 /** Adds a floor cleared mid-run to the record and saves it. */
 export function saveFloor(f: FloorResult): Profile {
   current = recordFloor(profile(), f);
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(current));
+  } catch {
+    // Private mode or blocked storage: kept in memory only.
+  }
+  return current;
+}
+
+/** The true ending was seen (M12 (5)): counts it, with the Trituradora and the workshop floor, and saves it. */
+export function saveEnding(f?: FloorResult): Profile {
+  current = recordEnding(profile(), f);
   try {
     window.localStorage.setItem(KEY, JSON.stringify(current));
   } catch {

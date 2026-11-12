@@ -2317,6 +2317,43 @@ try {
   await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
   console.log('Mostrador: se empieza en él, la cinta lleva a la planta 1, tras el parte de baja se vuelve; la Caja, la máquina de turnos, el teléfono y el Chatarrero hablan;'
     + ' el tablón enseña a los cinco, el archivador sus documentos y la cita previa sus requisitos.');
+
+  // M12 (5): the true ending. On the Servicio Técnico's floor the Trituradora falling (set down and
+  // beaten by hand: her fall in her room is tested in tests/final.test.ts) gives no report: the screen
+  // goes dark and the workshop takes the toaster: the belt, the wash, the new heating element, the box,
+  // the shelf of floor 1 at the price of a new one, the last line and the credits; then the title.
+  await page.goto(`${url}?semilla=e2e-final-verdadero&planta=6`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = [];
+    window.__GE__.spawnIdle('trituradora', w.player.x + 90, w.player.y - 30);
+    const b = w.enemies[w.enemies.length - 1]; b.damageTaken = b.def.hp; })()`);
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('final')", undefined, { timeout: 15000 })
+    .catch(() => { throw new Error('Vencida la Trituradora, no empieza el final verdadero'); });
+  if (await page.evaluate<number>("JSON.parse(localStorage.getItem('garantia-expirada/perfil')).endings") !== 1) throw new Error('El final no se apunta en el perfil');
+  const finalAt = async (shotId: string, t: number, name: string): Promise<void> => {
+    await page.waitForFunction(`(() => { const s = window.__GE_FINAL__.state(); return s.shot === '${shotId}' && s.t >= ${t}; })()`, undefined, { timeout: 20000 })
+      .catch(() => { throw new Error(`El final no llega al plano «${shotId}»`); });
+    await shot(name);
+  };
+  await finalAt('cinta', 2.6, '54a-final-cinta.png');
+  await finalAt('limpieza', 7.4, '54b-final-limpieza.png');
+  await finalAt('resistencia', 11.9, '54c-final-resistencia.png');
+  await finalAt('caja', 20.2, '54d-final-caja.png');
+  await finalAt('estanteria', 22.6, '54e-final-estanteria.png');
+  await finalAt('estanteria', 28.0, '54f-final-el-producto.png');
+  await page.waitForFunction("window.__GE_FINAL__.state().phase === 'credits'", undefined, { timeout: 8000 });
+  await page.waitForTimeout(5200);
+  await shot('54g-final-creditos.png');
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction("window.__GE_FINAL__.state().phase === 'end'", undefined, { timeout: 3000 });
+  await page.waitForTimeout(700);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('title')", undefined, { timeout: 5000 })
+    .catch(() => { throw new Error('Tras los créditos no se vuelve a la portada'); });
+  await page.evaluate("localStorage.removeItem('garantia-expirada/perfil')");
+  console.log('Final verdadero: la cinta, la limpieza, la resistencia, la caja, la estantería de la planta 1, los créditos y la portada.');
 } catch (e) {
   failed = true;
   console.error('✖ e2e:', (e as Error).message);

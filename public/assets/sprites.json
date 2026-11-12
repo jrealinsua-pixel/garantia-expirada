@@ -1085,6 +1085,36 @@
     "frameH": 13,
     "frames": 1
   },
+  "final-caja": {
+    "file": "final-caja.png",
+    "frameW": 60,
+    "frameH": 60,
+    "frames": 4
+  },
+  "final-pegatina": {
+    "file": "final-pegatina.png",
+    "frameW": 26,
+    "frameH": 14,
+    "frames": 1
+  },
+  "final-guante": {
+    "file": "final-guante.png",
+    "frameW": 34,
+    "frameH": 24,
+    "frames": 2
+  },
+  "final-ducha": {
+    "file": "final-ducha.png",
+    "frameW": 96,
+    "frameH": 12,
+    "frames": 1
+  },
+  "final-estanteria": {
+    "file": "final-estanteria.png",
+    "frameW": 236,
+    "frameH": 132,
+    "frames": 1
+  },
   "objeto-pila": {
     "file": "objeto-pila.png",
     "frameW": 16,

@@ -1,5 +1,6 @@
 // Entry point. Phaser is loaded as a global from vendor/phaser (see index.html).
 import { BootScene } from './render/BootScene.ts';
+import { FinalScene } from './render/FinalScene.ts';
 import { GameScene, VIEW_H, VIEW_W } from './render/GameScene.ts';
 import { PauseScene, TitleScene } from './render/PauseScene.ts';
 
@@ -24,7 +25,7 @@ const game = new Phaser.Game({
   scale: { mode: Phaser.Scale.NONE, zoom: integerZoom() },
   fps: { target: 60 },
   banner: false,
-  scene: [BootScene, TitleScene, GameScene, PauseScene],
+  scene: [BootScene, TitleScene, GameScene, PauseScene, FinalScene],
 });
 
 // Tests look at which scene is running.

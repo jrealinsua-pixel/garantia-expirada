@@ -497,7 +497,10 @@ Partido en tareas el 2026-11-12 (diseño en «El Servicio Técnico» de `docs/DI
   - [x] (4b) Fase 2, «Despiece».
   - [x] (4c) Fase 3, «Control de calidad» (etiquetas «APTO» que frenan y pilas de cajas que cierran
     la sala media columna cada vez; `src/sim/crates.ts`).
-- [ ] (5) El final verdadero (el jugador es el producto) y los créditos.
+- [x] (5) El final verdadero (el jugador es el producto) y los créditos. Hecho el 2026-11-12:
+  `FinalScene` (cinta, limpieza, resistencia, caja, estantería de la planta 1, «El producto era
+  usted.») y créditos con todo el reparto; `Profile.endings` lo cuenta y la garantía de la caja
+  encoge cada vez.
 - [ ] (6) Medir la planta 6 entera con el bot y ajustar.
 
 **Criterios de aceptación:** el piso final solo aparece si se cumplen los requisitos (test);

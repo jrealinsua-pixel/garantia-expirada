@@ -123,7 +123,7 @@ import type { BulletColor } from '../sim/patterns.ts';
 import { Sound } from './audio.ts';
 import { Controls } from './input.ts';
 import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from './settings.ts';
-import { profile, saveFloor, saveRun } from './save.ts';
+import { profile, saveEnding, saveFloor, saveRun } from './save.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
 import type { PropInstance, StationKind, TipSide } from '../sim/room.ts';
 import { departmentOf, departmentRect, isSpinning, MENU_ZONE_H, MENU_ZONE_W } from '../sim/enemies.ts';
@@ -497,6 +497,11 @@ export class GameScene extends Phaser.Scene {
   /** Bosses taken down in this run, and whether its end is already in the record (src/render/save.ts). */
   private runBosses: string[] = [];
   private runRecorded = false;
+  /**
+   * The Trituradora fell (M12 (5)): instead of the run's report, the true ending (FinalScene) plays.
+   * `times`: endings seen before this one; `started`: the fade to it has begun.
+   */
+  private ending: { times: number; started: boolean } | null = null;
   /** Seconds and kills of the floors already cleared in this run (each floor's world counts its own). */
   private runBefore = { seconds: 0, kills: 0 };
 
@@ -583,6 +588,7 @@ export class GameScene extends Phaser.Scene {
     const params = new URLSearchParams(location.search);
     const carried = this.carry;
     this.carry = null;
+    this.ending = null;
     if (!carried || this.freshRun) {
       this.freshRun = false;
       // A new run: nothing beaten yet, nothing written in the record.
@@ -1627,6 +1633,17 @@ export class GameScene extends Phaser.Scene {
       ...(p.active ? { active: p.active.id } : {}),
       weapons: p.arsenal.map((ws) => ws.base.id),
     });
+  }
+
+  /** The true ending (M12 (5)): the screen goes dark and the workshop takes the toaster (FinalScene). */
+  private startEnding(): void {
+    const e = this.ending;
+    if (!e || e.started) return;
+    e.started = true;
+    this.sound2.playMusic(null, 0.6);
+    this.cameras.main.fadeOut(900, 14, 12, 22);
+    const character = this.world.player.base.def.id;
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('final', { character, times: e.times }));
   }
 
   /** Freezes the game and opens the pause menu over it (src/render/PauseScene.ts). */
@@ -3111,6 +3128,13 @@ export class GameScene extends Phaser.Scene {
         case 'floorDone':
           this.winT = 0;
           this.recordRun('floor');
+          if (e.final && this.world.level >= SERVICE_LEVEL) {
+            // The Servicio Técnico's last floor: the true ending (the run was recorded at the Centralita).
+            const p = this.world.player;
+            const before = profile().endings;
+            saveEnding({ character: p.base.def.id, seconds: this.world.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons: p.arsenal.map((ws) => ws.base.id) });
+            this.ending = { times: before, started: false };
+          }
           // The last floor has no lift: the run is won where the toaster stands (M11 3).
           this.sound2.play(e.final ? 'desbloquear' : 'ascensor');
           this.shake(200, 0.006, true);
@@ -3886,7 +3910,9 @@ export class GameScene extends Phaser.Scene {
         this.hero.setCrop(0, 0, HERO_W, Math.min(HERO_H, rows));
         this.hero.setVisible(rows > 0);
       }
-      if (this.winT > WIN_REPORT && this.downPanel.length === 0) this.showWinPanel();
+      if (this.ending) {
+        if (this.winT > WIN_REPORT && !this.ending.started) this.startEnding();
+      } else if (this.winT > WIN_REPORT && this.downPanel.length === 0) this.showWinPanel();
       if (this.canAskNewUnit()) {
         const pressed = this.controls.read({ bodyX: p.x, bodyY: p.y }).reload;
         if (!pressed) this.downArmed = true;

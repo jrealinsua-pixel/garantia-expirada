@@ -30,6 +30,8 @@ export class BootScene extends Phaser.Scene {
     const params = new URLSearchParams(location.search);
     // ?mostrador: straight into the Mostrador de Devoluciones, as «Partida nueva» does.
     if (params.has('mostrador')) this.scene.start('game', { hub: true });
+    // ?final[=n]: straight into the true ending (M12 (5)), as if seen n times before.
+    else if (params.has('final')) this.scene.start('final', { times: Number(params.get('final')) || 0 });
     else this.scene.start(params.has('sala') || params.has('semilla') ? 'game' : 'title');
   }
 }

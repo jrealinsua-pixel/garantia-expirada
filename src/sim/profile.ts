@@ -43,6 +43,8 @@ export interface Profile {
   docs: string[];
   /** The Servicio Técnico's appointment (M12): its requirements were met once, for good. */
   service: boolean;
+  /** Times the true ending has been seen (M12 (5)): the Trituradora beaten and the toaster boxed. */
+  endings: number;
 }
 
 /** The last run, as the hub remembers it. */
@@ -102,6 +104,7 @@ export function emptyProfile(): Profile {
     unlocked: [...STARTERS],
     docs: [],
     service: false,
+    endings: 0,
   };
 }
 
@@ -133,6 +136,20 @@ function addFloor(p: Profile, f: FloorResult): void {
 export function recordFloor(old: Profile, f: FloorResult): Profile {
   const p: Profile = structuredClone(old);
   addFloor(p, f);
+  return p;
+}
+
+/**
+ * The profile after the true ending (M12 (5)): the Trituradora fell and the toaster was boxed. The
+ * run itself was recorded when the Centralita fell (the appointment's lift counts as winning), and
+ * the Trituradora's document, its boss count and the workshop floor come with it here (a new object).
+ */
+export function recordEnding(old: Profile, floor?: FloorResult): Profile {
+  const p: Profile = structuredClone(old);
+  p.endings++;
+  bump(p.bosses, 'trituradora');
+  if (floor) addFloor(p, floor);
+  p.docs = union(p.docs, bossDocs(['trituradora']));
   return p;
 }
 
@@ -241,6 +258,7 @@ export function parseProfile(raw: string | null): Profile {
   p.docs = union(ids(o.docs), bossDocs(Object.keys(p.bosses)));
   // The appointment is for good; a save that already meets the requirements gets it.
   p.service = o.service === true || serviceMet(p);
+  p.endings = count(o.endings);
   return p;
 }
 

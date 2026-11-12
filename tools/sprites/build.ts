@@ -22,6 +22,7 @@ import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
 import * as TL from './taller.ts';
 import * as TR from './trituradora.ts';
+import * as FN from './final.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
 import * as H from './mostrador.ts';
@@ -276,6 +277,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'cinta-almacen': { canvas: H.makeConveyor(), frameW: 48, frameH: 24 },
     cortinas: { canvas: H.makeStripCurtain(), frameW: 48, frameH: 33 },
     'cartel-mercancia': one(H.makeReturnedGoodsSign()),
+    // The true ending (M12 (5)): final.ts BOX_FRAMES names the box's frames.
+    'final-caja': { canvas: strip(FN.makeEndingBox()), frameW: FN.BOX_W, frameH: FN.BOX_H },
+    'final-pegatina': one(FN.makeEndingSticker()),
+    'final-guante': { canvas: strip(FN.makeEndingGlove()), frameW: 34, frameH: 24 },
+    'final-ducha': one(FN.makeEndingSprayBar()),
+    'final-estanteria': one(FN.makeEndingShelf()),
   };
   for (const n of Object.keys(ITEM_GRIDS)) sheets['objeto-' + n] = one(makeItem(n));
   return sheets;

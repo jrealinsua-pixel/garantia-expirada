@@ -641,6 +641,28 @@ fondo, donde se aguantaba la cinta, desaparece.
 se la lleva, la limpian, le cambian la resistencia y la meten en una caja con la etiqueta
 «Reacondicionado. Como nuevo. Garantía: 6 meses». La última imagen es esa caja en la estantería
 de la planta 1, con precio de nuevo. El jugador era el producto. Después, los créditos.
+Hecho (M12 (5), `src/data/final.ts` y `src/render/FinalScene.ts`): al caer la Trituradora la
+tostadora salta dos veces (cree que ha ganado) y la pantalla se va a negro; no hay parte de la
+partida (ya se apuntó al vencer a la Centralita). Cinco planos, cada uno con su paso de la orden de
+trabajo en verde y un pie de foto: **Recepción** (la tostadora, con cara de golpe, va por la cinta
+hasta los rodillos: chispazo y temblor; «Producto recibido. Diagnóstico: reacondicionable.»),
+**Limpieza** (una barra de duchas con cinco boquillas, agua cian y burbujas; sale sin la mugre;
+«Lo de dentro no sale en las fotos.»), **Reparación** (un guante de nitrilo azul saca por la ranura
+la resistencia vieja, negra y con una miga, y mete otra más fina con su pegatina de precio; «por
+otra de igual o menor calidad»), **Embalaje** (la tostadora baja a una caja de cartón nueva con
+ventana de celofán, se cierran las solapas con cinta, cae la pegatina verde «Reacondicionado · Como
+nuevo» y un sello rojo con la garantía; «Embalaje original. Bueno: una caja.») y **Planta 1 ·
+Pequeño electrodoméstico** (el almacén de siempre, una estantería de palés azul y naranja llena de
+cajas reacondicionadas con el cartel rojo «Reacondicionados», la de la tostadora en el hueco del
+medio y la etiqueta roja «49,99 € · PVP de nuevo»; corte a primer plano y, encima, «El producto era
+usted.»). Luego los créditos suben junto a la caja: el equipo, el motor, el producto («Tostadora
+Reacondicionada»: ya lo decía su nombre), los seis jefes en orden, todo el reparto del catálogo y
+unas líneas de la casa («Departamento de garantías: cerrado por inventario»); al final, «Gracias
+por su compra.» y de vuelta a la portada. Disparar salta los planos y luego los créditos.
+**La garantía encoge**: cada vez que se ve el final (`Profile.endings`) la caja trae menos: 6
+meses, 3 meses, 6 semanas, 3 semanas, 10 días, 5 días, 2 días y, para siempre, «hasta el martes»
+(el chiste de la portada). Ver el final apunta la Trituradora como jefe vencido, su documento («Parte
+de reacondicionado») y la planta del taller en el perfil.
 
 ### El Mostrador de Devoluciones (el centro, hito M9)
 
