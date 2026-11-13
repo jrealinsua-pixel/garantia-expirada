@@ -1442,5 +1442,11 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": []
+  "en_curso": [
+    {
+      "sesion": "2026-11-13 20:15",
+      "tarea": "M14b (h11a3): charcos que conducen la descarga de la regleta (src/data/props.ts garrafa, src/sim/room.ts Room.puddles y relleno, src/sim/world.ts updateZap y la garrafa rota, GameScene dibujo del charco, tools/sprites; tests/charcos.test.ts)",
+      "desde": "2026-11-13T19:15:00Z"
+    }
+  ]
 }
