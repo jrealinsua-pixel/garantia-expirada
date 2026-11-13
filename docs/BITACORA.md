@@ -2,6 +2,27 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 19:49 (hora peninsular) — Hito M14b — (h9e1) El Dispensador de Turnos va pegado a la pared
+- Hecho: M14b (h9e1), primera mitad de la (h9e), que dividí en dos: (h9e1) el Dispensador y el
+  Teléfono, (h9e2) el Asistente Virtual y los del Servicio Técnico.
+  - **Dispensador de Turnos**: entre turno y turno va pegado a la pared, como los de verdad
+    (`TurnerBrain.wall`, 44 px/s): cada 0,8 s elige con `wallSpot` un sitio contra una pared (las
+    casillas de suelo con pared al lado; los mostradores de las ventanillas cuentan como pared),
+    libre de muebles y a la vista de la tostadora, a unos 150 px de ella y cerca de donde ya está, y
+    va rodeando lo que haya en medio (`wayTo`). Si cruzas la sala, te sigue por las paredes.
+  - **Teléfono de Recepción**: lo dejo como está; ya era único: avanza a saltos que se tuercen al
+    azar y, al darle, te cambia de sitio con un compañero.
+  Tests: `tests/planta5-movimiento.test.ts` (4) y el de «guarda las distancias» de
+  `tests/dispensador.test.ts` pasa a comprobar la pared. e2e: captura `50zb-dispensador-pared`.
+- Decisiones: en la captura se pega a un mostrador de ventanilla, no a la pared de fuera; me gusta
+  (un dispensador junto al mostrador es lo natural) y no lo distingo.
+- Medidas (`npm run enemigos`, antes → después): dispensador + asistente 0,12 → 0,22 heridas por
+  sala (20,4 → 16,8 s); dispensador + teléfono 0,15 → 0,08. `npm run bot`: 0 fallos, 5 atascos;
+  sin daño recorre entera cada planta, la 5 incluida. 986 tests en verde; e2e entero en verde.
+- Problemas conocidos: ninguno nuevo.
+- Siguiente paso: (h9e2) el Asistente Virtual (guarda las distancias) y los del Servicio Técnico;
+  o (h10a) jefes más únicos.
+
 ## 2026-11-13 19:15 (hora peninsular) — Hito M14b — (h9d) La planta 4: la fotocopiadora se esconde y el climatizador va con manguera
 - Hecho: M14b (h9d). En las Oficinas, la Destructora (siempre de cara, se lanza) y el Sello (a
   saltos, estampa tinta) ya tenían un verbo propio; la Fotocopiadora y el Climatizador guardaban

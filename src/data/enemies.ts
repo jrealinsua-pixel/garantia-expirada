@@ -681,6 +681,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       between: [1.4, 2],
       pattern: 'dispensador-tiques',
       muzzleY: 18,
+      // M14b (h9e1): along the walls, like the real ones; about `keep` from you and in sight.
+      wall: { speed: 44, every: 0.8 },
     },
   },
   'poste-cola': {

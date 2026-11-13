@@ -1101,6 +1101,15 @@ try {
   await page.waitForTimeout(200);
   await shot('50za-dispensador-atendido.png');
   console.log('Dispensador: llama un turno con su círculo, lo da por perdido con un abanico de tiques y atiende el siguiente.');
+  // M14b (h9e1): between turns it goes along the walls, about its distance from the toaster.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.bullets = []; const d = w.enemies[0]; delete d.turn; d.callT = 99; d.until = 99; d.state = 'idle'; })()`);
+  const onWall = `(() => { const w = window.__GE__.scene.world; const d = w.enemies[0]; const T = 24;
+    const wall = (x, y) => { const c = Math.floor(x / T), r = Math.floor(y / T); return c < 0 || r < 0 || c >= w.room.cols || r >= w.room.rows || w.room.tiles[r * w.room.cols + c] === 1; };
+    return [[0, -1], [0, 1], [-1, 0], [1, 0]].some(([ux, uy]) => wall(d.x + ux * 16, d.y + uy * 16)) && Math.hypot(d.vx, d.vy) < 2; })()`;
+  await page.waitForFunction(onWall, undefined, { timeout: 10000 })
+    .catch(() => { throw new Error('El dispensador no se pega a la pared'); });
+  await shot('50zb-dispensador-pared.png');
+  console.log('Dispensador: entre turno y turno va pegado a la pared.');
 
   // M11 (4b): the queue posts. Their tape across the toaster's way (walking into it, it stays on
   // its side), the ring of steel balls, and one broken: the tape snaps back into the other.

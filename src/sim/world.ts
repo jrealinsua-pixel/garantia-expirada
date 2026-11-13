@@ -485,6 +485,9 @@ export interface Enemy {
   trail?: { x: number; y: number }[];
   /** Air conditioners with a hose (BlowerBrain.hose): where it is plugged into the wall, and how far it reaches. */
   plug?: { x: number; y: number; reach: number };
+  /** Ticket dispensers on the wall (TurnerBrain.wall): the spot against a wall it is going to, and seconds before it picks again. */
+  wallSpot?: { x: number; y: number };
+  wallT?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
   bossPhase?: number;
   attack?: number;

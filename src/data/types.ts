@@ -1335,6 +1335,12 @@ export interface TurnerBrain {
   between: [number, number];
   pattern: string;
   muzzleY: number;
+  /**
+   * If present (M14b (h9e1)), instead of keeping its distance in the open it goes along the walls,
+   * like the real ones: every `every` s it picks a spot against a wall about `keep` px from the
+   * player (and in sight of them, near where it already is) and walks there at `speed`.
+   */
+  wall?: { speed: number; every: number };
 }
 
 /**

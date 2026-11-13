@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T19:15:00+01:00",
+  "actualizado": "2026-11-13T19:49:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 982,
-    "tests_ok": 982,
+    "tests": 986,
+    "tests_ok": 986,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 34316
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T19:49:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h9e1): el Dispensador de Turnos de Atención al Cliente va pegado a las paredes (y a los mostradores), como los de verdad: a su distancia de la tostadora, a la vista, y te sigue por ellas si cruzas la sala. El Teléfono de Recepción ya se movía a su manera."
+    },
     {
       "fecha": "2026-11-13T19:15:00+01:00",
       "hito": "M14b",
@@ -1380,6 +1385,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/dispensador-pared.png",
+      "pie": "M14b (h9e1): el Dispensador de Turnos, pegado al mostrador entre turno y turno"
+    },
+    {
       "archivo": "capturas/climatizador-manguera.png",
       "pie": "M14b (h9d): el Climatizador va atado a su manguera, enchufada a la pared; tirante, no puede seguirte"
     },
@@ -1398,13 +1407,9 @@
     {
       "archivo": "capturas/decoracion-plantas.png",
       "pie": "M14b (h11b): una sala de combate de cada planta con sus trastos en los rincones y junto a las paredes, y la sombra de las paredes"
-    },
-    {
-      "archivo": "capturas/saltar-mesa.png",
-      "pie": "M14b (h7): la tostadora salta rodando por encima de una Mesa de Saldos; andando no pasa"
     }
   ],
-  "proximo": "M14b (h9e): los enemigos de la planta 5 y del Servicio Técnico con movimiento propio; o (h10a) jefes más únicos; o (h11a2) la estantería que cae.",
+  "proximo": "M14b (h9e2): el Asistente Virtual y los enemigos del Servicio Técnico con movimiento propio; o (h10a) jefes más únicos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1433,11 +1438,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-13 19:30",
-      "tarea": "M14b (h9e1): el Dispensador de Turnos y el Teléfono de Recepción con movimiento propio (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts updateTurner y updatePhone; tests/planta5-movimiento.test.ts)",
-      "desde": "2026-11-13T18:30:00Z"
-    },
     {
       "sesion": "2026-11-13 19:30",
       "tarea": "M14b (h11a2): la estantería que cae (src/data/props.ts, PropDef en src/data/types.ts, src/sim/world.ts tumbar y aplastar, relleno hazard, src/render/GameScene.ts sombra de aviso, tools/sprites; tests/estanteria.test.ts)",

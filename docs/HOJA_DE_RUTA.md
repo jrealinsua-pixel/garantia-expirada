@@ -703,7 +703,9 @@ juegos del género» de `docs/DISENO.md`.
     la pared: dentro de su alcance viene deprisa, fuera no puede seguirte. La destructora (siempre
     de cara) y el sello (a saltos y estampando) ya eran únicos.
   - [ ] (h9e) Planta 5 y el Servicio Técnico, en dos partes:
-    - [ ] (h9e1) El Dispensador de Turnos y el Teléfono de Recepción (guardan las distancias).
+    - [x] (h9e1) El Dispensador de Turnos y el Teléfono de Recepción. Hecho el 2026-11-13: el
+      dispensador va pegado a las paredes (a su distancia y a la vista); el teléfono ya era único
+      (a saltos que se tuercen al azar, y te pasa de sitio con un compañero).
     - [ ] (h9e2) El Asistente Virtual y los enemigos del Servicio Técnico.
 - [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
   ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.

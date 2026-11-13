@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { PATTERNS } from '../src/data/patterns.ts';
 import { SLOT_ENEMIES_4, SLOT_ENEMIES_5, slotEnemiesOf, templatesOf } from '../src/data/rooms.ts';
-import { fillTemplate } from '../src/sim/room.ts';
+import { fillTemplate, isWallAt } from '../src/sim/room.ts';
 import { Rng } from '../src/sim/rng.ts';
 import { DOWN_CAUSES, turnCallLine, TURN_LOST_LINE, TURN_SERVED_LINE } from '../src/data/texts.ts';
 import type { TurnerBrain } from '../src/data/types.ts';
@@ -237,16 +237,21 @@ test('llamando, no avisa con anillo (el aviso es el círculo); muerto, su círcu
   assert.ok(!w.bullets.some((b) => b.owner === 'enemy'));
 });
 
-test('guarda las distancias: se acerca de lejos y se aparta de cerca, despacio', () => {
-  const far = waiting('lejos', 230);
-  const x0 = far.d.x;
-  for (let i = 0; i < ticks(2); i++) step(far.w, NO_INPUT);
-  assert.ok(far.d.x > x0 + 20, 'no se acerca');
-  assert.ok(far.d.x < x0 + brain.speed * 2 + 2, 'demasiado deprisa');
-  const near = waiting('cerca', 60);
-  const d0 = Math.hypot(near.d.x - near.w.player.x, near.d.y - near.w.player.y);
-  for (let i = 0; i < ticks(1.5); i++) step(near.w, NO_INPUT);
-  assert.ok(Math.hypot(near.d.x - near.w.player.x, near.d.y - near.w.player.y) > d0 + 10, 'no se aparta');
+test('va pegado a las paredes (M14b (h9e1)): a su distancia de la tostadora y sin correr', () => {
+  for (const dx of [230, 60]) {
+    const { w, d } = waiting(`pared-${dx}`, dx);
+    let fastest = 0;
+    for (let i = 0; i < ticks(8); i++) {
+      d.callT = 99;
+      step(w, NO_INPUT);
+      fastest = Math.max(fastest, Math.hypot(d.vx, d.vy));
+    }
+    assert.ok(fastest <= brain.wall!.speed + 1, `demasiado deprisa: ${fastest.toFixed(1)}`);
+    const nearWall = [[0, -1], [0, 1], [-1, 0], [1, 0]].some(([ux, uy]) => isWallAt(w.room, d.x + ux! * 12, d.y + uy! * 12));
+    assert.ok(nearWall, `contra una pared: (${d.x.toFixed(0)}, ${d.y.toFixed(0)})`);
+    const dist = Math.hypot(d.x - w.player.x, d.y - w.player.y);
+    assert.ok(Math.abs(dist - brain.keep) < 60, `a unos ${brain.keep} px de la tostadora: ${dist.toFixed(0)}`);
+  }
 });
 
 test('el bot va al círculo cuando llaman su turno', async () => {

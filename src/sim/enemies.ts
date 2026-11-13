@@ -2524,6 +2524,28 @@ function updateTurner(w: World, en: Enemy, b: TurnerBrain): void {
           break;
         }
       }
+      if (b.wall) {
+        // M14b (h9e1): along the walls, like the real ones.
+        en.wallT = (en.wallT ?? 0) - DT;
+        if (!en.wallSpot || en.wallT <= 0) {
+          en.wallT = b.wall.every;
+          const spot = wallSpot(w, en, b.keep);
+          if (spot) en.wallSpot = spot;
+        }
+        const ws = en.wallSpot;
+        if (ws) {
+          const to = wayTo(w, en, ws);
+          const hx = to.x - en.x;
+          const hy = to.y - en.y;
+          const hd = Math.hypot(hx, hy);
+          if (Math.hypot(ws.x - en.x, ws.y - en.y) > 3 && hd > 0.5) {
+            const v = b.wall.speed * Math.min(1, Math.hypot(ws.x - en.x, ws.y - en.y) / 12);
+            walkX = (hx / hd) * v;
+            walkY = (hy / hd) * v;
+          }
+          break;
+        }
+      }
       // Keeps its distance, backing off sideways (as the bucket of pieces does).
       const sign = dist > b.keep + 24 ? 1 : dist < b.keep - 24 ? -1 : 0;
       const side = sign < 0 ? (en.phase >= 0 ? 0.8 : -0.8) : 0;
@@ -2545,6 +2567,40 @@ function updateTurner(w: World, en: Enemy, b: TurnerBrain): void {
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
+}
+
+/**
+ * Where a ticket dispenser on the wall goes next (TurnerBrain.wall): of the floor tiles with a wall
+ * beside them (left, right, above or below), the spot against that wall (just off it) that is
+ * clear of props, in sight of the player, and best balances being about `keep` px from the player
+ * with being near where it already is. Null if there is none.
+ */
+export function wallSpot(w: World, en: Enemy, keep: number): { x: number; y: number } | null {
+  const room = w.room;
+  const p = w.player;
+  const r = en.def.footRadius + 2;
+  let best: { x: number; y: number } | null = null;
+  let bestScore = Infinity;
+  for (let row = 0; row < room.rows; row++) {
+    for (let col = 0; col < room.cols; col++) {
+      if (room.tiles[row * room.cols + col] === 1) continue;
+      const cx = (col + 0.5) * TILE;
+      const cy = (row + 0.5) * TILE;
+      for (const [ux, uy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+        if (!isWallAt(room, cx + ux * TILE, cy + uy * TILE)) continue;
+        // Against that wall: its feet just off it (the back wall is drawn tall: feet at its foot).
+        const x = cx + ux * (TILE / 2 - r);
+        const y = cy + uy * (TILE / 2 - r);
+        const dp = Math.hypot(x - p.x, y - p.y);
+        const score = Math.abs(dp - keep) + 0.4 * Math.hypot(x - en.x, y - en.y);
+        if (score >= bestScore) continue;
+        if (!isClear(w, x, y, r) || !clearLine(w, { x, y }, p, 1)) continue;
+        best = { x, y };
+        bestScore = score;
+      }
+    }
+  }
+  return best;
 }
 
 /** Farther than this from the player, queue posts do not fire (px). */
