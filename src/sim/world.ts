@@ -34,8 +34,10 @@ import {
   type StationKind,
   type TipSide,
   type FallSide,
+  inPuddle,
+  type Puddle,
 } from './room.ts';
-import { PROPS, REGLETA_CHANCE, SHELF_CHANCE } from '../data/props.ts';
+import { PROPS, REGLETA_CHANCE, SHELF_CHANCE, SPILL_CHANCE } from '../data/props.ts';
 import { SPECIAL_HEARTS, SURGE_DAMAGE, SURGE_VALUE, TURBO_DAMAGE, TURBO_HEAL } from '../data/hearts.ts';
 import { LORE } from '../data/lore.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
@@ -892,7 +894,9 @@ export type SimEvent =
    * zaps within `radius` of (cx, cy); then it does, and `targets` are what it hit (the toaster too).
    */
   | { type: 'zapWarn'; x: number; y: number; cx: number; cy: number; radius: number; warn: number }
-  | { type: 'zap'; x: number; y: number; cx: number; cy: number; radius: number; targets: Array<{ x: number; y: number }>; player: boolean }
+  | { type: 'zap'; x: number; y: number; cx: number; cy: number; radius: number; targets: Array<{ x: number; y: number }>; player: boolean; puddles: Puddle[] }
+  /** A water jug burst (PropDef.spill, M14b (h11a3)) at its feet (x, y), leaving `puddle`. */
+  | { type: 'spill'; x: number; y: number; puddle: Puddle }
   /**
    * A shelf (PropDef.topple, M14b (h11a2)) at its feet (x, y): hit (`wear` of its `hp`), starting
    * to go over `side` (it comes down in `warn` s on `area`), and down (`targets` were under it).
@@ -1487,7 +1491,8 @@ function planFloor(seed: string, level: number, weapons: string[], locked: reado
     // M14b (h11a1): the Regletas come from a generator of their own, so the rooms keep the rest.
     const hazard = { rng: new Rng(`regletas:${seed}:${fr.id}`), chance: REGLETA_CHANCE[level] ?? 0 };
     const shelf = { rng: new Rng(`estanterias:${seed}:${fr.id}`), chance: SHELF_CHANCE[level] ?? 0 };
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss, vary: true, cap: budgetCapOf(level), hazard, shelf });
+    const spill = { rng: new Rng(`garrafas:${seed}:${fr.id}`), chance: SPILL_CHANCE[level] ?? 0 };
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss, vary: true, cap: budgetCapOf(level), hazard, shelf, spill });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets; each of the rest a
@@ -3561,7 +3566,65 @@ export function damageProp(w: World, pr: PropInstance, damage: number): void {
   w.events.push({ type: 'propHit', x: pr.x, y: pr.y, damage: pr.damage, hp: pr.def.hp });
   if (pr.damage < pr.def.hp) return;
   if (pr.def.crumble) crumbleProp(w, pr, true);
+  else if (pr.def.spill) spillProp(w, pr);
   else lightProp(w, pr, BLAST_FUSE);
+}
+
+/**
+ * A prop that bursts into water (PropDef.spill, M14b (h11a3)): gone, and a puddle round its feet
+ * that stays in the room (it carries a Regleta's zap).
+ */
+export function spillProp(w: World, pr: PropInstance): void {
+  const spill = pr.def.spill;
+  if (!spill || !w.room.props.includes(pr)) return;
+  w.room.props = w.room.props.filter((o) => o !== pr);
+  const puddle: Puddle = { x: pr.x, y: pr.y - 4, rx: spill.rx, ry: spill.ry };
+  (w.room.puddles ??= []).push(puddle);
+  w.events.push({ type: 'spill', x: pr.x, y: pr.y, puddle });
+}
+
+/**
+ * The puddles a zap from (cx, cy) with `radius` gets into (M14b (h11a3)): those it reaches, and
+ * those touching a puddle it got into (water carries it on). Their indices in room.puddles.
+ */
+export function wetPuddles(w: World, cx: number, cy: number, radius: number): number[] {
+  const ps = w.room.puddles ?? [];
+  const lit = new Set<number>();
+  const queue: number[] = [];
+  // Reached: the nearest point of its ellipse (sampled round the edge, or its middle) within reach.
+  const reaches = (p: Puddle): boolean => {
+    if (Math.hypot(p.x - cx, p.y - cy) <= radius) return true;
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2;
+      if (Math.hypot(p.x + Math.cos(a) * p.rx - cx, p.y + Math.sin(a) * p.ry - cy) <= radius) return true;
+    }
+    return false;
+  };
+  ps.forEach((p, i) => {
+    if (reaches(p)) {
+      lit.add(i);
+      queue.push(i);
+    }
+  });
+  // Two puddles touch when their ellipses overlap (along the line between their middles).
+  const touch = (a: Puddle, b: Puddle): boolean => {
+    const d = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    const ux = (b.x - a.x) / d;
+    const uy = (b.y - a.y) / d;
+    const ra = 1 / Math.hypot(ux / a.rx, uy / a.ry);
+    const rb = 1 / Math.hypot(ux / b.rx, uy / b.ry);
+    return d <= ra + rb;
+  };
+  for (let qi = 0; qi < queue.length; qi++) {
+    const a = ps[queue[qi]!]!;
+    ps.forEach((b, j) => {
+      if (!lit.has(j) && touch(a, b)) {
+        lit.add(j);
+        queue.push(j);
+      }
+    });
+  }
+  return [...lit].sort((a, b) => a - b);
 }
 
 /** A prop that breaks into nothing (PropDef.crumble): gone, shot to bits or its time up. */
@@ -3625,14 +3688,18 @@ function updateZap(w: World, pr: PropInstance, zap: NonNullable<PropDef['zap']>)
   }
   if (pr.zapT < zap.every) return;
   pr.zapT -= zap.every;
-  const near = (x: number, y: number, extra = 0): boolean => Math.hypot(x - c.x, y - c.y) <= zap.radius + extra;
+  // M14b (h11a3): water carries it: whatever has its feet in a puddle the zap gets into is zapped too.
+  const wet = wetPuddles(w, c.x, c.y, zap.radius).map((i) => w.room.puddles![i]!);
+  const inWet = (x: number, y: number): boolean => wet.some((p) => inPuddle(w.room, p, x, y));
+  const reach = (x: number, y: number, fx: number, fy: number, extra = 0): boolean => Math.hypot(x - c.x, y - c.y) <= zap.radius + extra || inWet(fx, fy);
   const targets: Array<{ x: number; y: number }> = [];
   for (const en of w.enemies) {
     if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar') continue;
     const hb = dummyHurtBox(en);
     const hx = hb.x + hb.w / 2;
     const hy = hb.y + hb.h / 2;
-    if (!near(hx, hy, Math.min(hb.w, hb.h) / 2)) continue;
+    // Flying things (the moth) are off the floor: the water does not reach them.
+    if (!reach(hx, hy, en.x, en.def.brain.kind === 'moth' ? -1e6 : en.y, Math.min(hb.w, hb.h) / 2)) continue;
     en.damageTaken = Math.min(en.def.hp, en.damageTaken + zap.damage * takenScale(en));
     en.hitT = 0.12;
     targets.push({ x: hx, y: hy });
@@ -3641,7 +3708,7 @@ function updateZap(w: World, pr: PropInstance, zap: NonNullable<PropDef['zap']>)
     const hb = dummyHurtBox(d);
     const hx = hb.x + hb.w / 2;
     const hy = hb.y + hb.h / 2;
-    if (!near(hx, hy, Math.min(hb.w, hb.h) / 2)) continue;
+    if (!reach(hx, hy, d.x, d.y, Math.min(hb.w, hb.h) / 2)) continue;
     d.hitT = 0.12;
     d.damageTaken += zap.damage;
     targets.push({ x: hx, y: hy });
@@ -3649,12 +3716,12 @@ function updateZap(w: World, pr: PropInstance, zap: NonNullable<PropDef['zap']>)
   const p = w.player;
   let player = false;
   // Rolling, the toaster is off the floor: the current does not reach it.
-  if (!isRolling(p) && near(p.x, p.y - PLAYER_HURT_Y, PLAYER_HURT_RADIUS)) {
+  if (!isRolling(p) && reach(p.x, p.y - PLAYER_HURT_Y, p.x, p.y, PLAYER_HURT_RADIUS)) {
     const d = normalize(p.x - c.x, p.y - PLAYER_HURT_Y - c.y);
     player = hurtPlayer(w, zap.hurt, -1, d.x, d.y, { by: 'regleta', how: 'contact' });
     if (player) targets.push({ x: p.x, y: p.y - PLAYER_HURT_Y });
   }
-  w.events.push({ type: 'zap', x: pr.x, y: pr.y, cx: c.x, cy: c.y, radius: zap.radius, targets, player });
+  w.events.push({ type: 'zap', x: pr.x, y: pr.y, cx: c.x, cy: c.y, radius: zap.radius, targets, player, puddles: wet });
 }
 
 /**
@@ -3685,7 +3752,9 @@ function blowUp(w: World, pr: PropInstance): void {
     const d = normalize(p.x - cx, p.y - PLAYER_HURT_Y - cy);
     hurtPlayer(w, blast.hurt, -1, d.x, d.y, { by: pr.def.id === 'barril' ? 'bidon' : pr.def.id, how: 'contact' });
   }
-  for (const o of w.room.props) if (o.def.hp && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) lightProp(w, o, CHAIN_FUSE);
+  for (const o of w.room.props) if (o.def.hp && o.def.blast && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) lightProp(w, o, CHAIN_FUSE);
+  // Water jugs next to it burst (M14b (h11a3)).
+  for (const o of w.room.props.slice()) if (o.def.spill && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) spillProp(w, o);
   // Tables next to it (standing or tipped) are blown to bits.
   for (const o of w.room.props.slice()) if (o.def.tip && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) breakTable(w, o);
   // Shelves next to it go over, away from it (M14b (h11a2)).

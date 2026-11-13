@@ -85,6 +85,17 @@ export const PROPS: Record<string, PropDef> = {
   // What it becomes lying down. Its box is the one of the way it fell (world.ts FALLEN_BOX); this
   // one is lying to the right.
   'estanteria-caida': { id: 'estanteria-caida', name: 'Estantería Inestable (ya estable)', box: { x: -10, y: -14, w: 44, h: 12 }, blocksBullets: true, low: true },
+  // M14b (h11a3): a big water jug of the kind nobody returns the deposit on. Low (rolled over), it
+  // stops bullets; two hits and it bursts, leaving a puddle that carries a Regleta's zap.
+  garrafa: {
+    id: 'garrafa',
+    name: 'Garrafa de Agua «de Manantial»',
+    box: { x: -7, y: -11, w: 14, h: 10 },
+    blocksBullets: true,
+    hp: 2,
+    spill: { rx: 34, ry: 22 },
+    low: true,
+  },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 
@@ -115,5 +126,12 @@ export const REGLETA_MAX = 2;
 export const SHELF_CHANCE: Record<number, number> = { 1: 0.3, 2: 0.25, 3: 0.4, 4: 0.4, 5: 0.3, 6: 0.35 };
 /** Most of them in one room. */
 export const SHELF_MAX = 1;
+/**
+ * M14b (h11a3): chance that a combat room gets a Garrafa de agua in an obstacle slot still empty,
+ * by floor (twice that in a room with a Regleta: see room.ts SPILL_WITH_STRIP). Most in the Oficinas
+ * (the water cooler) and in Atención al Cliente (the waiting room).
+ */
+export const SPILL_CHANCE: Record<number, number> = { 1: 0.2, 2: 0.25, 3: 0.2, 4: 0.35, 5: 0.3, 6: 0.25 };
+export const SPILL_MAX = 1;
 
 export const EXPIRED_PRODUCTS = ['Yogur', 'Brick de leche', 'Lata abollada'] as const;

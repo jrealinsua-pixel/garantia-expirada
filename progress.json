@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T20:10:00+01:00",
+  "actualizado": "2026-11-13T20:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -151,6 +151,11 @@
     "lineas_codigo": 34316
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T20:50:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h11a3): charcos que conducen. La Garrafa de Agua sale en algunas salas (más si hay Regleta); a tiros revienta y deja un charco que se queda. Si la descarga de una Regleta llega al agua, da a todo lo que pise el charco, aunque esté lejos. Mientras avisa, los charcos que va a electrificar brillan."
+    },
     {
       "fecha": "2026-11-13T20:10:00+01:00",
       "hito": "M14b",
@@ -1390,6 +1395,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/charco-aviso.png",
+      "pie": "M14b (h11a3): la Regleta avisa y el charco de la garrafa rota brilla: la descarga va a llegar por el agua"
+    },
+    {
+      "archivo": "capturas/charco-descarga.png",
+      "pie": "La descarga corre por el charco y alcanza al aspirador, lejos del alcance de la regleta"
+    },
+    {
       "archivo": "capturas/estanteria-tambalea.png",
       "pie": "M14b (h11a2): la Estantería Inestable se tambalea; la sombra con el borde rojo marca dónde va a caer"
     },
@@ -1404,17 +1417,9 @@
     {
       "archivo": "capturas/climatizador-manguera.png",
       "pie": "M14b (h9d): el Climatizador va atado a su manguera, enchufada a la pared; tirante, no puede seguirte"
-    },
-    {
-      "archivo": "capturas/fotocopiadora-escondida.png",
-      "pie": "M14b (h9d): la Fotocopiadora se esconde detrás del aspirador, al otro lado de la tostadora"
-    },
-    {
-      "archivo": "capturas/regleta-descarga.png",
-      "pie": "M14b (h11a1): la Regleta Sobrecargada da una descarga al aspirador que tenía al lado"
     }
   ],
-  "proximo": "M14b (h9e2) el Asistente Virtual y los enemigos del Servicio Técnico, (h11a3) charcos que conducen la descarga de la regleta, (h10a) jefes de las plantas 1–2 o (h11c) plantillas de sala con más forma.",
+  "proximo": "M14b (h11c) plantillas de sala con más forma, (h9e2) el Asistente Virtual y el Servicio Técnico, o (h10a) jefes de las plantas 1–2 más únicos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1443,11 +1448,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-13 20:15",
-      "tarea": "M14b (h11a3): charcos que conducen la descarga de la regleta (src/data/props.ts garrafa, src/sim/room.ts Room.puddles y relleno, src/sim/world.ts updateZap y la garrafa rota, GameScene dibujo del charco, tools/sprites; tests/charcos.test.ts)",
-      "desde": "2026-11-13T19:15:00Z"
-    },
     {
       "sesion": "2026-11-13 20:30",
       "tarea": "M14b (h9e2): el Asistente Virtual esquiva la pregunta (se aparta de tu línea de tiro) y la Carretilla gira despacio y da marcha atrás (src/data/enemies.ts, src/data/types.ts ChargerBrain/ChatbotBrain, src/sim/enemies.ts; en GameScene solo sonidos de los eventos nuevos; tests/planta5-st-movimiento.test.ts)",

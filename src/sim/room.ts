@@ -1,5 +1,5 @@
 // Room geometry built from a text template (src/data/rooms.ts).
-import { DUMMIES, PROPS, REGLETA_MAX, SHELF_MAX } from '../data/props.ts';
+import { DUMMIES, PROPS, REGLETA_MAX, SHELF_MAX, SPILL_MAX } from '../data/props.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { DummyDef, EnemyDef, PropDef, RoomKind, RoomTemplate, SlotEnemy } from '../data/types.ts';
 import type { Dir } from './floor.ts';
@@ -87,6 +87,25 @@ export interface Room {
    * The world lays them as Conveyors (src/sim/conveyors.ts layRoomBelts) on entering the room.
    */
   conveyors: RoomBelt[];
+  /** Water on the floor (M14b (h11a3)): left by what breaks, it carries a Regleta's zap. */
+  puddles?: Puddle[];
+}
+
+/**
+ * A puddle (M14b (h11a3)): an ellipse of water round (x, y), only on floor tiles. Anything with its
+ * feet in it gets a zap that reaches the puddle (or another puddle touching it).
+ */
+export interface Puddle {
+  x: number;
+  y: number;
+  rx: number;
+  ry: number;
+}
+
+/** Whether (x, y) is in the water of puddle `p` (inside its ellipse, on floor). */
+export function inPuddle(room: Room, p: Puddle, x: number, y: number): boolean {
+  if (((x - p.x) / p.rx) ** 2 + ((y - p.y) / p.ry) ** 2 > 1) return false;
+  return !isWallAt(room, x, y);
 }
 
 /** A conveyor belt drawn in a room template (see Room.conveyors). */
@@ -155,6 +174,8 @@ const PROP_CHARS: Record<string, string> = {
   r: 'regleta',
   // M14b (h11a2): the Estantería Inestable (fillTemplate puts it in an empty obstacle slot now and then).
   l: 'estanteria',
+  // M14b (h11a3): the Garrafa de agua (fillTemplate puts it in an empty obstacle slot now and then).
+  g: 'garrafa',
 };
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
@@ -453,7 +474,15 @@ export interface FillOptions {
    * (`l`), the room with `chance`, from a generator of its own.
    */
   shelf?: { rng: Rng; chance: number };
+  /**
+   * M14b (h11a3): an obstacle slot still empty (after the Regletas and the shelf) may get a Garrafa
+   * de agua (`g`), the room with `chance` (twice that, up to SPILL_WITH_STRIP, if it got a Regleta).
+   */
+  spill?: { rng: Rng; chance: number };
 }
+
+/** Most the chance of a Garrafa goes up to in a room with a Regleta. */
+export const SPILL_WITH_STRIP = 0.8;
 
 /** Template digits `1`–`9`: groups of shelving that stand or not, each on its own, with the seed. */
 export const isGroup = (ch: string): boolean => ch >= '1' && ch <= '9';
@@ -524,6 +553,16 @@ export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): Room
       if (!opts.shelf.rng.chance(opts.shelf.chance)) continue;
       const cell = free.splice(opts.shelf.rng.int(0, free.length - 1), 1)[0]!;
       grid[cell.r]![cell.c] = 'l';
+    }
+  }
+  if (opts.spill && t.kind === 'combat') {
+    const free = empty.filter((cell) => grid[cell.r]![cell.c] === '.');
+    const strip = grid.some((line) => line.includes('r'));
+    const chance = strip ? Math.min(SPILL_WITH_STRIP, opts.spill.chance * 2) : opts.spill.chance;
+    for (let n = 0; n < SPILL_MAX && free.length > 0; n++) {
+      if (!opts.spill.rng.chance(chance)) continue;
+      const cell = free.splice(opts.spill.rng.int(0, free.length - 1), 1)[0]!;
+      grid[cell.r]![cell.c] = 'g';
     }
   }
   // Floor templates are symmetric around the doors (the centre of each wall), so a mirrored

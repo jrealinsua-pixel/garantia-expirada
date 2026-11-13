@@ -2,6 +2,35 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 20:50 (hora peninsular) — Hito M14b — (h11a3) Charcos que conducen
+- Contexto: segunda tarea de la sesión, tras la (h11a2). La (h9e1) acabó en otra sesión y nadie más
+  tenía nada cogido; la (h11a3) cierra los props de la (h11a).
+- Hecho: M14b (h11a3). **Garrafa de Agua «de Manantial»** (`src/data/props.ts`, dato nuevo
+  `PropDef.spill`): baja, para balas, 2 de aguante (cualquier bala; un bidón al lado, de golpe). Al
+  romperse (`spillProp`) no explota: deja un **charco** (`Room.puddles`, una elipse de 34 × 22 px de
+  radio, solo sobre suelo) que se queda en la sala. **El agua conduce**: la descarga de una Regleta
+  que alcanza un charco, o un charco que toca a otro alcanzado (`wetPuddles`), da también a todo lo
+  que tenga **los pies** en el agua (`inPuddle`), aunque esté lejos de la regleta; rodando, la
+  tostadora se libra, y la polilla vuela. El evento `zap` dice qué charcos encendió. Sale en un hueco
+  `o` vacío (tras regletas y estantería) con su propio generador (`FillOptions.spill`, semilla
+  `garrafas:<semilla>:<sala>`), una por sala como mucho, con `SPILL_CHANCE` por planta (0,2–0,35) y el
+  doble (hasta 0,8) si la sala tiene Regleta. **Dibujo** (`tools/sprites/garrafa.ts`): garrafa azul
+  con el agua dentro, nervios, tapón y etiqueta amarilla con una montaña. **En pantalla**: al
+  reventar, chof, gotas y vapor; el charco, agua oscura en celdas de 3 px con un borde claro
+  irregular y algún brillo (nunca encima de las paredes); mientras la regleta avisa, los charcos a
+  los que va a llegar brillan en azul y su borde parpadea; con la descarga se encienden en blanco y
+  salen rayos de la regleta a cada uno. El bot sale del charco que se va a electrificar. De paso,
+  los bidones ya no intentan «encender» props con aguante pero sin explosión (habría roto con las
+  carpetas de la Nube o la garrafa). Tests en `tests/charcos.test.ts` (7), e2e `11x`–`11za`.
+- Decisiones: el extintor de la nota se queda para más adelante (la garrafa ya da el juego); el agua
+  no se seca (los charcos son parte de la sala, como las mesas volcadas). Cuenta por los pies, no
+  por el cuerpo: lo que se ve tocando el agua es lo que cobra.
+- Medidas (`npm run bot`, antes de la tarea → después): planta 1 con daño la recorre el 100 → 95 % y
+  la gana el 80 → 85 %; 0,63 → 0,64 heridas y 13 → 13,2 s por sala de combate; llegan a la planta 2
+  16 → 17 de 20. Ruido. 0 fallos, 5 atascos (los mismos). 1001 tests en verde; e2e entero en verde.
+- Problemas conocidos: el bot no rompe garrafas a propósito para electrificar a los enemigos.
+- Siguiente paso: (h11c) plantillas de sala con más forma, (h9e2) o (h10a).
+
 ## 2026-11-13 20:10 (hora peninsular) — Hito M14b — (h11a2) La Estantería Inestable
 - Contexto: (h9d) y luego (h9e1) estaban cogidas por otras sesiones; la (h11a2) solo toca props,
   el relleno de salas y su dibujo. Salud al empezar: `check`, 974 tests, `build` y `bot` en verde.

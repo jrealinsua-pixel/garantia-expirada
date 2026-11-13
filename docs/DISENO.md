@@ -789,6 +789,16 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   estaba. Tumbada se queda para siempre como **cobertura baja** (para balas, se salta rodando).
   Causa de baja: «Caída de stock sobre el personal». Las balas enemigas también la gastan: quien se
   esconde detrás mucho rato acaba debajo.
+- **Garrafa de Agua «de Manantial»** (M14b h11a3): una garrafa azul de las de fianza que nadie
+  reclama, con su etiqueta amarilla de una montaña que no ha visto un manantial. Sale en un hueco de
+  obstáculo vacío de algunas salas (una como mucho; el doble de a menudo si la sala tiene Regleta) y
+  es igual en todas las plantas. Baja (se salta rodando) y para balas; con dos impactos (cualquier
+  bala; un bidón al lado, de golpe) **revienta y deja un charco** de unos 70 × 45 px que se queda en
+  la sala. **El agua conduce**: si la descarga de una Regleta alcanza un charco (o un charco que toca
+  a otro que alcanza), da a todo lo que tenga los pies en el agua, aunque esté lejos de la regleta;
+  rodando, en el aire, la tostadora se libra, y la polilla vuela. Mientras la regleta avisa, los
+  charcos a los que va a llegar brillan en azul y parpadean. Romper la garrafa junto a una regleta
+  con enemigos alrededor es la jugada; pisar el charco cuando chisporrotea, el error.
 
 ### Balas enemigas
 

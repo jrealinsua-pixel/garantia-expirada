@@ -118,7 +118,7 @@ import {
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, setCharacter, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { pairUp, spawnEnemy, tapesOf, TIP_FACING, PLAYER_HURT_Y, type HeartKind, type Player } from '../sim/world.ts';
-import { BLAST_FUSE, crushRect, dummyHurtBox, zapCentre, zapPhase, type Dummy } from '../sim/world.ts';
+import { BLAST_FUSE, crushRect, dummyHurtBox, wetPuddles, zapCentre, zapPhase, type Dummy } from '../sim/world.ts';
 import { PROPS } from '../data/props.ts';
 import { MARKDOWN_LINES } from '../data/texts.ts';
 
@@ -140,7 +140,7 @@ import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from
 import { profile, saveChosen, saveDaily, saveEnding, saveFloor, saveRun } from './save.ts';
 import { dailyGift, startDaily } from '../sim/daily.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
-import type { FallSide, PropInstance, StationKind, TipSide } from '../sim/room.ts';
+import type { FallSide, PropInstance, Puddle, StationKind, TipSide } from '../sim/room.ts';
 import { departmentOf, departmentRect, isSpinning, MENU_ZONE_H, MENU_ZONE_W } from '../sim/enemies.ts';
 import { exhibited, nextExhibited, playableNow, rosterBoard, serviceBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
@@ -433,6 +433,10 @@ export class GameScene extends Phaser.Scene {
   /** M14b (h11a2): the shelves that go over, standing or lying, and the shadow of where one lands. */
   private shelfViews = new Map<PropInstance, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; jolt: number; lying: boolean }>();
   private shelfShadow: Phaser.GameObjects.Graphics | null = null;
+  /** M14b (h11a3): the water on the floor (redrawn when a puddle is added) and its glow when a Regleta is about to zap into it. */
+  private puddleArt: Phaser.GameObjects.Graphics | null = null;
+  private puddleGlow: Phaser.GameObjects.Graphics | null = null;
+  private puddleCount = -1;
   private tableViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; y: number; jolt: number; tip: number; side?: TipSide; wear?: number }>();
   private couponPop = 0;
   /** The shop till (only in the shop), what it is saying and for how long, and its refusal face. */
@@ -623,6 +627,9 @@ export class GameScene extends Phaser.Scene {
     this.tableViews = new Map();
     this.shelfViews = new Map();
     this.shelfShadow = null;
+    this.puddleArt = null;
+    this.puddleGlow = null;
+    this.puddleCount = -1;
     this.partitionViews = [];
     this.ticketPop = 0;
     this.till = null;
@@ -3482,6 +3489,21 @@ export class GameScene extends Phaser.Scene {
         case 'shelfFall':
           this.shelfFell(e);
           break;
+        case 'spill':
+          // M14b (h11a3): the jug bursts: a splash, drops all round; drawPuddles lays the water.
+          {
+            const v = this.drumViews.get(`${e.x},${e.y}`);
+            if (v) {
+              v.s.destroy();
+              v.shadow.destroy();
+              this.drumViews.delete(`${e.x},${e.y}`);
+            }
+          }
+          this.sound2.play('chof', { volume: 0.9, detune: 400 });
+          this.sound2.play('clinc', { detune: -1600, volume: 0.4 });
+          for (let i = 0; i < 10; i++) this.spark(e.x, e.y - 8, this.fx.range(-Math.PI, 0.3), this.fx.range(40, 110), 1, this.fx.pick([0x8fc6e6, 0xcfe9f7, 0x4f8cc4]));
+          for (let i = 0; i < 4; i++) this.puff(e.x + this.fx.range(-12, 12), e.y - this.fx.range(0, 8), 0.5, 0xcfe9f7);
+          break;
         case 'turboEnd': {
           // The turbo winds down: the engine stops and a line over the toaster.
           const p = this.world.player;
@@ -3897,6 +3919,72 @@ export class GameScene extends Phaser.Scene {
     for (const t of ends) this.bolt(g, e.cx, e.cy - 4, t.x, t.y);
     this.tweens.add({ targets: g, alpha: 0, duration: 220, ease: 'Quad.easeIn', onComplete: () => g.destroy() });
     for (let i = 0; i < 6; i++) this.spark(e.cx, e.cy - 4, this.fx.range(0, Math.PI * 2), this.fx.range(40, 100), 0, 0x69dbd8);
+    if (e.puddles.length) this.puddleZap(e);
+  }
+
+  /** The 3 px cells of a puddle's water on the floor (none on walls), with a ragged edge that is always the same. */
+  private puddleCells(p: Puddle): Array<{ x: number; y: number; edge: boolean; shine: boolean }> {
+    const out: Array<{ x: number; y: number; edge: boolean; shine: boolean }> = [];
+    const c = 3;
+    const x0 = Math.floor((p.x - p.rx) / c) * c;
+    const y0 = Math.floor((p.y - p.ry) / c) * c;
+    for (let y = y0; y <= p.y + p.ry; y += c) {
+      for (let x = x0; x <= p.x + p.rx; x += c) {
+        const k = ((x + 1.5 - p.x) / p.rx) ** 2 + ((y + 1.5 - p.y) / p.ry) ** 2;
+        const h = (((x * 73856093) ^ (y * 19349663)) >>> 0) % 100;
+        if (k > 1 - (h / 100) * 0.3 || isWallAt(this.world.room, x + 1.5, y + 1.5)) continue;
+        out.push({ x, y, edge: k > 0.62, shine: h < 4 && k < 0.5 });
+      }
+    }
+    return out;
+  }
+
+  /**
+   * Puddles (M14b (h11a3)): dark water with a lighter rim and a glint or two, laid when a puddle
+   * appears; and, while a Regleta crackles, the puddles its zap will get into glow and blink.
+   */
+  private drawPuddles(): void {
+    const ps = this.world.room.puddles ?? [];
+    if (!this.puddleArt || !this.puddleArt.scene) {
+      this.puddleArt = this.add.graphics().setDepth(-48996);
+      this.puddleCount = -1;
+    }
+    if (ps.length !== this.puddleCount) {
+      this.puddleCount = ps.length;
+      const g = this.puddleArt.clear();
+      for (const p of ps) {
+        for (const cell of this.puddleCells(p)) {
+          g.fillStyle(cell.shine ? 0xf4f1e8 : cell.edge ? 0x8fc6e6 : 0x3f6fa8, cell.shine ? 0.55 : cell.edge ? 0.42 : 0.5).fillRect(cell.x, cell.y, 3, 3);
+        }
+      }
+    }
+    if (!this.puddleGlow || !this.puddleGlow.scene) this.puddleGlow = this.add.graphics().setDepth(-48995);
+    const glow = this.puddleGlow.clear();
+    if (ps.length === 0) return;
+    for (const pr of this.world.room.props) {
+      const zap = pr.def.zap;
+      if (!zap || !this.world.doorsShut || pr.zapT === undefined) continue;
+      const left = zap.every - pr.zapT;
+      if (left > zap.warn) continue;
+      const k = 1 - left / zap.warn;
+      const blink = Math.floor(this.time.now / 90) % 2 === 0;
+      const c = zapCentre(pr);
+      for (const i of wetPuddles(this.world, c.x, c.y, zap.radius)) {
+        for (const cell of this.puddleCells(ps[i]!)) glow.fillStyle(blink && cell.edge ? 0xffffff : 0x69dbd8, 0.12 + 0.3 * k).fillRect(cell.x, cell.y, 3, 3);
+      }
+    }
+  }
+
+  /** The water a zap ran through lights up and fades, with bolts from the Regleta into each puddle. */
+  private puddleZap(e: Extract<SimEvent, { type: 'zap' }>): void {
+    const g = this.add.graphics().setDepth(-48994);
+    for (const p of e.puddles) {
+      for (const cell of this.puddleCells(p)) g.fillStyle(cell.edge ? 0xffffff : 0xb6f1f0, 0.7).fillRect(cell.x, cell.y, 3, 3);
+    }
+    this.tweens.add({ targets: g, alpha: 0, duration: 260, ease: 'Quad.easeIn', onComplete: () => g.destroy() });
+    const bolts = this.add.graphics().setDepth(e.y + 40);
+    for (const p of e.puddles) this.bolt(bolts, e.cx, e.cy - 4, p.x, p.y);
+    this.tweens.add({ targets: bolts, alpha: 0, duration: 220, ease: 'Quad.easeIn', onComplete: () => bolts.destroy() });
   }
 
   /** A zigzag bolt from (x0, y0) to (x1, y1) in eight steps, glow under a white core. */
@@ -4914,6 +5002,7 @@ export class GameScene extends Phaser.Scene {
     this.drawRegletas();
     this.drawTables(dt);
     this.drawShelves(dt);
+    this.drawPuddles();
     this.drawPickups();
 
     // Bullets.

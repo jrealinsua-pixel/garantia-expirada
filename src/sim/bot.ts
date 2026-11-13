@@ -3,7 +3,7 @@
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, inkUnder, inWind, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
-import { crushRect, freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup, zapCentre } from './world.ts';
+import { crushRect, wetPuddles, freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup, zapCentre } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
 import { overlaps } from './vec.ts';
 import { conveyorAt } from './conveyors.ts';
@@ -162,6 +162,15 @@ export function dodge(w: World): Dodge {
       const dy = p.y - c.y;
       const d = Math.hypot(dx, dy) || 1;
       const reach = zap.radius + 12;
+      // Standing in water the zap gets into (M14b (h11a3)): out of the puddle, away from its middle.
+      for (const i of wetPuddles(w, c.x, c.y, zap.radius)) {
+        const pd = w.room.puddles![i]!;
+        const k = ((p.x - pd.x) / (pd.rx + 8)) ** 2 + ((p.y - pd.y) / (pd.ry + 8)) ** 2;
+        if (k > 1) continue;
+        const e = Math.hypot(p.x - pd.x, p.y - pd.y) || 1;
+        out.x += ((p.x - pd.x) / e) * 1.6;
+        out.y += ((p.y - pd.y) / e) * 1.6;
+      }
       if (d > reach) continue;
       out.x += (dx / d) * (1 - d / reach) * 1.6 + (dx / d) * 0.4;
       out.y += (dy / d) * (1 - d / reach) * 1.6 + (dy / d) * 0.4;

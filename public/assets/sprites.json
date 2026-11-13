@@ -737,6 +737,12 @@
     "frameH": 20,
     "frames": 1
   },
+  "garrafa": {
+    "file": "garrafa.png",
+    "frameW": 18,
+    "frameH": 22,
+    "frames": 1
+  },
   "caja-2": {
     "file": "caja-2.png",
     "frameW": 24,

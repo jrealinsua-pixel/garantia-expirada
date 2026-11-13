@@ -722,8 +722,10 @@ juegos del género» de `docs/DISENO.md`.
     sombra de aviso, aplasta lo que pilla y queda como obstáculo bajo. Hecho el 2026-11-13:
     `estanteria` (`PropDef.topple`, `SHELF_CHANCE`, `FillOptions.shelf`, `fallSide`, `FALLEN_BOX`),
     el bot se aparta de la sombra, `tests/estanteria.test.ts`, e2e `11t`–`11w`.
-  - [ ] (h11a3) Charcos: el agua que deja algo roto (una garrafa, un extintor) moja el suelo y
-    conduce las descargas de la regleta.
+  - [x] (h11a3) Charcos: el agua que deja algo roto (una garrafa, un extintor) moja el suelo y
+    conduce las descargas de la regleta. Hecho el 2026-11-13: `garrafa` (`PropDef.spill`,
+    `Room.puddles`, `wetPuddles`, `SPILL_CHANCE`, `FillOptions.spill`), el bot sale del charco que se
+    va a electrificar, `tests/charcos.test.ts`, e2e `11x`–`11za`. El extintor, para más adelante.
   - [x] (h11b) Decoración por planta: los trastos de cada planta (cuatro o tres por planta, bajos,
     apagados y sin los colores de las balas) amontonados en los rincones, junto a las paredes y al
     pie de las estanterías, y la sombra de las paredes en el suelo. Hecho el 2026-11-13:

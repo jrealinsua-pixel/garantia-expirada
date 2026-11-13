@@ -547,6 +547,34 @@ try {
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const en of w.enemies) en.damageTaken = en.def.hp;
     w.room.props = w.room.props.filter((o) => !o.fallen); })()`);
   await page.waitForTimeout(300);
+  // M14b (h11a3): a Regleta with a Garrafa de agua next to it. Two shots burst the jug into a
+  // puddle; an enemy standing in the water, out of the Regleta's reach, still gets the zap.
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world;
+    g.placeProp('regleta', ${tableAt.x}, ${tableAt.y});
+    g.placeProp('garrafa', ${tableAt.x} + 24, ${tableAt.y});
+    const pr = w.room.props.find((o) => o.def.id === 'regleta'); pr.zapT = 0;
+    w.player.x = ${tableAt.x} - 50; w.player.y = ${tableAt.y} + 30; w.player.vx = 0; w.player.vy = 0; })()`);
+  await page.waitForTimeout(250);
+  await shot('11x-garrafa.png');
+  for (let i = 0; i < 2; i++) {
+    await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.bullets.push({ id: w.nextId++, owner: 'player', x: ${tableAt.x} + 24, y: ${tableAt.y} + 30, vx: 0, vy: -300, r: 3,
+      life: 3, damage: 1, knockback: 0, color: 'orange', age: 0, dir: -Math.PI / 2, speed: 300, h: 0 }); })()`);
+    await page.waitForTimeout(160);
+  }
+  await page.waitForFunction(`(window.__GE__.scene.world.room.puddles ?? []).length > 0`, undefined, { timeout: 2000 });
+  await page.waitForTimeout(80);
+  await shot('11y-garrafa-charco.png');
+  await page.evaluate(`window.__GE__.spawnIdle('aspirador', ${tableAt.x} + 54, ${tableAt.y} - 4)`);
+  await page.evaluate(`(() => { const pr = window.__GE__.scene.world.room.props.find((o) => o.def.id === 'regleta'); pr.zapT = pr.def.zap.every - pr.def.zap.warn + 0.05; })()`);
+  await page.waitForTimeout(650);
+  await shot('11z-charco-aviso.png');
+  // Zapped through the water: hurt, or gone from the room altogether.
+  await page.waitForFunction(`!window.__GE__.scene.world.enemies.some((en) => en.def.id === 'aspirador' && en.damageTaken === 0)`, undefined, { timeout: 2500 });
+  await page.waitForTimeout(40);
+  await shot('11za-charco-descarga.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const en of w.enemies) en.damageTaken = en.def.hp;
+    w.room.props = w.room.props.filter((o) => o.def.id !== 'regleta'); })()`);
+  await page.waitForTimeout(300);
   await page.evaluate(`(() => { window.__GE__.scene.world.noDamage = false; })()`);
   // Down: with half a heart left, one more bullet ends it. The toaster comes apart (slices,
   // spring, screws), the sick-leave report drops in with its stamp, and R asks for a new unit.

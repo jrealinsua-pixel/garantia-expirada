@@ -37,6 +37,7 @@ import { makeBecarioFrames, makeBecarioHand } from './becario.ts';
 import * as PV from './plancha-vapor.ts';
 import * as DS from './despiece.ts';
 import * as ES from './estanteria.ts';
+import { makeJug } from './garrafa.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
 
@@ -232,6 +233,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'estanteria-caida-frente': one(ES.makeShelfFallenFront()),
     'estanteria-caida-espalda': one(ES.makeShelfFallenBack()),
     'estanteria-monton': one(ES.makeShelfHeap()),
+    // M14b (h11a3): the Garrafa de agua, the same on every floor.
+    garrafa: one(makeJug()),
     // Floor 2 (Informática): the same obstacles and shutters with the floor's look (`<id>-2`).
     'caja-2': one(P.makeMonitorCrt()),
     'barril-2': one(P.makeWaterCooler()),

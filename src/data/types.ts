@@ -468,6 +468,11 @@ export interface PropDef {
    * `fallen` (the id of the PropDef it becomes: low, it is rolled over, and it stops bullets).
    */
   topple?: { hp: number; warn: number; damage: number; hurt: number; fallen: string };
+  /**
+   * Breaks (its `hp` gone, or a blast next to it) into a puddle of `rx` × `ry` px round its feet
+   * instead of blowing up (the Garrafa de agua, M14b (h11a3)); any bullet wears it.
+   */
+  spill?: { rx: number; ry: number };
 }
 
 export interface DummyDef {
