@@ -38,7 +38,7 @@ test('avisa, embiste en línea recta y, contra la pared, se queda aturdida', () 
   w.player.y = 180;
   const seen = new Set<string>();
   let charged: { x: number; y: number } | null = null;
-  for (let i = 0; i < Math.ceil(6 / DT) && !seen.has('stun'); i++) {
+  for (let i = 0; i < Math.ceil(10 / DT) && !seen.has('stun'); i++) {
     step(w, NO_INPUT);
     seen.add(en.state);
     if (en.state === 'charge' && !charged) {

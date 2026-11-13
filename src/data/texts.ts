@@ -89,6 +89,10 @@ export const TAPE_SNAP_LINE = 'Cola disuelta';
 /** The virtual assistant (M11 (4c)): typing, its shield going up, and when it breaks. */
 export const TYPING_LINE = 'Escribiendo...';
 export const FAQ_LINE = 'Pregunta frecuente';
+/** A virtual assistant evading the question (its first sidestep). */
+export const SIDESTEP_LINE = 'Reformule su pregunta';
+/** A forklift putting it in reverse. */
+export const REVERSE_LINE = 'Vehículo en maniobra';
 export const HELP_ASK_LINE = '¿Le he ayudado?';
 /** The reception phone (M11 (4d)): passing you on to a colleague, or, with nobody left, putting you on hold. */
 export const TRANSFER_LINE = 'Le paso con un compañero';

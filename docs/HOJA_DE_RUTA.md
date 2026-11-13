@@ -686,7 +686,7 @@ juegos del género» de `docs/DISENO.md`.
   se dibuja 6 px más arriba al saltarlos, con un chirrido; `tests/saltar.test.ts`, e2e `11ka`.
 - [x] (h8) Hitboxes más justas: la de la tostadora más pequeña que su dibujo (el núcleo), las
   balas enemigas con una caja algo menor que su dibujo, y las de los enemigos ajustadas a su sprite.
-- [ ] (h9) Enemigos con movimientos propios. Hoy casi todos se acercan, se paran y disparan.
+- [x] (h9) Enemigos con movimientos propios. Hoy casi todos se acercan, se paran y disparan.
   Repasar los ~30 y darle a cada uno una forma de moverse que no tenga otro (saltar a donde estás,
   embestir en línea recta y rebotar, rodear, esconderse e invulnerable, dividirse al morir,
   teletransportarse, flotar en diagonal rebotando en las paredes, cavar…), con su aviso. Por plantas:
@@ -702,11 +702,15 @@ juegos del género» de `docs/DISENO.md`.
     cercano (al otro lado de la tostadora) y el climatizador va atado a su manguera, enchufada a
     la pared: dentro de su alcance viene deprisa, fuera no puede seguirte. La destructora (siempre
     de cara) y el sello (a saltos y estampando) ya eran únicos.
-  - [ ] (h9e) Planta 5 y el Servicio Técnico, en dos partes:
+  - [x] (h9e) Planta 5 y el Servicio Técnico, en dos partes:
     - [x] (h9e1) El Dispensador de Turnos y el Teléfono de Recepción. Hecho el 2026-11-13: el
       dispensador va pegado a las paredes (a su distancia y a la vista); el teléfono ya era único
       (a saltos que se tuercen al azar, y te pasa de sitio con un compañero).
-    - [ ] (h9e2) El Asistente Virtual y los enemigos del Servicio Técnico.
+    - [x] (h9e2) El Asistente Virtual y los enemigos del Servicio Técnico. Hecho el 2026-11-13: el
+      asistente esquiva la pregunta (se aparta de tu línea de tiro si le apuntas) y la carretilla
+      se conduce como una (gira despacio, solo avanza hacia las horquillas) y da marcha atrás
+      pitando tras embestir. Los demás del Servicio Técnico son los de las plantas 1–5,
+      reacondicionados, y ya se mueven a su manera.
 - [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
   ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada

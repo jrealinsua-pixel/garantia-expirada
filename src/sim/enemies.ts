@@ -244,6 +244,10 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
 
   switch (en.state) {
     case 'walk': {
+      if (b.steer) {
+        steerWalk(w, en, b, b.steer, toX, toY, dist);
+        break;
+      }
       const dir = normalize(toX, toY);
       approach(en, dir.x * b.walkSpeed, dir.y * b.walkSpeed, KNOCK_FRICTION);
       if (Math.abs(toX) > 2) en.facing = toX > 0 ? 1 : -1;
@@ -277,19 +281,41 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
       }
       break;
     case 'brake':
-      approach(en, 0, 0, b.brake);
-      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.walkTime[0], b.walkTime[1]));
-      break;
     case 'stun':
       approach(en, 0, 0, b.brake);
-      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.walkTime[0], b.walkTime[1]));
+      if (en.t >= en.until) {
+        if (b.reverse) {
+          // «Atención: vehículo en maniobra»: straight back the way it came.
+          enter(en, 'reverse', b.reverse.time);
+          en.phase = 0;
+          w.events.push({ type: 'reverseBeep', x: en.x, y: en.y, first: true, source: en.id });
+        } else enter(en, 'walk', w.rng.range(b.walkTime[0], b.walkTime[1]));
+      }
       break;
+    case 'reverse': {
+      const r = b.reverse!;
+      en.vx = -en.dirX * r.speed;
+      en.vy = -en.dirY * r.speed;
+      en.phase += DT;
+      if (en.phase >= r.beep) {
+        en.phase -= r.beep;
+        w.events.push({ type: 'reverseBeep', x: en.x, y: en.y, first: false, source: en.id });
+      }
+      break;
+    }
   }
 
   const ox = en.x;
   const oy = en.y;
   const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
   en.moved += Math.hypot(en.x - ox, en.y - oy);
+  if (en.state === 'reverse' && (en.t >= en.until || hit.hitX || hit.hitY)) {
+    // Backed into something, or far enough: it stops and looks for you again.
+    en.vx = 0;
+    en.vy = 0;
+    enter(en, 'walk', w.rng.range(b.walkTime[0], b.walkTime[1]));
+    return;
+  }
   if (en.state === 'charge' && ((hit.hitX && Math.abs(en.dirX) > 0.3) || (hit.hitY && Math.abs(en.dirY) > 0.3))) {
     w.events.push({ type: 'bonk', x: en.x + en.dirX * en.def.footRadius, y: en.y - 6, dirX: en.dirX, dirY: en.dirY, source: en.id });
     if ((en.bounces ?? 0) > 0) {
@@ -310,6 +336,43 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
     // Small bounce back off the wall.
     en.vx = -en.dirX * 60;
     en.vy = -en.dirY * 60;
+  }
+}
+
+/** The shortest signed turn (radians) from angle `from` to angle `to`, in (−π, π]. */
+export function turnBetween(from: number, to: number): number {
+  let d = (to - from) % (Math.PI * 2);
+  if (d > Math.PI) d -= Math.PI * 2;
+  if (d <= -Math.PI) d += Math.PI * 2;
+  return d;
+}
+
+/**
+ * A forklift looking for the player (ChargerBrain.steer): its heading (dirX, dirY) turns towards
+ * them at most `turnRate` °/s and it drives forward along it, never sideways; it charges along that
+ * heading once its walk is over, the player is in range and within `aimCone` of its forks.
+ */
+function steerWalk(w: World, en: Enemy, b: ChargerBrain, s: { turnRate: number; aimCone: number }, toX: number, toY: number, dist: number): void {
+  const want = Math.atan2(toY, toX);
+  if (en.dirX === 0 && en.dirY === 0) {
+    // Just arrived: it comes in already facing the room's toaster.
+    en.dirX = Math.cos(want);
+    en.dirY = Math.sin(want);
+  }
+  const cur = Math.atan2(en.dirY, en.dirX);
+  const off = turnBetween(cur, want);
+  const max = (s.turnRate * Math.PI) / 180 * DT;
+  const head = cur + Math.max(-max, Math.min(max, off));
+  en.dirX = Math.cos(head);
+  en.dirY = Math.sin(head);
+  // Facing follows the forks, with a little give so it does not flicker driving straight up.
+  if (Math.abs(en.dirX) > 0.15) en.facing = en.dirX > 0 ? 1 : -1;
+  approach(en, en.dirX * b.walkSpeed, en.dirY * b.walkSpeed, KNOCK_FRICTION);
+  const lined = Math.abs(off) <= (s.aimCone * Math.PI) / 180;
+  if (en.t >= en.until && dist < b.range && lined) {
+    // Lock the heading now: the warning shows exactly where it will go.
+    enter(en, 'warn', b.telegraph);
+    w.events.push({ type: 'telegraph', x: en.x, y: en.y - 2, time: b.telegraph, aim: head, aimed: true, color: 'red', source: en.id });
   }
 }
 
@@ -2776,6 +2839,7 @@ function updateChatbot(w: World, en: Enemy, b: ChatbotBrain): void {
     en.faq.t += DT;
     if (en.faq.t >= en.faq.until) delete en.faq;
   }
+  if (b.dodge && evadeQuestion(w, en, b.dodge, dx, dy, dist)) return;
   let tx = 0;
   let ty = 0;
   if (en.state === 'warn') {
@@ -2807,6 +2871,57 @@ function updateChatbot(w: World, en: Enemy, b: ChatbotBrain): void {
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
+}
+
+/**
+ * A virtual assistant evading the question (ChatbotBrain.dodge). Counts how long the player has
+ * held their aim on it; past `react` s it glides sideways out of the line of fire (further to the
+ * side it already leans to, or the other if that side is blocked). True while it is gliding: the
+ * glide is all it does that tick.
+ */
+function evadeQuestion(w: World, en: Enemy, d: NonNullable<ChatbotBrain['dodge']>, dx: number, dy: number, dist: number): boolean {
+  const p = w.player;
+  const ev = (en.evade ??= { t: 0, cd: 0, aimed: 0, n: 0 });
+  ev.cd = Math.max(0, ev.cd - DT);
+  if (ev.t > 0) {
+    ev.t = Math.max(0, ev.t - DT);
+    en.vx = en.dirX * d.speed;
+    en.vy = en.dirY * d.speed;
+    const ox = en.x;
+    const oy = en.y;
+    const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    en.moved += Math.hypot(en.x - ox, en.y - oy);
+    if (hit.hitX || hit.hitY) ev.t = 0;
+    if (ev.t <= 0) {
+      en.vx = 0;
+      en.vy = 0;
+    }
+    return true;
+  }
+  // From the player's hand to the middle of its screen, against where the player aims.
+  const off = turnBetween(p.aim, Math.atan2(en.y - en.def.anchor.y / 2 - (p.y - HAND_HEIGHT), -dx));
+  const aimed = Math.abs(off) <= (d.cone * Math.PI) / 180 && dist < d.range && !w.over && clearLine(w, p, en, 1);
+  ev.aimed = aimed ? ev.aimed + DT : 0;
+  if (en.state !== 'walk' || ev.cd > 0 || ev.aimed < d.react) return false;
+  // Sideways from the line of fire: first the side it already leans to.
+  const px = dy / dist;
+  const py = -dx / dist;
+  const lean = off >= 0 ? 1 : -1;
+  const reach = d.speed * d.time;
+  for (const s of [lean, -lean]) {
+    const gx = en.x + px * s * reach;
+    const gy = en.y + py * s * reach;
+    if (!isClear(w, gx, gy, en.def.footRadius + 1) || !clearLine(w, en, { x: gx, y: gy }, 1)) continue;
+    en.dirX = px * s;
+    en.dirY = py * s;
+    ev.t = d.time;
+    ev.cd = d.every;
+    ev.aimed = 0;
+    w.events.push({ type: 'sidestep', x: en.x, y: en.y, dirX: en.dirX, dirY: en.dirY, first: ev.n === 0, source: en.id });
+    ev.n++;
+    return true;
+  }
+  return false;
 }
 
 /**

@@ -1220,6 +1220,18 @@ try {
   await page.waitForTimeout(250);
   await shot('50zg-asistente-ayudado.png');
   console.log('Asistente Virtual: bocadillos que esperan a mitad de camino, escudo de preguntas frecuentes y «¿Le he ayudado?».');
+  // M14b (h9e2): it evades the question. Aimed at for a moment, it glides out of the line of fire.
+  await page.goto(`${url}?semilla=e2e-asistente-evasivas&sala=ventanillas&planta=5`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('asistente-virtual', p.x + 110, p.y); const a = w.enemies[0]; a.state = 'walk'; a.until = 999; })()`);
+  const evadeAt = await page.evaluate<{ x: number; y: number }>('(() => { const e = window.__GE__.scene.world.enemies[0]; return { x: e.x, y: e.y - 16 }; })()');
+  await aimAt(evadeAt.x, evadeAt.y);
+  await page.waitForFunction('(window.__GE__.scene.world.enemies[0]?.evade?.n ?? 0) >= 1', undefined, { timeout: 4000 })
+    .catch(() => { throw new Error('Apuntándole, el asistente no se aparta'); });
+  await page.waitForTimeout(200);
+  await shot('50zgb-asistente-evasivas.png');
+  console.log('Asistente Virtual: si le apuntas, se aparta de la línea de tiro («Reformule su pregunta»).');
 
   // M11 (4d): the reception phone. Its three rings, its call (a fat ball that homes in), «Le paso
   // con un compañero» (the dotted line, then the swap) and, with nobody left, the hold music.
@@ -2001,6 +2013,13 @@ try {
   if (!(await page.evaluate<boolean>("window.__GE__.scene.world.enemies.some((e) => e.def.id === 'carretilla')"))) throw new Error('Sin carretilla en la Zona de Embalaje');
   await page.waitForTimeout(1200);
   await shot('17z-taller-carretilla.png');
+  // M14b (h9e2): it steers like a forklift and, after each charge, backs up beeping.
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const f = w.enemies.find((e) => e.def.id === 'carretilla');
+    w.enemies = [f]; w.bullets = []; w.spawnsEnemies = false; f.x = w.player.x - 90; f.y = w.player.y; f.dirX = 1; f.dirY = 0; f.state = 'walk'; f.t = 0; f.until = 0; })()`);
+  await page.waitForFunction("window.__GE__.scene.world.enemies[0]?.state === 'reverse'", undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('La carretilla no da marcha atrás tras embestir'); });
+  await page.waitForTimeout(250);
+  await shot('17za-taller-carretilla-marcha-atras.png');
   // M12 (4a): La Trituradora, the final boss, at the end of the workshop: her card, the scanner
   // beam over the toaster with the diagnosis, and the refurbished pattern that answers it.
   await page.goto(`${url}?semilla=e2e-trituradora&sala=jefe-taller&planta=6`);

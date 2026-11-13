@@ -41,6 +41,8 @@ import {
   TAPE_BUMP_LINE,
   TAPE_SNAP_LINE,
   TYPING_LINE,
+  SIDESTEP_LINE,
+  REVERSE_LINE,
   FAQ_LINE,
   HELP_ASK_LINE,
   TRANSFER_LINE,
@@ -2882,6 +2884,17 @@ export class GameScene extends Phaser.Scene {
         case 'typing':
           for (let i = 0; i < 3; i++) this.time.delayedCall(i * 75, () => this.sound2.play('teclear', { detune: this.fx.range(-150, 150) }));
           this.floatText(e.x, e.y - 4, fontText(TYPING_LINE), 0x8fe3ff, `typing:${e.source}`, -6, 0.6);
+          break;
+        case 'sidestep':
+          // Evading the question: a swish of its little wheels and a smear of dust behind.
+          this.sound2.play('rodar', { detune: 700, volume: 0.5 });
+          for (let i = 0; i < 3; i++) this.puff(e.x - e.dirX * this.fx.range(2, 8), e.y + this.fx.range(-2, 1), 0.3);
+          if (e.first) this.floatText(e.x + e.dirX * 45, e.y + e.dirY * 45 - 46, fontText(SIDESTEP_LINE), 0x8fe3ff, `evade:${e.source}`, -10, 1);
+          break;
+        case 'reverseBeep':
+          // A forklift backing up: the beep everyone in the workshop has stopped hearing.
+          this.sound2.play('pitido');
+          if (e.first) this.floatText(e.x, e.y - 44, fontText(REVERSE_LINE), 0xf6c431, `reverse:${e.source}`, -8, 1.1);
           break;
         case 'faqUp':
           // It learned where the shots come from: up go its canned answers, that way.

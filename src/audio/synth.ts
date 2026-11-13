@@ -145,6 +145,8 @@ export const SFX: Record<string, SfxParams> = {
   timbre: { wave: 'square', freq: 1150, freqEnd: 1120, attack: 0.003, sustain: 0.2, decay: 0.08, volume: 0.1, duty: 0.4, vibrato: 0.14, vibratoSpeed: 24, lowpass: 0.3 },
   // Being put through to someone else: the click of the line and the two pips of the transfer.
   transferir: { wave: 'square', freq: 1320, freqEnd: 660, attack: 0.002, sustain: 0.06, decay: 0.08, volume: 0.12, duty: 0.3 },
+  // A forklift backing up: the flat, insistent reversing beep.
+  pitido: { wave: 'square', freq: 1040, freqEnd: 1040, attack: 0.002, sustain: 0.11, decay: 0.03, volume: 0.09, duty: 0.5, lowpass: 0.5 },
   // A virtual assistant typing: one click of a touch screen (played three times).
   teclear: { wave: 'square', freq: 1800, freqEnd: 1700, attack: 0.001, sustain: 0.012, decay: 0.03, volume: 0.07, duty: 0.2 },
   // A retractable queue tape let go: the whir of it reeling back in and the clack of the hook.

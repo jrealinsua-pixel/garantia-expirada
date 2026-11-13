@@ -395,6 +395,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
       brake: 600,
       recover: 0.55,
       stun: 1.5,
+      // M14b (h9e2): a forklift, not a vacuum. It turns slowly, drives only where its forks point
+      // and, after each charge, backs up beeping.
+      steer: { turnRate: 100, aimCone: 20 },
+      reverse: { speed: 62, time: 1.1, beep: 0.3 },
     },
   },
   'cubo-piezas': {
@@ -781,6 +785,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       shieldArc: 140,
       farewell: 'asistente-botones',
       muzzleY: 22,
+      // M14b (h9e2): it evades the question. Hold your aim on it and it slides out of the way.
+      dodge: { cone: 9, range: 260, react: 0.3, speed: 150, time: 0.3, every: 1.7 },
     },
   },
   'router-wifi': {

@@ -565,6 +565,18 @@ export interface ChargerBrain {
    */
   rebound?: number;
   reboundTime?: number;
+  /**
+   * Forklift steering (M14b (h9e2)): it never strafes. Its heading turns towards the player at most
+   * `turnRate` degrees per second and it only drives forward along it (so it goes round in wide
+   * arcs); it charges only with the player within `aimCone` degrees of where its forks point.
+   */
+  steer?: { turnRate: number; aimCone: number };
+  /**
+   * Backs up after each charge (M14b (h9e2)), once it has braked or come round from the crash:
+   * `time` s straight back along the charge at `speed` px/s, beeping every `beep` s, until the
+   * time is up or it backs into something.
+   */
+  reverse?: { speed: number; time: number; beep: number };
 }
 
 /**
@@ -1393,6 +1405,9 @@ export interface QueuerBrain {
  * `sameDeg` of each other, its shield of frequently asked questions goes up facing them for
  * `shield` s and stops whatever comes within `shieldArc` (degrees, the whole arc) of that side.
  * When it breaks it sends `farewell` (the «¿Le he ayudado?» buttons). `muzzleY`: height of its screen.
+ * `dodge` (M14b (h9e2)): it evades the question. Once the player has held their aim on it (within
+ * `cone` degrees, in sight and closer than `range`) for `react` s, it glides sideways out of the
+ * line of fire at `speed` px/s for `time` s; at most once every `every` s, and never while typing.
  */
 export interface ChatbotBrain {
   kind: 'chatbot';
@@ -1407,6 +1422,7 @@ export interface ChatbotBrain {
   shieldArc: number;
   farewell: string;
   muzzleY: number;
+  dodge?: { cone: number; range: number; react: number; speed: number; time: number; every: number };
 }
 
 /**

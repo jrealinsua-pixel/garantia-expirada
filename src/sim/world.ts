@@ -399,7 +399,7 @@ export interface Dummy {
  * `roar`: a boss between two phases (it takes no damage and does nothing for BOSS_PHASE_BREAK s).
  * `dying`: a boss with no life left, coming apart for BOSS_DEATH s before it is taken out.
  */
-export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone' | 'roar' | 'dying' | 'jam' | 'lurk' | 'reveal';
+export type EnemyState = 'walk' | 'warn' | 'charge' | 'brake' | 'stun' | 'idle' | 'fire' | 'off' | 'blink' | 'gone' | 'roar' | 'dying' | 'jam' | 'lurk' | 'reveal' | 'reverse';
 
 export interface Enemy {
   id: number;
@@ -467,6 +467,11 @@ export interface Enemy {
   rush?: { t: number; scale: number };
   /** Remote-control cars: seconds before its batteries next give out (see RcCarBrain.stall). */
   stallT?: number;
+  /**
+   * A virtual assistant evading the question (ChatbotBrain.dodge): `t` s left of its glide, `cd` s
+   * before it can do it again, `aimed` s the player has held their aim on it, `n` times so far.
+   */
+  evade?: { t: number; cd: number; aimed: number; n: number };
   /** Glitter (BulletBehaviour.slow): seconds left of going at `slowMul` of its speed. */
   slowT?: number;
   slowMul?: number;
@@ -699,6 +704,10 @@ export type SimEvent =
   | { type: 'faqBlock'; x: number; y: number; angle: number }
   /** A virtual assistant starts typing its bubbles. */
   | { type: 'typing'; x: number; y: number; source: number }
+  /** A virtual assistant evades the question: it glides sideways along (dirX, dirY); `first`: its first time. */
+  | { type: 'sidestep'; x: number; y: number; dirX: number; dirY: number; first: boolean; source: number }
+  /** A forklift backing up: one beep (`first`: it has just put it in reverse). */
+  | { type: 'reverseBeep'; x: number; y: number; first: boolean; source: number }
   /** A virtual assistant broke: «¿Le he ayudado?» over where it stood. */
   | { type: 'helpAsk'; x: number; y: number; source: number }
   /** A reception phone rings (its rings go off `at` s from now) or places its call. */

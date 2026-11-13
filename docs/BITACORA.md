@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 21:20 (hora peninsular) — Hito M14b — (h9e2) El Asistente esquiva y la Carretilla da marcha atrás
+- Contexto: la (h11a3) estaba cogida por otra sesión (ya la ha terminado; mi trabajo se juntó con el
+  suyo sin conflictos). Salud al empezar: `check`, 994 tests, `build` y `bot` en verde. El `main`
+  local era otra vez un clon superficial viejo: lo puse en `origin/main` sin tocar el remoto.
+- Hecho: M14b (h9e2), y con ella la (h9) entera.
+  - **Asistente Virtual, «esquiva la pregunta»** (`ChatbotBrain.dodge`, `evadeQuestion`): cuenta
+    cuánto tiempo le sostienes la mira encima (de la mano al centro de su pantalla, a menos de 9°,
+    a la vista y a menos de 260 px); a los 0,3 s se desliza de lado 45 px (150 px/s, 0,3 s) fuera
+    de la línea de tiro, hacia el lado al que ya se inclinaba o, si está tapado, al otro. Como mucho
+    cada 1,7 s y nunca mientras escribe. Evento `sidestep`: zumbido de ruedecitas, polvo y, la
+    primera vez, «Reformule su pregunta» encima de donde acaba.
+  - **Carretilla Elevadora, «se conduce como una carretilla»** (`ChargerBrain.steer` y `.reverse`,
+    `steerWalk`, estado nuevo `reverse`): nunca va de lado; su rumbo gira hacia la tostadora a 100 °/s
+    como mucho y solo avanza por él, así que da vueltas anchas; embiste solo con la tostadora a menos
+    de 20° delante. Tras cada embestida (o tras el golpe contra la pared) da marcha atrás 1,1 s a
+    62 px/s por donde vino, pitando cada 0,3 s (sonido nuevo `pitido`; la primera vez «Vehículo en
+    maniobra»), hasta que choca con algo. De espaldas también golpea.
+  - `turnBetween` (el giro más corto entre dos ángulos), exportado para los tests.
+  Tests: `tests/asistente-carretilla-movimiento.test.ts` (9); en `tests/carretilla.test.ts` el de
+  «se estrella» espera 10 s en vez de 6 (ahora recula y tarda más en volver a embestir). e2e:
+  capturas `50zgb-asistente-evasivas` y `17za-taller-carretilla-marcha-atras`.
+- Decisiones: el asistente reacciona a la **mira**, no a los disparos: así se lee como «le haces una
+  pregunta y se escabulle», y la contra es dispararle mientras escribe o seguirlo justo después (la
+  espera de 1,7 s). Es lo contrario de la Webcam (que se mueve cuando *no* la miras). La carretilla
+  se queda en 100 °/s y 20° tras probar 75/16 (casi no acertaba: 0,03 heridas por sala con dos) y
+  120/24 (ya no parecía una carretilla). El resto del Servicio Técnico son los enemigos de las
+  plantas 1–5 reacondicionados, que ya tenían su movimiento de las (h9a)–(h9e1).
+  El texto del asistente lo puse encima de donde termina el deslizamiento: en la primera captura
+  tapaba sus ruedas.
+- Medidas (`npm run enemigos`, antes → después): dos asistentes 0,77 → 0,70 heridas por sala
+  (20,1 → 22,7 s: cuesta más darles); dos carretillas 0,18 → 0,08 (23,9 → 24 s); carretilla y
+  asistente 0,32 → 0,42. `npm run bot`: 0 fallos, 5 atascos (los de siempre); planta 1 con daño la
+  recorre el 95 % y la gana el 85 %. 1011 tests en verde; e2e entero en verde.
+- Problemas conocidos: la carretilla hace menos daño que antes (lo compensa la marcha atrás, que el
+  bot no esquiva a propósito); si molesta poco en el Servicio Técnico, subirle `walkSpeed`. El bot no
+  usa la espera del asistente para dispararle.
+- Siguiente paso: (h10a) los jefes de las plantas 1–2 más únicos, o (h11c) plantillas de sala.
+
 ## 2026-11-13 20:50 (hora peninsular) — Hito M14b — (h11a3) Charcos que conducen
 - Contexto: segunda tarea de la sesión, tras la (h11a2). La (h9e1) acabó en otra sesión y nadie más
   tenía nada cogido; la (h11a3) cierra los props de la (h11a).
