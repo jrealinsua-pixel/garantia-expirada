@@ -23,8 +23,10 @@ import {
   MERIT_NEW,
   MERIT_PENDING,
   meritProgress,
+  meritReward,
   PAUSE_MENU,
 } from '../data/texts.ts';
+import { rewardName } from '../sim/achievements.ts';
 import { GLOSSARY_TAB_ORDER, type GlossaryEntry, type GlossaryTab } from '../sim/glossary.ts';
 import { INVENTORY } from './hud.ts';
 import { FONT } from './textures.ts';
@@ -194,7 +196,10 @@ export function paintGlossary(scene: Phaser.Scene, objs: Phaser.GameObjects.Game
         : e.boss
           ? GLOSSARY_UNKNOWN_BOSS
           : GLOSSARY_UNKNOWN_ENEMY;
-    text(rx, top + ph + 6, desc, e.known ? CREAM : GREY).setMaxWidth(rw);
+    const line = text(rx, top + ph + 6, desc, e.known ? CREAM : GREY).setMaxWidth(rw);
+    // An achievement with a prize (M14 (l3)): what it lets into the loot, under its line.
+    const prize = v.tab === 'merits' ? ACHIEVEMENTS.find((a) => a.id === e.id)?.reward : undefined;
+    if (prize) text(rx, top + ph + 9 + Math.ceil(line.height), meritReward(rewardName(prize), e.known), e.known ? 0x7ef0a0 : TEAL).setMaxWidth(rw);
   }
 
   // Back, and how to use it.

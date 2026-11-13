@@ -569,6 +569,13 @@ export const MERIT_PENDING = 'Sin conseguir. El chiste viene con el mérito, com
 export const MERIT_NEW = 'Nuevo';
 /** The notice that comes up in a run when one is earned. */
 export const MERIT_TOAST = 'Mérito conseguido';
+/**
+ * What an achievement lets into the loot (M14 (l3)): on its card in the tab (before and after
+ * earning it) and as the notice's third line.
+ */
+export const meritReward = (name: string, earned: boolean): string =>
+  earned ? `Desbloqueado: ${name}. Ya sale en cofres y tiendas.` : `Premio: ${name}. Hasta entonces, agotado en todos los cofres.`;
+export const meritToastReward = (name: string): string => `Nuevo en los cofres: ${name}`;
 export const glossaryTab = (label: string, known: number, total: number): string => `${label} (${known}/${total})`;
 
 /** The title screen's record of past runs (src/sim/profile.ts). */

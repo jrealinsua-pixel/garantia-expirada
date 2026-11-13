@@ -1,9 +1,10 @@
 // Draws the simulation and plays its events. Phaser only draws and reads input: all the rules
 // live in src/sim/.
-import { deedsOf } from '../sim/achievements.ts';
-import { ACHIEVEMENTS } from '../data/logros.ts';
+import { deedsOf, rewardName } from '../sim/achievements.ts';
+import { ACHIEVEMENTS, lockedContent } from '../data/logros.ts';
+import type { Profile } from '../sim/profile.ts';
 import { MERIT_SPRITE } from '../sim/glossary.ts';
-import { MERIT_TOAST } from '../data/texts.ts';
+import { MERIT_TOAST, meritToastReward } from '../data/texts.ts';
 import { paintRoom } from '../art/room.ts';
 import { FONT_LINE, fontText, textWidth, wrapLines } from '../art/font.ts';
 import { CHEST_NAME_PREMIUM } from '../data/texts.ts';
@@ -150,6 +151,9 @@ import { LORE } from '../data/lore.ts';
 
 /** A piece of the tablón panel: it slides and fades. */
 type BoardPart = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.AlphaSingle;
+
+/** What a run takes from the profile: the characters unlocked and the loot still locked (M14 (l3)). */
+const unlocksOf = (p: Profile): { unlocked: readonly string[]; locked: readonly string[] } => ({ unlocked: p.unlocked, locked: lockedContent(p.achievements) });
 
 /** How far above a station's spot of the Mostrador its bubble goes (px; the Caja uses the till's). */
 /** Frame of the `mesa` sheet for each way a tipped table faces (0 is standing). */
@@ -669,7 +673,7 @@ export class GameScene extends Phaser.Scene {
     } else if (this.hubMode) {
       // The Mostrador de Devoluciones: where every run starts and ends. The Chatarrero comes once a boss has fallen.
       // The unlocked characters' starting weapons go with every run that leaves from here (weaponPool).
-      this.world = createWorld({ seed: 'mostrador', character, hub: { chatarrero: chatarreroHere(profile()), service: profile().service }, unlocked: profile().unlocked });
+      this.world = createWorld({ seed: 'mostrador', character, hub: { chatarrero: chatarreroHere(profile()), service: profile().service }, ...unlocksOf(profile()) });
     } else if (this.daily) {
       // The daily challenge (M14 (r1)): the day's seed, the Tostadora and the day's gift, whoever plays.
       this.world = startDaily(this.daily);
@@ -679,12 +683,12 @@ export class GameScene extends Phaser.Scene {
       // ?sala=<id>&profundidad=<n>: one room template, its slots filled for that depth (the test
       // room is ?sala=sala-pruebas).
       const sala = params.get('sala')!;
-      this.world = createWorld({ seed: params.get('semilla') ?? sala, room: sala, depth: Number(params.get('profundidad') ?? 3), level, character, unlocked: profile().unlocked, ...forcedBoss });
+      this.world = createWorld({ seed: params.get('semilla') ?? sala, room: sala, depth: Number(params.get('profundidad') ?? 3), level, character, ...unlocksOf(profile()), ...forcedBoss });
     } else {
       // A whole floor: ?semilla=<s> always gives the same one; without it, a new one each unit.
       // ?cita=1: as if the Servicio Técnico's appointment were granted (otherwise, the profile's).
       const service = level === SERVICE_LEVEL || params.get('cita') === '1' || profile().service;
-      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service, character, unlocked: profile().unlocked, ...forcedBoss });
+      this.world = createWorld({ seed: params.get('semilla') ?? `planta-${Date.now().toString(36)}`, floor: true, level, service, character, ...unlocksOf(profile()), ...forcedBoss });
     }
     const seed = this.world.floor ? `${this.world.seed}:${this.world.floor.current}` : this.world.seed;
     this.controls = new Controls(this);
@@ -1887,6 +1891,8 @@ export class GameScene extends Phaser.Scene {
       // A floor cleared, but the run goes on upstairs: it counts as a floor, not as a run.
       const weapons = p.arsenal.map((ws) => ws.base.id);
       saveFloor({ character: p.base.def.id, seconds: w.tick * DT, items: p.items, ...(p.active ? { active: p.active.id } : {}), weapons, killsBy: w.killsBy, ...deedsOf(w) });
+      // A reward earned on this floor already turns up on the next one (not in the daily challenge).
+      if (!this.daily) w.locked = w.locked.filter((id) => lockedContent(profile().achievements).includes(id));
       return;
     }
     this.runRecorded = true;
@@ -1924,8 +1930,10 @@ export class GameScene extends Phaser.Scene {
       if (!def) return;
       this.meritsShown.push(id);
       const name = fontText(def.name);
-      const w = Math.max(textWidth(fontText(MERIT_TOAST)), textWidth(name)) + 46;
-      const h = 36;
+      // A prize (M14 (l3)) adds a third line: what now turns up in the chests.
+      const prize = def.reward ? fontText(meritToastReward(rewardName(def.reward))) : null;
+      const w = Math.max(textWidth(fontText(MERIT_TOAST)), textWidth(name), prize ? textWidth(prize) : 0) + 46;
+      const h = prize ? 47 : 36;
       const x = VIEW_W - w - 6;
       const y = 6;
       const box = this.add.container(VIEW_W + 4, y).setScrollFactor(0).setDepth(97500);
@@ -1938,6 +1946,7 @@ export class GameScene extends Phaser.Scene {
       const head = this.add.bitmapText(36, 8, FONT, fontText(MERIT_TOAST), 8).setTint(0xf6c431);
       const line = this.add.bitmapText(36, 20, FONT, name, 8).setTint(0xf4f1e8);
       box.add([g, seal, head, line]);
+      if (prize) box.add(this.add.bitmapText(36, 31, FONT, prize, 8).setTint(0x69dbd8));
       const delay = k * (STAY + 700);
       this.time.delayedCall(delay, () => this.sound2.play('desbloquear', { volume: 0.6 }));
       this.tweens.add({ targets: box, x, delay, duration: 260, ease: 'Back.easeOut' });

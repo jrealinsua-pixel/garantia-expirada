@@ -945,6 +945,12 @@ export interface World {
    * in this run's chests and pedestals (weaponPool). Carried from the Mostrador to every floor.
    */
   unlocked: readonly string[];
+  /**
+   * Weapons and items this run keeps out of its loot (WorldOptions.locked): the rewards of the
+   * achievements not earned yet (lockedContent in src/data/logros.ts). Carried to every floor; the
+   * game shortens it when an achievement is earned mid-run, so the next floor already has it.
+   */
+  locked: readonly string[];
   /** Seconds left of a hold (Música de Espera): enemies, their bullets and attacks stand still. */
   holdT: number;
   /** The last tick the player bumped into a queue tape with a noise (holdTapes). */
@@ -1114,6 +1120,11 @@ export interface WorldOptions {
    */
   unlocked?: readonly string[];
   /**
+   * Weapons and items left out of every loot deck (World.locked): the rewards of the achievements
+   * not earned yet. Missing: none (tests, bots and the test room have everything).
+   */
+  locked?: readonly string[];
+  /**
    * Template letter of the boss this floor (or this single room) brings instead of the one the seed
    * picks (src/sim/bosses.ts): tests and `?jefe=`. Ignored unless it is a boss's letter.
    */
@@ -1130,9 +1141,10 @@ export interface HubOptions {
 
 export function createWorld(opts: WorldOptions): World {
   const unlocked = opts.unlocked ?? [];
-  const pool = (level: number): string[] => weaponPool(level, opts.character ?? 'tostadora', unlocked);
+  const locked = opts.locked ?? [];
+  const pool = (level: number): string[] => weaponPool(level, opts.character ?? 'tostadora', unlocked, locked);
   const forced = opts.boss !== undefined && ENEMIES[enemyOfChar(opts.boss) ?? '']?.boss ? opts.boss : undefined;
-  const floor = opts.floor && !opts.hub ? planFloor(opts.seed, opts.level ?? 1, pool(opts.level ?? 1), forced) : null;
+  const floor = opts.floor && !opts.hub ? planFloor(opts.seed, opts.level ?? 1, pool(opts.level ?? 1), locked, forced) : null;
   const single = opts.hub ? HUB : opts.template ?? ROOMS[opts.room ?? 'sala-pruebas'];
   let tpl = floor ? floor.rooms[floor.current]!.template : single;
   if (!tpl) throw new Error(`Unknown room ${opts.room}`);
@@ -1218,6 +1230,7 @@ export function createWorld(opts: WorldOptions): World {
     won: false,
     service: opts.service ?? opts.hub?.service ?? false,
     unlocked,
+    locked,
     holdT: 0,
     leftHub: false,
   };
@@ -1236,7 +1249,7 @@ export function createWorld(opts: WorldOptions): World {
   else if (room.kind === 'shop') stockShop(w, decksOf(w));
   else if (room.kind === 'rare') stockRare(w, decksOf(w));
   else if (room.kind === 'treasure' || room.kind === 'secret') {
-    const decks = lootDecks(opts.seed, opts.level ?? 1, pool(opts.level ?? 1));
+    const decks = lootDecks(opts.seed, opts.level ?? 1, pool(opts.level ?? 1), locked);
     stockPedestals(w, decks.weapons, decks.items, decks.actives);
     if (room.kind === 'secret') placeStoryDoc(w);
   }
@@ -1254,7 +1267,7 @@ export function createWorld(opts: WorldOptions): World {
  */
 export function leaveHub(w: World, seed: string): World | null {
   if (w.room.kind !== 'hub' || !w.leftHub) return null;
-  return createWorld({ seed, floor: true, level: 1, character: w.player.base.def.id, service: w.service, unlocked: w.unlocked });
+  return createWorld({ seed, floor: true, level: 1, character: w.player.base.def.id, service: w.service, unlocked: w.unlocked, locked: w.locked });
 }
 
 /**
@@ -1361,7 +1374,7 @@ export function winsRun(w: World): boolean {
 export function nextFloor(w: World): World | null {
   if (!w.won || !w.floor || w.level >= topLevelOf(w)) return null;
   const p = w.player;
-  const n = createWorld({ seed: `${w.seed}:planta${w.level + 1}`, floor: true, level: w.level + 1, character: p.base.def.id, service: w.service, unlocked: w.unlocked });
+  const n = createWorld({ seed: `${w.seed}:planta${w.level + 1}`, floor: true, level: w.level + 1, character: p.base.def.id, service: w.service, unlocked: w.unlocked, locked: w.locked });
   const q = n.player;
   n.player = { ...p, x: q.x, y: q.y, vx: 0, vy: 0, aim: q.aim, facing: q.facing, rollT: q.rollT, rollDirX: q.rollDirX, rollDirY: q.rollDirY, rollCooldown: 0, invulnerable: q.invulnerable };
   // What was on loan expires with the floor: the warranty and the special hearts.
@@ -1389,7 +1402,7 @@ export function nextFloor(w: World): World | null {
  * are dealt from a shuffled deck, so a floor repeats one only when it runs out) with its slots
  * filled for the room's depth. Seeded by the world's seed.
  */
-function planFloor(seed: string, level: number, weapons: string[], forcedBoss?: string): FloorRun {
+function planFloor(seed: string, level: number, weapons: string[], locked: readonly string[], forcedBoss?: string): FloorRun {
   // The Servicio Técnico (M12 (3a)) is a short line of rooms: no treasure, no shop, no secret.
   const workshop = level >= SERVICE_LEVEL;
   const layout = workshop ? generateWorkshop(seed) : generateFloor(seed);
@@ -1437,26 +1450,31 @@ function planFloor(seed: string, level: number, weapons: string[], forcedBoss?: 
     else if (!rooms[id]!.reward && shield) rooms[id]!.reward = 'shield';
     else if (!rooms[id]!.reward && heart) rooms[id]!.reward = 'heart';
   });
-  return { layout, current: layout.start, rooms, boss, ...lootDecks(seed, level, weapons) };
+  return { layout, current: layout.start, rooms, boss, ...lootDecks(seed, level, weapons, locked) };
 }
 
 /**
  * The weapons floor `level` can hand out to `character`: the findable ones (weaponsUpTo) and the
  * starting weapons of the other unlocked characters (docs/DISENO.md, «Los cinco, en detalle»),
- * never the one it already carries. With nobody unlocked, exactly weaponsUpTo(level).
+ * never the one it already carries, nor the `locked` ones (achievement rewards not earned yet).
+ * With nobody unlocked and nothing locked, exactly weaponsUpTo(level).
  */
-export function weaponPool(level: number, character: string, unlocked: readonly string[]): string[] {
+export function weaponPool(level: number, character: string, unlocked: readonly string[], locked: readonly string[] = []): string[] {
   const own = CHARACTERS[character]?.startWeapon;
   const starters = unlocked.map((id) => CHARACTERS[id]?.startWeapon).filter((id): id is string => !!id);
-  return weaponsUpTo(level, starters).filter((id) => id !== own);
+  return weaponsUpTo(level, starters).filter((id) => id !== own && !locked.includes(id));
 }
 
-/** The weapons (weaponPool) and items floor `level` hands out, each in its own seeded order (see itemsUpTo). */
-function lootDecks(seed: string, level: number, weapons: readonly string[]): { weapons: string[]; items: string[]; actives: string[] } {
+/**
+ * The weapons (weaponPool) and items floor `level` hands out, each in its own seeded order (see
+ * itemsUpTo), without the `locked` items (the weapons come already without theirs).
+ */
+function lootDecks(seed: string, level: number, weapons: readonly string[], locked: readonly string[] = []): { weapons: string[]; items: string[]; actives: string[] } {
+  const free = (id: string): boolean => !locked.includes(id);
   return {
     weapons: new Rng(`armas:${seed}`).shuffle([...weapons]),
-    items: new Rng(`objetos:${seed}`).shuffle(itemsUpTo(level)),
-    actives: new Rng(`activos:${seed}`).shuffle([...FINDABLE_ACTIVES]),
+    items: new Rng(`objetos:${seed}`).shuffle(itemsUpTo(level).filter(free)),
+    actives: new Rng(`activos:${seed}`).shuffle(FINDABLE_ACTIVES.filter(free)),
   };
 }
 
@@ -4663,7 +4681,7 @@ function grab(w: World, k: Pickup): void {
 /** The decks loot comes from: the floor's, or (a single room) the world's own. */
 function decksOf(w: World): { weapons: string[]; items: string[]; actives: string[] } {
   if (w.floor) return w.floor;
-  w.looseDecks ??= lootDecks(w.seed, w.level, weaponPool(w.level, w.player.base.def.id, w.unlocked));
+  w.looseDecks ??= lootDecks(w.seed, w.level, weaponPool(w.level, w.player.base.def.id, w.unlocked, w.locked), w.locked);
   return w.looseDecks;
 }
 

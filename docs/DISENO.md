@@ -731,8 +731,25 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   o una partida; en la partida sale el aviso «Mérito conseguido» con el sello dorado arriba a la
   derecha, y el Catálogo de siniestros tiene una tercera pestaña, «Méritos», con todos (no son
   secretos: lo que piden es la gracia), lo que llevas («Llevas 7 de 25») y, ganados, su chiste. Los
-  que no has mirado salen como «Nuevo» y el menú dice «Glosario · ¡Mérito nuevo!». Después (l3),
-  algunos desbloquearán armas y objetos.
+  que no has mirado salen como «Nuevo» y el menú dice «Glosario · ¡Mérito nuevo!».
+- **El contenido limitado** (M14 l3, nota del humano del 2026-10-30): 12 de los logros traen un
+  **premio**, un arma o un objeto que no sale en cofres, pedestales, tiendas ni salas raras hasta
+  ganarlo (`reward` en `src/data/logros.ts`; la partida lleva la lista de bloqueados en
+  `World.locked`). El premio tiene que ver con el logro: la primera baja da la Garantía Extendida
+  («Bienvenido al servicio postventa»); la primera sinergia, la Copia de Seguridad («¿Le interesa
+  también el seguro?»); 10 plantas, la Taza de Mejor Empleado; un jefe sin un rasguño, la Caja de
+  Cartón Vacía; 100 de un modelo, la Etiquetadora de Precios; 30 objetos, la Mascota Virtual; 6
+  armas, el Cable HDMI Dorado; 300 cupones, la Tarjeta de Socio; tres retos seguidos, las Cookies
+  de Terceros; una planta en 4 minutos, la Llave Allen Sobrante; ganar, la Valoración de Cinco
+  Estrellas; los 5 jefes de planta, el Megáfono de Reclamaciones. Los logros más difíciles no traen
+  nada: son para presumir. Reglas: ningún premio es el arma de salida de nadie; ninguna sinergia
+  necesita dos premios; a la planta 1 le queda al menos un objeto y un arma «buenos» (la Caja
+  Fuerte Premium); lo que cuentan los logros («30 objetos», «6 armas») se puede conseguir sin ningún
+  premio. Ganado en mitad de la partida, el premio ya entra en la planta siguiente; el aviso
+  «Mérito conseguido» añade «Nuevo en los cofres: …» y la ficha del mérito dice el premio antes
+  («Premio: …. Hasta entonces, agotado en todos los cofres.») y después. El **reto del día** los
+  deja todos fuera, para que sea igual para todos (y el regalo del día nunca es un premio). Los
+  bots y los tests, sin lista, lo tienen todo.
 - **El reto del día, «Boletín de ofertas del día»** (M14 r1), en la portada: una partida al día
   con la semilla fija (`reto-AAAA-MM-DD`, por el calendario del jugador), la misma para todo el
   mundo ese día: mismas plantas, mismo botín. Siempre con la Tostadora, sin cita del Servicio

@@ -2417,7 +2417,7 @@ try {
   await shot('62b-meritos.png');
   const seen = JSON.parse((await page.evaluate<string | null>("localStorage.getItem('garantia-expirada/perfil')")) ?? '{}') as { unseen?: string[]; achievements?: string[] };
   if (seen.unseen?.length || !seen.achievements?.includes('ni-un-aranazo')) throw new Error(`Ver los méritos no los da por vistos: ${JSON.stringify(seen)}`);
-  await tapKeys('ArrowDown', 'ArrowDown');
+  await tapKeys('ArrowDown');
   await page.waitForTimeout(150);
   await shot('62c-meritos-en-progreso.png');
   await tapKeys('Escape');
@@ -2426,6 +2426,9 @@ try {
   await page.goto(url + '?mostrador');
   await throughHub();
   await page.waitForTimeout(400);
+  // M14 (l3): the run keeps out the prizes of the achievements not earned, and only those.
+  const locked = await page.evaluate<string[]>('window.__GE__.scene.world.locked');
+  if (!locked.includes('garantia') || locked.includes('copia') || locked.includes('caja-vacia')) throw new Error(`La partida no bloquea lo que toca: ${locked.join(', ')}`);
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const p = w.player; w.noDamage = false; p.hp = 1; p.invulnerable = 0; p.rollT = -1;
     w.bullets.push({ id: w.nextId++, owner: 'enemy', x: p.x - 24, y: p.y - 9, vx: 140, vy: 0, r: 2.5, life: 3, damage: 1, knockback: 0,
       color: 'red', age: 0, dir: 0, speed: 140, by: 'microondas' }); })()`);

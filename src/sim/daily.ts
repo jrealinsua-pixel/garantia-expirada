@@ -2,6 +2,7 @@
 // it that day: same floors, same loot, same toaster and the same «regalo del día» to start with.
 // Pure (the date comes in from outside), so tests and bots can play any day.
 import { ITEMS, itemsUpTo } from '../data/items.ts';
+import { lockedContent } from '../data/logros.ts';
 import { Rng } from './rng.ts';
 import { createWorld, giveItem, type World } from './world.ts';
 
@@ -68,18 +69,21 @@ export function dayOfWeek(key: string): number {
 /** The run's seed: the floors upstairs derive theirs from it (nextFloor). */
 export const dailySeed = (key: string): string => `reto-${key}`;
 
-/** The day's gift: a passive item of floor 1, picked by the date. */
+/** What the challenge keeps out of its loot: every achievement's reward (nobody has unlocks in it). */
+export const DAILY_LOCKED: readonly string[] = lockedContent([]);
+
+/** The day's gift: a passive item of floor 1 that no achievement keeps locked, picked by the date. */
 export function dailyGift(key: string): string {
-  return new Rng(`regalo:${key}`).pick(itemsUpTo(1));
+  return new Rng(`regalo:${key}`).pick(itemsUpTo(1).filter((id) => !DAILY_LOCKED.includes(id)));
 }
 
 /**
  * Floor 1 of the day's challenge: the fixed seed, the Tostadora, no Servicio Técnico and none of
- * the other characters' weapons, with the gift already carried (and taken out of the floor's decks,
+ * the other characters' weapons nor the achievements' rewards, with the gift already carried (and taken out of the floor's decks,
  * so it does not turn up again).
  */
 export function startDaily(key: string): World {
-  const w = createWorld({ seed: dailySeed(key), floor: true, level: 1, character: DAILY_CHARACTER, service: false, unlocked: [] });
+  const w = createWorld({ seed: dailySeed(key), floor: true, level: 1, character: DAILY_CHARACTER, service: false, unlocked: [], locked: DAILY_LOCKED });
   const gift = dailyGift(key);
   giveItem(w, gift);
   if (w.floor) w.floor.items = w.floor.items.filter((id) => id !== gift);

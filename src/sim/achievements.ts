@@ -1,7 +1,9 @@
 // The achievements (M14 (l1)): which of src/data/logros.ts the profile has earned and how far along
 // the rest are. Pure. Earned ones are kept in Profile.achievements for good (recordRun and friends
 // call `newAchievements` after adding the run), even if a later version makes one harder.
-import { ACHIEVEMENTS, type AchievementDef, type AchievementStat } from '../data/logros.ts';
+import { ACHIEVEMENTS, type AchievementDef, type AchievementReward, type AchievementStat } from '../data/logros.ts';
+import { ACTIVE_ITEMS, ITEMS } from '../data/items.ts';
+import { WEAPONS } from '../data/weapons.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { dailyStreak } from './daily.ts';
 import type { Profile } from './profile.ts';
@@ -96,6 +98,14 @@ export interface AchievementRow {
   needed: number;
   /** Earned and not announced yet. */
   fresh: boolean;
+  /** The name of what it unlocks (M14 (l3)), if anything. */
+  reward?: string;
+}
+
+/** The name of an achievement's reward, as the loot shows it. */
+export function rewardName(r: AchievementReward): string {
+  const def = r.kind === 'arma' ? WEAPONS[r.id] : r.kind === 'activo' ? ACTIVE_ITEMS[r.id] : ITEMS[r.id];
+  return def?.name ?? r.id;
 }
 
 /** Every achievement, earned or not, for the screen. */
@@ -103,7 +113,8 @@ export function achievementBoard(p: Profile): AchievementRow[] {
   return ACHIEVEMENTS.map((a) => {
     const earned = p.achievements.includes(a.id);
     const pr = achievementProgress(a, p);
-    return { id: a.id, name: a.name, text: earned ? a.quip : a.text, earned, done: earned ? pr.needed : pr.done, needed: pr.needed, fresh: p.unseen.includes(a.id) };
+    const reward = a.reward ? { reward: rewardName(a.reward) } : {};
+    return { id: a.id, name: a.name, text: earned ? a.quip : a.text, earned, done: earned ? pr.needed : pr.done, needed: pr.needed, fresh: p.unseen.includes(a.id), ...reward };
   });
 }
 

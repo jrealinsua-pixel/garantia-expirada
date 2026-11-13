@@ -625,8 +625,12 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
     «Méritos» en el Catálogo de siniestros con cada logro, su progreso («23/100») y su chiste.
     Hecho el 2026-11-12: el sello `sello-merito` (`tools/sprites/meritos.ts`), la tercera pestaña,
     «Glosario · ¡Mérito nuevo!» en los menús y el aviso en la partida; e2e `62a`–`62e`.
-  - [ ] (l3) Contenido limitado: algunas armas y objetos solo entran en los cofres y la tienda
+  - [x] (l3) Contenido limitado: algunas armas y objetos solo entran en los cofres y la tienda
     después de ganar un logro concreto (la recompensa, en los datos del logro), con su aviso.
+    Hecho el 2026-11-12: 12 premios (`reward` y `lockedContent` en `src/data/logros.ts`,
+    `World.locked`), el reto del día sin ninguno, `tests/premios.test.ts`, e2e `62b`–`62d`.
+  - [ ] (l4) Más premios que no sean lo que ya hay: armas y objetos nuevos que solo existen como
+    premio de un logro (por ejemplo, para los logros difíciles que hoy no traen nada).
 - [ ] PNJs que aparecen a veces en las plantas, piden cosas o proponen desafíos y, encontrados
   (según lo que se haya hecho antes), se quedan en el Mostrador: cuentan historia y desbloquean
   cosas. El Mostrador, más grande y con más cosas.
