@@ -706,10 +706,11 @@ juegos del género» de `docs/DISENO.md`.
   sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo
   la generación procedural: (h11a) los props nuevos que se usan, (h11b) decoración por planta,
   (h11c) plantillas de sala nuevas con más forma.
-  - [ ] (h11a1) La Regleta Sobrecargada: un prop bajo que sale en algunos huecos de obstáculo vacíos
+  - [x] (h11a1) La Regleta Sobrecargada: un prop bajo que sale en algunos huecos de obstáculo vacíos
     (con su propio generador, para no mover las salas) y, mientras hay pelea, da una descarga cada
     pocos segundos con aviso (chispas y el alcance en el suelo) a todo lo que tenga cerca, enemigos
-    incluidos; a tiros hace cortocircuito y se va.
+    incluidos; a tiros hace cortocircuito y se va. Hecho el 2026-11-13: `regleta` (`PropDef.zap`,
+    `REGLETA_CHANCE`, `FillOptions.hazard`), el bot se aparta, `tests/regleta.test.ts`, e2e `11p`–`11s`.
   - [ ] (h11a2) La estantería que cae: alta, se tumba a tiros hacia el lado contrario, con su
     sombra de aviso, aplasta lo que pilla y queda como obstáculo bajo.
   - [ ] (h11a3) Charcos: el agua que deja algo roto (una garrafa, un extintor) moja el suelo y

@@ -3,7 +3,7 @@
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, inkUnder, inWind, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
-import { freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup } from './world.ts';
+import { freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup, zapCentre } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
 import { overlaps } from './vec.ts';
 import { conveyorAt } from './conveyors.ts';
@@ -151,6 +151,21 @@ export function dodge(w: World): Dodge {
     const pad = 10;
     if (p.x < d.box.x - pad || p.x > d.box.x + d.box.w + pad || p.y < d.box.y - pad || p.y > d.box.y + d.box.h + pad) continue;
     out.x += d.out * 1.6;
+  }
+  // A Regleta crackling (M14b (h11a1)): out of its reach before it zaps (once it has seen it).
+  if (w.doorsShut) {
+    for (const pr of w.room.props) {
+      const zap = pr.def.zap;
+      if (!zap || pr.zapT === undefined || pr.zapT < zap.every - zap.warn + BOT_REACTION) continue;
+      const c = zapCentre(pr);
+      const dx = p.x - c.x;
+      const dy = p.y - c.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const reach = zap.radius + 12;
+      if (d > reach) continue;
+      out.x += (dx / d) * (1 - d / reach) * 1.6 + (dx / d) * 0.4;
+      out.y += (dy / d) * (1 - d / reach) * 1.6 + (dy / d) * 0.4;
+    }
   }
   // An air conditioner's cone: step out of it sideways (in it the air pushes and the shots bend away).
   for (const en of w.enemies) {

@@ -701,6 +701,12 @@
     "frameH": 24,
     "frames": 1
   },
+  "regleta": {
+    "file": "regleta.png",
+    "frameW": 24,
+    "frameH": 18,
+    "frames": 2
+  },
   "caja-2": {
     "file": "caja-2.png",
     "frameW": 24,

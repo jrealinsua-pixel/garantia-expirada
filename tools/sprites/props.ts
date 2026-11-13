@@ -2079,3 +2079,44 @@ export function makeScratchCard(): Canvas {
   cv.rect(2, 10, 7, 1, RED[1]!);
   return outline(cv);
 }
+
+/**
+ * M14b (h11a1): the Regleta Sobrecargada, a power strip with an adapter on an adapter and a
+ * charger nobody owns. Frame 0: live (the switch's light on); 1: resting (the room is calm).
+ */
+export function makeRegletaFrames(): Canvas[] {
+  return [true, false].map((live) => {
+    const cv = new Canvas(24, 18);
+    // Cables first: they go under everything (one out to the left, one out of the far end).
+    for (const [x, y] of [[0, 14], [1, 14], [2, 13], [3, 13], [3, 12]] as const) cv.set(x, y, GLOVE[2]!);
+    for (const [x, y] of [[21, 15], [22, 15], [23, 16]] as const) cv.set(x, y, GLOVE[2]!);
+    // The strip: a long light top with its sockets and a thin front.
+    cv.rect(2, 9, 20, 5, CREAM[1]!);
+    cv.rect(2, 9, 20, 1, CREAM[0]!);
+    cv.rect(2, 14, 20, 2, CREAM[2]!);
+    cv.rect(2, 16, 20, 1, CREAM[3]!);
+    cv.rect(21, 9, 1, 7, CREAM[2]!);
+    // A yellow warning sticker on the front, half peeled.
+    cv.rect(6, 14, 3, 2, YEL[1]!);
+    cv.set(8, 14, YEL[2]!);
+    // Socket 1: a black plug, fat.
+    box(cv, 4, 5, 4, 7, GLOVE);
+    cv.rect(5, 6, 2, 1, GLOVE[0]!);
+    // Socket 2: the white adapter («ladrón») with a red charger on top of it.
+    box(cv, 9, 4, 5, 8, FRT);
+    // Its own socket on the face, two slits (not eyes: it is not an enemy).
+    cv.rect(10, 7, 1, 2, FRT[3]!);
+    cv.rect(12, 7, 1, 2, FRT[3]!);
+    box(cv, 10, 0, 3, 5, RED);
+    // Socket 3: a chunky grey charger with its own little light.
+    box(cv, 14, 5, 4, 7, DSTEEL);
+    cv.set(16, 7, live ? GREEN : DSTEEL[3]!);
+    // The empty last socket: two holes.
+    cv.set(18, 11, K);
+    cv.set(18, 12, K);
+    // The switch at the end, lit while it is live.
+    cv.rect(19, 10, 2, 3, live ? RED[1]! : RED[3]!);
+    cv.set(19, 10, live ? hx('#fff1a8') : RED[2]!);
+    return outline(cv);
+  });
+}

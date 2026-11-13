@@ -1,5 +1,5 @@
 // Room geometry built from a text template (src/data/rooms.ts).
-import { DUMMIES, PROPS } from '../data/props.ts';
+import { DUMMIES, PROPS, REGLETA_MAX } from '../data/props.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { DummyDef, EnemyDef, PropDef, RoomKind, RoomTemplate, SlotEnemy } from '../data/types.ts';
 import type { Dir } from './floor.ts';
@@ -30,6 +30,8 @@ export interface PropInstance {
   slide?: { fromX: number; fromY: number; toX: number; toY: number; t: number; warn: number; time: number };
   /** A temporary prop (the Nube's folders, M14 (j3)): seconds left before it goes. */
   life?: number;
+  /** A prop that zaps (PropDef.zap, M14b (h11a1)): seconds into its cycle (it zaps at `every`). */
+  zapT?: number;
 }
 
 /** The four ways a tipped table can face (its top, the side that stops bullets). */
@@ -143,6 +145,8 @@ const PROP_CHARS: Record<string, string> = {
   c: 'caja', b: 'barril', k: 'carrito', v: 'mesa', m: 'mostrador', '|': 'poste', '=': 'mesa-juntas', _: 'mampara-movil',
   // The Centralita's low counters (M11 (2c2)): `~` the middle of a long one, `!` the bottom of an upright one.
   '~': 'mostrador-bajo', '!': 'mostrador-bajo-v',
+  // M14b (h11a1): the Regleta Sobrecargada (fillTemplate puts it in some empty obstacle slots).
+  r: 'regleta',
 };
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
@@ -431,6 +435,11 @@ export interface FillOptions {
   vary?: boolean;
   /** Most the room may spend on enemies (BUDGET_CAP if not given). */
   cap?: number;
+  /**
+   * M14b (h11a1): obstacle slots left empty may get a Regleta Sobrecargada (`r`), each with
+   * `chance`, drawn from this generator of its own (the room's other draws do not move).
+   */
+  hazard?: { rng: Rng; chance: number };
 }
 
 /** Template digits `1`–`9`: groups of shelving that stand or not, each on its own, with the seed. */
@@ -458,10 +467,14 @@ const OBSTACLES: readonly [string, number][] = [['.', 3], ['c', 3], ['b', 2], ['
 export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): RoomTemplate {
   const grid = t.rows.map((r) => [...r]);
   const enemySlots: Cell[] = [];
+  const empty: Cell[] = [];
   grid.forEach((line, r) => line.forEach((ch, c) => {
     if (ch === 'e') enemySlots.push({ c, r });
     else if (ch === 'J' && opts.boss) line[c] = opts.boss;
-    else if (ch === 'o') line[c] = weighted(rng, OBSTACLES);
+    else if (ch === 'o') {
+      line[c] = weighted(rng, OBSTACLES);
+      if (line[c] === '.') empty.push({ c, r });
+    }
   }));
   rng.shuffle(enemySlots);
   let budget = enemyBudget(opts.depth, opts.cap);
@@ -483,6 +496,15 @@ export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): Room
   for (const line of grid) line.forEach((ch, c) => {
     if (isGroup(ch)) line[c] = stands.get(ch) ? '#' : '.';
   });
+  if (opts.hazard && t.kind === 'combat') {
+    let left = REGLETA_MAX;
+    for (const cell of empty) {
+      if (left > 0 && opts.hazard.rng.chance(opts.hazard.chance)) {
+        grid[cell.r]![cell.c] = 'r';
+        left--;
+      }
+    }
+  }
   // Floor templates are symmetric around the doors (the centre of each wall), so a mirrored
   // room keeps them; the back wall stays at the top.
   // A belt's arrows turn round with it.

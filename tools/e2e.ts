@@ -223,7 +223,8 @@ try {
   // Bombilla de Bajo Consumo and its moth: stand at a distance and wait for the spiral.
   // (It drifts about since M14b (h9a): if a stray shot already took it apart, a fresh one.)
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; let b = w.enemies.find((e) => e.def.id === 'bombilla');
-    if (!b) { window.__GE__.spawnIdle('bombilla', 300, 140); b = w.enemies.find((e) => e.def.id === 'bombilla'); }
+    // (spawnIdle leaves it waiting for ever: this one has to light up, so it starts its count now.)
+    if (!b) { window.__GE__.spawnIdle('bombilla', 300, 140); b = w.enemies.find((e) => e.def.id === 'bombilla'); b.t = 0; b.until = 0.3; }
     w.player.x = b.x + 20; w.player.y = b.y + 110; })()`);
   const bulb = await page.evaluate<{ x: number; y: number }>(`(() => { const b = window.__GE__.scene.world.enemies.find((e) => e.def.id === 'bombilla'); return { x: b.x, y: b.y - 20 }; })()`);
   await aimAt(bulb.x, bulb.y);
@@ -493,6 +494,29 @@ try {
   await page.waitForFunction(`!window.__GE__.scene.world.room.props.some((pr) => pr.x === ${tableAt.x} && pr.y === ${tableAt.y})`, undefined, { timeout: 2000 });
   await page.waitForTimeout(90);
   await shot('11o-mesa-rota.png');
+  // M14b (h11a1): a Regleta Sobrecargada where the table was, with the dummy and an enemy next to
+  // it: it crackles (its reach lit on the floor), zaps them both, and lit it shorts out and is gone.
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world;
+    for (const en of w.enemies) en.damageTaken = en.def.hp;
+    g.placeProp('regleta', ${tableAt.x}, ${tableAt.y});
+    const pr = w.room.props[w.room.props.length - 1]; pr.zapT = pr.def.zap.every - pr.def.zap.warn - 0.4;
+    const d = w.dummies[0]; if (d) { d.x = ${tableAt.x} + 26; d.y = ${tableAt.y} + 6; }
+    w.player.x = ${tableAt.x} - 58; w.player.y = ${tableAt.y} + 26; w.player.vx = 0; w.player.vy = 0; })()`);
+  await page.evaluate(`window.__GE__.spawnIdle('aspirador', ${tableAt.x} - 24, ${tableAt.y} - 14)`);
+  const dummyBefore = await page.evaluate<number>('window.__GE__.scene.world.dummies[0]?.damageTaken ?? 0');
+  await page.waitForTimeout(950);
+  await shot('11p-regleta-aviso.png');
+  await page.waitForFunction(`(window.__GE__.scene.world.dummies[0]?.damageTaken ?? 0) > ${dummyBefore}`, undefined, { timeout: 2500 });
+  await page.waitForTimeout(30);
+  await shot('11q-regleta-descarga.png');
+  await page.evaluate(`(() => { const pr = window.__GE__.scene.world.room.props.find((o) => o.def.id === 'regleta'); pr.damage = pr.def.hp; pr.fuse = 0.25; })()`);
+  await page.waitForTimeout(120);
+  await shot('11r-regleta-chispea.png');
+  await page.waitForFunction(`!window.__GE__.scene.world.room.props.some((o) => o.def.id === 'regleta')`, undefined, { timeout: 2000 });
+  await page.waitForTimeout(50);
+  await shot('11s-regleta-cortocircuito.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const en of w.enemies) en.damageTaken = en.def.hp; })()`);
+  await page.waitForTimeout(400);
   await page.evaluate(`(() => { window.__GE__.scene.world.noDamage = false; })()`);
   // Down: with half a heart left, one more bullet ends it. The toaster comes apart (slices,
   // spring, screws), the sick-leave report drops in with its stamp, and R asks for a new unit.

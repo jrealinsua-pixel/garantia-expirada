@@ -5,7 +5,7 @@ import { FINDABLE_WEAPONS, WEAPONS, weaponsUpTo } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { FINANCE_PRICE, RAFFLE_COUPONS, RAFFLE_PRICE, RAFFLE_PRIZES, SHOP_PRICES, SHOP_SHELVES, type RafflePrize, type ShopGood } from '../data/shop.ts';
-import type { BlowerBrain, BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
+import type { BlowerBrain, BulletBehaviour, CharacterDef, DummyDef, EnemyDef, Modifier, Perks, PropDef, RoomTemplate, SurpriseDef, WeaponDef } from '../data/types.ts';
 import { activeSynergies, moddedCharacter, moddedWeapon, perksOf } from './mods.ts';
 import { SYNERGIES } from '../data/synergies.ts';
 import { bossWarnSpot, isRunDown, shredBullet, shredSide, updateEnemies } from './enemies.ts';
@@ -34,7 +34,7 @@ import {
   type StationKind,
   type TipSide,
 } from './room.ts';
-import { PROPS } from '../data/props.ts';
+import { PROPS, REGLETA_CHANCE } from '../data/props.ts';
 import { SPECIAL_HEARTS, SURGE_DAMAGE, SURGE_VALUE, TURBO_DAMAGE, TURBO_HEAL } from '../data/hearts.ts';
 import { LORE } from '../data/lore.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
@@ -881,6 +881,12 @@ export type SimEvent =
   | { type: 'propHit'; x: number; y: number; damage: number; hp: number }
   | { type: 'propLit'; x: number; y: number; fuse: number }
   | { type: 'blast'; x: number; y: number; radius: number; prop: string; floorY: number }
+  /**
+   * A prop that zaps (PropDef.zap, M14b (h11a1)) starts crackling at its feet (x, y): in `warn` s it
+   * zaps within `radius` of (cx, cy); then it does, and `targets` are what it hit (the toaster too).
+   */
+  | { type: 'zapWarn'; x: number; y: number; cx: number; cy: number; radius: number; warn: number }
+  | { type: 'zap'; x: number; y: number; cx: number; cy: number; radius: number; targets: Array<{ x: number; y: number }>; player: boolean }
   /** A prop that breaks into nothing (PropDef.crumble) is gone: `shot` to bits, or its time up. */
   | { type: 'propCrumble'; x: number; y: number; prop: string; shot: boolean }
   /** «Almacenamiento lleno»: a boss drops temporary props (BossFolderAttack) at these spots. */
@@ -1465,7 +1471,9 @@ function planFloor(seed: string, level: number, weapons: string[], locked: reado
   const rooms = layout.rooms.map((fr): FloorRoomState => {
     // Each floor up counts as LEVEL_DEPTH rooms deeper: more enemies per room.
     const depth = Math.max(1, fr.depth) + (level - 1) * LEVEL_DEPTH;
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss, vary: true, cap: budgetCapOf(level) });
+    // M14b (h11a1): the Regletas come from a generator of their own, so the rooms keep the rest.
+    const hazard = { rng: new Rng(`regletas:${seed}:${fr.id}`), chance: REGLETA_CHANCE[level] ?? 0 };
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss, vary: true, cap: budgetCapOf(level), hazard });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets; each of the rest a
@@ -3406,10 +3414,76 @@ function updateProps(w: World): void {
       crumbleProp(w, pr, false);
       continue;
     }
+    if (pr.def.zap && pr.fuse === undefined) updateZap(w, pr, pr.def.zap);
     if (pr.fuse === undefined) continue;
     pr.fuse -= DT;
     if (pr.fuse <= 0) blowUp(w, pr);
   }
+}
+
+/** Where a zapping prop's current comes from: the middle of its box. */
+export function zapCentre(pr: PropInstance): { x: number; y: number } {
+  return { x: pr.x, y: pr.y + pr.def.box.y + pr.def.box.h / 2 };
+}
+
+/**
+ * Seconds into its cycle a zapping prop starts at: its own, from where it stands (so two in a room
+ * do not go off together), and never less than a second before its first warning.
+ */
+export function zapPhase(pr: PropInstance, zap: NonNullable<PropDef['zap']>): number {
+  const spread = Math.max(0, zap.every - zap.warn - 1);
+  return (((Math.round(pr.x) * 13 + Math.round(pr.y) * 7) % 97) / 97) * spread;
+}
+
+/**
+ * The Regleta Sobrecargada (M14b (h11a1)): while the room has a fight it counts its cycle,
+ * crackles `warn` s before the end and zaps everything within reach. With the room calm (cleared,
+ * or the run over) it rests, and a warning that was under way is called off.
+ */
+function updateZap(w: World, pr: PropInstance, zap: NonNullable<PropDef['zap']>): void {
+  pr.zapT ??= zapPhase(pr, zap);
+  if (!w.doorsShut || w.over) {
+    if (pr.zapT > zap.every - zap.warn) pr.zapT = 0;
+    return;
+  }
+  const before = pr.zapT;
+  pr.zapT += DT;
+  const c = zapCentre(pr);
+  if (before < zap.every - zap.warn && pr.zapT >= zap.every - zap.warn) {
+    w.events.push({ type: 'zapWarn', x: pr.x, y: pr.y, cx: c.x, cy: c.y, radius: zap.radius, warn: zap.warn });
+  }
+  if (pr.zapT < zap.every) return;
+  pr.zapT -= zap.every;
+  const near = (x: number, y: number, extra = 0): boolean => Math.hypot(x - c.x, y - c.y) <= zap.radius + extra;
+  const targets: Array<{ x: number; y: number }> = [];
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar') continue;
+    const hb = dummyHurtBox(en);
+    const hx = hb.x + hb.w / 2;
+    const hy = hb.y + hb.h / 2;
+    if (!near(hx, hy, Math.min(hb.w, hb.h) / 2)) continue;
+    en.damageTaken = Math.min(en.def.hp, en.damageTaken + zap.damage * takenScale(en));
+    en.hitT = 0.12;
+    targets.push({ x: hx, y: hy });
+  }
+  for (const d of w.dummies) {
+    const hb = dummyHurtBox(d);
+    const hx = hb.x + hb.w / 2;
+    const hy = hb.y + hb.h / 2;
+    if (!near(hx, hy, Math.min(hb.w, hb.h) / 2)) continue;
+    d.hitT = 0.12;
+    d.damageTaken += zap.damage;
+    targets.push({ x: hx, y: hy });
+  }
+  const p = w.player;
+  let player = false;
+  // Rolling, the toaster is off the floor: the current does not reach it.
+  if (!isRolling(p) && near(p.x, p.y - PLAYER_HURT_Y, PLAYER_HURT_RADIUS)) {
+    const d = normalize(p.x - c.x, p.y - PLAYER_HURT_Y - c.y);
+    player = hurtPlayer(w, zap.hurt, -1, d.x, d.y, { by: 'regleta', how: 'contact' });
+    if (player) targets.push({ x: p.x, y: p.y - PLAYER_HURT_Y });
+  }
+  w.events.push({ type: 'zap', x: pr.x, y: pr.y, cx: c.x, cy: c.y, radius: zap.radius, targets, player });
 }
 
 /**
@@ -3438,7 +3512,7 @@ function blowUp(w: World, pr: PropInstance): void {
   const p = w.player;
   if (near(p.x, p.y - PLAYER_HURT_Y, PLAYER_HURT_RADIUS)) {
     const d = normalize(p.x - cx, p.y - PLAYER_HURT_Y - cy);
-    hurtPlayer(w, blast.hurt, -1, d.x, d.y, { by: 'bidon', how: 'contact' });
+    hurtPlayer(w, blast.hurt, -1, d.x, d.y, { by: pr.def.id === 'barril' ? 'bidon' : pr.def.id, how: 'contact' });
   }
   for (const o of w.room.props) if (o.def.hp && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) lightProp(w, o, CHAIN_FUSE);
   // Tables next to it (standing or tipped) are blown to bits.

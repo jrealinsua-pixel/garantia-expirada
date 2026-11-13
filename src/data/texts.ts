@@ -144,6 +144,7 @@ export const DOWN_UNIT = 'Tostadora Reacondicionada';
 export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> = {
   aspirador: { contact: 'Atropello por aspirador en oferta' },
   bidon: { contact: 'Bidón de aceite usado sin etiquetar' },
+  regleta: { contact: 'Regleta con catorce aparatos y un solo enchufe' },
   microondas: { bullet: 'Exposición prolongada a microondas', contact: 'Golpe con microondas sin seguro' },
   bombilla: { bullet: 'Sobretensión de un mando intermedio', contact: 'Roce con un mando intermedio' },
   polilla: { contact: 'Ataque de polilla leal a la empresa' },

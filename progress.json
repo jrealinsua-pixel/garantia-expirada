@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T17:51:00+01:00",
+  "actualizado": "2026-11-13T19:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 955,
-    "tests_ok": 955,
+    "tests": 974,
+    "tests_ok": 974,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 34316
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T19:40:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h11a1): la Regleta Sobrecargada, un prop que sale a veces en las salas de combate y, mientras hay pelea, avisa con chispas y su alcance en el suelo y da una descarga a todo lo que tenga cerca, enemigos incluidos; rodando no llega, y a tiros hace cortocircuito. Arreglado el e2e, que estaba roto en la Bombilla."
+    },
     {
       "fecha": "2026-11-13T17:55:00+01:00",
       "hito": "M14b",
@@ -1370,6 +1375,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/regleta-descarga.png",
+      "pie": "M14b (h11a1): la Regleta Sobrecargada da una descarga al aspirador que tenía al lado"
+    },
+    {
+      "archivo": "capturas/regleta-aviso.png",
+      "pie": "El aviso: su alcance se enciende en el suelo y un anillo crece hasta el borde"
+    },
+    {
       "archivo": "capturas/decoracion-plantas.png",
       "pie": "M14b (h11b): una sala de combate de cada planta con sus trastos en los rincones y junto a las paredes, y la sombra de las paredes"
     },
@@ -1384,17 +1397,9 @@
     {
       "archivo": "capturas/bidon-encendido.png",
       "pie": "M14b (h5): el bidón encendido pinta su alcance en el suelo antes de explotar"
-    },
-    {
-      "archivo": "capturas/consola-cajas.png",
-      "pie": "M14 (j4): la Consola Edición Coleccionista, el otro jefe de la planta 3, lanza cajas de botín: rotas a tiros, un juguete o cupones falsos; si se abren solas, lo peor"
-    },
-    {
-      "archivo": "capturas/consola-temporada.png",
-      "pie": "«Pase de temporada»: el pase al cuello, luces de colores y ataques que cambian cada 8 s; ahora, la «Temporada competitiva»"
     }
   ],
-  "proximo": "M14b (h9d) los enemigos de la planta 4 con movimiento propio, (h11c) plantillas de sala con más forma, o (h10a) jefes más únicos; (h11a1) está cogida.",
+  "proximo": "M14b (h11a2) la estantería que cae, (h10a) jefes de las plantas 1–2 más únicos o (h11c) plantillas de sala con más forma ((h9d) está cogida).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1423,11 +1428,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-13 17:45",
-      "tarea": "M14b (h11a1): la Regleta Sobrecargada, un prop que da descargas (src/data/props.ts, src/sim/room.ts fillTemplate, src/sim/world.ts updateProps, tools/sprites/props.ts, GameScene; tests/regleta.test.ts)",
-      "desde": "2026-11-13T16:45:00Z"
-    },
     {
       "sesion": "2026-11-13 18:30",
       "tarea": "M14b (h9d): los enemigos de la planta 4 con movimiento propio (src/data/enemies.ts fotocopiadora y climatizador, src/data/types.ts, src/sim/enemies.ts updateCopier y updateBlower, GameScene drawWind; tests/fotocopiadora-escondida.test.ts y tests/climatizador-manguera.test.ts)",

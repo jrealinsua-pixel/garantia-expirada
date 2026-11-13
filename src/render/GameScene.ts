@@ -118,7 +118,8 @@ import {
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, setCharacter, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { pairUp, spawnEnemy, tapesOf, TIP_FACING, PLAYER_HURT_Y, type HeartKind, type Player } from '../sim/world.ts';
-import { BLAST_FUSE, dummyHurtBox, type Dummy } from '../sim/world.ts';
+import { BLAST_FUSE, dummyHurtBox, zapCentre, zapPhase, type Dummy } from '../sim/world.ts';
+import { PROPS } from '../data/props.ts';
 import { MARKDOWN_LINES } from '../data/texts.ts';
 
 /** What the toaster has on loan after its hearts, in the order it pays: surge, warranties, turbo. */
@@ -425,6 +426,8 @@ export class GameScene extends Phaser.Scene {
   private chestSprites = new Map<number, { s: Phaser.GameObjects.Image; open: boolean; pop: number }>();
   /** Props that can blow up (M9b 13a), by their feet «x,y»: sprite, shadow and how hard they still shake from a hit. */
   private drumRing: Phaser.GameObjects.Graphics | null = null;
+  /** M14b (h11a1): the reach of the Regletas on the floor (faint while live, lit while they crackle). */
+  private zapRing: Phaser.GameObjects.Graphics | null = null;
   private drumViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; jolt: number; smoke: number }>();
   /** Tables (M9b 13b), by their spot: the sprite (its frame says how it lies), its shadow, a jolt and the tipping hop. */
   private tableViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; y: number; jolt: number; tip: number; side?: TipSide; wear?: number }>();
@@ -892,6 +895,7 @@ export class GameScene extends Phaser.Scene {
       dropHeart: (x: number, y: number, kind: HeartKind) => void;
       spawnIdle: (id: string, x: number, y: number) => void;
       spawnPair: (id: string, ax: number, ay: number, bx: number, by: number) => void;
+      placeProp: (id: string, x: number, y: number) => void;
     };
     (window as unknown as { __GE__: TestHooks }).__GE__ = {
       scene: this,
@@ -921,6 +925,11 @@ export class GameScene extends Phaser.Scene {
         const b = spawnEnemy(this.world.nextId++, ENEMIES[id]!, bx, by);
         pairUp(a, b);
         this.world.enemies.push(a, b);
+      },
+      // ...or a prop (src/data/props.ts) with its bottom-centre there (drawn on the next frame).
+      placeProp: (id: string, x: number, y: number) => {
+        const def = PROPS[id]!;
+        this.world.room.props.push({ def, x, y, box: { x: x + def.box.x, y: y + def.box.y, w: def.box.w, h: def.box.h } });
       },
     };
     if (offTheBelt && this.world.floor && this.world.level === 1) this.showSlip();
@@ -3409,8 +3418,16 @@ export class GameScene extends Phaser.Scene {
           break;
         }
         case 'propLit':
-          // Lit: a hiss before the bang.
-          this.sound2.play('vapor', { detune: -800, volume: 0.6 });
+          // Lit: a hiss before the bang (a Regleta crackles instead).
+          if (this.world.room.props.some((pr) => pr.x === e.x && pr.y === e.y && pr.def.zap)) this.sound2.play('zapear', { detune: -300, volume: 0.8 });
+          else this.sound2.play('vapor', { detune: -800, volume: 0.6 });
+          break;
+        case 'zapWarn':
+          // M14b (h11a1): the Regleta crackles before it zaps.
+          this.sound2.play('zapear', { detune: 600, volume: 0.35 });
+          break;
+        case 'zap':
+          this.regletaZap(e);
           break;
         case 'blast':
           this.drumBlast(e);
@@ -3803,6 +3820,99 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * M14b (h11a1): the Regletas. Live (a fight in the room) the switch is lit and their reach is a
+   * faint blue ring on the floor; in the last `warn` s before a zap the ring fills and blinks, the
+   * strip trembles and spits sparks, so there is time to get away (or to roll over the current).
+   */
+  private drawRegletas(): void {
+    if (!this.zapRing || !this.zapRing.scene) this.zapRing = this.add.graphics().setDepth(-48991);
+    const ring = this.zapRing.clear();
+    const w = this.world;
+    const live = w.doorsShut && !w.over;
+    for (const pr of w.room.props) {
+      const zap = pr.def.zap;
+      if (!zap) continue;
+      const v = this.drumViews.get(`${pr.x},${pr.y}`);
+      v?.s.setFrame(live ? 0 : 1);
+      if (!live || pr.fuse !== undefined) continue;
+      const c = zapCentre(pr);
+      const t = pr.zapT ?? zapPhase(pr, zap);
+      const left = zap.every - t;
+      if (left > zap.warn) {
+        ring.lineStyle(1, 0x69dbd8, 0.16).strokeCircle(c.x, c.y, zap.radius);
+        continue;
+      }
+      const k = 1 - left / zap.warn;
+      const blink = Math.floor(this.time.now / (k < 0.6 ? 110 : 55)) % 2 === 0;
+      ring.fillStyle(0x69dbd8, 0.06 + 0.16 * k).fillCircle(c.x, c.y, zap.radius);
+      ring.lineStyle(1, blink ? 0xffffff : 0x69dbd8, 0.9).strokeCircle(c.x, c.y, zap.radius);
+      // The current gathering: an inner ring that grows to the edge as the zap comes.
+      ring.lineStyle(1, 0xb6f1f0, 0.75).strokeCircle(c.x, c.y, Math.max(3, zap.radius * k));
+      if (v) {
+        v.s.setX(v.x + (blink ? 1 : 0));
+        if (this.fx.chance(0.25 + 0.5 * k)) this.spark(pr.x + this.fx.range(-8, 8), pr.y - this.fx.range(6, 14), this.fx.range(-Math.PI, 0), this.fx.range(20, 60), 0, 0x69dbd8);
+      }
+    }
+  }
+
+  /** A Regleta zaps: a flash of its reach, a bolt to everything it hit, and a crack. */
+  private regletaZap(e: Extract<SimEvent, { type: 'zap' }>): void {
+    this.sound2.play('zapear', { detune: -900, volume: 0.9 });
+    this.sound2.play('golpeRuido', { volume: 0.5 });
+    if (e.player) this.shake(160, 0.01, true);
+    const flash = this.add.circle(e.cx, e.cy, e.radius, 0xb6f1f0, 0.35).setDepth(-48980);
+    this.tweens.add({ targets: flash, alpha: 0, duration: 200, ease: 'Quad.easeIn', onComplete: () => flash.destroy() });
+    const g = this.add.graphics().setDepth(e.y + 40);
+    // Without anyone in reach it still arcs to the floor around it: a zap that hits nothing is seen too.
+    const ends = e.targets.length ? e.targets : [0, 1, 2].map((i) => {
+      const a = this.fx.range(0, Math.PI * 2) + i * 2;
+      return { x: e.cx + Math.cos(a) * e.radius * 0.8, y: e.cy + Math.sin(a) * e.radius * 0.8 };
+    });
+    for (const t of ends) this.bolt(g, e.cx, e.cy - 4, t.x, t.y);
+    this.tweens.add({ targets: g, alpha: 0, duration: 220, ease: 'Quad.easeIn', onComplete: () => g.destroy() });
+    for (let i = 0; i < 6; i++) this.spark(e.cx, e.cy - 4, this.fx.range(0, Math.PI * 2), this.fx.range(40, 100), 0, 0x69dbd8);
+  }
+
+  /** A zigzag bolt from (x0, y0) to (x1, y1) in eight steps, glow under a white core. */
+  private bolt(g: Phaser.GameObjects.Graphics, x0: number, y0: number, x1: number, y1: number): void {
+    const steps = 8;
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    const pts: Phaser.Math.Vector2[] = [];
+    for (let i = 0; i <= steps; i++) {
+      const off = i === 0 || i === steps ? 0 : this.fx.range(-6, 6);
+      pts.push(new Phaser.Math.Vector2(x0 + (dx * i) / steps + nx * off, y0 + (dy * i) / steps + ny * off));
+    }
+    g.lineStyle(3, 0x69dbd8, 0.6).strokePoints(pts);
+    g.lineStyle(1, 0xffffff, 1).strokePoints(pts);
+    for (let i = 0; i < 4; i++) this.spark(x1, y1, this.fx.range(0, Math.PI * 2), this.fx.range(40, 100), 0, 0x69dbd8);
+  }
+
+  /** A Regleta shorts out (its blast): a blue-white bang, bolts all round, a scorch and smoke. */
+  private regletaShort(e: Extract<SimEvent, { type: 'blast' }>): void {
+    this.hitstop = Math.max(this.hitstop, 0.06);
+    this.shake(200, 0.011, true);
+    this.sound2.play('estallido', { volume: 0.8 });
+    this.sound2.play('zapear', { detune: -1200 });
+    this.sound2.play('apagar', { volume: 0.7 });
+    this.add.ellipse(e.x, e.floorY - 3, 22, 9, 0x15121c, 0.55).setDepth(-49000);
+    const core = this.add.circle(e.x, e.y, 6, 0xffffff, 1).setDepth(e.floorY + 31);
+    const ring = this.add.circle(e.x, e.y, 6).setDepth(e.floorY + 32).setStrokeStyle(2, 0xb6f1f0, 1);
+    this.tweens.add({ targets: core, radius: e.radius * 0.4, alpha: 0, duration: 150, ease: 'Quad.easeOut', onComplete: () => core.destroy() });
+    this.tweens.add({ targets: ring, radius: e.radius, alpha: 0, duration: 240, ease: 'Quad.easeOut', onComplete: () => ring.destroy() });
+    const g = this.add.graphics().setDepth(e.floorY + 33);
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 + this.fx.range(-0.3, 0.3);
+      this.bolt(g, e.x, e.y, e.x + Math.cos(a) * e.radius, e.y + Math.sin(a) * e.radius * 0.8);
+    }
+    this.tweens.add({ targets: g, alpha: 0, duration: 260, ease: 'Quad.easeIn', onComplete: () => g.destroy() });
+    for (let i = 0; i < 6; i++) this.puff(e.x + this.fx.range(-8, 8), e.y + this.fx.range(-6, 4), this.fx.range(0.5, 0.9));
+  }
+
+  /**
    * Drums (M9b 13a): a hit jolts them; a battered one smokes now and then; a lit one blinks white
    * and trembles until it goes up.
    */
@@ -3951,6 +4061,10 @@ export class GameScene extends Phaser.Scene {
       v.s.destroy();
       v.shadow.destroy();
       this.drumViews.delete(`${e.x},${e.floorY}`);
+    }
+    if (e.prop === 'regleta') {
+      this.regletaShort(e);
+      return;
     }
     this.hitstop = Math.max(this.hitstop, 0.08);
     this.shake(260, 0.013, true);
@@ -4679,6 +4793,7 @@ export class GameScene extends Phaser.Scene {
     this.drawLateProps();
     this.drawPartitions();
     this.drawDrums(dt);
+    this.drawRegletas();
     this.drawTables(dt);
     this.drawPickups();
 

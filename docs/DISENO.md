@@ -763,6 +763,17 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   bala enemiga, 1; las de la tostadora, su daño) y se rompe en astillas; un bidón que explota al
   lado la rompe al momento, esté de pie o volcada. Cobertura de un lado, que se gasta, y que hay
   que pensar dónde poner.
+- **Regleta Sobrecargada** (M14b h11a1): una regleta blanca con un ladrón encima de otro, un cargador
+  gordo que no es de nadie y el piloto rojo encendido. Sale en algunos huecos de obstáculo que se
+  quedaron vacíos (más en Informática, la planta de los cables; como mucho dos por sala) y es igual
+  en todas las plantas: lo que se enchufa en todas partes. Mientras hay pelea, cada 4,5 s chisporrotea
+  1,1 s (su alcance, 40 px, se enciende en el suelo en azul y parpadea, la regleta tiembla y escupe
+  chispas) y da una **descarga a todo lo que tenga cerca, enemigos incluidos** (3 de daño; a la
+  tostadora, medio corazón). Rodando no llega: la tostadora está en el aire. Es baja (se salta
+  rodando) pero para las balas, así que se le puede disparar: con 3 de daño hace **cortocircuito**
+  (un último estallido azul de 46 px que también enciende bidones) y se va. Con la sala limpia, el
+  piloto se apaga y descansa. Causa de baja: «Regleta con catorce aparatos y un solo enchufe».
+  Trampa para quien se queda quieto y herramienta para quien atrae a los enemigos hacia ella.
 
 ### Balas enemigas
 

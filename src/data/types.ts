@@ -452,6 +452,13 @@ export interface PropDef {
    * and only the toaster's bullets wear it.
    */
   crumble?: boolean;
+  /**
+   * A prop that gives electric shocks while there is a fight in the room (the Regleta Sobrecargada,
+   * M14b (h11a1)): every `every` s it crackles for `warn` s (its reach lit on the floor) and then
+   * zaps everything within `radius` px: `damage` to enemies (and dummies), `hurt` half hearts to
+   * the toaster unless it is rolling (in the air, off the floor).
+   */
+  zap?: { every: number; warn: number; radius: number; damage: number; hurt: number };
 }
 
 export interface DummyDef {

@@ -2,6 +2,46 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 19:40 (hora peninsular) — Hito M14b — (h11a1) La Regleta Sobrecargada
+- Contexto: (h9c) y (h11b) estaban cogidas por otras sesiones; elegí la (h11a), que no toca sus
+  archivos, y la partí en tres en la hoja de ruta: (h11a1) la regleta, (h11a2) la estantería que
+  cae, (h11a3) charcos que conducen. Salud al empezar: `check`, tests y `bot` en verde; **el e2e
+  estaba roto en `main`** (ver abajo).
+- Hecho: M14b (h11a1). **Regleta Sobrecargada** (`src/data/props.ts`): un prop bajo (se salta
+  rodando) que para balas (se le puede disparar). Mientras hay pelea (`doorsShut`), cada 4,5 s
+  chisporrotea 1,1 s y da una descarga de 40 px a todo lo que tenga cerca: 3 de daño a enemigos y
+  maniquís, medio corazón a la tostadora salvo si está rodando (en el aire). Dato nuevo
+  `PropDef.zap`, ciclo en `PropInstance.zapT`, `updateZap` en `src/sim/world.ts`, eventos `zapWarn`
+  y `zap`. Cada regleta empieza en su punto del ciclo según dónde está (`zapPhase`; nunca menos de
+  1 s antes del primer aviso). Con 3 de daño hace cortocircuito: reutiliza la explosión de los
+  bidones (46 px, 10 de daño, medio corazón; enciende bidones vecinos) y la causa de baja sale del
+  prop («Regleta con catorce aparatos y un solo enchufe»). Con la sala limpia se apaga el piloto.
+  **Dónde sale**: en huecos `o` que el relleno dejó vacíos, con un generador propio
+  (`FillOptions.hazard`, semilla `regletas:<semilla>:<sala>`), así el resto de cada sala no se
+  mueve; probabilidad por planta `REGLETA_CHANCE` (0,15 en la 1, 0,4 en Informática…), como mucho
+  dos por sala. Sprite `regleta` (un ladrón encima de otro, un cargador gordo, el piloto; frame 1
+  apagado). En pantalla: su alcance en azul tenue mientras está viva; en el aviso, el círculo se
+  llena, parpadea, un anillo interior crece hasta el borde, tiembla y escupe chispas; la descarga,
+  rayos a lo que tocó (o al suelo si no tocó nada) y un crujido; el cortocircuito, un estallido
+  azul con rayos en estrella. El bot se aparta de una regleta que avisa. Gancho de pruebas nuevo
+  `__GE__.placeProp`. Tests en `tests/regleta.test.ts` (8): datos, aviso y alcance, la tostadora
+  y rodando, sala tranquila, cortocircuito, fases distintas, relleno solo en huecos vacíos sin
+  mover nada más, y frecuencia y determinismo en partidas.
+- **Arreglo del e2e**: fallaba siempre en la Bombilla (`08-bombilla`), también sin mis cambios:
+  desde que flota (h9a) alguna bala perdida la tumba antes y la de repuesto salía con
+  `spawnIdle`, que espera para siempre. Ahora la de repuesto empieza su cuenta y se enciende.
+- Decisiones: la descarga daña también a los enemigos (como los bidones: el escenario es de
+  todos, y atraerlos a ella es una táctica). Sin aviso no hay daño, y rodando se libra: es justo.
+  Igual en todas las plantas (una regleta es una regleta en todas partes). No sale en las salas de
+  jefe ni en la Sala de Pruebas (solo combate de plantas generadas).
+- Medidas (`npm run bot`, antes → después, con las mismas semillas): planta 1 con daño la recorre
+  el 90 → 95 % y la gana el 60 → 75 %; 0,67 → 0,60 heridas y 12,2 → 13 s por sala de combate;
+  planta 2: 0,9 → 1,0 heridas por sala. Son 20 partidas: cambios dentro del ruido; la regleta hace
+  tanto daño a los enemigos como a la tostadora. 0 fallos, 2 atascos (igual); juntado con la (h9c), 5 atascos en las partidas de la Sala de Pruebas, donde no hay regletas (será el microondas espejo; vigilar). 974 tests en verde tras juntarlo con la (h9c) y la (h11b) (la (h11b) también arregló la espera de la bombilla en el e2e: las dos cosas se quedan).
+- Problemas conocidos: el bot no atrae enemigos a la regleta ni la rompe a propósito. Las capturas
+  del e2e mueven el maniquí, pero su dibujo se queda donde estaba.
+- Siguiente paso: (h11a2) la estantería que cae, o (h10a) jefes de las plantas 1–2 más únicos.
+
 ## 2026-11-13 17:55 (hora peninsular) — Hito M14b — (h11b) Los trastos de cada planta
 - Contexto: había tres tareas cogidas por otras sesiones ((h7), (h9a) y luego (h9c) y (h11a1)), y
   la (h10a) toca `src/sim/enemies.ts` igual que la (h9). Cogí la (h11b) porque solo toca el pintor de

@@ -58,6 +58,19 @@ export const PROPS: Record<string, PropDef> = {
   // a whole tile each, so a column of them is a wall.
   'pila-cajas': { id: 'pila-cajas', name: 'Pila de Cajas «APTO»', box: { x: -12, y: -24, w: 24, h: 24 }, blocksBullets: true },
   'mostrador-bajo-v': { id: 'mostrador-bajo-v', name: 'Separador de Departamentos', box: { x: -12, y: -76, w: 24, h: 72 }, blocksBullets: true, low: true },
+  // M14b (h11a1): a power strip with far too much plugged in. Low (rolled over), it still stops
+  // bullets so it can be shot. While there is a fight it zaps whatever is near every few seconds,
+  // enemies included; three hits and it shorts out with a last, bigger zap.
+  regleta: {
+    id: 'regleta',
+    name: 'Regleta Sobrecargada',
+    box: { x: -9, y: -9, w: 18, h: 8 },
+    blocksBullets: true,
+    hp: 3,
+    blast: { radius: 46, damage: 10, hurt: 1 },
+    zap: { every: 4.5, warn: 1.1, radius: 40, damage: 3, hurt: 1 },
+    low: true,
+  },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 
@@ -72,4 +85,13 @@ export const DUMMIES: Record<string, DummyDef> = {
 };
 
 /** What La Nevera Suprema spits in its second phase: one frame each in the `producto-caducado` sheet. */
+/**
+ * M14b (h11a1): chance that an obstacle slot left empty gets a Regleta Sobrecargada instead, by
+ * floor (Informática, the floor of chargers and cables, the most). Drawn with its own generator
+ * (fillTemplate's `hazard`), so the rest of every room stays as it was.
+ */
+export const REGLETA_CHANCE: Record<number, number> = { 1: 0.15, 2: 0.4, 3: 0.25, 4: 0.35, 5: 0.3, 6: 0.4 };
+/** Most Regletas in one room. */
+export const REGLETA_MAX = 2;
+
 export const EXPIRED_PRODUCTS = ['Yogur', 'Brick de leche', 'Lata abollada'] as const;

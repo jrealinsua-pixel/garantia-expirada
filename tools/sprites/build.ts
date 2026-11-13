@@ -222,6 +222,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     caja: one(P.makeCaja()),
     barril: one(P.makeBarril()),
     carrito: one(P.makeCarrito()),
+    // M14b (h11a1): the Regleta Sobrecargada, the same on every floor: 0 live, 1 resting.
+    regleta: { canvas: strip(P.makeRegletaFrames()), frameW: 24, frameH: 18 },
     // Floor 2 (Informática): the same obstacles and shutters with the floor's look (`<id>-2`).
     'caja-2': one(P.makeMonitorCrt()),
     'barril-2': one(P.makeWaterCooler()),
