@@ -1330,6 +1330,16 @@ try {
     { timeout: 20000 },
   );
   await shot('36b-router-ondas.png');
+  // M14b (h10a2): it hops to the repeater nearest the toaster, swapping places; the line warns of it.
+  // (The toaster a little way from a repeater, so that one is nearer it than the Router: worth a hop.)
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const b = ${routerJs};
+    const r = w.enemies.find((e) => e.def.id === 'repetidor' && e.owner === b.id);
+    w.player.x = r.x + (r.x < w.room.w / 2 ? 100 : -100); w.player.y = r.y;
+    b.x = w.room.w - r.x; b.y = w.room.h / 2; b.handoffIn = 0; })()`);
+  await page.waitForFunction(`(() => { const b = ${routerJs}; return !!b.handoff && b.handoff.t < b.handoff.warn * 0.5; })()`, undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('El Router no avisa de que salta a un repetidor'); });
+  await shot('36ba-router-cambio-punto.png');
+  await page.waitForFunction(`!${routerJs}.handoff`, undefined, { timeout: 4000 });
   await page.evaluate(`(() => { const b = ${routerJs}; b.damageTaken = Math.ceil(b.def.hp / 2) + 1; })()`);
   await page.waitForFunction(`${routerJs}.bossPhase === 1`, undefined, { timeout: 3000 });
   await page.waitForTimeout(2400);
@@ -1431,6 +1441,16 @@ try {
   )
     .catch(() => { throw new Error('No llueve'); });
   await shot('64c-nube-lluvia.png');
+  // M14b (h10a2): it hangs over the toaster, north of it, wherever it goes (over the furniture too).
+  await page.keyboard.down('a');
+  await page.waitForTimeout(900);
+  await page.keyboard.up('a');
+  await page.waitForFunction(
+    `(() => { const b = ${nubeJs}; const p = window.__GE__.scene.world.player; return b.y < p.y - 40 && Math.abs(b.x - p.x) < 90; })()`,
+    undefined,
+    { timeout: 8000 },
+  ).catch(() => { throw new Error('La Nube no se pone encima de la tostadora'); });
+  await shot('64ca-nube-encima.png');
   await page.evaluate(nubeOnly('sync'));
   await page.waitForFunction(`(() => { const b = ${nubeJs}; return b.state === 'warn' && b.t > 1.6; })()`, undefined, { timeout: 15000 })
     .catch(() => { throw new Error('La Nube no sincroniza'); });

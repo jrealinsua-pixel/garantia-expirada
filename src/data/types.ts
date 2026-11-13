@@ -1047,6 +1047,20 @@ export interface BossBrain {
    * step, still at its ends). A phase may swing wider and quicker (BossPhase.waddle).
    */
   waddle?: { angle: number; step: number };
+  /**
+   * «Cambio de punto de acceso» (the Router, M14b (h10a2)): every `every` s (random in the range)
+   * between attacks, if it has relays standing, it picks the one nearest the player (but not within
+   * `clear` px of it, and nearer it than itself), marks the hop for `warn` s (a dashed line between the two, a ring closing on
+   * the relay), swaps places with it at once and comes out of it attacking (its rest cut short).
+   */
+  handoff?: { every: [number, number]; warn: number; clear: number };
+  /**
+   * «Nubarrón» (the Nube, M14b (h10a2)): it does not circle the player, it hangs over it: it drifts
+   * towards a spot `above` px north of the player (south of it, if north is a wall), swaying up to
+   * `sway` px across and half that up and down, accelerating at no more than `accel` px/s² (it
+   * drifts, it overshoots) and floating over furniture (only walls stop it).
+   */
+  hover?: { above: number; sway: number; accel: number };
 }
 
 /**

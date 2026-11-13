@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 00:05 (hora peninsular) — Hito M14b — (h10a2) El Router cambia de punto de acceso y la Nube es un nubarrón
+- Contexto: segunda tarea de la sesión, tras la (h10a1). Otra sesión tiene cogida la (h11c)
+  (plantillas de sala); esta solo toca jefes, así que no se pisan.
+- Hecho: M14b (h10a2), y con ella la (h10a) entera.
+  - **El Router del Wifi cambia de punto de acceso** (`BossBrain.handoff`, `updateHandoff`): cada
+    4–7 s (contados andando o disparando), si tiene un repetidor más cerca de la tostadora que él
+    mismo (pero a 90 px por lo menos de ella), avisa 0,7 s —una línea discontinua cian del router al
+    repetidor que se va llenando y un anillo que se cierra sobre el repetidor; la primera vez,
+    «Cambiando de punto de acceso...»— y se cambian el sitio al instante (chispazo en los dos sitios,
+    sonido `zapear`, temblor breve). Sale del repetidor atacando: su descanso se corta a 0,2 s. Sin
+    repetidores (tras el reinicio, hasta que planta otro) no salta; un cambio de fase anula el salto.
+  - **La Nube de Almacenamiento es un nubarrón** (`BossBrain.hover`, `hoverWalk`): no rodea a la
+    tostadora, se le pone encima: 100 px al norte (al sur si al norte está la pared del fondo),
+    meciéndose 70 px a los lados y 35 arriba y abajo, a la deriva (acelera como mucho 90 px/s²) y
+    flotando por encima de los muebles (`slide(…, 'all')`: solo la paran las paredes). Su
+    `walkSpeed` pasa de 40/46 a 64/72: ahora es lo rápido que va a la deriva.
+  Tests: `tests/jefes-planta2-movimiento.test.ts` (7): datos, el router avisa y luego se cambia con
+  el repetidor que toca (el más cercano de los que mejoran la cobertura) y sale atacando, sin
+  repetidores no salta y el cambio de fase lo anula, la nube se queda al norte y a la altura de la
+  tostadora, al sur contra la pared del fondo, cruza por encima de una fila de estanterías sin
+  acelerar de golpe, determinismo. e2e: `36ba-router-cambio-punto` y `64ca-nube-encima`.
+- Decisiones: el router «se mueve» como se mueve la señal: de punto de acceso en punto de acceso; y
+  la nube como una nube de tormenta en un dibujo animado, siempre encima. Primera versión del router:
+  saltaba al repetidor más cercano a la tostadora fuera como fuera, cada 5–8 s y con 0,45 s de calma
+  al llegar, y el bot le ganaba más (62,5 → 75 %): a menudo saltaba lejos y llegaba sin prisa. Con
+  «solo si mejora la cobertura» y «sale atacando» vuelve a donde estaba. Durante el aviso puede
+  seguir atacando (si no, cada salto le quitaba un ataque).
+- Medidas (`runBoss`, 80 combates, antes → después): Router gana 62,5 → 67,5 % en 66,7 → 71 s, 4,35 →
+  4,26 heridas; Nube 78,8 → 77,5 % en 81 → 86 s, 3,88 → 3,76 heridas.
+  `npm run bot`: 0 fallos, 5 atascos (los de siempre); Router 63,3 % en 73,6 s y Nube 76,7 % en 84,8 s
+  (30 combates); planta 2 la gana el 46,7 % de los que llegan (igual que antes). 1027 tests en verde
+  (tras quitar el «…», que la Letra Pequeña no tiene: «...» como en «Escribiendo...»); e2e en verde.
+- Problemas conocidos: la línea del aviso se ve oscura hasta que se llena (sobre el suelo verde de la
+  Sala de Redes se lee, pero sin brillo); si cuesta verla, más grosor. El bot no esquiva la llegada
+  del router.
+- Siguiente paso: (h10b) los jefes de las plantas 3–5 y el final (Consola, Muñeco, Director,
+  Centralita, Trituradora): dividirla, que son cinco y el Director ya se mueve en su silla.
+
 ## 2026-11-13 22:20 (hora peninsular) — Hito M14b — (h10a1) La Nevera patina y la Lavadora anda a pivotes
 - Contexto: nadie tenía nada cogido. Salud al empezar: `check`, 1011 tests, `build` y `bot` en verde.
   El `main` local volvía a ser un clon viejo que divergía de `origin/main`: lo guardé en una rama

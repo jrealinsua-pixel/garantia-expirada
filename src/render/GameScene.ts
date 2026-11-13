@@ -43,6 +43,7 @@ import {
   TYPING_LINE,
   SIDESTEP_LINE,
   REVERSE_LINE,
+  HANDOFF_LINE,
   FAQ_LINE,
   HELP_ASK_LINE,
   TRANSFER_LINE,
@@ -2899,6 +2900,20 @@ export class GameScene extends Phaser.Scene {
           this.puff(e.x - e.dirX * 12, e.y, 0.3, 0xdff7f6);
           break;
         }
+        case 'handoffWarn':
+          // The Router looks for a better signal: a rising chirp and, the first time, what it is doing.
+          this.sound2.play('zumbido', { detune: 500, volume: 0.6 });
+          if (e.first) this.floatText(e.x, e.y - 66, fontText(HANDOFF_LINE), 0x69dbd8, `handoff:${e.boss}`, -10, 1.2);
+          break;
+        case 'handoff':
+          // Gone from here, there at once: a zap and sparks at both ends.
+          this.sound2.play('zapear', { detune: 300 });
+          for (const [hx, hy] of [[e.x, e.y], [e.tx, e.ty]] as const) {
+            this.puff(hx, hy, 0.4, 0xbff3f1);
+            for (let i = 0; i < 6; i++) this.spark(hx, hy - 20, this.fx.range(-Math.PI, Math.PI), this.fx.range(40, 90), 0, 0x69dbd8);
+          }
+          this.shake(80, 0.003, true);
+          break;
         case 'pivot':
           // The Lavadora lands the corner it swung: a dull thud on the tiles and dust off that foot.
           this.sound2.play('golpe', { detune: this.fx.range(-1300, -1000), volume: 0.35 });
@@ -5858,6 +5873,28 @@ export class GameScene extends Phaser.Scene {
     const g = this.warn;
     g.clear();
     this.scanned.clear();
+    // The Router's hop to a relay (BossBrain.handoff): a dashed line between the two that fills in,
+    // and a ring closing on the relay where it will come out.
+    for (const en of this.world.enemies) {
+      const h = en.handoff;
+      const r = h && this.world.enemies.find((o) => o.id === h.relay);
+      if (!h || !r) continue;
+      const k = Math.min(1, 1 - h.t / h.warn);
+      const blink = k < 0.8 || Math.floor(this.time.now / 60) % 2 === 0;
+      const dx = r.x - en.x;
+      const dy = r.y - en.y;
+      const n = Math.max(1, Math.floor(Math.hypot(dx, dy) / 6));
+      const lit = Math.ceil(n * k);
+      for (let i = 0; i <= n; i += 2) {
+        const x = Math.round(en.x + (dx * i) / n);
+        const y = Math.round(en.y + (dy * i) / n);
+        g.fillStyle(0x0e0c16, 0.7).fillRect(x - 1, y - 1, 4, 3);
+        if (blink) g.fillStyle(i <= lit ? 0x69dbd8 : 0x2e5f6a, 1).fillRect(x, y, 2, 1);
+      }
+      const rr = Math.round(6 + 18 * (1 - k));
+      pixelRing(g, Math.round(r.x), Math.round(r.y), rr + 1, 0x0e0c16);
+      if (blink) pixelRing(g, Math.round(r.x), Math.round(r.y), rr, 0x69dbd8);
+    }
     for (const wn of activeWarnings(this.world)) {
       const k = wn.k;
       // A photocopier's scan is the green of its light, not a threat colour.

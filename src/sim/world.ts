@@ -541,6 +541,14 @@ export interface Enemy {
    */
   glideT?: number;
   glideTrail?: number;
+  /**
+   * The Router hopping to its relays (BossBrain.handoff): seconds until the next hop, and the hop
+   * under way (the relay it goes to, seconds of warning left).
+   */
+  handoffIn?: number;
+  handoff?: { relay: number; t: number; warn: number };
+  /** Whether it has hopped to a relay before (the first hop says so). */
+  hopped?: boolean;
   /** The Lavadora walking by pivots (BossBrain.waddle): seconds into this step, and which corner (1 or -1). */
   waddleT?: number;
   waddleSide?: number;
@@ -721,6 +729,9 @@ export type SimEvent =
   | { type: 'sidestep'; x: number; y: number; dirX: number; dirY: number; first: boolean; source: number }
   /** A skating boss pushes off (BossBrain.glide): which way, and how fast (px/s). */
   | { type: 'glide'; boss: number; x: number; y: number; dirX: number; dirY: number; speed: number }
+  /** The Router starts a hop to one of its relays (BossBrain.handoff), and makes it. */
+  | { type: 'handoffWarn'; boss: number; relay: number; x: number; y: number; tx: number; ty: number; time: number; first: boolean }
+  | { type: 'handoff'; boss: number; relay: number; x: number; y: number; tx: number; ty: number }
   /** A boss walking by pivots lands the corner it swung (BossBrain.waddle): `side` 1 right, -1 left. */
   | { type: 'pivot'; boss: number; x: number; y: number; side: number }
   /** A forklift backing up: one beep (`first`: it has just put it in reverse). */
@@ -2159,11 +2170,12 @@ export function dummyHurtBox(d: Dummy | Enemy): Rect {
   return { x: d.x + d.def.hurt.x, y: d.y + d.def.hurt.y - up, w: d.def.hurt.w, h: d.def.hurt.h };
 }
 
-function solidsNear(w: World, box: Rect, overLow = false): Rect[] {
+function solidsNear(w: World, box: Rect, overLow: boolean | 'all' = false): Rect[] {
   const out: Rect[] = [];
   const probe = { x: box.x - 4, y: box.y - 4, w: box.w + 8, h: box.h + 8 };
   wallRectsNear(w.room, probe, out);
-  for (const pr of w.room.props) if (overlaps(pr.box, probe) && !(overLow && pr.def.low)) out.push(pr.box);
+  // ('all': something floating over the furniture, the Nube: only walls stop it.)
+  if (overLow !== 'all') for (const pr of w.room.props) if (overlaps(pr.box, probe) && !(overLow && pr.def.low)) out.push(pr.box);
   for (const d of w.dummies) {
     const b = { x: d.x + d.def.box.x, y: d.y + d.def.box.y, w: d.def.box.w, h: d.def.box.h };
     if (overlaps(b, probe)) out.push(b);
@@ -2181,7 +2193,7 @@ export function slide(
   r: number,
   dx: number,
   dy: number,
-  overLow = false,
+  overLow: boolean | 'all' = false,
 ): { hitX: boolean; hitY: boolean } {
   // A long step in one tick could jump over a thin wall into the next one (a rubber stamp gliding
   // down from on high, M11 (7)): in pieces no longer than the feet.
@@ -2205,7 +2217,7 @@ function slideStep(
   r: number,
   dx: number,
   dy: number,
-  overLow: boolean,
+  overLow: boolean | 'all',
 ): { hitX: boolean; hitY: boolean } {
   const eps = 0.001;
   let hitX = false;

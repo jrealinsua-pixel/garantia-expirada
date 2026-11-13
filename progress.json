@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T22:20:00+01:00",
+  "actualizado": "2026-11-14T00:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 1020,
-    "tests_ok": 1020,
+    "tests": 1027,
+    "tests_ok": 1027,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 36233
+    "lineas_codigo": 36403
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T00:05:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h10a2): los jefes de la planta 2 con movimiento propio. El Router del Wifi cambia de punto de acceso: avisa con una línea hasta el repetidor más cerca de la tostadora, se cambia el sitio con él y sale atacando. La Nube de Almacenamiento es un nubarrón: se queda encima de la tostadora, a la deriva y por encima de los muebles."
+    },
     {
       "fecha": "2026-11-13T22:20:00+01:00",
       "hito": "M14b",
@@ -1405,6 +1410,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/router-cambio-punto.png",
+      "pie": "M14b (h10a2): el Router avisa con una línea hasta el repetidor y se cambia el sitio con él"
+    },
+    {
+      "archivo": "capturas/nube-encima.png",
+      "pie": "M14b (h10a2): la Nube, como un nubarrón, siempre encima de la tostadora"
+    },
+    {
       "archivo": "capturas/nevera-patina.png",
       "pie": "M14b (h10a1): la Nevera Suprema patina: se impulsa, se desliza y deja un rastro fino de escarcha"
     },
@@ -1419,17 +1432,9 @@
     {
       "archivo": "capturas/carretilla-marcha-atras.png",
       "pie": "M14b (h9e2): la Carretilla Elevadora, tras embestir, da marcha atrás pitando («Vehículo en maniobra»)"
-    },
-    {
-      "archivo": "capturas/charco-aviso.png",
-      "pie": "M14b (h11a3): la Regleta avisa y el charco de la garrafa rota brilla: la descarga va a llegar por el agua"
-    },
-    {
-      "archivo": "capturas/charco-descarga.png",
-      "pie": "La descarga corre por el charco y alcanza al aspirador, lejos del alcance de la regleta"
     }
   ],
-  "proximo": "M14b (h10a2) el Router del Wifi y la Nube de Almacenamiento con movimiento propio; (h11c) plantillas de sala con más forma; o (h10b) jefes de las plantas 3–5 y el final.",
+  "proximo": "M14b (h10b): los jefes de las plantas 3–5 y el final con movimiento propio (dividirla); o la (h11c) si sigue libre.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1462,11 +1467,6 @@
       "sesion": "2026-11-13 22:25 (hora peninsular)",
       "tarea": "M14b (h11c): plantillas de sala con más forma",
       "desde": "2026-11-13T22:25:00+01:00"
-    },
-    {
-      "sesion": "2026-11-13 22:20 (hora peninsular)",
-      "tarea": "M14b (h10a2): el Router y la Nube con movimiento propio",
-      "desde": "2026-11-13T22:35:00+01:00"
     }
   ]
 }

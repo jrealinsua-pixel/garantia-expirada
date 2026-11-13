@@ -717,7 +717,10 @@ juegos del género» de `docs/DISENO.md`.
     nevera patina (se impulsa y se desliza frenando despacio, más lejos sobre la escarcha que
     lanza, y deja un rastro fino de escarcha que frena un poco); la lavadora anda a pivotes, una
     esquina y luego la otra, a tirones y ladeándose (centrifugando, más ancho y más deprisa).
-  - [ ] (h10a2) Planta 2: el Router del Wifi y la Nube de Almacenamiento.
+  - [x] (h10a2) Planta 2: el Router del Wifi y la Nube de Almacenamiento. Hecho el 2026-11-13: el
+    router cambia de punto de acceso (avisa y se cambia el sitio con el repetidor más cerca de la
+    tostadora, y sale atacando); la nube es un nubarrón (se queda encima de la tostadora,
+    meciéndose a la deriva, y flota por encima de los muebles).
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
   sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo
   la generación procedural: (h11a) los props nuevos que se usan, (h11b) decoración por planta,

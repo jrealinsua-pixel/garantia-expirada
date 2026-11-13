@@ -1670,6 +1670,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   if (en.menu) updateMenu(w, en, phase);
   // «Le paso con el departamento»: the bell every so often, and off the toaster goes.
   if (phase.transfer && en.state !== 'roar' && !w.over) updateTransfer(w, en, phase, phase.transfer);
+  // «Cambio de punto de acceso»: now and then it hops over to one of its relays.
+  if (b.handoff) updateHandoff(w, en, b.handoff, rage);
   const toX = p.x - en.x;
   if (Math.abs(toX) > 4 && en.state !== 'fire') en.facing = toX > 0 ? 1 : -1;
   const mx = en.x + b.muzzle.x * en.facing;
@@ -1687,7 +1689,8 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       else if (b.glide) {
         ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, true));
         glided = true;
-      } else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep)));
+      } else if (b.hover) ({ x: walkX, y: walkY } = hoverWalk(w, en, b.hover, phase.walkSpeed * rage));
+      else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep)));
       // Gone quiet: its lights blank, it stops dead and takes more (BossPhase.mute). Only between
       // attacks, so a sweep is never cut short and the silence is never under a hail of bullets.
       if (phase.mute && en.muteIn !== undefined && en.muteIn <= 0 && !w.over) {
@@ -1941,7 +1944,9 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         glided = true;
       } else if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) {
         const v = phase.walkSpeed * rage * b.drift;
-        ({ x: walkX, y: walkY } = en.rail ? railRoam(w, en, b, v) : waddleWalk(w, en, b, phase, bossRoam(w, en, b, v, phase.keep)));
+        if (en.rail) ({ x: walkX, y: walkY } = railRoam(w, en, b, v));
+        else if (b.hover) ({ x: walkX, y: walkY } = hoverWalk(w, en, b.hover, v));
+        else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, v, phase.keep)));
       }
       if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
       break;
@@ -1967,16 +1972,114 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   if (glided) {
     en.vx = walkX;
     en.vy = walkY;
-  } else approach(en, walkX, walkY, KNOCK_FRICTION);
+  } else approach(en, walkX, walkY, b.hover ? b.hover.accel : KNOCK_FRICTION);
   if (en.vx !== 0 || en.vy !== 0) {
     const ox = en.x;
     const oy = en.y;
-    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    // (Floating, BossBrain.hover, it goes over the furniture.)
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT, b.hover ? 'all' : false);
     const moved = Math.hypot(en.x - ox, en.y - oy);
     en.moved += moved;
     if (glided && b.glide) iceTrail(w, en, b.glide, moved);
   }
 }
+
+/** Seconds after a hop to a relay before it attacks, however long its rest had to go (BossBrain.handoff). */
+const HANDOFF_SETTLE = 0.2;
+/** It never hops to a relay this close to itself (px). */
+const HANDOFF_NEAR = 60;
+
+/**
+ * «Cambio de punto de acceso» (BossBrain.handoff): counts down (walking or firing) while it has relays;
+ * when due, it picks the relay nearest the player (not within `clear` px of it, and nearer it than
+ * itself: better coverage), warns, and once the
+ * warning is over (and it is between attacks) swaps places with it. A break or a fallen relay calls
+ * the hop off.
+ */
+function updateHandoff(w: World, en: Enemy, h: NonNullable<BossBrain['handoff']>, rage: number): void {
+  if (en.state === 'roar' || en.state === 'dying' || w.over) {
+    delete en.handoff;
+    return;
+  }
+  const relays = relaysOf(w, en);
+  const p = w.player;
+  if (en.handoff) {
+    const r = relays.find((o) => o.id === en.handoff!.relay);
+    if (!r) {
+      delete en.handoff;
+      return;
+    }
+    en.handoff.t -= DT;
+    if (en.handoff.t > 0 || en.state !== 'idle') return;
+    const fromX = en.x;
+    const fromY = en.y;
+    const to = freeSpot(w, r.x, r.y, en.def.footRadius + 1);
+    const back = freeSpot(w, fromX, fromY, r.def.footRadius + 1);
+    en.x = to.x;
+    en.y = to.y;
+    en.vx = 0;
+    en.vy = 0;
+    r.x = back.x;
+    r.y = back.y;
+    r.facing = p.x > r.x ? 1 : -1;
+    delete en.handoff;
+    delete en.legSpin;
+    en.handoffIn = w.rng.range(h.every[0], h.every[1]);
+    // It comes out of the relay attacking: its next attack starts in a moment, whatever was left of its rest.
+    en.until = en.t * rage + HANDOFF_SETTLE;
+    w.events.push({ type: 'handoff', boss: en.id, relay: r.id, x: fromX, y: fromY, tx: en.x, ty: en.y });
+    return;
+  }
+  en.handoffIn ??= w.rng.range(h.every[0], h.every[1]);
+  // (Counted while it walks and while it fires; it hops between attacks.)
+  if ((en.state === 'idle' || en.state === 'fire') && relays.length > 0) en.handoffIn -= DT;
+  if (en.handoffIn > 0) return;
+  let best: Enemy | undefined;
+  for (const r of relays) {
+    // Better coverage or nothing: a relay nearer the player than itself (but not on top of it).
+    const d = Math.hypot(r.x - p.x, r.y - p.y);
+    if (d < h.clear || d > Math.hypot(en.x - p.x, en.y - p.y) - HANDOFF_NEAR / 3 || Math.hypot(r.x - en.x, r.y - en.y) < HANDOFF_NEAR) continue;
+    if (!best || Math.hypot(r.x - p.x, r.y - p.y) < Math.hypot(best.x - p.x, best.y - p.y)) best = r;
+  }
+  if (!best) {
+    // None worth it now: it looks again in a moment.
+    en.handoffIn = 0.5;
+    return;
+  }
+  const first = !en.hopped;
+  en.hopped = true;
+  en.handoff = { relay: best.id, t: h.warn, warn: h.warn };
+  w.events.push({ type: 'handoffWarn', boss: en.id, relay: best.id, x: en.x, y: en.y, tx: best.x, ty: best.y, time: h.warn, first });
+}
+
+/**
+ * «Nubarrón» (BossBrain.hover): the velocity it wants, towards its spot over the player (north of it,
+ * or south when north is the back wall), swaying across and up and down, never faster than `speed`
+ * and slowing as it gets there. (It reaches it drifting: see the approach in updateBoss.)
+ */
+function hoverWalk(w: World, en: Enemy, h: NonNullable<BossBrain['hover']>, speed: number): { x: number; y: number } {
+  const p = w.player;
+  const r0 = en.def.footRadius;
+  const top = (BACK_WALL_ROWS + 0.5) * TILE + r0;
+  const bottom = w.room.h - TILE - 4;
+  let ty = p.y - h.above;
+  if (ty < top) ty = p.y + h.above * HOVER_BELOW;
+  const tt = w.tick * DT + en.id;
+  const tx = Math.max(TILE + r0 + 2, Math.min(w.room.w - TILE - r0 - 2, p.x + Math.sin(tt * HOVER_SWAY_X) * h.sway));
+  ty = Math.max(top, Math.min(bottom, ty + Math.sin(tt * HOVER_SWAY_Y) * h.sway * 0.5));
+  const dx = tx - en.x;
+  const dy = ty - en.y;
+  const d = Math.hypot(dx, dy);
+  if (d < 0.5) return { x: 0, y: 0 };
+  const v = Math.min(speed, d * HOVER_GAIN);
+  return { x: (dx / d) * v, y: (dy / d) * v };
+}
+
+/** The Nube's sway (rad/s across and up and down), how it slows near its spot, and how far south of the player it hangs when north is a wall (share of `above`). */
+const HOVER_SWAY_X = 1.1;
+const HOVER_SWAY_Y = 1.7;
+const HOVER_GAIN = 1.5;
+const HOVER_BELOW = 0.7;
 
 /** Below this share of its push it may push off again (BossBrain.glide), and not sooner than this (s). */
 const GLIDE_REPUSH = 0.3;

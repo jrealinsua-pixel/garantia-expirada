@@ -812,6 +812,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       roam: { leg: [0.5, 1.3], burst: [0.6, 1.4], spread: 50 },
       drift: 0.35,
       rage: 0.6,
+      // M14b (h10a2) «Cambio de punto de acceso»: now and then it hops over to the repeater nearest
+      // the toaster, swapping places with it (the dashed line between the two warns of it).
+      handoff: { every: [4, 7], warn: 0.7, clear: 90 },
       // The middle of its front, between the lights: the waves come out of there.
       muzzle: { x: 6, y: 40 },
       phases: [
@@ -1415,13 +1418,16 @@ export const ENEMIES: Record<string, EnemyDef> = {
       roam: { leg: [0.4, 1.1], burst: [0.6, 1.4], spread: 60 },
       drift: 0.45,
       rage: 0.5,
+      // M14b (h10a2) «Nubarrón»: it hangs over the toaster, a little north of it, swaying and
+      // drifting after it over the furniture (its walkSpeed is how fast it drifts).
+      hover: { above: 100, sway: 70, accel: 90 },
       // Out of the bottom of the cloud, in front: where it rains from.
       muzzle: { x: 6, y: 42 },
       phases: [
         {
           name: 'Subiendo archivos',
           from: 1,
-          walkSpeed: 40,
+          walkSpeed: 64,
           keep: 140,
           rest: [0.9, 1.4],
           attacks: [
@@ -1436,7 +1442,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           // Half its life gone: full. Folders everywhere, and an offer to upgrade.
           name: 'Almacenamiento lleno',
           from: 0.5,
-          walkSpeed: 46,
+          walkSpeed: 72,
           keep: 130,
           rest: [0.8, 1.2],
           line: 'Su almacenamiento está lleno. Mejore su plan.',
