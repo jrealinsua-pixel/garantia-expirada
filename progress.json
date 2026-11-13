@@ -1407,6 +1407,11 @@
       "sesion": "2026-11-13 15:50",
       "tarea": "M14b (h9a): movimientos propios para los enemigos de la planta 1 (src/data/enemies.ts, src/sim/enemies.ts, tests de esos enemigos)",
       "desde": "2026-11-13T14:50:00Z"
+    },
+    {
+      "sesion": "2026-11-13 15:41",
+      "tarea": "M14b (h7): saltar rodando por encima de mesas y obstáculos bajos (src/sim/world.ts colisiones con props, src/sim/player, tests/saltar.test.ts)",
+      "desde": "2026-11-13T14:41:00Z"
     }
   ]
 }
