@@ -119,7 +119,7 @@
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
       "estado": "pendiente",
-      "hechas": 5,
+      "hechas": 6,
       "total": 11
     },
     {
@@ -144,11 +144,11 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 950,
-    "tests_ok": 950,
+    "tests": 951,
+    "tests_ok": 951,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34103
+    "lineas_codigo": 34128
   },
   "sesiones": [
     {
@@ -1398,11 +1398,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-13 14:45",
-      "tarea": "M14b (h6): mesas que se vuelcan hacia donde toca y aguantan unos disparos (src/sim/world.ts tipTable/tableHit, src/data/props.ts mesa, src/render/GameScene.ts tablas, tests/mesas.test.ts)",
-      "desde": "2026-11-13T13:45:00Z"
-    },
     {
       "sesion": "2026-11-13 15:35",
       "tarea": "M14b (h8): hitboxes de los enemigos ajustadas a su dibujo (src/data/enemies.ts hurt; tests de enemigos)",
