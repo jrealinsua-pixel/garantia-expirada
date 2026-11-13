@@ -3,7 +3,7 @@
 import type {
   BlinkerBrain, BossAttack, BossBrain, BossMenuAttack, BossPhase,
   RelayBrain, ChargerBrain, ChaserBrain, LaggerBrain, MimicBrain, MothBrain, TurretBrain, WatcherBrain, WindupBrain, RcCarBrain, LobberBrain,
-  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain, ChatbotBrain, PhoneBrain,
+  HopperBrain, ShredderBrain, CopierBrain, StamperBrain, BlowerBrain, TurnerBrain, QueuerBrain, ChatbotBrain, PhoneBrain, LootboxBrain,
 } from '../data/types.ts';
 import { blockedTiles, clearLine, findPath } from './nav.ts';
 import { BRICK_KINDS, ENEMIES } from '../data/enemies.ts';
@@ -143,6 +143,9 @@ export function updateEnemies(w: World): void {
         break;
       case 'phone':
         updatePhone(w, en, en.def.brain);
+        break;
+      case 'lootbox':
+        updateLootbox(w, en, en.def.brain);
         break;
     }
     // Watched live: the time it waits between attacks runs faster.
@@ -1094,16 +1097,23 @@ export function bossPhaseFor(en: Enemy, b: BossBrain): number {
 }
 
 /** Picks the boss's next attack: weighted, and never the one it just did (if it has others). */
-function pickAttack(w: World, attacks: readonly BossAttack[], last: number | undefined): number {
+function pickAttack(w: World, attacks: readonly BossAttack[], last: number | undefined, season?: number): number {
+  // «Pase de temporada»: only this season's attacks (and those of every season).
+  const ok = (i: number): boolean => season === undefined || attacks[i]!.season === undefined || attacks[i]!.season === season;
+  let n = 0;
+  for (let i = 0; i < attacks.length; i++) if (ok(i)) n++;
+  const skip = (i: number): boolean => !ok(i) || (i === last && n > 1);
   let total = 0;
-  for (let i = 0; i < attacks.length; i++) if (i !== last || attacks.length === 1) total += attacks[i]!.weight;
+  for (let i = 0; i < attacks.length; i++) if (!skip(i)) total += attacks[i]!.weight;
   let r = w.rng.range(0, total);
+  let lastOk = attacks.length - 1;
   for (let i = 0; i < attacks.length; i++) {
-    if (i === last && attacks.length > 1) continue;
+    if (skip(i)) continue;
+    lastOk = i;
     r -= attacks[i]!.weight;
     if (r < 0) return i;
   }
-  return attacks.length - 1;
+  return lastOk;
 }
 
 /**
@@ -1458,6 +1468,9 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       en.deptCount = 0;
     }
     if (next.mute) en.muteIn = w.rng.range(next.mute.every[0], next.mute.every[1]);
+    // Its seasons start over (the first one as the break ends).
+    delete en.season;
+    delete en.seasonT;
     if (next.relays && next.relays.count > 0) plantRelays(w, en, next.relays.id, next.relays.count);
     // «Despiece»: the floor starts running towards the far wall, and over there it goes.
     if (next.belt && !w.conveyors.some((c) => c.source === en.id)) {
@@ -1495,6 +1508,15 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   if (phase.crates && en.crates && en.state !== 'roar') tickCrates(w, en, phase.crates, en.crates);
   // The silence comes round (BossPhase.mute): counted all the time, it falls between attacks.
   if (phase.mute && en.muteIn !== undefined && en.state !== 'roar' && en.state !== 'stun') en.muteIn -= DT;
+  // «Pase de temporada»: a new season every so often (not in the break), announced.
+  if (phase.seasons && en.state !== 'roar' && !w.over) {
+    en.seasonT = (en.seasonT ?? phase.seasons.every) + DT;
+    if (en.seasonT >= phase.seasons.every) {
+      en.seasonT = 0;
+      en.season = ((en.season ?? -1) + 1) % phase.seasons.names.length;
+      w.events.push({ type: 'season', boss: en.id, x: en.x, y: en.y, index: en.season, name: phase.seasons.names[en.season]! });
+    }
+  }
   // The voice menu goes on by itself once it is out: the rain falls when it is due.
   if (en.menu) updateMenu(w, en, phase);
   // «Le paso con el departamento»: the bell every so often, and off the toaster goes.
@@ -1524,7 +1546,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       }
       // On its way over to the end of the belt it attacks nothing.
       if (en.t * rage >= en.until && !w.over && (!en.rail || en.rail.on)) {
-        const i = phase.cycle ? ((en.attack ?? -1) + 1) % phase.attacks.length : pickAttack(w, phase.attacks, en.attack);
+        const i = phase.cycle ? ((en.attack ?? -1) + 1) % phase.attacks.length : pickAttack(w, phase.attacks, en.attack, phase.seasons ? en.season : undefined);
         en.attack = i;
         const a = phase.attacks[i]!;
         const aim = Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - mx);
@@ -1681,6 +1703,9 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           // «Almacenamiento lleno»: a wall of folders across the way to the player.
           const spots = dropFolders(w, en, a);
           w.events.push({ type: 'folders', boss: en.id, spots });
+        } else if (a.kind === 'summon') {
+          // «Cajas de botín»: out they go, to its sides and towards the player.
+          tossHelpers(w, en, a);
         } else if (a.kind === 'menu') {
           // «Para reclamaciones, pulse 3»: which one; the rain is `wait` s away.
           const m = en.menu;
@@ -1964,6 +1989,38 @@ function summonHelpers(w: World, boss: Enemy, s: { id: string; count: number; ma
   if (spawned.length) w.events.push({ type: 'summon', boss: boss.id, x: boss.x, y: boss.y, spawned });
 }
 
+/** A boss's helpers still standing (not its relays): what it called, and what came out of them. */
+export function helpersOf(w: World, boss: Enemy): Enemy[] {
+  return w.enemies.filter((o) => o.owner === boss.id && o.def.brain.kind !== 'relay' && o.state !== 'dying' && o.damageTaken < o.def.hp);
+}
+
+/**
+ * «Cajas de botín» (BossSummonAttack): `count` helpers tossed out of the boss, fanned towards the
+ * player (one straight at it, the rest to each side), sliding to a stop where they land; never more
+ * than `max` of its helpers standing. They are its own and fall with it.
+ */
+export function tossHelpers(w: World, boss: Enemy, a: Extract<BossAttack, { kind: 'summon' }>): number[] {
+  const def = ENEMIES[a.id];
+  if (!def) throw new Error(`Unknown enemy ${a.id}`);
+  const n = Math.max(0, Math.min(a.count, a.max - helpersOf(w, boss).length));
+  const toward = Math.atan2(w.player.y - boss.y, w.player.x - boss.x);
+  const spawned: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const side = i === 0 ? 0 : (i % 2 === 1 ? 1 : -1) * Math.ceil(i / 2);
+    const ang = toward + side * 0.75 + w.rng.range(-0.2, 0.2);
+    const at = freeSpot(w, boss.x + Math.cos(ang) * (boss.def.footRadius + 10), boss.y + Math.sin(ang) * 8 + 4, def.footRadius + 1);
+    const kid = spawnEnemy(w.nextId++, def, at.x, at.y);
+    kid.owner = boss.id;
+    const sp = a.toss * w.rng.range(0.8, 1.15);
+    kid.vx = Math.cos(ang) * sp;
+    kid.vy = Math.sin(ang) * sp * 0.8;
+    w.enemies.push(kid);
+    spawned.push(kid.id);
+  }
+  if (spawned.length) w.events.push({ type: 'summon', boss: boss.id, x: boss.x, y: boss.y, spawned });
+  return spawned;
+}
+
 /** The relays a boss has planted that are still standing. */
 export function relaysOf(w: World, boss: Enemy): Enemy[] {
   return w.enemies.filter((r) => r.owner === boss.id && r.def.brain.kind === 'relay' && r.damageTaken < r.def.hp);
@@ -2014,6 +2071,50 @@ function updateRelay(w: World, en: Enemy, _b: RelayBrain): void {
   if (Math.abs(w.player.x - en.x) > 2) en.facing = w.player.x > en.x ? 1 : -1;
   en.vx = 0;
   en.vy = 0;
+}
+
+/** Friction of a tossed loot box sliding to a stop (px/s²). */
+const LOOTBOX_FRICTION = 520;
+
+/**
+ * A loot box (LootboxBrain): it slides to a stop where it was tossed, sits there glowing and, the
+ * last `shake` s of its `open`, rattles (state `jam`); then it opens by itself (Enemy.selfOpened:
+ * reapEnemies draws from its selfSurprise). If its owner falls first, it goes too, unopened.
+ */
+function updateLootbox(w: World, en: Enemy, b: LootboxBrain): void {
+  en.t += DT;
+  if (en.owner !== undefined) {
+    const owner = w.enemies.find((o) => o.id === en.owner);
+    if (!owner || owner.state === 'dying' || owner.damageTaken >= owner.def.hp) {
+      en.damageTaken = en.def.hp;
+      return;
+    }
+  }
+  const sp = Math.hypot(en.vx, en.vy);
+  if (sp > 0) {
+    const k = Math.max(0, sp - LOOTBOX_FRICTION * DT) / sp;
+    en.vx *= k;
+    en.vy *= k;
+    const ox = en.x;
+    const oy = en.y;
+    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    // Into a wall: it stops there.
+    if (Math.hypot(en.x - ox, en.y - oy) < sp * DT * 0.3) {
+      en.vx = 0;
+      en.vy = 0;
+    }
+  }
+  if (en.state !== 'jam' && en.t >= b.open - b.shake) {
+    const t = en.t;
+    enter(en, 'jam', b.shake);
+    en.t = t;
+    en.until = b.open;
+    w.events.push({ type: 'lootShake', x: en.x, y: en.y, id: en.id });
+  }
+  if (en.t >= b.open && !w.over) {
+    en.selfOpened = true;
+    en.damageTaken = en.def.hp;
+  }
 }
 
 /** Where a boss attack that warns by itself shows its warning: the dispenser, or the open door. */
@@ -3078,6 +3179,8 @@ function updateMoth(w: World, en: Enemy, b: MothBrain): void {
 function contact(w: World, en: Enemy): void {
   const p = w.player;
   if (en.contactCooldown > 0 || isRolling(p) || w.over || en.state === 'blink' || en.state === 'gone' || en.state === 'lurk') return;
+  // Harmless to touch (a loot box).
+  if (en.def.contactDamage <= 0) return;
   const pb = playerFeetBox(p, p.def.footRadius + 2);
   const eb = { x: en.x - en.def.footRadius - 2, y: en.y - 10, w: (en.def.footRadius + 2) * 2, h: 12 };
   if (!overlaps(pb, eb)) return;

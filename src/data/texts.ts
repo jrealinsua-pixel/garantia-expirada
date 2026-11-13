@@ -177,6 +177,8 @@ export const DOWN_CAUSES: Record<string, { bullet?: string; contact?: string }> 
   cinta: { contact: 'Procesado en cadena sin cita previa' },
   'silla-director': { contact: 'Atropello por silla de dirección sin director' },
   repetidor: { bullet: 'Señal repetida', contact: 'Tropiezo con un repetidor' },
+  'consola-coleccionista': { bullet: 'Cartucho de edición limitada', contact: 'Atropellado por contenido exclusivo' },
+  'caja-botin': { bullet: 'Cupón no canjeable', contact: 'Tropiezo con una caja de botín sin abrir' },
   'nube-almacenamiento': { bullet: 'Sincronizado sin su consentimiento', contact: 'Absorbido por la nube (sin opción de descarga)' },
   'lavadora-eco': { bullet: 'Calcetín desparejado a 1400 revoluciones', contact: 'Arrollado por un electrodoméstico de clase A+++' },
   'nevera-suprema': { bullet: 'Congelación por orden de la Dirección', contact: 'Portazo de la Dirección' },

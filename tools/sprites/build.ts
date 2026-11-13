@@ -18,6 +18,7 @@ import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
 import * as LV from './lavadora.ts';
 import * as NB from './nube.ts';
+import * as CO from './consola.ts';
 import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
@@ -128,6 +129,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'carpeta-nube': one(NB.makeCarpeta()),
     'bala-gota': { canvas: NB.makeDropBullet(), frameW: 10, frameH: 10 },
     'bala-archivo': { canvas: NB.makeFileBullet(), frameW: 12, frameH: 12 },
+    // M14 (j4): La Consola Edición Coleccionista, its loot boxes, cartridges and fake coupons.
+    'consola-coleccionista': { canvas: strip(CO.makeConsolaFrames()), frameW: CO.CONSOLA_W, frameH: CO.CONSOLA_H },
+    'caja-botin': { canvas: strip(CO.makeCajaBotinFrames()), frameW: CO.CAJA_W, frameH: CO.CAJA_H },
+    'bala-cartucho': { canvas: CO.makeCartridgeBullet(), frameW: 12, frameH: 12 },
+    'bala-cupon-falso': { canvas: CO.makeFakeCouponBullet(), frameW: 12, frameH: 12 },
     // Floor 2's boss: 0-5 awake (rest, breathing, walking), 6-11 rebooting with 0 to 5 LEDs lit.
     'router-wifi': { canvas: strip(makeRouterFrames()), frameW: 72, frameH: 76 },
     // Its repeater: 0-1 on (the LED blinks), 2 unplugged.

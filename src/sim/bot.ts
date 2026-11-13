@@ -547,14 +547,19 @@ export class Bot {
     // Enemies first; the dummies only when the room is empty.
     // A shredder with the toaster in front counts as further away: better to shoot the others meanwhile.
     // A photocopier counts as nearer: every second it lives fills the room (a player goes for it first).
-    const weight = (e: Enemy): number => (facesShredder(w, e) ? 3 : e.def.brain.kind === 'copier' ? 0.6 : 1);
-    const targets = w.enemies.length ? w.enemies.filter((e) => e.state !== 'gone').map((e) => ({ x: e.x, y: e.y, k: weight(e) })) : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1 }));
+    // A loot box too (M14 (j4)): shot open in time it gives less trouble than opening by itself.
+    const weight = (e: Enemy): number => (facesShredder(w, e) ? 3 : e.def.brain.kind === 'copier' ? 0.6 : e.def.brain.kind === 'lootbox' ? 0.7 : 1);
+    // (Aimed at the middle of a low loot box, not over it.)
+    const height = (e: Enemy): number => (e.def.brain.kind === 'lootbox' ? 9 : 16);
+    const targets = w.enemies.length
+      ? w.enemies.filter((e) => e.state !== 'gone').map((e) => ({ x: e.x, y: e.y, k: weight(e), h: height(e) }))
+      : w.dummies.map((d) => ({ x: d.x, y: d.y, k: 1, h: 16 }));
     for (const d of targets) {
       const dd = Math.hypot(d.x - p.x, d.y - p.y) * d.k;
       if (dd < best) {
         best = dd;
         aimX = d.x + this.rng.range(-6, 6);
-        aimY = d.y - 16 + this.rng.range(-6, 6);
+        aimY = d.y - d.h + this.rng.range(-6, 6);
       }
     }
     if (this.burst <= 0 && this.rng.chance(0.03)) this.burst = this.rng.int(10, 50);

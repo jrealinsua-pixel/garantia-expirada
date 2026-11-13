@@ -27,10 +27,13 @@ import type { Rng } from './rng.ts';
  * white glint, wobbling; and odd socks, red with a white heel and toe, flapping as they bounce.
  * `drop` and `file` are the Nube de Almacenamiento's (M14 (j3)): raindrops, cyan with a white core,
  * long as they fall; and files, a white sheet with a red corner folded down, fluttering.
+ * `cartridge` and `fakecoupon` are the Consola Edición Coleccionista's (M14 (j4)): red game
+ * cartridges with a white label, tumbling end over end; and fake coupons out of its loot boxes, red
+ * with a white «%», fluttering.
  */
 export type BulletColor =
   | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help'
-  | 'call' | 'note' | 'plug' | 'cord' | 'screw' | 'spring' | 'key' | 'foam' | 'sock' | 'drop' | 'file';
+  | 'call' | 'note' | 'plug' | 'cord' | 'screw' | 'spring' | 'key' | 'foam' | 'sock' | 'drop' | 'file' | 'cartridge' | 'fakecoupon';
 
 /**
  * «Escribiendo…»: at `at` s it stops in mid-air for `wait` s, then sets off again (at its speed)

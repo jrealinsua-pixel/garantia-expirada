@@ -55,7 +55,8 @@ test('encadenar plantas: tras ganar la planta 2 se sube a la Juguetería, con el
   // Its boss room holds El Muñeco de Moda (M10 5b), not the Router any more.
   const boss = n.floor!.rooms.find((st) => st.template.kind === 'boss')!;
   assert.equal(boss.template.id, 'jefe-jugueteria');
-  assert.ok(boss.template.rows.join('').includes('D'), 'el Muñeco espera en el Escaparate');
+  // (Or La Consola Edición Coleccionista, M14 (j4): the seed picks.)
+  assert.ok(/[DÈ]/.test(boss.template.rows.join('')), 'el Muñeco (o la Consola) espera en el Escaparate');
   assert.ok(!boss.template.rows.join('').includes('X'), 'el Router se queda en Informática');
   assert.ok(FLOOR_NAMES[3], 'la planta 3 tiene nombre');
   for (let i = 0; i < 3 / DT; i++) step(n, { ...NO_INPUT, moveX: i % 120 < 60 ? 1 : -1, fire: true });

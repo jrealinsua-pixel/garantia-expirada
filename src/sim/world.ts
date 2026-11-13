@@ -496,6 +496,11 @@ export interface Enemy {
   muteIn?: number;
   /** «Sincronizando…» (BossSyncAttack): its damage taken when the bar started filling. */
   syncFrom?: number;
+  /** «Pase de temporada» (BossPhase.seasons): the season it is in, and seconds into it. */
+  season?: number;
+  seasonT?: number;
+  /** A loot box that opened by itself (LootboxBrain): its selfSurprise comes out, not its surprise. */
+  selfOpened?: boolean;
   /**
    * Bosses: seconds left of the current leg of its walk, how fast (share of its speed), which way
    * round the player (1 or -1) and how far from it.
@@ -690,7 +695,7 @@ export type SimEvent =
   | { type: 'acBlow'; x: number; y: number; source: number }
   /** The player tried to roll on ink: a clumsy step instead, no invulnerability. */
   | { type: 'rollDenied'; x: number; y: number; dirX: number; dirY: number }
-  | { type: 'surprise'; x: number; y: number; line: string; spawned: number[]; coupons: number }
+  | { type: 'surprise'; x: number; y: number; line: string; spawned: number[]; coupons: number; enemy?: string; self?: boolean }
   /** A remote-control car overturns against something, rights itself, or its batteries give out. */
   | { type: 'carFlip' | 'carRight' | 'carStall'; x: number; y: number; source: number }
   /** A shredder: a bullet swallowed from the front, a fan of strips spat back, a lunge coming. */
@@ -871,6 +876,10 @@ export type SimEvent =
   | { type: 'syncEnd'; boss: number; x: number; y: number; done: boolean }
   /** A boss's rain: `cols` lanes marked from the back wall down. */
   | { type: 'rain'; boss: number; cols: number }
+  /** «Pase de temporada»: a boss's phase starts season `index` (BossPhase.seasons), called `name`. */
+  | { type: 'season'; boss: number; x: number; y: number; index: number; name: string }
+  /** A loot box starts rattling: it is about to open by itself (LootboxBrain). */
+  | { type: 'lootShake'; x: number; y: number; id: number }
   /** A table was tipped over (M9b 13b) to face `side`; hit while covering (`wear` of `hp`); broken. */
   | { type: 'tip'; x: number; y: number; side: TipSide }
   | { type: 'tableHit'; x: number; y: number; wear: number; hp: number; side: TipSide }
@@ -1997,6 +2006,9 @@ export function spawnEnemy(id: number, def: EnemyDef, x: number, y: number): Ene
   } else if (b.kind === 'relay') {
     state = 'idle';
     until = Infinity;
+  } else if (b.kind === 'lootbox') {
+    state = 'idle';
+    until = b.open;
   } else if (b.kind === 'hopper' || b.kind === 'stamper' || b.kind === 'phone') {
     state = 'idle';
     until = b.rest[1];
@@ -4205,7 +4217,10 @@ function reapEnemies(w: World): void {
       const sp = w.rng.range(50, 110);
       w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: spot.x, y: spot.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
     }
-    if (en.def.surprise && !copy) openSurprise(w, en, en.def.surprise, keep);
+    // (A loot box whose boss fell first goes unopened: its owner is gone.)
+    const table = en.selfOpened && en.def.selfSurprise ? en.def.selfSurprise : en.def.surprise;
+    const orphan = en.owner !== undefined && en.def.brain.kind === 'lootbox' && !w.enemies.some((o) => o.id === en.owner && !isDead(o));
+    if (table && !copy && !orphan) openSurprise(w, en, table, keep);
     for (let i = 0; i < (copy ? 0 : en.def.loot.hearts ?? 0); i++) {
       // Spare hearts roll out slowly towards the player, so they are easy to see.
       const a = Math.atan2(w.player.y - en.y, w.player.x - en.x) + w.rng.range(-0.5, 0.5);
@@ -4233,6 +4248,8 @@ function openSurprise(w: World, en: Enemy, table: readonly SurpriseDef[], keep: 
       const a = en.lastHit + Math.PI / 2 + (i / pick.spawn.count) * Math.PI * 2 + w.rng.range(-0.4, 0.4);
       const at = freeSpot(w, en.x + Math.cos(a) * 6, en.y + Math.sin(a) * 4, def.footRadius);
       const kid = spawnEnemy(w.nextId++, def, at.x, at.y);
+      // Out of a boss's loot box: the boss's, and it falls with it.
+      if (en.owner !== undefined) kid.owner = en.owner;
       // Out it pops, sliding a little, and only then goes for you.
       kid.vx = Math.cos(a) * 160;
       kid.vy = Math.sin(a) * 100;
@@ -4251,7 +4268,16 @@ function openSurprise(w: World, en: Enemy, table: readonly SurpriseDef[], keep: 
     const at = freeSpot(w, en.x, en.y, PICKUP_RADIUS);
     w.pickups.push({ id: w.nextId++, kind: 'cupon', value: 1, x: at.x, y: at.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0 });
   }
-  w.events.push({ type: 'surprise', x: en.x, y: en.y, line: pick.line, spawned, coupons: n });
+  // Bullets out of it (the Consola's fake coupons), at the player.
+  if (pick.pattern) {
+    const def = PATTERNS[pick.pattern];
+    if (!def) throw new Error(`Unknown pattern ${pick.pattern}`);
+    const h = 8;
+    firePattern(w, def, en.x, en.y - h, Math.atan2(w.player.y - HAND_HEIGHT - (en.y - h), w.player.x - en.x), { by: en.def.id, height: h });
+  }
+  const ev: SimEvent = { type: 'surprise', x: en.x, y: en.y, line: pick.line, spawned, coupons: n, enemy: en.def.id };
+  if (en.selfOpened) ev.self = true;
+  w.events.push(ev);
 }
 
 /** Raises the goods lift on clear floor as close to (x, y) as possible. */

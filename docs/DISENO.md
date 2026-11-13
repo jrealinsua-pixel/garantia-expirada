@@ -358,6 +358,36 @@ del candado **abierto** de «privacidad garantizada». 175 de vida (el Router, 1
   densos y la sincronización más corta (2,8 s, se rompe con 9).
 - Causa de baja: «Sincronizado sin su consentimiento» o «Absorbido por la nube (sin opción de descarga)».
 
+#### La Consola Edición Coleccionista (planta 3, hecha en M14 (j4))
+
+«Ahora con un 3 % más de contenido. Desbloqueable.» Jefa de planta de la Juguetería, la otra que
+puede salir en lugar del Muñeco de Moda (la semilla elige, más o menos a medias). Una consola de
+sobremesa puesta de pie como una torre, de plástico negro brillante con el ribete dorado de la
+edición coleccionista, sobre patas cortas, con la bandeja del disco cruzándole el frente (escupe
+cartuchos por ella, que no tiene sentido, y lo sabe), mirada codiciosa de párpados caídos y un mando
+con cable en la mano de delante. Chistes: la placa dorada numerada **000001** (de una tirada de cuatro
+millones), la pegatina en estrella del **«+3 %»** y, en el costado oscuro, la trampilla del contenido
+descargable con su candado. 165 de vida (el Muñeco, 220: sus cajas también se llevan disparos).
+
+- **Edición Coleccionista** (toda la vida): dos abanicos de **cartuchos** (balas rojas con etiqueta
+  blanca, el segundo girado: siempre queda hueco), el **cable del mando** (dos brazos de balas que
+  barren por delante de ti) y las **cajas de botín**: lanza dos (nunca más de tres de sus cosas en
+  pie) que caen hacia ti y se quedan brillando. Rota a tiros, una caja da «Común» (un Muñequito
+  Repetido), «Poco común» (un Robot de Cuerda), «Cupones (no canjeables)» (un abanico lento de
+  cupones falsos, que son balas) o, una vez de cada veinte, «Legendario» (tres cupones de verdad). Si
+  nadie la rompe, a los 6,5 s tiembla y se abre sola, y entonces solo sale lo peor: dos Repetidos o un
+  Robot. Lo que sale es de la Consola y cae con ella.
+- **Actualización obligatoria (1 de 37)**: cada 8–11 s, entre dos ataques, se para en seco 2,2 s a
+  actualizarse: los ojos cerrados, la bandeja convertida en una barra de progreso que no avanza.
+  Recibe un 60 % más: la ventana para pegarle.
+- **Pase de temporada** (desde la mitad): «Temporada nueva disponible. Su progreso no se conserva.»
+  Se cuelga el pase al cuello, la tira de luz se pone de todos los colores y los ojos, dorados. Sus
+  ataques cambian cada 8 s, por temporadas, y cada una se anuncia: **de botín** (más cajas y
+  cartuchos), **competitiva** (el cable a dos bandas y ráfagas rápidas) y **remasterizada** (lo de
+  siempre, más: anillos de cartuchos con el hueco que gira). La actualización sigue («Descargando
+  contenido de temporada (2 de 37)»).
+- Causa de baja: «Cartucho de edición limitada» o «Atropellado por contenido exclusivo».
+
 ## Mecánicas
 
 ### Control

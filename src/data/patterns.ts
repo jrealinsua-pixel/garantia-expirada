@@ -490,6 +490,45 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.6, pattern: { kind: 'ring', count: 24, speed: 78, offsetDeg: 3.75, color: 'file' } },
     ],
   },
+  // La Consola Edición Coleccionista (M14 (j4)). «Edición Coleccionista»: two fans of cartridges,
+  // the second wider and turned the other way, so there is always a gap to step into.
+  'consola-cartuchos': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 4, spreadDeg: 48, speed: 100, color: 'cartridge' }, turnDeg: -9 },
+      { at: 0.34, pattern: { kind: 'fan', count: 5, spreadDeg: 62, speed: 96, color: 'cartridge' }, turnDeg: 9 },
+    ],
+  },
+  // The controller's cable, whipped at you: two arms of red bullets sweeping across.
+  'consola-mando': { kind: 'spiral', arms: 2, steps: 10, stepDeg: 11, interval: 0.085, speed: 80, aimed: true, offsetDeg: -60, preview: true, color: 'red' },
+  // Out of a loot box shot open: «Cupones (no canjeables)», a fan of fake coupons, slow.
+  'cupones-falsos': { kind: 'fan', count: 5, spreadDeg: 80, speed: 70, color: 'fakecoupon' },
+  // «Pase de temporada». Temporada de botín: the cartridges, a little quicker.
+  'consola-cartuchos-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 52, speed: 106, color: 'cartridge' }, turnDeg: -9 },
+      { at: 0.3, pattern: { kind: 'fan', count: 5, spreadDeg: 62, speed: 100, color: 'cartridge' }, turnDeg: 9 },
+    ],
+  },
+  // Temporada competitiva: the cable both ways at once, and quick aimed bursts (it plays to win).
+  'consola-mando-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'spiral', arms: 1, steps: 13, stepDeg: 10, interval: 0.075, speed: 88, aimed: true, offsetDeg: -65, preview: true, color: 'red' } },
+      { at: 0, pattern: { kind: 'spiral', arms: 1, steps: 13, stepDeg: -10, interval: 0.075, speed: 88, aimed: true, offsetDeg: 65, preview: true, color: 'red' } },
+    ],
+  },
+  'consola-rafaga': { kind: 'burst', count: 5, interval: 0.11, jitterDeg: 8, speed: 128, color: 'cartridge' },
+  // Temporada remasterizada: the same as ever, more of it. Rings of cartridges with a gap that moves round.
+  'consola-remaster': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 15, speed: 70, color: 'cartridge', gaps: { widthDeg: 54, atDeg: [0] } } },
+      { at: 0.45, pattern: { kind: 'ring', count: 15, speed: 70, color: 'cartridge', gaps: { widthDeg: 54, atDeg: [35] } } },
+      { at: 0.9, pattern: { kind: 'ring', count: 15, speed: 70, color: 'cartridge', gaps: { widthDeg: 54, atDeg: [70] } } },
+    ],
+  },
   // A frost ball shatters where it lands: a few slow splinters.
   'escarcha-esquirlas': { kind: 'ring', count: 6, speed: 52, offsetDeg: 30, color: 'ice' },
   // Generic aimed fan, for the weaker enemies.

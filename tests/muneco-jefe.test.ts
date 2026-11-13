@@ -45,7 +45,7 @@ test('el Muñeco es el jefe de la planta 3, con su cartel, su causa de baja y su
   assert.equal(def.boss?.subtitle, 'Jefe de planta · Juguetería');
   assert.equal(def.boss?.motto, 'Pasado de moda. Como tú.');
   assert.ok(DOWN_CAUSES['muneco-moda']?.bullet && DOWN_CAUSES['muneco-moda']?.contact);
-  const f3 = createWorld({ seed: 'planta-muneco', floor: true, level: 3 }).floor!;
+  const f3 = createWorld({ seed: 'planta-muneco-4', floor: true, level: 3 }).floor!;
   const room = f3.rooms.find((r) => r.template.kind === 'boss')!;
   assert.equal(room.template.id, 'jefe-jugueteria');
   assert.ok(room.template.rows.join('').includes('D'));

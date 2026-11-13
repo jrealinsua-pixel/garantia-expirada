@@ -786,9 +786,35 @@ export interface BossSyncAttack {
   weight: number;
 }
 
-export type BossAttack =
+/**
+ * «Cajas de botín» (the Consola Edición Coleccionista, M14 (j4)): it warns (`telegraph` s, like a
+ * pattern) and tosses out `count` helpers (enemy `id`) at `toss` px/s to its sides and towards the
+ * player, never leaving more than `max` of its helpers standing at once (counting what came out of
+ * them). They are its own (owner), and fall with it.
+ */
+export interface BossSummonAttack {
+  kind: 'summon';
+  id: string;
+  count: number;
+  max: number;
+  toss: number;
+  telegraph: number;
+  weight: number;
+}
+
+/** What every boss attack can carry besides its own fields. */
+export interface BossAttackCommon {
+  /**
+   * «Pase de temporada» (BossPhase.seasons): picked only while the phase is in this season (its
+   * index in `names`); without it, in every season.
+   */
+  season?: number;
+}
+
+export type BossAttack = (
   | BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack | BossStampAttack | BossMenuAttack
-  | BossRainAttack | BossFolderAttack | BossSyncAttack;
+  | BossRainAttack | BossFolderAttack | BossSyncAttack | BossSummonAttack
+) & BossAttackCommon;
 
 /**
  * «Su llamada es importante» (the Centralita's voice menu, M11 (5b)): `zones` numbered zones light
@@ -909,6 +935,12 @@ export interface BossPhase {
    * under one when it lands takes `hurt` and is thrown out towards the boss. At most `cols` columns.
    */
   crates?: { prop: string; first: number; every: number; warn: number; hurt: number; cols: number };
+  /**
+   * «Pase de temporada» (the Consola, M14 (j4)): the phase goes through seasons, `every` s each, in
+   * turn and round again (the first as the phase starts, after its break); each attack with a
+   * `season` is only picked in its own. Every new season is announced with its name (event `season`).
+   */
+  seasons?: { every: number; names: readonly string[] };
 }
 
 /**
@@ -1104,12 +1136,14 @@ export interface HopperBrain {
 
 /**
  * What comes out when it breaks (EnemyDef.surprise): one of these, by `weight`. `spawn`: `count`
- * enemies of that kind pop out; `coupons`: that many more coupons fly out. `line` floats over it.
+ * enemies of that kind pop out; `coupons`: that many more coupons fly out; `pattern`: bullets. `line` floats over it.
  */
 export interface SurpriseDef {
   weight: number;
   spawn?: { id: string; count: number };
   coupons?: number;
+  /** A pattern (src/data/patterns.ts) fired at the player from where it broke (the fake coupons). */
+  pattern?: string;
   line: string;
 }
 
@@ -1323,8 +1357,20 @@ export interface PhoneBrain {
   muzzleY: number;
 }
 
+/**
+ * A loot box (the Consola's, M14 (j4)): it lands where it was tossed and sits there glowing; the
+ * last `shake` s of its `open` s it rattles (state `jam`), and then it opens by itself: what comes
+ * out is drawn from EnemyDef.selfSurprise (the worst of it). Shot open before that, from its
+ * `surprise`. It does not hurt to touch.
+ */
+export interface LootboxBrain {
+  kind: 'lootbox';
+  open: number;
+  shake: number;
+}
+
 export type EnemyBrain =
-  | PhoneBrain | ChatbotBrain | QueuerBrain
+  | LootboxBrain | PhoneBrain | ChatbotBrain | QueuerBrain
   | TurnerBrain | BlowerBrain | StamperBrain | CopierBrain | ShredderBrain | HopperBrain | LobberBrain | RcCarBrain | WindupBrain | RelayBrain | ChargerBrain | TurretBrain | MothBrain
   | ChaserBrain | BlinkerBrain | BossBrain | MimicBrain | LaggerBrain | WatcherBrain;
 
@@ -1357,6 +1403,8 @@ export interface EnemyDef {
   escort?: string;
   /** When it breaks, one of these comes out (the surprise envelope). */
   surprise?: readonly SurpriseDef[];
+  /** What comes out instead when it opens by itself, not shot (a loot box, LootboxBrain). */
+  selfSurprise?: readonly SurpriseDef[];
   /** How many of it one spawn point brings (they come in groups). Default 1. */
   pack?: number;
   /** Bosses: the name card and motto of their entrance (shown big, in «Letra Pequeña»), and the line over the name. */

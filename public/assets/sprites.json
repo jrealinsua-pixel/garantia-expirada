@@ -299,6 +299,30 @@
     "frameH": 12,
     "frames": 2
   },
+  "consola-coleccionista": {
+    "file": "consola-coleccionista.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 16
+  },
+  "caja-botin": {
+    "file": "caja-botin.png",
+    "frameW": 24,
+    "frameH": 24,
+    "frames": 4
+  },
+  "bala-cartucho": {
+    "file": "bala-cartucho.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 2
+  },
+  "bala-cupon-falso": {
+    "file": "bala-cupon-falso.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 2
+  },
   "router-wifi": {
     "file": "router-wifi.png",
     "frameW": 72,

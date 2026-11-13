@@ -1266,6 +1266,53 @@ try {
   await shot('64f-nube-carpetas.png');
   console.log('Nube de Almacenamiento: cartel, calles de lluvia, lluvia, sincronizando y el muro de carpetas.');
 
+  // M14 (j4): la Consola Edición Coleccionista, floor 3's second boss: its card, the cartridges, its
+  // loot boxes (one opening by itself), the update, and the season pass with a season announced.
+  await page.goto(`${url}?semilla=e2e-consola&sala=jefe-jugueteria&jefe=È`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const consolaJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'consola-coleccionista')";
+  if (!(await page.evaluate<boolean>(`!!${consolaJs} && !!window.__GE__.scene.world.intro`))) throw new Error('La Consola no está en la sala del jefe o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('65a-consola-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  const consolaOnly = (pick: string): string =>
+    `(() => { const b = ${consolaJs}; const ph = b.def.brain.phases[b.bossPhase ?? 0]; ph.attacks.forEach((a) => { a.weight = (a.pattern ?? a.kind) === '${pick}' ? 1 : 0; }); })()`;
+  await page.evaluate(consolaOnly('consola-cartuchos'));
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView; return s.world.bullets.filter((b) => b.color === 'cartridge' && v.contains(b.x, b.y)).length >= 6; })()`,
+    undefined,
+    { timeout: 15000 },
+  ).catch(() => { throw new Error('La Consola no dispara cartuchos'); });
+  await shot('65b-consola-cartuchos.png');
+  await page.evaluate(consolaOnly('summon'));
+  await page.waitForFunction(`window.__GE__.scene.world.enemies.filter((e) => e.def.id === 'caja-botin').length >= 2`, undefined, { timeout: 15000 })
+    .catch(() => { throw new Error('La Consola no suelta cajas de botín'); });
+  await page.evaluate(consolaOnly('consola-mando'));
+  await page.waitForTimeout(900);
+  await shot('65c-consola-cajas.png');
+  await page.waitForFunction(`window.__GE__.scene.world.enemies.some((e) => e.def.id === 'caja-botin' && e.state === 'jam')`, undefined, { timeout: 9000 })
+    .catch(() => { throw new Error('Las cajas de botín no tiemblan antes de abrirse'); });
+  await page.waitForTimeout(500);
+  await shot('65d-consola-caja-tiembla.png');
+  // «Actualización obligatoria», now.
+  await page.evaluate(`(() => { const b = ${consolaJs}; b.muteIn = 0; })()`);
+  await page.waitForFunction(`${consolaJs}.state === 'stun'`, undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('La Consola no se para a actualizarse'); });
+  await page.waitForTimeout(500);
+  await shot('65e-consola-actualizando.png');
+  await page.evaluate(`(() => { const b = ${consolaJs}; b.damageTaken = Math.ceil(b.def.hp * 0.55); })()`);
+  await page.waitForFunction(`${consolaJs}.bossPhase === 1 && ${consolaJs}.season !== undefined`, undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('La Consola no saca el pase de temporada'); });
+  await page.evaluate(`(() => { const b = ${consolaJs}; b.seasonT = 7.6; })()`);
+  await page.waitForFunction(`${consolaJs}.season === 1`, undefined, { timeout: 3000 });
+  await page.waitForTimeout(1200);
+  await shot('65f-consola-temporada.png');
+  console.log('Consola Edición Coleccionista: cartel, cartuchos, cajas de botín, una que tiembla, la actualización y el pase de temporada.');
+
   // M10 (5b): el Muñeco de Moda, floor 3's boss: its card, the accessories, the catwalk with its
   // flashes, and the sales (the tag on its box comes down and the repeated dolls come out).
   await page.goto(`${url}?semilla=e2e-muneco&sala=jefe-jugueteria&planta=3`);

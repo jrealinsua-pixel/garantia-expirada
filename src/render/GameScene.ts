@@ -2918,6 +2918,20 @@ export class GameScene extends Phaser.Scene {
             }
           }
           break;
+        case 'season': {
+          // «Pase de temporada»: a fanfare and the new season's name over the Consola, in gold.
+          this.sound2.play('desbloquear', { detune: -200 + e.index * 200, volume: 0.6 });
+          const boss = this.world.enemies.find((en) => en.id === e.boss);
+          // The last season's name goes: only the current one is up.
+          for (const f of this.floats) if (f.key === `season:${e.boss}`) f.life = 0;
+          if (boss) this.floatText(boss.x, boss.y - 84, fontText(e.name), 0xf6c431, `season:${boss.id}`, -4, 2.2);
+          break;
+        }
+        case 'lootShake':
+          // A loot box about to open by itself: a rattle and a few sparkles.
+          this.sound2.play('clinc', { detune: 900, volume: 0.4 });
+          for (let i = 0; i < 4; i++) this.spark(e.x, e.y - 14, this.fx.range(-Math.PI, 0), this.fx.range(30, 60), 2, 0xf6c431);
+          break;
         case 'rain':
           // The Nube's rain: a gust and the hiss of the lanes filling.
           this.sound2.play('soplar', { detune: -600, volume: 0.6 });
@@ -3452,7 +3466,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'surprise': {
           // The envelope tears open: a burst of gift-wrap confetti, and what came out says so.
-          const ultra = e.line === 'Ultrarraro';
+          const ultra = e.line === 'Ultrarraro' || e.line === 'Legendario';
           this.sound2.play(ultra ? 'desbloquear' : 'desmontar', { detune: ultra ? 0 : this.fx.range(200, 500) });
           if (ultra) this.shake(200, 0.008, true);
           const tints = ultra ? [0xf6c431, 0xfff1a8, 0xf4f1e8] : [0xe0453b, 0xf6c431, 0xe070c8, 0x69dbd8, 0xf4f1e8];
@@ -4696,6 +4710,9 @@ export class GameScene extends Phaser.Scene {
       // The Nube's (M14 (j3)): the drops stretch as they fall; the files flutter.
       if (b.color === 'drop') s.setFrame(Math.floor(this.time.now / 120 + b.id) % 2);
       if (b.color === 'file') s.setFrame(Math.floor(this.time.now / 110 + b.id) % 2);
+      // The Consola's (M14 (j4)): cartridges tumble end over end; the fake coupons flutter.
+      if (b.color === 'cartridge') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
+      if (b.color === 'fakecoupon') s.setFrame(Math.floor(this.time.now / 130 + b.id) % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -6039,6 +6056,7 @@ const BULLET_TEXTURES: Record<BulletColor, string> = {
   bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
   call: 'bala-llamada', note: 'nota-espera', plug: 'bala-clavija', cord: 'bala-cable',
   screw: 'bala-tornillo', spring: 'bala-muelle', key: 'bala-tecla', foam: 'bala-espuma', sock: 'bala-calcetin', drop: 'bala-gota', file: 'bala-archivo',
+  cartridge: 'bala-cartucho', fakecoupon: 'bala-cupon-falso',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

@@ -1420,6 +1420,104 @@ export const ENEMIES: Record<string, EnemyDef> = {
     },
     boss: { title: 'La Nube de Almacenamiento', motto: 'Sus archivos, a salvo en la nube. Ya no son suyos.', subtitle: 'Jefa de planta · Informática' },
   },
+  // M14 (j4): floor 3's second boss, drawn instead of the Muñeco by some seeds (FLOOR_BOSS_POOLS).
+  'consola-coleccionista': {
+    id: 'consola-coleccionista',
+    name: 'La Consola Edición Coleccionista',
+    description:
+      'Numerada a mano: la 000.001 de una tirada limitada de cuatro millones. Trae un 3 % más de ' +
+      'contenido, que ya viene en el disco y se desbloquea pagando.',
+    // A little less than the Muñeco (220): its loot boxes take shots too. Measured with the bot (j4).
+    hp: 165,
+    sprite: 'consola-coleccionista',
+    anchor: { x: 36, y: 74 },
+    hurt: { x: -24, y: -64, w: 48, h: 60 },
+    footRadius: 16,
+    contactPush: 260,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [6, 9], hearts: 1 },
+    // Eight frames per phase (tools/sprites/consola.ts): 0-1 breathing, 2-5 walking, 6 the disc
+    // tray out (warning), 7 updating (BossPhase.mute: the progress bar on its front). «Pase de
+    // temporada» is the same eight on, with the season pass hung round it and its lights in colours.
+    anim: { idle: [0, 1], idleMs: 380, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, stun: 7 },
+    brain: {
+      kind: 'boss',
+      roam: { leg: [0.5, 1.2], burst: [0.6, 1.5], spread: 70 },
+      drift: 0.4,
+      rage: 0.55,
+      // Out of the disc tray, on its front.
+      muzzle: { x: 14, y: 40 },
+      phases: [
+        {
+          name: 'Edición Coleccionista',
+          from: 1,
+          walkSpeed: 42,
+          keep: 135,
+          rest: [0.85, 1.25],
+          attacks: [
+            { kind: 'pattern', pattern: 'consola-cartuchos', telegraph: 0.65, weight: 3 },
+            { kind: 'pattern', pattern: 'consola-mando', telegraph: 0.6, weight: 2 },
+            // «Cajas de botín»: out they go; shoot them open or they open by themselves (worse).
+            { kind: 'summon', id: 'caja-botin', count: 2, max: 3, toss: 260, telegraph: 0.6, weight: 1.5 },
+          ],
+          // «Actualización obligatoria»: it stops dead to update, and takes more meanwhile.
+          mute: { every: [8, 11], time: 2.2, taken: 1.6, line: 'Actualización obligatoria (1 de 37)' },
+        },
+        {
+          // Half its life gone: the season pass. Its attacks change every few seconds.
+          name: 'Pase de temporada',
+          from: 0.5,
+          walkSpeed: 48,
+          keep: 125,
+          rest: [0.7, 1.05],
+          line: 'Temporada nueva disponible. Su progreso no se conserva.',
+          frameShift: 8,
+          seasons: { every: 8, names: ['Temporada de botín', 'Temporada competitiva', 'Temporada remasterizada'] },
+          attacks: [
+            { kind: 'summon', id: 'caja-botin', count: 2, max: 3, toss: 270, telegraph: 0.55, weight: 2, season: 0 },
+            { kind: 'pattern', pattern: 'consola-cartuchos-2', telegraph: 0.55, weight: 2, season: 0 },
+            { kind: 'pattern', pattern: 'consola-mando-2', telegraph: 0.55, weight: 3, season: 1 },
+            { kind: 'pattern', pattern: 'consola-rafaga', telegraph: 0.45, weight: 2, season: 1 },
+            { kind: 'pattern', pattern: 'consola-remaster', telegraph: 0.6, weight: 3, season: 2 },
+            { kind: 'pattern', pattern: 'consola-cartuchos', telegraph: 0.5, weight: 2, season: 2 },
+          ],
+          mute: { every: [8, 11], time: 2, taken: 1.6, line: 'Descargando contenido de temporada (2 de 37)' },
+        },
+      ],
+    },
+    boss: { title: 'La Consola Edición Coleccionista', motto: 'Ahora con un 3 % más de contenido. Desbloqueable.', subtitle: 'Jefa de planta · Juguetería' },
+  },
+  // The Consola's loot boxes (M14 (j4)): shoot them open for a chance at something; left alone, they
+  // open by themselves, and what comes out then is never good.
+  'caja-botin': {
+    id: 'caja-botin',
+    name: 'Caja de Botín',
+    description: 'Contenido aleatorio garantizado. La probabilidad de cada premio está publicada en un sitio web que ya no existe.',
+    hp: 6,
+    sprite: 'caja-botin',
+    anchor: { x: 12, y: 22 },
+    hurt: { x: -9, y: -17, w: 18, h: 16 },
+    footRadius: 6,
+    contactPush: 0,
+    contactDamage: 0,
+    knockbackScale: 0.3,
+    loot: { coupons: [0, 0] },
+    // 0-1 glowing, 2-3 rattling (about to open by itself).
+    anim: { idle: [0, 1], idleMs: 260, jam: [2, 3], jamMs: 55 },
+    brain: { kind: 'lootbox', open: 6.5, shake: 1.5 },
+    surprise: [
+      { weight: 40, spawn: { id: 'munequito-repetido', count: 1 }, line: 'Común' },
+      { weight: 15, spawn: { id: 'robot-cuerda', count: 1 }, line: 'Poco común' },
+      { weight: 40, pattern: 'cupones-falsos', line: 'Cupones (no canjeables)' },
+      { weight: 5, coupons: 3, line: 'Legendario' },
+    ],
+    selfSurprise: [
+      { weight: 75, spawn: { id: 'munequito-repetido', count: 2 }, line: 'Repetido' },
+      { weight: 25, spawn: { id: 'robot-cuerda', count: 1 }, line: 'Común (otra vez)' },
+    ],
+    glossary: false,
+  },
   'nevera-suprema': {
     id: 'nevera-suprema',
     name: 'La Nevera Suprema',

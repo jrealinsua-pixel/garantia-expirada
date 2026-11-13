@@ -176,6 +176,8 @@ const ENEMY_CHARS: Record<string, string> = {
   Ó: 'telefono-recepcion',
   // Ç: La Nube de Almacenamiento, floor 2's second boss (M14 (j3)), in the Router's room.
   Ç: 'nube-almacenamiento',
+  // È: La Consola Edición Coleccionista, floor 3's second boss (M14 (j4)), in the Muñeco's room.
+  È: 'consola-coleccionista',
   // À: La Lavadora Programa Eco, floor 1's second boss (M14 (j2)), in the Nevera's room.
   À: 'lavadora-eco',
   // Ú: La Centralita, floor 5's boss (M11 (5b)).

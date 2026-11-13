@@ -2,6 +2,56 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 04:30 (hora peninsular) — Hito M14 — Jefes al azar (j4): la Consola Edición Coleccionista
+- Contexto: el `main` local volvía a estar viejo (en M11, 50 por delante y 50 por detrás, clon
+  superficial); `git reset --hard` no estaba permitido, así que trabajé en `origin/main` sin rama y
+  empujé con `git push origin HEAD:main`. Salud al empezar: `check`, 934 tests, `build` y `bot` en
+  verde. Otra sesión lleva la (l4) (premios de logros), que no toca estos archivos.
+- Hecho: **la Consola Edición Coleccionista** (`consola-coleccionista`, letra `È`), el segundo jefe de
+  la planta 3, en `FLOOR_BOSS_POOLS[3]` junto al Muñeco. Diseño en `docs/DISENO.md`. Sprite nuevo
+  (`tools/sprites/consola.ts`, 72×76, 16 fotogramas): torre de plástico negro brillante con ribete
+  dorado, patas cortas, bandeja del disco, mando con cable en la mano; chistes: la placa «000001», la
+  estrella «+3 %» y la trampilla del contenido descargable con candado. Fotogramas: respirar, andar,
+  la bandeja fuera (aviso) y actualizando (barra de progreso atascada); con el pase de temporada, el
+  pase colgado, la tira de luz de colores y los ojos dorados. Balas nuevas: cartucho (`cartridge`) y
+  cupón falso (`fakecoupon`). Enemigo nuevo: la **Caja de Botín** (`caja-botin`, 24×24, fuera del
+  glosario como la silla del Director). Mecánicas nuevas, genéricas y en los datos:
+  **`BossSummonAttack`** (`kind: 'summon'`: lanza ayudantes hacia el jugador con un tope de los suyos
+  en pie, contando lo que sale de ellos: `helpersOf`, `tossHelpers`); **`LootboxBrain`** (la caja se
+  queda quieta, tiembla —estado `jam`, evento `lootShake`— y se abre sola con `EnemyDef.selfSurprise`;
+  rota a tiros, con su `surprise`); **`SurpriseDef.pattern`** (los cupones falsos son balas); lo que
+  sale de una caja es del jefe (`owner`) y cae con él, y una caja cuyo jefe ha caído no se abre;
+  **`BossPhase.seasons`** + `season` en cada ataque (`BossAttackCommon`): `pickAttack` solo elige los
+  de la temporada en curso, que cambia cada `every` s con su evento `season` (el nombre en dorado sobre
+  ella). La actualización es el `mute` de siempre con su línea. Un enemigo con `contactDamage: 0` ya no
+  hiere ni empuja al tocarlo. Glosario, créditos, causas de baja, bot (`npm run bot` mide la Consola).
+  Tests: `tests/consola.test.ts` (8) y ajustes en final, glosario, textos, jefes-movimiento, muneco-jefe
+  (otra semilla, que saca al Muñeco) y plantas (el Escaparate tiene al Muñeco o a la Consola). e2e
+  `65a`–`65f`.
+- Decisiones: las cajas que nadie rompe se abren solas y dan **lo peor** (solo juguetes), y rotas a
+  tiros pueden dar cupones falsos o, rara vez, cupones de verdad: así el chiste del botín es también la
+  decisión del jugador (gastar disparos en cajas o en el jefe). Los cupones falsos son balas rojas y no
+  amarillas: un cupón-bala amarillo se confundiría con los de verdad. Los juguetes son sobre todo
+  Muñequitos Repetidos (débiles): con Robots de Cuerda y Cubos de Piezas el bot moría siempre por la
+  acumulación. La caja se dibuja como un cofre morado con «?» para no parecerse a la Caja Fuerte de
+  Devoluciones. El bot apunta a las cajas como a un objetivo algo más cercano (peso 0,7) y a su altura.
+  Las temporadas duran 8 s y van en orden (botín, competitiva, remasterizada): al azar se repetían y no
+  se notaba el cambio.
+- Medidas: el bot contra la Consola (60 combates). Primera versión (225 de vida, tres cajas, juguetes
+  fuertes, patrones a 110 px/s): gana el **0 %**, llega a la fase 2 el 25 % (6 heridas: 91 de 120 de
+  sus balas y el resto de juguetes; las cajas se abrían solas 13 veces por combate y se rompían 2).
+  Tras bajar los patrones (cartuchos a 100, cable más corto), dos cajas como mucho tres en pie, cajas
+  que se lanzan más lejos y tardan 6,5 s en abrirse, juguetes débiles, actualización cada 8–11 s con
+  +60 % y 165 de vida: **gana el 21,7 % en 150 s**, 5,6 heridas (2,9 en la fase 1, 2,7 con el pase),
+  llega a la fase 2 el 97 % a los 85 s (el Muñeco, 13 % en 155 s; el Router, 20 %). `npm run bot`: 200
+  partidas, 0 fallos. 943 tests en verde. e2e entero en verde (en la primera pasada falló el del
+  Becario por tiempo con la máquina cargada; en la simulación tarda 4 s de 8, y la segunda pasada salió
+  limpia).
+- Problemas conocidos: la fase 1 es larga para el bot (85 s) porque gasta muchos disparos en cajas;
+  un jugador de verdad elegirá mejor. El cable de mando (espiral que barre) es lo que más daño hace al
+  bot en la fase 1.
+- Siguiente paso: (j5) la Fuente de Agua de Oficina, el segundo jefe de la planta 4.
+
 ## 2026-11-13 04:20 (hora peninsular, de `date`) — Hito M14 — Logros (l4b): las dos armas premio
 - Contexto: la misma sesión que la (l4a), siguiendo con el paso 7. La (j4) la tenía otra sesión;
   esta no toca sus archivos salvo dos líneas del dibujo de las balas pegadas en `GameScene.ts`.

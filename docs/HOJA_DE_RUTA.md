@@ -605,7 +605,12 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
     «Sincronizando…» (`sync`, la barra que se rompe a tiros) y el muro de carpetas (`folders`, props
     temporales que se deshacen: `PropDef.crumble`, `PropInstance.life`). El bot la mide; glosario y
     créditos. `tests/nube.test.ts`, e2e `64a`–`64f`.
-  - [ ] (j4) Planta 3: la Consola Edición Coleccionista.
+  - [x] (j4) Planta 3: la Consola Edición Coleccionista. Hecho el 2026-11-13: `consola-coleccionista`
+    (letra `È`), `tools/sprites/consola.ts`; ataques nuevos en los datos: cajas de botín
+    (`BossSummonAttack`, la caja `caja-botin` con `LootboxBrain`: rota a tiros sale de `surprise`,
+    abierta sola de `selfSurprise`; `SurpriseDef.pattern` para los cupones falsos) y el «Pase de
+    temporada» (`BossPhase.seasons` y `season` en cada ataque). El bot la mide; glosario y créditos.
+    `tests/consola.test.ts`, e2e `65a`–`65f`.
   - [ ] (j5) Planta 4: la Fuente de Agua de Oficina.
   - [ ] (j6) Planta 5: la Política de Devoluciones.
   - [ ] (j7) El glosario, los logros y los créditos con los jefes nuevos; el bot mide cada uno.
