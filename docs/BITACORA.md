@@ -31,7 +31,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
   0,55 → 0,80 heridas por sala; climatizador + destructora 0,25 → 0,32; fotocopiadora +
   climatizador 0,12 → 0,05; climatizador + sello 0,08 → 0,07. `npm run bot`: 0 fallos, 5 atascos
   (igual), la planta 1 igual; a la planta 4 llegan solo 2 de 20 partidas (muestra muy pequeña).
-  974 tests en verde; e2e entero en verde.
+  982 tests en verde (ya con la regleta de la otra sesión); e2e entero en verde.
 - Problemas conocidos: el climatizador enchufado a una columna interior (si la tiene más cerca que
   la pared) se ve raro; no lo he visto en las capturas.
 - Siguiente paso: (h9e) los de la planta 5 y el Servicio Técnico; o (h10a) jefes más únicos.
