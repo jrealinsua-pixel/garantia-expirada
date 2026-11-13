@@ -714,6 +714,12 @@ juegos del género» de `docs/DISENO.md`.
     sombra de aviso, aplasta lo que pilla y queda como obstáculo bajo.
   - [ ] (h11a3) Charcos: el agua que deja algo roto (una garrafa, un extintor) moja el suelo y
     conduce las descargas de la regleta.
+  - [x] (h11b) Decoración por planta: los trastos de cada planta (cuatro o tres por planta, bajos,
+    apagados y sin los colores de las balas) amontonados en los rincones, junto a las paredes y al
+    pie de las estanterías, y la sombra de las paredes en el suelo. Hecho el 2026-11-13:
+    `src/art/decor.ts`, `tests/decoracion.test.ts`.
+  - [ ] (h11c) Plantillas de sala nuevas con más forma (columnas, rincones, salas en L, islas de
+    muebles), unas cuantas por planta.
 
 ## M14c · Arte nuevo (nota del humano del 13 de noviembre)
 

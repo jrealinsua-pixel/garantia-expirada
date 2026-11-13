@@ -12,6 +12,7 @@ import * as O from './oficinas.ts';
 import * as A from './atencion.ts';
 import * as R from './taller.ts';
 import { hubHung } from './hub.ts';
+import * as D from './decor.ts';
 
 export interface PaintableRoom {
   cols: number;
@@ -739,6 +740,72 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
         S.set(lx0, y, dash);
         S.set(lx1 - 1, y, dash);
       }
+    }
+  }
+
+  // The floor's own junk (M14b (h11b)): the walls' shadow, clutter piled in the corners and odd
+  // pieces along the walls. Its own generator, so the rest of the room keeps its look.
+  if (room.kind !== 'hub') {
+    const lv = room.level ?? 1;
+    const drng = new Rng('room-deco:' + seed);
+    D.wallShadow(S, floorX0, floorY0, floorX1, floorY1, (x, y) => !wall(Math.floor(x / T), Math.floor(y / T)));
+    count('sombra-paredes');
+    const at = (p: D.Piece, x: number, y: number): boolean => {
+      const w = p.canvas.w;
+      const h = p.canvas.h;
+      if (x < floorX0 || y < floorY0 || x + w > floorX1 || y + h > floorY1 || !free(x, y, w, h)) return false;
+      used.push({ x, y, w, h });
+      D.putPiece(S, p, x, y);
+      count(`trasto:${p.name}`);
+      return true;
+    };
+    // Corners: three or four pieces, the first against both walls, the rest beside it.
+    const cornerChance = style === 'secret' ? 0.7 : style === 'shop' || style === 'rare' ? 0.3 : style === 'boss' ? 0.5 : 0.7;
+    let corners = 0;
+    for (const [right, bottom] of [[false, false], [true, false], [false, true], [true, true]] as const) {
+      if (!drng.chance(cornerChance)) continue;
+      const n = drng.int(3, 4);
+      let placed = 0;
+      let reach = 2;
+      let last: string | undefined;
+      for (let k = 0; k < n + 4 && placed < n; k++) {
+        const p = D.junk(drng, lv, last);
+        const w = p.canvas.w;
+        const h = p.canvas.h;
+        // Along the back or front wall first, then one step out along the side wall.
+        const along = placed === 0 || drng.chance(0.6);
+        const ox = along ? reach : drng.int(1, 4);
+        const oy = along ? drng.int(0, 2) : reach + drng.int(0, 2);
+        const x = right ? floorX1 - ox - w : floorX0 + ox;
+        const y = bottom ? floorY1 - oy - h : floorY0 + oy;
+        if (at(p, x, y)) {
+          last = p.name;
+          placed++;
+          reach += along ? w + drng.int(0, 2) : 0;
+          if (!along) reach = Math.max(reach, h + 2);
+        }
+      }
+      if (placed > 0) corners++;
+    }
+    if (corners > 0) count('rincones');
+    // Pieces left against the free-standing shelving, at the foot of its front.
+    for (let r = 2; r < room.rows - 2; r++) {
+      for (let c = 1; c < room.cols - 1; c++) {
+        if (!wall(c, r) || wall(c, r + 1) || c === 0 || c === room.cols - 1 || !drng.chance(0.3)) continue;
+        const p = D.junk(drng, lv);
+        at(p, c * T + drng.int(0, Math.max(0, T - p.canvas.w)), (r + 1) * T + drng.int(0, 2));
+      }
+    }
+    // Odd pieces along the walls.
+    const alongN = Math.round((style === 'secret' ? 1.5 : style === 'shop' || style === 'rare' ? 0.5 : 2.5) * area);
+    for (let i = 0, tries = 0; i < alongN && tries < 20; tries++) {
+      const p = D.junk(drng, lv);
+      const w = p.canvas.w;
+      const h = p.canvas.h;
+      const side = drng.int(0, 3);
+      const x = side === 0 ? floorX0 + drng.int(1, 3) : side === 1 ? floorX1 - w - drng.int(1, 3) : drng.int(floorX0 + 30, floorX1 - 30 - w);
+      const y = side === 2 ? floorY0 + drng.int(0, 2) : side === 3 ? floorY1 - h - drng.int(1, 2) : drng.int(floorY0 + 24, floorY1 - 24 - h);
+      if (at(p, x, y)) i++;
     }
   }
 

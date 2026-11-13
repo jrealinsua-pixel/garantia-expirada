@@ -2,6 +2,43 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 17:55 (hora peninsular) — Hito M14b — (h11b) Los trastos de cada planta
+- Contexto: había tres tareas cogidas por otras sesiones ((h7), (h9a) y luego (h9c) y (h11a1)), y
+  la (h10a) toca `src/sim/enemies.ts` igual que la (h9). Cogí la (h11b) porque solo toca el pintor de
+  salas (`src/art/`), sin chocar con nadie.
+- Hecho: M14b (h11b). `src/art/decor.ts` nuevo: **los trastos de cada planta**, dibujados píxel a
+  píxel con contorno, cuatro por planta (tres en la 5): en el almacén, cartones aplastados, palés
+  (a veces con una caja que nadie bajó), bolitas de embalar y rollos de film; en Informática,
+  marañas de cables, placas base apiladas, ratones panza arriba y una caja de teclados; en la
+  Juguetería, bloques desparramados, una pelota deshinchada, un cochecito boca arriba y un puzle
+  (de las 1000 piezas quedan 998); en las Oficinas, paquetes de folios, un archivador abierto, la
+  planta seca desde la última reestructuración y la caja gris de efectos personales; en Atención al
+  Cliente, hojas de reclamación con su grapadora encima, el «Suelo mojado» caído y una papelera
+  rebosando de tiques; en el taller, una caja de piezas, trapos con aceite, un ventilador sin aspas
+  y una caja de herramientas. El pintor (`src/art/room.ts`) los amontona **en los rincones** (tres o
+  cuatro, sin repetir el de al lado; en el 70 % de los rincones de una sala de combate), **junto a
+  las paredes** (unos 2,5 por sala de tamaño normal) y **al pie de las estanterías y mamparas** de
+  dentro de la sala (30 % de las casillas). Y **las paredes dan sombra al suelo**: 14 px bajo la del
+  fondo, 6 px en las de los lados y 3 px en la de delante, multiplicando el color del suelo (así cada
+  planta conserva su tono). Ni el Mostrador ni lo que hay delante de las puertas lleva trastos.
+- Decisiones: los trastos son decoración pintada en el fondo y no chocan, así que todos son bajos
+  (≤ 14 px), un 14 % más oscuros y algo menos saturados que los props que sí se usan, y sin el rojo
+  ni el cian de las balas: no se confunden con una caja que tapa ni con algo que hace daño. Van con
+  su propio generador (`room-deco:` + semilla), así el resto de cada sala se pinta igual que antes.
+  En las Oficinas la caja de efectos personales y la maceta son grises (la planta 4 es gris neutro y
+  su test lo exige); en la sala secreta, menos trastos que en las demás (es pequeña y ya tiene polvo
+  y telarañas, y con más se parecía demasiado de color a la de otra planta).
+- Medidas: unos 15 trastos por sala de combate normal; `tests/decoracion.test.ts` (4 tests: trastos
+  propios de cada planta, bajos y sin colores de bala, al menos 5 por sala y rincones en el 80 % de
+  las salas, nada delante de las puertas ni en el Mostrador). 966 tests en verde; bot sin fallos
+  (no toca la simulación).
+- Problemas conocidos: el centro de las salas grandes sigue vacío: eso lo arreglan la (h11c)
+  (plantillas con más forma) y la (h11a) (props que se usan).
+- Arreglo del e2e (estaba roto en `main`, con y sin este cambio): desde la (h9a) la bombilla tarda
+  hasta 8 s en llegar a disparar (arranque 1,8 + pausa hasta 3,2 + aviso 1,2 + 1,7 disparando) y el
+  e2e la esperaba 8 s justos; ahora 15. Y ante la balda de la tienda la tostadora anda hasta que sale
+  «Comprar» (1,5 s como mucho) en vez de 0,5 s fijos, que a veces se quedaba corta. e2e entero en verde.
+- Siguiente paso: (h11c) plantillas de sala con más forma, o (h10a) cuando acabe la (h9).
 ## 2026-11-13 19:10 (hora peninsular) — Hito M14b — (h9c) La planta 3: el cubo que sigue tus pasos y el microondas espejo
 - Hecho: M14b (h9c). En la Juguetería, el Robot de Cuerda (rebota como una bola), el Coche
   Teledirigido (te rodea deprisa y embiste de lado) y el Sobre Sorpresa (salta) ya se movían a su

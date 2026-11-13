@@ -229,7 +229,8 @@ try {
   await aimAt(bulb.x, bulb.y);
   const bulbFiring = `(() => { const w = window.__GE__.scene.world; const b = w.enemies.find((e) => e.def.id === 'bombilla');
     return b.state === 'fire' && b.t > 1.7; })()`;
-  await page.waitForFunction(bulbFiring, undefined, { timeout: 8000 });
+  // Startup 1,8 s, a pause of up to 3,2 s, 1,2 s of warning and 1,7 s firing: up to 8 s, so 15 of margin.
+  await page.waitForFunction(bulbFiring, undefined, { timeout: 15000 });
   await shot('08-bombilla.png');
 
   // Batidora de Mano: let it come close, and catch it winding up for a lunge, already in TURBO.
@@ -2300,8 +2301,9 @@ try {
     w.player.x = k.x; w.player.y = k.y + 46; })()`);
   await page.waitForTimeout(1100);
   await shot('24a-tienda.png');
+  // Walk up until the shelf offers it (or 1,5 s at most), instead of a fixed time.
   await page.keyboard.down('w');
-  await page.waitForTimeout(500);
+  await page.waitForFunction('(() => { const t = window.__GE__.scene.prompt; return !!t && t.visible && /COMPRAR/i.test(t.text); })()', undefined, { timeout: 1500 }).catch(() => undefined);
   await page.keyboard.up('w');
   if (!/F: COMPRAR POR 20/i.test(await prompt())) throw new Error(`Ante la balda no sale «F: Comprar por 20»: «${await prompt()}»`);
   await page.keyboard.press('f');
