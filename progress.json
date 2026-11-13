@@ -1422,6 +1422,11 @@
       "sesion": "2026-11-13 18:10",
       "tarea": "M14b (h9c): movimientos propios para los enemigos de la planta 3 (src/data/enemies.ts, src/sim/enemies.ts, src/data/types.ts, tests de esos enemigos)",
       "desde": "2026-11-13T17:10:00Z"
+    },
+    {
+      "sesion": "2026-11-13 17:45",
+      "tarea": "M14b (h11a1): la Regleta Sobrecargada, un prop que da descargas (src/data/props.ts, src/sim/room.ts fillTemplate, src/sim/world.ts updateProps, tools/sprites/props.ts, GameScene; tests/regleta.test.ts)",
+      "desde": "2026-11-13T16:45:00Z"
     }
   ]
 }
