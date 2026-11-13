@@ -1447,6 +1447,11 @@
       "sesion": "2026-11-13 20:15",
       "tarea": "M14b (h11a3): charcos que conducen la descarga de la regleta (src/data/props.ts garrafa, src/sim/room.ts Room.puddles y relleno, src/sim/world.ts updateZap y la garrafa rota, GameScene dibujo del charco, tools/sprites; tests/charcos.test.ts)",
       "desde": "2026-11-13T19:15:00Z"
+    },
+    {
+      "sesion": "2026-11-13 20:30",
+      "tarea": "M14b (h9e2): el Asistente Virtual esquiva la pregunta (se aparta de tu línea de tiro) y la Carretilla gira despacio y da marcha atrás (src/data/enemies.ts, src/data/types.ts ChargerBrain/ChatbotBrain, src/sim/enemies.ts; en GameScene solo sonidos de los eventos nuevos; tests/planta5-st-movimiento.test.ts)",
+      "desde": "2026-11-13T19:30:00Z"
     }
   ]
 }
