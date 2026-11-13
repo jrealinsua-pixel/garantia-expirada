@@ -1392,6 +1392,11 @@
       "sesion": "2026-11-13 13:35",
       "tarea": "M14b (h2)+(h3)+(h4): economía, cofres en salas distintas, menos corazones (src/sim/world.ts pickups y premios de sala, src/sim/floor.ts, src/data/shop.ts, src/data/enemies.ts loot, tests)",
       "desde": "2026-11-13T12:35:00Z"
+    },
+    {
+      "sesion": "2026-11-13 14:45",
+      "tarea": "M14b (h6): mesas que se vuelcan hacia donde toca y aguantan unos disparos (src/sim/world.ts tipTable/tableHit, src/data/props.ts mesa, src/render/GameScene.ts tablas, tests/mesas.test.ts)",
+      "desde": "2026-11-13T13:45:00Z"
     }
   ]
 }
