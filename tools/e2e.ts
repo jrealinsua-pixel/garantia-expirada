@@ -517,6 +517,36 @@ try {
   await shot('11s-regleta-cortocircuito.png');
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const en of w.enemies) en.damageTaken = en.def.hp; })()`);
   await page.waitForTimeout(400);
+  // M14b (h11a2): an Estantería Inestable where the table was, an enemy on the tile to its right.
+  // Shot from the left it takes the hits, wobbles with its landing shadowed, and goes over to the
+  // right on top of the enemy; then it lies there as low cover.
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world;
+    g.placeProp('estanteria', ${tableAt.x}, ${tableAt.y});
+    w.player.x = ${tableAt.x} - 60; w.player.y = ${tableAt.y} + 2; w.player.vx = 0; w.player.vy = 0;
+    const d = w.dummies[0]; if (d) { d.x = ${tableAt.x} - 30; d.y = ${tableAt.y} + 50; } })()`);
+  await page.evaluate(`window.__GE__.spawnIdle('aspirador', ${tableAt.x} + 26, ${tableAt.y} - 4)`);
+  await page.waitForTimeout(300);
+  await shot('11t-estanteria.png');
+  const shelfBullet = `(() => { const w = window.__GE__.scene.world; w.bullets.push({ id: w.nextId++, owner: 'player', x: ${tableAt.x} - 30, y: ${tableAt.y} - 8, vx: 300, vy: 0, r: 3,
+      life: 3, damage: 1.6, knockback: 0, color: 'orange', age: 0, dir: 0, speed: 300, h: 0 }); })()`;
+  for (let i = 0; i < 4; i++) {
+    await page.evaluate(shelfBullet);
+    await page.waitForTimeout(110);
+  }
+  await page.waitForFunction(`window.__GE__.scene.world.room.props.some((o) => o.fall)`, undefined, { timeout: 2000 });
+  await page.waitForTimeout(260);
+  await shot('11u-estanteria-tambalea.png');
+  await page.waitForFunction(`window.__GE__.scene.world.room.props.some((o) => o.fallen === 'E')`, undefined, { timeout: 2000 });
+  await page.waitForTimeout(60);
+  await shot('11v-estanteria-cae.png');
+  // Crushed: hurt, or gone from the room altogether.
+  const unhurt = await page.evaluate<number>(`window.__GE__.scene.world.enemies.filter((en) => en.def.id === 'aspirador' && en.damageTaken === 0).length`);
+  if (unhurt > 0) throw new Error('La estantería no aplasta al aspirador de al lado');
+  await page.waitForTimeout(500);
+  await shot('11w-estanteria-tumbada.png');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; for (const en of w.enemies) en.damageTaken = en.def.hp;
+    w.room.props = w.room.props.filter((o) => !o.fallen); })()`);
+  await page.waitForTimeout(300);
   await page.evaluate(`(() => { window.__GE__.scene.world.noDamage = false; })()`);
   // Down: with half a heart left, one more bullet ends it. The toaster comes apart (slices,
   // spring, screws), the sick-leave report drops in with its stamp, and R asks for a new unit.

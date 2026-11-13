@@ -33,8 +33,9 @@ import {
   type Station,
   type StationKind,
   type TipSide,
+  type FallSide,
 } from './room.ts';
-import { PROPS, REGLETA_CHANCE } from '../data/props.ts';
+import { PROPS, REGLETA_CHANCE, SHELF_CHANCE } from '../data/props.ts';
 import { SPECIAL_HEARTS, SURGE_DAMAGE, SURGE_VALUE, TURBO_DAMAGE, TURBO_HEAL } from '../data/hearts.ts';
 import { LORE } from '../data/lore.ts';
 import { normalize, overlaps, pointInRect, type Rect } from './vec.ts';
@@ -892,6 +893,13 @@ export type SimEvent =
    */
   | { type: 'zapWarn'; x: number; y: number; cx: number; cy: number; radius: number; warn: number }
   | { type: 'zap'; x: number; y: number; cx: number; cy: number; radius: number; targets: Array<{ x: number; y: number }>; player: boolean }
+  /**
+   * A shelf (PropDef.topple, M14b (h11a2)) at its feet (x, y): hit (`wear` of its `hp`), starting
+   * to go over `side` (it comes down in `warn` s on `area`), and down (`targets` were under it).
+   */
+  | { type: 'shelfHit'; x: number; y: number; wear: number; hp: number }
+  | { type: 'shelfWobble'; x: number; y: number; side: FallSide; warn: number; area: Rect }
+  | { type: 'shelfFall'; x: number; y: number; side: FallSide; area: Rect; targets: Array<{ x: number; y: number }>; player: boolean }
   /** A prop that breaks into nothing (PropDef.crumble) is gone: `shot` to bits, or its time up. */
   | { type: 'propCrumble'; x: number; y: number; prop: string; shot: boolean }
   /** «Almacenamiento lleno»: a boss drops temporary props (BossFolderAttack) at these spots. */
@@ -1478,7 +1486,8 @@ function planFloor(seed: string, level: number, weapons: string[], locked: reado
     const depth = Math.max(1, fr.depth) + (level - 1) * LEVEL_DEPTH;
     // M14b (h11a1): the Regletas come from a generator of their own, so the rooms keep the rest.
     const hazard = { rng: new Rng(`regletas:${seed}:${fr.id}`), chance: REGLETA_CHANCE[level] ?? 0 };
-    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss, vary: true, cap: budgetCapOf(level), hazard });
+    const shelf = { rng: new Rng(`estanterias:${seed}:${fr.id}`), chance: SHELF_CHANCE[level] ?? 0 };
+    const template = fillTemplate(deal(fr.kind), rng.fork(`sala${fr.id}`), { depth, pool: slotEnemiesOf(level), boss, vary: true, cap: budgetCapOf(level), hazard, shelf });
     return { template, room: null, visited: false, cleared: fr.kind !== 'combat' && fr.kind !== 'boss', pickups: [] };
   });
   // Rewards: a seeded pick of combat rooms (the first ones get the tickets; each of the rest a
@@ -3006,6 +3015,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
         const hit = b.owner === 'player' ? b.damage : ENEMY_PROP_DAMAGE;
         if (prop?.def.hp && !(prop.def.crumble && b.owner !== 'player')) damageProp(w, prop, hit);
         else if (prop?.tipped) wearTable(w, prop, hit);
+        else if (prop?.def.topple) pushShelf(w, prop, hit, b.vx, b.vy);
         if (b.bounce && b.bounce > 0) {
           bounceBullet(w, b);
           w.events.push({ type: 'bulletWall', x: b.x, y: b.y, angle, bounced: true });
@@ -3383,6 +3393,161 @@ function breakTable(w: World, pr: PropInstance): void {
   w.events.push({ type: 'tableBroke', x: pr.x, y: pr.y, side: pr.tipped });
 }
 
+/**
+ * M14b (h11a2): where a shelf lies once it has gone over (relative to its feet), by the way it
+ * fell: along the tile beside it (its top reaches well into that tile), or a heap where it stood.
+ */
+export const FALLEN_BOX: Record<FallSide, Rect> = {
+  E: { x: -10, y: -14, w: 44, h: 12 },
+  W: { x: -34, y: -14, w: 44, h: 12 },
+  S: { x: -9, y: -14, w: 18, h: 34 },
+  N: { x: -9, y: -36, w: 18, h: 34 },
+  C: { x: -11, y: -13, w: 22, h: 11 },
+};
+
+/** How far round a fallen shelf (or its heap) still crushes: a few px over its footprint. */
+export const CRUSH_PAD = 3;
+
+/** The floor a shelf going over `side` comes down on: what it crushes, and what the shadow warns of. */
+export function crushRect(pr: PropInstance, side: FallSide): Rect {
+  const b = FALLEN_BOX[side];
+  const pad = side === 'C' ? CRUSH_PAD + 6 : CRUSH_PAD;
+  return { x: pr.x + b.x - pad, y: pr.y + b.y - pad, w: b.w + pad * 2, h: b.h + pad * 2 };
+}
+
+/** A shelf takes a hit (a bullet flying vx, vy): with enough, it goes over (away from the shot). */
+function pushShelf(w: World, pr: PropInstance, hit: number, vx: number, vy: number): void {
+  const t = pr.def.topple;
+  if (!t || pr.fall) return;
+  pr.damage = (pr.damage ?? 0) + hit;
+  w.events.push({ type: 'shelfHit', x: pr.x, y: pr.y, wear: pr.damage, hp: t.hp });
+  if (pr.damage >= t.hp) startFall(w, pr, vx, vy);
+}
+
+/** A shelf starts to go over, pushed (dx, dy): it picks its way down and wobbles, the landing shadowed. */
+export function startFall(w: World, pr: PropInstance, dx: number, dy: number): void {
+  const t = pr.def.topple;
+  if (!t || pr.fall) return;
+  pr.damage = t.hp;
+  const side = fallSide(w, pr, dx, dy);
+  pr.fall = { side, t: 0 };
+  const c = crushRect(pr, side);
+  w.events.push({ type: 'shelfWobble', x: pr.x, y: pr.y, side, warn: t.warn, area: c });
+}
+
+/**
+ * Which way a shelf pushed (dx, dy) goes over: the way of the push (its stronger axis, then the
+ * other one), else to a side, else back towards the push; never onto a wall, another prop, a
+ * door's apron, or where it would cut the room in two. With nowhere to go, it comes down in a heap.
+ */
+export function fallSide(w: World, pr: PropInstance, dx: number, dy: number): FallSide {
+  const h: TipSide = dx >= 0 ? 'E' : 'W';
+  const v: TipSide = dy >= 0 ? 'S' : 'N';
+  const flip: Record<TipSide, TipSide> = { N: 'S', S: 'N', E: 'W', W: 'E' };
+  const order: TipSide[] = Math.abs(dx) >= Math.abs(dy) ? [h, v, flip[v], flip[h]] : [v, h, flip[h], flip[v]];
+  for (const side of order) if (canFallTo(w, pr, side)) return side;
+  return 'C';
+}
+
+/** Whether a shelf can lie the way of `side` (see fallSide). */
+function canFallTo(w: World, pr: PropInstance, side: FallSide): boolean {
+  const room = w.room;
+  const b = FALLEN_BOX[side];
+  const box = { x: pr.x + b.x, y: pr.y + b.y, w: b.w, h: b.h };
+  // Only floor under it.
+  const c0 = Math.floor(box.x / TILE);
+  const c1 = Math.floor((box.x + box.w - 1) / TILE);
+  const r0 = Math.floor(box.y / TILE);
+  const r1 = Math.floor((box.y + box.h - 1) / TILE);
+  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) if (c < 0 || r < BACK_WALL_ROWS || c >= room.cols || r >= room.rows || room.tiles[r * room.cols + c] === 1) return false;
+  // Nothing else in the way, and the doors' aprons kept clear.
+  if (room.props.some((o) => o !== pr && overlaps(o.box, box))) return false;
+  for (const d of room.doors) {
+    for (const cell of [...doorApron(room.cols, room.rows, d.dir), ...doorCells(room.cols, room.rows, d.dir)]) {
+      if (overlaps(box, { x: cell.c * TILE, y: cell.r * TILE, w: TILE, h: TILE })) return false;
+    }
+  }
+  // The room stays in one piece (every door reachable from every other).
+  const was = pr.box;
+  pr.box = box;
+  const ok = doorsConnected(w);
+  pr.box = was;
+  return ok;
+}
+
+/** Whether every door's apron of the room can be walked to from every other (tile by tile). */
+function doorsConnected(w: World): boolean {
+  const room = w.room;
+  const goals = room.doors.map((d) => doorApron(room.cols, room.rows, d.dir)[0]!);
+  if (goals.length < 2) return true;
+  const r = w.player.def.footRadius;
+  const free = (c: number, rr: number): boolean => room.tiles[rr * room.cols + c] === 0 && isClear(w, c * TILE + TILE / 2, rr * TILE + TILE / 2 + 2, r);
+  const seen = new Uint8Array(room.cols * room.rows);
+  const start = goals[0]!;
+  const queue = [start.r * room.cols + start.c];
+  seen[queue[0]!] = 1;
+  for (let qi = 0; qi < queue.length; qi++) {
+    const i = queue[qi]!;
+    const c = i % room.cols;
+    const rr = (i - c) / room.cols;
+    for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      const nc = c + dc;
+      const nr = rr + dr;
+      if (nc < 0 || nr < 0 || nc >= room.cols || nr >= room.rows) continue;
+      const j = nr * room.cols + nc;
+      if (seen[j] || !free(nc, nr)) continue;
+      seen[j] = 1;
+      queue.push(j);
+    }
+  }
+  return goals.every((g) => seen[g.r * room.cols + g.c] === 1);
+}
+
+/**
+ * A shelf wobbling (M14b (h11a2)): when its time is up it comes down. Whatever is under it is
+ * crushed (enemies and dummies take `damage`, the toaster `hurt` unless she is rolling: in the
+ * air she is clear), and the shelf lies there as its `fallen` prop, low, pushing out whoever is
+ * left inside its new footprint.
+ */
+function updateFall(w: World, pr: PropInstance): void {
+  const t = pr.def.topple;
+  const f = pr.fall;
+  if (!t || !f) return;
+  f.t += DT;
+  if (f.t < t.warn) return;
+  const area = crushRect(pr, f.side);
+  const targets: Array<{ x: number; y: number }> = [];
+  for (const en of w.enemies) {
+    if (isDead(en) || en.state === 'gone' || en.state === 'dying' || en.state === 'roar' || en.def.brain.kind === 'moth') continue;
+    if (!overlaps(playerFeetBox(en, en.def.footRadius), area)) continue;
+    en.damageTaken = Math.min(en.def.hp, en.damageTaken + t.damage * takenScale(en));
+    en.hitT = 0.12;
+    targets.push({ x: en.x, y: en.y });
+  }
+  for (const d of w.dummies) {
+    if (!overlaps(playerFeetBox(d, 5), area)) continue;
+    d.hitT = 0.12;
+    d.damageTaken += t.damage;
+    targets.push({ x: d.x, y: d.y });
+  }
+  const p = w.player;
+  let player = false;
+  if (!isRolling(p) && overlaps(playerFeetBox(p, p.def.footRadius), area)) {
+    const out = normalize(p.x - (area.x + area.w / 2), p.y - (area.y + area.h / 2));
+    player = hurtPlayer(w, t.hurt, -1, out.x, out.y, { by: pr.def.id, how: 'contact' });
+    if (player) targets.push({ x: p.x, y: p.y });
+  }
+  const fallen = PROPS[t.fallen]!;
+  const b = FALLEN_BOX[f.side];
+  pr.def = fallen;
+  pr.fallen = f.side;
+  pr.box = { x: pr.x + b.x, y: pr.y + b.y, w: b.w, h: b.h };
+  delete pr.fall;
+  delete pr.damage;
+  shove(w, pr.box);
+  w.events.push({ type: 'shelfFall', x: pr.x, y: pr.y, side: pr.fallen, area, targets, player });
+}
+
 /** Damage an enemy bullet does to a prop that can blow up (the player's bullets do their own). */
 export const ENEMY_PROP_DAMAGE = 1;
 /** Seconds a prop burns once lit before it goes up: shot, or caught by a blast next to it. */
@@ -3420,6 +3585,7 @@ function updateProps(w: World): void {
       continue;
     }
     if (pr.def.zap && pr.fuse === undefined) updateZap(w, pr, pr.def.zap);
+    if (pr.fall) updateFall(w, pr);
     if (pr.fuse === undefined) continue;
     pr.fuse -= DT;
     if (pr.fuse <= 0) blowUp(w, pr);
@@ -3522,6 +3688,8 @@ function blowUp(w: World, pr: PropInstance): void {
   for (const o of w.room.props) if (o.def.hp && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) lightProp(w, o, CHAIN_FUSE);
   // Tables next to it (standing or tipped) are blown to bits.
   for (const o of w.room.props.slice()) if (o.def.tip && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) breakTable(w, o);
+  // Shelves next to it go over, away from it (M14b (h11a2)).
+  for (const o of w.room.props) if (o.def.topple && !o.fall && near(o.x, o.y + o.def.box.y + o.def.box.h / 2)) startFall(w, o, o.x - cx, o.y - 8 - cy);
   w.events.push({ type: 'blast', x: cx, y: cy, radius: blast.radius, prop: pr.def.id, floorY: pr.y });
 }
 
@@ -5103,7 +5271,7 @@ export function worldHash(w: World): string {
   const p = w.player;
   const parts = [w.floor?.current ?? -1, w.tick, p.x.toFixed(3), p.y.toFixed(3), p.aim.toFixed(4), p.weapon.ammo, w.bullets.length, w.nextId, w.kills];
   parts.push(p.coupons, p.tickets, w.pickups.length, p.hp, p.shield, p.surge, p.turbo ? 1 : 0, w.room.props.length, p.pet ?? 0);
-  for (const pr of w.room.props) if (pr.damage || pr.tipped) parts.push(pr.damage ?? 0, pr.fuse ?? -1, pr.tipped ?? '-');
+  for (const pr of w.room.props) if (pr.damage || pr.tipped || pr.fallen) parts.push(pr.damage ?? 0, pr.fuse ?? -1, pr.tipped ?? '-', pr.fallen ?? '-', pr.fall?.t.toFixed(3) ?? '-');
   for (const d of w.dummies) parts.push(d.damageTaken);
   for (const en of w.enemies) parts.push(en.x.toFixed(2), en.y.toFixed(2), en.state, en.damageTaken);
   for (const f of w.frost) parts.push(f.x.toFixed(2), f.y.toFixed(2), f.t.toFixed(3));

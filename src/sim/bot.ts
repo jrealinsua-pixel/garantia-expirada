@@ -3,7 +3,7 @@
 import { Rng } from './rng.ts';
 import { ACTIVE_ITEMS } from '../data/items.ts';
 import { brickUnder, checkInvariants, inkUnder, inWind, createWorld, DT, FROST_FLAT, HAND_HEIGHT, interactable, isDead, isRolling, leaveHub, NO_INPUT, nearStation } from './world.ts';
-import { freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup, zapCentre } from './world.ts';
+import { crushRect, freeChestLeft, freeSpot, PLAYER_HURT_Y, shopPrice, step, TIP_FACING, tipSide, wantsPickup, zapCentre } from './world.ts';
 import type { Enemy, Input, World } from './world.ts';
 import { overlaps } from './vec.ts';
 import { conveyorAt } from './conveyors.ts';
@@ -166,6 +166,15 @@ export function dodge(w: World): Dodge {
       out.x += (dx / d) * (1 - d / reach) * 1.6 + (dx / d) * 0.4;
       out.y += (dy / d) * (1 - d / reach) * 1.6 + (dy / d) * 0.4;
     }
+  }
+  // A shelf going over (M14b (h11a2)): out from under where it lands, the short way.
+  for (const pr of w.room.props) {
+    if (!pr.fall || pr.fall.t < BOT_REACTION) continue;
+    const a = crushRect(pr, pr.fall.side);
+    const pad = 8;
+    if (p.x < a.x - pad || p.x > a.x + a.w + pad || p.y < a.y - pad || p.y > a.y + a.h + pad) continue;
+    if (a.w >= a.h) out.y += (p.y >= a.y + a.h / 2 ? 1 : -1) * 2;
+    else out.x += (p.x >= a.x + a.w / 2 ? 1 : -1) * 2;
   }
   // An air conditioner's cone: step out of it sideways (in it the air pushes and the shots bend away).
   for (const en of w.enemies) {

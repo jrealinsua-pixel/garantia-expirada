@@ -57,6 +57,45 @@ La entrada más reciente va arriba. Cada sesión añade una.
   la pared) se ve raro; no lo he visto en las capturas.
 - Siguiente paso: (h9e) los de la planta 5 y el Servicio Técnico; o (h10a) jefes más únicos.
 
+## 2026-11-13 20:10 (hora peninsular) — Hito M14b — (h11a2) La Estantería Inestable
+- Contexto: (h9d) y luego (h9e1) estaban cogidas por otras sesiones; la (h11a2) solo toca props,
+  el relleno de salas y su dibujo. Salud al empezar: `check`, 974 tests, `build` y `bot` en verde.
+  El `main` local de este entorno era un clon superficial viejo: lo puse en `origin/main` antes de
+  empezar (sin tocar el remoto).
+- Hecho: M14b (h11a2). **Estantería Inestable** (`src/data/props.ts`, dato nuevo `PropDef.topple`):
+  alta (para balas, no se salta), aguanta 6 (la tostadora, su daño; una bala enemiga, 1; un bidón
+  que explota al lado, de golpe). Al acabarse, se tambalea 0,6 s (`PropInstance.fall`, evento
+  `shelfWobble`) con su caída marcada en el suelo, y **cae lejos del empujón** (`fallSide`: el eje
+  fuerte de la bala, luego el otro, luego el otro costado, al final hacia atrás) sobre la casilla de
+  al lado: 10 de daño a los enemigos cuyos pies pilla y un corazón a la tostadora salvo si rueda.
+  Nunca cae contra una pared, encima de otro prop, en el paso de una puerta ni partiendo la sala en
+  dos (un recorrido por casillas comprueba que todas las puertas siguen unidas); si no hay sitio, se
+  desploma en un montón donde estaba (`'C'`). Luego es `estanteria-caida`, **baja** (se salta
+  rodando) y para balas: cobertura para siempre, con la caja que le toca según el lado
+  (`FALLEN_BOX`). `shove` saca a quien quede dentro. Sale en un hueco `o` vacío (tras las regletas)
+  con su propio generador (`FillOptions.shelf`, semilla `estanterias:<semilla>:<sala>`, así las salas
+  no cambian), una por sala como mucho y con probabilidad por planta `SHELF_CHANCE` (0,25–0,4).
+  Causa de baja: «Caída de stock sobre el personal». **Dibujo** (`tools/sprites/estanteria.ts`):
+  expositor de acero con fondo de tablero perforado, tetera, jarra, radio, caja de «devuelto»,
+  microondas y dos cajas de más encima; tocada (a la mitad) las baldas se comban y la caja de arriba
+  resbala; tumbada de lado (volteada para la izquierda), boca abajo, boca arriba y en montón. **En
+  pantalla**: golpe metálico y polvo en cada impacto; al tambalearse cruje, se mece cada vez más y
+  en sus últimos 0,15 s se inclina hacia donde cae; la sombra de la caída se oscurece con el borde
+  rojo parpadeando; al caer, estruendo, temblor, polvo y astillas a lo largo. El bot se aparta de la
+  sombra. Tests en `tests/estanteria.test.ts` (8) y e2e `11t`–`11w`.
+- Decisiones: cae **lejos de quien la empuja** (la pide la nota: «hacia el lado contrario»), así que
+  dispararla con un enemigo detrás es una táctica; las balas enemigas también la gastan, y quien se
+  esconde mucho detrás acaba debajo (cobertura que se acaba, como las mesas). Aplasta por los pies (lo
+  que está en el suelo donde cae), no por el cuerpo, para que la sombra diga la verdad. Igual en todas
+  las plantas por ahora (un expositor de devoluciones cabe en todas); variantes por planta, en M14c.
+- Medidas (`npm run bot`, antes → después, mismas semillas): planta 1 con daño la recorre el 95 →
+  100 % y la gana el 65 → 80 %; 0,71 → 0,63 heridas y 12,7 → 13 s por sala de combate; llegan a la
+  planta 2 13 → 16 de 20. Con 20 partidas es ruido (cambian las salas al haber un prop más). 0 fallos,
+  5 atascos (igual que antes, en la Sala de Pruebas). 990 tests en verde; e2e entero en verde.
+- Problemas conocidos: el bot no tumba estanterías a propósito sobre los enemigos. La tumbada no tiene
+  sombra propia en el suelo.
+- Siguiente paso: (h11a3) charcos que conducen la descarga de la regleta, o (h11c) plantillas.
+
 ## 2026-11-13 19:40 (hora peninsular) — Hito M14b — (h11a1) La Regleta Sobrecargada
 - Contexto: (h9c) y (h11b) estaban cogidas por otras sesiones; elegí la (h11a), que no toca sus
   archivos, y la partí en tres en la hoja de ruta: (h11a1) la regleta, (h11a2) la estantería que

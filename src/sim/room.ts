@@ -1,5 +1,5 @@
 // Room geometry built from a text template (src/data/rooms.ts).
-import { DUMMIES, PROPS, REGLETA_MAX } from '../data/props.ts';
+import { DUMMIES, PROPS, REGLETA_MAX, SHELF_MAX } from '../data/props.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import type { DummyDef, EnemyDef, PropDef, RoomKind, RoomTemplate, SlotEnemy } from '../data/types.ts';
 import type { Dir } from './floor.ts';
@@ -32,10 +32,16 @@ export interface PropInstance {
   life?: number;
   /** A prop that zaps (PropDef.zap, M14b (h11a1)): seconds into its cycle (it zaps at `every`). */
   zapT?: number;
+  /** A shelf going over (PropDef.topple, M14b (h11a2)): the way it falls, and the seconds it has wobbled. */
+  fall?: { side: FallSide; t: number };
+  /** A shelf that went over: the way it lies. */
+  fallen?: FallSide;
 }
 
 /** The four ways a tipped table can face (its top, the side that stops bullets). */
 export type TipSide = 'N' | 'S' | 'E' | 'W';
+/** The ways a shelf can go over: onto the tile on one side, or `C`, in a heap where it stood (no room on any side). */
+export type FallSide = TipSide | 'C';
 
 /** A chest: shut until the interact button is pressed at it with a ticket. */
 export interface ChestState {
@@ -147,6 +153,8 @@ const PROP_CHARS: Record<string, string> = {
   '~': 'mostrador-bajo', '!': 'mostrador-bajo-v',
   // M14b (h11a1): the Regleta Sobrecargada (fillTemplate puts it in some empty obstacle slots).
   r: 'regleta',
+  // M14b (h11a2): the Estantería Inestable (fillTemplate puts it in an empty obstacle slot now and then).
+  l: 'estanteria',
 };
 const ENEMY_CHARS: Record<string, string> = {
   A: 'aspirador',
@@ -440,6 +448,11 @@ export interface FillOptions {
    * `chance`, drawn from this generator of its own (the room's other draws do not move).
    */
   hazard?: { rng: Rng; chance: number };
+  /**
+   * M14b (h11a2): an obstacle slot still empty (after the Regletas) may get an Estantería Inestable
+   * (`l`), the room with `chance`, from a generator of its own.
+   */
+  shelf?: { rng: Rng; chance: number };
 }
 
 /** Template digits `1`–`9`: groups of shelving that stand or not, each on its own, with the seed. */
@@ -503,6 +516,14 @@ export function fillTemplate(t: RoomTemplate, rng: Rng, opts: FillOptions): Room
         grid[cell.r]![cell.c] = 'r';
         left--;
       }
+    }
+  }
+  if (opts.shelf && t.kind === 'combat') {
+    const free = empty.filter((cell) => grid[cell.r]![cell.c] === '.');
+    for (let n = 0; n < SHELF_MAX && free.length > 0; n++) {
+      if (!opts.shelf.rng.chance(opts.shelf.chance)) continue;
+      const cell = free.splice(opts.shelf.rng.int(0, free.length - 1), 1)[0]!;
+      grid[cell.r]![cell.c] = 'l';
     }
   }
   // Floor templates are symmetric around the doors (the centre of each wall), so a mirrored

@@ -36,6 +36,7 @@ import * as MV from './movil.ts';
 import { makeBecarioFrames, makeBecarioHand } from './becario.ts';
 import * as PV from './plancha-vapor.ts';
 import * as DS from './despiece.ts';
+import * as ES from './estanteria.ts';
 import { encodePng } from './png.ts';
 import { ROOT } from '../lib/deps.ts';
 
@@ -224,6 +225,13 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     carrito: one(P.makeCarrito()),
     // M14b (h11a1): the Regleta Sobrecargada, the same on every floor: 0 live, 1 resting.
     regleta: { canvas: strip(P.makeRegletaFrames()), frameW: 24, frameH: 18 },
+    // M14b (h11a2): the Estantería Inestable, the same on every floor: standing (0 whole, 1
+    // battered) and lying (on its side, face down, on its back, in a heap).
+    estanteria: { canvas: strip(ES.makeShelfFrames()), frameW: ES.SHELF_W, frameH: ES.SHELF_H },
+    'estanteria-caida-lado': one(ES.makeShelfFallenSide()),
+    'estanteria-caida-frente': one(ES.makeShelfFallenFront()),
+    'estanteria-caida-espalda': one(ES.makeShelfFallenBack()),
+    'estanteria-monton': one(ES.makeShelfHeap()),
     // Floor 2 (Informática): the same obstacles and shutters with the floor's look (`<id>-2`).
     'caja-2': one(P.makeMonitorCrt()),
     'barril-2': one(P.makeWaterCooler()),

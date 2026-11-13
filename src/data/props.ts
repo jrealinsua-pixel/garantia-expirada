@@ -71,6 +71,20 @@ export const PROPS: Record<string, PropDef> = {
     zap: { every: 4.5, warn: 1.1, radius: 40, damage: 3, hurt: 1 },
     low: true,
   },
+  // M14b (h11a2): a tall display rack loaded with returns, standing in the room on its own. It
+  // stops bullets (cover) until it has had enough: then it wobbles, its landing shadowed, and goes
+  // over away from whoever pushed it, flattening what is on the next tile. Lying down it is low
+  // cover for good (rolled over, still stopping bullets).
+  estanteria: {
+    id: 'estanteria',
+    name: 'Estantería Inestable',
+    box: { x: -10, y: -14, w: 20, h: 12 },
+    blocksBullets: true,
+    topple: { hp: 6, warn: 0.6, damage: 10, hurt: 2, fallen: 'estanteria-caida' },
+  },
+  // What it becomes lying down. Its box is the one of the way it fell (world.ts FALLEN_BOX); this
+  // one is lying to the right.
+  'estanteria-caida': { id: 'estanteria-caida', name: 'Estantería Inestable (ya estable)', box: { x: -10, y: -14, w: 44, h: 12 }, blocksBullets: true, low: true },
   cofre: { id: 'cofre', name: 'Caja Fuerte de Devoluciones', box: { x: -11, y: -14, w: 22, h: 13 }, blocksBullets: true },
 };
 
@@ -93,5 +107,13 @@ export const DUMMIES: Record<string, DummyDef> = {
 export const REGLETA_CHANCE: Record<number, number> = { 1: 0.15, 2: 0.4, 3: 0.25, 4: 0.35, 5: 0.3, 6: 0.4 };
 /** Most Regletas in one room. */
 export const REGLETA_MAX = 2;
+/**
+ * M14b (h11a2): chance that a combat room gets an Estantería Inestable in one of the obstacle slots
+ * still empty, by floor (drawn with a generator of its own, like the Regleta's). The Juguetería
+ * and the Oficinas, all shelving and filing, the most.
+ */
+export const SHELF_CHANCE: Record<number, number> = { 1: 0.3, 2: 0.25, 3: 0.4, 4: 0.4, 5: 0.3, 6: 0.35 };
+/** Most of them in one room. */
+export const SHELF_MAX = 1;
 
 export const EXPIRED_PRODUCTS = ['Yogur', 'Brick de leche', 'Lata abollada'] as const;

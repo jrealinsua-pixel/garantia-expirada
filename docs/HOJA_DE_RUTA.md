@@ -718,8 +718,10 @@ juegos del género» de `docs/DISENO.md`.
     pocos segundos con aviso (chispas y el alcance en el suelo) a todo lo que tenga cerca, enemigos
     incluidos; a tiros hace cortocircuito y se va. Hecho el 2026-11-13: `regleta` (`PropDef.zap`,
     `REGLETA_CHANCE`, `FillOptions.hazard`), el bot se aparta, `tests/regleta.test.ts`, e2e `11p`–`11s`.
-  - [ ] (h11a2) La estantería que cae: alta, se tumba a tiros hacia el lado contrario, con su
-    sombra de aviso, aplasta lo que pilla y queda como obstáculo bajo.
+  - [x] (h11a2) La estantería que cae: alta, se tumba a tiros hacia el lado contrario, con su
+    sombra de aviso, aplasta lo que pilla y queda como obstáculo bajo. Hecho el 2026-11-13:
+    `estanteria` (`PropDef.topple`, `SHELF_CHANCE`, `FillOptions.shelf`, `fallSide`, `FALLEN_BOX`),
+    el bot se aparta de la sombra, `tests/estanteria.test.ts`, e2e `11t`–`11w`.
   - [ ] (h11a3) Charcos: el agua que deja algo roto (una garrafa, un extintor) moja el suelo y
     conduce las descargas de la regleta.
   - [x] (h11b) Decoración por planta: los trastos de cada planta (cuatro o tres por planta, bajos,

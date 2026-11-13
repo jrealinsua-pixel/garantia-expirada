@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T19:49:00+01:00",
+  "actualizado": "2026-11-13T20:10:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -151,6 +151,11 @@
     "lineas_codigo": 34316
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T20:10:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h11a2): la Estantería Inestable. Un expositor alto cargado de devoluciones que sale en algunas salas de combate: para balas, aguanta unos disparos, se tambalea con su caída marcada en el suelo y cae lejos de quien la empuja, aplastando lo que haya en la casilla de al lado (enemigos y tostadora; rodando te libras). Nunca contra una pared, delante de una puerta ni partiendo la sala. Tumbada queda como cobertura baja."
+    },
     {
       "fecha": "2026-11-13T19:49:00+01:00",
       "hito": "M14b",
@@ -1385,6 +1390,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/estanteria-tambalea.png",
+      "pie": "M14b (h11a2): la Estantería Inestable se tambalea; la sombra con el borde rojo marca dónde va a caer"
+    },
+    {
+      "archivo": "capturas/estanteria-cae.png",
+      "pie": "Cae lejos de los disparos, encima del aspirador, y se queda tumbada como cobertura baja"
+    },
+    {
       "archivo": "capturas/dispensador-pared.png",
       "pie": "M14b (h9e1): el Dispensador de Turnos, pegado al mostrador entre turno y turno"
     },
@@ -1399,17 +1412,9 @@
     {
       "archivo": "capturas/regleta-descarga.png",
       "pie": "M14b (h11a1): la Regleta Sobrecargada da una descarga al aspirador que tenía al lado"
-    },
-    {
-      "archivo": "capturas/regleta-aviso.png",
-      "pie": "El aviso: su alcance se enciende en el suelo y un anillo crece hasta el borde"
-    },
-    {
-      "archivo": "capturas/decoracion-plantas.png",
-      "pie": "M14b (h11b): una sala de combate de cada planta con sus trastos en los rincones y junto a las paredes, y la sombra de las paredes"
     }
   ],
-  "proximo": "M14b (h9e2): el Asistente Virtual y los enemigos del Servicio Técnico con movimiento propio; o (h10a) jefes más únicos.",
+  "proximo": "M14b (h9e2) el Asistente Virtual y los enemigos del Servicio Técnico, (h11a3) charcos que conducen la descarga de la regleta, (h10a) jefes de las plantas 1–2 o (h11c) plantillas de sala con más forma.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1437,11 +1442,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-13 19:30",
-      "tarea": "M14b (h11a2): la estantería que cae (src/data/props.ts, PropDef en src/data/types.ts, src/sim/world.ts tumbar y aplastar, relleno hazard, src/render/GameScene.ts sombra de aviso, tools/sprites; tests/estanteria.test.ts)",
-      "desde": "2026-11-13T18:30:00Z"
-    }
-  ]
+  "en_curso": []
 }

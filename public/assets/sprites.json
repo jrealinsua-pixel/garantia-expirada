@@ -707,6 +707,36 @@
     "frameH": 18,
     "frames": 2
   },
+  "estanteria": {
+    "file": "estanteria.png",
+    "frameW": 26,
+    "frameH": 50,
+    "frames": 2
+  },
+  "estanteria-caida-lado": {
+    "file": "estanteria-caida-lado.png",
+    "frameW": 50,
+    "frameH": 22,
+    "frames": 1
+  },
+  "estanteria-caida-frente": {
+    "file": "estanteria-caida-frente.png",
+    "frameW": 22,
+    "frameH": 40,
+    "frames": 1
+  },
+  "estanteria-caida-espalda": {
+    "file": "estanteria-caida-espalda.png",
+    "frameW": 22,
+    "frameH": 42,
+    "frames": 1
+  },
+  "estanteria-monton": {
+    "file": "estanteria-monton.png",
+    "frameW": 30,
+    "frameH": 20,
+    "frames": 1
+  },
   "caja-2": {
     "file": "caja-2.png",
     "frameW": 24,

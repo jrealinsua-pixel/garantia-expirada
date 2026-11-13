@@ -459,6 +459,15 @@ export interface PropDef {
    * the toaster unless it is rolling (in the air, off the floor).
    */
   zap?: { every: number; warn: number; radius: number; damage: number; hurt: number };
+  /**
+   * Tall furniture that goes over when it is shot enough (the Estantería Inestable, M14b (h11a2)):
+   * `hp` of the player's damage (an enemy bullet one point; a blast next to it at once). Then it
+   * wobbles for `warn` s with where it will land shadowed on the floor, and falls away from the
+   * last shot (from a blast, away from it) onto the tile beside it: `damage` to the enemies under
+   * it and `hurt` half hearts to the toaster unless she rolls clear. It then lies there as
+   * `fallen` (the id of the PropDef it becomes: low, it is rolled over, and it stops bullets).
+   */
+  topple?: { hp: number; warn: number; damage: number; hurt: number; fallen: string };
 }
 
 export interface DummyDef {

@@ -774,6 +774,21 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   (un último estallido azul de 46 px que también enciende bidones) y se va. Con la sala limpia, el
   piloto se apaga y descansa. Causa de baja: «Regleta con catorce aparatos y un solo enchufe».
   Trampa para quien se queda quieto y herramienta para quien atrae a los enemigos hacia ella.
+- **Estantería Inestable** (M14b h11a2): un expositor metálico alto, de fondo de tablero perforado,
+  cargado de devoluciones (una tetera, una jarra de batidora, una radio, la caja de «devuelto», un
+  microondas) y con dos cajas de más encima. Sale en un hueco de obstáculo vacío de algunas salas de
+  combate (una como mucho; más en la Juguetería y las Oficinas) y es igual en todas las plantas. De
+  pie es **alta**: para balas y no se salta. Aguanta 6 (la tostadora, su daño; una bala enemiga, 1)
+  y a la mitad se ve tocada (las baldas se comban, la caja de arriba resbala). Al acabársele, **se
+  tambalea 0,6 s con su caída marcada en el suelo** (una sombra que se oscurece con el borde rojo
+  parpadeando) y **cae lejos de quien la empujó** (la bala, o un bidón que explota al lado) sobre la
+  casilla de al lado: 10 de daño a los enemigos que pille y un corazón a la tostadora, salvo si
+  rueda (en el aire). Nunca cae contra una pared, encima de otro prop, delante de una puerta ni de
+  forma que parta la sala en dos: busca otro lado (primero el de la otra dirección del empujón,
+  luego los costados, al final hacia atrás) y, si no hay ninguno, se desploma en un montón donde
+  estaba. Tumbada se queda para siempre como **cobertura baja** (para balas, se salta rodando).
+  Causa de baja: «Caída de stock sobre el personal». Las balas enemigas también la gastan: quien se
+  esconde detrás mucho rato acaba debajo.
 
 ### Balas enemigas
 

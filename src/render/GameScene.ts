@@ -118,7 +118,7 @@ import {
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, setCharacter, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { pairUp, spawnEnemy, tapesOf, TIP_FACING, PLAYER_HURT_Y, type HeartKind, type Player } from '../sim/world.ts';
-import { BLAST_FUSE, dummyHurtBox, zapCentre, zapPhase, type Dummy } from '../sim/world.ts';
+import { BLAST_FUSE, crushRect, dummyHurtBox, zapCentre, zapPhase, type Dummy } from '../sim/world.ts';
 import { PROPS } from '../data/props.ts';
 import { MARKDOWN_LINES } from '../data/texts.ts';
 
@@ -140,7 +140,7 @@ import { keyWords, readScale, screenFlashAlpha, settings, SOFT_FLASH_TINT } from
 import { profile, saveChosen, saveDaily, saveEnding, saveFloor, saveRun } from './save.ts';
 import { dailyGift, startDaily } from '../sim/daily.ts';
 import { chatarreroHere, stationPages } from '../sim/dialogue.ts';
-import type { PropInstance, StationKind, TipSide } from '../sim/room.ts';
+import type { FallSide, PropInstance, StationKind, TipSide } from '../sim/room.ts';
 import { departmentOf, departmentRect, isSpinning, MENU_ZONE_H, MENU_ZONE_W } from '../sim/enemies.ts';
 import { exhibited, nextExhibited, playableNow, rosterBoard, serviceBoard } from '../sim/unlocks.ts';
 import { CHARACTERS } from '../data/characters.ts';
@@ -430,6 +430,9 @@ export class GameScene extends Phaser.Scene {
   private zapRing: Phaser.GameObjects.Graphics | null = null;
   private drumViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; jolt: number; smoke: number }>();
   /** Tables (M9b 13b), by their spot: the sprite (its frame says how it lies), its shadow, a jolt and the tipping hop. */
+  /** M14b (h11a2): the shelves that go over, standing or lying, and the shadow of where one lands. */
+  private shelfViews = new Map<PropInstance, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; jolt: number; lying: boolean }>();
+  private shelfShadow: Phaser.GameObjects.Graphics | null = null;
   private tableViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; y: number; jolt: number; tip: number; side?: TipSide; wear?: number }>();
   private couponPop = 0;
   /** The shop till (only in the shop), what it is saying and for how long, and its refusal face. */
@@ -618,6 +621,8 @@ export class GameScene extends Phaser.Scene {
     this.drumViews = new Map();
     this.drumRing = null;
     this.tableViews = new Map();
+    this.shelfViews = new Map();
+    this.shelfShadow = null;
     this.partitionViews = [];
     this.ticketPop = 0;
     this.till = null;
@@ -749,6 +754,10 @@ export class GameScene extends Phaser.Scene {
         // The shop till: drawShop changes its face.
         this.add.image(pr.x, pr.y + 1, shadowTexture(this, 12, 3)).setDepth(-50000);
         this.till = this.add.image(pr.x, pr.y, key, 0).setOrigin(0.5, 1).setDepth(pr.y);
+        continue;
+      }
+      if (pr.def.topple || pr.fallen) {
+        this.makeShelfView(pr);
         continue;
       }
       if (pr.def.tip) {
@@ -1630,6 +1639,7 @@ export class GameScene extends Phaser.Scene {
       if (pr.chest || this.drawnProps.has(pr)) continue;
       this.drawnProps.add(pr);
       if (pr.def.id === 'mampara-movil') this.makePartitionView(pr);
+      else if (pr.def.topple || pr.fallen) this.makeShelfView(pr);
       else this.makePropView(pr);
     }
   }
@@ -3456,6 +3466,22 @@ export class GameScene extends Phaser.Scene {
         case 'tableBroke':
           this.tableBroken(e);
           break;
+        case 'shelfHit': {
+          // M14b (h11a2): the rack takes a hit: a clang, a jolt, and something falls off a shelf.
+          const v = [...this.shelfViews].find(([pr]) => pr.x === e.x && pr.y === e.y)?.[1];
+          if (v) v.jolt = 0.14;
+          this.sound2.play('clinc', { detune: -1300, volume: 0.6 });
+          this.puff(e.x + this.fx.range(-8, 8), e.y - this.fx.range(10, 36), 0.4);
+          break;
+        }
+        case 'shelfWobble':
+          // It creaks: the shadow on the floor (drawShelves) says where it will land.
+          this.sound2.play('derrumbe', { volume: 0.35, detune: 1100 });
+          this.sound2.play('aviso', { detune: -500, volume: 0.5 });
+          break;
+        case 'shelfFall':
+          this.shelfFell(e);
+          break;
         case 'turboEnd': {
           // The turbo winds down: the engine stops and a line over the toaster.
           const p = this.world.player;
@@ -3997,6 +4023,98 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** A table shot to bits (or blown up): gone, a shower of splinters, dust and a crash. */
+  /** How each lying shelf is drawn: its texture, where its (0, 1) origin goes from the feet, and if it is flipped. */
+  private static readonly LYING: Record<FallSide, { key: string; dx: number; dy: number; flip: boolean; ox: number }> = {
+    E: { key: 'estanteria-caida-lado', dx: -12, dy: 1, flip: false, ox: 0 },
+    W: { key: 'estanteria-caida-lado', dx: 12, dy: 1, flip: true, ox: 1 },
+    S: { key: 'estanteria-caida-frente', dx: -11, dy: 22, flip: false, ox: 0 },
+    N: { key: 'estanteria-caida-espalda', dx: -11, dy: 1, flip: false, ox: 0 },
+    C: { key: 'estanteria-monton', dx: -15, dy: 1, flip: false, ox: 0 },
+  };
+
+  /** A shelf (M14b (h11a2)): standing, or lying the way it fell (coming back to the room). */
+  private makeShelfView(pr: PropInstance): void {
+    const shadow = this.add.image(pr.x, pr.y + 1, shadowTexture(this, 11, 3)).setDepth(-50000);
+    const s = this.add.image(pr.x, pr.y, 'estanteria', 0).setOrigin(0.5, 1).setDepth(pr.y);
+    const v = { s, shadow, jolt: 0, lying: false };
+    this.shelfViews.set(pr, v);
+    if (pr.fallen) this.layShelf(pr, v);
+  }
+
+  /** The shelf on the floor: its lying drawing, sorted by its lowest edge. */
+  private layShelf(pr: PropInstance, v: { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; lying: boolean }): void {
+    const look = GameScene.LYING[pr.fallen ?? 'C'];
+    v.lying = true;
+    v.s.setTexture(look.key).setOrigin(look.ox, 1).setFlipX(look.flip).setAngle(0).setScale(1);
+    v.s.setPosition(pr.x + look.dx, pr.y + look.dy).setDepth(pr.box.y + pr.box.h);
+    v.shadow.setVisible(false);
+  }
+
+  /**
+   * Shelves: the frame (battered past half), the jolt of a hit; going over, it wobbles harder and
+   * harder and in its last moment tips the way it falls, while its landing is shadowed on the floor
+   * (dark, its edge blinking red, filling up as it comes).
+   */
+  private drawShelves(dt: number): void {
+    if (!this.shelfShadow || !this.shelfShadow.scene) this.shelfShadow = this.add.graphics().setDepth(-48989);
+    const g = this.shelfShadow.clear();
+    for (const [pr, v] of this.shelfViews) {
+      if (!this.world.room.props.includes(pr)) {
+        v.s.destroy();
+        v.shadow.destroy();
+        this.shelfViews.delete(pr);
+        continue;
+      }
+      if (pr.fallen) {
+        if (!v.lying) this.layShelf(pr, v);
+        continue;
+      }
+      const t = pr.def.topple;
+      if (!t) continue;
+      v.jolt = Math.max(0, v.jolt - dt);
+      v.s.setFrame((pr.damage ?? 0) >= t.hp / 2 ? 1 : 0);
+      const f = pr.fall;
+      if (!f) {
+        const wob = v.jolt > 0 ? (Math.floor(v.jolt * 40) % 2 ? 1 : -1) : 0;
+        v.s.setPosition(pr.x + wob, pr.y).setAngle(0).setScale(1);
+        continue;
+      }
+      const k = Math.min(1, f.t / t.warn);
+      // The shadow of where it lands.
+      const a = crushRect(pr, f.side);
+      const blink = Math.floor(this.time.now / 70) % 2 === 0;
+      g.fillStyle(0x0e0c16, 0.18 + 0.3 * k).fillRect(a.x, a.y, a.w, a.h);
+      g.lineStyle(1, blink ? 0xff8a70 : 0xe0453b, 0.9).strokeRect(a.x + 0.5, a.y + 0.5, a.w - 1, a.h - 1);
+      // The wobble, and in the last 0.15 s the tip over.
+      const last = Math.max(0, Math.min(1, (f.t - (t.warn - 0.15)) / 0.15));
+      const wobble = Math.sin(f.t * (24 + 30 * k)) * (1 + 3 * k);
+      const dir = f.side === 'E' ? 1 : f.side === 'W' ? -1 : 0;
+      if (dir) {
+        v.s.setPosition(pr.x, pr.y).setScale(1).setAngle(dir * (3 + 6 * k) + wobble + dir * last * 70);
+      } else if (f.side === 'C') {
+        v.s.setPosition(pr.x + wobble * 0.5, pr.y).setAngle(wobble).setScale(1, 1 - 0.4 * last);
+      } else {
+        const south = f.side === 'S';
+        v.s.setPosition(pr.x + wobble * 0.4, pr.y + (south ? 10 * last : 0)).setAngle(wobble * 0.6).setScale(1, 1 - 0.55 * last);
+        if (south) v.s.setDepth(pr.y + 20 * last);
+      }
+    }
+  }
+
+  /** A shelf comes down: a crash, a big jolt, dust all along it, boxes bursting and a hit-pause if it got something. */
+  private shelfFell(e: Extract<SimEvent, { type: 'shelfFall' }>): void {
+    const pr = this.world.room.props.find((o) => o.x === e.x && o.y === e.y && o.fallen);
+    const v = pr ? this.shelfViews.get(pr) : undefined;
+    if (pr && v) this.layShelf(pr, v);
+    this.sound2.play('derrumbe', { volume: 0.9 });
+    this.sound2.play('choque', { volume: 0.8 });
+    this.shake(220, 0.012, true);
+    const a = e.area;
+    for (let i = 0; i < 10; i++) this.puff(a.x + this.fx.range(0, a.w), a.y + this.fx.range(0, a.h), this.fx.range(0.5, 0.9));
+    for (let i = 0; i < 8; i++) this.splinter(a.x + this.fx.range(0, a.w), a.y + this.fx.range(0, a.h), this.fx.range(0, Math.PI * 2), this.fx.pick([0xb8935f, 0xe2c797, 0xb7bed0, 0xe0453b]));
+    if (e.targets.length > 0) this.sound2.play('golpe', { volume: 0.9 });
+  }
+
   private tableBroken(e: Extract<SimEvent, { type: 'tableBroke' }>): void {
     const v = this.tableViews.get(`${e.x},${e.y}`);
     if (v) {
@@ -4795,6 +4913,7 @@ export class GameScene extends Phaser.Scene {
     this.drawDrums(dt);
     this.drawRegletas();
     this.drawTables(dt);
+    this.drawShelves(dt);
     this.drawPickups();
 
     // Bullets.
