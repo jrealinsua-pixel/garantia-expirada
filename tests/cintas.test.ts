@@ -95,9 +95,9 @@ test('los enemigos a pie también van de viaje (aunque sean un microondas que no
   w.noDamage = true;
   const bottom = w.conveyors.find((c) => c.dirX < 0)!;
   const y = bottom.y + bottom.h / 2 + 4;
-  // One that does not walk by itself (the microwave, without its walk round the player).
+  // One that does not walk by itself (the microwave, without its walk to your reflection).
   const def = structuredClone(ENEMIES.microondas!);
-  if (def.brain.kind === 'turret') delete def.brain.orbit;
+  if (def.brain.kind === 'turret') delete def.brain.mirror;
   const walker = spawnEnemy(w.nextId++, def, bottom.x + 200, y);
   w.enemies.push(walker);
   w.player.x = 300;

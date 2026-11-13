@@ -2,6 +2,35 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 19:10 (hora peninsular) — Hito M14b — (h9c) La planta 3: el cubo que sigue tus pasos y el microondas espejo
+- Hecho: M14b (h9c). En la Juguetería, el Robot de Cuerda (rebota como una bola), el Coche
+  Teledirigido (te rodea deprisa y embiste de lado) y el Sobre Sorpresa (salta) ya se movían a su
+  manera; el **Cubo de Piezas** guardaba las distancias como tantos otros. Ahora **sigue tus
+  pasos** (`LobberBrain.follow`): recuerda tu camino (un punto cada 0,1 s, hasta 40) y anda por
+  él a 78 px/s, siempre algo más de un segundo de camino por detrás; si te paras, se para a esa
+  distancia; se planta para lanzar sus piezas. Caminar en círculos lo trae detrás de ti; cortar
+  por en medio te lo quita de encima.
+  **El microondas cambia**: la órbita de la (h9a) repetía el verbo del coche teledirigido (rodear),
+  así que ahora **va a tu reflejo en el cristal de su puerta** (`TurretBrain.mirror`, 40 px/s):
+  al punto simétrico al tuyo respecto al centro de la sala. Te acercas y se aleja; vas a la
+  izquierda y va a la derecha; solo os cruzáis en el centro. Se para a calentar. Dispara algo más
+  a menudo (cada 1,3–2,1 s, antes 1,6–2,6): espejado, se queda lejos y era más fácil que en
+  órbita (la planta 1 del bot pasaba del 50 % al 80 %; con el ritmo nuevo, 70 %). El código de la
+  órbita se quitó (no lo usaba nadie).
+  Tests: el cubo pasa por la esquina donde giraste; el microondas se acerca a tu reflejo y va al
+  revés que tú; los que disparaban a un microondas quieto le apuntan donde esté.
+- **Arreglo de `main`**: el commit de la (h9a)–(h9b) dejó dos errores de tipos en
+  `tests/enemies.test.ts` (miré `npm run check | tail -1`, que solo enseña la línea del lint);
+  los arreglé en dos commits pequeños en cuanto los vi. A partir de ahora, `check` se mira con
+  `grep ✖`.
+- Medidas (`npm run bot`): la planta 1, el 70 %; la planta 2 la gana el 44 % de los que llegan
+  (16 de 20); la 3, el 71 % de 7. 955 tests en verde; e2e entero en verde.
+- Problemas conocidos: el robot de cuerda y la bombilla rebotan los dos en diagonal (rápido y
+  disparando al rebotar, el robot; lenta y sin parar, la bombilla); si en partida se parecen,
+  que la bombilla cambie de verbo.
+- Siguiente paso: (h9d) los de la planta 4 (la fotocopiadora y el climatizador guardan las
+  distancias); o (h10a) jefes más únicos.
+
 ## 2026-11-13 16:30 (hora peninsular) — Hito M14b — (h7) Saltar rodando por encima de mesas y cosas bajas
 - Contexto: la (h8) la cerró otra sesión mientras yo la cogía (mi «en curso» chocó al hacer push
   y lo descarté); la (h9a) está cogida por otra. Elegí la (h7), que no toca sus archivos. Salud al

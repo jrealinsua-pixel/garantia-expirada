@@ -54,13 +54,13 @@ export const ENEMIES: Record<string, EnemyDef> = {
     brain: {
       kind: 'turret',
       range: 260,
-      interval: [1.6, 2.6],
+      interval: [1.3, 2.1],
       // «Calienta» un segundo entero, como dice el diseño: es lento pero llena la sala.
       telegraph: 1,
       pattern: 'microondas-anillos',
       muzzleY: 17,
-      // M14b (h9a): it goes round you like the plate inside it, and stops to heat up.
-      orbit: { speed: 34, radius: 120, flip: [2.5, 4.5] },
+      // M14b (h9c): it goes where your reflection in its glass door would be, and stops to heat up.
+      mirror: { speed: 40 },
     },
   },
   bombilla: {
@@ -425,6 +425,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       life: 6,
       damage: 1,
       muzzleY: 26,
+      // M14b (h9c): it follows in your footsteps, a second or so behind, and throws its pieces at you.
+      follow: { delay: 1.2, speed: 78 },
     },
   },
   'sobre-sorpresa': {

@@ -694,7 +694,10 @@ juegos del género» de `docs/DISENO.md`.
     gira a tu alrededor, la bombilla flota en diagonal rebotando, la batidora embiste tres veces.
   - [x] (h9b) Planta 2. Hecho el 2026-11-13: la impresora va de lado a lado por su carril y la
     webcam solo se mueve cuando no la miras (se pone detrás de ti).
-  - [ ] (h9c) Planta 3.
+  - [x] (h9c) Planta 3. Hecho el 2026-11-13: el Cubo de Piezas sigue tus pasos (por tu mismo
+    camino, un segundo por detrás); el robot de cuerda (rebota), el coche (rodea y embiste) y el
+    sobre (salta) ya eran únicos. El microondas cambia su órbita de la (h9a), que repetía la del
+    coche, por ir a tu reflejo en el centro de la sala.
   - [ ] (h9d) Planta 4.
   - [ ] (h9e) Planta 5 y el Servicio Técnico.
 - [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo

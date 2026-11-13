@@ -481,8 +481,8 @@ export interface Enemy {
   volleys?: number;
   /** Walls left to bounce off in this charge, or lunges left in this burst (M14b (h9a)). */
   bounces?: number;
-  /** An orbiting turret: seconds until it turns the other way round (M14b (h9a)). */
-  flipT?: number;
+  /** An enemy that follows in the player's footsteps: the path it remembers (M14b (h9c)). */
+  trail?: { x: number; y: number }[];
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
   bossPhase?: number;
   attack?: number;

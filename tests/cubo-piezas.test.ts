@@ -49,25 +49,6 @@ test('el cubo de piezas es contenido: datos, sprites, causa de baja y solo desde
   assert.ok(SLOT_ENEMIES_3.some((s) => s.ch === 'U'));
 });
 
-test('guarda las distancias: se aleja si la tostadora se acerca y se acerca si se aleja', () => {
-  const near = yard('cerca', 50);
-  near.w.noDamage = true;
-  near.en.until = 99;
-  for (let i = 0; i < ticks(2); i++) step(near.w, NO_INPUT);
-  const dNear = Math.hypot(near.en.x - near.w.player.x, near.en.y - near.w.player.y);
-  assert.ok(dNear > 100, `se aleja: ${dNear.toFixed(0)} px`);
-  const far = yard('lejos', 0);
-  far.en.x = 30;
-  far.en.y = far.w.player.y;
-  far.w.player.x = far.w.room.w - 40;
-  far.en.until = 99;
-  const d0 = Math.hypot(far.en.x - far.w.player.x, far.en.y - far.w.player.y);
-  for (let i = 0; i < ticks(2); i++) step(far.w, NO_INPUT);
-  const d1 = Math.hypot(far.en.x - far.w.player.x, far.en.y - far.w.player.y);
-  assert.ok(d1 < d0 - 50, `se acerca: ${d0.toFixed(0)} → ${d1.toFixed(0)} px`);
-  assert.ok(Math.hypot(far.en.vx, far.en.vy) <= brain.speed + 0.01, 'despacio');
-});
-
 test('levanta la tapa (aviso), se queda quieto y lanza un puñado de piezas en parábola alrededor de la tostadora', () => {
   const { w, en } = yard('lanza');
   w.noDamage = true;
@@ -186,4 +167,21 @@ test('en las salas de verdad no se mete en la pared, lanza a menudo y es determi
   const a = run('juguete');
   assert.deepEqual(a, run('juguete'));
   assert.ok(a.throws >= 6, `lanza unas cuantas veces en 30 s: ${a.throws}`);
+});
+
+test('sigue tus pasos: anda por el mismo camino que la tostadora, algo más de un segundo por detrás (M14b (h9c))', () => {
+  assert.ok(brain.follow);
+  const { w, en } = yard('pasos', 60);
+  en.state = 'idle';
+  en.until = 999;
+  const p = w.player;
+  // The toaster walks up, then right: the corner is where it turned.
+  for (let i = 0; i < ticks(0.8); i++) step(w, { ...NO_INPUT, moveY: -1 });
+  const corner = { x: p.x, y: p.y };
+  let nearest = Infinity;
+  for (let i = 0; i < ticks(6); i++) {
+    step(w, { ...NO_INPUT, moveX: i < ticks(2.5) ? 1 : 0 });
+    nearest = Math.min(nearest, Math.hypot(en.x - corner.x, en.y - corner.y));
+  }
+  assert.ok(nearest < 14, `no pasa por la esquina donde giró la tostadora (${nearest.toFixed(1)} px)`);
 });

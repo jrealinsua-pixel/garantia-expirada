@@ -35,9 +35,9 @@ function bare(seed: string, character = 'plancha'): World {
 
 /** An enemy standing still at (x, y), with plenty of life. */
 function still(w: World, x: number, y: number, id = 'microondas', hp = 100): Enemy {
-  // Standing still: without the microwave's walk round the player (M14b (h9a)).
+  // Standing still: without the microwave's walk to the player's reflection (M14b (h9c)).
   const def = structuredClone({ ...ENEMIES[id]!, hp });
-  if (def.brain.kind === 'turret') delete def.brain.orbit;
+  if (def.brain.kind === 'turret') delete def.brain.mirror;
   const en = spawnEnemy(w.nextId++, def, x, y);
   en.state = 'idle';
   en.until = 999;

@@ -563,10 +563,11 @@ export interface TurretBrain {
   /** If present, it walks between attacks to stay about `keep` px from the player. */
   walk?: { speed: number; keep: number };
   /**
-   * If present (M14b (h9a)), it circles the player at about `radius` px between attacks, at
-   * `speed` px/s, and turns the other way now and then (every `flip` s) or when something stops it.
+   * If present (M14b (h9c)), between attacks it walks at `speed` px/s to the player's reflection
+   * across the middle of the room (as in the glass of its door): come closer and it backs off,
+   * go left and it goes right. Only near the middle do you meet.
    */
-  orbit?: { speed: number; radius: number; flip: [number, number] };
+  mirror?: { speed: number };
   /**
    * If present (M14b (h9a)), it never stops drifting: in a slanted straight line at `speed` px/s,
    * bouncing off walls and furniture like a ball, also while it warns and fires.
@@ -1203,6 +1204,11 @@ export interface LobberBrain {
   life: number;
   damage: number;
   muzzleY: number;
+  /**
+   * If present (M14b (h9c)), instead of keeping its distance it follows in your footsteps: it
+   * walks at `speed` px/s along the exact path the player took, `delay` s behind.
+   */
+  follow?: { delay: number; speed: number };
 }
 
 /**

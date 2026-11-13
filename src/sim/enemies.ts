@@ -1018,24 +1018,17 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
     walkX = sign !== 0 ? (mx / ml) * b.walk.speed : 0;
     walkY = sign !== 0 ? (my / ml) * b.walk.speed : 0;
   }
-  if (b.orbit && en.state === 'idle') {
-    // Round the player like a plate in a microwave (M14b (h9a)): along the circle, pulled back
-    // onto it if it strays; the way round changes now and then.
-    if (en.phase === 0) en.phase = w.rng.chance(0.5) ? 1 : -1;
-    en.flipT = (en.flipT ?? w.rng.range(b.orbit.flip[0], b.orbit.flip[1])) - DT;
-    if (en.flipT <= 0) {
-      en.phase = -en.phase;
-      en.flipT = w.rng.range(b.orbit.flip[0], b.orbit.flip[1]);
+  if (b.mirror && en.state === 'idle') {
+    // Your reflection in its glass door (M14b (h9c)): it goes to the mirror image of where you
+    // are, across the middle of the room.
+    const gx = w.room.w - p.x - en.x;
+    const gy = w.room.h - p.y - en.y;
+    const gl = Math.hypot(gx, gy);
+    if (gl > 4) {
+      const k = Math.min(1, gl / 24);
+      walkX = (gx / gl) * b.mirror.speed * k;
+      walkY = (gy / gl) * b.mirror.speed * k;
     }
-    const d = Math.hypot(p.x - en.x, p.y - en.y) || 1;
-    const ux = (p.x - en.x) / d;
-    const uy = (p.y - en.y) / d;
-    const pull = Math.max(-1, Math.min(1, (d - b.orbit.radius) / 40));
-    const mx = -uy * en.phase + ux * pull;
-    const my = ux * en.phase + uy * pull;
-    const ml = Math.hypot(mx, my) || 1;
-    walkX = (mx / ml) * b.orbit.speed;
-    walkY = (my / ml) * b.orbit.speed;
   }
   if (b.carriage && en.state === 'idle') {
     // Side to side on its rail, like a print head (M14b (h9b)).
@@ -1063,7 +1056,7 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
     const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
     // Stuck against something while walking: sidestep the other way next time.
-    if ((b.walk || b.orbit) && (hit.hitX || hit.hitY) && Math.hypot(en.x - ox, en.y - oy) < (b.walk?.speed ?? b.orbit?.speed ?? 0) * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
+    if (b.walk && (hit.hitX || hit.hitY) && Math.hypot(en.x - ox, en.y - oy) < b.walk.speed * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
     // A print head turns back at the end of its rail.
     if (b.carriage && hit.hitX) en.phase = en.phase >= 0 ? -1 : 1;
     // A drifter bounces off what it hits, like a ball.
@@ -2995,6 +2988,29 @@ function updateStamper(w: World, en: Enemy, b: StamperBrain): void {
  * player is in range it stops, lifts its lid (the warning) and lobs a handful of pieces: the first
  * where the player is heading, the rest scattered round it, where it would step to dodge.
  */
+/** Seconds between the points of the player's path an enemy that follows it remembers. */
+const TRAIL_STEP = 0.1;
+
+/** Most points of the player's path an enemy that follows it remembers (the oldest are dropped). */
+const TRAIL_MAX = 40;
+
+/**
+ * Remembers where the player has been (a point every TRAIL_STEP s) and returns the next point of
+ * that path to walk to: the oldest one not reached yet, as long as the enemy keeps `delay` s of
+ * path behind the player (null otherwise: it waits).
+ */
+function followTrail(en: Enemy, w: World, delay: number): { x: number; y: number } | null {
+  const trail = (en.trail ??= []);
+  if (w.tick % Math.round(TRAIL_STEP / DT) === 0) {
+    const last = trail[trail.length - 1];
+    if (!last || Math.hypot(last.x - w.player.x, last.y - w.player.y) > 1) trail.push({ x: w.player.x, y: w.player.y });
+    while (trail.length > TRAIL_MAX) trail.shift();
+  }
+  // Points already reached are left behind.
+  while (trail.length > 0 && Math.hypot(trail[0]!.x - en.x, trail[0]!.y - en.y) < 4) trail.shift();
+  return trail.length > Math.round(delay / TRAIL_STEP) ? trail[0]! : null;
+}
+
 function updateLobber(w: World, en: Enemy, b: LobberBrain): void {
   const p = w.player;
   const dx = p.x - en.x;
@@ -3004,6 +3020,8 @@ function updateLobber(w: World, en: Enemy, b: LobberBrain): void {
   if (Math.abs(dx) > 2) en.facing = dx > 0 ? 1 : -1;
   let walkX = 0;
   let walkY = 0;
+  // (The path is remembered also while it throws, so it does not skip a stretch.)
+  if (b.follow && en.state !== 'idle') followTrail(en, w, b.follow.delay);
   switch (en.state) {
     case 'warn':
       if (en.t >= en.until) {
@@ -3031,6 +3049,25 @@ function updateLobber(w: World, en: Enemy, b: LobberBrain): void {
       if (en.state !== 'idle') enter(en, 'idle', w.rng.range(b.interval[0], b.interval[1]));
       if (en.t >= en.until && dist < b.range) {
         enter(en, 'warn', b.telegraph);
+        // (It plants itself to throw.)
+        if (b.follow) {
+          en.vx = 0;
+          en.vy = 0;
+        }
+        break;
+      }
+      if (b.follow) {
+        // In your footsteps, `delay` s behind (M14b (h9c)).
+        const trail = followTrail(en, w, b.follow.delay);
+        if (trail) {
+          const gx = trail.x - en.x;
+          const gy = trail.y - en.y;
+          const gl = Math.hypot(gx, gy);
+          if (gl > 3) {
+            walkX = (gx / gl) * b.follow.speed;
+            walkY = (gy / gl) * b.follow.speed;
+          }
+        }
         break;
       }
       // Keeps its distance, backing off sideways (as the walking turrets do).

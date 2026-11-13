@@ -24,7 +24,8 @@ function shootUntil(w: World, pred: (e: SimEvent) => boolean, maxTicks = 900): S
   const fire: Input = { ...NO_INPUT, aimX: 300, aimY: ROW3 - 14, fire: true };
   for (let i = 0; i < maxTicks; i++) {
     const en = w.enemies.find((e) => e.def.id === 'microondas');
-    step(w, en ? fire : NO_INPUT);
+    // (At it, wherever it has walked to: it goes to the toaster's reflection, M14b (h9c).)
+    step(w, en ? { ...fire, aimX: en.x, aimY: en.y - 14 } : NO_INPUT);
     const e = w.events.find(pred);
     if (e) return e;
   }

@@ -169,19 +169,21 @@ test('microondas: calienta un segundo (avisando) y dispara sus anillos', () => {
   assert.equal(seen.size, expected);
 });
 
-test('microondas: da vueltas alrededor de la tostadora entre ataque y ataque, y se para a calentar (M14b (h9a))', () => {
+test('microondas: va al reflejo de la tostadora en el centro de la sala, y se para a calentar (M14b (h9c))', () => {
   const w = kitchen(300, 112);
   w.noDamage = true;
   const en = w.enemies[0]!;
   en.state = 'idle';
   en.until = 99;
   const p = w.player;
-  const a0 = Math.atan2(en.y - p.y, en.x - p.x);
-  for (let i = 0; i < 90; i++) step(w, NO_INPUT);
-  const a1 = Math.atan2(en.y - p.y, en.x - p.x);
-  let turned = Math.abs(a1 - a0);
-  if (turned > Math.PI) turned = 2 * Math.PI - turned;
-  assert.ok(turned > 0.15, `gira alrededor (${turned.toFixed(2)} rad)`);
+  const mirrorD = (): number => Math.hypot(en.x - (w.room.w - p.x), en.y - (w.room.h - p.y));
+  const d0 = mirrorD();
+  for (let i = 0; i < 120; i++) step(w, NO_INPUT);
+  assert.ok(mirrorD() < d0 - 20, `se acerca a su reflejo (${d0.toFixed(0)} → ${mirrorD().toFixed(0)})`);
+  // The toaster walks right: it walks left.
+  const x1 = en.x;
+  for (let i = 0; i < 40; i++) step(w, { ...NO_INPUT, moveX: 1 });
+  assert.ok(en.x < x1 - 4, 'no va al revés que la tostadora');
   // Heating up and firing, it stands still.
   en.until = 0;
   runUntil(w, (e) => e.type === 'telegraph' && e.source === en.id, 120);
