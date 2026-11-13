@@ -3,7 +3,9 @@ import type { DummyDef, PropDef } from './types.ts';
 // Positions are the bottom-centre of the sprite; boxes cover the footprint plus a bit of height
 // so bullets hit what they visually hit.
 export const PROPS: Record<string, PropDef> = {
-  caja: { id: 'caja', name: 'Caja de devolución', box: { x: -11, y: -17, w: 22, h: 16 }, blocksBullets: true },
+  // M14b (h7): the low things of a room (this box, the drum, the bargain table and the trolley)
+  // are jumped over rolling (PropDef.low), as in the Gungeon; walking, they are in the way.
+  caja: { id: 'caja', name: 'Caja de devolución', box: { x: -11, y: -17, w: 22, h: 16 }, blocksBullets: true, low: true },
   // M9b (13a): it takes a few shots and goes up, taking whatever is near with it (the toaster too).
   // M14b (h5): three shots of the Secador and it is lit; the blast covers two and a half tiles (it was one and a half)
   // and takes most of a normal enemy with it (the human found it slow, small and weak).
@@ -14,12 +16,13 @@ export const PROPS: Record<string, PropDef> = {
     blocksBullets: true,
     hp: 4,
     blast: { radius: 64, damage: 18, hurt: 2 },
+    low: true,
   },
   // M9b (13b): a bargain table. Bullets fly over it standing; tipped over with the interact
   // button, it covers from one side until it is shot to bits. M14b (h6): eight bullets, not
   // fourteen: cover for a burst or two, not for the whole room.
-  mesa: { id: 'mesa', name: 'Mesa de Saldos', box: { x: -11, y: -13, w: 22, h: 12 }, blocksBullets: false, tip: { hp: 8 } },
-  carrito: { id: 'carrito', name: 'Carro sin moneda', box: { x: -12, y: -12, w: 24, h: 10 }, blocksBullets: false },
+  mesa: { id: 'mesa', name: 'Mesa de Saldos', box: { x: -11, y: -13, w: 22, h: 12 }, blocksBullets: false, tip: { hp: 8 }, low: true },
+  carrito: { id: 'carrito', name: 'Carro sin moneda', box: { x: -12, y: -12, w: 24, h: 10 }, blocksBullets: false, low: true },
   // Not placed by templates: it appears in some combat rooms when they are cleared (world.ts).
   // Placed on the shopkeeper's spot ($) of the shop: the till that sells (it does not move).
   autocobro: { id: 'autocobro', name: 'Caja de Autocobro', box: { x: -11, y: -16, w: 22, h: 14 }, blocksBullets: true },

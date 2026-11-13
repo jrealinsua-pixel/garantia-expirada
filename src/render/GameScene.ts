@@ -461,6 +461,8 @@ export class GameScene extends Phaser.Scene {
   private report: string[] = [];
   /** Seconds left showing the squeezed face after a hit. */
   private hurtFace = 0;
+  /** M14b (h7): how high (px) the toaster is drawn while it jumps something low rolling. */
+  private vaultLift = 0;
   private particles: Particle[] = [];
   private floats: FloatText[] = [];
   private hearts: Phaser.GameObjects.Image[] = [];
@@ -3413,6 +3415,11 @@ export class GameScene extends Phaser.Scene {
         case 'blast':
           this.drumBlast(e);
           break;
+        case 'vault':
+          // M14b (h7): up and over: a short rising chirp and a puff where it takes off.
+          this.sound2.play('saltar', { volume: 0.45, detune: -500 });
+          for (let i = 0; i < 3; i++) this.puff(e.x - e.dirX * 4 + this.fx.range(-3, 3), e.y + this.fx.range(-1, 1), 0.3);
+          break;
         case 'tip':
           this.tableTipped(e);
           break;
@@ -4384,14 +4391,18 @@ export class GameScene extends Phaser.Scene {
     // The Móvil switched off by standing still: the black screen with the logo instead.
     if (look.off && phoneIsOff(p) && !w.over) this.hero.setTexture(look.off);
     this.hero.setScale(p.facing, 1);
+    // Jumping something low (a table, a box, a drum) rolling: drawn up over it, and back down after.
+    const liftTo = rolling && onLowProp(w, p) ? VAULT_LIFT : 0;
+    this.vaultLift += Math.sign(liftTo - this.vaultLift) * Math.min(Math.abs(liftTo - this.vaultLift), VAULT_LIFT_SPEED * dt);
+    const lift = Math.round(this.vaultLift);
     if (rolling) {
       const k = p.rollT / p.def.rollTime;
       this.hero.setOrigin(look.feetX / look.w, look.spinY / look.h);
-      this.hero.setPosition(Math.round(p.x), Math.round(p.y - (look.feetY - look.spinY)));
+      this.hero.setPosition(Math.round(p.x), Math.round(p.y - (look.feetY - look.spinY)) - lift);
       this.hero.setRotation(Math.min(1, k / 0.85) * Math.PI * 2 * (p.rollDirX >= 0 ? 1 : -1));
     } else {
       this.hero.setOrigin(look.feetX / look.w, look.feetY / look.h);
-      this.hero.setPosition(Math.round(p.x), Math.round(p.y));
+      this.hero.setPosition(Math.round(p.x), Math.round(p.y) - lift);
       this.hero.setRotation(0);
     }
     this.hurtFace = Math.max(0, this.hurtFace - dt);
@@ -4501,7 +4512,7 @@ export class GameScene extends Phaser.Scene {
     this.gunKick = Math.max(0, this.gunKick - dt * 30);
     const pv = gunPivot(p);
     const gx = pv.x - Math.cos(p.aim) * this.gunKick;
-    const gy = pv.y - Math.sin(p.aim) * this.gunKick;
+    const gy = pv.y - Math.sin(p.aim) * this.gunKick - lift;
     const behind = Math.sin(p.aim) < -0.35;
     // In the Mostrador the gun stays holstered: nobody shoots there.
     const armed = !rolling && !w.over && !w.won && w.room.kind !== 'hub';
@@ -6085,6 +6096,9 @@ const CRATE_DROP = 140;
 
 /** Depth added to the toaster while it rolls over a low counter (deeper than the counter is tall). */
 const LOW_PROP_LIFT = 90;
+/** M14b (h7): px the toaster is drawn up while jumping something low, and how fast it gets there. */
+const VAULT_LIFT = 6;
+const VAULT_LIFT_SPEED = 90;
 
 /** How much bigger than its hit circle an enemy bullet is drawn, at least (M14b (h8)). */
 const ENEMY_BULLET_DRAWN = 1.25;

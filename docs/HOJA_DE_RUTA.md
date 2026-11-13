@@ -680,8 +680,10 @@ juegos del género» de `docs/DISENO.md`.
   hacia delante si empujas de lado), que aguantan unos cuantos disparos y se rompen.
   Hecho el 2026-11-13: `tipSide` por huecos en píxeles con ventaja para el lado, 8 balas en vez
   de 14, se oscurece y parpadea al gastarse; `tests/mesas.test.ts`, e2e `11l`–`11o`.
-- [ ] (h7) Saltar por encima de las mesas y de otros obstáculos bajos rodando (la esquiva), como
+- [x] (h7) Saltar por encima de las mesas y de otros obstáculos bajos rodando (la esquiva), como
   en el Gungeon.
+  Hecho el 2026-11-13: mesas (de pie y volcadas), cajas, bidones y carros son `low`; la tostadora
+  se dibuja 6 px más arriba al saltarlos, con un chirrido; `tests/saltar.test.ts`, e2e `11ka`.
 - [x] (h8) Hitboxes más justas: la de la tostadora más pequeña que su dibujo (el núcleo), las
   balas enemigas con una caja algo menor que su dibujo, y las de los enemigos ajustadas a su sprite.
 - [ ] (h9) Enemigos con movimientos propios. Hoy casi todos se acercan, se paran y disparan.

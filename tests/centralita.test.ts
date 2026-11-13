@@ -49,7 +49,7 @@ function onlyMenu(boss: Enemy): void {
   boss.def = { ...boss.def, brain: { ...(boss.def.brain as BossBrain), phases: [{ ...ph, attacks: ph.attacks.filter((a) => a.kind === 'menu') }] } };
 }
 
-const lows = (w: World) => w.room.props.filter((p) => p.def.low);
+const lows = (w: World) => w.room.props.filter((p) => p.def.id.startsWith('mostrador-bajo'));
 
 test('la Centralita es la jefa de la planta 5, con su sala, su cartel y su causa de baja', () => {
   assert.equal(floorBossOf(5), 'Ú');

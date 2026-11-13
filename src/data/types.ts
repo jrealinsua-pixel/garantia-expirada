@@ -442,8 +442,9 @@ export interface PropDef {
    */
   tip?: { hp: number };
   /**
-   * Low furniture (the Centralita's low counters, M11 (2c2)): it stops bullets and blocks walking,
-   * but the toaster rolls over it (a roll that would end on top carries on until it is off).
+   * Low furniture (the Centralita's low counters, M11 (2c2); boxes, drums, bargain tables and
+   * trolleys, M14b (h7)): it blocks walking (and whatever `blocksBullets` says), but the toaster
+   * jumps over it rolling (a roll that would end on top carries on until it is off).
    */
   low?: boolean;
   /**

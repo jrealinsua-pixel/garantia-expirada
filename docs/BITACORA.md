@@ -2,6 +2,37 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 16:30 (hora peninsular) — Hito M14b — (h7) Saltar rodando por encima de mesas y cosas bajas
+- Contexto: la (h8) la cerró otra sesión mientras yo la cogía (mi «en curso» chocó al hacer push
+  y lo descarté); la (h9a) está cogida por otra. Elegí la (h7), que no toca sus archivos. Salud al
+  empezar: `check`, 951 tests, `build` y `bot` en verde.
+- Hecho: M14b (h7). Ya existía el mecanismo de los mostradores bajos de la Centralita
+  (`PropDef.low`: andando cortan el paso, rodando se cruzan y la voltereta nunca acaba encima);
+  ahora también son bajos la **Mesa de Saldos** (de pie y volcada; sigue cubriendo después), la
+  **Caja de devolución**, el **Bidón** y el **Carro sin moneda** (`src/data/props.ts`). No lo son
+  la caja registradora, el mostrador, el archivador, las pilas de cajas, la mesa de juntas ni los
+  cofres. Evento nuevo `vault` al subirse a una: un chirrido grave (`saltar`) y una nube de polvo
+  donde despega; la tostadora (y su mano) se dibuja hasta 6 px más arriba mientras pasa por
+  encima (`VAULT_LIFT`, `GameScene.ts`). **Arreglo de paso**: si algo corta la voltereta encima
+  de una cosa baja (los rodillos de una cinta muerden, cae una caja, un traslado de departamento,
+  la muerte), `settleOffLow` al final de cada tick la deja al lado; sin él, el bot de la
+  Trituradora salía disparado fuera de la sala desde encima de una caja (6 fallos). Tests nuevos en
+  `tests/saltar.test.ts` (andando no pasa, rodando cruza desde los cuatro lados y desde 1, 6 y
+  14 px, un solo `vault` por voltereta, la volcada sigue volcada, lo alto la para, sin sitio al
+  otro lado la deja al lado, un aspirador la rodea, determinista). `tests/centralita.test.ts`
+  ahora cuenta sus mostradores por id (su sala también tiene cajas y bidones). e2e: captura
+  `11ka-saltar-mesa`, que comprueba que la cruza.
+- Decisiones: los bidones se pueden saltar aunque exploten: saltar uno encendido es arriesgado
+  y eso es bueno. Los enemigos que andan siguen sin cruzarlas (las rodean): saltar una mesa es
+  una forma de escapar. Los cofres no se saltan para no pasar por encima sin querer al ir a abrirlos.
+- Medidas (`npm run bot`): 0 fallos, 3 atascos (4 sin el cambio), sala limpia en 30 s (29,7),
+  sobrevive el 96 % (95 %). 958 tests.
+- Problemas conocidos: el bot no usa el salto a propósito (no lo planifica para huir). El e2e
+  falló una vez en la batidora (ya muerta al llegar; con la vida nueva de la (h1) una bala perdida
+  la tumba a veces): no tiene que ver con esto y la segunda vez pasó; si se repite, darle vida en
+  el e2e antes de mirarla.
+- Siguiente paso: la (h10a), jefes de las plantas 1–2 más únicos; o la (h11a), los props nuevos
+  que se usan ((h9c) y (h11b) están cogidas).
 ## 2026-11-13 17:55 (hora peninsular) — Hito M14b — (h9b) Los enemigos de la planta 2, con movimiento propio
 - Hecho: M14b (h9b). De los cuatro de Informática, el Cargador Falso (espera tirado y se lanza) y
   el Ratón sin Pilas (se congela y aparece más cerca) ya tenían un verbo propio; los otros dos

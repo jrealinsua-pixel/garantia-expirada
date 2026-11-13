@@ -728,6 +728,8 @@ export type SimEvent =
   | { type: 'alert'; x: number; y: number; told: number[]; source: number }
   | { type: 'bulletFade'; x: number; y: number }
   | { type: 'roll'; x: number; y: number; dirX: number; dirY: number }
+  /** M14b (h7): a roll took the toaster up onto something low (a table, a box, a drum) to jump it. */
+  | { type: 'vault'; x: number; y: number; dirX: number; dirY: number; prop: string }
   | { type: 'reloadStart'; time: number }
   | { type: 'reloadEnd' }
   /** The Tostadora popped a slice of toast at the end of a reload (burnt: every second one). */
@@ -2357,7 +2359,13 @@ function updatePlayer(w: World, input: Input): void {
   const wind = w.over ? { x: 0, y: 0 } : windOn(w, p.x, p.y);
   // A conveyor belt carries it along too (rolling or not; down, it lies still).
   const belt = w.over ? { x: 0, y: 0 } : conveyorPush(w, p.x, p.y);
+  const wasOnLow = isRolling(p) && onLowProp(w, p);
   slide(w, p, p.def.footRadius, (p.vx + wind.x + belt.x) * DT, (p.vy + wind.y + belt.y) * DT, isRolling(p));
+  if (isRolling(p) && !wasOnLow) {
+    const feet = playerFeetBox(p, p.def.footRadius);
+    const low = w.room.props.find((pr) => pr.def.low && overlaps(pr.box, feet));
+    if (low) w.events.push({ type: 'vault', x: p.x, y: p.y, dirX: p.rollDirX, dirY: p.rollDirY, prop: low.def.id });
+  }
   if (!isRolling(p)) {
     const dist = Math.hypot(p.x - ox, p.y - oy);
     p.walked += dist;
@@ -4960,7 +4968,20 @@ export function step(w: World, input: Input): void {
   updateLift(w);
   updateBelt(w);
   updateExits(w);
+  settleOffLow(w);
   w.tick++;
+}
+
+/**
+ * M14b (h7): a roll cut short on top of something low (the rollers of a belt bite, a crate lands, a
+ * transfer, the end of the run) puts the toaster down beside it, never on it nor inside it.
+ */
+function settleOffLow(w: World): void {
+  const p = w.player;
+  if (isRolling(p) || !onLowProp(w, p)) return;
+  const out = freeSpot(w, p.x, p.y, p.def.footRadius);
+  p.x = out.x;
+  p.y = out.y;
 }
 
 /** Problems that must never happen; the bot fails if this returns anything. */

@@ -453,6 +453,22 @@ try {
     // A little to one side, so the toaster does not hide it from the camera.
     w.player.x = t.x - 8; w.player.y = t.box.y + t.box.h + 8; return { x: t.x, y: t.y }; })()`);
   if (!tableAt) throw new Error('La Sala de Pruebas no tiene mesa');
+  // M14b (h7): rolling, the toaster jumps it (walking, it does not get through).
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const p = w.player; const t = w.room.props.find((pr) => pr.x === ${tableAt.x} && pr.y === ${tableAt.y});
+    p.x = t.box.x - 22; p.y = t.box.y + t.box.h / 2 + 1; p.vx = 0; p.vy = 0; p.rollT = -1; p.rollCooldown = 0; })()`);
+  await page.waitForTimeout(250);
+  await page.keyboard.down('d');
+  await page.keyboard.press('Space');
+  await page.waitForFunction(`(() => { const w = window.__GE__.scene.world; const p = w.player; const t = w.room.props.find((pr) => pr.x === ${tableAt.x} && pr.y === ${tableAt.y});
+    return p.x > t.box.x + 4; })()`, undefined, { timeout: 1500 });
+  await shot('11ka-saltar-mesa.png');
+  await page.waitForTimeout(600);
+  await page.keyboard.up('d');
+  const over = await page.evaluate<boolean>(`(() => { const w = window.__GE__.scene.world; const p = w.player; const t = w.room.props.find((pr) => pr.x === ${tableAt.x} && pr.y === ${tableAt.y});
+    return p.x > t.box.x + t.box.w; })()`);
+  if (!over) throw new Error('La tostadora no salta la mesa rodando');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const p = w.player; const t = w.room.props.find((pr) => pr.x === ${tableAt.x} && pr.y === ${tableAt.y});
+    p.x = t.x - 8; p.y = t.box.y + t.box.h + 8; p.vx = 0; p.vy = 0; })()`);
   await page.waitForTimeout(400);
   await shot('11l-mesa-de-pie.png');
   await page.keyboard.press('f');
