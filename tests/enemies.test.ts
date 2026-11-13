@@ -142,7 +142,6 @@ test('microondas: calienta un segundo (avisando) y dispara sus anillos', () => {
   const b = mw.brain as TurretBrain;
   const w = kitchen(300, 200);
   const en = w.enemies[0]!;
-  const x0 = en.x;
   const tel = runUntil(w, (e) => e.type === 'telegraph', 300);
   assert.ok(tel && tel.type === 'telegraph' && tel.source === en.id);
   assert.ok(Math.abs(tel.time - b.telegraph) < 1e-9);
