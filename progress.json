@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T15:12:00+01:00",
+  "actualizado": "2026-11-13T15:51:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -119,7 +119,7 @@
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
       "estado": "pendiente",
-      "hechas": 6,
+      "hechas": 7,
       "total": 11
     },
     {
@@ -148,9 +148,14 @@
     "tests_ok": 951,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34128
+    "lineas_codigo": 34132
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T15:51:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h8): las cajas de golpe de los enemigos cubren ya su dibujo (antes, la mitad: disparos que se veían dentro fallaban) y las balas enemigas siempre se dibujan más grandes que lo que golpean."
+    },
     {
       "fecha": "2026-11-13T15:25:00+01:00",
       "hito": "M14b",
@@ -1369,7 +1374,7 @@
       "pie": "M14 (l3): el aviso «Mérito conseguido» con su premio: la primera baja mete la Garantía Extendida en los cofres"
     }
   ],
-  "proximo": "M14b (h8): hitboxes de los enemigos ajustadas a su dibujo; después (h7) saltar obstáculos bajos y (h9a) enemigos de la planta 1 con movimiento propio.",
+  "proximo": "M14b (h7) saltar rodando por encima de mesas y obstáculos bajos; o (h9a) los enemigos de la planta 1 con movimiento propio.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1399,9 +1404,9 @@
   },
   "en_curso": [
     {
-      "sesion": "2026-11-13 15:35",
-      "tarea": "M14b (h8): hitboxes de los enemigos ajustadas a su dibujo (src/data/enemies.ts hurt; tests de enemigos)",
-      "desde": "2026-11-13T14:35:00Z"
+      "sesion": "2026-11-13 15:50",
+      "tarea": "M14b (h9a): movimientos propios para los enemigos de la planta 1 (src/data/enemies.ts, src/sim/enemies.ts, tests de esos enemigos)",
+      "desde": "2026-11-13T14:50:00Z"
     }
   ]
 }

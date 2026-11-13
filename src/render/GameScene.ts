@@ -4694,7 +4694,9 @@ export class GameScene extends Phaser.Scene {
       }
       // Bigger (or smaller) player bullets from items: the sprite is drawn for the weapon's own radius.
       const wdef = b.owner === 'player' ? WEAPONS[b.weapon ?? ''] : undefined;
-      let size = b.owner === 'player' ? b.r / (wdef?.bulletRadius ?? PLAYER_BULLET_R) : 1;
+      // An enemy bullet is always drawn bigger than what it hits with (M14b (h8)): its drawing
+      // reaches at least ENEMY_BULLET_DRAWN times its hit radius, so a near miss looks like one.
+      let size = b.owner === 'player' ? b.r / (wdef?.bulletRadius ?? PLAYER_BULLET_R) : Math.max(1, (b.r * ENEMY_BULLET_DRAWN) / (Math.min(s.frame.width, s.frame.height) / 2));
       s.setPosition(Math.round(b.x), Math.round(b.y)).setDepth(b.y + 20);
       if (b.toast) {
         // A slice tumbles as it flies; the burnt one leaves a trail of smoke.
@@ -6083,6 +6085,9 @@ const CRATE_DROP = 140;
 
 /** Depth added to the toaster while it rolls over a low counter (deeper than the counter is tall). */
 const LOW_PROP_LIFT = 90;
+
+/** How much bigger than its hit circle an enemy bullet is drawn, at least (M14b (h8)). */
+const ENEMY_BULLET_DRAWN = 1.25;
 
 const BULLET_TEXTURES: Record<BulletColor, string> = {
   red: 'bala-roja', cyan: 'bala-cian', ice: 'bala-cubito', card: 'bala-tarjeta', invoice: 'bala-factura', nut: 'bala-tuerca',

@@ -2,6 +2,26 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 15:50 (hora peninsular) — Hito M14b — (h8) Hitboxes que se corresponden con el dibujo
+- Hecho: M14b (h8). Medí la caja de golpe de cada enemigo contra su dibujo (el primer fotograma,
+  píxeles opacos, respecto al ancla): **cubrían solo el 48–74 % del dibujo** (el aspirador, el
+  mando y el Router, menos de la mitad), así que disparos que se veían dentro fallaban. Ahora la
+  caja de los 26 enemigos normales es su dibujo menos el contorno (un 8 % por los lados y un 6 %
+  arriba, dos píxeles abajo por la sombra), simétrica porque el dibujo se voltea, y nunca más
+  pequeña que la de antes (`hurt` en `src/data/enemies.ts`). Los jefes ya cubrían el 60–72 %;
+  el Router, que solo tenía la caja del cuerpo (39 %), cubre ahora también la parte de arriba. La
+  polilla (vuela y se dibuja en otra altura), la caja de botín y la silla del Director, igual.
+  **Las balas enemigas se dibujan siempre al menos 1,25 veces más grandes que su círculo de
+  golpe** (`ENEMY_BULLET_DRAWN` en `GameScene`): las de 6 px (los cubitos) se dibujaban más
+  pequeñas que lo que golpeaban. La tostadora ya tenía un núcleo pequeño (radio 4) y se queda.
+- Decisiones: cajas simétricas porque `dummyHurtBox` no voltea la caja con el dibujo; la del
+  contacto con los enemigos (por los pies) no cambia.
+- Medidas (`npm run bot`): precisión 75,5 % (74 %); la planta 1, el 70 % (75 %; ruido de 20
+  partidas). 951 tests en verde.
+- Problemas conocidos: la caja sale del primer fotograma; en los que cambian mucho de forma al
+  atacar (el sello en el aire, el teléfono saltando) se usa la altura, como antes.
+- Siguiente paso: (h7) saltar rodando por encima de mesas y obstáculos bajos; o (h9a).
+
 ## 2026-11-13 14:40 (hora peninsular) — Hito M14b — (h2) (h3) (h4) La economía del Isaac, un cofre por sala y menos corazones
 - Contexto: otra sesión trabaja a la vez en M14b (hizo la (h5), los bidones, y lleva la (h6), las
   mesas); yo cogí las tres de economía juntas porque tocan los mismos trozos (`world.ts`: premios

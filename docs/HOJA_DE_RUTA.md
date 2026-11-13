@@ -682,7 +682,7 @@ juegos del género» de `docs/DISENO.md`.
   de 14, se oscurece y parpadea al gastarse; `tests/mesas.test.ts`, e2e `11l`–`11o`.
 - [ ] (h7) Saltar por encima de las mesas y de otros obstáculos bajos rodando (la esquiva), como
   en el Gungeon.
-- [ ] (h8) Hitboxes más justas: la de la tostadora más pequeña que su dibujo (el núcleo), las
+- [x] (h8) Hitboxes más justas: la de la tostadora más pequeña que su dibujo (el núcleo), las
   balas enemigas con una caja algo menor que su dibujo, y las de los enemigos ajustadas a su sprite.
 - [ ] (h9) Enemigos con movimientos propios. Hoy casi todos se acercan, se paran y disparan.
   Repasar los ~30 y darle a cada uno una forma de moverse que no tenga otro (saltar a donde estás,
