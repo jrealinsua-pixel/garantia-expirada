@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T14:40:00+01:00",
+  "actualizado": "2026-11-13T15:25:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -119,7 +119,7 @@
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
       "estado": "pendiente",
-      "hechas": 1,
+      "hechas": 3,
       "total": 11
     },
     {
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 950,
-    "tests_ok": 950,
+    "tests": 951,
+    "tests_ok": 951,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34073
+    "lineas_codigo": 34098
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T15:25:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h6): las mesas se vuelcan hacia donde se empujan (desde la izquierda, hacia la derecha, aunque los pies queden un poco más abajo que las patas), aguantan 8 balas en vez de 14, y se oscurecen, crujen y parpadean al gastarse."
+    },
     {
       "fecha": "2026-11-13T14:40:00+01:00",
       "hito": "M14b",
@@ -1335,6 +1340,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/mesa-cubre.png",
+      "pie": "M14b (h6): una mesa volcada parando balas: se oscurece con cada una y, a punto de romperse, parpadea"
+    },
+    {
       "archivo": "capturas/bidon-encendido.png",
       "pie": "M14b (h5): un bidón encendido marca en el suelo hasta dónde llega la explosión; el aro de dentro es la cuenta atrás"
     },
@@ -1353,13 +1362,9 @@
     {
       "archivo": "capturas/nube-sincronizando.png",
       "pie": "M14 (j3): la Nube de Almacenamiento, el otro jefe de la planta 2, «Sincronizando…»: si la barra se llena suelta todo lo que guardaba; si le das lo bastante, se rompe"
-    },
-    {
-      "archivo": "capturas/merito-premio-nuevo.png",
-      "pie": "M14 (l4a): «Cliente habitual» (7 de 25 partidas) promete un objeto que no sale en ningún otro sitio: la Bolsa de Tela Reutilizable"
     }
   ],
-  "proximo": "M14b (h2): la economía del Isaac, cupones que vuelan solos y muy escasos; coger cosas con el botón.",
+  "proximo": "M14b (h8), las hitboxes; o la (h7), saltar por encima de mesas y obstáculos bajos rodando; la (h2)–(h4) están cogidas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1392,11 +1397,6 @@
       "sesion": "2026-11-13 13:35",
       "tarea": "M14b (h2)+(h3)+(h4): economía, cofres en salas distintas, menos corazones (src/sim/world.ts pickups y premios de sala, src/sim/floor.ts, src/data/shop.ts, src/data/enemies.ts loot, tests)",
       "desde": "2026-11-13T12:35:00Z"
-    },
-    {
-      "sesion": "2026-11-13 14:45",
-      "tarea": "M14b (h6): mesas que se vuelcan hacia donde toca y aguantan unos disparos (src/sim/world.ts tipTable/tableHit, src/data/props.ts mesa, src/render/GameScene.ts tablas, tests/mesas.test.ts)",
-      "desde": "2026-11-13T13:45:00Z"
     }
   ]
 }

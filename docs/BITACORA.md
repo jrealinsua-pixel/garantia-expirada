@@ -2,6 +2,32 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 15:25 (hora peninsular) — Hito M14b — (h6) Mesas que se vuelcan hacia donde toca y se rompen
+- Contexto: segunda tarea de la sesión (paso 7). La (h2)–(h4) sigue cogida por otra sesión; la
+  (h6) solo toca el vuelco y el desgaste de las mesas.
+- Hecho: M14b (h6). **El fallo del vuelco** (`tipSide`, `src/sim/world.ts`): comparaba lo lejos
+  que estaba la tostadora en unidades del tamaño de la mesa, y como la mesa es poco profunda (22×12),
+  de pie a su izquierda con los pies un poco más abajo que sus patas la empujaba hacia delante. Ahora
+  mide el **hueco en píxeles** entre la tostadora y la huella de la mesa en cada eje, y el lado gana
+  un empate por `SIDE_BIAS` = 4 px (su cuerpo es alto y sus pies siempre quedan algo por debajo);
+  justo delante o detrás, o en una esquina claramente por debajo, hacia delante como antes. **Se
+  rompe antes**: aguanta 8 balas en vez de 14 (`src/data/props.ts`), una ráfaga o dos. **Se ve que se
+  gasta** (`GameScene.ts`): con cada bala se oscurece un poco más, cruje más grave y más fuerte, y
+  desde el 70 % parpadea en rojizo para que busques otra cobertura. Test nuevo en
+  `tests/mesas.test.ts`: desde la izquierda y la derecha, con los pies a cualquier altura entre su
+  tapa y 7 px por debajo de sus patas, se vuelca de lado (con el código de antes fallaba), y con el
+  botón de interactuar también. e2e: la tostadora se aparta tras volcarla para que la captura `11n`
+  enseñe la mesa recibiendo; empujada desde debajo, se pone a 8 px y no a 18 (a 18 ya es «de lado»).
+- Decisiones: 8 balas y no menos: una mesa tiene que servir para una ráfaga de un enemigo de la
+  planta 1 (5–7 balas) y caer con la segunda. Saltar por encima de las mesas es la (h7).
+- Medidas (`npm run bot`): planta 1 en 14,3 s y 0,58 heridas por sala de combate (antes 14,1 y
+  0,55), la gana el 95 %; vuelca 1,5 mesas por planta (1,4); 0 fallos, 0 atascos. 951 tests; e2e
+  entero en verde.
+- Problemas conocidos: la mesa de pie sigue sin vida (las balas pasan por encima); solo la volcada
+  se gasta, como antes. El bot no se cambia de mesa cuando la suya está a punto de romperse.
+- Siguiente paso: la (h8), las hitboxes; o la (h7), saltar rodando por encima de mesas y obstáculos
+  bajos.
+
 ## 2026-11-13 14:40 (hora peninsular) — Hito M14b — (h5) Bidones que explotan antes, más lejos y más fuerte
 - Contexto: el `main` local volvía a estar en otra historia; lo dejé igual que `origin/main` con
   `git checkout -B main origin/main` (solo local, sin tocar el remoto). Salud al empezar: `check`,

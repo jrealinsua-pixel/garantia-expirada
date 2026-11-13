@@ -63,7 +63,7 @@ function press(w: World): void {
 
 test('la mesa está en los datos: de pie no para balas, se vuelca y aguanta unas cuantas', () => {
   assert.equal(TABLE.blocksBullets, false);
-  assert.ok(TABLE.tip && TABLE.tip.hp >= 8, 'aguanta una ráfaga, no una sala entera');
+  assert.ok(TABLE.tip && TABLE.tip.hp >= 6 && TABLE.tip.hp <= 10, `aguanta una ráfaga o dos, no una sala entera (${TABLE.tip?.hp})`);
   assert.equal(INTERACT_VERBS.tip, 'Volcar');
   const s = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames: number }>;
   assert.equal(s.mesa?.frames, 5, 'de pie y volcada hacia cada lado');
@@ -101,6 +101,27 @@ test('el botón de interactuar la vuelca lejos de la tostadora, y solo una vez',
   v.player.x = 240;
   v.player.y = 300;
   assert.equal(interactable(v), null);
+});
+
+test('M14b (h6): empujada de lado se vuelca de lado, aunque los pies queden algo más abajo que sus patas', () => {
+  const w = bare('mesa-lado');
+  const t = put(w, TABLE, 240, 250);
+  const b = t.box;
+  for (let py = b.y; py <= b.y + b.h + 7; py++) {
+    assert.equal(tipSide(t, b.x - 10, py), 'E', `desde la izquierda, pies en y=${py - b.y} de la mesa`);
+    assert.equal(tipSide(t, b.x + b.w + 10, py), 'W', `desde la derecha, pies en y=${py - b.y} de la mesa`);
+  }
+  // Right in front or behind, it goes the other way.
+  assert.equal(tipSide(t, b.x + b.w / 2, b.y + b.h + 3), 'N');
+  assert.equal(tipSide(t, b.x + 4, b.y - 3), 'S');
+  // Off a corner but clearly below: forwards.
+  assert.equal(tipSide(t, b.x - 3, b.y + b.h + 12), 'N');
+  // And with the button, standing at its left as a player would.
+  w.player.x = b.x - 9;
+  w.player.y = t.y + 5;
+  assert.equal(interactable(w)?.kind, 'tip');
+  press(w);
+  assert.equal(t.tipped, 'E', 'desde la izquierda, la tapa mira a la derecha');
 });
 
 test('volcada, para las balas que vienen hacia su tapa y deja pasar las que se alejan', () => {

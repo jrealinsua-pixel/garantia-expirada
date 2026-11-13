@@ -3299,18 +3299,30 @@ export function coversFrom(side: TipSide, vx: number, vy: number): boolean {
 
 /**
  * The way a table tips when the toaster at (px, py) pushes it: away from her, along the axis she
- * is farther off on (its top then faces what is on the other side).
+ * is farther off it on (its top then faces what is on the other side).
+ *
+ * M14b (h6): measured as the gap in pixels between her and the table's footprint, not in units of
+ * its size: the table is shallow, so a toaster standing beside it with her feet a little lower
+ * than its legs used to push it forwards. Beside it wins a close call (SIDE_BIAS): her body is
+ * tall and her feet are always a bit below the table's.
  */
 export function tipSide(pr: PropInstance, px: number, py: number): TipSide {
-  const cx = pr.box.x + pr.box.w / 2;
-  const cy = pr.box.y + pr.box.h / 2;
-  const dx = cx - px;
-  const dy = cy - py;
-  // The table is wider than deep: compare in units of its own size, so a toaster at a corner
-  // pushes it the way she is clearly off it.
-  if (Math.abs(dx) / pr.box.w > Math.abs(dy) / pr.box.h) return dx > 0 ? 'E' : 'W';
-  return dy > 0 ? 'S' : 'N';
+  const b = pr.box;
+  const gx = Math.max(b.x - px, px - (b.x + b.w), 0);
+  const gy = Math.max(b.y - py, py - (b.y + b.h), 0);
+  const cx = b.x + b.w / 2;
+  const cy = b.y + b.h / 2;
+  if (gx === 0 && gy === 0) {
+    // Inside the footprint (pushed right up against it): the way she is farther from the middle.
+    if (Math.abs(cx - px) / b.w > Math.abs(cy - py) / b.h) return cx > px ? 'E' : 'W';
+    return cy > py ? 'S' : 'N';
+  }
+  if (gx > 0 && gx + SIDE_BIAS >= gy) return cx > px ? 'E' : 'W';
+  return cy > py ? 'S' : 'N';
 }
+
+/** Pixels a sideways push wins by when the toaster is about as far off the side as off the front. */
+export const SIDE_BIAS = 4;
 
 /** The interact button at a standing table: over it goes, its top away from the toaster. */
 function tipTable(w: World, pr: PropInstance): void {

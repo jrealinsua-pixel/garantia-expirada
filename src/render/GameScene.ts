@@ -427,7 +427,7 @@ export class GameScene extends Phaser.Scene {
   private drumRing: Phaser.GameObjects.Graphics | null = null;
   private drumViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; jolt: number; smoke: number }>();
   /** Tables (M9b 13b), by their spot: the sprite (its frame says how it lies), its shadow, a jolt and the tipping hop. */
-  private tableViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; y: number; jolt: number; tip: number; side?: TipSide }>();
+  private tableViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; y: number; jolt: number; tip: number; side?: TipSide; wear?: number }>();
   private couponPop = 0;
   /** The shop till (only in the shop), what it is saying and for how long, and its refusal face. */
   private till: Phaser.GameObjects.Image | null = null;
@@ -3419,7 +3419,12 @@ export class GameScene extends Phaser.Scene {
         case 'tableHit': {
           // It takes the bullet for the toaster: a jolt and a splinter or two off the top.
           const v = this.tableViews.get(`${e.x},${e.y}`);
-          if (v) v.jolt = 0.1;
+          if (v) {
+            v.jolt = 0.1;
+            v.wear = e.wear / e.hp;
+          }
+          // M14b (h6): it creaks louder the closer it is to giving way.
+          this.sound2.play('carton', { volume: 0.25 + 0.4 * (e.wear / e.hp), detune: -300 - 500 * (e.wear / e.hp) });
           const f = TIP_FACING[e.side];
           for (let i = 0; i < 2; i++) this.splinter(e.x + f.x * 9, e.y - 8 + f.y * 4, Math.atan2(f.y, f.x) + this.fx.range(-0.8, 0.8));
           break;
@@ -3847,6 +3852,14 @@ export class GameScene extends Phaser.Scene {
       v.s.setPosition(v.x + Math.round(wob + f.x * 3 * lean), v.y + Math.round(f.y * 2 * lean) - (k > 0 && k <= 0.5 ? 1 : 0));
       v.s.setScale(1, k > 0.5 ? 1 - 0.25 * lean : 1);
       v.s.setAngle(k > 0.5 ? f.x * 25 * lean : 0);
+      // M14b (h6): shot at, it darkens and splits; nearly gone, it flickers so the toaster knows
+      // to find other cover.
+      const wear = Math.min(1, v.wear ?? 0);
+      if (wear > 0) {
+        const c = Math.round(255 - 110 * wear);
+        const low = wear >= 0.7 && Math.floor(this.time.now / 140) % 2 === 0;
+        v.s.setTint(low ? 0xff9a7a : Phaser.Display.Color.GetColor(c, Math.round(c * 0.9), Math.round(c * 0.85)));
+      }
     }
   }
 

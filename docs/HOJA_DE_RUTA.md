@@ -676,8 +676,10 @@ juegos del género» de `docs/DISENO.md`.
 - [x] (h5) Bidones que explotan antes, con más radio y más daño (y que se vea venir).
   Hecho el 2026-11-13: vida 10 → 4, mecha 0,35 s, radio 36 → 64, daño 12 → 18, el alcance
   pintado en el suelo; `tests/bidones.test.ts`, e2e `11h`–`11j`.
-- [ ] (h6) Mesas que se vuelcan hacia donde toca (desde la izquierda, hacia la derecha; nunca
+- [x] (h6) Mesas que se vuelcan hacia donde toca (desde la izquierda, hacia la derecha; nunca
   hacia delante si empujas de lado), que aguantan unos cuantos disparos y se rompen.
+  Hecho el 2026-11-13: `tipSide` por huecos en píxeles con ventaja para el lado, 8 balas en vez
+  de 14, se oscurece y parpadea al gastarse; `tests/mesas.test.ts`, e2e `11l`–`11o`.
 - [ ] (h7) Saltar por encima de las mesas y de otros obstáculos bajos rodando (la esquiva), como
   en el Gungeon.
 - [ ] (h8) Hitboxes más justas: la de la tostadora más pequeña que su dibujo (el núcleo), las

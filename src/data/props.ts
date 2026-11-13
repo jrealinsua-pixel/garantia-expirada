@@ -16,8 +16,9 @@ export const PROPS: Record<string, PropDef> = {
     blast: { radius: 64, damage: 18, hurt: 2 },
   },
   // M9b (13b): a bargain table. Bullets fly over it standing; tipped over with the interact
-  // button, it covers from one side until it is shot to bits.
-  mesa: { id: 'mesa', name: 'Mesa de Saldos', box: { x: -11, y: -13, w: 22, h: 12 }, blocksBullets: false, tip: { hp: 14 } },
+  // button, it covers from one side until it is shot to bits. M14b (h6): eight bullets, not
+  // fourteen: cover for a burst or two, not for the whole room.
+  mesa: { id: 'mesa', name: 'Mesa de Saldos', box: { x: -11, y: -13, w: 22, h: 12 }, blocksBullets: false, tip: { hp: 8 } },
   carrito: { id: 'carrito', name: 'Carro sin moneda', box: { x: -12, y: -12, w: 24, h: 10 }, blocksBullets: false },
   // Not placed by templates: it appears in some combat rooms when they are cleared (world.ts).
   // Placed on the shopkeeper's spot ($) of the shop: the till that sells (it does not move).

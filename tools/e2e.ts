@@ -433,7 +433,7 @@ try {
     const t = w.room.props.find((pr) => pr.def.id === 'mesa' && !pr.tipped); if (!t) return null;
     for (const en of w.enemies) en.damageTaken = en.def.hp;
     // A little to one side, so the toaster does not hide it from the camera.
-    w.player.x = t.x - 18; w.player.y = t.box.y + t.box.h + 8; return { x: t.x, y: t.y }; })()`);
+    w.player.x = t.x - 8; w.player.y = t.box.y + t.box.h + 8; return { x: t.x, y: t.y }; })()`);
   if (!tableAt) throw new Error('La Sala de Pruebas no tiene mesa');
   await page.waitForTimeout(400);
   await shot('11l-mesa-de-pie.png');
@@ -442,6 +442,8 @@ try {
   await shot('11m-mesa-volcando.png');
   const tipped = await page.evaluate<string | null>(`window.__GE__.scene.world.room.props.find((pr) => pr.x === ${tableAt.x} && pr.y === ${tableAt.y})?.tipped ?? null`);
   if (tipped !== 'N') throw new Error(`La mesa no se vuelca hacia el norte (${tipped})`);
+  // Out of the way, so the camera sees the table take the bullets (and darken).
+  await page.evaluate(`(() => { const p = window.__GE__.scene.world.player; p.x = ${tableAt.x} - 34; p.y = ${tableAt.y} + 22; })()`);
   await page.evaluate(`(() => { const w = window.__GE__.scene.world;
     for (let i = 0; i < 5; i++) w.bullets.push({ id: w.nextId++, owner: 'enemy', x: ${tableAt.x} - 10 + i * 5, y: ${tableAt.y} - 40 - i * 5, vx: 0, vy: 150, r: 2.5,
       life: 3, damage: 1, knockback: 0, color: 'red', age: 0, dir: Math.PI / 2, speed: 150, h: 0, by: 'microondas' }); })()`);
