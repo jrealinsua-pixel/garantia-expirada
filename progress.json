@@ -1356,6 +1356,11 @@
       "sesion": "2026-11-13 03:25",
       "tarea": "M14 (j4): la Consola Edición Coleccionista, segundo jefe de la planta 3 (src/data/enemies.ts, src/data/patterns.ts, src/data/types.ts, src/sim/enemies.ts, src/sim/world.ts, src/render/GameScene.ts, tools/sprites/consola.ts, tests/consola.test.ts)",
       "desde": "2026-11-13T02:25:00Z"
+    },
+    {
+      "sesion": "2026-11-13 02:30",
+      "tarea": "M14 (l4b): dos armas nuevas solo de premio, el Soldador de Estaño y el Mando Universal (src/data/weapons.ts, src/data/logros.ts, src/audio/synth.ts, tools/sprites/premios.ts, tools/sprites/build.ts, tests/armas-premio.test.ts)",
+      "desde": "2026-11-13T02:40:00Z"
     }
   ]
 }
