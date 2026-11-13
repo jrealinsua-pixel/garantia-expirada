@@ -1482,6 +1482,11 @@
       "sesion": "2026-11-14 01:15 (hora peninsular)",
       "tarea": "M14b (h10b2): el Director con movimiento propio",
       "desde": "2026-11-14T01:15:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 01:00 (hora peninsular)",
+      "tarea": "M14c (a2): herramientas de dibujo nuevas (src/art/pintor.ts nuevo, src/art/paleta.ts, tools/sprites/prueba-a1.ts, tests/pintor.test.ts nuevo; no toca src/sim ni src/data)",
+      "desde": "2026-11-14T01:00:00+01:00"
     }
   ]
 }
