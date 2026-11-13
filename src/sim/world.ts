@@ -483,6 +483,8 @@ export interface Enemy {
   bounces?: number;
   /** An enemy that follows in the player's footsteps: the path it remembers (M14b (h9c)). */
   trail?: { x: number; y: number }[];
+  /** Air conditioners with a hose (BlowerBrain.hose): where it is plugged into the wall, and how far it reaches. */
+  plug?: { x: number; y: number; reach: number };
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
   bossPhase?: number;
   attack?: number;

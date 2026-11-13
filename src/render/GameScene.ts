@@ -5531,6 +5531,7 @@ export class GameScene extends Phaser.Scene {
     for (const en of this.world.enemies) {
       const b = en.def.brain;
       if (b.kind !== 'blower' || isDead(en) || en.state === 'dying') continue;
+      if (en.plug) this.drawHose(g, en, en.plug);
       const a = Math.atan2(en.dirY, en.dirX);
       const half = (b.coneDeg / 2) * (Math.PI / 180);
       const x0 = en.x;
@@ -5554,6 +5555,38 @@ export class GameScene extends Phaser.Scene {
         const len = 6 + 4 * (1 - k);
         g.fillStyle(0xf4f1e8, 0.85 * (1 - k * k));
         for (let j = 0; j < len; j++) g.fillRect(Math.round(px + Math.cos(sa) * j), Math.round(py + Math.sin(sa) * j), 1, 1);
+      }
+    }
+  }
+
+  /**
+   * An air conditioner's hose (M14b (h9d)): a grey corrugated tube from the grille where it is
+   * plugged into the wall to the back of the machine, sagging when slack and straight when taut,
+   * so its reach can be read at a glance.
+   */
+  private drawHose(g: Phaser.GameObjects.Graphics, en: Enemy, pl: { x: number; y: number; reach: number }): void {
+    const x0 = pl.x;
+    const y0 = pl.y - 4;
+    const x1 = en.x - en.facing * 7;
+    const y1 = en.y - 10;
+    const len = Math.hypot(x1 - x0, y1 - y0);
+    const slack = Math.max(0, pl.reach - len);
+    const sag = Math.min(18, slack * 0.35);
+    // The grille in the wall, and the hose's shadow on the floor first.
+    g.fillStyle(0x0e0c16, 0.85).fillRect(Math.round(x0) - 4, Math.round(y0) - 3, 9, 6);
+    g.fillStyle(0x858ea8, 1);
+    for (let i = -3; i <= 3; i += 2) g.fillRect(Math.round(x0) + i, Math.round(y0) - 2, 1, 4);
+    const n = Math.max(4, Math.ceil(len / 3));
+    for (const pass of [0, 1]) {
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const x = x0 + (x1 - x0) * t;
+        const y = y0 + (y1 - y0) * t + sag * 4 * t * (1 - t);
+        if (pass === 0) g.fillStyle(0x0e0c16, 0.25).fillRect(Math.round(x) - 1, Math.round(y) + 4, 3, 1);
+        else {
+          g.fillStyle(i % 2 === 0 ? 0xb7bed0 : 0x858ea8, 1).fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 3);
+          g.fillStyle(0x5a627c, 1).fillRect(Math.round(x) - 1, Math.round(y) + 1, 3, 1);
+        }
       }
     }
   }

@@ -2320,6 +2320,19 @@ function updateBlower(w: World, en: Enemy, b: BlowerBrain): void {
         w.events.push({ type: 'acBlow', x: en.x, y: en.y, source: en.id });
         break;
       }
+      if (b.hose) {
+        // M14b (h9d): on its hose, it goes to the point of its reach nearest the player.
+        const to = hoseSpot(w, en, b);
+        const hx = to.x - en.x;
+        const hy = to.y - en.y;
+        const hd = Math.hypot(hx, hy);
+        if (hd > 3) {
+          const v = b.hose.speed * Math.min(1, hd / 12);
+          walkX = (hx / hd) * v;
+          walkY = (hy / hd) * v;
+        }
+        break;
+      }
       // It drags itself to its distance (never backwards: the hose would not reach).
       if (dist > b.keep + 20) {
         walkX = (dx / dist) * b.speed;
@@ -2332,8 +2345,62 @@ function updateBlower(w: World, en: Enemy, b: BlowerBrain): void {
     const ox = en.x;
     const oy = en.y;
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+    // The hose holds it (shoves and knockback included): back onto the edge of its reach.
+    const pl = en.plug;
+    if (pl) {
+      const px = en.x - pl.x;
+      const py = en.y - pl.y;
+      const pd = Math.hypot(px, py);
+      if (pd > pl.reach) {
+        slide(w, en, en.def.footRadius, pl.x + (px / pd) * pl.reach - en.x, pl.y + (py / pd) * pl.reach - en.y);
+        // Its speed outwards is gone: the hose is taut.
+        const out = (en.vx * px + en.vy * py) / pd;
+        if (out > 0) {
+          en.vx -= (out * px) / pd;
+          en.vy -= (out * py) / pd;
+        }
+      }
+    }
     en.moved += Math.hypot(en.x - ox, en.y - oy);
   }
+}
+
+/**
+ * Where an air conditioner's hose is plugged in (BlowerBrain.hose): the nearest wall straight up,
+ * down, left or right of where it is the first time it is asked, just off the wall. Its reach is
+ * `hose.reach`, or a little more than the hose already spans.
+ */
+export function plugOf(w: World, en: Enemy, b: BlowerBrain): NonNullable<Enemy['plug']> {
+  if (en.plug) return en.plug;
+  let best = { x: en.x, y: en.y, d: Infinity };
+  for (const [ux, uy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+    for (let d = 0; d < 2000; d += 2) {
+      const x = en.x + ux * d;
+      const y = en.y + uy * d;
+      if (isWallAt(w.room, x, y)) {
+        const back = Math.max(0, d - 4);
+        if (back < best.d) best = { x: en.x + ux * back, y: en.y + uy * back, d: back };
+        break;
+      }
+    }
+  }
+  const reach = Math.max(b.hose?.reach ?? 0, (Number.isFinite(best.d) ? best.d : 0) + 10);
+  en.plug = { x: best.x, y: best.y, reach };
+  return en.plug;
+}
+
+/**
+ * Where an air conditioner on its hose wants to be: on the line from its plug to the player, as
+ * far along as its reach lets it, but never closer to the player than `keep`.
+ */
+export function hoseSpot(w: World, en: Enemy, b: BlowerBrain): { x: number; y: number } {
+  const pl = plugOf(w, en, b);
+  const p = w.player;
+  const ux = p.x - pl.x;
+  const uy = p.y - pl.y;
+  const d = Math.hypot(ux, uy) || 1;
+  const along = Math.max(0, Math.min(pl.reach, d - b.keep));
+  return { x: pl.x + (ux / d) * along, y: pl.y + (uy / d) * along };
 }
 
 /** Warning before a ticket dispenser's loose tickets (s): they are slow, so a short one. */
@@ -3188,7 +3255,23 @@ function updateCopier(w: World, en: Enemy, b: CopierBrain): void {
       if (en.t >= en.until && !w.over) {
         en.copyTarget = copyPick(w, en, b);
         enter(en, 'warn', b.telegraph);
+        // It plants itself to lift the lid (it may have been scurrying to its hiding place).
+        en.vx = 0;
+        en.vy = 0;
         w.events.push({ type: 'copyScan', x: en.x, y: en.y - b.muzzleY, target: en.copyTarget, source: en.id });
+        break;
+      }
+      // M14b (h9d): it hides behind whoever is nearest, so they take the shots.
+      const spot = b.hide ? hideSpot(w, en, b.hide.gap) : null;
+      if (b.hide && spot) {
+        const hx = spot.x - en.x;
+        const hy = spot.y - en.y;
+        const hd = Math.hypot(hx, hy);
+        if (hd > 3) {
+          const v = b.hide.speed * Math.min(1, hd / 14);
+          walkX = (hx / hd) * v;
+          walkY = (hy / hd) * v;
+        }
         break;
       }
       // Keeps its distance, backing off sideways (as the walking turrets do).
@@ -3218,6 +3301,57 @@ function updateCopier(w: World, en: Enemy, b: CopierBrain): void {
     en.moved += moved;
     if ((hit.hitX || hit.hitY) && moved < b.speed * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
   }
+}
+
+/** A photocopier does not hide behind anyone closer than this (px) to the player. */
+export const HIDE_NOT_NEARER = 80;
+
+/**
+ * Where a photocopier hides (CopierBrain.hide): `gap` px behind the nearest other enemy that is
+ * up and about (not another copier, nor one hidden or gone, nor one closer than HIDE_NOT_NEARER
+ * to the player), on the far side from the player; or, with that one in the way, a point beside it
+ * to go round it by. Null if there is nobody to hide behind.
+ */
+export function hideSpot(w: World, en: Enemy, gap: number): { x: number; y: number } | null {
+  let best: Enemy | null = null;
+  let bestD = Infinity;
+  for (const o of w.enemies) {
+    if (o === en || isDead(o) || o.state === 'dying' || o.state === 'lurk' || o.state === 'gone') continue;
+    if (o.def.brain.kind === 'copier') continue;
+    // Not behind one in the thick of it: that is too close to the toaster for a photocopier.
+    if (Math.hypot(o.x - w.player.x, o.y - w.player.y) < HIDE_NOT_NEARER) continue;
+    const d = Math.hypot(o.x - en.x, o.y - en.y);
+    if (d < bestD) {
+      bestD = d;
+      best = o;
+    }
+  }
+  if (!best) return null;
+  const p = w.player;
+  const ax = best.x - p.x;
+  const ay = best.y - p.y;
+  const al = Math.hypot(ax, ay) || 1;
+  const spot = { x: best.x + (ax / al) * gap, y: best.y + (ay / al) * gap };
+  // Its shield in the way there: round it first, on whichever side it already is.
+  const sx = spot.x - en.x;
+  const sy = spot.y - en.y;
+  const sl = Math.hypot(sx, sy);
+  if (sl > 1) {
+    const k = Math.max(0, Math.min(1, ((best.x - en.x) * sx + (best.y - en.y) * sy) / (sl * sl)));
+    const cx = en.x + sx * k - best.x;
+    const cy = en.y + sy * k - best.y;
+    const clear = best.def.footRadius + en.def.footRadius + 10;
+    if (k > 0 && k < 1 && Math.hypot(cx, cy) < clear) {
+      let nx = -sy / sl;
+      let ny = sx / sl;
+      if (nx * (en.x - best.x) + ny * (en.y - best.y) < 0) {
+        nx = -nx;
+        ny = -ny;
+      }
+      return { x: best.x + nx * (clear + 6), y: best.y + ny * (clear + 6) };
+    }
+  }
+  return spot;
 }
 
 function muzzleHeight(w: World, en: Enemy, muzzleY: number): number {

@@ -698,7 +698,10 @@ juegos del género» de `docs/DISENO.md`.
     camino, un segundo por detrás); el robot de cuerda (rebota), el coche (rodea y embiste) y el
     sobre (salta) ya eran únicos. El microondas cambia su órbita de la (h9a), que repetía la del
     coche, por ir a tu reflejo en el centro de la sala.
-  - [ ] (h9d) Planta 4.
+  - [x] (h9d) Planta 4. Hecho el 2026-11-13: la fotocopiadora se esconde detrás del enemigo más
+    cercano (al otro lado de la tostadora) y el climatizador va atado a su manguera, enchufada a
+    la pared: dentro de su alcance viene deprisa, fuera no puede seguirte. La destructora (siempre
+    de cara) y el sello (a saltos y estampando) ya eran únicos.
   - [ ] (h9e) Planta 5 y el Servicio Técnico.
 - [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
   ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.

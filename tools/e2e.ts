@@ -1019,13 +1019,18 @@ try {
   await shot('50u-sello-aviso.png');
   await page.waitForFunction('window.__GE__.scene.world.ink.length >= 2', undefined, { timeout: 10000 })
     .catch(() => { throw new Error('El sello no deja tinta'); });
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.ink[w.ink.length - 1]; w.player.x = k.x + 12; w.player.y = k.y + 8; w.player.rollCooldown = 0; w.bullets = []; })()`);
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.ink[w.ink.length - 1]; k.t = 0;
+    w.player.x = k.x + 6; w.player.y = k.y + 4; w.player.vx = 0; w.player.vy = 0; w.player.rollCooldown = 0; w.bullets = []; })()`);
   await page.keyboard.down('d');
   await page.keyboard.press('Space');
   await page.waitForTimeout(160);
   await page.keyboard.up('d');
   const rolled = await page.evaluate<boolean>('window.__GE__.scene.world.player.rollT >= 0');
-  if (rolled) throw new Error('En la tinta no se tenía que poder rodar');
+  if (rolled) {
+    const why = await page.evaluate<string>(`(() => { const w = window.__GE__.scene.world; const p = w.player;
+      return JSON.stringify({ p: [Math.round(p.x), Math.round(p.y)], ink: w.ink.map((k) => [Math.round(k.x), Math.round(k.y), +k.t.toFixed(2)]) }); })()`);
+    throw new Error(`En la tinta no se tenía que poder rodar ${why}`);
+  }
   await shot('50v-sello-denegado.png');
   console.log('Sello: sube con su sombra, estampa tinta y en ella la voltereta se deniega.');
 
@@ -1049,6 +1054,30 @@ try {
   await page.waitForTimeout(150);
   await shot('50x-climatizador-copos.png');
   console.log('Climatizador: el cono de aire frío empuja a la tostadora, tuerce sus balas y sopla escarcha.');
+
+  // M14b (h9d): the floor 4 enemies that kept their distance move their own way. The air
+  // conditioner on its hose, plugged into the wall: the toaster out of its reach, the hose taut.
+  // And the photocopier hiding behind a vacuum cleaner, on the far side from the toaster.
+  await page.goto(`${url}?semilla=e2e-manguera&sala=planta-diafana&planta=4`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; w.spawnsEnemies = false; w.enemies = []; w.bullets = [];
+    const p = w.player; p.y = Math.min(p.y, 230); g.spawnIdle('climatizador', Math.max(40, p.x - 190), 52); w.enemies[0].until = 99; })()`);
+  const hoseEnd = '(() => { const e = window.__GE__.scene.world.enemies[0]; return e.plug && Math.hypot(e.x - e.plug.x, e.y - e.plug.y) > e.plug.reach - 4; })()';
+  await page.waitForFunction(hoseEnd, undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('El climatizador no llega al final de su manguera'); });
+  await page.waitForTimeout(200);
+  await shot('50xa-climatizador-manguera.png');
+  const hoseStretch = await page.evaluate<number>("(() => { const e = window.__GE__.scene.world.enemies[0]; return Math.hypot(e.x - e.plug.x, e.y - e.plug.y) - e.plug.reach; })()");
+  if (hoseStretch > 1) throw new Error(`El climatizador se pasa de su manguera (${hoseStretch.toFixed(1)} px)`);
+  await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.enemies = []; w.bullets = [];
+    const p = w.player; g.spawnIdle('aspirador', p.x + 110, p.y); g.spawnIdle('fotocopiadora', p.x + 60, p.y + 70);
+    const a = w.enemies[0]; a.state = 'stun'; a.until = 99; w.enemies[1].until = 99; })()`);
+  const hidden = `(() => { const w = window.__GE__.scene.world; const [a, c] = w.enemies; const p = w.player;
+    return c && Math.hypot(c.x - p.x, c.y - p.y) > Math.hypot(a.x - p.x, a.y - p.y) + 15 && Math.abs(c.y - a.y) < 14; })()`;
+  await page.waitForFunction(hidden, undefined, { timeout: 8000 })
+    .catch(() => { throw new Error('La fotocopiadora no se esconde detrás del aspirador'); });
+  await shot('50xb-fotocopiadora-escondida.png');
+  console.log('Planta 4: el climatizador va atado a su manguera y la fotocopiadora se esconde detrás de los demás.');
 
   // M11 (4a): the ticket dispenser. A turn called (the circle with its number and countdown),
   // missed (red, the fan of tickets), and the next one served (green).

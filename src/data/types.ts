@@ -1240,6 +1240,12 @@ export interface CopierBrain {
   pattern: string;
   muzzleY: number;
   recover: number;
+  /**
+   * If present (M14b (h9d)), instead of keeping its distance it hides behind the others: it walks
+   * at `speed` px/s to the spot `gap` px behind the nearest other enemy, on the far side from the
+   * player, so that one takes the shots meant for it. With nobody to hide behind, it keeps its distance.
+   */
+  hide?: { speed: number; gap: number };
 }
 
 /**
@@ -1291,6 +1297,14 @@ export interface BlowerBrain {
   telegraph: number;
   pattern: string;
   muzzleY: number;
+  /**
+   * If present (M14b (h9d)), its hose is plugged into the nearest wall where it appears (the
+   * window it blows its heat out of) and it can go no further than `reach` px from that plug
+   * (more, if it appeared further out): it slides along that circle at `speed` px/s to the point
+   * nearest the player, never closer than `keep`. Like a dog on its chain: outside its reach, it
+   * cannot follow you; inside, it comes quick.
+   */
+  hose?: { reach: number; speed: number };
 }
 
 /**

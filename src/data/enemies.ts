@@ -577,6 +577,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       pattern: 'fotocopiadora-folios',
       muzzleY: 10,
       recover: 0.45,
+      // M14b (h9d): behind whoever is nearest, so they take the shots meant for it.
+      hide: { speed: 44, gap: 30 },
     },
   },
   sello: {
@@ -629,7 +631,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     brain: {
       kind: 'blower',
       speed: 12,
-      keep: 140,
+      keep: 80,
       turnDeg: 35,
       sweepDeg: 90,
       sweepTime: 3,
@@ -641,6 +643,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       telegraph: 0.45,
       pattern: 'climatizador-copos',
       muzzleY: 12,
+      // M14b (h9d): its hose is plugged into the nearest wall and reaches 110 px: it slides round
+      // that circle to stay between the plug and you (from 80 px), and further out it cannot follow.
+      hose: { reach: 110, speed: 38 },
     },
   },
   'dispensador-turnos': {

@@ -2,6 +2,40 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 19:15 (hora peninsular) — Hito M14b — (h9d) La planta 4: la fotocopiadora se esconde y el climatizador va con manguera
+- Hecho: M14b (h9d). En las Oficinas, la Destructora (siempre de cara, se lanza) y el Sello (a
+  saltos, estampa tinta) ya tenían un verbo propio; la Fotocopiadora y el Climatizador guardaban
+  las distancias. Ahora:
+  - **Fotocopiadora**: se esconde detrás de los demás (`CopierBrain.hide`, 44 px/s): va a 30 px
+    detrás del enemigo más cercano, al otro lado de la tostadora, para que él se coma los disparos.
+    Si la rodeas, cambia de lado rodeando a su escudo (`hideSpot` da un punto al lado si el escudo
+    está en medio). No se esconde detrás de otra fotocopiadora ni de quien esté a menos de 80 px de
+    la tostadora (`HIDE_NOT_NEARER`: se metería en la pelea); sin nadie, guarda las distancias como
+    antes. Se planta en seco al levantar la tapa (antes llegaba frenando y el test lo notó).
+  - **Climatizador**: va atado a su manguera (`BlowerBrain.hose`), enchufada a la pared más cercana
+    en línea recta desde donde aparece (`plugOf`), con 110 px de alcance (más si apareció más
+    lejos). Va deprisa (38 px/s, antes 12) al punto de la línea enchufe–tostadora más cercano a ella,
+    sin acercarse a menos de 80 px (`keep` 140 → 80); con la manguera tirante se desliza por el
+    borde de su alcance y no puede seguirte (los empujones tampoco lo sacan de él). La manguera se
+    dibuja (`drawHose` en `GameScene.ts`), floja o tirante, con su rejilla en la pared, para que el
+    alcance se lea.
+  Tests nuevos en `tests/planta4-movimiento.test.ts` (8). e2e: capturas `50xa` y `50xb`.
+- Arreglo de paso en el e2e del sello: la prueba de la voltereta denegada falló una vez con la
+  máquina cargada (bot y tests a la vez); ahora pone la tostadora más dentro de la tinta, reinicia
+  la vida de la tinta y, si falla, dice dónde estaban. La segunda vez pasó.
+- Decisiones: «esconderse detrás de los demás» encaja con la fotocopiadora (castiga ignorar al
+  que apoya: ahora además hay que rodear al escudo o matarlo primero). La manguera convierte una
+  torreta casi quieta en un «perro atado»: alejarse de su pared es la respuesta, y su aire sigue
+  empujando hacia los demás.
+- Medidas (`npm run enemigos`, 60 salas por pareja, antes → después): fotocopiadora + destructora
+  0,55 → 0,80 heridas por sala; climatizador + destructora 0,25 → 0,32; fotocopiadora +
+  climatizador 0,12 → 0,05; climatizador + sello 0,08 → 0,07. `npm run bot`: 0 fallos, 5 atascos
+  (igual), la planta 1 igual; a la planta 4 llegan solo 2 de 20 partidas (muestra muy pequeña).
+  974 tests en verde; e2e entero en verde.
+- Problemas conocidos: el climatizador enchufado a una columna interior (si la tiene más cerca que
+  la pared) se ve raro; no lo he visto en las capturas.
+- Siguiente paso: (h9e) los de la planta 5 y el Servicio Técnico; o (h10a) jefes más únicos.
+
 ## 2026-11-13 19:40 (hora peninsular) — Hito M14b — (h11a1) La Regleta Sobrecargada
 - Contexto: (h9c) y (h11b) estaban cogidas por otras sesiones; elegí la (h11a), que no toca sus
   archivos, y la partí en tres en la hoja de ruta: (h11a1) la regleta, (h11a2) la estantería que
