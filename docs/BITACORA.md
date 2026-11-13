@@ -2,6 +2,40 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 00:55 (hora peninsular) — Hito M14c — (a1) La guía de estilo nueva y tres sprites de prueba
+- Contexto: sesión programada. La (h10b2) estaba cogida hace 0 min y la (h10b1) acababa de
+  terminar en otra sesión; la (h11c) llevaba cogida dos horas (más de 90 min, libre según el
+  protocolo), pero esa sesión puede seguir viva y las dos tocaríamos `src/data/rooms.ts`. Para no
+  pisarnos cogí la primera de M14c, que también viene de una nota del humano y no toca ni
+  `src/sim` ni `src/data`. El `main` local volvía a ser un clon viejo que divergía de
+  `origin/main`: `git checkout -B main origin/main`. Salud al empezar: `check` y 1035 tests en verde.
+- Hecho: la sección «M14c · El estilo nuevo» al principio de `docs/ESTILO_ARTE.md`; la paleta por
+  materiales en `src/art/paleta.ts` (rampas de 5–7 tonos elegidas a mano, con giro de tono hacia
+  el violeta en las sombras; luminancia, tono, contraste, mezcla y tramado Bayer); tres sprites
+  de prueba en `art/prueba/` (la tostadora con el secador, el aspirador y una loseta del almacén)
+  y `comparativa.png` (antes y ahora, a tamaño real sobre su suelo y a 3×), generados por
+  `node tools/sprites/prueba-a1.ts` (no entra en `npm run sprites`: nada de esto llega aún al
+  juego); `tests/estilo-a1.test.ts` (7 tests: tonos y luminancia de las rampas, sombras de color,
+  giro de tono, regeneración idéntica, tamaños, contorno selectivo y legibilidad sobre el suelo).
+- Decisiones: (1) sombras de color y tinta violeta `#140f20` en vez del negro; contorno selectivo
+  (por el lado de la luz, la sombra del material mezclada con tinta; por el de la sombra, tinta).
+  (2) El tramado solo en las costuras y en los volúmenes redondos: lo probé a lo ancho de la cara
+  de la tostadora y a tamaño real parecía suciedad, así que lo quité. (3) El cromo se pinta como un
+  espejo (cielo, horizonte, sala, rebote del suelo): es lo que más «metal» da con pocos tonos.
+  (4) Tamaño: carcasa de 28 px (antes 22) en un lienzo de 48 × 50; enemigo de unos 42 × 42; las
+  cajas de choque no cambian. (5) El aspirador pasa de caja a bote redondo con el visor rojo que
+  brilla: así se distingue de la tostadora y del microondas (que son cajas), que es lo que pide
+  (a5). (6) Lo decidí sin el visto bueno del humano porque es él quien pidió el cambio; si no le
+  gusta, lo dice en sus notas y se cambia la sección.
+- Medidas: suelo nuevo con luminancia media dentro de 0,035–0,075, como el viejo; contraste de las
+  balas sobre el tono medio del suelo: rojo 2,5, cian 6,3, naranja 5,8.
+- Problemas conocidos: los sprites de prueba no están en el juego; hasta (a4)–(a8) conviven los
+  dos estilos. Las herramientas (`Paint`, `ellipsoid`, `cylinderH`, el contorno selectivo) viven
+  de momento en `tools/sprites/prueba-a1.ts`.
+- Siguiente paso: (a2) pasar `Paint`, el sombreado por normales y el contorno selectivo a
+  `src/art/` (más el mapa de alturas y el comprobador de silueta y contraste); o la (h11c) si su
+  sesión la ha soltado, o la (h10b3).
+
 ## 2026-11-14 01:10 (hora peninsular) — Hito M14b — (h10b1) El Muñeco desfila y la Consola va con lag
 - Contexto: sesión programada. Otra sesión tenía cogida la (h11c) (desde las 22:25, menos de 90 min),
   así que cogí la siguiente: la (h10b). Era grande (cinco jefes): la dividí en (h10b1) planta 3

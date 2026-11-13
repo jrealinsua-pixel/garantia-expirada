@@ -760,10 +760,13 @@ queda como estaba, como historia. Cómo se hace (la respuesta a su pregunta, en 
 sigue saliendo de código, pero con mejores herramientas propias y con un sitio para que otra IA
 de imagen (o él) deje sprites que el juego adapte a la paleta.
 
-- [ ] (a1) Guía de estilo nueva: paleta más rica (rampas de 5–7 tonos por material, luz
+- [x] (a1) Guía de estilo nueva: paleta más rica (rampas de 5–7 tonos por material, luz
   arriba-izquierda, sombras de color y no negras), contorno selectivo, proporciones de los
   personajes (más grandes: 24–32 px), y tres sprites de prueba (la Tostadora, un enemigo y un
   suelo) al lado de los viejos, con la decisión escrita.
+  Hecho el 2026-11-14: «M14c · El estilo nuevo» al principio de `docs/ESTILO_ARTE.md`, la paleta
+  en `src/art/paleta.ts`, la tostadora, el aspirador y una loseta del almacén en `art/prueba/`
+  (con `comparativa.png`), `tools/sprites/prueba-a1.ts` y `tests/estilo-a1.test.ts`.
 - [ ] (a2) Herramientas de dibujo nuevas en `src/art/`: formas con antialias de pixel art
   (dithering ordenado, rampas por normal, brillos especulares), un «sombreador» de volumen a
   partir de un mapa de alturas, y un comprobador de legibilidad (silueta y contraste) que corra en

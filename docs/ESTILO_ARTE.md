@@ -1,8 +1,49 @@
-# Estilo de arte (aprobado por el humano)
+# Estilo de arte (aprobado por el humano; en M14c cambia, ver la primera sección)
 
 Los sprites de `art/referencia/` son la referencia. Todo el arte nuevo debe parecer hecho por la
 misma mano. Los scripts que los generaron están en `tools/referencia/` (Python, solo como
 ejemplo del método; el proyecto usa la versión en TypeScript de `tools/sprites/`).
+
+## M14c · El estilo nuevo (decidido el 2026-11-14, en prueba)
+
+El humano pidió el 13 de noviembre un arte mejor («es todo feísimo»), así que en M14c el estilo
+cambia. Lo de abajo de esta sección sigue valiendo **salvo lo que esta sección cambia**, y vale
+para todo el arte que se redibuje a partir de ahora ((a4)–(a12)); hasta que se redibuje, cada
+hoja vieja se queda como está. La prueba está en `art/prueba/` (`comparativa.png`: antes y
+ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a1.ts` y la vigila
+`tests/estilo-a1.test.ts`. Si al humano no le gusta, que lo diga en sus notas y se cambia aquí.
+
+- **Paleta por materiales** (`src/art/paleta.ts`): cada material es una rampa de **5 a 7 tonos**
+  (de 4 solo los de adorno: óxido, latón), del brillo (0) a la sombra más honda (la última).
+  Los tonos los elige uno a mano, no salen de una fórmula. Materiales: `acero`, `tostada`,
+  `quemada`, `rojo`, `azul`, `goma`, `rosa`, `amarillo`, `oxido`, `laton` y `suelo`; los nuevos
+  se añaden ahí con las mismas reglas.
+- **Sombras de color, nunca negras ni grises**: bajando por la rampa el tono gira hacia el
+  azul-violeta y la saturación se mantiene; las luces se calientan hacia el amarillo (el acero
+  brilla en blanco cálido `#fbf5e6` y se apaga en violeta `#2a2847`). La sombra en el suelo es
+  violeta y transparente, no negra.
+- **Luz arriba a la izquierda y algo de frente.** Por convención, en la vista de tres cuartos:
+  la cara de arriba es la más clara, la cara frontal (la de la cara) va en tonos medios y la
+  lateral izquierda en sombra. Los volúmenes redondos (el aspirador, los guantes, el secador) se
+  sombrean con sus normales (`Paint.ellipsoid`, `Paint.cylinderH`), no con un tono plano.
+- **El cromo se pinta como un espejo**: cielo claro arriba, un horizonte nítido a media altura,
+  la sala más oscura debajo y el rebote del suelo abajo, con dos reflejos verticales de ventana.
+- **Tramado (dithering) solo en las costuras**: Bayer 4×4 en una banda estrecha entre dos tonos
+  de una superficie curva, o en el pozo de luz del suelo. Nunca a lo ancho de una cara plana: a
+  tamaño real se lee como suciedad (se probó y se quitó).
+- **Contorno selectivo**: por el lado de la luz (arriba y a la izquierda) el contorno es la
+  sombra más honda del material que toca, mezclada al 45 % con la tinta; por el lado de la sombra
+  (abajo y a la derecha) es **tinta** `#140f20` (violeta casi negro, en vez del negro `#0e0c16`).
+  Las líneas de dentro (ranuras, juntas) son el tono más hondo del material, no negro.
+- **Más grandes**: la carcasa de un personaje mide **24–32 px de ancho** (la tostadora, 28; antes
+  22) en un lienzo de unos 48 × 50; un enemigo normal, unos 42 × 42; los jefes se deciden en (a7).
+  Las cajas de choque no cambian (son de la simulación): el dibujo crece, el núcleo no.
+- **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
+  cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
+  2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),
+  el óxido en motas sueltas, y las balas: enemigas saturadas (rojo, cian) con núcleo blanco y
+  del jugador en naranja y amarillo. El suelo sigue igual de oscuro (luminancia media entre 0,035
+  y 0,075) para que las balas se lean.
 
 ## Lo que el humano pidió expresamente
 

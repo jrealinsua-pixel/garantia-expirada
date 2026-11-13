@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T01:10:00+01:00",
+  "actualizado": "2026-11-14T00:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -126,7 +126,7 @@
       "id": "M14c",
       "nombre": "Arte nuevo (nota del humano del 13 de noviembre)",
       "estado": "pendiente",
-      "hechas": 0,
+      "hechas": 1,
       "total": 12
     },
     {
@@ -151,6 +151,11 @@
     "lineas_codigo": 36658
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T00:55:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a1): la guía de estilo nueva. Paleta por materiales con rampas de 5–7 tonos y sombras de color (violeta, nunca negras), contorno selectivo, cromo pintado como un espejo, tramado solo en las costuras y personajes más grandes (carcasa de 28 px). Tres sprites de prueba al lado de los viejos: la tostadora, el aspirador (ahora un bote redondo con visor rojo) y una loseta del almacén. Aún no están en el juego."
+    },
     {
       "fecha": "2026-11-14T01:10:00+01:00",
       "hito": "M14b",
@@ -1415,6 +1420,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/estilo-nuevo-prueba.png",
+      "pie": "M14c (a1): el estilo nuevo a prueba. Arriba, el aprobado; abajo, la tostadora, el aspirador y el suelo redibujados (a tamaño real y a 3×)"
+    },
+    {
       "archivo": "capturas/muneco-desfile.png",
       "pie": "M14b (h10b1): el Muñeco de Moda desfila y posa al final de cada tramo («Posando para el catálogo»)"
     },
@@ -1433,13 +1442,9 @@
     {
       "archivo": "capturas/nevera-patina.png",
       "pie": "M14b (h10a1): la Nevera Suprema patina: se impulsa, se desliza y deja un rastro fino de escarcha"
-    },
-    {
-      "archivo": "capturas/lavadora-pivotes.png",
-      "pie": "M14b (h10a1): la Lavadora anda a pivotes, ladeándose sobre una esquina y luego la otra"
     }
   ],
-  "proximo": "M14b (h10b2): el Director de Recursos Inhumanos con movimiento propio (en su silla y de pie); o la (h11c) si sigue libre.",
+  "proximo": "M14c (a2): pasar Paint, el sombreado por normales y el contorno selectivo de tools/sprites/prueba-a1.ts a src/art/; o M14b (h11c) si se suelta, o (h10b3).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1477,11 +1482,6 @@
       "sesion": "2026-11-14 01:15 (hora peninsular)",
       "tarea": "M14b (h10b2): el Director con movimiento propio",
       "desde": "2026-11-14T01:15:00+01:00"
-    },
-    {
-      "sesion": "2026-11-14 00:30 (hora peninsular)",
-      "tarea": "M14c (a1): guía de estilo nueva y tres sprites de prueba (docs/ESTILO_ARTE.md, art/prueba/, tools/sprites/prueba-a1.ts nuevo, tests/estilo-a1.test.ts nuevo; no toca src/sim ni src/data)",
-      "desde": "2026-11-14T00:30:00+01:00"
     }
   ]
 }
