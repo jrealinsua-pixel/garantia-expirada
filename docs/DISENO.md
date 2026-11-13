@@ -1034,6 +1034,53 @@ Están repartidas como tareas en `docs/HOJA_DE_RUTA.md` (M6, M7, M8 y M10).
 
 Repartidas en `docs/HOJA_DE_RUTA.md`: M9b (lo inmediato) y M14 (lo de más adelante).
 
+## Pautas del humano (2026-11-13)
+
+- La dificultad no es vida: enemigos que caen pronto, con balas difíciles de esquivar y
+  movimientos erráticos. Cada enemigo (y cada jefe) se mueve de una forma propia.
+- Los cupones (la moneda) vuelan solos al limpiar la sala; todo lo demás del suelo se coge con el
+  botón de interactuar, salvo los corazones, que se cogen al pasar. Comprar tiene que ser difícil,
+  como en el Isaac: muchos menos cupones.
+- Nunca dos cofres en la misma sala. Menos corazones, sobre todo al principio.
+- Bidones que explotan antes, más lejos y más fuerte. Mesas que se vuelcan hacia el lado bueno, que
+  se saltan rodando (como los demás obstáculos bajos) y que se rompen tras unos disparos.
+- Escenarios con mucho más detalle, decoración y cosas que usar. Hitboxes más justas.
+- Un hito entero de arte nuevo (M14c) y el juego, al menos un 50 % más largo de hacer.
+
+Repartidas en `docs/HOJA_DE_RUTA.md`: M14b y M14c.
+
+## Lo que hacen otros juegos del género (investigado el 2026-11-13)
+
+Para no copiar nada sino entender por qué funcionan. Fuentes: los wikis de Enter the Gungeon
+(enterthegungeon.wiki.gg) y de The Binding of Isaac: Rebirth (bindingofisaacrebirth.wiki.gg),
+la entrevista de Game Developer a Dodge Roll sobre el Gungeon y análisis de diseño de enemigos.
+
+- **Vida corta, balas peligrosas.** En el Gungeon el enemigo básico cae en unos tres disparos del
+  arma inicial; lo difícil son sus balas (lentas pero en patrones que cierran huecos), las que
+  vienen de varios enemigos a la vez, y que cada enemigo dispare distinto. En el Isaac, las salas
+  se limpian en segundos y el peligro es la mezcla de enemigos. Regla nuestra: vida para 2–4
+  disparos en un normal; la planta sube la dificultad añadiendo patrones y mezclas, no vida.
+- **Cada enemigo, un verbo.** Los enemigos se distinguen por cómo se mueven antes que por cómo se
+  ven: el que salta a donde estás, el que embiste en línea recta hasta chocar, el que rebota en
+  diagonal por la sala, el que se esconde y es invulnerable hasta que asoma, el que se divide al
+  morir, el que se teletransporta, el que cava y sale bajo tus pies, el que huye y dispara, el que
+  solo se mueve cuando no le miras, el que deja rastro en el suelo. Cada uno avisa antes (pose,
+  parpadeo, sonido) y castiga quedarse quieto o correr en línea recta.
+- **Economía con hambre.** En el Isaac una sala limpia suelta premio solo a veces, las monedas
+  llegan con cuentagotas y un objeto de la tienda cuesta lo que se junta en una planta o más: comprar
+  es una decisión, y muchas plantas no compras nada. Las monedas se recogen solas o casi, porque
+  ir a por ellas no es la gracia; lo que se elige (objetos) sí pide una acción.
+- **Mesas.** En el Gungeon una mesa volcada para balas por un lado, tiene vida y se rompe, se vuelca
+  en la dirección en que la empujas y la esquiva puede pasar por encima de ella. La cobertura es un
+  respiro, no un búnker.
+- **Explosivos.** Un barril que explota tiene que ser una herramienta: mecha corta y visible, radio
+  claro (más grande que el barril), y daño que limpia a los enemigos de alrededor.
+- **Salas.** Salas con forma (columnas, fosos, desniveles, muebles) y decoración que cuenta dónde
+  estás; props que se rompen al disparar, y algunas trampas del entorno que hacen daño a todos.
+- **Hitboxes.** El protagonista tiene una caja de golpe mucho más pequeña que su dibujo (en los
+  bullet hell, a veces de 2–4 px); las balas enemigas se dibujan más grandes de lo que golpean. Así
+  esquivar por poco se siente justo.
+
 ## Contenido mínimo de la primera versión jugable (fin del hito M6)
 
 - 1 personaje (Tostadora), 3 armas, 10 objetos pasivos, 3 activos.

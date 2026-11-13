@@ -26,8 +26,10 @@ muestra junto a cada hito; si un hito se desvía mucho, se corrige aquí y allí
 | M12 · Servicio Técnico | 12 | Requisitos, piso especial, final verdadero y créditos |
 | M13 · Cinco personajes | 14 | Cuatro personajes nuevos con arma, habilidad, historia y final |
 | M14 · Más contenido | 30 | De ~5 armas, ~50 objetos y ~22 enemigos a 30/80/30, más 2 jefes |
+| M14b · Notas del 13 de noviembre | 22 | Vida, economía, cofres, corazones, bidones, mesas, saltar, hitboxes; enemigos (5) y jefes (2) únicos; escenarios (3) |
+| M14c · Arte nuevo | 26 | Guía nueva, herramientas, entrada de arte de fuera, personajes, enemigos, jefes, suelos, props, efectos, interfaz, luz |
 | M15 · Escritorio | 6 | Empaquetado, guardado en disco y flujo de instaladores |
-| **Quedan** (11 de noviembre) | **62** | **~81 con un 30 % de margen** (arreglos, notas del humano, sorpresas) |
+| **Quedan** (13 de noviembre) | **~100** | **~130 con un 30 % de margen**. M14b y M14c suman 48 sesiones, un 77 % más que las 62 que quedaban (el humano pidió al menos un 50 % más) |
 
 En calendario: con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en
 medio día o un día, la versión pulida (M7) en uno o dos días y el juego completo con escritorio
@@ -652,6 +654,78 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
   (según lo que se haya hecho antes), se quedan en el Mostrador: cuentan historia y desbloquean
   cosas. El Mostrador, más grande y con más cosas.
 - [ ] Repaso del pixel art: enemigos más distinguibles entre sí, sin cambiar el estilo aprobado.
+
+## M14b · Lo que pidió el humano el 13 de noviembre
+
+Dos notas largas después de jugar (en `docs/NOTAS_DEL_HUMANO.md`). Van antes que el resto de M14
+porque son notas del humano. Lo que se aprendió mirando otros juegos, en «Lo que hacen otros
+juegos del género» de `docs/DISENO.md`.
+
+- [ ] (h1) Menos vida a los enemigos y a los jefes: que la dificultad venga de las balas y del
+  movimiento, no de esponjas. Objetivo: un enemigo normal cae en 2–4 disparos del arma inicial,
+  una sala de la planta 1 se limpia en unos 20–30 s y un jefe en 45–90 s. Medir con el bot antes
+  y después; si la planta 1 se vuelve fácil, compensar con balas y patrones, no con vida.
+- [ ] (h2) La economía, como la del Isaac: los cupones (la moneda de la tienda) vuelan solos al
+  limpiar la sala, y son mucho más escasos (comprar algo de la tienda tiene que costar una planta
+  entera ahorrando, y no siempre); los demás objetos del suelo (armas, objetos, activos, tickets)
+  se cogen con el botón de interactuar; los corazones son lo único que se coge al pasar por
+  encima.
+- [ ] (h3) Nunca dos cofres en la misma sala: cada cofre, en una sala distinta.
+- [ ] (h4) Menos corazones, sobre todo al principio de la planta 1: no puede dar para rellenar la
+  vida una vez y media. La primera planta se la tiene que poder pasar cualquiera, pero no fácil.
+- [ ] (h5) Bidones que explotan antes, con más radio y más daño (y que se vea venir).
+- [ ] (h6) Mesas que se vuelcan hacia donde toca (desde la izquierda, hacia la derecha; nunca
+  hacia delante si empujas de lado), que aguantan unos cuantos disparos y se rompen.
+- [ ] (h7) Saltar por encima de las mesas y de otros obstáculos bajos rodando (la esquiva), como
+  en el Gungeon.
+- [ ] (h8) Hitboxes más justas: la de la tostadora más pequeña que su dibujo (el núcleo), las
+  balas enemigas con una caja algo menor que su dibujo, y las de los enemigos ajustadas a su sprite.
+- [ ] (h9) Enemigos con movimientos propios. Hoy casi todos se acercan, se paran y disparan.
+  Repasar los ~30 y darle a cada uno una forma de moverse que no tenga otro (saltar a donde estás,
+  embestir en línea recta y rebotar, rodear, esconderse e invulnerable, dividirse al morir,
+  teletransportarse, flotar en diagonal rebotando en las paredes, cavar…), con su aviso. Se parte
+  en tareas por planta: (h9a) planta 1, (h9b) planta 2, (h9c) planta 3, (h9d) planta 4,
+  (h9e) planta 5 y el Servicio Técnico.
+- [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
+  ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.
+- [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
+  sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo
+  la generación procedural: (h11a) los props nuevos que se usan, (h11b) decoración por planta,
+  (h11c) plantillas de sala nuevas con más forma.
+
+## M14c · Arte nuevo (nota del humano del 13 de noviembre)
+
+El humano dice que el arte es feo y pide un hito entero para mejorarlo. El estilo aprobado de
+`docs/ESTILO_ARTE.md` se puede **cambiar** en este hito porque lo pide él; `art/referencia/` se
+queda como estaba, como historia. Cómo se hace (la respuesta a su pregunta, en las notas): el arte
+sigue saliendo de código, pero con mejores herramientas propias y con un sitio para que otra IA
+de imagen (o él) deje sprites que el juego adapte a la paleta.
+
+- [ ] (a1) Guía de estilo nueva: paleta más rica (rampas de 5–7 tonos por material, luz
+  arriba-izquierda, sombras de color y no negras), contorno selectivo, proporciones de los
+  personajes (más grandes: 24–32 px), y tres sprites de prueba (la Tostadora, un enemigo y un
+  suelo) al lado de los viejos, con la decisión escrita.
+- [ ] (a2) Herramientas de dibujo nuevas en `src/art/`: formas con antialias de pixel art
+  (dithering ordenado, rampas por normal, brillos especulares), un «sombreador» de volumen a
+  partir de un mapa de alturas, y un comprobador de legibilidad (silueta y contraste) que corra en
+  los tests.
+- [ ] (a3) Carpeta `art/entrada/` para sprites hechos fuera (por otra IA de imagen o por el
+  humano): un script que los reduce a la paleta del juego, los recorta a la rejilla, los mete en
+  las hojas y apunta su origen y licencia en `CREDITOS.md`.
+- [ ] (a4) Los cinco personajes jugables, redibujados con más fotogramas (andar 6, rodar 6,
+  disparar, herido, morir).
+- [ ] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
+- [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados.
+- [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
+- [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
+  sombras de pared y luz.
+- [ ] (a9) Props y decoración de cada planta (con M14b (h11)).
+- [ ] (a10) Efectos: disparos, impactos, explosiones, chispas, humo, muerte (más fotogramas,
+  partículas con color).
+- [ ] (a11) Interfaz: corazones, marcador, minimapa, menús, ventanas, con la fuente «Letra
+  Pequeña» revisada.
+- [ ] (a12) Luz y ambiente: sombra bajo cada personaje, luces de color por planta, viñeta, y
+  una pasada de capturas comparando antes y después en el panel.
 
 ## M15 · Versión de escritorio (lo último)
 

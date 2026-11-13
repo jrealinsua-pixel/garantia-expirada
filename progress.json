@@ -1,7 +1,7 @@
 {
   "actualizado": "2026-11-13T04:40:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M14",
+  "hito_actual": "M14b",
   "hitos": [
     {
       "id": "M0",
@@ -114,6 +114,20 @@
       "estado": "en_curso",
       "hechas": 3,
       "total": 7
+    },
+    {
+      "id": "M14b",
+      "nombre": "Lo que pidió el humano el 13 de noviembre",
+      "estado": "en_curso",
+      "hechas": 0,
+      "total": 11
+    },
+    {
+      "id": "M14c",
+      "nombre": "Arte nuevo",
+      "estado": "pendiente",
+      "hechas": 0,
+      "total": 12
     },
     {
       "id": "M15",
@@ -1338,9 +1352,9 @@
   "proximo": "M14 (j5): la Fuente de Agua de Oficina, el segundo jefe de la planta 4; o los PNJs de M14.",
   "bloqueos": [],
   "estimacion": {
-    "fecha": "2026-11-11",
+    "fecha": "2026-11-13",
     "unidad": "sesiones",
-    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:29: M8 terminado en unas 14 sesiones (estimadas 13). Revisada el 5 de noviembre a las 17:30: M10 terminado (34 tareas para las dos plantas, estimadas 24 sesiones); M11 partido en 22 tareas como M10, quedan 21. Revisada el 12 de noviembre a las 00:50: M11 terminado (unas 25 tareas, estimadas 22); quedan 62.",
+    "ritmo": "Del 28 al 29 de octubre se cerraron M0–M4 y medio M5 (47 tareas) en unas 33 sesiones: algo más de una tarea por sesión. Las tareas que quedan son más grandes (una planta entera, un personaje con historia), así que cuento por tarea y no por hito. Revisada el 29 a las 10:45: la nota del humano añade inventario, interfaz limpia, equilibrio de armas y objetos y entornos (M6–M8, +6 sesiones); los cofres ya están hechos. Revisada el 29 a las 11:55: M5 terminado (la tienda y la ventana de descripción, en una sola sesión). Revisada el 29 a las 13:55: M6 terminado en las 10 sesiones estimadas; ya hay primera versión jugable. Revisada el 29 a las 17:40: M7 terminado en unas 12 sesiones (estimadas 13). Revisada el 30 a las 00:29: M8 terminado en unas 14 sesiones (estimadas 13). Revisada el 5 de noviembre a las 17:30: M10 terminado (34 tareas para las dos plantas, estimadas 24 sesiones); M11 partido en 22 tareas como M10, quedan 21. Revisada el 12 de noviembre a las 00:50: M11 terminado (unas 25 tareas, estimadas 22); quedan 62. Revisada el 13 de noviembre: las notas del humano añaden M14b (22) y M14c, arte nuevo (26): ~48 sesiones más, un 77 % más de lo que quedaba.",
     "hitos": {
       "M9": 10,
       "M9b": 16,
@@ -1349,23 +1363,25 @@
       "M12": 12,
       "M13": 14,
       "M14": 30,
-      "M15": 6
+      "M15": 6,
+      "M14b": 22,
+      "M14c": 26
     },
     "primera_version": {
       "hasta": "M6",
       "sesiones": 0
     },
     "total": {
-      "sesiones": 62,
-      "con_margen": 81
+      "sesiones": 100,
+      "con_margen": 130
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
     {
-      "sesion": "2026-11-13 04:30",
-      "tarea": "M14 (v1): dos armas nuevas de la tienda y los cofres, la Cafetera de Cápsulas (rebotan) y el Ventilador Oscilante (zigzag) (src/data/weapons.ts, src/data/rooms.ts Sala de Pruebas, src/data/describe.ts, src/audio/synth.ts, tools/sprites/armas-v1.ts, tests/armas*.test.ts)",
-      "desde": "2026-11-13T03:30:00Z"
+      "sesion": "2026-11-13 12:55",
+      "tarea": "M14b (h1): menos vida a enemigos y jefes (src/data/enemies.ts, src/sim/world.ts dureza de planta, tests de vida/jefes, tools/bot.ts solo medidas)",
+      "desde": "2026-11-13T11:55:00Z"
     }
   ]
 }
