@@ -2469,6 +2469,10 @@ try {
   await tapKeys('ArrowDown');
   await page.waitForTimeout(150);
   await shot('62c-meritos-en-progreso.png');
+  // M14 (l4): a hard one in progress («Cliente habitual», 7/25) promises a reward that does not exist yet.
+  await tapKeys('ArrowDown');
+  await page.waitForTimeout(150);
+  await shot('62f-merito-premio-nuevo.png');
   await tapKeys('Escape');
   await page.waitForTimeout(150);
   await tapKeys('Escape');

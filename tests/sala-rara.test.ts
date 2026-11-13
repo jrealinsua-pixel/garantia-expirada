@@ -92,7 +92,9 @@ test('financiar quita un corazón para siempre y da lo comprado; cupones, ni uno
 
 test('con un solo corazón de máximo, la caja no financia', () => {
   // The Batidora de Vaso has two hearts: the first deal leaves her with one, and then no more credit.
-  const w = createWorld({ seed: 'financiacion-sin-credito', room: 'financiacion', character: 'batidora-vaso' });
+  // Nothing on the shelf that gives a heart back (Garantía Extendida, Póliza…): the deal has to cost one.
+  const hearts = Object.values(ITEMS).filter((d) => d.mod.stats?.some((c) => c.stat === 'maxHp' && (c.add ?? 0) > 0)).map((d) => d.id);
+  const w = createWorld({ seed: 'financiacion-sin-credito', room: 'financiacion', character: 'batidora-vaso', locked: hearts });
   w.noDamage = true;
   const [weapon, item] = forSale(w).sort((a, b) => a.x - b.x);
   finance(w, item!);

@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 03:30 (hora peninsular, de `date`) — Hito M14 — Logros (l4a): premios que no existían
+- Contexto: el `main` local volvía a estar divergido (otra copia vieja, de M11); lo puse en
+  `origin/main` con `git checkout -B main origin/main` (`reset --hard` no estaba permitido). Salud
+  al empezar: `check`, 927 tests, `build` y `bot` en verde. La (j3) estaba cogida desde hacía 57
+  minutos, así que hice la (l4), que no toca sus archivos; la Nube llegó a mitad y el
+  `pull --rebase` mezcló sin conflictos (solo hubo que regenerar `sprites.json`).
+- Hecho: dividí la (l4) en (l4a) objetos y (l4b) armas, e hice la (l4a). **Cinco objetos nuevos que
+  solo existen como premio** de los logros difíciles que no traían nada (`src/data/items.ts`, al
+  final, y su `reward` en `src/data/logros.ts`): la **Bolsa de Tela Reutilizable** («Cliente
+  habitual», 25 partidas: cargador ×1,3, recarga ×1,1, 15 % de cupón extra por baja); la **Póliza a
+  Todo Riesgo** («Siniestro total», 50 bajas: +1 corazón, uno de cada diez golpes no hace nada,
+  anda ×0,9); el **Contenedor Amarillo** («Punto limpio», 1000 desmontados: las balas atraviesan a
+  uno y rebotan una vez, velocidad de bala ×0,85); la **Oferta Tres por Dos** («Pack ahorro», 8
+  sinergias: dos balas más por disparo, daño ×0,5, dispersión +14, que solo compensa de cerca); y
+  el **Plástico Protector** («Estado: como nuevo», 4 jefes sin perder vida: la voltereta corta
+  balas y el parpadeo tras un golpe dura ×1,5, pero tarda ×1,2 en volver a rodar). Sus cinco
+  sprites de 16 × 16 en `tools/sprites/items.ts` (bolsa de tela con su hoja, póliza con escudo y
+  sello, contenedor con ruedas, pegatina roja «3x2», film transparente con una esquina levantada),
+  con la paleta y el contorno de los objetos aprobados. e2e: `62f`, la ficha de «Cliente habitual»
+  en progreso con su premio. Test nuevo en `tests/premios.test.ts`.
+- Decisiones: **todo con mecánicas que ya existían** (estadísticas, `pierce`, `bounce`, `coupons`,
+  `shrug`, `rollClear`, `hurtIframes`): «añadir un objeto no debería tocar el motor», y así la
+  sesión cabe. Cada premio da algo y quita algo (lo vigila el test) y nada empeora todas las armas
+  en el papel: por eso la Póliza paga con velocidad y el Contenedor con velocidad de bala, no con
+  daño. **De la planta 1 en adelante y no «buenos»**: un premio difícil tiene que poder verse en la
+  partida siguiente, no solo en la Caja Fuerte Premium. **Sin sinergias por ahora**: un premio
+  tiene que funcionar solo. Tono: la bolsa que compras para no pagar la otra, el seguro que no
+  cubre lo que haces, el reciclaje que el camión mezcla, el 3x2 que se paga en la factura, el
+  plástico que nadie quita. El test de la Oficina de Financiación pedía «que el objeto no devuelva
+  el corazón» y la baraja nueva le ponía la Garantía Extendida: ahora deja fuera los objetos que dan
+  vida, que es lo que quería decir.
+- Medidas: el bot juega con todo desbloqueado, así que las barajas cambian: planta 1 ganada 35 % →
+  45 % y llegan a la planta 2 7 → 9 de 20 (20 partidas: dentro del ruido, la tendencia es la
+  esperada con más objetos en la baraja). `npm run bot`, 200 partidas, 0 fallos. 935 tests en verde
+  (con los de la Nube). e2e entero en verde.
+- Problemas conocidos: ninguno nuevo. El bot sigue sin medir la partida de alguien sin nada ganado.
+- Siguiente paso: (j4) la Consola Edición Coleccionista; o (l4b), las dos armas premio.
+
 ## 2026-11-13 02:45 (hora peninsular) — Hito M14 — Jefes al azar (j3): la Nube de Almacenamiento
 - Contexto: el `main` local estaba otra vez viejo (en M11); lo puse en `origin/main` (los commits
   viejos siguen en el reflog de este clon; ya estaban guardados como `main-stale` en otros). Salud al

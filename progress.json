@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T02:45:00+01:00",
+  "actualizado": "2026-11-13T03:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -128,15 +128,20 @@
     "enemigos": 27,
     "jefes": 8,
     "armas": 8,
-    "objetos": 55,
+    "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 934,
-    "tests_ok": 934,
+    "tests": 935,
+    "tests_ok": 935,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 33569
+    "lineas_codigo": 33618
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T03:30:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (l4a): los logros difíciles ya traen algo que no existía. Cinco objetos nuevos que solo se consiguen como premio: la Bolsa de Tela Reutilizable (25 partidas), la Póliza a Todo Riesgo (50 bajas), el Contenedor Amarillo (1000 electrodomésticos desmontados), la Oferta Tres por Dos (8 sinergias) y el Plástico Protector (4 jefes sin perder vida). Hasta ganarlos, agotados en todos los cofres; después, desde la planta 1. Quedan dos armas premio para el final de verdad y para ganar con los cinco productos."
+    },
     {
       "fecha": "2026-11-13T02:45:00+01:00",
       "hito": "M14",
@@ -1304,8 +1309,8 @@
       "pie": "«Almacenamiento lleno»: gris, hinchada y al 100 %, deja caer un muro de carpetas entre las dos que hay que romper a tiros"
     },
     {
-      "archivo": "capturas/merito-premio.png",
-      "pie": "M14 (l3): la ficha de un mérito sin conseguir dice su premio: la Etiquetadora de Precios, agotada en todos los cofres hasta desmontar 100 de un mismo modelo"
+      "archivo": "capturas/merito-premio-nuevo.png",
+      "pie": "M14 (l4a): «Cliente habitual» (7 de 25 partidas) promete un objeto que no sale en ningún otro sitio: la Bolsa de Tela Reutilizable"
     },
     {
       "archivo": "capturas/merito-conseguido.png",
@@ -1320,7 +1325,7 @@
       "pie": "«Centrifugado»: 1400 revoluciones en la pantalla, el ojo de buey hecho un remolino y espirales de agua mientras tiembla por la sala"
     }
   ],
-  "proximo": "M14 (j4): la Consola Edición Coleccionista, el segundo jefe de la planta 3 (diseño en docs/DISENO.md, «Jefes al azar»).",
+  "proximo": "M14 (j4): la Consola Edición Coleccionista, el segundo jefe de la planta 3; o la (l4b), dos armas nuevas solo de premio para «Fin de la garantía» y «Toda la gama».",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1347,11 +1352,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-13 02:30",
-      "tarea": "M14 (l4): armas y objetos nuevos que solo existen como premio de un logro (src/data/logros.ts, src/data/items.ts, src/data/weapons.ts, tools/sprites, tests/premios.test.ts)",
-      "desde": "2026-11-13T01:30:00Z"
-    },
     {
       "sesion": "2026-11-13 03:25",
       "tarea": "M14 (j4): la Consola Edición Coleccionista, segundo jefe de la planta 3 (src/data/enemies.ts, src/data/patterns.ts, src/data/types.ts, src/sim/enemies.ts, src/sim/world.ts, src/render/GameScene.ts, tools/sprites/consola.ts, tests/consola.test.ts)",

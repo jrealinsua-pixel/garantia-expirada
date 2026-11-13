@@ -635,6 +635,12 @@ misma silueta. Con la (7c) hecha el 2026-11-12, M13 terminado.
     `World.locked`), el reto del día sin ninguno, `tests/premios.test.ts`, e2e `62b`–`62d`.
   - [ ] (l4) Más premios que no sean lo que ya hay: armas y objetos nuevos que solo existen como
     premio de un logro (por ejemplo, para los logros difíciles que hoy no traen nada).
+    - [x] (l4a) Cinco objetos nuevos, solo de premio, para cinco logros difíciles: la Bolsa de Tela
+      Reutilizable (25 partidas), la Póliza a Todo Riesgo (50 bajas), el Contenedor Amarillo (1000
+      desmontados), la Oferta Tres por Dos (8 sinergias) y el Plástico Protector (4 jefes sin perder
+      vida). Hecho el 2026-11-13: datos y sprites, `tests/premios.test.ts`, e2e `62f`.
+    - [ ] (l4b) Dos armas nuevas, solo de premio, para «Fin de la garantía» (el final de verdad) y
+      «Toda la gama» (ganar con los cinco productos): diseño, sprite, bala y sonido.
 - [ ] PNJs que aparecen a veces en las plantas, piden cosas o proponen desafíos y, encontrados
   (según lo que se haya hecho antes), se quedan en el Mostrador: cuentan historia y desbloquean
   cosas. El Mostrador, más grande y con más cosas.

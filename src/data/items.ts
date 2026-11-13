@@ -486,6 +486,50 @@ export const ITEMS: Record<string, PassiveItemDef> = {
     // A star per combat room cleared unhurt; five of them, one more heart (and the count starts again).
     mod: { id: 'cinco-estrellas', perks: { stars: { need: 5, hp: 2 } } },
   },
+  // ---- M14 (l4): only exist as the reward of a hard achievement (src/data/logros.ts) ----
+  // Until earned, lockedContent keeps them out of every deck; once earned, from floor 1 on.
+  'bolsa-tela': {
+    id: 'bolsa-tela',
+    name: 'Bolsa de Tela Reutilizable',
+    description: 'La compraste para no pagar la de plástico. Ya tienes cuarenta en casa.',
+    sprite: 'objeto-bolsa-tela',
+    // Cliente habitual (25 runs): carries more of everything, a little slower to empty.
+    mod: { id: 'bolsa-tela', stats: [{ stat: 'magazine', mul: 1.3 }, { stat: 'reloadTime', mul: 1.1 }], perks: { coupons: 0.15 } },
+  },
+  'poliza-riesgo': {
+    id: 'poliza-riesgo',
+    name: 'Póliza a Todo Riesgo',
+    description: 'Cubre todos los riesgos menos los que corres. Cuota mensual, de por vida.',
+    sprite: 'objeto-poliza-riesgo',
+    // Siniestro total (50 downs): for whoever goes down a lot. A heart and some hits shrugged off;
+    // the paperwork weighs (walks slower).
+    mod: { id: 'poliza-riesgo', stats: [{ stat: 'maxHp', add: 2 }, { stat: 'speed', mul: 0.9 }], perks: { shrug: 0.1 } },
+  },
+  'contenedor-amarillo': {
+    id: 'contenedor-amarillo',
+    name: 'Contenedor Amarillo',
+    description: 'Separas los envases con mimo. Luego el camión lo mezcla todo.',
+    sprite: 'objeto-contenedor-amarillo',
+    // Punto limpio (1000 kills): bullets go through one enemy and bounce once, but fly slower (full of packaging).
+    mod: { id: 'contenedor-amarillo', stats: [{ stat: 'bulletSpeed', mul: 0.85 }], bullets: { pierce: 1, bounce: 1 } },
+  },
+  'oferta-tres-dos': {
+    id: 'oferta-tres-dos',
+    name: 'Oferta Tres por Dos',
+    description: 'Te llevas tres y pagas dos. La tercera viene en la próxima factura.',
+    sprite: 'objeto-oferta-tres-dos',
+    // Pack ahorro (8 synergies): two more bullets per shot, each one half as strong and more spread
+    // (one and a half times the damage if all three land, so only up close).
+    mod: { id: 'oferta-tres-dos', stats: [{ stat: 'pellets', add: 2 }, { stat: 'spreadDeg', add: 14 }, { stat: 'damage', mul: 0.5 }] },
+  },
+  'plastico-protector': {
+    id: 'plastico-protector',
+    name: 'Plástico Protector',
+    description: 'Nadie lo quita nunca. Por eso, por debajo, todo sigue como nuevo.',
+    sprite: 'objeto-plastico-protector',
+    // Estado: como nuevo (4 bosses unhurt): rolls cut bullets and the blink after a hit lasts longer; rolls again later.
+    mod: { id: 'plastico-protector', stats: [{ stat: 'rollCooldown', mul: 1.2 }], perks: { rollClear: true, hurtIframes: 1.5 } },
+  },
 };
 
 /** Passive items a floor can hand out (seeded shuffle, see planFloor in src/sim/world.ts). */

@@ -1624,5 +1624,35 @@
     "frameW": 16,
     "frameH": 16,
     "frames": 1
+  },
+  "objeto-bolsa-tela": {
+    "file": "objeto-bolsa-tela.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-poliza-riesgo": {
+    "file": "objeto-poliza-riesgo.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-contenedor-amarillo": {
+    "file": "objeto-contenedor-amarillo.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-oferta-tres-dos": {
+    "file": "objeto-oferta-tres-dos.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
+  },
+  "objeto-plastico-protector": {
+    "file": "objeto-plastico-protector.png",
+    "frameW": 16,
+    "frameH": 16,
+    "frames": 1
   }
 }

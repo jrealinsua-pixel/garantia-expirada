@@ -765,8 +765,15 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   Cartón Vacía; 100 de un modelo, la Etiquetadora de Precios; 30 objetos, la Mascota Virtual; 6
   armas, el Cable HDMI Dorado; 300 cupones, la Tarjeta de Socio; tres retos seguidos, las Cookies
   de Terceros; una planta en 4 minutos, la Llave Allen Sobrante; ganar, la Valoración de Cinco
-  Estrellas; los 5 jefes de planta, el Megáfono de Reclamaciones. Los logros más difíciles no traen
-  nada: son para presumir. Reglas: ningún premio es el arma de salida de nadie; ninguna sinergia
+  Estrellas; los 5 jefes de planta, el Megáfono de Reclamaciones. **Los logros difíciles** (M14 l4)
+  traen objetos nuevos que solo existen como premio, de la planta 1 en adelante una vez ganados:
+  25 partidas, la Bolsa de Tela Reutilizable (cargador ×1,3, recarga ×1,1, más cupones); 50 bajas,
+  la Póliza a Todo Riesgo (+1 corazón, uno de cada diez golpes no hace nada, anda ×0,9); 1000
+  bajas enemigas, el Contenedor Amarillo (las balas atraviesan a uno y rebotan una vez, más
+  lentas); 8 sinergias, la Oferta Tres por Dos (dos balas más por disparo, la mitad de daño cada
+  una, más abiertas); 4 jefes sin perder vida, el Plástico Protector (la voltereta corta balas y
+  el parpadeo tras un golpe dura ×1,5; voltereta más lenta de recuperar). Llegar al final de verdad
+  y ganar con los cinco productos quedan para dos armas premio (l4b). Reglas: ningún premio es el arma de salida de nadie; ninguna sinergia
   necesita dos premios; a la planta 1 le queda al menos un objeto y un arma «buenos» (la Caja
   Fuerte Premium); lo que cuentan los logros («30 objetos», «6 armas») se puede conseguir sin ningún
   premio. Ganado en mitad de la partida, el premio ya entra en la planta siguiente; el aviso

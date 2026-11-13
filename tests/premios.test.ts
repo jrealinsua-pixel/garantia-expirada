@@ -134,3 +134,32 @@ test('la pestaña de méritos y el aviso dicen el premio, y se escribe con la fu
     assert.ok(textWidth(fontText(meritToastReward(name))) + 46 <= 480 - 12, meritToastReward(name));
   }
 });
+
+// M14 (l4): the hard achievements bring things that did not exist before, not old loot locked away.
+test('los logros difíciles traen objetos nuevos que solo existen como premio', async () => {
+  const { modifierLines } = await import('../src/data/describe.ts');
+  const fresh: Record<string, string> = {
+    'cliente-habitual': 'bolsa-tela',
+    'siniestro-total': 'poliza-riesgo',
+    'punto-limpio': 'contenedor-amarillo',
+    'pack-ahorro': 'oferta-tres-dos',
+    'como-nuevo': 'plastico-protector',
+  };
+  for (const [ach, item] of Object.entries(fresh)) {
+    const a = ACHIEVEMENTS.find((x) => x.id === ach)!;
+    assert.deepEqual(a.reward, { kind: 'objeto', id: item }, ach);
+    const d = ITEMS[item]!;
+    assert.equal(d.level ?? 1, 1, `${item}: una vez ganado, sale desde la planta 1`);
+    assert.ok(!d.quality, `${item}: no solo de la Caja Fuerte Premium`);
+    assert.ok(LOCKED.includes(item), `${item}: sin ganar, agotado`);
+    // Not part of any synergy yet: a reward should work on its own.
+    for (const s of Object.values(SYNERGIES)) assert.ok(!(s.items ?? []).includes(item), `${item} en ${s.name}`);
+    const lines = modifierLines(d.mod);
+    assert.ok(lines.some((l) => l.good) && lines.some((l) => !l.good), `${item}: da algo y quita algo`);
+    for (const t of [d.name.toUpperCase(), meritReward(d.name, false), meritToastReward(d.name)]) {
+      for (const ch of t.toUpperCase()) assert.ok(ch === ' ' || FONT_CHARS.includes(ch), `${item}: «${ch}» no está en la fuente`);
+    }
+  }
+  // Only the ending and the five winners are left for the prize weapons of (l4b).
+  assert.deepEqual(ACHIEVEMENTS.filter((x) => !x.reward).map((x) => x.id), ['fin-garantia', 'toda-la-gama']);
+});
