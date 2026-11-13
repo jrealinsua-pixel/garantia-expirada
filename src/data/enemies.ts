@@ -32,6 +32,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       brake: 650,
       recover: 0.5,
       stun: 1.1,
+      // M14b (h9a): it does not stop at the wall, it bounces off it (twice) and keeps going.
+      rebound: 2,
+      reboundTime: 0.35,
     },
   },
   microondas: {
@@ -56,6 +59,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       telegraph: 1,
       pattern: 'microondas-anillos',
       muzzleY: 17,
+      // M14b (h9a): it goes round you like the plate inside it, and stops to heat up.
+      orbit: { speed: 34, radius: 120, flip: [2.5, 4.5] },
     },
   },
   bombilla: {
@@ -83,7 +88,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       pattern: 'bombilla-espiral',
       muzzleY: 23,
       startup: 1.8,
-      walk: { speed: 22, keep: 140 },
+      // M14b (h9a): it drifts across the room bouncing off the walls like a screensaver, its
+      // moths round it, and never stops: not even to light up.
+      drift: { speed: 26 },
     },
   },
   polilla: {
@@ -141,6 +148,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       brake: 700,
       // At a third of its life left, the slider finally moves: TURBO.
       turbo: { below: 0.34, scale: 1.45 },
+      // M14b (h9a): three lunges in a row, each re-aimed (speeds one, two and three).
+      chain: 3,
+      chainTelegraph: 0.2,
     },
   },
   mando: {
@@ -197,7 +207,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       telegraph: 0.6,
       pattern: 'impresora-facturas',
       muzzleY: 14,
-      walk: { speed: 18, keep: 150 },
+      // M14b (h9b): side to side like a print head on its rail, and it stops to print.
+      carriage: { speed: 30 },
       // Two or three volleys, then a jam: 2 s standing still (go for it), and it clears with a burst.
       jam: { after: [2, 3], time: 2, pattern: 'impresora-atasco', telegraph: 0.7 },
     },
@@ -287,6 +298,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       recover: 0.7,
       // Everyone it told attacks sooner for a while: being watched live, nobody slacks off.
       rush: { time: 4, scale: 1.6 },
+      // M14b (h9b): it only moves when you are not looking, round behind your back.
+      shy: { cone: 35, speed: 75 },
     },
   },
   // Floor 3 (Juguetería). Toys that punish standing still and not watching the floor.

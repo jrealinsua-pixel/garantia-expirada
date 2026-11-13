@@ -536,6 +536,13 @@ export interface ChargerBrain {
   brake: number;
   recover: number;
   stun: number;
+  /**
+   * Walls it bounces off in one charge before it stops (M14b (h9a)): it hits the wall, turns like
+   * a billiard ball and goes on charging, `reboundTime` s more each time. Without it, the first
+   * wall stuns it.
+   */
+  rebound?: number;
+  reboundTime?: number;
 }
 
 /**
@@ -554,6 +561,21 @@ export interface TurretBrain {
   startup?: number;
   /** If present, it walks between attacks to stay about `keep` px from the player. */
   walk?: { speed: number; keep: number };
+  /**
+   * If present (M14b (h9a)), it circles the player at about `radius` px between attacks, at
+   * `speed` px/s, and turns the other way now and then (every `flip` s) or when something stops it.
+   */
+  orbit?: { speed: number; radius: number; flip: [number, number] };
+  /**
+   * If present (M14b (h9a)), it never stops drifting: in a slanted straight line at `speed` px/s,
+   * bouncing off walls and furniture like a ball, also while it warns and fires.
+   */
+  drift?: { speed: number };
+  /**
+   * If present (M14b (h9b)), it runs from side to side like a print head on its rail: only along
+   * x, at `speed` px/s, turning back at walls and furniture; it stops to fire.
+   */
+  carriage?: { speed: number };
   /**
    * If present, it jams: after `after` volleys (random in the range) it stands shaking for `time` s
    * without attacking (the opening), then clears the jam by firing `pattern` with `telegraph` s of
@@ -604,6 +626,12 @@ export interface ChaserBrain {
   /** Deceleration while braking (px/s²). */
   brake: number;
   turbo?: { below: number; scale: number };
+  /**
+   * Lunges in a row (M14b (h9a)): after the first, `chain - 1` more, each re-aimed at the player
+   * with only `chainTelegraph` s of warning. A burst, not a lunge.
+   */
+  chain?: number;
+  chainTelegraph?: number;
 }
 
 /**
@@ -1027,6 +1055,12 @@ export interface WatcherBrain {
   muzzleY: number;
   recover: number;
   rush: { time: number; scale: number };
+  /**
+   * If present (M14b (h9b)), it only moves when you are not looking (your aim more than `cone`
+   * degrees away from it): then it sneaks at `speed` px/s to a spot `keep` px behind your back.
+   * Looked at, it freezes.
+   */
+  shy?: { cone: number; speed: number };
 }
 
 /**

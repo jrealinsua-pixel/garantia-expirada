@@ -113,3 +113,25 @@ test('en la planta 2 salen impresoras; en la 1, ninguna', () => {
   }
   assert.ok(p2 >= 5, `impresoras en 10 plantas 2: ${p2}`);
 });
+
+test('va de lado a lado como el cabezal por su carril: solo en horizontal, da la vuelta en la pared y se para a imprimir (M14b (h9b))', () => {
+  assert.ok(brain.carriage && !brain.walk);
+  const w = office('carril');
+  const en = w.enemies[0]!;
+  en.state = 'idle';
+  en.until = 999;
+  const y0 = en.y;
+  const dirs = new Set<number>();
+  for (let i = 0; i < Math.ceil(30 / DT); i++) {
+    const x = en.x;
+    step(w, NO_INPUT);
+    if (Math.abs(en.x - x) > 0.05) dirs.add(Math.sign(en.x - x));
+    assert.ok(Math.abs(en.y - y0) < 0.5, 'se sale del carril');
+  }
+  assert.equal(dirs.size, 2, 'da la vuelta en la pared');
+  // Printing, it stands still.
+  en.state = 'fire';
+  const x0 = en.x;
+  for (let i = 0; i < 30; i++) step(w, NO_INPUT);
+  assert.ok(Math.abs(en.x - x0) < 0.5);
+});

@@ -221,7 +221,9 @@ try {
   await page.keyboard.up('s');
 
   // Bombilla de Bajo Consumo and its moth: stand at a distance and wait for the spiral.
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const b = w.enemies.find((e) => e.def.id === 'bombilla');
+  // (It drifts about since M14b (h9a): if a stray shot already took it apart, a fresh one.)
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; let b = w.enemies.find((e) => e.def.id === 'bombilla');
+    if (!b) { window.__GE__.spawnIdle('bombilla', 300, 140); b = w.enemies.find((e) => e.def.id === 'bombilla'); }
     w.player.x = b.x + 20; w.player.y = b.y + 110; })()`);
   const bulb = await page.evaluate<{ x: number; y: number }>(`(() => { const b = window.__GE__.scene.world.enemies.find((e) => e.def.id === 'bombilla'); return { x: b.x, y: b.y - 20 }; })()`);
   await aimAt(bulb.x, bulb.y);
@@ -231,7 +233,8 @@ try {
   await shot('08-bombilla.png');
 
   // Batidora de Mano: let it come close, and catch it winding up for a lunge, already in TURBO.
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const m = w.enemies.find((e) => e.def.id === 'batidora');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; let m = w.enemies.find((e) => e.def.id === 'batidora');
+    if (!m) { window.__GE__.spawnIdle('batidora', w.player.x + 120, w.player.y); m = w.enemies.find((e) => e.def.id === 'batidora'); }
     m.damageTaken = Math.ceil(m.def.hp * 0.7); w.player.x = m.x - 70; w.player.y = m.y; })()`);
   const mixerWinding = `(() => { const m = window.__GE__.scene.world.enemies.find((e) => e.def.id === 'batidora');
     return !!m && m.state === 'warn' && m.turbo && m.t > m.until * 0.5; })()`;
@@ -2854,7 +2857,7 @@ try {
   const starched = await page.evaluate<boolean>("window.__GE__.scene.world.enemies.some((e) => e.slowLook === 'starch' && e.slowT > 0)");
   if (!starched) throw new Error('El Pulverizador de Almidón no deja tieso a nadie');
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.enemies = []; w.bullets = []; const p = w.player;
-    window.__GE__.spawnIdle('microondas', p.x + 40, p.y + 7); window.__GE__.spawnIdle('aspirador', p.x + 80, p.y - 7); })()`);
+    window.__GE__.spawnIdle('aspirador', p.x + 40, p.y + 7); window.__GE__.spawnIdle('aspirador', p.x + 80, p.y - 7); })()`);
   await aimAt(starchAt.x + 120, starchAt.y - 40);
   await page.keyboard.down('d');
   await page.waitForTimeout(1100);

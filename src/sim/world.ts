@@ -479,6 +479,10 @@ export interface Enemy {
   tagT?: number;
   /** Turrets that jam: volleys left before the next jam. */
   volleys?: number;
+  /** Walls left to bounce off in this charge, or lunges left in this burst (M14b (h9a)). */
+  bounces?: number;
+  /** An orbiting turret: seconds until it turns the other way round (M14b (h9a)). */
+  flipT?: number;
   /** Bosses: index of the phase it is in, and of the attack it is doing or did last. */
   bossPhase?: number;
   attack?: number;

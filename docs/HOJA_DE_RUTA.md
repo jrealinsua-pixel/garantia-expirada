@@ -687,9 +687,14 @@ juegos del género» de `docs/DISENO.md`.
 - [ ] (h9) Enemigos con movimientos propios. Hoy casi todos se acercan, se paran y disparan.
   Repasar los ~30 y darle a cada uno una forma de moverse que no tenga otro (saltar a donde estás,
   embestir en línea recta y rebotar, rodear, esconderse e invulnerable, dividirse al morir,
-  teletransportarse, flotar en diagonal rebotando en las paredes, cavar…), con su aviso. Se parte
-  en tareas por planta: (h9a) planta 1, (h9b) planta 2, (h9c) planta 3, (h9d) planta 4,
-  (h9e) planta 5 y el Servicio Técnico.
+  teletransportarse, flotar en diagonal rebotando en las paredes, cavar…), con su aviso. Por plantas:
+  - [x] (h9a) Planta 1. Hecho el 2026-11-13: el aspirador rebota en las paredes, el microondas
+    gira a tu alrededor, la bombilla flota en diagonal rebotando, la batidora embiste tres veces.
+  - [x] (h9b) Planta 2. Hecho el 2026-11-13: la impresora va de lado a lado por su carril y la
+    webcam solo se mueve cuando no la miras (se pone detrás de ti).
+  - [ ] (h9c) Planta 3.
+  - [ ] (h9d) Planta 4.
+  - [ ] (h9e) Planta 5 y el Servicio Técnico.
 - [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
   ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada

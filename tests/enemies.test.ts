@@ -5,7 +5,7 @@ import type { ChargerBrain, MothBrain, TurretBrain } from '../src/data/types.ts'
 import { PATTERNS } from '../src/data/patterns.ts';
 import { expandPattern } from '../src/sim/patterns.ts';
 import { Rng } from '../src/sim/rng.ts';
-import { createWorld, NO_INPUT, sourceTelegraph, activeWarnings, step, type SimEvent, type World } from '../src/sim/world.ts';
+import { checkInvariants, createWorld, DT, NO_INPUT, sourceTelegraph, activeWarnings, step, type SimEvent, type World } from '../src/sim/world.ts';
 
 const ROW3 = 3 * 24 + 12;
 const asp = ENEMIES.aspirador!;
@@ -70,15 +70,25 @@ test('aspirador: avisa, carga en línea recta hacia donde estabas y frena', () =
   assert.ok(Math.hypot(en.vx, en.vy) <= brain.walkSpeed + 1);
 });
 
-test('aspirador: si choca con la pared se queda aturdido', () => {
+test('aspirador: rebota en la pared y sigue embistiendo; a la tercera pared, o al acabar, se para (M14b (h9a))', () => {
+  assert.equal(brain.rebound, 2);
   // Player near the right wall, vacuum charging towards it: it goes past and hits the wall.
   const w = arena(470, 590);
+  w.noDamage = true;
   const en = w.enemies[0]!;
   w.player.x = 590;
   const bonk = runUntil(w, (e) => e.type === 'bonk', 900);
-  assert.ok(bonk, 'choca');
-  assert.equal(en.state, 'stun');
+  assert.ok(bonk && bonk.type === 'bonk', 'choca');
+  assert.equal(en.state, 'charge', 'sigue embistiendo');
+  assert.ok(en.dirX < 0, 'de vuelta, en espejo');
   assert.ok(en.x < w.room.w - 24);
+  // It ends up stopping: stunned against a wall, or braking at the end of its run.
+  let end = '';
+  for (let i = 0; i < 120 && !end; i++) {
+    step(w, NO_INPUT);
+    if (en.state === 'stun' || en.state === 'brake') end = en.state;
+  }
+  assert.ok(end, 'no se para');
 });
 
 test('aspirador: al embestir empuja a la tostadora y le quita medio corazón', () => {
@@ -158,7 +168,28 @@ test('microondas: calienta un segundo (avisando) y dispara sus anillos', () => {
     for (const x of w.bullets) if (x.owner === 'enemy') seen.add(x.id);
   }
   assert.equal(seen.size, expected);
-  assert.equal(en.x, x0, 'no se mueve');
+});
+
+test('microondas: da vueltas alrededor de la tostadora entre ataque y ataque, y se para a calentar (M14b (h9a))', () => {
+  const w = kitchen(300, 112);
+  w.noDamage = true;
+  const en = w.enemies[0]!;
+  en.state = 'idle';
+  en.until = 99;
+  const p = w.player;
+  const a0 = Math.atan2(en.y - p.y, en.x - p.x);
+  for (let i = 0; i < 90; i++) step(w, NO_INPUT);
+  const a1 = Math.atan2(en.y - p.y, en.x - p.x);
+  let turned = Math.abs(a1 - a0);
+  if (turned > Math.PI) turned = 2 * Math.PI - turned;
+  assert.ok(turned > 0.15, `gira alrededor (${turned.toFixed(2)} rad)`);
+  // Heating up and firing, it stands still.
+  en.until = 0;
+  runUntil(w, (e) => e.type === 'telegraph' && e.source === en.id, 120);
+  const x0 = en.x;
+  const y0 = en.y;
+  for (let i = 0; i < 30 && (en.state as string) === 'fire'; i++) step(w, NO_INPUT);
+  assert.ok(Math.hypot(en.x - x0, en.y - y0) < 1, 'se mueve mientras calienta');
 });
 
 test('microondas: no dispara si la tostadora está lejos', () => {
@@ -171,6 +202,8 @@ test('microondas: no dispara si la tostadora está lejos', () => {
 test('microondas: las balas no lo mueven', () => {
   const w = kitchen(300, 112);
   const en = w.enemies[0]!;
+  // (Heating up, so it does not walk round by itself.)
+  en.state = 'fire';
   en.until = 99;
   const x0 = en.x;
   let hits = 0;
@@ -224,24 +257,36 @@ test('bombilla: avisa largo y dispara su espiral de chispas cian', () => {
   assert.equal(seen.size, expected);
 });
 
-test('bombilla: guarda las distancias (se aleja si te acercas, se acerca si te alejas)', () => {
-  const near = office(0, 0, false);
-  const en = near.enemies[0]!;
-  near.player.x = en.x + 40;
-  near.player.y = en.y + 60;
-  en.state = 'idle';
-  en.until = 99;
-  const d0 = Math.hypot(near.player.x - en.x, near.player.y - en.y);
-  for (let i = 0; i < 60; i++) step(near, NO_INPUT);
-  assert.ok(Math.hypot(near.player.x - en.x, near.player.y - en.y) > d0 + 10, 'se aleja');
-
-  const far = office(40, 340, false);
-  const fe = far.enemies[0]!;
-  fe.state = 'idle';
-  fe.until = 99;
-  const f0 = Math.hypot(far.player.x - fe.x, far.player.y - fe.y);
-  for (let i = 0; i < 60; i++) step(far, NO_INPUT);
-  assert.ok(Math.hypot(far.player.x - fe.x, far.player.y - fe.y) < f0 - 10, 'se acerca');
+test('bombilla: no para de flotar en diagonal y rebota en las paredes, también mientras se enciende y dispara (M14b (h9a))', () => {
+  const w = office(330, 140, false);
+  w.noDamage = true;
+  const en = w.enemies[0]!;
+  // Switching on (off), it does not move yet.
+  const x0 = en.x;
+  for (let i = 0; i < 30; i++) step(w, NO_INPUT);
+  assert.ok(Math.abs(en.x - x0) < 0.5, 'apagada no flota');
+  for (let i = 0; i < Math.round(bulbBrain.startup! * 60); i++) step(w, NO_INPUT);
+  let flips = 0;
+  let lastX = Math.sign(en.dirX);
+  let lastY = Math.sign(en.dirY);
+  let firing = 0;
+  let movedFiring = 0;
+  for (let i = 0; i < 60 * 14; i++) {
+    const px = en.x;
+    const py = en.y;
+    step(w, NO_INPUT);
+    if (en.state === 'fire') {
+      firing++;
+      movedFiring += Math.hypot(en.x - px, en.y - py);
+    }
+    if (Math.sign(en.dirX) !== lastX || Math.sign(en.dirY) !== lastY) flips++;
+    lastX = Math.sign(en.dirX);
+    lastY = Math.sign(en.dirY);
+    assert.ok(Math.abs(en.dirX) > 0.3 && Math.abs(en.dirY) > 0.3, 'siempre en diagonal');
+  }
+  assert.ok(flips >= 2, `rebota (${flips})`);
+  assert.ok(firing > 0 && movedFiring > firing * bulbBrain.drift!.speed * DT * 0.5, 'flota también disparando');
+  assert.deepEqual(checkInvariants(w), []);
 });
 
 test('polilla: da vueltas alrededor de su bombilla sin alejarse', () => {

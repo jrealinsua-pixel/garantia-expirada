@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T15:51:00+01:00",
+  "actualizado": "2026-11-13T17:03:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 951,
-    "tests_ok": 951,
+    "tests": 955,
+    "tests_ok": 955,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34132
+    "lineas_codigo": 34274
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T17:03:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h9a)–(h9b): cada enemigo de las plantas 1 y 2 se mueve a su manera: el aspirador rebota en las paredes, el microondas gira a tu alrededor, la bombilla flota en diagonal como un salvapantallas, la batidora embiste tres veces seguidas, la impresora va de lado a lado por su carril y la webcam solo se mueve cuando no la miras."
+    },
     {
       "fecha": "2026-11-13T15:51:00+01:00",
       "hito": "M14b",
@@ -1374,7 +1379,7 @@
       "pie": "M14 (l3): el aviso «Mérito conseguido» con su premio: la primera baja mete la Garantía Extendida en los cofres"
     }
   ],
-  "proximo": "M14b (h7) saltar rodando por encima de mesas y obstáculos bajos; o (h9a) los enemigos de la planta 1 con movimiento propio.",
+  "proximo": "M14b (h9c): los enemigos de la planta 3 con movimiento propio; o (h7) saltar por encima de los obstáculos bajos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1403,11 +1408,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-13 15:50",
-      "tarea": "M14b (h9a): movimientos propios para los enemigos de la planta 1 (src/data/enemies.ts, src/sim/enemies.ts, tests de esos enemigos)",
-      "desde": "2026-11-13T14:50:00Z"
-    },
     {
       "sesion": "2026-11-13 15:41",
       "tarea": "M14b (h7): saltar rodando por encima de mesas y obstáculos bajos (src/sim/world.ts colisiones con props, src/sim/player, tests/saltar.test.ts)",

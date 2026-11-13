@@ -2,6 +2,54 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 17:55 (hora peninsular) — Hito M14b — (h9b) Los enemigos de la planta 2, con movimiento propio
+- Hecho: M14b (h9b). De los cuatro de Informática, el Cargador Falso (espera tirado y se lanza) y
+  el Ratón sin Pilas (se congela y aparece más cerca) ya tenían un verbo propio; los otros dos
+  guardaban las distancias, como hacía la bombilla. Ahora:
+  - **Impresora**: va de lado a lado como el cabezal de impresión por su carril
+    (`TurretBrain.carriage`, 30 px/s, solo en horizontal, da la vuelta al chocar) y se para a
+    imprimir. Con dos en una sala, barren la sala en carriles.
+  - **Webcam**: solo se mueve cuando no la miras (`WatcherBrain.shy`: con la mira a más de 35° de
+    ella), y entonces se escabulle a 75 px/s hasta 150 px detrás de tu espalda; mirada, se queda
+    quieta. Graba como antes. Obliga a girarse, que es lo que hace una cámara que te vigila.
+  Tests nuevos en `tests/impresora.test.ts` (el carril) y `tests/webcam.test.ts` (quieta mirada,
+  detrás de ti de espaldas).
+- e2e más robusto: la bombilla flota ahora por la Sala de Pruebas y a veces se cruzaba con los
+  disparos al maniquí y caía antes de su captura (el paso fallaba al empezar); si no está, se pone
+  una (y lo mismo con la batidora). La prueba de la suela de la Plancha usa dos aspiradores quietos
+  (el microondas ya no se está quieto).
+- Medidas (`npm run bot`): la planta 2 la gana el 60 % de los que llegan (10 de 20), 0,82 heridas
+  por sala de combate; 953 → 955 tests en verde; e2e entero en verde.
+- Siguiente paso: (h9c), los de la planta 3 (robot de cuerda, coche, carretilla, cubo, sobre); o
+  la (h7), saltar por encima de los obstáculos bajos.
+
+## 2026-11-13 17:00 (hora peninsular) — Hito M14b — (h9a) Los enemigos de la planta 1, cada uno con su movimiento
+- Hecho: M14b (h9a). El humano notaba que casi todos se mueven igual (acercarse, pararse,
+  disparar). Cada enemigo de la planta 1 tiene ahora un verbo propio, con parámetros en los datos
+  y no casos especiales en el motor:
+  - **Aspirador**: rebota en las paredes como una bola de billar (`ChargerBrain.rebound`: dos
+    rebotes por carga, 0,35 s más cada uno, en espejo y nunca en línea recta con la pared); a la
+    tercera pared se queda aturdido, como antes a la primera.
+  - **Microondas**: da vueltas alrededor de la tostadora como el plato de dentro
+    (`TurretBrain.orbit`: 34 px/s a unos 120 px, cambiando de sentido cada 2,5–4,5 s o al
+    tropezar); se para a calentar y a disparar. Antes no se movía nunca.
+  - **Bombilla**: flota en diagonal sin parar y rebota en paredes y muebles como un salvapantallas
+    (`TurretBrain.drift`, 26 px/s), también mientras avisa y dispara su espiral; con su polilla
+    alrededor, es un enjambre que cruza la sala. Antes guardaba las distancias.
+  - **Batidora**: tres embestidas seguidas, cada una apuntada otra vez con un aviso de 0,2 s
+    (`ChaserBrain.chain` y `chainTelegraph`). Con el turbo, más deprisa.
+  - El **Mando** (teletransporte) y la **Polilla** (vuelo en órbita y picado) ya eran únicos.
+  Tests: el aspirador que rebota, el microondas que gira y se para a calentar, la bombilla que
+  rebota en diagonal y flota disparando, y las tres embestidas de la batidora; los de la Plancha y
+  las cintas usan un microondas sin órbita (lo que prueban es otra cosa).
+- Decisiones: los rebotes del aspirador se cuentan por carga y no por sala; el microondas gira
+  solo entre ataques para que su aviso de 1 s siga leyéndose; la bombilla flota también disparando
+  porque así su espiral nunca sale del mismo sitio dos veces.
+- Medidas (`npm run bot`): la planta 1 la gana el **50 %** (antes de esta tarea, 70–75 %; antes
+  de la (h1), 40 %), con 0,62 heridas y 11,7 s por sala de combate; 3,1 heridas/min en la Sala de
+  Pruebas (2,6). Llegan a la planta 2 diez de 20. 953 tests en verde; e2e entero en verde.
+- Siguiente paso: (h9b), los de la planta 2 (impresora, cargador, ratón, webcam); o la (h7).
+
 ## 2026-11-13 15:50 (hora peninsular) — Hito M14b — (h8) Hitboxes que se corresponden con el dibujo
 - Hecho: M14b (h8). Medí la caja de golpe de cada enemigo contra su dibujo (el primer fotograma,
   píxeles opacos, respecto al ancla): **cubrían solo el 48–74 % del dibujo** (el aspirador, el

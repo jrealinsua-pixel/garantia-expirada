@@ -261,6 +261,7 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
       approach(en, 0, 0, KNOCK_FRICTION);
       if (en.t >= en.until) {
         enter(en, 'charge', b.chargeTime);
+        en.bounces = b.rebound ?? 0;
         en.vx = en.dirX * b.chargeSpeed;
         en.vy = en.dirY * b.chargeSpeed;
         w.events.push({ type: 'charge', x: en.x, y: en.y, dirX: en.dirX, dirY: en.dirY, source: en.id });
@@ -291,6 +292,20 @@ function updateCharger(w: World, en: Enemy, b: ChargerBrain): void {
   en.moved += Math.hypot(en.x - ox, en.y - oy);
   if (en.state === 'charge' && ((hit.hitX && Math.abs(en.dirX) > 0.3) || (hit.hitY && Math.abs(en.dirY) > 0.3))) {
     w.events.push({ type: 'bonk', x: en.x + en.dirX * en.def.footRadius, y: en.y - 6, dirX: en.dirX, dirY: en.dirY, source: en.id });
+    if ((en.bounces ?? 0) > 0) {
+      // A billiard ball (M14b (h9a)): off the wall it goes on charging, mirrored, a little longer.
+      en.bounces = (en.bounces ?? 1) - 1;
+      if (hit.hitX) en.dirX = -en.dirX;
+      if (hit.hitY) en.dirY = -en.dirY;
+      const d = slanted(en.dirX, en.dirY, 0.25);
+      en.dirX = d.x;
+      en.dirY = d.y;
+      en.facing = en.dirX >= 0 ? 1 : -1;
+      en.until = en.t + (b.reboundTime ?? 0.4);
+      en.vx = en.dirX * b.chargeSpeed;
+      en.vy = en.dirY * b.chargeSpeed;
+      return;
+    }
     enter(en, 'stun', b.stun);
     // Small bounce back off the wall.
     en.vx = -en.dirX * 60;
@@ -656,6 +671,7 @@ function updateChaser(w: World, en: Enemy, b: ChaserBrain): void {
         en.dirX = d.x;
         en.dirY = d.y;
         en.facing = d.x >= 0 ? 1 : -1;
+        en.bounces = undefined;
         enter(en, 'warn', b.telegraph);
         w.events.push({ type: 'telegraph', x: en.x, y: en.y - 2, time: b.telegraph / k, aim: Math.atan2(d.y, d.x), aimed: true, color: 'red', source: en.id });
       }
@@ -673,11 +689,28 @@ function updateChaser(w: World, en: Enemy, b: ChaserBrain): void {
     case 'charge':
       en.vx = en.dirX * b.lungeSpeed;
       en.vy = en.dirY * b.lungeSpeed;
-      if (en.t >= en.until) enter(en, 'brake', b.recover);
+      if (en.t >= en.until) {
+        // A burst (M14b (h9a)): the first lunge sets how many follow it.
+        if (en.bounces === undefined) en.bounces = (b.chain ?? 1) - 1;
+        enter(en, 'brake', en.bounces > 0 ? Math.min(b.recover, 0.12) : b.recover);
+      }
       break;
     case 'brake':
       approach(en, 0, 0, b.brake);
-      if (en.t >= en.until) enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]) / k);
+      if (en.t >= en.until && (en.bounces ?? 0) > 0 && !w.over) {
+        // The next lunge of the burst, re-aimed, with a short warning.
+        en.bounces = (en.bounces ?? 1) - 1;
+        const d = normalize(toX, toY);
+        en.dirX = d.x;
+        en.dirY = d.y;
+        en.facing = d.x >= 0 ? 1 : -1;
+        const tg = b.chainTelegraph ?? b.telegraph;
+        enter(en, 'warn', tg);
+        w.events.push({ type: 'telegraph', x: en.x, y: en.y - 2, time: tg / k, aim: Math.atan2(d.y, d.x), aimed: true, color: 'red', source: en.id });
+      } else if (en.t >= en.until) {
+        en.bounces = undefined;
+        enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]) / k);
+      }
       break;
     default:
       enter(en, 'walk', w.rng.range(b.cooldown[0], b.cooldown[1]));
@@ -817,7 +850,21 @@ function updateWatcher(w: World, en: Enemy, b: WatcherBrain): void {
       const mx = (toX / d) * sign - (toY / d) * side;
       const my = (toY / d) * sign + (toX / d) * side;
       const ml = Math.hypot(mx, my) || 1;
-      if (sign !== 0) {
+      if (b.shy) {
+        // Only when you are not looking (M14b (h9b)): then it sneaks round behind your back.
+        const at = Math.atan2(en.y - p.y, en.x - p.x);
+        let off = Math.abs(at - p.aim) % (Math.PI * 2);
+        if (off > Math.PI) off = Math.PI * 2 - off;
+        if (off > (b.shy.cone * Math.PI) / 180) {
+          const gx = p.x - Math.cos(p.aim) * b.keep - en.x;
+          const gy = p.y - Math.sin(p.aim) * b.keep - en.y;
+          const gl = Math.hypot(gx, gy);
+          if (gl > 6) {
+            walkX = (gx / gl) * b.shy.speed;
+            walkY = (gy / gl) * b.shy.speed;
+          }
+        }
+      } else if (sign !== 0) {
         walkX = (mx / ml) * b.walkSpeed;
         walkY = (my / ml) * b.walkSpeed;
       }
@@ -971,6 +1018,43 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
     walkX = sign !== 0 ? (mx / ml) * b.walk.speed : 0;
     walkY = sign !== 0 ? (my / ml) * b.walk.speed : 0;
   }
+  if (b.orbit && en.state === 'idle') {
+    // Round the player like a plate in a microwave (M14b (h9a)): along the circle, pulled back
+    // onto it if it strays; the way round changes now and then.
+    if (en.phase === 0) en.phase = w.rng.chance(0.5) ? 1 : -1;
+    en.flipT = (en.flipT ?? w.rng.range(b.orbit.flip[0], b.orbit.flip[1])) - DT;
+    if (en.flipT <= 0) {
+      en.phase = -en.phase;
+      en.flipT = w.rng.range(b.orbit.flip[0], b.orbit.flip[1]);
+    }
+    const d = Math.hypot(p.x - en.x, p.y - en.y) || 1;
+    const ux = (p.x - en.x) / d;
+    const uy = (p.y - en.y) / d;
+    const pull = Math.max(-1, Math.min(1, (d - b.orbit.radius) / 40));
+    const mx = -uy * en.phase + ux * pull;
+    const my = ux * en.phase + uy * pull;
+    const ml = Math.hypot(mx, my) || 1;
+    walkX = (mx / ml) * b.orbit.speed;
+    walkY = (my / ml) * b.orbit.speed;
+  }
+  if (b.carriage && en.state === 'idle') {
+    // Side to side on its rail, like a print head (M14b (h9b)).
+    if (en.phase === 0) en.phase = w.rng.chance(0.5) ? 1 : -1;
+    walkX = en.phase * b.carriage.speed;
+    walkY = 0;
+  }
+  if (b.drift && en.state !== 'off') {
+    // Always drifting in a slanted line (M14b (h9a)), also while it warns and fires.
+    if (Math.abs(en.dirX) < 0.3 || Math.abs(en.dirY) < 0.3) {
+      // (Not set yet, or knocked straight: a fresh slanted heading.)
+      const a = w.rng.range(0, Math.PI * 2);
+      const d = slanted(Math.cos(a), Math.sin(a), 0.4);
+      en.dirX = d.x;
+      en.dirY = d.y;
+    }
+    walkX = en.dirX * b.drift.speed;
+    walkY = en.dirY * b.drift.speed;
+  }
   // Bullets and bumps may still nudge it if its data allows.
   approach(en, walkX, walkY, KNOCK_FRICTION);
   if (en.vx !== 0 || en.vy !== 0) {
@@ -979,7 +1063,14 @@ function updateTurret(w: World, en: Enemy, b: TurretBrain): void {
     const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
     en.moved += Math.hypot(en.x - ox, en.y - oy);
     // Stuck against something while walking: sidestep the other way next time.
-    if (b.walk && (hit.hitX || hit.hitY) && Math.hypot(en.x - ox, en.y - oy) < b.walk.speed * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
+    if ((b.walk || b.orbit) && (hit.hitX || hit.hitY) && Math.hypot(en.x - ox, en.y - oy) < (b.walk?.speed ?? b.orbit?.speed ?? 0) * DT * 0.3) en.phase = en.phase >= 0 ? -1 : 1;
+    // A print head turns back at the end of its rail.
+    if (b.carriage && hit.hitX) en.phase = en.phase >= 0 ? -1 : 1;
+    // A drifter bounces off what it hits, like a ball.
+    if (b.drift) {
+      if (hit.hitX) en.dirX = -en.dirX;
+      if (hit.hitY) en.dirY = -en.dirY;
+    }
   }
 }
 

@@ -126,3 +126,24 @@ test('la webcam es determinista y sale en la planta 2', () => {
   }
   assert.ok(n >= 3, `webcams en 10 plantas 2: ${n}`);
 });
+
+test('solo se mueve cuando no la miras: mirada, se queda quieta; de espaldas, se va detrás de ti (M14b (h9b))', () => {
+  assert.ok(brain.shy);
+  const w = desk('timida');
+  const en = w.enemies[0]!;
+  en.state = 'walk';
+  en.until = 999;
+  const p = w.player;
+  // Aiming at it: frozen.
+  const x0 = en.x;
+  const y0 = en.y;
+  for (let i = 0; i < ticks(1); i++) step(w, { ...NO_INPUT, aimX: en.x, aimY: en.y - 10 });
+  assert.ok(Math.hypot(en.x - x0, en.y - y0) < 1, 'se mueve mirándola');
+  // Aiming away from it (up the screen): it sneaks round behind the toaster.
+  const behind = (): number => Math.hypot(en.x - (p.x - Math.cos(p.aim) * brain.keep), en.y - (p.y - Math.sin(p.aim) * brain.keep));
+  for (let i = 0; i < 3; i++) step(w, { ...NO_INPUT, aimX: p.x, aimY: p.y - 200 });
+  const d0 = behind();
+  for (let i = 0; i < ticks(1); i++) step(w, { ...NO_INPUT, aimX: p.x, aimY: p.y - 200 });
+  assert.ok(Math.hypot(en.x - x0, en.y - y0) > 30, 'no se mueve de espaldas');
+  assert.ok(behind() < d0 - 30, 'no va detrás de la tostadora');
+});

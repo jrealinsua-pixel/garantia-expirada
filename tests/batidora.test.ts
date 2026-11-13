@@ -52,8 +52,31 @@ test('batidora: de cerca avisa, se lanza en línea recta y frena', () => {
   const x0 = en.x;
   for (let i = 0; i < Math.round(brain.lungeTime * 60); i++) step(w, NO_INPUT);
   assert.ok(en.x - x0 > brain.lungeSpeed * brain.lungeTime * 0.6, `recorre la embestida (${(en.x - x0).toFixed(1)} px)`);
-  for (let i = 0; i < 10; i++) step(w, NO_INPUT);
+  for (let i = 0; i < 4; i++) step(w, NO_INPUT);
   assert.equal(en.state, 'brake');
+});
+
+test('batidora: tres embestidas seguidas, cada una apuntada otra vez y con un aviso corto (M14b (h9a))', () => {
+  assert.equal(brain.chain, 3);
+  const w = arena(200, 250);
+  w.noDamage = true;
+  const en = w.enemies[0]!;
+  runUntil(w, (e) => e.type === 'telegraph' && e.source === en.id);
+  const lunges: { dirX: number; dirY: number }[] = [];
+  const warns: number[] = [];
+  for (let i = 0; i < 150; i++) {
+    // The toaster walks down meanwhile: each lunge is re-aimed.
+    step(w, { ...NO_INPUT, moveY: 1 });
+    for (const e of w.events) {
+      if (e.type === 'lunge' && e.source === en.id) lunges.push({ dirX: e.dirX, dirY: e.dirY });
+      if (e.type === 'telegraph' && e.source === en.id) warns.push(e.time);
+    }
+    if (en.state === 'walk') break;
+  }
+  assert.equal(lunges.length, 3, `${lunges.length} embestidas`);
+  assert.ok(warns.length >= 2 && warns.every((t) => t <= brain.chainTelegraph! + 1e-9), 'avisos cortos');
+  assert.ok(lunges[2]!.dirY > lunges[0]!.dirY + 0.05, 'apunta otra vez');
+  assert.equal(en.state, 'walk');
 });
 
 test('batidora: el golpe quita medio corazón', () => {
