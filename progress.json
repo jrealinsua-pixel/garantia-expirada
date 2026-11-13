@@ -1417,6 +1417,11 @@
       "sesion": "2026-11-13 16:55",
       "tarea": "M14b (h11b): decoración por planta (src/art/room.ts y src/art/<planta>.ts, el pintor de salas; tests/decoracion.test.ts)",
       "desde": "2026-11-13T15:55:00Z"
+    },
+    {
+      "sesion": "2026-11-13 18:10",
+      "tarea": "M14b (h9c): movimientos propios para los enemigos de la planta 3 (src/data/enemies.ts, src/sim/enemies.ts, src/data/types.ts, tests de esos enemigos)",
+      "desde": "2026-11-13T17:10:00Z"
     }
   ]
 }
