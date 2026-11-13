@@ -64,17 +64,21 @@ test('aguanta unos disparos, se enciende y explota: daña a los enemigos de alre
   const far = idle(w, 'aspirador', 420, 300);
   // Shoot it until it goes up.
   let shots = 0;
+  let shotsToLight = 0; // hits it takes before it is lit
   let lit = false;
   for (let i = 0; i < ticks(10) && w.room.props.includes(pr); i++) {
     // Straight at it: the bullet's shadow runs along the floor into the drum.
     step(w, { ...NO_INPUT, fire: true, aimX: pr.x, aimY: w.player.y - HAND_HEIGHT });
     shots += w.events.filter((e) => e.type === 'shot').length;
     lit ||= w.events.some((e) => e.type === 'propLit');
+    if (!lit) shotsToLight += w.events.filter((e) => e.type === 'propHit').length;
   }
   assert.ok(lit, 'se enciende antes de explotar');
   assert.ok(!w.room.props.includes(pr), 'el bidón ya no está');
   assert.ok(shots >= 3, `aguanta unos cuantos disparos del Secador (${shots})`);
-  assert.equal(near.damageTaken, Math.min(DRUM.blast!.damage, near.def.hp), "el que está cerca se lleva la explosión entera (o cae)");
+  // M14b (h5): but not many more: it was slow to go up.
+  assert.ok(shotsToLight <= 4, `y se enciende pronto (${shotsToLight} impactos)`);
+  assert.equal(near.damageTaken, Math.min(DRUM.blast!.damage, near.def.hp), 'el que está cerca se lleva la explosión entera (o cae)');
   assert.equal(far.damageTaken, 0);
   assert.deepEqual(checkInvariants(w), []);
 });
@@ -118,9 +122,11 @@ test('en cadena: un bidón que explota enciende a los vecinos, y explotan uno de
   const w = bare('bidon-cadena');
   w.noDamage = true;
   const a = drum(w, 240, 250);
-  const b = drum(w, 240 + TILE, 250);
-  const c = drum(w, 240 + 2 * TILE, 250);
-  const lone = drum(w, 240, 250 + 5 * TILE);
+  // Each one within reach of the next, but the third out of reach of the first.
+  const gap = Math.round(DRUM.blast!.radius * 0.8);
+  const b = drum(w, 240 + gap, 250);
+  const c = drum(w, 240 + 2 * gap, 250);
+  const lone = drum(w, 240, 250 + 6 * TILE);
   damageProp(w, a, DRUM.hp!);
   const blasts: number[] = [];
   for (let i = 0; i < ticks(2); i++) {
@@ -131,6 +137,20 @@ test('en cadena: un bidón que explota enciende a los vecinos, y explotan uno de
   assert.ok(w.room.props.includes(lone), 'el que está lejos sigue');
   assert.equal(blasts.length, 3);
   assert.ok(blasts[1]! > blasts[0]! && blasts[2]! > blasts[1]!, 'uno detrás de otro, no a la vez');
+});
+
+test('M14b (h5): explota pronto, llega lejos y hace daño de verdad', () => {
+  // The fuse is short but there: a moment to roll out of the ring.
+  assert.ok(BLAST_FUSE >= 0.3 && BLAST_FUSE <= 0.45, `mecha de ${BLAST_FUSE} s`);
+  assert.ok(DRUM.blast!.radius >= 2.5 * TILE, `radio de ${DRUM.blast!.radius} px (dos baldosas y media o más)`);
+  // A normal enemy of the first floor, caught in it, is gone or nearly.
+  const w = bare('bidon-alcance');
+  w.noDamage = true;
+  const pr = drum(w, 300, 250);
+  const en = idle(w, 'aspirador', 300 + 2.5 * TILE, 250);
+  damageProp(w, pr, DRUM.hp!);
+  for (let i = 0; i < ticks(1); i++) step(w, NO_INPUT);
+  assert.ok(en.damageTaken >= Math.min(ENEMIES.aspirador!.hp, 18), `a dos baldosas y media le quita ${en.damageTaken}`);
 });
 
 test('es determinista', () => {

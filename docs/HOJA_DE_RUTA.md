@@ -673,7 +673,9 @@ juegos del género» de `docs/DISENO.md`.
 - [ ] (h3) Nunca dos cofres en la misma sala: cada cofre, en una sala distinta.
 - [ ] (h4) Menos corazones, sobre todo al principio de la planta 1: no puede dar para rellenar la
   vida una vez y media. La primera planta se la tiene que poder pasar cualquiera, pero no fácil.
-- [ ] (h5) Bidones que explotan antes, con más radio y más daño (y que se vea venir).
+- [x] (h5) Bidones que explotan antes, con más radio y más daño (y que se vea venir).
+  Hecho el 2026-11-13: vida 10 → 4, mecha 0,35 s, radio 36 → 64, daño 12 → 18, el alcance
+  pintado en el suelo; `tests/bidones.test.ts`, e2e `11h`–`11j`.
 - [ ] (h6) Mesas que se vuelcan hacia donde toca (desde la izquierda, hacia la derecha; nunca
   hacia delante si empujas de lado), que aguantan unos cuantos disparos y se rompen.
 - [ ] (h7) Saltar por encima de las mesas y de otros obstáculos bajos rodando (la esquiva), como

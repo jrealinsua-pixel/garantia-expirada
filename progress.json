@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T13:34:00+01:00",
+  "actualizado": "2026-11-13T14:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 949,
-    "tests_ok": 949,
+    "tests": 950,
+    "tests_ok": 950,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34048
+    "lineas_codigo": 34073
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T14:40:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h5): los bidones se encienden con tres disparos del Secador (antes siete), explotan en 0,35 s, llegan casi el doble de lejos (64 px) y tumban a cualquier enemigo normal; al tocarlos se ve su alcance en el suelo, y encendidos, un círculo rojo que parpadea con la cuenta atrás."
+    },
     {
       "fecha": "2026-11-13T13:34:00+01:00",
       "hito": "M14b",
@@ -1330,6 +1335,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/bidon-encendido.png",
+      "pie": "M14b (h5): un bidón encendido marca en el suelo hasta dónde llega la explosión; el aro de dentro es la cuenta atrás"
+    },
+    {
       "archivo": "capturas/consola-cajas.png",
       "pie": "M14 (j4): la Consola Edición Coleccionista, el otro jefe de la planta 3, lanza cajas de botín: rotas a tiros, un juguete o cupones falsos; si se abren solas, lo peor"
     },
@@ -1348,10 +1357,6 @@
     {
       "archivo": "capturas/merito-premio-nuevo.png",
       "pie": "M14 (l4a): «Cliente habitual» (7 de 25 partidas) promete un objeto que no sale en ningún otro sitio: la Bolsa de Tela Reutilizable"
-    },
-    {
-      "archivo": "capturas/merito-conseguido.png",
-      "pie": "M14 (l3): el aviso «Mérito conseguido» con su premio: la primera baja mete la Garantía Extendida en los cofres"
     }
   ],
   "proximo": "M14b (h2): la economía del Isaac, cupones que vuelan solos y muy escasos; coger cosas con el botón.",
@@ -1387,11 +1392,6 @@
       "sesion": "2026-11-13 13:35",
       "tarea": "M14b (h2)+(h3)+(h4): economía, cofres en salas distintas, menos corazones (src/sim/world.ts pickups y premios de sala, src/sim/floor.ts, src/data/shop.ts, src/data/enemies.ts loot, tests)",
       "desde": "2026-11-13T12:35:00Z"
-    },
-    {
-      "sesion": "2026-11-13 13:27",
-      "tarea": "M14b (h5): bidones que explotan antes, con más radio y daño, y su aviso (src/data/props.ts barril; src/sim/world.ts solo BLAST_FUSE; src/render/GameScene.ts drawDrums; tests/bidones.test.ts)",
-      "desde": "2026-11-13T12:27:00Z"
     }
   ]
 }

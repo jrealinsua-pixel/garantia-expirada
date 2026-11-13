@@ -151,6 +151,10 @@ try {
   };
 
   const s0 = await state();
+  // The drums of the Sala de Pruebas, as they stand at the start: a stray bullet can set one off
+  // before its turn comes (M14b (h5): four hits), and then a fresh one is put back where it was.
+  await page.evaluate(`(() => { window.__drums = window.__GE__.scene.world.room.props.filter((pr) => pr.def.id === 'barril')
+    .map((pr) => ({ def: pr.def, x: pr.x, y: pr.y, box: { ...pr.box } })); })()`);
   await shot('01-inicio.png');
 
   const d0 = await dummy(0);
@@ -404,7 +408,10 @@ try {
   const drumAt = await page.evaluate<{ x: number; y: number } | null>(`(() => { const w = window.__GE__.scene.world; w.noDamage = true;
     w.bullets = w.bullets.filter((b) => b.owner !== 'enemy');
     const mid = (pr) => Math.hypot(pr.x - w.room.w / 2, pr.y - w.room.h / 2);
-    const d = w.room.props.filter((pr) => pr.def.id === 'barril').sort((a, b) => mid(a) - mid(b))[0]; if (!d) return null;
+    if (!w.room.props.some((pr) => pr.def.id === 'barril')) for (const o of window.__drums ?? []) w.room.props.push({ ...o, box: { ...o.box } });
+    // One whose blast leaves the table alone: the next step needs it standing.
+    const clear = (pr) => w.room.props.every((o) => !o.def.tip || Math.hypot(o.x - pr.x, o.y - pr.y) > pr.def.blast.radius + 24);
+    const d = w.room.props.filter((pr) => pr.def.id === 'barril' && clear(pr)).sort((a, b) => mid(a) - mid(b))[0]; if (!d) return null;
     w.player.x = d.x - 60; w.player.y = d.y + 20; d.damage = d.def.hp - 1; return { x: d.x, y: d.y }; })()`);
   if (drumAt) {
     await page.waitForTimeout(700);

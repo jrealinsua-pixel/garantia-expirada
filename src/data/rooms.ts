@@ -2211,6 +2211,8 @@ export const ROOMS: Record<string, RoomTemplate> = {
     id: 'sala-pruebas',
     name: 'Sala de Pruebas de Devoluciones',
     // Returns are restocked: a few seconds after the last enemy falls apart, they are all back.
+    // The drum by the table stands a few tiles off it (M14b (h5)): its bigger blast would take
+    // the table with it before anyone tried it.
     restock: 4,
     rows: [
       '##########################',
@@ -2225,7 +2227,7 @@ export const ROOMS: Record<string, RoomTemplate> = {
       '#.........L........M.....#',
       '#....k.......v...........#',
       '#..................A.....#',
-      '#.....Z.....b.......T....#',
+      '#.....Z.b...........T....#',
       '#..*...*...*...*...*..*.c#',
       '#k.....................bc#',
       '##########################',

@@ -5,13 +5,15 @@ import type { DummyDef, PropDef } from './types.ts';
 export const PROPS: Record<string, PropDef> = {
   caja: { id: 'caja', name: 'Caja de devolución', box: { x: -11, y: -17, w: 22, h: 16 }, blocksBullets: true },
   // M9b (13a): it takes a few shots and goes up, taking whatever is near with it (the toaster too).
+  // M14b (h5): three shots of the Secador and it is lit; the blast covers two and a half tiles (it was one and a half)
+  // and takes most of a normal enemy with it (the human found it slow, small and weak).
   barril: {
     id: 'barril',
     name: 'Bidón de aceite usado',
     box: { x: -6, y: -14, w: 12, h: 13 },
     blocksBullets: true,
-    hp: 10,
-    blast: { radius: 36, damage: 12, hurt: 2 },
+    hp: 4,
+    blast: { radius: 64, damage: 18, hurt: 2 },
   },
   // M9b (13b): a bargain table. Bullets fly over it standing; tipped over with the interact
   // button, it covers from one side until it is shot to bits.

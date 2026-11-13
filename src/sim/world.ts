@@ -3335,7 +3335,7 @@ function breakTable(w: World, pr: PropInstance): void {
 /** Damage an enemy bullet does to a prop that can blow up (the player's bullets do their own). */
 export const ENEMY_PROP_DAMAGE = 1;
 /** Seconds a prop burns once lit before it goes up: shot, or caught by a blast next to it. */
-export const BLAST_FUSE = 0.3;
+export const BLAST_FUSE = 0.35;
 export const CHAIN_FUSE = 0.15;
 
 /** A prop that can blow up takes `damage`; with none left, it is lit. */

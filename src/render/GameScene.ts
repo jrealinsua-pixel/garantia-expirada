@@ -118,7 +118,7 @@ import {
 } from '../sim/world.ts';
 import { dropHeart, dropTicket, giveActive, giveItem, interactable, placeChest, setCharacter, type DownCause, type Enemy, type SimEvent, type World } from '../sim/world.ts';
 import { pairUp, spawnEnemy, tapesOf, TIP_FACING, PLAYER_HURT_Y, type HeartKind, type Player } from '../sim/world.ts';
-import { dummyHurtBox, type Dummy } from '../sim/world.ts';
+import { BLAST_FUSE, dummyHurtBox, type Dummy } from '../sim/world.ts';
 import { MARKDOWN_LINES } from '../data/texts.ts';
 
 /** What the toaster has on loan after its hearts, in the order it pays: surge, warranties, turbo. */
@@ -424,6 +424,7 @@ export class GameScene extends Phaser.Scene {
   private chestDrop = false;
   private chestSprites = new Map<number, { s: Phaser.GameObjects.Image; open: boolean; pop: number }>();
   /** Props that can blow up (M9b 13a), by their feet «x,y»: sprite, shadow and how hard they still shake from a hit. */
+  private drumRing: Phaser.GameObjects.Graphics | null = null;
   private drumViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; jolt: number; smoke: number }>();
   /** Tables (M9b 13b), by their spot: the sprite (its frame says how it lies), its shadow, a jolt and the tipping hop. */
   private tableViews = new Map<string, { s: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; x: number; y: number; jolt: number; tip: number; side?: TipSide }>();
@@ -610,6 +611,7 @@ export class GameScene extends Phaser.Scene {
     this.pickupSprites = new Map();
     this.chestSprites = new Map();
     this.drumViews = new Map();
+    this.drumRing = null;
     this.tableViews = new Map();
     this.partitionViews = [];
     this.ticketPop = 0;
@@ -3793,6 +3795,25 @@ export class GameScene extends Phaser.Scene {
    * and trembles until it goes up.
    */
   private drawDrums(dt: number): void {
+    // M14b (h5): the reach of the blast on the floor, faint once the drum is hit and pulsing red
+    // once it is lit, so the toaster sees where not to be.
+    if (!this.drumRing || !this.drumRing.scene) this.drumRing = this.add.graphics().setDepth(-48990);
+    const ring = this.drumRing.clear();
+    for (const pr of this.world.room.props) {
+      if (!pr.def.blast || (!pr.damage && pr.fuse === undefined)) continue;
+      const cx = pr.x;
+      const cy = pr.y + pr.def.box.y + pr.def.box.h / 2;
+      const r = pr.def.blast.radius;
+      if (pr.fuse !== undefined) {
+        const blink = Math.floor(this.time.now / 60) % 2 === 0;
+        const k = Math.min(1, Math.max(0, 1 - pr.fuse / BLAST_FUSE));
+        ring.fillStyle(0xe0453b, 0.12 + 0.18 * k).fillCircle(cx, cy, r);
+        ring.lineStyle(1, blink ? 0xfff1a8 : 0xe0453b, 0.95).strokeCircle(cx, cy, r);
+        ring.lineStyle(1, 0xf6c431, 0.8).strokeCircle(cx, cy, Math.max(2, r * k));
+      } else {
+        ring.lineStyle(1, 0xe0453b, 0.18 + 0.12 * Math.min(1, (pr.damage ?? 0) / (pr.def.hp ?? 1))).strokeCircle(cx, cy, r);
+      }
+    }
     for (const pr of this.world.room.props) {
       if (!pr.def.hp) continue;
       const v = this.drumViews.get(`${pr.x},${pr.y}`);

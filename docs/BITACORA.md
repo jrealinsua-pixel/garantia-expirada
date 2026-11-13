@@ -2,6 +2,37 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 14:40 (hora peninsular) — Hito M14b — (h5) Bidones que explotan antes, más lejos y más fuerte
+- Contexto: el `main` local volvía a estar en otra historia; lo dejé igual que `origin/main` con
+  `git checkout -B main origin/main` (solo local, sin tocar el remoto). Salud al empezar: `check`,
+  949 tests, `build` y `bot` en verde. La (h1) estaba cogida; elegí la (h5), que no toca sus
+  archivos. A mitad, la (h1) se publicó y otra sesión cogió la (h2)–(h4); el `pull --rebase` solo
+  chocó en una línea de `tests/bidones.test.ts` (la mía y la suya decían lo mismo).
+- Hecho: M14b (h5). El bidón (`src/data/props.ts`): **vida 10 → 4** (tres impactos del Secador en
+  vez de siete; cuatro balas enemigas), **mecha 0,3 → 0,35 s** (`BLAST_FUSE`), **radio 36 → 64**
+  (de baldosa y media a dos y media) y **daño 12 → 18**, que con la vida nueva de la (h1) tumba a
+  cualquier enemigo normal de cualquier planta y a un jefe le quita un 10–20 %. A la tostadora le
+  sigue quitando un corazón. **Se ve venir** (`drawDrums` en `GameScene.ts`): desde el primer
+  impacto, su alcance como un aro rojo tenue en el suelo; encendido, el círculo entero en rojo que
+  se intensifica, el borde parpadeando y un aro amarillo de dentro afuera que es la cuenta atrás.
+  Sala de Pruebas: el bidón de al lado de la mesa se aparta tres baldosas (con el radio nuevo se
+  la llevaba por delante antes de que nadie la probara). Tests: se enciende en ≤ 4 impactos, mecha
+  entre 0,3 y 0,45 s, radio ≥ 2,5 baldosas y a esa distancia tumba a un aspirador; la cadena, con
+  los bidones a 0,8 radios uno de otro. e2e: guarda los bidones de la sala al empezar y repone uno
+  si una bala perdida lo ha hecho saltar antes de su turno, y elige uno que no alcance a la mesa.
+- Decisiones: la mecha sube un poco (0,05 s) aunque el humano pide que exploten antes: lo que
+  tardaba eran los siete disparos, no la mecha, y con un radio casi doble hace falta un instante
+  para salir rodando del círculo pintado. Las mesas dentro del radio siguen saltando por los
+  aires (las mesas con vida son la (h6)).
+- Medidas (`npm run bot`, después de la (h1)): planta 1 en 14,1 s y 0,55 heridas por sala de
+  combate (con la (h1) sola, 13,6 s y 0,57), la gana el 90 % (80 %; 20 plantas, ruido); 0 fallos,
+  1 atasco. 950 tests en verde; e2e entero en verde.
+- Problemas conocidos: con la vida nueva de la (h1), un tiroteo cerca de un bidón lo hace saltar
+  a menudo por balas enemigas perdidas: es lo que se busca (las esquinas con bidones son
+  peligrosas para todos), pero si molesta, que las balas enemigas le hagan la mitad.
+- Siguiente paso: la (h6), mesas que se vuelcan hacia donde toca y se rompen; o la (h8), las
+  hitboxes, si la (h2)–(h4) sigue cogida.
+
 ## 2026-11-13 13:35 (hora peninsular) — Hito M14b — (h1) Menos vida a enemigos y jefes
 - Contexto: dos notas nuevas del humano (13 de noviembre). Primero, en un commit aparte, las
   repartí en dos hitos nuevos, **M14b** (lo que pide del juego, h1–h11) y **M14c** (arte nuevo,
