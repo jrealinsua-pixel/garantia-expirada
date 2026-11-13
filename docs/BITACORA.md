@@ -2,6 +2,48 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 01:25 (hora peninsular, de `date`) — Hito M14 — Logros (l3): el contenido limitado
+- Contexto: el `main` local volvía a estar divergido (lo guardé como `main-stale` y puse `main` en
+  `origin/main`). Salud al empezar: `check`, 912 tests, `build` y `bot` en verde. La (j2) estaba
+  cogida por otra sesión desde las 23:41, así que hice la (l3), que no toca sus archivos; su
+  Lavadora llegó a mitad y la mezclé (un solo conflicto, en `src/data/logros.ts`: su texto nuevo de
+  «Hoja de reclamaciones completa» con mis premios).
+- Hecho: **12 logros traen premio** (`reward` en `src/data/logros.ts`): un arma o un objeto que no
+  sale en cofres, pedestales, tiendas ni salas raras hasta ganarlo. `lockedContent(ganados)` da la
+  lista; el juego la pasa a la partida (`WorldOptions.locked`, `World.locked`), que la lleva del
+  Mostrador a cada planta (`leaveHub`, `nextFloor`), y `weaponPool` y `lootDecks` la quitan de las
+  barajas. Si un logro se gana al acabar una planta, el premio ya entra en la siguiente. El aviso
+  «Mérito conseguido» tiene una tercera línea, «Nuevo en los cofres: …», y la ficha del mérito en el
+  Catálogo dice «Premio: …. Hasta entonces, agotado en todos los cofres.» o «Desbloqueado: …. Ya sale
+  en cofres y tiendas.». Los premios: Garantía Extendida (primera baja), Copia de Seguridad (primera
+  sinergia), Taza de Mejor Empleado (10 plantas), Caja de Cartón Vacía (jefe sin un rasguño),
+  Etiquetadora de Precios (100 de un modelo), Mascota Virtual (30 objetos), Cable HDMI Dorado (6
+  armas), Tarjeta de Socio (300 cupones), Cookies de Terceros (3 retos seguidos), Llave Allen
+  Sobrante (planta en 4 minutos), Valoración de Cinco Estrellas (ganar) y Megáfono de Reclamaciones
+  (5 jefes de planta). Tests nuevos en `tests/premios.test.ts` (9); e2e: `62c` es ahora un mérito en
+  progreso con premio y el bloque comprueba que la partida bloquea lo que toca.
+- Decisiones: **bloquear contenido que ya existía**, no crear contenido nuevo: es lo que pidió el
+  humano («una cantidad de armas y objetos limitada» que se desbloquea con logros) y se puede hacer
+  bien en una sesión; el contenido nuevo solo-premio queda como (l4). Cada premio tiene que ver con
+  su logro y con su chiste. Reglas que vigilan los tests: ningún premio es arma de salida; ninguna
+  sinergia necesita dos premios (por eso la Pegatina no es premio: va con la Caja); la planta 1
+  conserva un objeto y un arma «buenos» para la Caja Fuerte Premium (por eso la Broca no es premio);
+  «30 objetos» y «6 armas» se pueden lograr sin ningún premio («6 armas» pide ya desbloquear
+  personajes o el Megáfono; antes bastaba con las de la planta 5). Las armas premio son las dos de
+  la planta 5, no las de la 1: con solo dos armas en la planta 1, quitar una la dejaba en nada. Los
+  logros más difíciles (50 bajas, 1000 bajas, 8 sinergias…) no traen premio: son para presumir.
+  **Sin lista, todo desbloqueado**: los tests, los bots y la Sala de Pruebas lo tienen todo, así que
+  el bot y el equilibrio medido no cambian (el bot juega como alguien con todo ganado). **El reto
+  del día bloquea todos los premios** (`DAILY_LOCKED`) para que sea el mismo para todos; el regalo
+  del día nunca es un premio. Eso cambia el botín del reto y el regalo de 18 de los 30 días de
+  noviembre, también el de hoy (ahora, la Batería Hinchada); quien lo haya jugado hoy verá otro.
+- Medidas: no cambia el equilibrio del bot (sin lista). `npm run bot`, 200 partidas, 0 fallos.
+  927 tests en verde (con los de la Lavadora). e2e entero en verde.
+- Problemas conocidos: el bot no mide cómo se juega con todo bloqueado (un jugador nuevo encuentra
+  10 objetos y 2 armas menos). Si hiciera falta, una opción del bot con `locked: lockedContent([])`.
+- Siguiente paso: (j3) la Nube de Almacenamiento; o (l4), armas y objetos nuevos solo de premio
+  para los logros difíciles.
+
 ## 2026-11-13 00:20 (hora peninsular, de `date`) — Hito M14 — Jefes al azar (j2): la Lavadora Programa Eco
 - Contexto: el `main` local volvía a estar viejo (otro clon); lo guardé como `main-stale2` y puse
   `main` en `origin/main`. Salud al empezar: `check`, 912 tests, `build` y `bot` en verde.

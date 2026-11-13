@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T00:20:00+01:00",
+  "actualizado": "2026-11-13T01:25:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -130,13 +130,18 @@
     "armas": 8,
     "objetos": 55,
     "plantillas_sala": 97,
-    "tests": 918,
-    "tests_ok": 918,
+    "tests": 927,
+    "tests_ok": 927,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 33109
+    "lineas_codigo": 33186
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T01:25:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (l3): el contenido limitado. Doce logros traen ya un premio: un arma o un objeto que no sale en cofres, pedestales, tiendas ni salas raras hasta ganarlo (la primera baja da la Garantía Extendida; vencer a cinco jefes de planta, el Megáfono de Reclamaciones; limpiar una planta en 4 minutos, la Llave Allen Sobrante…). El aviso «Mérito conseguido» dice «Nuevo en los cofres: …» y la ficha de cada mérito dice su premio. El reto del día los deja todos fuera, igual para todos."
+    },
     {
       "fecha": "2026-11-13T00:20:00+01:00",
       "hito": "M14",
@@ -1286,6 +1291,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/merito-premio.png",
+      "pie": "M14 (l3): la ficha de un mérito sin conseguir dice su premio: la Etiquetadora de Precios, agotada en todos los cofres hasta desmontar 100 de un mismo modelo"
+    },
+    {
+      "archivo": "capturas/merito-conseguido.png",
+      "pie": "M14 (l3): el aviso «Mérito conseguido» con su premio: la primera baja mete la Garantía Extendida en los cofres"
+    },
+    {
       "archivo": "capturas/lavadora-calcetines.png",
       "pie": "M14 (j2): la Lavadora Programa Eco, el otro jefe que puede salir en la planta 1, en su programa «Lavado»: calcetines desparejados que rebotan en las paredes"
     },
@@ -1300,17 +1313,9 @@
     {
       "archivo": "capturas/meritos.png",
       "pie": "M14 (l2): la pestaña «Méritos» del Catálogo de siniestros: los 19 logros, el nuevo marcado, lo que piden y, ganados, su chiste"
-    },
-    {
-      "archivo": "capturas/merito-conseguido.png",
-      "pie": "El aviso «Mérito conseguido» en la partida, con su sello dorado (aquí, la primera baja: «Primera reclamación»)"
-    },
-    {
-      "archivo": "capturas/sorteo.png",
-      "pie": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización: tres rascas a 5 cupones; casi siempre «Siga participando», a veces cupones, un ticket, un corazón, una garantía o, muy rara vez, un cofre premium"
     }
   ],
-  "proximo": "M14 (j3): la Nube de Almacenamiento, el segundo jefe de la planta 2 (diseño en docs/DISENO.md, «Jefes al azar»); o la (l3), contenido que se desbloquea con logros.",
+  "proximo": "M14 (j3): la Nube de Almacenamiento, el segundo jefe de la planta 2 (diseño en docs/DISENO.md, «Jefes al azar»); o la (l4), armas y objetos nuevos que solo existen como premio de un logro.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1336,11 +1341,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-12 23:30",
-      "tarea": "M14 (l3): contenido limitado que se desbloquea con logros",
-      "desde": "2026-11-12T23:31:00Z"
-    }
-  ]
+  "en_curso": []
 }
