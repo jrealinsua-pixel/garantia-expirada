@@ -702,7 +702,9 @@ juegos del género» de `docs/DISENO.md`.
     cercano (al otro lado de la tostadora) y el climatizador va atado a su manguera, enchufada a
     la pared: dentro de su alcance viene deprisa, fuera no puede seguirte. La destructora (siempre
     de cara) y el sello (a saltos y estampando) ya eran únicos.
-  - [ ] (h9e) Planta 5 y el Servicio Técnico.
+  - [ ] (h9e) Planta 5 y el Servicio Técnico, en dos partes:
+    - [ ] (h9e1) El Dispensador de Turnos y el Teléfono de Recepción (guardan las distancias).
+    - [ ] (h9e2) El Asistente Virtual y los enemigos del Servicio Técnico.
 - [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
   ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
