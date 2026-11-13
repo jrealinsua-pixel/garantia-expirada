@@ -1477,6 +1477,11 @@
       "sesion": "2026-11-14 01:15 (hora peninsular)",
       "tarea": "M14b (h10b2): el Director con movimiento propio",
       "desde": "2026-11-14T01:15:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 00:30 (hora peninsular)",
+      "tarea": "M14c (a1): guía de estilo nueva y tres sprites de prueba (docs/ESTILO_ARTE.md, art/prueba/, tools/sprites/prueba-a1.ts nuevo, tests/estilo-a1.test.ts nuevo; no toca src/sim ni src/data)",
+      "desde": "2026-11-14T00:30:00+01:00"
     }
   ]
 }
