@@ -1492,6 +1492,14 @@ try {
     { timeout: 15000 },
   ).catch(() => { throw new Error('La Consola no dispara cartuchos'); });
   await shot('65b-consola-cartuchos.png');
+  // M14b (h10b1): «Lag»: its ghost walks ahead of it, and it snaps over. (Away from the top wall, so
+  // the camera has it whole.)
+  await page.waitForFunction(
+    `(() => { const b = ${consolaJs}; const g = b.lagGhost; return b.state === 'idle' && !!g && b.y > 150 && g.y > 150 && Math.hypot(g.x - b.x, g.y - b.y) > 22; })()`,
+    undefined,
+    { timeout: 30000 },
+  ).catch(() => { throw new Error('El fantasma de la Consola no se separa de ella'); });
+  await shot('65ba-consola-lag.png');
   await page.evaluate(consolaOnly('summon'));
   await page.waitForFunction(`window.__GE__.scene.world.enemies.filter((e) => e.def.id === 'caja-botin').length >= 2`, undefined, { timeout: 15000 })
     .catch(() => { throw new Error('La Consola no suelta cajas de botín'); });
@@ -1537,6 +1545,10 @@ try {
     { timeout: 25000 },
   );
   await shot('38b-muneco-accesorios.png');
+  // M14b (h10b1): «Desfile»: between attacks it walks straight legs and poses at the end of each one.
+  await page.waitForFunction(`(() => { const b = ${munecoJs}; return b.state === 'idle' && (b.catPose ?? 0) > 0.15 && b.catAcross !== undefined; })()`, undefined, { timeout: 20000 })
+    .catch(() => { throw new Error('El Muñeco no posa al final de un tramo'); });
+  await shot('38ba-muneco-desfile.png');
   // The catwalk: posing over its lane, then down it with the flashes going off behind.
   await page.waitForFunction(`(() => { const b = ${munecoJs}; return b.state === 'warn' && !!b.runTo && b.t > 0.3; })()`, undefined, { timeout: 40000 });
   await shot('38c-muneco-pose.png');

@@ -1608,6 +1608,9 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     }
     en.restructT = 0;
     en.relayT = 0;
+    // A new leg of its catwalk, and its ghost back on it (the break stops both).
+    delete en.catTo;
+    delete en.lagGhost;
     // A new phase cuts the voice menu short (its zones go with the bullets on screen), and the
     // transfers start counting from now.
     delete en.menu;
@@ -1690,7 +1693,13 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, true));
         glided = true;
       } else if (b.hover) ({ x: walkX, y: walkY } = hoverWalk(w, en, b.hover, phase.walkSpeed * rage));
+      else if (b.catwalk) {
+        ({ x: walkX, y: walkY } = catwalkWalk(w, en, b.catwalk, phase.walkSpeed * rage, phase.keep, rage));
+        glided = true;
+      } else if (b.lag) ({ x: walkX, y: walkY } = lagWalk(w, en, b, phase.walkSpeed * rage * b.lag.pace, phase.keep));
       else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep)));
+      // Lagging, it snaps to its ghost now and then (BossBrain.lag).
+      if (b.lag) updateLag(w, en, b.lag);
       // Gone quiet: its lights blank, it stops dead and takes more (BossPhase.mute). Only between
       // attacks, so a sweep is never cut short and the silence is never under a hail of bullets.
       if (phase.mute && en.muteIn !== undefined && en.muteIn <= 0 && !w.over) {
@@ -1911,6 +1920,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       if ((!en.runVia && d <= step) || en.t >= en.until || (en.runStuck ?? 0) > 0.3) {
         delete en.runTo;
         delete en.runVia;
+        delete en.catTo;
         en.vx = 0;
         en.vy = 0;
         enter(en, 'fire', a.fuse + 0.3);
@@ -1946,6 +1956,11 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         const v = phase.walkSpeed * rage * b.drift;
         if (en.rail) ({ x: walkX, y: walkY } = railRoam(w, en, b, v));
         else if (b.hover) ({ x: walkX, y: walkY } = hoverWalk(w, en, b.hover, v));
+        else if (b.catwalk) {
+          // A model barely slows down to throw: a little over half its stride.
+          ({ x: walkX, y: walkY } = catwalkWalk(w, en, b.catwalk, phase.walkSpeed * rage * CAT_FIRING, phase.keep, rage));
+          glided = true;
+        } else if (b.lag) ({ x: walkX, y: walkY } = lagWalk(w, en, b, v * b.lag.pace, phase.keep));
         else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, v, phase.keep)));
       }
       if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
@@ -2080,6 +2095,147 @@ const HOVER_SWAY_X = 1.1;
 const HOVER_SWAY_Y = 1.7;
 const HOVER_GAIN = 1.5;
 const HOVER_BELOW = 0.7;
+
+/** The catwalk never takes the Muñeco nearer a wall than this (px past its feet), nor on a leg shorter than this (px). */
+const CAT_MARGIN = 6;
+const CAT_MIN_LEG = 24;
+/** Nor longer than this across (px): it poses again before it has got all the way over. */
+const CAT_MAX_LEG = 90;
+/** Share of its walking speed it keeps on its catwalk while its bullets stream out. */
+const CAT_FIRING = 0.6;
+
+/**
+ * «Desfile» (BossBrain.catwalk): its velocity this tick (set at once: a model does not ease into a
+ * stride). Straight down its leg, only across or only up and down; at the end (or with something in
+ * the way) it stops and poses, `pose` s cut short by rage, and then picks the next leg.
+ */
+function catwalkWalk(w: World, en: Enemy, c: NonNullable<BossBrain['catwalk']>, speed: number, keep: number, rage: number): { x: number; y: number } {
+  if ((en.catPose ?? 0) > 0) {
+    en.catPose! -= DT;
+    return { x: 0, y: 0 };
+  }
+  en.catTo ??= catwalkLeg(w, en, c, keep);
+  const t = en.catTo;
+  const d = t.across ? t.x - en.x : t.y - en.y;
+  const v = speed * c.stride;
+  const sx = t.across ? Math.sign(d) : 0;
+  const sy = t.across ? 0 : Math.sign(d);
+  const r0 = en.def.footRadius;
+  if (Math.abs(d) <= Math.max(1.5, v * DT) || !isClear(w, en.x + sx * 6, en.y + sy * 6, r0)) {
+    // End of the leg: the pose. (Stepping the last bit first, so it ends on its mark.)
+    if (Math.abs(d) <= v * DT) slide(w, en, r0, sx * Math.abs(d), sy * Math.abs(d));
+    if (!w.over) w.events.push({ type: 'pose', boss: en.id, x: en.x, y: en.y, first: en.catPose === undefined });
+    en.catPose = c.pose / Math.max(1, rage);
+    en.catAcross = t.across;
+    delete en.catTo;
+    return { x: 0, y: 0 };
+  }
+  if (sx !== 0) en.facing = sx > 0 ? 1 : -1;
+  return { x: sx * v, y: sy * v };
+}
+
+/**
+ * The next leg of the Muñeco's catwalk, across and up or down by turns, round the toaster as if
+ * round a rectangle: across to `keep` px to one side of it (the side it is on, then the other; at
+ * most CAT_MAX_LEG at a go), or up or down to `rise` px above or below it (whichever has more room).
+ * Kept inside the room, and never shorter than CAT_MIN_LEG.
+ */
+function catwalkLeg(w: World, en: Enemy, c: NonNullable<BossBrain['catwalk']>, keep: number): { x: number; y: number; across: boolean } {
+  const p = w.player;
+  const r0 = en.def.footRadius;
+  const left = TILE + r0 + CAT_MARGIN;
+  const right = w.room.w - TILE - r0 - CAT_MARGIN;
+  const top = (BACK_WALL_ROWS + 0.5) * TILE + r0;
+  const bottom = w.room.h - TILE - r0 - CAT_MARGIN;
+  const clampX = (x: number): number => Math.max(left, Math.min(right, x));
+  const clampY = (y: number): number => Math.max(top, Math.min(bottom, y));
+  en.catSide ??= en.x >= p.x ? 1 : -1;
+  // The first leg: up or down unless it is already near the toaster's row.
+  const across = en.catAcross === undefined ? Math.abs(en.y - p.y) < c.rise * 0.5 : !en.catAcross;
+  if (across) {
+    let x = clampX(p.x + en.catSide * keep);
+    // Squeezed against a wall: the other side.
+    if (Math.abs(x - p.x) < keep * 0.5) {
+      en.catSide = -en.catSide;
+      x = clampX(p.x + en.catSide * keep);
+    }
+    if (Math.abs(x - en.x) < CAT_MIN_LEG) {
+      en.catSide = -en.catSide;
+      x = clampX(p.x + en.catSide * keep);
+    }
+    x = en.x + Math.max(-CAT_MAX_LEG, Math.min(CAT_MAX_LEG, x - en.x));
+    return { x, y: en.y, across: true };
+  }
+  // Up or down, then over to the other side of the toaster along that row.
+  const up = clampY(p.y - c.rise);
+  const down = clampY(p.y + c.rise);
+  let y = Math.abs(up - p.y) >= Math.abs(down - p.y) ? up : down;
+  if (Math.abs(y - en.y) < CAT_MIN_LEG) y = y === up ? down : up;
+  en.catSide = -en.catSide;
+  return { x: en.x, y, across: false };
+}
+
+/** It never snaps closer than this to the toaster (px between their feet), nor to a spot not clear. */
+const LAG_CLEAR = 6;
+
+/**
+ * «Lag» (BossBrain.lag): its walk (bossRoam, like the other bosses) moves its ghost; it stands where it is.
+ * Returns the velocity it wants itself: none.
+ */
+function lagWalk(w: World, en: Enemy, b: BossBrain, speed: number, keep: number): { x: number; y: number } {
+  const g = (en.lagGhost ??= { x: en.x, y: en.y, vx: 0, vy: 0 });
+  const real = { x: en.x, y: en.y, vx: en.vx, vy: en.vy };
+  en.x = g.x;
+  en.y = g.y;
+  en.vx = g.vx;
+  en.vy = g.vy;
+  const want = bossRoam(w, en, b, speed, keep);
+  approach(en, want.x, want.y, KNOCK_FRICTION);
+  slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
+  g.x = en.x;
+  g.y = en.y;
+  g.vx = en.vx;
+  g.vy = en.vy;
+  en.x = real.x;
+  en.y = real.y;
+  en.vx = real.vx;
+  en.vy = real.vy;
+  return { x: 0, y: 0 };
+}
+
+/**
+ * «Lag» (BossBrain.lag), between attacks: when its time comes, it snaps to its ghost, or now and then
+ * rubber-bands back to where it was before its last snap (the ghost with it). Not onto the toaster.
+ */
+function updateLag(w: World, en: Enemy, lag: NonNullable<BossBrain['lag']>): void {
+  const g = en.lagGhost;
+  if (!g || w.over) return;
+  en.lagT ??= w.rng.range(lag.every[0], lag.every[1]);
+  en.lagT -= DT;
+  if (en.lagT > 0) return;
+  const r0 = en.def.footRadius;
+  const p = w.player;
+  const back = en.lagPrev !== undefined && w.rng.next() < lag.back;
+  const to = back ? en.lagPrev! : { x: g.x, y: g.y };
+  const tooNear = Math.hypot(to.x - p.x, to.y - p.y) < r0 + p.def.footRadius + LAG_CLEAR;
+  if (tooNear || !isClear(w, to.x, to.y, r0) || Math.hypot(to.x - en.x, to.y - en.y) < 2) {
+    // Not now: it tries again in a moment.
+    en.lagT = 0.1;
+    return;
+  }
+  en.lagT = w.rng.range(lag.every[0], lag.every[1]);
+  w.events.push({ type: 'lag', boss: en.id, x: en.x, y: en.y, tx: to.x, ty: to.y, back });
+  en.lagPrev = { x: en.x, y: en.y };
+  en.x = to.x;
+  en.y = to.y;
+  if (back) {
+    g.x = to.x;
+    g.y = to.y;
+    g.vx = 0;
+    g.vy = 0;
+  }
+  if (to.x !== en.lagPrev.x) en.facing = p.x >= en.x ? 1 : -1;
+}
 
 /** Below this share of its push it may push off again (BossBrain.glide), and not sooner than this (s). */
 const GLIDE_REPUSH = 0.3;

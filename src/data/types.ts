@@ -1061,6 +1061,22 @@ export interface BossBrain {
    * drifts, it overshoots) and floating over furniture (only walls stop it).
    */
   hover?: { above: number; sway: number; accel: number };
+  /**
+   * «Desfile» (the Muñeco, M14b (h10b1)): it walks like a model down a catwalk: straight legs, only
+   * across or only up and down by turns, `stride` times the phase's walking speed (firing too), round
+   * the toaster as if round a rectangle: across to `keep` px to one side of it, crossing over to the
+   * other, and up or down to `rise` px above or below it; at the end of each leg it stops and strikes
+   * a pose for `pose` s (shorter with rage).
+   */
+  catwalk?: { stride: number; pose: number; rise: number };
+  /**
+   * «Lag» (the Consola, M14b (h10b1)): it does not move where you see it. Its walk (bossRoam) moves a
+   * ghost of it, drawn faint; it stays put and every `every` s (random in the range) snaps to where
+   * the ghost has got. Now and then (`back`, a chance per snap) it rubber-bands instead: back to the
+   * spot of its last snap, the ghost with it. Never snaps onto the toaster. The ghost walks `pace`
+   * times the phase's walking speed (it has to make up for the time it stands).
+   */
+  lag?: { every: [number, number]; back: number; pace: number };
 }
 
 /**

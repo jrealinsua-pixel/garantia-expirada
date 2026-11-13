@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T00:05:00+01:00",
+  "actualizado": "2026-11-14T01:10:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 1027,
-    "tests_ok": 1027,
+    "tests": 1035,
+    "tests_ok": 1035,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 36403
+    "lineas_codigo": 36658
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T01:10:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h10b1): los jefes de la planta 3 con movimiento propio. El Muñeco de Moda desfila: tramos rectos, solo de lado o solo arriba y abajo, alrededor de la tostadora, y posa con un flash al final de cada uno. La Consola Edición Coleccionista va con lag: su fantasma cian anda delante y ella salta a donde ha llegado; a veces vuelve atrás (rubber-banding)."
+    },
     {
       "fecha": "2026-11-14T00:05:00+01:00",
       "hito": "M14b",
@@ -1410,6 +1415,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/muneco-desfile.png",
+      "pie": "M14b (h10b1): el Muñeco de Moda desfila y posa al final de cada tramo («Posando para el catálogo»)"
+    },
+    {
+      "archivo": "capturas/consola-lag.png",
+      "pie": "M14b (h10b1): la Consola va con lag: su fantasma cian anda delante y ella salta a donde ha llegado"
+    },
+    {
       "archivo": "capturas/router-cambio-punto.png",
       "pie": "M14b (h10a2): el Router avisa con una línea hasta el repetidor y se cambia el sitio con él"
     },
@@ -1424,17 +1437,9 @@
     {
       "archivo": "capturas/lavadora-pivotes.png",
       "pie": "M14b (h10a1): la Lavadora anda a pivotes, ladeándose sobre una esquina y luego la otra"
-    },
-    {
-      "archivo": "capturas/asistente-evasivas.png",
-      "pie": "M14b (h9e2): el Asistente Virtual esquiva la pregunta: le apuntas y se aparta de la línea de tiro"
-    },
-    {
-      "archivo": "capturas/carretilla-marcha-atras.png",
-      "pie": "M14b (h9e2): la Carretilla Elevadora, tras embestir, da marcha atrás pitando («Vehículo en maniobra»)"
     }
   ],
-  "proximo": "M14b (h10b): los jefes de las plantas 3–5 y el final con movimiento propio (dividirla); o la (h11c) si sigue libre.",
+  "proximo": "M14b (h10b2): el Director de Recursos Inhumanos con movimiento propio (en su silla y de pie); o la (h11c) si sigue libre.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1467,11 +1472,6 @@
       "sesion": "2026-11-13 22:25 (hora peninsular)",
       "tarea": "M14b (h11c): plantillas de sala con más forma",
       "desde": "2026-11-13T22:25:00+01:00"
-    },
-    {
-      "sesion": "2026-11-13 23:25 (hora peninsular)",
-      "tarea": "M14b (h10b1): los jefes de las plantas 3 y 4 con movimiento propio",
-      "desde": "2026-11-13T23:25:00+01:00"
     }
   ]
 }

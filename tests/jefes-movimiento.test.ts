@@ -58,15 +58,22 @@ for (const def of BOSSES) {
     for (let i = 0; i < ticks(20); i++) {
       const ox = boss.x;
       const oy = boss.y;
+      const brain = def.brain as BossBrain;
+      // A boss with lag (the Consola, M14b (h10b1)) walks its ghost; it snaps after it.
+      const gx = boss.lagGhost?.x ?? ox;
+      const gy = boss.lagGhost?.y ?? oy;
+      // A boss on its catwalk (the Muñeco) stands still while it poses, at the end of each leg.
+      const posing = (boss.catPose ?? 0) > DT;
       // The toaster stands still in the middle: the boss moves by itself, not just after it.
       step(w, { ...NO_INPUT, aimX: boss.x, aimY: boss.y });
       const d = Math.hypot(boss.x - ox, boss.y - oy);
       path += d;
       xs.push(boss.x);
       ys.push(boss.y);
-      if (boss.state === 'idle') {
+      if (boss.state === 'idle' && !(brain.catwalk && posing)) {
         idleTicks++;
-        if (d > 0.05) idleMoving++;
+        const walked = brain.lag && boss.lagGhost ? Math.hypot(boss.lagGhost.x - gx, boss.lagGhost.y - gy) : d;
+        if (walked > 0.05) idleMoving++;
       }
       if (d > 0.3) {
         const dir = Math.atan2(boss.y - oy, boss.x - ox);

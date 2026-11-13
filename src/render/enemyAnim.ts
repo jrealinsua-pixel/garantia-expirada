@@ -73,6 +73,8 @@ function sideFrame(en: Enemy, now: number): number {
   if (a.talk && ((en.menu && !en.menu.rained) || en.deptMark)) return a.talk[Math.floor(now / (a.talkMs ?? 160)) % a.talk.length]! + shift;
   const pose = attackPose(en);
   if (pose !== undefined) return pose;
+  // A model at the end of a leg of its catwalk (BossBrain.catwalk): its pose.
+  if (a.warn !== undefined && (en.catPose ?? 0) > 0 && en.state === 'idle') return a.warn + (own ?? 0);
   // Rebooting: its lights come on one by one over the reboot.
   if (a.reboot && en.state === 'roar') return a.reboot[Math.min(a.reboot.length - 1, Math.floor((en.t / en.until) * a.reboot.length))]!;
   // The reception phone: passing you on (or putting you on hold) with a sly look; ringing, shaking.

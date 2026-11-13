@@ -44,6 +44,9 @@ import {
   SIDESTEP_LINE,
   REVERSE_LINE,
   HANDOFF_LINE,
+  LAG_BACK_LINE,
+  LAG_LINE,
+  POSE_LINE,
   FAQ_LINE,
   HELP_ASK_LINE,
   TRANSFER_LINE,
@@ -491,6 +494,8 @@ export class GameScene extends Phaser.Scene {
   private windG!: Phaser.GameObjects.Graphics;
   /** Enemies a photocopier is scanning (from last frame's warnings): they glow green. */
   private scanned = new Set<number>();
+  /** The Consola's lines already said, once each (BossBrain.lag). */
+  private lagSaid = new Set<string>();
   private warnings = 0;
   private charges = 0;
   /** The controls hint (one or two lines, bottom left) for the first seconds of a run. */
@@ -988,6 +993,7 @@ export class GameScene extends Phaser.Scene {
     v.blink?.destroy();
     v.glow?.destroy();
     v.badge?.destroy();
+    v.ghost?.destroy();
     this.enemySprites.delete(id);
   }
 
@@ -2914,6 +2920,31 @@ export class GameScene extends Phaser.Scene {
           }
           this.shake(80, 0.003, true);
           break;
+        case 'pose': {
+          // The Muñeco strikes a pose at the end of a leg of its catwalk: a camera flash goes off.
+          this.sound2.play('obturador', { detune: this.fx.range(-200, 200), volume: 0.45 });
+          const fx = e.x + this.fx.range(-18, 18);
+          const fy = e.y - this.fx.range(30, 56);
+          for (let i = 0; i < 4; i++) this.spark(fx, fy, (i * Math.PI) / 2, 70, 0, 0xfffbe8);
+          if (e.first) this.floatText(e.x, e.y - 74, fontText(POSE_LINE), 0xf6c431, `pose:${e.boss}`, -10, 1.1);
+          break;
+        }
+        case 'lag': {
+          // The Consola catches up with itself: static at both ends, and a broken-up blip.
+          this.sound2.play('zapear', { detune: e.back ? -700 : this.fx.range(700, 1100), volume: 0.4 });
+          for (const [hx, hy] of [[e.x, e.y], [e.tx, e.ty]] as const) {
+            for (let i = 0; i < 5; i++) {
+              const dir = this.fx.chance(0.5) ? 0 : Math.PI;
+              this.spark(hx + this.fx.range(-16, 16), hy - this.fx.range(8, 50), dir, this.fx.range(50, 110), 0, i % 2 === 0 ? 0x69dbd8 : 0xe0453b);
+            }
+          }
+          const said = e.back ? 'lagBack' : 'lag';
+          if (!this.lagSaid.has(`${said}:${e.boss}`)) {
+            this.lagSaid.add(`${said}:${e.boss}`);
+            this.floatText(e.tx, e.ty - 72, fontText(e.back ? LAG_BACK_LINE : LAG_LINE), 0x69dbd8, `lag:${e.boss}`, -10, 1.1);
+          }
+          break;
+        }
         case 'pivot':
           // The Lavadora lands the corner it swung: a dull thud on the tiles and dust off that foot.
           this.sound2.play('golpe', { detune: this.fx.range(-1300, -1000), volume: 0.35 });
@@ -4937,6 +4968,7 @@ export class GameScene extends Phaser.Scene {
       // The Lavadora rocks onto the corner it swings round (BossBrain.waddle).
       else rot = waddleTilt(en);
       s.setRotation(rot);
+      this.drawLagGhost(en, v, frame, face);
       // The remote switches off like an old TV (squashed to a line, then to a dot) and back on.
       const tv = tvScale(en, v.onAt === undefined ? 1 : (this.time.now - v.onAt) / 1000);
       s.setScale(face * tv.x, tv.y);
@@ -6084,6 +6116,29 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * A lagging boss's ghost (BossBrain.lag): a faint, cyan, flickering copy of it where its walk has
+   * got and it is about to snap to, with a broken scanline; hidden while it is right on top of it.
+   */
+  private drawLagGhost(en: Enemy, v: EnemyView, frame: number, face: number): void {
+    const g = en.lagGhost;
+    const show = !!g && en.state !== 'dying' && en.state !== 'gone' && Math.hypot(g.x - en.x, g.y - en.y) > 4;
+    if (!show) {
+      v.ghost?.setVisible(false);
+      return;
+    }
+    v.ghost ??= this.add.image(0, 0, v.s.texture.key, frame).setOrigin(v.s.originX, v.s.originY).setTintFill(0x69dbd8);
+    // Now and then the picture tears: shifted a couple of pixels across for a moment.
+    const tear = Math.floor(this.time.now / 90 + en.id) % 7 === 0 ? 2 * face : 0;
+    v.ghost
+      .setVisible(true)
+      .setFrame(frame)
+      .setScale(face, 1)
+      .setPosition(Math.round(g!.x) + tear, Math.round(g!.y))
+      .setAlpha(Math.floor(this.time.now / 70) % 3 === 0 ? 0.18 : 0.32)
+      .setDepth(g!.y - 0.5);
+  }
+
+  /**
    * The sheet stuck on a body (EnemyAnim.badge, the Muñeco's sale tag): on its spot of the frame,
    * mirrored with the body but never flipped (the price reads), with the body's tint; the phase
    * picks its frame (BossPhase.badge). Hidden on frames that have no box to stick it to.
@@ -6578,6 +6633,8 @@ interface EnemyView {
   badge?: Phaser.GameObjects.Image;
   /** It was spinning on the spot last frame (EnemyAnim.spin). */
   spinning?: boolean;
+  /** Its ghost, where it is about to snap to (BossBrain.lag: the Consola). */
+  ghost?: Phaser.GameObjects.Image;
 }
 
 /**

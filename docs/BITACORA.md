@@ -2,6 +2,60 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 01:10 (hora peninsular) — Hito M14b — (h10b1) El Muñeco desfila y la Consola va con lag
+- Contexto: sesión programada. Otra sesión tenía cogida la (h11c) (desde las 22:25, menos de 90 min),
+  así que cogí la siguiente: la (h10b). Era grande (cinco jefes): la dividí en (h10b1) planta 3
+  (Muñeco y Consola), (h10b2) el Director y (h10b3) la Centralita y la Trituradora. El `main` local
+  volvía a ser un clon viejo que divergía de `origin/main` (50 y 50 commits): lo guardé en la rama
+  local `backup-old-main` (sin subir) y puse `main` en `origin/main` con `git checkout -B` (el
+  `reset --hard` no me lo dejaba hacer el entorno). Salud al empezar: `check`, 1027 tests y `build`
+  en verde.
+- Hecho: M14b (h10b1).
+  - **El Muñeco de Moda desfila** (`BossBrain.catwalk`, `catwalkWalk`, `catwalkLeg`): anda como un
+    modelo, en tramos rectos, solo de lado o solo arriba y abajo, por turnos, alrededor de la
+    tostadora como alrededor de un rectángulo (de lado, a `keep` px a un lado de ella y 90 px como
+    mucho de una vez, cruzando al otro lado; arriba o abajo, a 60 px por encima o por debajo). Paso
+    1,5 veces el suyo, 0,6 mientras dispara; sin aceleración (un modelo no «arranca»). Al final de
+    cada tramo, o si algo se le pone delante, se para y posa 0,45 s (dividido por la rabia) con su
+    fotograma de pose y un flash de cámara (evento `pose`, sonido `obturador`; «Posando para el
+    catálogo» la primera vez). La pasarela de siempre (su ataque) empieza un tramo nuevo al acabar.
+  - **La Consola va con lag** (`BossBrain.lag`, `lagWalk`, `updateLag`): su paseo (el `bossRoam` de
+    todos, a 1,5 veces su paso) lo hace un fantasma (`Enemy.lagGhost`); ella se queda quieta y cada
+    0,55–0,95 s, entre ataques, salta a donde ha llegado el fantasma (evento `lag`: estática cian y
+    roja en los dos sitios, `zapear` agudo; «Conexión inestable» la primera vez). Uno de cada cinco
+    saltos es rubber-banding: vuelve a donde estaba antes del último salto, con el fantasma
+    («Reconectando...»). Nunca salta encima de la tostadora ni a un sitio ocupado (lo reintenta a
+    los 0,1 s). Actualizándose no hay lag (el fantasma también se para) y el cambio de fase lo
+    recoloca. El fantasma se dibuja como una silueta cian al 20–30 %, parpadeando y con un desgarro
+    de 2 px de vez en cuando (`drawLagGhost`); las balas le dan a ella, no al fantasma.
+  Tests: `tests/jefes-planta3-movimiento.test.ts` (8): datos únicos, el Muñeco anda en recto (menos
+  del 3 % de ticks en diagonal) y quieto mientras posa, alterna tramos y los de lado acaban cerca de
+  la fila de la tostadora, la pose usa su fotograma y se acorta con la rabia; la Consola no se mueve
+  entre saltos, salta 10+ veces en 30 s con algún rubber-banding (menos de la mitad), salta a donde
+  estaba el fantasma, no hace lag actualizándose y el cambio de fase le quita el fantasma;
+  determinismo. `tests/jefes-movimiento.test.ts` («entre ataques se mueve el 80 %») cuenta el
+  fantasma de la Consola y no cuenta las poses del Muñeco. e2e: `38ba-muneco-desfile` y
+  `65ba-consola-lag`.
+- Decisiones: el Muñeco «se mueve» como lo que es, un muñeco de escaparate que desfila y posa: ángulos
+  rectos y paradas que se leen y se pueden aprovechar para dispararle. La Consola, como el chiste de
+  todo juego en línea: el lag; el fantasma es el aviso de dónde va a aparecer. Primera versión del
+  Muñeco: tramos largos (hasta el lado contrario) y solo un 35 % del paso disparando: posaba 2 veces
+  en 25 s, no se notaba. Luego paso entero disparando: el bot ganaba mucho menos (65 → 51 %), demasiado
+  de golpe. Me quedé en 0,6 y tramos de 90 px. Con el desfile el combate seguía en ~100 s (encima del
+  objetivo de 45–90 de la (h1)), así que le bajé la vida 140 → 128: la dificultad, del movimiento. La
+  Consola quieta era un blanco fácil (el bot ganaba 79 → 86 %): el fantasma anda 1,5 veces más deprisa,
+  y los saltos son de 30–50 px.
+- Medidas (`runBoss`, 80 combates, antes → después): Muñeco gana 65 → 67,5 % en 100,4 → 99,4 s, 4,56 →
+  4,16 heridas; Consola 78,8 → 72,5 % en 85,2 → 90,1 s, 3,89 → 3,91 heridas. `npm run bot`: 0 fallos,
+  5 atascos (los de siempre); Consola 66,7 % en 89,2 s y Muñeco 63,3 % en 98,3 s (30 combates); la
+  planta 3 la gana el 28,6 % de los que llegan. 1035 tests en verde; e2e en verde (la primera vez falló
+  en el cartel del Director por tiempo, con el bot midiendo a la vez; sola, en verde).
+- Problemas conocidos: la cámara de la sala del jefe de la Juguetería corta lo que está pegado a la
+  pared de arriba (donde empieza el jefe); no es de esta tarea. El bot no aprovecha las poses del
+  Muñeco ni dispara al sitio del fantasma.
+- Siguiente paso: (h10b2) el Director: ahora rueda con `bossRoam`; darle algo suyo (la silla de
+  oficina: impulsos con los pies hacia atrás, girando, siempre de cara...). O la (h11c) si queda libre.
+
 ## 2026-11-14 00:05 (hora peninsular) — Hito M14b — (h10a2) El Router cambia de punto de acceso y la Nube es un nubarrón
 - Contexto: segunda tarea de la sesión, tras la (h10a1). Otra sesión tiene cogida la (h11c)
   (plantillas de sala); esta solo toca jefes, así que no se pisan.

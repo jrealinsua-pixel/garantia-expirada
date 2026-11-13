@@ -721,6 +721,13 @@ juegos del género» de `docs/DISENO.md`.
     router cambia de punto de acceso (avisa y se cambia el sitio con el repetidor más cerca de la
     tostadora, y sale atacando); la nube es un nubarrón (se queda encima de la tostadora,
     meciéndose a la deriva, y flota por encima de los muebles).
+  - [x] (h10b1) Planta 3: el Muñeco de Moda y la Consola Edición Coleccionista. Hecho el
+    2026-11-14: el Muñeco desfila (tramos rectos, solo de lado o solo arriba y abajo, alrededor de
+    la tostadora, y posa al final de cada uno con un flash); la Consola va con lag (su fantasma
+    anda delante, dibujado cian, y ella salta a donde ha llegado; a veces vuelve atrás).
+  - [ ] (h10b2) Planta 4: el Director de Recursos Inhumanos (en su silla de ruedas, y de pie en la
+    fase 3).
+  - [ ] (h10b3) Planta 5 y el final: la Centralita y la Trituradora.
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
   sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo
   la generación procedural: (h11a) los props nuevos que se usan, (h11b) decoración por planta,

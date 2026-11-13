@@ -859,8 +859,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       'El juguete del año pasado, todavía en su caja de escaparate. Sonríe como en el anuncio; ' +
       'los ojos no se han enterado de que el anuncio terminó.',
     // M10 (5b). The toughest yet (docs/DISENO.md said 300 before the weapons lost damage in M9b;
-    // 220 measured with the bot: see the log of 2026-11-05).
-    hp: 140,
+    // 220 measured with the bot: see the log of 2026-11-05). 140 → 128 with its catwalk (M14b
+    // (h10b1)): it keeps the toaster further off and the fight had gone over 100 s.
+    hp: 128,
     sprite: 'muneco-moda',
     anchor: { x: 36, y: 74 },
     hurt: { x: -26, y: -68, w: 52, h: 58 },
@@ -885,6 +886,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
     brain: {
       kind: 'boss',
       roam: { leg: [0.5, 1.2], burst: [0.6, 1.4], spread: 50 },
+      // «Desfile» (M14b (h10b1)): it walks like a model, in straight legs across and up and down
+      // round the toaster, posing at the end of each one.
+      catwalk: { stride: 1.5, pose: 0.45, rise: 60 },
       drift: 0.35,
       rage: 0.5,
       // The hands, out in front of the box: the accessories come out of there.
@@ -1482,6 +1486,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     brain: {
       kind: 'boss',
       roam: { leg: [0.5, 1.2], burst: [0.6, 1.5], spread: 70 },
+      // «Lag» (M14b (h10b1)): its ghost walks; it snaps to it now and then, or back where it was.
+      lag: { every: [0.55, 0.95], back: 0.2, pace: 1.5 },
       drift: 0.4,
       rage: 0.55,
       // Out of the disc tray, on its front.

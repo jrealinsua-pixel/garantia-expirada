@@ -553,6 +553,22 @@ export interface Enemy {
   waddleT?: number;
   waddleSide?: number;
   /**
+   * The Muñeco on its catwalk (BossBrain.catwalk): the end of the leg it walks (and whether it goes
+   * across), seconds of pose left at the end of one, which side of the toaster it walks to next, and
+   * whether its last leg went across.
+   */
+  catTo?: { x: number; y: number; across: boolean };
+  catPose?: number;
+  catSide?: number;
+  catAcross?: boolean;
+  /**
+   * The Consola lagging (BossBrain.lag): where its ghost has got (it snaps there), seconds to the
+   * next snap, and the spot of its last snap (where a rubber-band takes it back).
+   */
+  lagGhost?: { x: number; y: number; vx: number; vy: number };
+  lagT?: number;
+  lagPrev?: { x: number; y: number };
+  /**
    * Bosses that lay a conveyor belt (BossPhase.belt): the line along the end wall it rides (`x`),
    * how much faster than walking it goes there, and whether it has got there yet.
    */
@@ -734,6 +750,10 @@ export type SimEvent =
   | { type: 'handoff'; boss: number; relay: number; x: number; y: number; tx: number; ty: number }
   /** A boss walking by pivots lands the corner it swung (BossBrain.waddle): `side` 1 right, -1 left. */
   | { type: 'pivot'; boss: number; x: number; y: number; side: number }
+  /** A boss on its catwalk strikes a pose at the end of a leg (BossBrain.catwalk); `first`: its first. */
+  | { type: 'pose'; boss: number; x: number; y: number; first: boolean }
+  /** A lagging boss snaps from (x, y) to (tx, ty) (BossBrain.lag); `back`: rubber-banding back. */
+  | { type: 'lag'; boss: number; x: number; y: number; tx: number; ty: number; back: boolean }
   /** A forklift backing up: one beep (`first`: it has just put it in reverse). */
   | { type: 'reverseBeep'; x: number; y: number; first: boolean; source: number }
   /** A virtual assistant broke: «¿Le he ayudado?» over where it stood. */
