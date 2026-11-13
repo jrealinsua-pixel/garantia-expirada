@@ -1382,6 +1382,11 @@
       "sesion": "2026-11-13 12:55",
       "tarea": "M14b (h1): menos vida a enemigos y jefes (src/data/enemies.ts, src/sim/world.ts dureza de planta, tests de vida/jefes, tools/bot.ts solo medidas)",
       "desde": "2026-11-13T11:55:00Z"
+    },
+    {
+      "sesion": "2026-11-13 13:27",
+      "tarea": "M14b (h5): bidones que explotan antes, con más radio y daño, y su aviso (src/data/props.ts barril; src/sim/world.ts solo BLAST_FUSE; src/render/GameScene.ts drawDrums; tests/bidones.test.ts)",
+      "desde": "2026-11-13T12:27:00Z"
     }
   ]
 }
