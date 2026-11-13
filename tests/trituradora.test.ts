@@ -96,7 +96,7 @@ test('«Diagnóstico»: un ataque por jefe vencido, en orden y vuelta a empezar,
   assert.deepEqual(order, [0, 1, 2, 3, 4, 0, 1], 'uno por turno, en orden');
   assert.ok(scans.length >= 7);
   assert.equal(scans[0]!.line, (ph.attacks[0] as BossPatternAttack).scan);
-  assert.equal(scans[0]!.time, ph.attacks[0]!.telegraph);
+  assert.equal(scans[0]!.time, (ph.attacks[0] as BossPatternAttack).telegraph);
   assert.deepEqual(checkInvariants(w), []);
 });
 

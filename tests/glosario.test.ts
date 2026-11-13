@@ -82,7 +82,7 @@ test('las bajas por tipo se guardan, y un guardado viejo o raro no rompe nada', 
 test('el glosario: todos los enemigos salvo las piezas de jefe, los jefes al final y por plantas, y todas las armas', () => {
   assert.ok(!GLOSSARY_ENEMIES.includes('silla-director') && !GLOSSARY_ENEMIES.includes('repetidor'));
   const bosses = GLOSSARY_ENEMIES.filter((id) => ENEMIES[id]!.boss);
-  assert.deepEqual(bosses, ['nevera-suprema', 'lavadora-eco', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora']);
+  assert.deepEqual(bosses, ['nevera-suprema', 'lavadora-eco', 'router-wifi', 'nube-almacenamiento', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora']);
   assert.deepEqual(GLOSSARY_ENEMIES.slice(-bosses.length), bosses);
   assert.equal(GLOSSARY_ENEMIES.length, Object.values(ENEMIES).filter((e) => e.glossary !== false).length);
   assert.deepEqual([...GLOSSARY_WEAPONS].sort(), Object.keys(WEAPONS).sort());

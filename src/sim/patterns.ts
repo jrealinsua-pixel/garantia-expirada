@@ -25,10 +25,12 @@ import type { Rng } from './rng.ts';
  * spinning; red coiled springs, squashing and stretching; old keyboard keys, white with a red letter, tumbling.
  * `foam` and `sock` are the Lavadora Programa Eco's (M14 (j2)): big soap bubbles, cyan-rimmed with a
  * white glint, wobbling; and odd socks, red with a white heel and toe, flapping as they bounce.
+ * `drop` and `file` are the Nube de Almacenamiento's (M14 (j3)): raindrops, cyan with a white core,
+ * long as they fall; and files, a white sheet with a red corner folded down, fluttering.
  */
 export type BulletColor =
   | 'red' | 'cyan' | 'ice' | 'card' | 'invoice' | 'nut' | 'confetti' | 'accessory' | 'sticker' | 'strip' | 'sheet' | 'ink' | 'bizcard' | 'slide' | 'cut' | 'ticket' | 'steel' | 'bubble' | 'help'
-  | 'call' | 'note' | 'plug' | 'cord' | 'screw' | 'spring' | 'key' | 'foam' | 'sock';
+  | 'call' | 'note' | 'plug' | 'cord' | 'screw' | 'spring' | 'key' | 'foam' | 'sock' | 'drop' | 'file';
 
 /**
  * «Escribiendo…»: at `at` s it stops in mid-air for `wait` s, then sets off again (at its speed)

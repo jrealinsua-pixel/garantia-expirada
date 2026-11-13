@@ -28,6 +28,8 @@ export interface PropInstance {
    * warning, and (fromX, fromY) is where it was.
    */
   slide?: { fromX: number; fromY: number; toX: number; toY: number; t: number; warn: number; time: number };
+  /** A temporary prop (the Nube's folders, M14 (j3)): seconds left before it goes. */
+  life?: number;
 }
 
 /** The four ways a tipped table can face (its top, the side that stops bullets). */
@@ -172,6 +174,8 @@ const ENEMY_CHARS: Record<string, string> = {
   É: 'asistente-virtual',
   // Ó: the reception phone (M11 (4d)).
   Ó: 'telefono-recepcion',
+  // Ç: La Nube de Almacenamiento, floor 2's second boss (M14 (j3)), in the Router's room.
+  Ç: 'nube-almacenamiento',
   // À: La Lavadora Programa Eco, floor 1's second boss (M14 (j2)), in the Nevera's room.
   À: 'lavadora-eco',
   // Ú: La Centralita, floor 5's boss (M11 (5b)).

@@ -338,7 +338,9 @@ export interface Emitter {
    * How its warning looks, if not the usual closing ring: a camera flash charging on the floor, or
    * the square shadow of a stamp coming down (with `stamp`).
    */
-  mark?: 'flash' | 'stamp';
+  mark?: 'flash' | 'stamp' | 'rain';
+  /** «Lluvia en columnas» (mark `rain`): how far down the room its lane goes (px). */
+  lane?: number;
   /**
    * A stamp coming down where it fires (the Director's «Denegado», BossStampAttack): when the
    * warning ends, a square of ink centred `STAMP_LIFT` px under (x, y), and whoever is under it is hurt.
@@ -359,8 +361,9 @@ export interface FireOptions {
   /** Height of the muzzle above the floor (px, default 0). */
   height?: number;
   /** How its warning looks (Emitter.mark), and the stamp it brings down (Emitter.stamp). */
-  mark?: 'flash' | 'stamp';
+  mark?: 'flash' | 'stamp' | 'rain';
   stamp?: Emitter['stamp'];
+  lane?: number;
 }
 
 export interface Dummy {
@@ -491,6 +494,8 @@ export interface Enemy {
   deptMark?: { t: number; until: number };
   /** Bosses that go quiet (BossPhase.mute): seconds of attacks left before the next silence. */
   muteIn?: number;
+  /** «Sincronizando…» (BossSyncAttack): its damage taken when the bar started filling. */
+  syncFrom?: number;
   /**
    * Bosses: seconds left of the current leg of its walk, how fast (share of its speed), which way
    * round the player (1 or -1) and how far from it.
@@ -856,6 +861,16 @@ export type SimEvent =
   | { type: 'propHit'; x: number; y: number; damage: number; hp: number }
   | { type: 'propLit'; x: number; y: number; fuse: number }
   | { type: 'blast'; x: number; y: number; radius: number; prop: string; floorY: number }
+  /** A prop that breaks into nothing (PropDef.crumble) is gone: `shot` to bits, or its time up. */
+  | { type: 'propCrumble'; x: number; y: number; prop: string; shot: boolean }
+  /** «Almacenamiento lleno»: a boss drops temporary props (BossFolderAttack) at these spots. */
+  | { type: 'folders'; boss: number; spots: Array<{ x: number; y: number }> }
+  /** «Sincronizando…»: a boss starts filling its bar for `time` s (BossSyncAttack). */
+  | { type: 'sync'; boss: number; time: number }
+  /** The bar filled (`done`: the ring goes out) or was broken by the toaster. */
+  | { type: 'syncEnd'; boss: number; x: number; y: number; done: boolean }
+  /** A boss's rain: `cols` lanes marked from the back wall down. */
+  | { type: 'rain'; boss: number; cols: number }
   /** A table was tipped over (M9b 13b) to face `side`; hit while covering (`wear` of `hp`); broken. */
   | { type: 'tip'; x: number; y: number; side: TipSide }
   | { type: 'tableHit'; x: number; y: number; wear: number; hp: number; side: TipSide }
@@ -2938,7 +2953,7 @@ function updateBullets(w: World, held = false, enemyScale = 1): void {
       if (!b.stuck && (prop || isWallAt(w.room, b.x, fy))) {
         // A prop that can blow up takes the hit (an enemy bullet counts for little); so does a tipped table.
         const hit = b.owner === 'player' ? b.damage : ENEMY_PROP_DAMAGE;
-        if (prop?.def.hp) damageProp(w, prop, hit);
+        if (prop?.def.hp && !(prop.def.crumble && b.owner !== 'player')) damageProp(w, prop, hit);
         else if (prop?.tipped) wearTable(w, prop, hit);
         if (b.bounce && b.bounce > 0) {
           bounceBullet(w, b);
@@ -3316,7 +3331,15 @@ export function damageProp(w: World, pr: PropInstance, damage: number): void {
   if (!pr.def.hp || pr.fuse !== undefined) return;
   pr.damage = (pr.damage ?? 0) + damage;
   w.events.push({ type: 'propHit', x: pr.x, y: pr.y, damage: pr.damage, hp: pr.def.hp });
-  if (pr.damage >= pr.def.hp) lightProp(w, pr, BLAST_FUSE);
+  if (pr.damage < pr.def.hp) return;
+  if (pr.def.crumble) crumbleProp(w, pr, true);
+  else lightProp(w, pr, BLAST_FUSE);
+}
+
+/** A prop that breaks into nothing (PropDef.crumble): gone, shot to bits or its time up. */
+export function crumbleProp(w: World, pr: PropInstance, shot: boolean): void {
+  w.room.props = w.room.props.filter((o) => o !== pr);
+  w.events.push({ type: 'propCrumble', x: pr.x, y: pr.y, prop: pr.def.id, shot });
 }
 
 function lightProp(w: World, pr: PropInstance, fuse: number): void {
@@ -3328,6 +3351,11 @@ function lightProp(w: World, pr: PropInstance, fuse: number): void {
 /** Lit props burn down their fuse and blow up (M9b 13a). */
 function updateProps(w: World): void {
   for (const pr of w.room.props.slice()) {
+    // Temporary props (the Nube's folders) go when their time is up.
+    if (pr.life !== undefined && (pr.life -= DT) <= 0) {
+      crumbleProp(w, pr, false);
+      continue;
+    }
     if (pr.fuse === undefined) continue;
     pr.fuse -= DT;
     if (pr.fuse <= 0) blowUp(w, pr);
@@ -3425,6 +3453,7 @@ export function firePattern(w: World, def: PatternDef, x: number, y: number, aim
   if (opts.by !== undefined) e.by = opts.by;
   if (opts.mark) e.mark = opts.mark;
   if (opts.stamp) e.stamp = opts.stamp;
+  if (opts.lane !== undefined) e.lane = opts.lane;
   // A sweep shows where its arms start while it warns.
   if (def.kind === 'spiral' && def.preview) e.arms = shots.filter((s) => s.delay === 0).map((s) => s.angle);
   w.emitters.push(e);
@@ -3446,7 +3475,8 @@ export function telegraphProgress(e: Emitter): number {
 export function sourceTelegraph(w: World, source: number): number {
   let best = -1;
   for (const e of w.emitters) if (e.source === source) best = Math.max(best, telegraphProgress(e));
-  for (const en of w.enemies) if (en.id === source && warnsByItself(en)) best = Math.max(best, Math.min(1, en.t / en.until));
+  // (A boss syncing is not about to attack yet: its bar is the warning, drawn on its own.)
+  for (const en of w.enemies) if (en.id === source && warnsByItself(en) && en.syncFrom === undefined) best = Math.max(best, Math.min(1, en.t / en.until));
   return best;
 }
 
@@ -3464,7 +3494,7 @@ export interface Warning {
   /** Length of the aimed line, when it reaches a point (a webcam's line of sight to the player). */
   reach?: number;
   /** A camera flash charging on the floor instead of the closing ring (Emitter.mark); or the square shadow of a stamp coming down (`size`). */
-  mark?: 'flash' | 'stamp';
+  mark?: 'flash' | 'stamp' | 'rain';
   size?: { w: number; h: number };
   /** A photocopier scanning this enemy: the line is the green of its light, and the enemy glows. */
   scan?: number;
@@ -3485,6 +3515,7 @@ export function activeWarnings(w: World): Warning[] {
       wn.y += STAMP_LIFT;
       wn.size = { w: e.stamp.w, h: e.stamp.h };
     }
+    if (e.lane !== undefined) wn.size = { w: RAIN_LANE_W, h: e.lane };
     out.push(wn);
   }
   for (const en of w.enemies) {
@@ -3492,8 +3523,9 @@ export function activeWarnings(w: World): Warning[] {
     const b = en.def.brain;
     if (b.kind === 'boss') {
       const a = b.phases[en.bossPhase ?? 0]?.attacks[en.attack ?? 0];
-      // The voice menu warns with its zones on the floor (Enemy.menu), drawn on their own.
-      if (a?.kind === 'menu') continue;
+      // The voice menu warns with its zones on the floor (Enemy.menu), drawn on their own; the
+      // Nube's sync bar is drawn over it (the bar is the warning).
+      if (a?.kind === 'menu' || a?.kind === 'sync') continue;
       const at = a ? bossWarnSpot(en, b, a) : { x: en.x + b.muzzle.x * en.facing, y: en.y - b.muzzle.y };
       const k = Math.min(1, en.t / en.until);
       const color = a?.kind === 'spit' || a?.kind === 'runway' ? 'red' : a?.kind === 'frost' && a.sticker ? 'sticker' : 'ice';
@@ -3728,6 +3760,8 @@ function shove(w: World, box: Rect): void {
 
 /** How far above the floor a stamp's ink splashes out (px): its emitter is this much over the square's centre. */
 export const STAMP_LIFT = 2;
+/** Width of the lane a column of the Nube's rain marks while it warns (BossRainAttack), px. */
+export const RAIN_LANE_W = 14;
 
 /** A stamp of an emitter (Emitter.stamp) comes down: the square of ink, and whoever is under it. */
 function stampDown(w: World, e: Emitter, st: NonNullable<Emitter['stamp']>): void {
@@ -4108,6 +4142,8 @@ function reapEnemies(w: World): void {
         clearEnemyFire(w);
         // The helpers it called (BossPhase.summon) go down with it.
         for (const o of w.enemies) if (o.owner === en.id && o.def.brain.kind !== 'relay' && !isDead(o)) o.damageTaken = o.def.hp;
+        // Its temporary props (the Nube's folders) go too.
+        for (const pr of w.room.props.slice()) if (pr.life !== undefined) crumbleProp(w, pr, false);
         w.events.push({ type: 'bossDying', boss: en.id, x: en.x, y: en.y, duration: BOSS_DEATH, enemy: en.def.id });
         if (!w.hurtSinceIntro && !w.flawless.includes(en.def.id)) w.flawless.push(en.def.id);
       }

@@ -334,6 +334,30 @@ calcetín rojo pillado en la goma de la puerta y, en el costado, la etiqueta A++
 - Causa de baja: «Calcetín desparejado a 1400 revoluciones» o «Arrollado por un electrodoméstico de
   clase A+++».
 
+#### La Nube de Almacenamiento (planta 2, hecha en M14 (j3))
+
+«Sus archivos, a salvo en la nube. Ya no son suyos.» Jefa de planta de Informática, la otra que
+puede salir en lugar del Router (la semilla elige, más o menos a medias). Una nube gorda que flota
+sobre la sala, sin piernas (solo su sombra toca el suelo), con lóbulos iluminados desde arriba a la
+izquierda, párpados pesados de suficiencia, manos grandes flotando y una llovizna debajo. Chistes:
+la barra de almacenamiento en su costado oscuro, al **99 %** (100 % y en rojo cuando se llena); el
+cable USB que dice no necesitar, colgando de la barriga con el enchufe balanceándose; y la pegatina
+del candado **abierto** de «privacidad garantizada». 175 de vida (el Router, 170).
+
+- **Subiendo archivos** (toda la vida): **lluvia en columnas**: marca cinco calles de la sala, desde
+  la pared del fondo hasta abajo (una encima de ti, las demás a 50 px como poco), y por cada una cae
+  un chorro de gotas; un mueble en la calle te tapa. **Archivos** que revolotean en dos abanicos.
+  **Sincronizando…**: se para y llena una barra (3,2 s); si se llena, suelta todo lo que guardaba en
+  tres anillos de archivos y gotas. Si le haces 8 de daño mientras tanto, la barra se rompe: «Error
+  de sincronización», y se queda 1,8 s aturdida con una X en cada ojo (la ventana para pegarle).
+- **Almacenamiento lleno** (desde la mitad): «Su almacenamiento está lleno. Mejore su plan.» Se
+  hincha y se pone gris, con carpetas clavadas. Suelta un **muro de cinco carpetas** (`carpeta-nube`,
+  «Carpeta Sin Título (37)») atravesado a mitad de camino entre ella y tú: paran las balas de los
+  dos lados y el paso hasta que las rompes a tiros (8 de vida; su propia lluvia no las gasta, así
+  que también te sirven de techo) y se van solas a los 7 s. Seis calles de lluvia, abanicos más
+  densos y la sincronización más corta (2,8 s, se rompe con 9).
+- Causa de baja: «Sincronizado sin su consentimiento» o «Absorbido por la nube (sin opción de descarga)».
+
 ## Mecánicas
 
 ### Control

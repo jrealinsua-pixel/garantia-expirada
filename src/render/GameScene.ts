@@ -2912,6 +2912,56 @@ export class GameScene extends Phaser.Scene {
             }
           }
           break;
+        case 'rain':
+          // The Nube's rain: a gust and the hiss of the lanes filling.
+          this.sound2.play('soplar', { detune: -600, volume: 0.6 });
+          break;
+        case 'sync': {
+          // «Sincronizando…»: the bar is drawn over it (drawSyncBars); a rising beep and its line.
+          this.sound2.play('notificacion', { detune: -300 });
+          const boss = this.world.enemies.find((en) => en.id === e.boss);
+          if (boss) this.floatText(boss.x, boss.y + 26, fontText('Sincronizando…'), 0x9fe8e4, `sync:${boss.id}`, -2, e.time);
+          break;
+        }
+        case 'syncEnd': {
+          const boss = this.world.enemies.find((en) => en.id === e.boss);
+          // Its «Sincronizando…» goes with the bar.
+          for (const f of this.floats) if (f.key === `sync:${e.boss}`) f.life = 0;
+          if (e.done) {
+            // Synced: everything out at once.
+            this.sound2.play('estallido', { detune: 500, volume: 0.7 });
+            this.shake(180, 0.008);
+          } else {
+            // The bar broke: «Error de sincronización», the power going down, and it reels.
+            this.sound2.play('apagar');
+            this.sound2.play('denegado', { volume: 0.6 });
+            this.hitstop = Math.max(this.hitstop, 0.06);
+            if (boss) this.floatText(boss.x, boss.y + 26, fontText('Error de sincronización'), 0xe0453b, `menu:${boss.id}`, -6, 1.6);
+            for (let i = 0; i < 10; i++) this.spark(e.x + this.fx.range(-24, 24), e.y - 80, this.fx.range(0, Math.PI * 2), this.fx.range(40, 100), this.fx.int(1, 3));
+          }
+          break;
+        }
+        case 'folders':
+          // «Almacenamiento lleno»: folders thud down out of the cloud.
+          this.sound2.play('carton', { volume: 0.8 });
+          this.shake(100, 0.004);
+          for (const sp of e.spots) for (let i = 0; i < 3; i++) this.puff(sp.x + this.fx.range(-8, 8), sp.y - this.fx.range(0, 6), 0.45);
+          break;
+        case 'propCrumble': {
+          // A folder shot to bits (or its time up): paper everywhere, or it just fades back into the cloud.
+          const v = this.drumViews.get(`${e.x},${e.y}`);
+          if (v) {
+            this.drumViews.delete(`${e.x},${e.y}`);
+            v.shadow.destroy();
+            if (e.shot) v.s.destroy();
+            else this.tweens.add({ targets: v.s, alpha: 0, y: v.s.y - 6, duration: 300, onComplete: () => v.s.destroy() });
+          }
+          if (e.shot) {
+            this.sound2.play('triturar', { volume: 0.5, detune: 300 });
+            for (let i = 0; i < 9; i++) this.splinter(e.x + this.fx.range(-8, 8), e.y - this.fx.range(3, 14), this.fx.range(0, Math.PI * 2), this.fx.pick([0xf4f1e8, 0xe8bd62, 0xffe2a0]));
+          } else for (let i = 0; i < 3; i++) this.puff(e.x + this.fx.range(-6, 6), e.y - this.fx.range(4, 12), 0.5, 0xe2eaf5);
+          break;
+        }
         case 'mute': {
           // Gone quiet: the busy tone, three times over the second, and it written over her.
           // With a line of its own (the Lavadora weighing the load): two slow beeps of the display.
@@ -3500,12 +3550,14 @@ export class GameScene extends Phaser.Scene {
             // The Router reboots: everything goes dark and its line comes up over it.
             this.sound2.play('apagar');
             this.floatText(boss.x, boss.y + 18, fontText(e.reboot), 0xb7bed0, `reboot:${boss.id}`, -1, 4.6);
-          } else if (e.line && boss && (boss.def.id === 'director-rrhh' || boss.def.id === 'centralita' || boss.def.id === 'lavadora-eco')) {
+          } else if (e.line && boss && (boss.def.id === 'director-rrhh' || boss.def.id === 'centralita' || boss.def.id === 'lavadora-eco' || boss.def.id === 'nube-almacenamiento')) {
             // The Director announces it calmly (the clap is its own event): just the line. The
             // Centralita too, after a ring: a recording does not raise its voice. The Lavadora's
             // spin starts with its motor winding up.
             if (boss.def.id === 'centralita') this.sound2.play('timbre');
             if (boss.def.id === 'lavadora-eco') this.sound2.play('motor', { detune: 400 });
+            // The Nube: the notification of every app you never opened.
+            if (boss.def.id === 'nube-almacenamiento') this.sound2.play('notificacion');
             // Under its feet, unless that is where the phase card comes up: then over its head.
             const v = this.cameras.main.worldView;
             const low = boss.y + 16 - v.y > v.height * 0.7;
@@ -4635,6 +4687,9 @@ export class GameScene extends Phaser.Scene {
       // The Lavadora's (M14 (j2)): the foam bubbles wobble, slowly; the odd socks flap as they fly.
       if (b.color === 'foam') s.setFrame(Math.floor(this.time.now / 180 + b.id) % 2);
       if (b.color === 'sock') s.setFrame(Math.floor(this.time.now / 100 + b.id) % 2);
+      // The Nube's (M14 (j3)): the drops stretch as they fall; the files flutter.
+      if (b.color === 'drop') s.setFrame(Math.floor(this.time.now / 120 + b.id) % 2);
+      if (b.color === 'file') s.setFrame(Math.floor(this.time.now / 110 + b.id) % 2);
       // The photocopier's sheets tumble over and over.
       if (b.color === 'sheet' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 2);
       // The Director's business cards spin like the loyalty cards; his slides turn edge-on and back.
@@ -5372,6 +5427,10 @@ export class GameScene extends Phaser.Scene {
         this.drawStampShadow(g, x, y, wn.size.w, wn.size.h, k);
         continue;
       }
+      if (wn.mark === 'rain' && wn.size) {
+        this.drawRainLane(g, x, y, wn.size.w, wn.size.h, k);
+        continue;
+      }
       // Bullets: a ring closes in on the muzzle; when it reaches it, they come out.
       if (wn.bullets) {
         const r = Math.round(4 + 16 * (1 - k));
@@ -5412,6 +5471,56 @@ export class GameScene extends Phaser.Scene {
       g.fillStyle(0xf6c431, 1).fillRect(bx - 1, by, 2, 5).fillRect(bx - 1, by + 6, 2, 2);
     }
     this.drawCrateMarks(g);
+    this.drawSyncBars(g);
+  }
+
+  /**
+   * «Lluvia en columnas» (BossRainAttack): the lane fills with a faint cyan from the back wall down
+   * over the warning, its two edges dashed and crawling down, and drops gathering at the top.
+   */
+  private drawRainLane(g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number, k: number): void {
+    const len = Math.round(h * Math.min(1, 0.25 + k));
+    const x0 = x - Math.floor(w / 2);
+    g.fillStyle(0x69dbd8, 0.08 + 0.12 * k).fillRect(x0, y, w, len);
+    const off = Math.floor(this.time.now / 50) % 6;
+    for (let d = off; d < len; d += 6) {
+      for (const ex of [x0, x0 + w - 1]) {
+        g.fillStyle(0x0e0c16, 1).fillRect(ex - 1, y + d - 1, 3, 4);
+        g.fillStyle(0x69dbd8, 1).fillRect(ex, y + d, 1, 2);
+      }
+    }
+    // The drops gathering where it will fall from: a bead that swells.
+    const r = 1 + Math.round(3 * k);
+    g.fillStyle(0x0e0c16, 1).fillRect(x - r - 1, y - r - 1, r * 2 + 3, r * 2 + 3);
+    g.fillStyle(0x69dbd8, 1).fillRect(x - r, y - r, r * 2 + 1, r * 2 + 1);
+    g.fillStyle(0xf4f1e8, 1).fillRect(x - r, y - r, 1, 1);
+  }
+
+  /**
+   * «Sincronizando…» (BossSyncAttack): a progress bar under the boss filling in cyan; under it, in
+   * red, how close the toaster's shots are to breaking it (it trembles more the closer).
+   */
+  private drawSyncBars(g: Phaser.GameObjects.Graphics): void {
+    for (const en of this.world.enemies) {
+      const b = en.def.brain;
+      if (b.kind !== 'boss' || en.state !== 'warn' || en.syncFrom === undefined) continue;
+      const a = b.phases[en.bossPhase ?? 0]?.attacks[en.attack ?? 0];
+      if (a?.kind !== 'sync') continue;
+      const k = Math.min(1, en.t / Math.max(en.until, 1e-6));
+      const hurt = Math.min(1, (en.damageTaken - en.syncFrom) / a.cancel);
+      const W = 44;
+      const jit = hurt > 0.5 ? (Math.floor(this.time.now / 40) % 2 ? 1 : -1) : 0;
+      const x0 = Math.round(en.x - W / 2) + jit;
+      // Under the cloud, over its shadow: over its head it would be off the top of the screen.
+      const y0 = Math.round(en.y) + 6;
+      g.fillStyle(0x0e0c16, 1).fillRect(x0 - 1, y0 - 1, W + 2, 9);
+      g.fillStyle(0x2c3048, 1).fillRect(x0, y0, W, 5);
+      g.fillStyle(0x69dbd8, 1).fillRect(x0, y0, Math.round(W * k), 5);
+      g.fillStyle(0xb6f1f0, 1).fillRect(x0, y0, Math.round(W * k), 1);
+      // The cracks: red from the right as the shots go in.
+      g.fillStyle(0xe0453b, 1).fillRect(x0 + W - Math.round(W * hurt), y0 + 6, Math.round(W * hurt), 1);
+      for (let i = 1; i < 4 && hurt > i * 0.25; i++) g.fillStyle(0x0e0c16, 1).fillRect(x0 + Math.round((W * i) / 4), y0, 1, 5);
+    }
   }
 
   /**
@@ -5916,7 +6025,7 @@ const BULLET_TEXTURES: Record<BulletColor, string> = {
   confetti: 'bala-confeti', accessory: 'bala-accesorio', sticker: 'bala-pegatina', strip: 'bala-tira', sheet: 'bala-folio', ink: 'bala-tinta',
   bizcard: 'bala-tarjeta-visita', slide: 'bala-diapositiva', cut: 'bala-recorte', ticket: 'tique-turno', steel: 'bola-acero', bubble: 'bocadillo', help: 'boton-ayuda',
   call: 'bala-llamada', note: 'nota-espera', plug: 'bala-clavija', cord: 'bala-cable',
-  screw: 'bala-tornillo', spring: 'bala-muelle', key: 'bala-tecla', foam: 'bala-espuma', sock: 'bala-calcetin',
+  screw: 'bala-tornillo', spring: 'bala-muelle', key: 'bala-tecla', foam: 'bala-espuma', sock: 'bala-calcetin', drop: 'bala-gota', file: 'bala-archivo',
 };
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */

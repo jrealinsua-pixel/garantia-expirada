@@ -446,6 +446,11 @@ export interface PropDef {
    * but the toaster rolls over it (a roll that would end on top carries on until it is off).
    */
   low?: boolean;
+  /**
+   * Breaks into nothing when its `hp` is gone, instead of blowing up (the Nube's folders, M14 (j3)),
+   * and only the toaster's bullets wear it.
+   */
+  crumble?: boolean;
 }
 
 export interface DummyDef {
@@ -736,7 +741,54 @@ export interface BossStampAttack {
   pose?: number;
 }
 
-export type BossAttack = BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack | BossStampAttack | BossMenuAttack;
+/**
+ * «Lluvia en columnas» (the Nube de Almacenamiento, M14 (j3)): `cols` lanes of the room, one over
+ * the player and the rest at least `gap` px apart, are marked from the back wall down (`telegraph`
+ * s); then each lets `pattern` (aimed straight down) fall from the back wall. Furniture in a lane
+ * shelters whoever is under it.
+ */
+export interface BossRainAttack {
+  kind: 'rain';
+  cols: number;
+  gap: number;
+  pattern: string;
+  telegraph: number;
+  weight: number;
+}
+
+/**
+ * «Almacenamiento lleno» (the Nube, M14 (j3)): `count` folders (prop `prop`, with its `hp`) drop
+ * out of it in a wall across the way between it and the player, `dist` of the way to the player;
+ * they stop bullets (the toaster's too) and walking until they are shot to bits, and are gone
+ * anyway after `life` s. Its own bullets do not wear them. Warned like frost (`telegraph` s).
+ */
+export interface BossFolderAttack {
+  kind: 'folders';
+  count: number;
+  prop: string;
+  life: number;
+  dist: number;
+  telegraph: number;
+  weight: number;
+}
+
+/**
+ * «Sincronizando…» (the Nube, M14 (j3)): it stops and fills a bar for `time` s; if it fills, it
+ * lets `pattern` out all round. If the toaster hurts it by `cancel` meanwhile, the bar breaks:
+ * «Error de sincronización», and it is stunned for `stun` s (frame EnemyAnim.stun).
+ */
+export interface BossSyncAttack {
+  kind: 'sync';
+  time: number;
+  cancel: number;
+  pattern: string;
+  stun: number;
+  weight: number;
+}
+
+export type BossAttack =
+  | BossPatternAttack | BossFrostAttack | BossSpitAttack | BossDropAttack | BossRunwayAttack | BossStampAttack | BossMenuAttack
+  | BossRainAttack | BossFolderAttack | BossSyncAttack;
 
 /**
  * «Su llamada es importante» (the Centralita's voice menu, M11 (5b)): `zones` numbered zones light

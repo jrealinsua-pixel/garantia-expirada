@@ -462,6 +462,34 @@ export const PATTERNS: Record<string, PatternDef> = {
       { at: 0.4, pattern: { kind: 'ring', count: 14, speed: 40, accel: 70, maxSpeed: 110, offsetDeg: 12.86, color: 'cyan' } },
     ],
   },
+  // La Nube de Almacenamiento (M14 (j3)). «Lluvia en columnas»: a stream of drops down each lane.
+  'nube-lluvia': { kind: 'burst', count: 6, interval: 0.15, jitterDeg: 0, speed: 125, life: 4, color: 'drop' },
+  'nube-lluvia-2': { kind: 'burst', count: 8, interval: 0.13, jitterDeg: 0, speed: 140, life: 4, color: 'drop' },
+  // «Subiendo archivos»: files fluttering out at you, two fans, the second turned so they cross.
+  'nube-archivos': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 4, spreadDeg: 42, speed: 108, wave: { amp: 4, freq: 1.4 }, color: 'file' } },
+      { at: 0.35, pattern: { kind: 'fan', count: 5, spreadDeg: 56, speed: 108, wave: { amp: 4, freq: 1.4 }, color: 'file' } },
+    ],
+  },
+  'nube-archivos-2': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 110, wave: { amp: 4, freq: 1.4 }, color: 'file' }, turnDeg: -10 },
+      { at: 0.28, pattern: { kind: 'fan', count: 5, spreadDeg: 50, speed: 110, wave: { amp: 4, freq: 1.4 }, color: 'file' }, turnDeg: 10 },
+      { at: 0.56, pattern: { kind: 'fan', count: 6, spreadDeg: 64, speed: 110, wave: { amp: 4, freq: 1.4 }, color: 'file' } },
+    ],
+  },
+  // «Sincronizando…» done: everything it held goes out at once, files and rain, in two offset rings.
+  'nube-sincronizada': {
+    kind: 'sequence',
+    parts: [
+      { at: 0, pattern: { kind: 'ring', count: 24, speed: 78, color: 'file' } },
+      { at: 0.3, pattern: { kind: 'ring', count: 24, speed: 92, offsetDeg: 7.5, color: 'drop' } },
+      { at: 0.6, pattern: { kind: 'ring', count: 24, speed: 78, offsetDeg: 3.75, color: 'file' } },
+    ],
+  },
   // A frost ball shatters where it lands: a few slow splinters.
   'escarcha-esquirlas': { kind: 'ring', count: 6, speed: 52, offsetDeg: 30, color: 'ice' },
   // Generic aimed fan, for the weaker enemies.

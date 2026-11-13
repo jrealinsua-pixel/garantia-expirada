@@ -1120,7 +1120,7 @@ export function bossRage(en: Enemy, b: BossBrain): number {
 /** Seconds of warning of the boss's current attack (0 if it has none). */
 function bossWarnTime(phase: BossPhase, en: Enemy): number {
   const a = en.attack === undefined ? undefined : phase.attacks[en.attack];
-  return a?.telegraph ?? 0;
+  return a && 'telegraph' in a ? a.telegraph : 0;
 }
 
 /**
@@ -1591,6 +1591,22 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             });
           }
           enter(en, 'fire', a.telegraph + patternDuration(def) + 0.35);
+        } else if (a.kind === 'rain') {
+          // «Lluvia en columnas»: lanes marked from the back wall down, one over the player.
+          const def = PATTERNS[a.pattern];
+          if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
+          const top = (BACK_WALL_ROWS + 0.25) * TILE;
+          const lane = w.room.h - TILE - top;
+          for (const x of rainColumns(w, a.cols, a.gap)) {
+            firePattern(w, def, x, top, Math.PI / 2, { telegraph: a.telegraph, source: en.id, by: en.def.id, height: RAIN_HEIGHT, mark: 'rain', lane });
+          }
+          w.events.push({ type: 'rain', boss: en.id, cols: a.cols });
+          enter(en, 'fire', a.telegraph + patternDuration(def) + 0.3);
+        } else if (a.kind === 'sync') {
+          // «Sincronizando…»: it stops to fill its bar; hurting it enough meanwhile breaks it.
+          en.syncFrom = en.damageTaken;
+          w.events.push({ type: 'sync', boss: en.id, time: a.time });
+          enter(en, 'warn', a.time);
         } else if (a.kind === 'menu') {
           // «Su llamada es importante»: the zones light up while it reads the menu out.
           en.menu = layMenu(w, a);
@@ -1610,12 +1626,20 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
           enter(en, 'warn', a.telegraph);
           const at = bossWarnSpot(en, b, a);
           const color = a.kind === 'spit' ? 'red' : a.kind === 'frost' && a.sticker ? 'sticker' : 'ice';
-          w.events.push({ type: 'telegraph', x: at.x, y: at.y, time: a.telegraph, aim, aimed: false, color, source: en.id });
+          w.events.push({ type: 'telegraph', x: at.x, y: at.y, time: 'telegraph' in a ? a.telegraph : 0, aim, aimed: false, color, source: en.id });
         }
       }
       break;
     }
     case 'warn': {
+      const sa = phase.attacks[en.attack ?? 0];
+      // «Sincronizando…»: hurt enough while the bar fills, it breaks, and it is left dazed.
+      if (sa?.kind === 'sync' && en.damageTaken - (en.syncFrom ?? en.damageTaken) >= sa.cancel) {
+        delete en.syncFrom;
+        w.events.push({ type: 'syncEnd', boss: en.id, x: en.x, y: en.y, done: false });
+        enter(en, 'stun', sa.stun);
+        break;
+      }
       // End of the frost warning: lob the balls.
       if (en.t >= en.until) {
         const a = phase.attacks[en.attack ?? 0]!;
@@ -1644,6 +1668,19 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
             const opts = { r: 12, life: 0, slow: 1, flight: a.flight * w.rng.range(0.75, 1.25), shatter: a.burst, product, source: en.id, by: en.def.id };
             throwFrost(w, sx, en.y, sh, tx, ty, a.look ? { ...opts, look: a.look } : opts);
           }
+        } else if (a.kind === 'sync') {
+          // Synced: everything it was holding goes out all round, at once.
+          delete en.syncFrom;
+          const def = PATTERNS[a.pattern];
+          if (!def) throw new Error(`Unknown pattern ${a.pattern}`);
+          firePattern(w, def, mx, en.y - mh, Math.atan2(p.y - HAND_HEIGHT - (en.y - mh), p.x - mx), { source: en.id, by: en.def.id, height: mh });
+          w.events.push({ type: 'syncEnd', boss: en.id, x: en.x, y: en.y, done: true });
+          enter(en, 'fire', patternDuration(def) + 0.4);
+          break;
+        } else if (a.kind === 'folders') {
+          // «Almacenamiento lleno»: a wall of folders across the way to the player.
+          const spots = dropFolders(w, en, a);
+          w.events.push({ type: 'folders', boss: en.id, spots });
         } else if (a.kind === 'menu') {
           // «Para reclamaciones, pulse 3»: which one; the rain is `wait` s away.
           const m = en.menu;
@@ -1761,6 +1798,59 @@ const BOSS_CLAP = 0.55;
 
 /** Height a dropped connection bursts at (px above the floor). */
 const DROP_HEIGHT = 3;
+/** Height the Nube's rain falls at (it comes from above, so it is drawn high). */
+const RAIN_HEIGHT = 18;
+
+/**
+ * The lanes of «Lluvia en columnas» (BossRainAttack): one over the player, the rest at random
+ * across the room's floor, never closer than `gap` px to each other.
+ */
+export function rainColumns(w: World, cols: number, gap: number): number[] {
+  const lo = TILE * 1.5;
+  const hi = w.room.w - TILE * 1.5;
+  const xs = [Math.max(lo, Math.min(hi, w.player.x))];
+  for (let tries = 0; xs.length < cols && tries < 60; tries++) {
+    const x = w.rng.range(lo, hi);
+    if (xs.every((o) => Math.abs(o - x) >= gap)) xs.push(x);
+  }
+  return xs.map((x) => Math.round(x));
+}
+
+/**
+ * «Almacenamiento lleno» (BossFolderAttack): `count` folders in a row across the line from the boss
+ * to the player, `dist` of the way along it, one prop width apart; any spot on a wall, on another
+ * prop, on the toaster or on the boss is skipped. Returns where they went.
+ */
+export function dropFolders(w: World, en: Enemy, a: Extract<BossAttack, { kind: 'folders' }>): Array<{ x: number; y: number }> {
+  const def = PROPS[a.prop];
+  if (!def) throw new Error(`Unknown prop ${a.prop}`);
+  const p = w.player;
+  const dx = p.x - en.x;
+  const dy = p.y - en.y;
+  const d = Math.hypot(dx, dy) || 1;
+  const cx = en.x + dx * a.dist;
+  const cy = en.y + dy * a.dist;
+  // Across the line: perpendicular to it (squashed a little, the floor is seen from above).
+  const nx = -dy / d;
+  const ny = dx / d;
+  const step = def.box.w + 4;
+  const out: Array<{ x: number; y: number }> = [];
+  const pb = playerFeetBox(p, p.def.footRadius + 6);
+  const eb = playerFeetBox(en, en.def.footRadius + 4);
+  for (let k = 0; k < a.count; k++) {
+    const off = (k - (a.count - 1) / 2) * step;
+    const x = Math.round(cx + nx * off);
+    const y = Math.round(cy + ny * off);
+    const box = { x: x + def.box.x, y: y + def.box.y, w: def.box.w, h: def.box.h };
+    if (box.x < TILE || box.x + box.w > w.room.w - TILE || box.y < BACK_WALL_ROWS * TILE || box.y + box.h > w.room.h - TILE) continue;
+    if (!isClear(w, x, y + def.box.y + def.box.h / 2, Math.max(def.box.w, def.box.h) / 2)) continue;
+    if (overlaps(box, pb) || overlaps(box, eb)) continue;
+    if (w.room.props.some((o) => overlaps(o.box, box))) continue;
+    w.room.props.push({ def, x, y, box, life: a.life });
+    out.push({ x, y });
+  }
+  return out;
+}
 
 /** How far in from the side walls the catwalk ends (px): the boss's body has to fit. */
 const RUNWAY_MARGIN = TILE * 2.5;

@@ -2,6 +2,48 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 02:45 (hora peninsular) — Hito M14 — Jefes al azar (j3): la Nube de Almacenamiento
+- Contexto: el `main` local estaba otra vez viejo (en M11); lo puse en `origin/main` (los commits
+  viejos siguen en el reflog de este clon; ya estaban guardados como `main-stale` en otros). Salud al
+  empezar: `check`, 918 tests, `build` y `bot` en verde. La (l3) estaba cogida y terminó mientras
+  apuntaba la mía; ahora otra sesión lleva la (l4), que no toca estos archivos.
+- Hecho: **la Nube de Almacenamiento** (`nube-almacenamiento`, letra `Ç`), el segundo jefe de la
+  planta 2, en `FLOOR_BOSS_POOLS[2]` junto al Router (sale más o menos a medias). Diseño en
+  `docs/DISENO.md`. Sprite nuevo (`tools/sprites/nube.ts`, 72×76, 12 fotogramas): nube gorda que
+  flota sin piernas, lóbulos con luz arriba a la izquierda, párpados de suficiencia, manos
+  flotantes, llovizna; chistes: la barra de almacenamiento al 99 % (100 % y roja cuando se llena), el
+  cable USB colgando con el enchufe balanceándose y la pegatina del candado abierto. Fotogramas:
+  cuatro flotando, aguantando la respiración (aviso y sincronización) y el error (X en los ojos); en
+  la fase 2, gris, hinchada y con carpetas clavadas. Balas nuevas: gota (`drop`) y archivo (`file`);
+  prop nuevo: la carpeta (`carpeta-nube`, «Carpeta Sin Título (37)»).
+  Tres ataques nuevos, genéricos, en los datos (`src/data/types.ts`):
+  **`rain`** (lluvia en columnas: calles marcadas de la pared del fondo hacia abajo, una sobre el
+  jugador y las demás separadas `gap`; `mark: 'rain'` y `Emitter.lane`, el render las pinta con
+  bordes discontinuos y la gota que se hincha), **`sync`** («Sincronizando…»: una barra que se llena
+  bajo la nube; si se llena, tres anillos de archivos y gotas; si le haces `cancel` de daño mientras
+  tanto, «Error de sincronización» y aturdida `stun` s) y **`folders`** (un muro de props
+  temporales atravesado entre el jefe y el jugador: `PropDef.crumble` —se deshacen sin explotar y
+  solo las gastan las balas del jugador— y `PropInstance.life`; se van al caer el jefe). Eventos
+  `rain`, `sync`, `syncEnd`, `folders`, `propCrumble` con su sonido, partículas y textos. Bot, glosario,
+  créditos, causa de baja. Tests: `tests/nube.test.ts` (6) y ajustes en final, glosario, textos,
+  jefes-movimiento y trituradora (tipo). e2e `64a`–`64f`.
+- Decisiones: la barra va **debajo** de la nube y no encima: la sala del Router la pone pegada a la
+  pared del fondo y por encima se salía de la pantalla. Mientras sincroniza no brilla como un aviso
+  (`sourceTelegraph` la salta): la barra es el aviso, y 3 s de nube dorada no se leían. «Romper la
+  barra» es hacerle daño mientras se llena (8 en la fase 1, 9 en la 2: con el Secador hay que darle
+  casi todo el rato), más claro que una barra con su propia vida. Su propia lluvia no gasta las
+  carpetas: así también hacen de techo, y el muro tiene dos caras. Flota solo en el dibujo: se mueve
+  como los demás jefes (choca con muebles); un vuelo de verdad no aportaba y complicaba el bot.
+- Medidas: el bot contra la Nube (30 combates): primera versión (160 de vida, 4 calles, barra que se
+  rompía con 13) ganaba el 40 % y **nunca** rompía la barra (78 de 78 llenas); con la barra a 8 rompía
+  1 de cada 8 pero ganaba el 57 %; subí a 175 de vida, 5/6 calles y archivos a 108 px/s: gana el
+  33 % en 115 s, 5,3 heridas (el Router, 20 % en 102 s y 5,6). `npm run bot`: 200 partidas, 0 fallos;
+  planta 1 con daño la gana el 35 % (igual). 934 tests en verde.
+- Problemas conocidos: el bot casi nunca rompe las carpetas (espera a que caduquen: no dispara sin
+  línea limpia); no molesta, pero mide la Nube algo más fácil de lo que será para quien se quede
+  atrapado detrás.
+- Siguiente paso: (j4) la Consola Edición Coleccionista, el segundo jefe de la planta 3.
+
 ## 2026-11-13 01:25 (hora peninsular, de `date`) — Hito M14 — Logros (l3): el contenido limitado
 - Contexto: el `main` local volvía a estar divergido (lo guardé como `main-stale` y puse `main` en
   `origin/main`). Salud al empezar: `check`, 912 tests, `build` y `bot` en verde. La (j2) estaba

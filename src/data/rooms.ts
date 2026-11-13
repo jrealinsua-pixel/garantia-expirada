@@ -2264,7 +2264,8 @@ export const FLOOR_BOSS_6 = 'Ü';
 export const FLOOR_BOSS_POOLS: Readonly<Record<number, readonly string[]>> = {
   // M14 (j2): or La Lavadora Programa Eco (À).
   1: [FLOOR_BOSS_1, 'À'],
-  2: [FLOOR_BOSS_2],
+  // M14 (j3): or La Nube de Almacenamiento (Ç).
+  2: [FLOOR_BOSS_2, 'Ç'],
   3: [FLOOR_BOSS_3],
   4: [FLOOR_BOSS_4],
   5: [FLOOR_BOSS_5],

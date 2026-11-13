@@ -34,6 +34,8 @@ export interface BotReport {
   lavadora?: BossReport;
   /** The same against floor 2's boss, el Router del Wifi, in its Sala de Redes. */
   router?: BossReport;
+  /** Floor 2's other boss, La Nube de Almacenamiento (M14 (j3)), in the same room. */
+  nube?: BossReport;
   /** And against floor 3's, el Muñeco de Moda, in its Escaparate de Novedades. */
   muneco?: BossReport;
   /** And floor 4's, El Director de Recursos Inhumanos, in the Sala de Juntas (M10 planta 4 5b). */
@@ -621,6 +623,9 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
   const router = runBoss(bosses, 240, 'jefe-informatica', 2);
   failed += router.errors.length;
   errors.push(...router.errors);
+  const nube = runBoss(bosses, 240, 'jefe-informatica', 2, 'Ç');
+  failed += nube.errors.length;
+  errors.push(...nube.errors);
   const muneco = runBoss(bosses, 240, 'jefe-jugueteria', 3);
   failed += muneco.errors.length;
   errors.push(...muneco.errors);
@@ -653,6 +658,7 @@ export function runBots(games: number, seconds: number, floors = 0, bosses = 0):
     jefe: boss.report,
     lavadora: lavadora.report,
     router: router.report,
+    nube: nube.report,
     muneco: muneco.report,
     director: director.report,
     centralita: centralita.report,
@@ -717,6 +723,14 @@ if (import.meta.main) {
       `${r.combates} combates contra el Router · gana el ${r.gana} % en ${r.segundos} s (${r.minimo}–${r.maximo} s) · ` +
         `${r.heridas} heridas por combate (${r.heridasFase1} en la fase 1, ${r.heridasFase2} en la 2) · ` +
         `llega a la fase 2 el ${r.llegaFase2} %, a los ${r.segundoFase2} s`,
+    );
+  }
+  const nb = report.nube;
+  if (nb?.combates) {
+    console.log(
+      `${nb.combates} combates contra la Nube · gana el ${nb.gana} % en ${nb.segundos} s (${nb.minimo}–${nb.maximo} s) · ` +
+        `${nb.heridas} heridas por combate (${nb.heridasFase1} subiendo archivos, ${nb.heridasFase2} con el almacenamiento lleno) · ` +
+        `llega a la fase 2 el ${nb.llegaFase2} %, a los ${nb.segundoFase2} s`,
     );
   }
   const m = report.muneco;

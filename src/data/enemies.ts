@@ -1356,6 +1356,70 @@ export const ENEMIES: Record<string, EnemyDef> = {
     },
     boss: { title: 'La Lavadora Programa Eco', motto: 'Tres horas para lavar lo mismo. Pero ahorra.', subtitle: 'Jefa de planta · Electrodomésticos' },
   },
+  // M14 (j3): floor 2's second boss, drawn instead of the Router by some seeds (FLOOR_BOSS_POOLS).
+  'nube-almacenamiento': {
+    id: 'nube-almacenamiento',
+    name: 'La Nube de Almacenamiento',
+    description:
+      'Guarda todo lo que le das y te lo devuelve en cuotas mensuales. Lleva veinte años al 99 % y ' +
+      'nunca ha borrado nada: lo llama «sincronizar».',
+    // Like the Router (170): the same floor. Measured with the bot (j3).
+    hp: 175,
+    sprite: 'nube-almacenamiento',
+    anchor: { x: 36, y: 74 },
+    // It floats: the body is up in the air, its shadow on the floor.
+    hurt: { x: -30, y: -66, w: 60, h: 40 },
+    footRadius: 16,
+    contactPush: 260,
+    contactDamage: 1,
+    knockbackScale: 0,
+    loot: { coupons: [6, 9], hearts: 1 },
+    // Six frames per phase (tools/sprites/nube.ts): 0-3 floating (it bobs and its wisps drift), 4
+    // holding its breath (warning, syncing), 5 the connection error. «Almacenamiento lleno» is the
+    // same six on, swollen and grey.
+    anim: { idle: [0, 1, 2, 3], idleMs: 280, walk: [0, 1, 2, 3], stepPx: 14, warn: 4, stun: 5 },
+    brain: {
+      kind: 'boss',
+      roam: { leg: [0.4, 1.1], burst: [0.6, 1.4], spread: 60 },
+      drift: 0.45,
+      rage: 0.5,
+      // Out of the bottom of the cloud, in front: where it rains from.
+      muzzle: { x: 6, y: 42 },
+      phases: [
+        {
+          name: 'Subiendo archivos',
+          from: 1,
+          walkSpeed: 40,
+          keep: 140,
+          rest: [0.9, 1.4],
+          attacks: [
+            // «Lluvia en columnas»: lanes marked from the back wall down, one over you.
+            { kind: 'rain', cols: 5, gap: 50, pattern: 'nube-lluvia', telegraph: 0.9, weight: 3 },
+            { kind: 'pattern', pattern: 'nube-archivos', telegraph: 0.6, weight: 2 },
+            // «Sincronizando…»: a bar fills; shoot it hard enough and it breaks.
+            { kind: 'sync', time: 3.2, cancel: 8, pattern: 'nube-sincronizada', stun: 1.8, weight: 2 },
+          ],
+        },
+        {
+          // Half its life gone: full. Folders everywhere, and an offer to upgrade.
+          name: 'Almacenamiento lleno',
+          from: 0.5,
+          walkSpeed: 46,
+          keep: 130,
+          rest: [0.8, 1.2],
+          line: 'Su almacenamiento está lleno. Mejore su plan.',
+          frameShift: 6,
+          attacks: [
+            { kind: 'folders', count: 5, prop: 'carpeta-nube', life: 7, dist: 0.45, telegraph: 0.7, weight: 3 },
+            { kind: 'rain', cols: 6, gap: 44, pattern: 'nube-lluvia-2', telegraph: 0.85, weight: 3 },
+            { kind: 'pattern', pattern: 'nube-archivos-2', telegraph: 0.55, weight: 2 },
+            { kind: 'sync', time: 2.8, cancel: 9, pattern: 'nube-sincronizada', stun: 1.6, weight: 2 },
+          ],
+        },
+      ],
+    },
+    boss: { title: 'La Nube de Almacenamiento', motto: 'Sus archivos, a salvo en la nube. Ya no son suyos.', subtitle: 'Jefa de planta · Informática' },
+  },
   'nevera-suprema': {
     id: 'nevera-suprema',
     name: 'La Nevera Suprema',

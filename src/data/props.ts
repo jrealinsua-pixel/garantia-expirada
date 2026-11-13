@@ -32,6 +32,10 @@ export const PROPS: Record<string, PropDef> = {
   // Not placed by templates: El Muñeco de Moda leaves it behind when it breaks out (BossPhase.shed, M10 5c).
   // Two tiles wide, it stops bullets from both sides: cover for the toaster, and for the Muñeco.
   'caja-muneco': { id: 'caja-muneco', name: 'Caja de la Temporada Pasada', box: { x: -24, y: -22, w: 48, h: 20 }, blocksBullets: true },
+  // Not placed by templates: La Nube de Almacenamiento drops them in a wall when «Almacenamiento
+  // lleno» (BossFolderAttack, M14 (j3)). They stop bullets both ways until shot to bits (only the
+  // toaster's bullets wear them) and are gone after a few seconds anyway.
+  'carpeta-nube': { id: 'carpeta-nube', name: 'Carpeta Sin Título (37)', box: { x: -8, y: -11, w: 16, h: 10 }, blocksBullets: true, hp: 8, crumble: true },
   // The long table of the Sala de Juntas (M10 planta 4 5a): seven tiles of walnut in the middle of
   // the Director's room. It stops bullets from every side and does not tip over: you go round it.
   // The box matches tools/sprites/director.ts TABLE_BOX (the sprite is 168x52).

@@ -94,6 +94,7 @@ test('variado: no se repite el mismo chiste en dos sitios', () => {
     'La Nevera Suprema',
     'La Lavadora Programa Eco',
     'El Router del Wifi',
+    'La Nube de Almacenamiento',
     'El Muñeco de Moda',
     'El Director de Recursos Inhumanos',
     'La Centralita',

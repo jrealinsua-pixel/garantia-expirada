@@ -275,6 +275,30 @@
     "frameH": 12,
     "frames": 2
   },
+  "nube-almacenamiento": {
+    "file": "nube-almacenamiento.png",
+    "frameW": 72,
+    "frameH": 76,
+    "frames": 12
+  },
+  "carpeta-nube": {
+    "file": "carpeta-nube.png",
+    "frameW": 20,
+    "frameH": 18,
+    "frames": 1
+  },
+  "bala-gota": {
+    "file": "bala-gota.png",
+    "frameW": 10,
+    "frameH": 10,
+    "frames": 2
+  },
+  "bala-archivo": {
+    "file": "bala-archivo.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 2
+  },
   "router-wifi": {
     "file": "router-wifi.png",
     "frameW": 72,

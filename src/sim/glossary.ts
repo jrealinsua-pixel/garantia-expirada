@@ -28,7 +28,7 @@ export interface GlossaryEntry {
 }
 
 /** The bosses in the order the floors bring them (the rest of the enemies keep the data's order). */
-const BOSS_ORDER = ['nevera-suprema', 'lavadora-eco', 'router-wifi', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora'];
+const BOSS_ORDER = ['nevera-suprema', 'lavadora-eco', 'router-wifi', 'nube-almacenamiento', 'muneco-moda', 'director-rrhh', 'centralita', 'trituradora'];
 
 /** Every enemy of the glossary: the ordinary ones as the data lists them, then the bosses floor by floor. */
 export const GLOSSARY_ENEMIES: readonly string[] = (() => {

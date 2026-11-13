@@ -1217,6 +1217,55 @@ try {
   await shot('63e-lavadora-centrifugado.png');
   console.log('Lavadora Programa Eco: cartel, espuma, pesando la carga, calcetines que rebotan y centrifugado.');
 
+  // M14 (j3): la Nube de Almacenamiento, floor 2's second boss: its card, the rain lanes marked and
+  // falling, «Sincronizando…» with its bar, and the wall of folders once its storage is full.
+  await page.goto(`${url}?semilla=e2e-nube&sala=jefe-informatica&jefe=Ç`);
+  await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+  await page.evaluate('window.__GE__.scene.world.noDamage = true');
+  const nubeJs = "window.__GE__.scene.world.enemies.find((e) => e.def.id === 'nube-almacenamiento')";
+  if (!(await page.evaluate<boolean>(`!!${nubeJs} && !!window.__GE__.scene.world.intro`))) throw new Error('La Nube no está en la sala del jefe o no se presenta');
+  await page.waitForTimeout(2000);
+  await shot('64a-nube-cartel.png');
+  await page.mouse.move(240, 120);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
+  // Only one attack at a time, picked here: the rain (weights of the phase, in the page's data).
+  const nubeOnly = (kind: string): string =>
+    `(() => { const b = ${nubeJs}; const ph = b.def.brain.phases[b.bossPhase ?? 0]; ph.attacks.forEach((a) => { a.weight = a.kind === '${kind}' ? 1 : 0; }); })()`;
+  await page.evaluate(nubeOnly('rain'));
+  await page.waitForFunction(
+    `window.__GE__.scene.world.emitters.filter((e) => e.mark === 'rain' && e.t > -0.45 && e.t < 0).length >= 3`,
+    undefined,
+    { timeout: 15000 },
+  ).catch(() => { throw new Error('La Nube no marca las calles de la lluvia'); });
+  await shot('64b-nube-calles.png');
+  await page.waitForFunction(
+    `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView; return s.world.bullets.filter((b) => b.color === 'drop' && v.contains(b.x, b.y)).length >= 10; })()`,
+    undefined,
+    { timeout: 5000 },
+  )
+    .catch(() => { throw new Error('No llueve'); });
+  await shot('64c-nube-lluvia.png');
+  await page.evaluate(nubeOnly('sync'));
+  await page.waitForFunction(`(() => { const b = ${nubeJs}; return b.state === 'warn' && b.t > 1.6; })()`, undefined, { timeout: 15000 })
+    .catch(() => { throw new Error('La Nube no sincroniza'); });
+  await shot('64d-nube-sincronizando.png');
+  // Shot hard enough while it fills: the bar breaks.
+  await page.evaluate(`(() => { const b = ${nubeJs}; b.damageTaken += 9; })()`);
+  await page.waitForFunction(`${nubeJs}.state === 'stun'`, undefined, { timeout: 3000 })
+    .catch(() => { throw new Error('La barra de la Nube no se rompe'); });
+  await page.waitForTimeout(300);
+  await shot('64e-nube-error.png');
+  await page.evaluate(`(() => { const b = ${nubeJs}; b.damageTaken = Math.ceil(b.def.hp * 0.55); })()`);
+  await page.waitForFunction(`${nubeJs}.bossPhase === 1`, undefined, { timeout: 5000 });
+  await page.evaluate(nubeOnly('folders'));
+  await page.waitForFunction(`window.__GE__.scene.world.room.props.filter((p) => p.def.id === 'carpeta-nube').length >= 3`, undefined, { timeout: 15000 })
+    .catch(() => { throw new Error('La Nube no suelta carpetas'); });
+  await page.waitForTimeout(400);
+  await shot('64f-nube-carpetas.png');
+  console.log('Nube de Almacenamiento: cartel, calles de lluvia, lluvia, sincronizando y el muro de carpetas.');
+
   // M10 (5b): el Muñeco de Moda, floor 3's boss: its card, the accessories, the catwalk with its
   // flashes, and the sales (the tag on its box comes down and the repeated dolls come out).
   await page.goto(`${url}?semilla=e2e-muneco&sala=jefe-jugueteria&planta=3`);

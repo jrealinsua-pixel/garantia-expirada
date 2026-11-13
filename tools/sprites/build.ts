@@ -17,6 +17,7 @@ import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
 import * as LV from './lavadora.ts';
+import * as NB from './nube.ts';
 import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
@@ -120,6 +121,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'lavadora-eco': { canvas: strip(LV.makeLavadoraFrames()), frameW: LV.LAVADORA_W, frameH: LV.LAVADORA_H },
     'bala-espuma': { canvas: LV.makeFoamBullet(), frameW: 16, frameH: 16 },
     'bala-calcetin': { canvas: LV.makeSockBullet(), frameW: 12, frameH: 12 },
+    // Floor 2's second boss (M14 (j3)): six frames per phase (floating 0-3, holding its breath,
+    // the error), «Subiendo archivos» 0-5 and «Almacenamiento lleno» 6-11; its folders, rain and files.
+    'nube-almacenamiento': { canvas: strip(NB.makeNubeFrames()), frameW: NB.NUBE_W, frameH: NB.NUBE_H },
+    'carpeta-nube': one(NB.makeCarpeta()),
+    'bala-gota': { canvas: NB.makeDropBullet(), frameW: 10, frameH: 10 },
+    'bala-archivo': { canvas: NB.makeFileBullet(), frameW: 12, frameH: 12 },
     // Floor 2's boss: 0-5 awake (rest, breathing, walking), 6-11 rebooting with 0 to 5 LEDs lit.
     'router-wifi': { canvas: strip(makeRouterFrames()), frameW: 72, frameH: 76 },
     // Its repeater: 0-1 on (the LED blinks), 2 unplugged.
