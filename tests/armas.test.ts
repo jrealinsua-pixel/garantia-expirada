@@ -49,14 +49,18 @@ test('hay tres armas distintas, con nombre, descripción y sprites que existen',
   assert.ok(p.pellets > 1 && p.bulletSpeed * p.bulletLife < (s.bulletSpeed * s.bulletLife) / 2);
 });
 
-test('la Sala de Pruebas tiene las armas en sus pedestales y se cogen andando por encima', () => {
+test('la Sala de Pruebas tiene las armas en sus pedestales y se cogen con el botón de interactuar (andando por encima, no)', () => {
   const w = createWorld({ seed: 'pedestal', noEnemies: true });
   const arms = w.pickups.filter((k) => k.kind === 'arma');
   assert.deepEqual(arms.map((k) => k.weapon).sort(), [...FINDABLE_WEAPONS].sort());
   const k = arms[0]!;
   w.player.x = k.x - 30;
   w.player.y = k.y + 2;
-  for (let i = 0; i < 40 && w.player.arsenal.length < 2; i++) step(w, { ...NO_INPUT, moveX: 1 });
+  for (let i = 0; i < 40; i++) step(w, { ...NO_INPUT, moveX: i < 30 ? 1 : 0 });
+  assert.equal(w.player.arsenal.length, 1, 'andando por encima no se coge');
+  w.player.x = k.x;
+  w.player.y = k.y + 2;
+  step(w, { ...NO_INPUT, interact: true });
   assert.equal(w.player.arsenal.length, 2);
   assert.equal(w.player.weapon.base.id, k.weapon);
   assert.ok(!w.pickups.includes(k));
@@ -182,7 +186,7 @@ test('en la planta, las armas salen de los cofres (no sueltas) y cambian con la 
     const back = f.layout.rooms[t.id]!.doors[0]!;
     enterRoom(w, back.to, back.dir);
     enterRoom(w, t.id, back.dir);
-    assert.equal(w.room.props.filter((pr) => pr.chest).length, 2);
+    assert.equal(w.room.props.filter((pr) => pr.chest).length, 1, 'un cofre por sala (nota del humano del 2026-11-13)');
   }
   assert.deepEqual([...found].sort(), weaponsUpTo(1).sort());
 });

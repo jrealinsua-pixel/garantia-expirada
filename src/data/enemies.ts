@@ -46,7 +46,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 120,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     anim: { idle: [0, 1], idleMs: 480 },
     brain: {
       kind: 'turret',
@@ -70,7 +70,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 140,
     contactDamage: 1,
     knockbackScale: 0.25,
-    loot: { coupons: [1, 3] },
+    loot: { coupons: [0, 2] },
     escort: 'polilla',
     // 0 lit, 1 off (switching on), 2 lit breathing out, 3-6 walking.
     anim: { idle: [0, 2], idleMs: 440, walk: [3, 4, 5, 6], stepPx: 5, off: 1 },
@@ -187,7 +187,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 140,
     contactDamage: 1,
     knockbackScale: 0.2,
-    loot: { coupons: [0, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 humming, 2-5 a heavy shuffle, 6-7 shaking with the paper jammed.
     anim: { idle: [0, 1], idleMs: 300, walk: [2, 3, 4, 5], stepPx: 5, jam: [6, 7], jamMs: 60 },
     brain: {
@@ -368,7 +368,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 280,
     contactDamage: 1,
     knockbackScale: 0.2,
-    loot: { coupons: [0, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 idling, 2-5 rolling, 6 beacon lit and forks up before ramming, 7 bonked (forks bent).
     anim: { idle: [0, 1], idleMs: 110, walk: [2, 3, 4, 5], stepPx: 5, warn: 6, stun: 7 },
     brain: {
@@ -512,7 +512,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 180,
     contactDamage: 1,
     knockbackScale: 0.25,
-    loot: { coupons: [0, 2] },
+    loot: { coupons: [0, 1] },
     // Seven frames a side (side, front, back): 0-1 humming, 2-5 shuffling, 6 blades red (warning or chewing).
     anim: { idle: [0, 1], idleMs: 260, walk: [2, 3, 4, 5], stepPx: 5, warn: 6, views: { front: 7, back: 14 } },
     brain: {
@@ -546,7 +546,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 160,
     contactDamage: 1,
     knockbackScale: 0.2,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 humming, 2-5 shuffling, 6-8 lid up and the light crossing the glass (warn), 9 a copy coming out.
     anim: { idle: [0, 1], idleMs: 300, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, scan: [6, 7, 8, 7, 6, 7, 8], out: 9 },
     brain: {
@@ -608,7 +608,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 160,
     contactDamage: 1,
     knockbackScale: 0.15,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 humming, 2-5 dragging itself along, 6 rime on the vent (about to blow).
     anim: { idle: [0, 1], idleMs: 260, walk: [2, 3, 4, 5], stepPx: 5, warn: 6 },
     brain: {
@@ -640,7 +640,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 160,
     contactDamage: 1,
     knockbackScale: 0.3,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 standing, 2-5 walking, 6 calling a turn, 7 spitting tickets (turn missed).
     anim: { idle: [0, 1], idleMs: 480, walk: [2, 3, 4, 5], stepPx: 5, warn: 6, spit: 7 },
     brain: {
@@ -709,7 +709,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 160,
     contactDamage: 1,
     knockbackScale: 0.5,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 standing, 2 crouching to hop, 3 in the air, 4-5 ringing, 6 «Le paso con un compañero».
     anim: { idle: [0, 1], idleMs: 420, crouch: 2, jump: 3, ring: [4, 5], ringMs: 70, pass: 6 },
     brain: {
@@ -743,7 +743,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 150,
     contactDamage: 1,
     knockbackScale: 0.35,
-    loot: { coupons: [1, 2] },
+    loot: { coupons: [0, 1] },
     // 0-1 standing, 2-5 walking, 6-7 typing (the three dots under the smile).
     anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 5, scan: [6, 7, 6, 7, 6, 7] },
     brain: {
@@ -776,7 +776,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [6, 9], hearts: 1 },
+    loot: { coupons: [3, 5], hearts: 1 },
     // 0-1 breathing (the wifi light blinks), 2-5 a heavy walk, 6-11 rebooting with its lights coming on one by one.
     anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 9, reboot: [6, 7, 8, 9, 10, 11] },
     brain: {
@@ -837,7 +837,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [7, 10], hearts: 1 },
+    loot: { coupons: [3, 5], hearts: 1 },
     // 0-1 breathing in its box, 2-5 the walk, 6 posing (it warns before the catwalk). Out of the
     // box (phase 3, frameShift 7) the same layout seven frames on, and it spins: front, side,
     // back, other side.
@@ -963,7 +963,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [8, 11], hearts: 1 },
+    loot: { coupons: [4, 6], hearts: 1 },
     // tools/sprites/director.ts DIRECTOR_FRAMES: 0-1 in his chair breathing, 2-5 pushing off with
     // his feet and rolling (his walk), 6 throwing, 7 the clap, 8 up with his own stamp. On his feet
     // (phase 3, frameShift 9) the same layout: 9-10 breathing, 11-14 walking, 15 throwing; he
@@ -1057,7 +1057,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [9, 12], hearts: 1 },
+    loot: { coupons: [4, 6], hearts: 1 },
     // tools/sprites/centralita.ts CENTRALITA_FRAMES: 0-1 resting, 2-5 dragging herself with the
     // cords, 6-7 talking, 8 throwing a plug; 9-13 phase 3 (M11 5c).
     anim: { idle: [0, 1], idleMs: 620, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, talk: [6, 7], talkMs: 170, stun: 13 },
@@ -1294,7 +1294,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [5, 8], hearts: 1 },
+    loot: { coupons: [3, 4], hearts: 1 },
     // Seven frames per program (tools/sprites/lavadora.ts): 0-1 breathing (the drum sloshing), 2-5 a
     // heavy walk, 6 weighing the load. Lavado is the same seven on, Centrifugado fourteen on, and in
     // Centrifugado the whole machine rattles.
@@ -1373,7 +1373,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [6, 9], hearts: 1 },
+    loot: { coupons: [3, 5], hearts: 1 },
     // Six frames per phase (tools/sprites/nube.ts): 0-3 floating (it bobs and its wisps drift), 4
     // holding its breath (warning, syncing), 5 the connection error. «Almacenamiento lleno» is the
     // same six on, swollen and grey.
@@ -1436,7 +1436,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [6, 9], hearts: 1 },
+    loot: { coupons: [3, 5], hearts: 1 },
     // Eight frames per phase (tools/sprites/consola.ts): 0-1 breathing, 2-5 walking, 6 the disc
     // tray out (warning), 7 updating (BossPhase.mute: the progress bar on its front). «Pase de
     // temporada» is the same eight on, with the season pass hung round it and its lights in colours.
@@ -1533,7 +1533,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
-    loot: { coupons: [5, 8], hearts: 1 },
+    loot: { coupons: [3, 4], hearts: 1 },
     // 0-1 breathing, 2-5 a heavy walk; 6-11 the same with the door open (second phase).
     anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, phaseShift: 6 },
     brain: {

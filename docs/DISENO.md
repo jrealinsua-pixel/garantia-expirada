@@ -421,10 +421,11 @@ descargable con su candado. 165 de vida (el Muñeco, 220: sus cajas también se 
 - **Tickets** como llaves: abren cofres y puertas cerradas. Escasos (nota del humano del
   2026-10-30): la partida empieza con **1 ticket**; cada planta tiene 1 sala de combate que suelta
   otro al limpiarla, y la tienda vende uno. Las **Cajas Fuertes de Devoluciones** (los cofres)
-  son más que los tickets: **2 en la sala del tesoro**, 1 en la secreta, y cada sala de combate
-  limpia tiene un 15 % de dejar otra (y, si no deja ni ticket ni cofre, un 35 % de dejar un
-  **corazón de recambio**: M9b 15; sin ellos nada curaba entre la entrada y el jefe salvo la
-  tienda). Muchas veces un cofre se queda cerrado. Se abre con el botón
+  son más que los tickets y **nunca hay dos en la misma sala** (nota del humano del 2026-11-13):
+  **1 en la sala del tesoro**, 1 en la secreta, **1 sala de combate que siempre deja otro** al
+  limpiarla, y cada una de las demás tiene un 15 % de dejar otro (y, si no deja ni ticket ni
+  cofre, un **15 %** de dejar un **corazón de recambio**: M9b 15, rebajado del 35 % en M14b (h4)
+  porque la planta 1 daba para rellenar la vida vez y media). Muchas veces un cofre se queda cerrado. Se abre con el botón
   de interactuar (F) y un ticket: se lo traga y suelta un objeto pasivo (lo normal), un arma o un
   activo, y un cupón. Sin ticket, se queja («Sin ticket no hay devolución»).
 - **Dos calidades de cofre.** La Caja Fuerte de Devoluciones normal (gris, la de siempre) solo
@@ -454,17 +455,20 @@ descargable con su candado. 165 de vida (el Muñeco, 220: sus cajas también se 
     cargadores, deja a medias a un aspirador y a un jefe apenas le hace cosquillas). «Subida de
     tensión · daños no cubiertos». Uno como mucho.
 - **Los objetos nunca están sueltos** por una sala: solo salen de cofres o de la tienda.
-- **Los cupones hay que ir a recogerlos** (nota del humano del 2026-11-05, que aclara la del
-  30 de octubre): al limpiar la sala se quedan donde cayeron, y el imán solo los atrae de cerca;
-  el minimapa marca las salas en las que se quedaron. Los enemigos
-  sueltan la mitad que antes (0–1 casi todos; los jefes, 5–9): una planta da unos 20.
+- **Los cupones vuelan solos** hasta la tostadora en cuanto la sala está limpia, desde cualquier
+  rincón y por encima de los muebles (nota del humano del 2026-11-13, que corrige la del 5 de
+  noviembre). **Todo lo demás del suelo se coge con el botón de interactuar** («F: Coger»: armas,
+  objetos, activos, tickets y documentos); los corazones (de recambio, la garantía y los
+  especiales) son lo único que se coge al pasar por encima. Los cupones son **escasos, como en el
+  Isaac**: casi todos los enemigos sueltan 0–1, los jefes 3–6; una planta da unos 12.
 - **La tienda** (Tienda del Personal): la atiende la **Caja de Autocobro**, una caja de
   autopago que se quedó sola después de que despidieran a las demás. Tres baldas: el siguiente
-  objeto de la baraja de la planta (15 cupones; si no quedan pasivos, un activo por 12 o un arma
-  por 18), un corazón de recambio (6) y un ticket (10). Se compra poniéndose delante y pulsando el botón de interactuar (F; «F: Comprar por 15» bajo la tostadora);
+  objeto de la baraja de la planta (20 cupones; si no quedan pasivos, un activo por 15 o un arma
+  por 24), un corazón de recambio (8) y un ticket (12). Se compra poniéndose delante y pulsando el botón de interactuar (F; «F: Comprar por 20» bajo la tostadora);
   sin cupones suficientes la pantalla se pone roja («Saldo insuficiente. Pruebe a tener más.») y
   con la vida llena no vende corazones («No le vendo nada que no necesite. Aún.»). Una planta
-  entera da unos 20 cupones: da para una cosa, así que comprar es elegir.
+  entera da unos 12 cupones y un objeto cuesta 20 (activo 15, arma 24, corazón 8, ticket 12):
+  muchas plantas no se compra nada, y comprar es elegir (M14b (h2)).
 - **Pilas** como cargas del objeto activo.
 
 ### Armas y objetos

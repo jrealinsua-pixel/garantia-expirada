@@ -214,6 +214,8 @@ export interface Pickup {
   doc?: string;
   /** Put down just now under the toaster: it cannot be picked up until the toaster has stepped off it. */
   stepOff?: boolean;
+  /** A coupon flying to the toaster over walls and furniture (the room is safe, M14b (h2)). */
+  flying?: boolean;
   /** For sale on a shop shelf: its price in coupons (the interact button buys it, if it can be paid). */
   price?: number;
   /** Paid in life instead of coupons (the Oficina de Financiación, M14 (r2)): `price` is maximum life points taken for good. */
@@ -230,6 +232,13 @@ export const PICKUP_DELAY = 0.45;
 /** Pickups closer than this to the player fly towards it (px). */
 export const PICKUP_MAGNET = 44;
 const PICKUP_GRAB = 8;
+/** What is picked up with the interact button, not by walking over it (M14b (h2)). */
+export const GRAB_KINDS: ReadonlySet<PickupKind> = new Set<PickupKind>(['arma', 'objeto', 'activo', 'ticket', 'documento']);
+/** How close (px) the toaster must be to something on the floor to pick it up with the interact button. */
+export const GRAB_REACH = 16;
+/** Coupons flying to the toaster once the room is safe: their starting speed and the most (px/s). */
+const COUPON_FLY = 160;
+const COUPON_FLY_MAX = 320;
 const PICKUP_FRICTION = 260;
 const PICKUP_RADIUS = 2;
 
@@ -1057,19 +1066,23 @@ export const CLEAR_CHEST_CHANCE = 0.15;
 /**
  * Chance that a combat room with no ticket and no chest leaves a spare heart when cleared (decided
  * with the floor, M9b 15). Without them nothing heals between the start and the boss but the shop,
- * and the bot reached the boss with half a heart: hard was turning into impossible.
+ * and the bot reached the boss with half a heart: hard was turning into impossible. M14b (h4), nota del
+ * humano del 2026-11-13: from 35 % to 15 %; the first floor gave enough to refill the life one and a
+ * half times.
  */
-export const CLEAR_HEART_CHANCE = 0.35;
+export const CLEAR_HEART_CHANCE = 0.15;
 /**
  * Chance that a combat room with no ticket and no chest leaves a Garantía Provisional instead
  * (decided before the heart, M9b 12a): rarer than a heart, but the commonest of the special ones.
  */
-export const CLEAR_SHIELD_CHANCE = 0.1;
+export const CLEAR_SHIELD_CHANCE = 0.08;
 /** The provisional warranty: what one gives (a heart) and the most the toaster can carry (two). */
 export const SHIELD_VALUE = 2;
 export const SHIELD_MAX = 4;
-/** Chests in the treasure room. */
-export const TREASURE_CHESTS = 2;
+/** Chests in the treasure room: one (M14b (h3): never two chests in the same room). */
+export const TREASURE_CHESTS = 1;
+/** Combat rooms of each floor that always leave a chest when cleared (after the ticket's): with the treasure room's, two chests a floor, each in its own room. */
+export const FLOOR_CHESTS = 1;
 /** Coupons that spill out of a chest with its item. */
 export const CHEST_COUPONS = 1;
 /** Odds that a chest is the premium one (only good things in it). */
@@ -1462,6 +1475,7 @@ function planFloor(seed: string, level: number, weapons: string[], locked: reado
     // hearts and warranties, yes (parts it fits to whoever is still standing).
     if (workshop) prize.chance(CLEAR_CHEST_CHANCE);
     else if (i < FLOOR_TICKETS) rooms[id]!.reward = 'ticket';
+    else if (i < FLOOR_TICKETS + FLOOR_CHESTS) rooms[id]!.reward = 'chest';
     else if (prize.chance(CLEAR_CHEST_CHANCE)) rooms[id]!.reward = 'chest';
     // Every die is rolled every time, so one chance does not move the other's rooms. The rarer
     // (and stronger) reward is decided first: surge, turbo, warranty, heart.
@@ -4371,46 +4385,34 @@ function updatePickups(w: World): void {
       keep.push(k);
       continue;
     }
-    // A spare heart stays where it is while the toaster has all its life.
-    if (k.kind === 'arma') {
-      // A weapon waits on its pedestal until the toaster walks onto it (rolling over it does not count).
-      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.weapon) {
-        giveWeapon(w, k.weapon);
-        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.arsenal.length, weapon: k.weapon });
-        continue;
-      }
-      keep.push(k);
-      continue;
-    }
-    if (k.kind === 'documento') {
-      // A story document: walked over, it is filed (rolling over it too: it is only paper).
-      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && k.doc) {
-        if (!w.docs.includes(k.doc)) w.docs.push(k.doc);
-        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: w.docs.length, item: k.doc });
-        continue;
-      }
-      keep.push(k);
-      continue;
-    }
-    if (k.kind === 'objeto') {
-      // So does a passive item.
-      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.item) {
-        giveItem(w, k.item);
-        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.items.length, item: k.item });
-        continue;
-      }
-      keep.push(k);
-      continue;
-    }
-    if (k.kind === 'activo') {
-      // And an active item, which swaps places with the one carried (that one waits until the toaster steps off it).
+    // Weapons, items, actives, tickets and documents wait where they are until the toaster picks
+    // them up with the interact button (grab(), M14b (h2)); only hearts are taken by walking over.
+    if (GRAB_KINDS.has(k.kind)) {
       if (k.stepOff && d >= WEAPON_GRAB + 4) delete k.stepOff;
-      if (k.age >= PICKUP_DELAY && d < WEAPON_GRAB && !isRolling(p) && k.item && !k.stepOff) {
-        // (The one it was carrying is pushed onto w.pickups and visited later in this loop.)
-        giveActive(w, k.item, k.charge);
-        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: p.active?.charge ?? 0, item: k.item });
+      const v = Math.hypot(k.vx, k.vy);
+      if (v > 0) {
+        const nv = Math.max(0, v - PICKUP_FRICTION * DT);
+        k.vx *= nv / v;
+        k.vy *= nv / v;
+        slide(w, k, PICKUP_RADIUS, k.vx * DT, k.vy * DT);
+      }
+      keep.push(k);
+      continue;
+    }
+    // Coupons fly to the toaster by themselves once the room is safe (M14b (h2), as in the Isaac):
+    // from anywhere, over the furniture.
+    if (k.kind === 'cupon' && w.floor && !w.doorsShut && k.age >= PICKUP_DELAY) {
+      if (d < PICKUP_GRAB) {
+        p.coupons += k.value;
+        w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: k.value, total: p.coupons });
         continue;
       }
+      const sp = Math.min(COUPON_FLY_MAX, COUPON_FLY + k.age * 60);
+      k.flying = true;
+      k.vx = (dx / d) * sp;
+      k.vy = (dy / d) * sp;
+      k.x += k.vx * DT;
+      k.y += k.vy * DT;
       keep.push(k);
       continue;
     }
@@ -4655,6 +4657,7 @@ export type Interactable =
   | { kind: 'chest'; prop: PropInstance }
   | { kind: 'tip'; prop: PropInstance }
   | { kind: 'shop'; pickup: Pickup }
+  | { kind: 'grab'; pickup: Pickup }
   | { kind: 'station'; station: Station };
 
 export function interactable(w: World): Interactable | null {
@@ -4689,6 +4692,18 @@ export function interactable(w: World): Interactable | null {
     }
   }
   if (best) return { kind: 'shop', pickup: best };
+  // Something on the floor to pick up (M14b (h2)): the closest in reach.
+  let grabbed: Pickup | null = null;
+  let grabD = GRAB_REACH;
+  for (const k of w.pickups) {
+    if (k.price !== undefined || !GRAB_KINDS.has(k.kind) || k.age < PICKUP_DELAY || k.stepOff) continue;
+    const d = Math.hypot(p.x - k.x, p.y - 2 - k.y);
+    if (d < grabD) {
+      grabbed = k;
+      grabD = d;
+    }
+  }
+  if (grabbed) return { kind: 'grab', pickup: grabbed };
   if (table) return { kind: 'tip', prop: table };
   const st = w.room.kind === 'hub' ? nearStation(w) : null;
   return st ? { kind: 'station', station: st } : null;
@@ -4701,7 +4716,18 @@ function interact(w: World): void {
   if (it.kind === 'chest') openChest(w, it.prop);
   else if (it.kind === 'tip') tipTable(w, it.prop);
   else if (it.kind === 'shop') buy(w, it.pickup);
+  else if (it.kind === 'grab') pickUp(w, it.pickup);
   else w.events.push({ type: 'interact', station: it.station.kind });
+}
+
+/** Picks `k` up off the floor with the interact button (a weapon, an item, an active, a ticket, a document). */
+function pickUp(w: World, k: Pickup): void {
+  if (!w.pickups.includes(k)) return;
+  w.pickups = w.pickups.filter((o) => o !== k);
+  if (k.kind === 'documento') {
+    if (k.doc && !w.docs.includes(k.doc)) w.docs.push(k.doc);
+    w.events.push({ type: 'pickup', x: k.x, y: k.y, kind: k.kind, value: 1, total: w.docs.length, item: k.doc });
+  } else grab(w, k);
 }
 
 /** Buys `k` off its shelf, if it can be paid (and is not a heart with all the life there). */
@@ -4738,7 +4764,7 @@ function buy(w: World, k: Pickup): void {
   grab(w, k);
 }
 
-/** Hands over something bought (as if it had been picked up off the floor). */
+/** Hands over something bought or picked up off the floor. */
 function grab(w: World, k: Pickup): void {
   const p = w.player;
   if (k.kind === 'arma' && k.weapon) {
@@ -4954,7 +4980,7 @@ export function checkInvariants(w: World): string[] {
   if (p.weapon.ammo < 0 || p.weapon.ammo > p.weapon.def.magazine) errs.push(`ammo out of range: ${p.weapon.ammo}`);
   if (w.bullets.length > 2000) errs.push(`too many bullets: ${w.bullets.length}`);
   for (const b of w.bullets) if (!Number.isFinite(b.x) || !Number.isFinite(b.y)) errs.push(`bullet ${b.id} has invalid position`);
-  for (const k of w.pickups) if (!Number.isFinite(k.x) || !Number.isFinite(k.y) || isWallAt(w.room, k.x, k.y)) errs.push(`pickup ${k.id} lost at ${k.x},${k.y}`);
+  for (const k of w.pickups) if (!Number.isFinite(k.x) || !Number.isFinite(k.y) || (!k.flying && isWallAt(w.room, k.x, k.y))) errs.push(`pickup ${k.id} lost at ${k.x},${k.y}`);
   if (w.pickups.length > 500) errs.push(`too many pickups: ${w.pickups.length}`);
   for (const en of w.enemies) {
     if (isDead(en) && !(en.state === 'dying' && en.t <= en.until + DT)) errs.push(`enemy ${en.id} is dead but still in the world`);

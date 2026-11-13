@@ -665,13 +665,13 @@ juegos del género» de `docs/DISENO.md`.
   movimiento, no de esponjas. Objetivo: un enemigo normal cae en 2–4 disparos del arma inicial,
   una sala de la planta 1 se limpia en unos 20–30 s y un jefe en 45–90 s. Medir con el bot antes
   y después; si la planta 1 se vuelve fácil, compensar con balas y patrones, no con vida.
-- [ ] (h2) La economía, como la del Isaac: los cupones (la moneda de la tienda) vuelan solos al
+- [x] (h2) La economía, como la del Isaac: los cupones (la moneda de la tienda) vuelan solos al
   limpiar la sala, y son mucho más escasos (comprar algo de la tienda tiene que costar una planta
   entera ahorrando, y no siempre); los demás objetos del suelo (armas, objetos, activos, tickets)
   se cogen con el botón de interactuar; los corazones son lo único que se coge al pasar por
   encima.
-- [ ] (h3) Nunca dos cofres en la misma sala: cada cofre, en una sala distinta.
-- [ ] (h4) Menos corazones, sobre todo al principio de la planta 1: no puede dar para rellenar la
+- [x] (h3) Nunca dos cofres en la misma sala: cada cofre, en una sala distinta.
+- [x] (h4) Menos corazones, sobre todo al principio de la planta 1: no puede dar para rellenar la
   vida una vez y media. La primera planta se la tiene que poder pasar cualquiera, pero no fácil.
 - [x] (h5) Bidones que explotan antes, con más radio y más daño (y que se vea venir).
   Hecho el 2026-11-13: vida 10 → 4, mecha 0,35 s, radio 36 → 64, daño 12 → 18, el alcance

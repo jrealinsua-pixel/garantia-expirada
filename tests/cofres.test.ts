@@ -124,7 +124,7 @@ test('M9b (15): de vez en cuando una sala limpia suelta un corazón, sin mover l
   let hearts = 0;
   let free = 0;
   let premios = 0;
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 200; i++) {
     const f = createWorld({ seed: `corazones${i}`, floor: true }).floor!;
     for (const [id, r] of f.rooms.entries()) {
       if (f.layout.rooms[id]!.kind !== 'combat') continue;
@@ -174,12 +174,17 @@ test('un cofre suelta a veces un arma o un activo, no solo pasivos', () => {
   assert.deepEqual([...kinds].sort(), ['activo', 'arma', 'objeto']);
 });
 
-test('un ticket se recoge como un cupón y cuenta aparte', () => {
+test('un ticket se coge con el botón de interactuar (no andando) y cuenta aparte', () => {
   const w = bare('ticket');
   dropTicket(w, 150, 200);
   const picked: number[] = [];
-  for (let i = 0; i < ticks(2); i++) {
-    step(w, NO_INPUT);
+  for (let i = 0; i < ticks(2); i++) step(w, NO_INPUT);
+  assert.equal(w.player.tickets, 0, 'no vuela solo');
+  const k = w.pickups.find((x) => x.kind === 'ticket')!;
+  w.player.x = k.x;
+  w.player.y = k.y + 2;
+  for (let i = 0; i < 3; i++) {
+    step(w, { ...NO_INPUT, interact: i === 0 });
     for (const e of w.events) if (e.type === 'pickup' && e.kind === 'ticket') picked.push(e.total);
   }
   assert.deepEqual(picked, [1]);

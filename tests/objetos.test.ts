@@ -91,7 +91,7 @@ test('hay 57 objetos pasivos (16 de la planta 1, cinco de ellos solo como premio
   }
 });
 
-test('un objeto se coge andando por encima (rodando no) y se lleva el resto de la partida', () => {
+test('un objeto se coge con el botón de interactuar (andando o rodando por encima, no) y se lleva el resto de la partida', () => {
   const w2 = createWorld({ seed: 'objeto-suelo', room: 'tesoro' });
   const k2 = w2.pickups.find((k) => k.kind === 'objeto')!;
   // Rolling right over it does not pick it up.
@@ -107,8 +107,12 @@ test('un objeto se coge andando por encima (rodando no) y se lleva el resto de l
   w3.player.x = k3.x - 30;
   w3.player.y = k3.y + 2;
   let got = false;
-  for (let i = 0; i < 60 && !got; i++) {
-    step(w3, { ...NO_INPUT, moveX: 1 });
+  for (let i = 0; i < 60; i++) step(w3, { ...NO_INPUT, moveX: i < 40 ? 1 : 0 });
+  assert.equal(w3.player.items.length, 0, 'andando por encima no se coge');
+  w3.player.x = k3.x;
+  w3.player.y = k3.y + 2;
+  for (let i = 0; i < 3 && !got; i++) {
+    step(w3, { ...NO_INPUT, interact: true });
     got = w3.events.some((e) => e.type === 'pickup' && e.kind === 'objeto' && e.item === k3.item);
   }
   assert.ok(got, 'no se ha cogido');
@@ -136,11 +140,11 @@ test('los cofres del tesoro y de la secreta reparten de las barajas de la planta
     const treasure = f.layout.rooms.find((r) => r.kind === 'treasure')!;
     const secret = f.layout.rooms.find((r) => r.kind === 'secret');
     enterRoom(w, treasure.id, 'S');
-    // Nothing loose: two chests (nota del humano del 2026-10-30).
+    // Nothing loose: one chest (notas del humano del 2026-10-30 y del 2026-11-13).
     assert.equal(w.pickups.length, 0, `semilla ${s}`);
     open(w);
     const got = w.pickups.filter((k) => k.kind !== 'cupon');
-    assert.equal(got.length, 2, `semilla ${s}: ${got.map((k) => k.kind)}`);
+    assert.equal(got.length, 1, `semilla ${s}: ${got.map((k) => k.kind)}`);
     for (const k of got) assert.ok(k.kind === 'arma' ? FINDABLE_WEAPONS.includes(k.weapon!) : k.item, `semilla ${s}`);
     const first = got[0]!.item ?? got[0]!.weapon!;
     firsts.add(first);

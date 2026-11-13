@@ -2375,7 +2375,7 @@ export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.15, 4: 1
  * difficulty back in bullets that are harder to dodge instead. Floor 1 as it was: anyone has to
  * be able to get through it.
  */
-export const FLOOR_BULLET_SPEED: Readonly<Record<number, number>> = { 2: 1.08, 3: 1.14, 4: 1.18, 5: 1.22, 6: 1.25 };
+export const FLOOR_BULLET_SPEED: Readonly<Record<number, number>> = { 1: 1.06, 2: 1.1, 3: 1.14, 4: 1.18, 5: 1.22, 6: 1.25 };
 
 export function bulletSpeedOf(level: number): number {
   return FLOOR_BULLET_SPEED[level] ?? 1;

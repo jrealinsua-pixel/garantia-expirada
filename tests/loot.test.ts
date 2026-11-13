@@ -187,7 +187,7 @@ test('el imán de cupones no los mete dentro de una columna', () => {
   }
 });
 
-test('al limpiar una sala, sus cupones se quedan en el suelo hasta ir a por ellos (nota del humano del 2026-11-05)', async () => {
+test('al limpiar una sala, sus cupones vuelan solos hasta la tostadora, desde cualquier rincón (nota del humano del 2026-11-13)', async () => {
   const { createWorld: cw, enterRoom: er, step: st, NO_INPUT: NI, DT: dt, isClear: free } = await import('../src/sim/world.ts');
   const w = cw({ seed: 'aspiradora', floor: true });
   w.noDamage = true;
@@ -222,14 +222,7 @@ test('al limpiar una sala, sus cupones se quedan en el suelo hasta ir a por ello
   const before = w.player.coupons;
   for (let i = 0; i < Math.ceil(3 / dt); i++) st(w, NI);
   assert.ok(!w.doorsShut);
-  // Those in the corner are still there, where they were (the enemies' own may have dropped nearby).
-  const left = w.pickups.filter((k) => mine.includes(k.id));
-  assert.equal(left.length, 4, 'los cupones han volado solos');
-  for (const k of left) assert.ok(Math.hypot(k.x - cx, k.y - cy) < 2);
-  // Standing next to them, the magnet brings them in.
-  w.player.x = cx - 24;
-  w.player.y = cy;
-  for (let i = 0; i < Math.ceil(1 / dt); i++) st(w, NI);
+  // The ones in the far corner have flown over by themselves.
   assert.equal(w.pickups.filter((k) => mine.includes(k.id)).length, 0);
   assert.ok(w.player.coupons >= before + 4);
 });

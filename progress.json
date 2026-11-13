@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T15:25:00+01:00",
+  "actualizado": "2026-11-13T15:12:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -119,7 +119,7 @@
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
       "estado": "pendiente",
-      "hechas": 3,
+      "hechas": 4,
       "total": 11
     },
     {
@@ -144,17 +144,22 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 951,
-    "tests_ok": 951,
+    "tests": 949,
+    "tests_ok": 949,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34098
+    "lineas_codigo": 34078
   },
   "sesiones": [
     {
       "fecha": "2026-11-13T15:25:00+01:00",
       "hito": "M14b",
       "resumen": "M14b (h6): las mesas se vuelcan hacia donde se empujan (desde la izquierda, hacia la derecha, aunque los pies queden un poco más abajo que las patas), aguantan 8 balas en vez de 14, y se oscurecen, crujen y parpadean al gastarse."
+    },
+    {
+      "fecha": "2026-11-13T15:12:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h2)–(h4): los cupones vuelan solos al limpiar la sala y son mucho más escasos (la tienda, más cara: comprar es elegir); armas, objetos, tickets y documentos se cogen con el botón de interactuar («F: Coger») y solo los corazones al pasar; un cofre por sala; y muchos menos corazones de recambio."
     },
     {
       "fecha": "2026-11-13T14:40:00+01:00",
@@ -202,14 +207,14 @@
       "resumen": "M14 (j1): jefes al azar. Cada planta elige ya su jefe de una lista con la semilla de la partida (de momento, una lista de uno: la partida no cambia), con su propio generador para que añadir un jefe no mueva nada más. Lo que pedía un jefe concreto pide ahora «el jefe de la planta N»: la Batidora, el Móvil, la Plancha, la cita del Servicio Técnico y los documentos del archivador. Diseñados los cinco jefes nuevos, uno por planta: la Lavadora Programa Eco, la Nube de Almacenamiento, la Consola Edición Coleccionista, la Fuente de Agua de Oficina y la Política de Devoluciones."
     },
     {
-      "fecha": "2026-11-12T22:28:00+01:00",
-      "hito": "M14",
-      "resumen": "M14 (l2): los logros ya se ven. El Catálogo de siniestros tiene una tercera pestaña, «Méritos», con los 19, su sello dorado, lo que llevas y, ganados, su chiste; los nuevos salen marcados y el menú avisa «Glosario · ¡Mérito nuevo!». Al ganar uno, en la partida entra el aviso «Mérito conseguido» con el sello."
-    },
-    {
       "fecha": "2026-11-12T22:40:00+01:00",
       "hito": "M14",
       "resumen": "M14 (r2b): la segunda sala rara, el Sorteo de Fidelización («Participar No Implica Ganar»): la Caja de Autocobro vende tres rascas a 5 cupones que se rascan en el acto; la mitad no dan nada y el resto, cupones, un ticket, un corazón, una garantía o el premio gordo, un cofre premium. Cuál de las dos salas raras sale lo decide la semilla. Con esto, «Salas especiales raras, retos diarios» de M14 queda hecha."
+    },
+    {
+      "fecha": "2026-11-12T22:28:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (l2): los logros ya se ven. El Catálogo de siniestros tiene una tercera pestaña, «Méritos», con los 19, su sello dorado, lo que llevas y, ganados, su chiste; los nuevos salen marcados y el menú avisa «Glosario · ¡Mérito nuevo!». Al ganar uno, en la partida entra el aviso «Mérito conseguido» con el sello."
     },
     {
       "fecha": "2026-11-12T21:48:00+01:00",
@@ -528,15 +533,15 @@
       "commit": ""
     },
     {
-      "fecha": "2026-11-05T13:48:00+01:00",
-      "hito": "M10",
-      "resumen": "M10 planta 4 (5a): los sprites del Director de Recursos Inhumanos (en su silla granate y de pie, con gafas que reflejan una hoja de cálculo), su silla sola, sus tarjetas, cartas de despido, diapositivas y recortes, las mamparas móviles y la mesa larga, que ya está en la Sala de Juntas.",
-      "commit": ""
-    },
-    {
       "fecha": "2026-11-05T13:50:00+01:00",
       "hito": "M10",
       "resumen": "M10 planta 4 (4d): el Climatizador Portátil, que barre la sala con un cono de aire frío que empuja a la tostadora, le tuerce las balas y sopla escarcha; ya están los cuatro enemigos de las Oficinas.",
+      "commit": ""
+    },
+    {
+      "fecha": "2026-11-05T13:48:00+01:00",
+      "hito": "M10",
+      "resumen": "M10 planta 4 (5a): los sprites del Director de Recursos Inhumanos (en su silla granate y de pie, con gafas que reflejan una hoja de cálculo), su silla sola, sus tarjetas, cartas de despido, diapositivas y recortes, las mamparas móviles y la mesa larga, que ya está en la Sala de Juntas.",
       "commit": ""
     },
     {
@@ -588,15 +593,15 @@
       "commit": ""
     },
     {
-      "fecha": "2026-11-05T08:45:00+01:00",
-      "hito": "M10",
-      "resumen": "Nota del humano: los cupones ya no vuelan solos al limpiar la sala; hay que ir a recogerlos, y el minimapa marca los que te dejas.",
-      "commit": ""
-    },
-    {
       "fecha": "2026-11-05T09:05:00+01:00",
       "hito": "M10",
       "resumen": "Nota del humano: el minimapa marca lo que queda por coger o abrir en las salas que dejas atrás (cofres, tickets, corazones, armas u objetos y cupones), una sola marca por tipo.",
+      "commit": ""
+    },
+    {
+      "fecha": "2026-11-05T08:45:00+01:00",
+      "hito": "M10",
+      "resumen": "Nota del humano: los cupones ya no vuelan solos al limpiar la sala; hay que ir a recogerlos, y el minimapa marca los que te dejas.",
       "commit": ""
     },
     {
@@ -660,6 +665,12 @@
       "commit": ""
     },
     {
+      "fecha": "2026-11-05T03:55:00+01:00",
+      "hito": "M10",
+      "resumen": "El Sobre Sorpresa, cuarto y último enemigo de la Juguetería: da saltitos, escupe confeti y al romperlo sale una sorpresa al azar: dos Muñequitos Repetidos que muerden (75 %), cuatro cupones (20 %) o el Muñequito Dorado Ultrarraro, que dispara anillos y vale cinco cupones (5 %). Las probabilidades, en letra pequeña.",
+      "commit": ""
+    },
+    {
       "fecha": "2026-11-05T03:29:00+01:00",
       "hito": "M10",
       "resumen": "La planta 3 ya se juega: tras vencer al Router y bajar en el montacargas, la partida sigue en la Juguetería con la misma tostadora. Hasta que llegue el Muñeco de Moda, el Router repite en el Escaparate de Novedades. El bot llega a la planta 3 en 2 de 60 partidas.",
@@ -681,12 +692,6 @@
       "fecha": "2026-11-05T02:46:00+01:00",
       "hito": "M10",
       "resumen": "Seis salas de combate propias de la Juguetería: un circuito de coches con su isla, un pasillo de peluches en zigzag, una mesa de construcciones con mesas que se vuelcan, una urbanización de casitas de muñecas, la Zona «Pruébame» casi vacía y un rincón de montaje pequeño con estanterías en escalera.",
-      "commit": ""
-    },
-    {
-      "fecha": "2026-11-05T03:55:00+01:00",
-      "hito": "M10",
-      "resumen": "El Sobre Sorpresa, cuarto y último enemigo de la Juguetería: da saltitos, escupe confeti y al romperlo sale una sorpresa al azar: dos Muñequitos Repetidos que muerden (75 %), cuatro cupones (20 %) o el Muñequito Dorado Ultrarraro, que dispara anillos y vale cinco cupones (5 %). Las probabilidades, en letra pequeña.",
       "commit": ""
     },
     {
@@ -810,18 +815,6 @@
       "commit": ""
     },
     {
-      "fecha": "2026-10-30T06:15:00+01:00",
-      "hito": "M10",
-      "resumen": "Diseño de la planta 3 (Juguetería): cuatro enemigos que castigan quedarse quieto y no mirar el suelo, el Muñeco de Moda en tres fases, diez objetos, dos sinergias y su aspecto; M10 partido en tareas.",
-      "commit": ""
-    },
-    {
-      "fecha": "2026-10-30T06:00:00+01:00",
-      "hito": "M9",
-      "resumen": "Tras el repaso: las salas estrechas van centradas en la pantalla, los PNJs del Mostrador dicen una frase corta distinta al volver (nada se repite) y la navegación ya no atraviesa los postes de la cola.",
-      "commit": ""
-    },
-    {
       "fecha": "2026-10-30T08:00:00+01:00",
       "hito": "M9",
       "resumen": "Repaso del Mostrador y M9 terminado: la cámara enseña la pared entera, sin munición ni disparos en la ayuda, el teléfono ya no repite el chiste de «su llamada es muy importante» y el bot pasa por todo el Mostrador antes de cada partida (100 %, 9,4 s).",
@@ -843,6 +836,18 @@
       "fecha": "2026-10-30T06:30:00+01:00",
       "hito": "M9",
       "resumen": "El tablón «Productos en Exposición» del Mostrador: los cinco personajes en sus tarjetas (a color o en silueta) y, al acercarse, un panel con su condición y cuánto falta («2/10»).",
+      "commit": ""
+    },
+    {
+      "fecha": "2026-10-30T06:15:00+01:00",
+      "hito": "M10",
+      "resumen": "Diseño de la planta 3 (Juguetería): cuatro enemigos que castigan quedarse quieto y no mirar el suelo, el Muñeco de Moda en tres fases, diez objetos, dos sinergias y su aspecto; M10 partido en tareas.",
+      "commit": ""
+    },
+    {
+      "fecha": "2026-10-30T06:00:00+01:00",
+      "hito": "M9",
+      "resumen": "Tras el repaso: las salas estrechas van centradas en la pantalla, los PNJs del Mostrador dicen una frase corta distinta al volver (nada se repite) y la navegación ya no atraviesa los postes de la cola.",
       "commit": ""
     },
     {
@@ -1230,15 +1235,15 @@
       "commit": ""
     },
     {
-      "fecha": "2026-10-29T03:35:00+01:00",
-      "hito": "M3",
-      "resumen": "Juego de casillas del almacén: baldosas agrietadas, gastadas, con parche, rejillas y chapa estriada; letras pintadas en el suelo, muelles de carga, rodadas, tickets y tornillos; carteles, reloj parado y pantalla de turnos en la pared, y decoración propia de entrada, tienda, tesoro, secreta y jefe. M3 terminado.",
-      "commit": ""
-    },
-    {
       "fecha": "2026-10-29T04:05:00+01:00",
       "hito": "M3",
       "resumen": "Minimapa arriba a la derecha: salas visitadas, la actual y las vecinas vistas, con iconos para jefe, tienda, tesoro y sala secreta.",
+      "commit": ""
+    },
+    {
+      "fecha": "2026-10-29T03:35:00+01:00",
+      "hito": "M3",
+      "resumen": "Juego de casillas del almacén: baldosas agrietadas, gastadas, con parche, rejillas y chapa estriada; letras pintadas en el suelo, muelles de carga, rodadas, tickets y tornillos; carteles, reloj parado y pantalla de turnos en la pared, y decoración propia de entrada, tienda, tesoro, secreta y jefe. M3 terminado.",
       "commit": ""
     },
     {
@@ -1302,15 +1307,15 @@
       "commit": "30ff403"
     },
     {
-      "fecha": "2026-10-28T21:32:00+01:00",
-      "hito": "M2",
-      "resumen": "Bombilla de Bajo Consumo: tarda en encenderse (parpadea apagada), guarda las distancias y suelta espirales de chispas cian con un halo de luz. La acompaña la Polilla Fiel, que le da vueltas y de vez en cuando se lanza contra la tostadora. Arreglado: las capturas del panel no llegaban al repositorio (.gitignore).",
-      "commit": ""
-    },
-    {
       "fecha": "2026-10-28T21:55:00+01:00",
       "hito": "M2",
       "resumen": "Microondas Sin Seguro: se queda quieto, calienta un segundo con su reloj de 12:00 parpadeando y suelta dos anillos de balas.",
+      "commit": ""
+    },
+    {
+      "fecha": "2026-10-28T21:32:00+01:00",
+      "hito": "M2",
+      "resumen": "Bombilla de Bajo Consumo: tarda en encenderse (parpadea apagada), guarda las distancias y suelta espirales de chispas cian con un halo de luz. La acompaña la Polilla Fiel, que le da vueltas y de vez en cuando se lanza contra la tostadora. Arreglado: las capturas del panel no llegaban al repositorio (.gitignore).",
       "commit": ""
     },
     {
@@ -1340,14 +1345,6 @@
   ],
   "capturas": [
     {
-      "archivo": "capturas/mesa-cubre.png",
-      "pie": "M14b (h6): una mesa volcada parando balas: se oscurece con cada una y, a punto de romperse, parpadea"
-    },
-    {
-      "archivo": "capturas/bidon-encendido.png",
-      "pie": "M14b (h5): un bidón encendido marca en el suelo hasta dónde llega la explosión; el aro de dentro es la cuenta atrás"
-    },
-    {
       "archivo": "capturas/consola-cajas.png",
       "pie": "M14 (j4): la Consola Edición Coleccionista, el otro jefe de la planta 3, lanza cajas de botín: rotas a tiros, un juguete o cupones falsos; si se abren solas, lo peor"
     },
@@ -1362,9 +1359,17 @@
     {
       "archivo": "capturas/nube-sincronizando.png",
       "pie": "M14 (j3): la Nube de Almacenamiento, el otro jefe de la planta 2, «Sincronizando…»: si la barra se llena suelta todo lo que guardaba; si le das lo bastante, se rompe"
+    },
+    {
+      "archivo": "capturas/merito-premio-nuevo.png",
+      "pie": "M14 (l4a): «Cliente habitual» (7 de 25 partidas) promete un objeto que no sale en ningún otro sitio: la Bolsa de Tela Reutilizable"
+    },
+    {
+      "archivo": "capturas/merito-conseguido.png",
+      "pie": "M14 (l3): el aviso «Mérito conseguido» con su premio: la primera baja mete la Garantía Extendida en los cofres"
     }
   ],
-  "proximo": "M14b (h8), las hitboxes; o la (h7), saltar por encima de mesas y obstáculos bajos rodando; la (h2)–(h4) están cogidas.",
+  "proximo": "M14b (h8): hitboxes de los enemigos ajustadas a su dibujo; después (h7) saltar obstáculos bajos y (h9a) enemigos de la planta 1 con movimiento propio.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1394,9 +1399,14 @@
   },
   "en_curso": [
     {
-      "sesion": "2026-11-13 13:35",
-      "tarea": "M14b (h2)+(h3)+(h4): economía, cofres en salas distintas, menos corazones (src/sim/world.ts pickups y premios de sala, src/sim/floor.ts, src/data/shop.ts, src/data/enemies.ts loot, tests)",
-      "desde": "2026-11-13T12:35:00Z"
+      "sesion": "2026-11-13 14:45",
+      "tarea": "M14b (h6): mesas que se vuelcan hacia donde toca y aguantan unos disparos (src/sim/world.ts tipTable/tableHit, src/data/props.ts mesa, src/render/GameScene.ts tablas, tests/mesas.test.ts)",
+      "desde": "2026-11-13T13:45:00Z"
+    },
+    {
+      "sesion": "2026-11-13 15:35",
+      "tarea": "M14b (h8): hitboxes de los enemigos ajustadas a su dibujo (src/data/enemies.ts hurt; tests de enemigos)",
+      "desde": "2026-11-13T14:35:00Z"
     }
   ]
 }

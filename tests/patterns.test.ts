@@ -1,3 +1,4 @@
+import { bulletSpeedOf } from '../src/data/rooms.ts';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PATTERNS } from '../src/data/patterns.ts';
@@ -114,7 +115,8 @@ test('las balas en onda se mueven de lado pero avanzan a su velocidad', () => {
   }
   const b = w.bullets.find((b) => b.owner === 'enemy')!;
   assert.ok(maxSide > 4 && maxSide < 12, `lateral ${maxSide}`);
-  assert.ok(Math.abs(b.x - cx - 61) < 3, `avance ${b.x - cx}`);
+  // (At its speed times the floor's, FLOOR_BULLET_SPEED.)
+  assert.ok(Math.abs(b.x - cx - 61 * bulletSpeedOf(w.level)) < 3, `avance ${b.x - cx}`);
 });
 
 test('telegrafía: avisa, espera y luego dispara', () => {

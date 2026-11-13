@@ -231,8 +231,8 @@ test('Acreditación de Visitante: la tienda cobra un 25 % menos, redondeado y nu
     events.push(...w.events);
   }
   const buy = events.find((e) => e.type === 'shop');
-  assert.ok(buy && buy.type === 'shop' && buy.outcome === 'bought' && buy.price === 8, JSON.stringify(buy));
-  assert.equal(w.player.coupons, 12);
+  assert.ok(buy && buy.type === 'shop' && buy.outcome === 'bought' && buy.price === shopPrice(w.player, SHOP_PRICES.ticket), JSON.stringify(buy));
+  assert.equal(w.player.coupons, 20 - shopPrice(w.player, SHOP_PRICES.ticket));
   assert.equal(w.player.tickets, tickets + 1);
 });
 

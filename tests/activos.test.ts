@@ -54,13 +54,13 @@ test('hay 3 objetos activos con nombre corto, descripción, sprite y pilas', () 
   }
 });
 
-test('se coge andando, llega cargado y al coger otro deja el viejo en el suelo con sus pilas', () => {
+test('se coge con el botón de interactuar, llega cargado y al coger otro deja el viejo en el suelo con sus pilas', () => {
   const w = bare('activo-cambio', 'encuesta');
   const carried = (): string | undefined => w.player.active?.id;
   assert.deepEqual(w.player.active, { id: 'encuesta', charge: 2 });
   w.player.active!.charge = 1;
   w.pickups.push({ id: w.nextId++, kind: 'activo', item: 'pegamento', charge: 1, value: 1, x: 160, y: 200, vx: 0, vy: 0, age: 1 });
-  for (let i = 0; i < ticks(1) && carried() !== 'pegamento'; i++) step(w, { ...NO_INPUT, moveX: 1 });
+  for (let i = 0; i < ticks(1) && carried() !== 'pegamento'; i++) step(w, { ...NO_INPUT, moveX: 1, interact: true });
   assert.deepEqual(w.player.active, { id: 'pegamento', charge: 1 });
   const old = w.pickups.find((k) => k.kind === 'activo')!;
   assert.equal(old.item, 'encuesta');
@@ -71,7 +71,7 @@ test('se coge andando, llega cargado y al coger otro deja el viejo en el suelo c
   // ...stepping off and back on does.
   w.player.x = old.x + 40;
   step(w, NO_INPUT);
-  for (let i = 0; i < ticks(1.5) && carried() !== 'encuesta'; i++) step(w, { ...NO_INPUT, moveX: -1 });
+  for (let i = 0; i < ticks(1.5) && carried() !== 'encuesta'; i++) step(w, { ...NO_INPUT, moveX: -1, interact: true });
   assert.deepEqual(w.player.active, { id: 'encuesta', charge: 1 });
 });
 

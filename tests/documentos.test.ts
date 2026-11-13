@@ -32,17 +32,18 @@ test('la sala secreta de cada planta guarda su documento en el suelo, en un siti
   }
 });
 
-test('se coge al pasar por encima (también rodando), y no se archiva dos veces', () => {
+test('se coge con el botón de interactuar, y no se archiva dos veces', () => {
   const w = createWorld({ seed: 'doc-coger', floor: true, level: 1 });
   w.noDamage = true;
   intoSecret(w);
   const k = w.pickups.find((x) => x.kind === 'documento')!;
   w.player.x = k.x;
   w.player.y = k.y;
-  w.player.rollT = 0.1;
+  step(w, NO_INPUT);
+  assert.ok(w.pickups.some((x) => x.kind === 'documento'), 'andando por encima no se coge');
   let ev = false;
   for (let i = 0; i < 5 && !ev; i++) {
-    step(w, NO_INPUT);
+    step(w, { ...NO_INPUT, interact: true });
     ev = w.events.some((e) => e.type === 'pickup' && e.kind === 'documento' && e.item === 'manual-1');
   }
   assert.ok(ev, 'avisa al cogerlo');

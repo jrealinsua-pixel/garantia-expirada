@@ -369,7 +369,9 @@ export class Bot {
       return this.wander ? steer(w, this.wander, r, blocked) : null;
     }
     // A weapon or an item on a pedestal: go and get it (unless it got stuck going for something).
-    const arm = this.ignorePickups > 0 ? undefined : w.pickups.find((k) => (k.kind === 'arma' || k.kind === 'objeto') && k.price === undefined);
+    const grabbable = (k: (typeof w.pickups)[number]): boolean =>
+      k.price === undefined && (k.kind === 'arma' || k.kind === 'objeto' || k.kind === 'documento' || (k.kind === 'activo' && !p.active));
+    const arm = this.ignorePickups > 0 ? undefined : w.pickups.find(grabbable);
     if (arm) return steer(w, { x: arm.x, y: arm.y }, r, blocked);
     // Coupons and tickets left lying about: they no longer fly over on their own (nota del humano
     // del 2026-11-05), so it goes for the nearest before leaving.
@@ -414,6 +416,8 @@ export class Bot {
     if (!it) return false;
     if (it.kind === 'chest') return w.player.tickets > 0;
     if (it.kind === 'shop') return this.shopping(w) === it.pickup;
+    // Something on the floor (M14b (h2)): it picks it all up (an active only if it carries none).
+    if (it.kind === 'grab') return it.pickup.kind !== 'activo' || !w.player.active;
     // A table at hand (M9b 13b): over it goes if an enemy is out there, on the side it would cover.
     if (it.kind === 'tip') {
       const f = TIP_FACING[tipSide(it.prop, w.player.x, w.player.y - 2)];

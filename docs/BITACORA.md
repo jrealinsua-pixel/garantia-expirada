@@ -2,6 +2,42 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 14:40 (hora peninsular) — Hito M14b — (h2) (h3) (h4) La economía del Isaac, un cofre por sala y menos corazones
+- Contexto: otra sesión trabaja a la vez en M14b (hizo la (h5), los bidones, y lleva la (h6), las
+  mesas); yo cogí las tres de economía juntas porque tocan los mismos trozos (`world.ts`: premios
+  de sala, recogida y botón de interactuar).
+- Hecho (h2): **los cupones vuelan solos** a la tostadora en cuanto la sala está limpia (puertas
+  abiertas), desde cualquier rincón y por encima de los muebles (`Pickup.flying`; el invariante
+  de «objeto perdido en una pared» no cuenta los que vuelan). **Todo lo demás se coge con el botón
+  de interactuar**: armas, objetos, activos, tickets y documentos (`GRAB_KINDS`, `GRAB_REACH`
+  16 px, el `Interactable` nuevo `grab` con «F: Coger»); andar o rodar por encima ya no los coge.
+  Los corazones (de recambio, garantía y especiales) siguen cogiéndose al pasar. **Cupones mucho
+  más escasos**: casi todos los enemigos 0–1 (antes hasta 1–3), los jefes 3–6 (antes 5–12); **la
+  tienda más cara**: objeto 20 (15), activo 15 (12), arma 24 (18), corazón 8 (6), ticket 12 (10);
+  el rasca del Sorteo, 6 (5). El bot pulsa el botón para coger lo del suelo (un activo, solo si no
+  lleva otro) y va también a por documentos y activos.
+- Hecho (h3): **un cofre en el tesoro** (antes dos) y **una sala de combate que siempre deja
+  otro** al limpiarla (`FLOOR_CHESTS`), además del 15 % de las demás y el de la secreta: unos dos
+  cofres por planta como antes, pero nunca dos en la misma sala.
+- Hecho (h4): el corazón de recambio al limpiar una sala, del 35 % al **15 %**; la Garantía
+  Provisional, del 10 al 8 %. Una planta da ahora 0,6 corazones de recambio y 0,4 garantías de
+  media (con 300 semillas), más el de la jefa. Las balas enemigas de la planta 1 van un 6 % más
+  rápidas (las demás plantas, un poco más que en la (h1)): con la vida nueva, la planta 1 seguía
+  saliendo demasiado fácil.
+- Decisiones: los cupones vuelan por encima de todo y no rodeando, porque rodear podía atascarlos
+  detrás de una mampara; los tickets se cogen con el botón porque el humano dice que lo único que
+  se coge andando son los corazones. Con un solo cofre en el tesoro, una sala de combate fija deja
+  otro para que no baje el número de cofres por planta (la escasez está en los tickets).
+- Medidas (`npm run bot`): 7,7 cupones/min (antes 9,8); compra 0,5 cosas por planta. Planta 1:
+  la gana el 75 % (con la (h1) sola, 80 %; antes de las dos, 40 %), 13,3 s y 0,61 heridas por sala
+  de combate. Llegan a la planta 3 seis de 20 y la gana el 67 %; a la 4, cuatro, y la gana
+  ninguna: **pasar de la 3 es difícil de verdad**, como pidió el humano el 29 de octubre. 949
+  tests en verde; el e2e coge las armas, los objetos y los tickets con el botón
+  (`grabWhileWalking`).
+- Problemas conocidos: la planta 1 sigue siendo fácil para el bot (los enemigos de las (h9) la
+  pondrán en su sitio). El precio del Sorteo se cuadró con los precios nuevos de la tienda.
+- Siguiente paso: (h7) saltar por encima de mesas y obstáculos bajos, (h8) hitboxes, o (h9a) los
+  movimientos propios de los enemigos de la planta 1.
 ## 2026-11-13 15:25 (hora peninsular) — Hito M14b — (h6) Mesas que se vuelcan hacia donde toca y se rompen
 - Contexto: segunda tarea de la sesión (paso 7). La (h2)–(h4) sigue cogida por otra sesión; la
   (h6) solo toca el vuelco y el desgaste de las mesas.

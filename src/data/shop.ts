@@ -5,15 +5,15 @@
 export type ShopGood = 'objeto' | 'activo' | 'arma' | 'corazon' | 'ticket';
 
 /**
- * Price of each good, in coupons. A full floor gives about 40 coupons, so the shop sells two or
- * three things at most: buying is choosing.
+ * Price of each good, in coupons. A full floor gives about 12 coupons (M14b (h2), as in the Isaac):
+ * an item costs about two floors of saving, and many floors you buy nothing. Buying is choosing.
  */
 export const SHOP_PRICES: Record<ShopGood, number> = {
-  objeto: 15,
-  activo: 12,
-  arma: 18,
-  corazon: 6,
-  ticket: 10,
+  objeto: 20,
+  activo: 15,
+  arma: 24,
+  corazon: 8,
+  ticket: 12,
 };
 
 /**
@@ -98,7 +98,7 @@ export function financeHearts(life: number): string {
  * the house always wins, but not by much (a full floor gives some 40 coupons; RAFFLE_COUPONS is
  * two cards' worth).
  */
-export const RAFFLE_PRICE = 5;
+export const RAFFLE_PRICE = 6;
 export const RAFFLE_COUPONS = 10;
 
 export type RafflePrize = 'nada' | 'cupones' | 'ticket' | 'corazon' | 'garantia' | 'cofre';

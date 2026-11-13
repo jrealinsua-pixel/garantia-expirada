@@ -693,6 +693,7 @@ export const INTERACT_VERBS = {
   chest: 'Abrir',
   tip: 'Volcar',
   shop: 'Comprar',
+  grab: 'Coger',
   caja: 'Hablar',
   telefono: 'Descolgar',
   turnos: 'Coger número',

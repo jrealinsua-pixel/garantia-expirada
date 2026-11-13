@@ -87,6 +87,21 @@ try {
     await page.mouse.move(p.x, p.y, { steps: 4 });
   };
   const shot = (name: string): Promise<unknown> => page.screenshot({ path: join(out, name) });
+  // Walks with `key` held, pressing the interact button now and then, until `cond` holds (M14b
+  // (h2): weapons, items and tickets are picked up with the button, not by walking over them).
+  const grabWhileWalking = async (key: string, cond: string, timeout: number): Promise<void> => {
+    await page.keyboard.down(key);
+    const end = Date.now() + timeout;
+    try {
+      while (!(await page.evaluate<boolean>(cond))) {
+        if (Date.now() > end) throw new Error(`No se ha cogido: ${cond}`);
+        await page.keyboard.press('f');
+        await page.waitForTimeout(60);
+      }
+    } finally {
+      await page.keyboard.up(key);
+    }
+  };
   const tapKeys = async (...keys: string[]): Promise<void> => {
     for (const k of keys) {
       await page.keyboard.press(k);
@@ -728,7 +743,7 @@ try {
   await page.waitForTimeout(900);
   const priceShown = await page.evaluate<string>(`(() => { const s = window.__GE__.scene;
     const k = s.world.pickups.find((q) => q.kind === 'ticket' && q.price !== undefined); return s.pickupSprites.get(k.id).price.text; })()`);
-  if (priceShown !== '8') throw new Error(`Con la Acreditación el ticket debería costar 8 y pone ${priceShown}`);
+  if (priceShown !== '9') throw new Error(`Con la Acreditación el ticket debería costar 9 y pone ${priceShown}`);
   await shot('51c-acreditacion-tienda.png');
   console.log('Planta 4: la Acreditación de Visitante rebaja los precios del Economato.');
 
@@ -1667,8 +1682,8 @@ try {
     "(() => { const w = window.__GE__.scene.world; return { chests: w.room.props.filter((p) => p.chest).length,"
       + " loose: w.pickups.filter((k) => k.kind !== 'cupon').length, tickets: w.player.tickets }; })()",
   );
-  if (inTreasure.chests !== 2 || inTreasure.loose !== 0 || inTreasure.tickets !== 1) {
-    throw new Error(`El tesoro de la planta no tiene dos cofres y nada suelto, o no se empieza con un ticket: ${JSON.stringify(inTreasure)}`);
+  if (inTreasure.chests !== 1 || inTreasure.loose !== 0 || inTreasure.tickets !== 1) {
+    throw new Error(`El tesoro de la planta no tiene un cofre y nada suelto, o no se empieza con un ticket: ${JSON.stringify(inTreasure)}`);
   }
   await shot('16g-planta-tesoro.png');
   if (!inBoss.boss || !inBoss.intro || !inBoss.shut) throw new Error(`Al entrar desde la planta, la jefa no está o no se presenta: ${JSON.stringify(inBoss)}`);
@@ -2048,9 +2063,7 @@ try {
   await goTo('grapadora', -40);
   await page.waitForTimeout(500);
   await shot('19a-arma-en-pedestal.png');
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 2', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.arsenal.length === 2', 4000);
   await page.waitForTimeout(250);
   await shot('19b-arma-recogida.png');
   const fireAtEnemy = (): Promise<unknown> =>
@@ -2062,9 +2075,7 @@ try {
   await shot('19c-grapadora.png');
   await page.evaluate('window.__GE__.scene.controls.override = null');
   await goTo('plancha', -40);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 3', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.arsenal.length === 3', 4000);
   // Up close to an enemy for the steam.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world;
     const e = w.enemies.find((x) => x.state !== 'gone' && x.def.id !== 'bombilla'); if (e) { w.player.x = e.x - 90; w.player.y = e.y; } })()`);
@@ -2077,9 +2088,7 @@ try {
   await page.evaluate('window.__GE__.scene.controls.override = null');
   // M11 (6c2): the Megáfono de Reclamaciones, on the third pedestal: its arc of waves up close.
   await goTo('megafono', -40);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 4', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.arsenal.length === 4', 4000);
   // Below the item card, with two enemies in a row in front: the waves go through both.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 360; w.player.y = 276;
     w.enemies.filter((x) => x.state !== 'gone' && x.def.id !== 'bombilla').slice(0, 2).forEach((e, i) => { e.x = 408 + 26 * i; e.y = 270; e.vx = 0; e.vy = 0; }); })()`);
@@ -2094,9 +2103,7 @@ try {
   await page.evaluate('window.__GE__.scene.controls.override = null');
   // M11 (6c1): the Etiquetadora de Precios, on the fourth pedestal: labels stuck on an enemy, then «Rebajado».
   await goTo('etiquetadora', -40);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 5', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.arsenal.length === 5', 4000);
   // One enemy that does not fall (huge life) and stays put, and another just behind it for the blast.
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 360; w.player.y = 276;
     w.enemies.filter((x) => x.state !== 'gone' && x.def.id !== 'bombilla').slice(0, 2).forEach((e, i) => {
@@ -2115,9 +2122,7 @@ try {
   // M14 (l4b): the prize weapons, on the last two pedestals. The Soldador de Estaño against the
   // wall: the drops that miss stay stuck there, glowing; then the Mando Universal's pinpoints.
   await goTo('soldador', -40);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 6', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.arsenal.length === 6', 4000);
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 110; w.player.y = 230; })()`);
   await page.waitForTimeout(700);
   await page.evaluate(`window.__GE__.scene.controls.override = { aimX: 0, aimY: 215, fire: true }`);
@@ -2128,9 +2133,7 @@ try {
   await shot('19i-soldador.png');
   if (await slotOf0() !== 'soldador') throw new Error('No se ha cogido el Soldador');
   await goTo('mando', -40);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 7', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.arsenal.length === 7', 4000);
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 360; w.player.y = 276;
     w.enemies.filter((x) => x.state !== 'gone' && x.def.id !== 'bombilla').slice(0, 2).forEach((e, i) => {
       e.def = { ...e.def, hp: 999 }; e.x = 440 + 22 * i; e.y = 276; e.vx = 0; e.vy = 0; e.state = 'idle'; e.until = 999; e.t = 0; }); })()`);
@@ -2160,9 +2163,7 @@ try {
     w.player.x = k.x - 36; w.player.y = k.y + 2; return k.item; })()`);
   await page.waitForTimeout(600);
   await shot('20a-objeto-en-pedestal.png');
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.items.length === 1', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.items.length === 1', 4000);
   await page.waitForTimeout(300);
   await shot('20b-objeto-recogido.png');
   await page.goto(`${url}?semilla=e2e-build&sala=sala-pruebas`);
@@ -2183,9 +2184,7 @@ try {
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.pickups.find((p) => p.kind === 'activo');
     w.player.x = k.x - 36; w.player.y = k.y + 2; })()`);
   await page.waitForTimeout(400);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.active !== null', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.active !== null', 4000);
   await page.waitForTimeout(300);
   await shot('21a-activo-recogido.png');
   await page.goto(`${url}?semilla=e2e-activos&sala=sala-pruebas`);
@@ -2221,9 +2220,7 @@ try {
   await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; g.giveItem('manual'); const k = w.pickups.find((p) => p.kind === 'objeto');
     k.item = 'broca'; w.player.x = k.x - 36; w.player.y = k.y + 2; })()`);
   await page.waitForTimeout(400);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.synergies.includes("bricolaje")', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.synergies.includes("bricolaje")', 4000);
   await page.waitForTimeout(350);
   await shot('22-sinergia.png');
   console.log('Sinergias: Bricolaje Avanzado al juntar Manual y Broca.');
@@ -2252,9 +2249,7 @@ try {
   await page.waitForTimeout(300);
   if (await page.evaluate<boolean>('window.__GE__.scene.world.room.props.find((p) => p.chest).chest.open')) throw new Error('El cofre se abre sin ticket');
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const k = w.pickups.find((p) => p.kind === 'ticket'); w.player.x = k.x - 20; w.player.y = k.y; })()`);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.tickets === 1', undefined, { timeout: 3000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.tickets === 1', 3000);
   await page.waitForTimeout(200);
   await shot('23c-ticket-recogido.png');
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; const c = w.room.props.find((p) => p.chest); w.player.x = c.x; w.player.y = c.y + 22; })()`);
@@ -2289,7 +2284,7 @@ try {
   await page.keyboard.down('w');
   await page.waitForTimeout(500);
   await page.keyboard.up('w');
-  if (!/F: COMPRAR POR 15/i.test(await prompt())) throw new Error(`Ante la balda no sale «F: Comprar por 15»: «${await prompt()}»`);
+  if (!/F: COMPRAR POR 20/i.test(await prompt())) throw new Error(`Ante la balda no sale «F: Comprar por 20»: «${await prompt()}»`);
   await page.keyboard.press('f');
   await page.waitForFunction("window.__GE__.scene.world.events.some((e) => e.type === 'shop') || window.__GE__.scene.tillNoT > 0", undefined, { timeout: 3000 })
     .catch(() => { throw new Error('La caja no dice nada al pulsar F sin cupones'); });
@@ -2303,8 +2298,8 @@ try {
     .catch(() => { throw new Error('Con cupones, F no compra el objeto'); });
   await page.waitForTimeout(350);
   await shot('24c-tienda-comprado.png');
-  if (await page.evaluate<number>('window.__GE__.scene.world.player.coupons') !== 16) throw new Error('La compra no cobra 15 cupones');
-  console.log('Tienda: saludo, sin cupones no vende y con cupones cobra 15 y da el objeto.');
+  if (await page.evaluate<number>('window.__GE__.scene.world.player.coupons') !== 11) throw new Error('La compra no cobra 20 cupones');
+  console.log('Tienda: saludo, sin cupones no vende y con cupones cobra 20 y da el objeto.');
 
   // M6: the pause menu. Esc freezes the game; options change and are kept; the controls are listed; Esc goes back.
   await page.goto(`${url}?semilla=e2e-pausa&sala=sala-pruebas`);
@@ -2412,9 +2407,7 @@ try {
   await page.evaluate(`(() => { const g = window.__GE__; const w = g.scene.world; w.noDamage = true; g.giveItem('manual'); const k = w.pickups.find((p) => p.kind === 'objeto');
     k.item = 'broca'; w.player.x = k.x - 36; w.player.y = k.y + 2; })()`);
   await page.waitForTimeout(400);
-  await page.keyboard.down('d');
-  await page.waitForFunction('window.__GE__.scene.world.player.synergies.includes("bricolaje")', undefined, { timeout: 4000 });
-  await page.keyboard.up('d');
+  await grabWhileWalking('d', 'window.__GE__.scene.world.player.synergies.includes("bricolaje")', 4000);
   await page.waitForTimeout(350);
   await shot('31b-texto-grande-objeto.png');
   if (await page.evaluate<boolean>('window.__GE__.scene.synergyText.alpha > 0')) throw new Error('Con texto grande, la sinergia sale encima de la ventana');
@@ -2643,7 +2636,7 @@ try {
   // each; scratching one pays and says what it won (and drops it).
   await page.goto(`${url}?semilla=e2e-sorteo&sala=sorteo&planta=3`);
   await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.player.coupons = 15;
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.player.coupons = 16;
     const k = w.pickups.filter((p) => p.kind === 'rasca').sort((a, b) => a.x - b.x)[1]; w.player.x = k.x; w.player.y = k.y + 12; })()`);
   await page.waitForTimeout(1500);
   await shot('60c-sorteo.png');
@@ -2653,7 +2646,7 @@ try {
   const raffled = await page.evaluate<{ coupons: number; cards: number }>(`(() => { const w = window.__GE__.scene.world;
     return { coupons: w.player.coupons, cards: w.pickups.filter((k) => k.kind === 'rasca').length }; })()`);
   if (raffled.cards !== 2 || raffled.coupons < 10) throw new Error(`Rascar no cobra o no gasta la rasca: ${JSON.stringify(raffled)}`);
-  console.log('Sala rara: el Sorteo de Fidelización cobra cinco cupones por rasca y dice lo que ha tocado.');
+  console.log('Sala rara: el Sorteo de Fidelización cobra seis cupones por rasca y dice lo que ha tocado.');
 
   // M9: the secret room keeps a story document on the floor; walking over it files it.
   await page.goto(`${url}?semilla=e2e-documento&sala=secreta`);
@@ -2662,9 +2655,7 @@ try {
     w.player.x = k.x; w.player.y = k.y + 34; })()`);
   await page.waitForTimeout(600);
   await shot('39-documento-secreto.png');
-  await page.keyboard.down('w');
-  await page.waitForFunction('window.__GE__.scene.world.docs.length === 1', undefined, { timeout: 3000 }).catch(() => { throw new Error('El documento de la sala secreta no se coge'); });
-  await page.keyboard.up('w');
+  await grabWhileWalking('w', 'window.__GE__.scene.world.docs.length === 1', 3000);
   await page.waitForTimeout(250);
   await shot('39b-documento-archivado.png');
   console.log('Sala secreta: el documento está en el suelo y se coge al pisarlo.');

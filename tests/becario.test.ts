@@ -133,7 +133,7 @@ test('«Sin remunerar»: exactamente la mitad de los cupones, sin tirar dados', 
   };
   const toaster = kill('tostadora');
   const intern = kill('becario');
-  assert.ok(toaster.coupons >= 10, `la tostadora recoge ${toaster.coupons}`);
+  assert.ok(toaster.coupons >= 6, `la tostadora recoge ${toaster.coupons}`);
   assert.ok(Math.abs(intern.coupons - toaster.coupons / 2) <= 0.5, `${intern.coupons} de ${toaster.coupons}`);
   assert.equal(kill('becario').hash, intern.hash, 'determinista');
 });
