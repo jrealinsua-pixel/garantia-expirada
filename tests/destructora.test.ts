@@ -32,7 +32,7 @@ const shootAt = (en: Enemy): Input => ({ ...NO_INPUT, fire: true, aimX: en.x, ai
 
 test('la destructora es contenido: datos, sprites de tres lados, causa de baja y solo desde la planta 4', () => {
   assert.equal(def.name, 'Destructora de Documentos');
-  assert.equal(def.hp, 18);
+  assert.equal(def.hp, 8);
   assert.ok(!/[!¡]/.test(def.name + def.description + SHRED_JAM_LINE));
   const sheets = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames?: number; frameW: number }>;
   assert.ok(sheets.destructora, 'falta el sprite');

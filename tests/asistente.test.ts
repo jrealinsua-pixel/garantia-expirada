@@ -54,7 +54,7 @@ function shootAt(w: World, a: Enemy, hits: number): { hit: number; blocked: numb
 
 test('el asistente es contenido: datos, sprites, bocadillos, botones, textos, causa de baja y solo desde la planta 5', () => {
   assert.equal(def.name, 'Asistente Virtual');
-  assert.equal(def.hp, 16);
+  assert.equal(def.hp, 9);
   assert.equal(brain.learn, 3);
   assert.equal(brain.sameDeg, 60);
   assert.equal(brain.shield, 3);

@@ -37,7 +37,7 @@ function untilThrown(w: World, max = 6): void {
 
 test('el cubo de piezas es contenido: datos, sprites, causa de baja y solo desde la planta 3', () => {
   assert.equal(def.name, 'Cubo de Piezas');
-  assert.equal(def.hp, 16);
+  assert.equal(def.hp, 7);
   assert.equal(brain.life, 6, 'las piezas se quedan 6 s');
   assert.equal(brain.damage, 1, 'pisar una quita medio corazón');
   assert.ok(!/[!¡]/.test(def.name + def.description + BRICK_LINE));

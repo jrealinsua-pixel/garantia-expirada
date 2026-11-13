@@ -1,6 +1,6 @@
 // The simulation: pure, deterministic, no Phaser and no DOM. One call to step() is one tick of 1/60 s.
 import { CHARACTERS } from '../data/characters.ts';
-import { budgetCapOf, floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, toughened } from '../data/rooms.ts';
+import { budgetCapOf, bulletSpeedOf, floorBossOf, HUB, ROOMS, slotEnemiesOf, templatesOf, toughened } from '../data/rooms.ts';
 import { FINDABLE_WEAPONS, WEAPONS, weaponsUpTo } from '../data/weapons.ts';
 import { ACTIVE_ITEMS, FINDABLE_ACTIVES, ITEMS, itemsUpTo } from '../data/items.ts';
 import { ENEMIES } from '../data/enemies.ts';
@@ -3448,6 +3448,14 @@ function pierces(b: Bullet, target: number): boolean {
 export function firePattern(w: World, def: PatternDef, x: number, y: number, aim: number, opts: FireOptions = {}): Emitter {
   const telegraph = Math.max(0, opts.telegraph ?? 0);
   const shots = expandPattern(def, aim, w.rng);
+  // Enemy bullets fly faster on the higher floors (FLOOR_BULLET_SPEED).
+  const fast = (opts.owner ?? 'enemy') === 'enemy' ? bulletSpeedOf(w.level) : 1;
+  if (fast !== 1) {
+    for (const s of shots) {
+      s.speed *= fast;
+      if (s.maxSpeed) s.maxSpeed *= fast;
+    }
+  }
   const e: Emitter = {
     x,
     y,

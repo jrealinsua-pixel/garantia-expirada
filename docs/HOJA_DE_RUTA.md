@@ -661,7 +661,7 @@ Dos notas largas después de jugar (en `docs/NOTAS_DEL_HUMANO.md`). Van antes qu
 porque son notas del humano. Lo que se aprendió mirando otros juegos, en «Lo que hacen otros
 juegos del género» de `docs/DISENO.md`.
 
-- [ ] (h1) Menos vida a los enemigos y a los jefes: que la dificultad venga de las balas y del
+- [x] (h1) Menos vida a los enemigos y a los jefes: que la dificultad venga de las balas y del
   movimiento, no de esponjas. Objetivo: un enemigo normal cae en 2–4 disparos del arma inicial,
   una sala de la planta 1 se limpia en unos 20–30 s y un jefe en 45–90 s. Medir con el bot antes
   y después; si la planta 1 se vuelve fácil, compensar con balas y patrones, no con vida.

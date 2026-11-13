@@ -74,7 +74,7 @@ test('aguanta unos disparos, se enciende y explota: daña a los enemigos de alre
   assert.ok(lit, 'se enciende antes de explotar');
   assert.ok(!w.room.props.includes(pr), 'el bidón ya no está');
   assert.ok(shots >= 3, `aguanta unos cuantos disparos del Secador (${shots})`);
-  assert.equal(near.damageTaken, DRUM.blast!.damage);
+  assert.equal(near.damageTaken, Math.min(DRUM.blast!.damage, near.def.hp), "el que está cerca se lleva la explosión entera (o cae)");
   assert.equal(far.damageTaken, 0);
   assert.deepEqual(checkInvariants(w), []);
 });

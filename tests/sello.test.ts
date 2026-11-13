@@ -44,7 +44,7 @@ function untilStamp(w: World, st: Enemy, max = 8): void {
 
 test('el sello es contenido: datos, sprites, gotas, tinta, textos, causa de baja y solo desde la planta 4', () => {
   assert.equal(def.name, 'Sello de Denegado');
-  assert.equal(def.hp, 10);
+  assert.equal(def.hp, 4);
   assert.ok(!/[!¡]/.test(def.name + def.description + ROLL_DENIED_LINE + STAMP_LINE));
   const sheets = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames?: number; frameW: number }>;
   for (const k of ['sello', 'bala-tinta', 'tinta-denegado']) assert.ok(sheets[k], `falta el sprite ${k}`);

@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-11-13T04:40:00+01:00",
+  "actualizado": "2026-11-13T13:34:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M14b",
+  "hito_actual": "M14",
   "hitos": [
     {
       "id": "M0",
@@ -118,13 +118,13 @@
     {
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
-      "estado": "en_curso",
-      "hechas": 0,
+      "estado": "pendiente",
+      "hechas": 1,
       "total": 11
     },
     {
       "id": "M14c",
-      "nombre": "Arte nuevo",
+      "nombre": "Arte nuevo (nota del humano del 13 de noviembre)",
       "estado": "pendiente",
       "hechas": 0,
       "total": 12
@@ -148,9 +148,14 @@
     "tests_ok": 949,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34030
+    "lineas_codigo": 34048
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T13:34:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h1): los enemigos tienen menos de la mitad de vida (el aspirador cae en 4 disparos y no en 9) y los jefes un tercio menos; a cambio, en las plantas altas las balas enemigas vuelan más rápido. Las salas se limpian en la mitad de tiempo."
+    },
     {
       "fecha": "2026-11-13T04:40:00+01:00",
       "hito": "M14",
@@ -1349,7 +1354,7 @@
       "pie": "M14 (l3): el aviso «Mérito conseguido» con su premio: la primera baja mete la Garantía Extendida en los cofres"
     }
   ],
-  "proximo": "M14 (j5): la Fuente de Agua de Oficina, el segundo jefe de la planta 4; o los PNJs de M14.",
+  "proximo": "M14b (h2): la economía del Isaac, cupones que vuelan solos y muy escasos; coger cosas con el botón.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1379,9 +1384,9 @@
   },
   "en_curso": [
     {
-      "sesion": "2026-11-13 12:55",
-      "tarea": "M14b (h1): menos vida a enemigos y jefes (src/data/enemies.ts, src/sim/world.ts dureza de planta, tests de vida/jefes, tools/bot.ts solo medidas)",
-      "desde": "2026-11-13T11:55:00Z"
+      "sesion": "2026-11-13 13:35",
+      "tarea": "M14b (h2)+(h3)+(h4): economía, cofres en salas distintas, menos corazones (src/sim/world.ts pickups y premios de sala, src/sim/floor.ts, src/data/shop.ts, src/data/enemies.ts loot, tests)",
+      "desde": "2026-11-13T12:35:00Z"
     },
     {
       "sesion": "2026-11-13 13:27",

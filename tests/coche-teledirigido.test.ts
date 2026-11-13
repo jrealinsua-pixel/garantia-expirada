@@ -29,7 +29,7 @@ function track(seed = 'coche'): { w: World; en: Enemy } {
 
 test('el coche teledirigido es contenido: datos, sprite, causa de baja y solo desde la planta 3', () => {
   assert.equal(def.name, 'Coche Teledirigido');
-  assert.equal(def.hp, 10);
+  assert.equal(def.hp, 4);
   assert.ok(!/[!¡]/.test(def.name + def.description + STALL_LINE));
   const sheets = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, unknown>;
   assert.ok(sheets['coche-teledirigido'], 'falta el sprite');

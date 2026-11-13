@@ -61,9 +61,9 @@ function hold(ph: Enemy): void {
 
 test('el teléfono es contenido: datos, sprites, timbres, llamada, espera, textos, causa de baja y solo desde la planta 5', () => {
   assert.equal(def.name, 'Teléfono de Recepción');
-  assert.equal(def.hp, 12);
+  assert.equal(def.hp, 9);
   assert.equal(brain.transferAt, 0.5);
-  assert.equal(brain.transferWarn, 0.8);
+  assert.equal(brain.transferWarn, 0.5);
   assert.equal(brain.transferEvery, 4);
   const rings = PATTERNS[brain.rings]!;
   assert.ok(rings.kind === 'sequence' && rings.parts.length === 3);
@@ -155,10 +155,10 @@ test('con más de la mitad de la vida no pasa con nadie; pasada la mitad, un gol
   const near = colleague(w, 'sobre-sorpresa', w.player.x - 40, w.player.y + 30);
   const far = colleague(w, 'sobre-sorpresa', w.player.x - 150, w.player.y - 60);
   // A hit while it still has more than half: nothing.
-  ph.damageTaken = 5;
+  ph.damageTaken = def.hp * 5 / 12;
   assert.ok(!run(w, 0.3).some((e) => e.type === 'transferStart'));
   // One more and it is at half: it passes you on, to the one farthest from the toaster.
-  ph.damageTaken = 6;
+  ph.damageTaken = def.hp / 2;
   step(w, NO_INPUT);
   const ev = w.events.find((e) => e.type === 'transferStart');
   assert.ok(ev && ev.type === 'transferStart' && ev.to === far.id, 'no pasa con el más lejano');
@@ -181,14 +181,14 @@ test('como mucho una vez cada 4 s: los golpes de en medio no pasan con nadie', (
   const { w, ph } = desk('cada-cuatro', 90);
   hold(ph);
   colleague(w, 'sobre-sorpresa', w.player.x - 150, w.player.y - 60);
-  ph.damageTaken = 6;
+  ph.damageTaken = def.hp / 2;
   let starts = run(w, 1).filter((e) => e.type === 'transferStart').length;
   assert.equal(starts, 1);
   hold(ph);
   // Hit again and again for the next 2.5 s: no second transfer.
   for (let i = 0; i < 5; i++) {
     hold(ph);
-    ph.damageTaken += 0.5;
+    ph.damageTaken += def.hp / 24;
     starts += run(w, 0.5).filter((e) => e.type === 'transferStart').length;
   }
   assert.equal(starts, 1);
@@ -196,7 +196,7 @@ test('como mucho una vez cada 4 s: los golpes de en medio no pasan con nadie', (
   hold(ph);
   run(w, 1);
   hold(ph);
-  ph.damageTaken += 0.5;
+  ph.damageTaken += def.hp / 24;
   starts += run(w, 0.1).filter((e) => e.type === 'transferStart').length;
   assert.equal(starts, 2);
 });
@@ -204,7 +204,7 @@ test('como mucho una vez cada 4 s: los golpes de en medio no pasan con nadie', (
 test('sin nadie con quien pasarla, pone a la tostadora en espera: un anillo de notas lentas que ondulan', () => {
   const { w, ph } = desk('en-espera', 90);
   hold(ph);
-  ph.damageTaken = 7;
+  ph.damageTaken = def.hp * 7 / 12;
   step(w, NO_INPUT);
   const ev = w.events.find((e) => e.type === 'transferStart');
   assert.ok(ev && ev.type === 'transferStart' && ev.to === undefined);
@@ -224,7 +224,7 @@ test('no pasa con jefes ni con postes de cola; y si el compañero se rompe antes
   assert.equal(farthestColleague(w, ph), undefined);
   const mate = colleague(w, 'sobre-sorpresa', w.player.x - 100, w.player.y);
   assert.equal(farthestColleague(w, ph), mate);
-  ph.damageTaken = 6;
+  ph.damageTaken = def.hp / 2;
   step(w, NO_INPUT);
   assert.equal(ph.transfer?.to, mate.id);
   const at = { x: ph.x, y: ph.y };

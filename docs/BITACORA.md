@@ -2,6 +2,40 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 13:35 (hora peninsular) — Hito M14b — (h1) Menos vida a enemigos y jefes
+- Contexto: dos notas nuevas del humano (13 de noviembre). Primero, en un commit aparte, las
+  repartí en dos hitos nuevos, **M14b** (lo que pide del juego, h1–h11) y **M14c** (arte nuevo,
+  a1–a12), con la estimación al día (unas 48 sesiones más, un 77 %), la investigación de otros
+  juegos en `docs/DISENO.md` y la respuesta sobre el arte en sus notas. La entrada «en curso» de
+  la (v1) llevaba 8 horas sin commit: la quité (la (v1) sigue pendiente en M14). El `main` local
+  volvía a estar en otra historia (50 por delante y 50 por detrás); esta vez `git reset --hard
+  origin/main` sí funcionó.
+- Hecho: M14b (h1). **Los enemigos tienen menos de la mitad de vida** (×0,43 de media,
+  `src/data/enemies.ts`): el aspirador 14 → 6 (4 disparos del Secador en vez de 9), el microondas
+  18 → 8, la bombilla 30 → 12, polillas y mandos 4 → 2, la impresora 22 → 9… Los que necesitan
+  aguantar un poco para que se vea su gracia, algo más: el Asistente Virtual 9 (aprende tras tres
+  balas) y el Teléfono 9 (pasa la llamada a la mitad de su vida; su aviso, de 0,8 a 0,5 s). **Los
+  jefes, ×0,65**: la Nevera 135 → 90, la Lavadora 85, el Router 110, la Nube 115, la Consola 105,
+  el Muñeco y el Director 140, la Centralita 155 y la Trituradora 195. La dureza por planta baja
+  (3: 1,15; 4: 1,25; 5: 1,2; Servicio Técnico 1,35). **A cambio, las balas enemigas vuelan más
+  rápido en las plantas altas** (`FLOOR_BULLET_SPEED` en `src/data/rooms.ts`, aplicado en
+  `firePattern`): ×1,08 en la 2 hasta ×1,25 en la 6; la planta 1, igual. El Corazón de
+  Sobretensión baja de 8 a 4 de daño (sigue dejando a medias a un aspirador, como dice su ficha).
+  Tests actualizados con los valores nuevos; los del teléfono, en proporción a su vida.
+- Decisiones: que la dificultad vuelva por las balas y no por la vida, como pide el humano; el
+  resto (enemigos y jefes con movimientos propios) es la (h9)–(h10). La planta 1 sin balas más
+  rápidas: se la tiene que poder pasar cualquiera; la harán más dura la (h2) y la (h4) (menos
+  cupones y menos corazones).
+- Medidas (`npm run bot`): sala de combate de la planta 1 en 13,6 s (antes 23,7) con 0,57
+  heridas (1,04); la planta 1 la gana el 80 % (antes 40 %): **ahora es demasiado fácil para el
+  bot** y lo arreglarán la (h2) y la (h4), que quitan corazones. Llegan a la planta 5 tres de 20
+  (antes ninguna). Jefes: la Nevera en 50 s (71,5), la Lavadora 50 (73), el Router 66 (102), la
+  Nube 79 (115), la Consola 78 (158), el Muñeco 103 (155), el Director 115 (176), la Centralita
+  126 (202) y la Trituradora 105 (143). 949 tests en verde.
+- Problemas conocidos: los textos de `docs/DISENO.md` que citan la vida de un enemigo dicen la de
+  antes; la vida buena está en `src/data/enemies.ts`. La planta 1 queda fácil hasta la (h4).
+- Siguiente paso: la (h2), la economía (cupones que vuelan solos y escasos; coger con el botón).
+
 ## 2026-11-13 04:30 (hora peninsular) — Hito M14 — Jefes al azar (j4): la Consola Edición Coleccionista
 - Contexto: el `main` local volvía a estar viejo (en M11, 50 por delante y 50 por detrás, clon
   superficial); `git reset --hard` no estaba permitido, así que trabajé en `origin/main` sin rama y

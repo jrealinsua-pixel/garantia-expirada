@@ -30,7 +30,7 @@ function field(seed = 'sobre', dist = 110): { w: World; en: Enemy } {
 
 test('el sobre sorpresa es contenido: datos, sprites, causas de baja y solo desde la planta 3', () => {
   assert.equal(def.name, 'Sobre Sorpresa');
-  assert.equal(def.hp, 8);
+  assert.equal(def.hp, 4);
   // The odds are on the back, in small print, and they add up.
   assert.match(def.description, /75 %.*20 %.*5 %/);
   assert.deepEqual(def.surprise!.map((s) => s.weight), [75, 20, 5]);
@@ -43,7 +43,7 @@ test('el sobre sorpresa es contenido: datos, sprites, causas de baja y solo desd
     assert.ok(DOWN_CAUSES[id]?.contact, id);
     assert.ok(!/[!¡]/.test(ENEMIES[id]!.name + ENEMIES[id]!.description), id);
   }
-  assert.equal(ENEMIES['munequito-repetido']!.hp, 3);
+  assert.equal(ENEMIES['munequito-repetido']!.hp, 2);
   assert.deepEqual(ENEMIES['munequito-dorado']!.loot.coupons, [5, 5], 'el dorado vale cinco cupones');
   assert.ok(!SLOT_ENEMIES_2.some((s) => s.ch === 'Y'));
   assert.ok(SLOT_ENEMIES_3.some((s) => s.ch === 'Y'));

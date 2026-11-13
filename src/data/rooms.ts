@@ -2365,7 +2365,19 @@ export const SLOT_ENEMIES_6: readonly SlotEnemy[] = [...SLOT_ENEMIES_5, { ch: '�
 // weapon but whoever arrives loaded still gets through more often than through the Juguetería.
 // The Servicio Técnico (6, M12 (3a)): its enemies are the five floors' reconditioned, «como
 // nuevos» and with more life (measured in M12 (6)).
-export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.3, 4: 1.5, 5: 1.4, 6: 1.6 };
+export const FLOOR_TOUGHNESS: Readonly<Record<number, number>> = { 3: 1.15, 4: 1.25, 5: 1.2, 6: 1.35 };
+
+/**
+ * How much faster enemy bullets fly on each floor (M14b (h1), note of 2026-11-13: «la dificultad
+ * no es vida»). Enemies lost more than half their life; the floors above the first get their
+ * difficulty back in bullets that are harder to dodge instead. Floor 1 as it was: anyone has to
+ * be able to get through it.
+ */
+export const FLOOR_BULLET_SPEED: Readonly<Record<number, number>> = { 2: 1.08, 3: 1.14, 4: 1.18, 5: 1.22, 6: 1.25 };
+
+export function bulletSpeedOf(level: number): number {
+  return FLOOR_BULLET_SPEED[level] ?? 1;
+}
 
 /**
  * Most a combat room of each floor may spend on enemies (BUDGET_CAP, 14, if not here). From the

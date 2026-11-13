@@ -42,7 +42,7 @@ function untilScan(w: World, cp: Enemy, max = 8): void {
 
 test('la fotocopiadora es contenido: datos, sprite, folios, textos, causa de baja y solo desde la planta 4', () => {
   assert.equal(def.name, 'Fotocopiadora de Planta');
-  assert.equal(def.hp, 14);
+  assert.equal(def.hp, 6);
   assert.ok(!/[!¡]/.test(def.name + def.description + COPY_LINE + TONER_OUT_LINE));
   const sheets = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames?: number; frameW: number }>;
   assert.ok(sheets.fotocopiadora, 'falta el sprite');

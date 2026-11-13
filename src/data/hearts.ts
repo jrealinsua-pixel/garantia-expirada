@@ -44,4 +44,4 @@ export const TURBO_DAMAGE = 1.3;
 /** The Corazón de Sobretensión: the life it lends (half hearts, also the most you can carry) and the shock. */
 export const SURGE_VALUE = 2;
 /** Damage to every enemy in the room when it breaks: moths, remotes and fake chargers go; an aspirador is left at half; a boss barely notices (6 %). */
-export const SURGE_DAMAGE = 8;
+export const SURGE_DAMAGE = 4;

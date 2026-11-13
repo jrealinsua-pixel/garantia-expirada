@@ -39,7 +39,7 @@ function freeze(ac: Enemy, angle: number): void {
 
 test('el climatizador es contenido: datos, sprite, copos, textos, causa de baja y solo desde la planta 4', () => {
   assert.equal(def.name, 'Climatizador Portátil');
-  assert.equal(def.hp, 20);
+  assert.equal(def.hp, 9);
   assert.ok(!/[!¡]/.test(def.name + def.description + AC_LINE));
   const sheets = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames?: number; frameW: number }>;
   assert.ok(sheets.climatizador, 'falta el sprite');

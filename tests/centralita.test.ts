@@ -57,7 +57,7 @@ test('la Centralita es la jefa de la planta 5, con su sala, su cartel y su causa
   assert.equal(def.boss?.subtitle, 'Jefa de planta · Atención al Cliente');
   assert.equal(def.boss?.motto, 'Todos nuestros operadores están ocupados. Siempre.');
   assert.ok(DOWN_CAUSES.centralita?.bullet && DOWN_CAUSES.centralita?.contact);
-  assert.equal(def.hp, 240);
+  assert.equal(def.hp, 155);
   assert.deepEqual(brain.phases.map((p) => p.name), ['Su llamada es importante', 'Le paso con el departamento', 'Se ha cortado la llamada']);
   assert.equal(brain.phases[1]!.from, 0.6);
   const f5 = createWorld({ seed: 'planta-centralita', floor: true, level: 5 }).floor!;

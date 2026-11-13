@@ -61,7 +61,7 @@ const UP: Input = { ...NO_INPUT, moveY: -1 };
 
 test('los postes son contenido: datos, sprites, bolas, textos, causa de baja y una pareja solo desde la planta 5', () => {
   assert.equal(def.name, 'Postes de Cola');
-  assert.equal(def.hp, 10);
+  assert.equal(def.hp, 4);
   assert.equal(def.pack, 2);
   assert.equal(brain.interval, 3);
   const ring = PATTERNS[brain.pattern];

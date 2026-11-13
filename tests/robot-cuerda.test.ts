@@ -35,7 +35,7 @@ function until(w: World, en: Enemy, state: Enemy['state'], s = 8): void {
 
 test('el robot de cuerda es contenido: datos, sprites, tuercas, causa de baja y solo desde la planta 3', () => {
   assert.equal(def.name, 'Robot de Cuerda');
-  assert.equal(def.hp, 14);
+  assert.equal(def.hp, 6);
   assert.ok(!/[!¡]/.test(def.name + def.description + WIND_DOWN_LINE));
   const sheets = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames?: number }>;
   assert.ok(sheets['robot-cuerda'], 'falta el sprite');

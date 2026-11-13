@@ -51,7 +51,7 @@ function holdStill(w: World): void {
 
 test('el dispensador es contenido: datos, sprite, tiques, textos, causa de baja y solo desde la planta 5', () => {
   assert.equal(def.name, 'Dispensador de Turnos');
-  assert.equal(def.hp, 14);
+  assert.equal(def.hp, 6);
   assert.equal(brain.radius, 40);
   assert.equal(brain.countdown, 2.5);
   assert.deepEqual(brain.interval, [4, 5]);
