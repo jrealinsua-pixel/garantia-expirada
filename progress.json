@@ -119,7 +119,7 @@
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
       "estado": "pendiente",
-      "hechas": 4,
+      "hechas": 5,
       "total": 11
     },
     {
@@ -144,11 +144,11 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 949,
-    "tests_ok": 949,
+    "tests": 950,
+    "tests_ok": 950,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 34078
+    "lineas_codigo": 34103
   },
   "sesiones": [
     {
