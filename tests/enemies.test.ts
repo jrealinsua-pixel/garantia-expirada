@@ -86,7 +86,7 @@ test('aspirador: rebota en la pared y sigue embistiendo; a la tercera pared, o a
   let end = '';
   for (let i = 0; i < 120 && !end; i++) {
     step(w, NO_INPUT);
-    if (en.state === 'stun' || en.state === 'brake') end = en.state;
+    if ((en.state as string) === 'stun' || (en.state as string) === 'brake') end = en.state;
   }
   assert.ok(end, 'no se para');
 });
