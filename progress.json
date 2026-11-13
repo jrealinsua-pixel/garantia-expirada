@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T00:55:00+01:00",
+  "actualizado": "2026-11-14T01:25:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -126,7 +126,7 @@
       "id": "M14c",
       "nombre": "Arte nuevo (nota del humano del 13 de noviembre)",
       "estado": "pendiente",
-      "hechas": 1,
+      "hechas": 2,
       "total": 12
     },
     {
@@ -151,6 +151,11 @@
     "lineas_codigo": 36658
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T01:25:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a2): herramientas de dibujo nuevas en src/art/pintor.ts: sombreado por normales y por mapa de alturas (un corazón acolchado, una abolladura, remaches), antialias de pixel art, brillo especular y un comprobador de legibilidad (silueta y contraste contra el suelo) que corre en los tests. Encontró que el aspirador nuevo se fundía con el suelo y se aclaró."
+    },
     {
       "fecha": "2026-11-14T00:55:00+01:00",
       "hito": "M14c",
@@ -1424,6 +1429,10 @@
       "pie": "M14c (a1): el estilo nuevo a prueba. Arriba, el aprobado; abajo, la tostadora, el aspirador y el suelo redibujados (a tamaño real y a 3×)"
     },
     {
+      "archivo": "capturas/herramientas-pintor.png",
+      "pie": "M14c (a2): las herramientas nuevas: un corazón sacado de un mapa de alturas, una plancha abollada con remaches y una bola sin y con antialias"
+    },
+    {
       "archivo": "capturas/muneco-desfile.png",
       "pie": "M14b (h10b1): el Muñeco de Moda desfila y posa al final de cada tramo («Posando para el catálogo»)"
     },
@@ -1438,13 +1447,9 @@
     {
       "archivo": "capturas/nube-encima.png",
       "pie": "M14b (h10a2): la Nube, como un nubarrón, siempre encima de la tostadora"
-    },
-    {
-      "archivo": "capturas/nevera-patina.png",
-      "pie": "M14b (h10a1): la Nevera Suprema patina: se impulsa, se desliza y deja un rastro fino de escarcha"
     }
   ],
-  "proximo": "M14c (a2): pasar Paint, el sombreado por normales y el contorno selectivo de tools/sprites/prueba-a1.ts a src/art/; o M14b (h11c) si se suelta, o (h10b3).",
+  "proximo": "M14c (a3): la carpeta art/entrada/ y el script que pasa sprites de fuera a la paleta; o (a4) los cinco personajes; o M14b (h11c) si se suelta.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1482,11 +1487,6 @@
       "sesion": "2026-11-14 01:15 (hora peninsular)",
       "tarea": "M14b (h10b2): el Director con movimiento propio",
       "desde": "2026-11-14T01:15:00+01:00"
-    },
-    {
-      "sesion": "2026-11-14 01:00 (hora peninsular)",
-      "tarea": "M14c (a2): herramientas de dibujo nuevas (src/art/pintor.ts nuevo, src/art/paleta.ts, tools/sprites/prueba-a1.ts, tests/pintor.test.ts nuevo; no toca src/sim ni src/data)",
-      "desde": "2026-11-14T01:00:00+01:00"
     }
   ]
 }

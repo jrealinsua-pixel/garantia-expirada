@@ -38,6 +38,18 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
 - **Más grandes**: la carcasa de un personaje mide **24–32 px de ancho** (la tostadora, 28; antes
   22) en un lienzo de unos 48 × 50; un enemigo normal, unos 42 × 42; los jefes se deciden en (a7).
   Las cajas de choque no cambian (son de la simulación): el dibujo crece, el núcleo no.
+- **Herramientas** (`src/art/pintor.ts`, M14c (a2)): `Paint` (el lienzo que recuerda el material
+  de cada píxel y hace el contorno selectivo), `ellipsoid` y `cylinderH` (sombreado por normales),
+  `heightShade` (el sombreador de volumen: cualquier forma es una función de alturas; una
+  abolladura, un remache o un corazón acolchado salen de ahí), `aa` (antialias de pixel art: el
+  píxel que la forma cubre a medias va un tono más oscuro en vez de quedar el escalón) y el brillo
+  especular en `SHINE`. Con la luz plana justo en un tono (`bias`), una cara plana sale de un solo
+  tono y solo cambian las pendientes. Demostración en `art/prueba/herramientas.png`.
+- **Legibilidad, medida** (`legibility` y `silhouetteOverlap`, en los tests): sobre el tono medio
+  del suelo, el borde de la silueta tiene que ser oscuro (≥ 80 % de sus píxeles), con contraste
+  medio ≥ 1,6, y no más de un tercio del cuerpo puede fundirse con el suelo (contraste < 1,5);
+  dos enemigos de la misma planta no deberían solaparse más de 0,8 en silueta (tostadora y
+  aspirador viejos: 0,72; nuevos: 0,51).
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

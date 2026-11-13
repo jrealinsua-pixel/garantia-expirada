@@ -2,6 +2,34 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 01:25 (hora peninsular) — Hito M14c — (a2) Las herramientas de dibujo nuevas
+- Hecho: `src/art/pintor.ts` con lo que la (a1) tenía dentro de su herramienta (`Paint`, el
+  sombreado por normales de `ellipsoid` y `cylinderH`, el contorno selectivo y la sombra violeta
+  del suelo), más lo nuevo: `heightShade` (el sombreador de volumen a partir de una función de
+  alturas, con normales por diferencias centrales, la misma luz y un especular Blinn), el
+  antialias de pixel art (`aa`: el píxel que la forma cubre a medias, muestreado 4 × 4, va un tono
+  más oscuro que su vecino) y el comprobador de legibilidad (`legibility`: contraste y oscuridad
+  del borde contra el suelo, colores, cuánto del cuerpo se funde con el suelo; `silhouetteOverlap`:
+  cuánto se parecen dos siluetas, alineadas por los pies). La demostración (`art/prueba/
+  herramientas.png` y `corazon.png`): un corazón acolchado sacado de un mapa de alturas, una
+  plancha abollada con dos remaches y la misma bola sin y con antialias. `tests/pintor.test.ts`
+  (6 tests). La (a1) se regenera idéntica tras mover el código.
+- Decisiones: (1) Con la luz plana a medio camino entre dos tonos, el tramado convierte una cara
+  plana en un tablero de ajedrez: el `bias` se elige para que lo plano caiga justo en un tono y
+  solo cambien las pendientes (lo vigila un test). (2) Los umbrales de legibilidad salen de medir
+  los sprites aprobados y los nuevos: el borde oscuro (≥ 80 %, todos rondan el 93–100 %), el
+  contraste medio del borde ≥ 1,6 (los viejos 1,9–2,0, los nuevos 1,7–1,8: con un suelo oscuro el
+  contorno oscuro nunca da mucho más) y como mucho un tercio del cuerpo fundido con el suelo.
+  (3) El comprobador encontró un fallo real: el aspirador nuevo, azul sobre suelo azul, se fundía
+  un 35 %; lo aclaré (más luz en el bote y la banda un tono menos honda) y queda en el 31 %.
+- Medidas: siluetas tostadora/aspirador, 0,72 las viejas y 0,51 las nuevas; aspirador/microondas
+  viejos, 0,65. Fundido con el suelo: tostadora vieja 15 %, nueva 18 %; aspirador viejo 16 %,
+  nuevo 31 %.
+- Problemas conocidos: el aspirador nuevo sigue fundiéndose más que el viejo; en (a5) conviene
+  bajar del 25 % (más contraste de tono con el suelo, no solo de luz).
+- Siguiente paso: (a3) la carpeta `art/entrada/` con el script que pasa sprites de fuera a la
+  paleta; o (a4), los cinco personajes con las herramientas nuevas.
+
 ## 2026-11-14 00:55 (hora peninsular) — Hito M14c — (a1) La guía de estilo nueva y tres sprites de prueba
 - Contexto: sesión programada. La (h10b2) estaba cogida hace 0 min y la (h10b1) acababa de
   terminar en otra sesión; la (h11c) llevaba cogida dos horas (más de 90 min, libre según el

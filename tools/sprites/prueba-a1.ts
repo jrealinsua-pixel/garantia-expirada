@@ -1,131 +1,24 @@
 // M14c (a1): three test sprites in the new style (the Toaster, the Vacuum and a warehouse floor
 // tile), drawn next to the approved old ones. Writes art/prueba/. Not part of `npm run sprites`:
-// nothing here goes into the game yet; (a2) moves the shading helpers into src/art/ and (a4)–(a8)
-// redraw the real sheets.
+// nothing here goes into the game yet. The painting tools are in src/art/pintor.ts; (a4)–(a8)
+// redraw the real sheets with them.
 //
 //   node tools/sprites/prueba-a1.ts
+//
+// It also draws herramientas.png, the (a2) tools at work: a heart from a height map, a dented
+// plate and the edge antialiasing.
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Canvas, hx, scaled, TRANSPARENT, type RGBA } from '../../src/art/canvas.ts';
-import { INK, MATERIALS, SHINE, mix, toneAt, type Material, type Ramp6 } from '../../src/art/paleta.ts';
+import { Canvas, hx, scaled } from '../../src/art/canvas.ts';
+import { INK, MATERIALS, SHINE, toneAt, type Material, type Ramp6 } from '../../src/art/paleta.ts';
+import { Paint, floorShadow } from '../../src/art/pintor.ts';
 import { stencil } from '../../src/art/warehouse.ts';
 import { decodePng, encodePng } from './png.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const M = MATERIALS;
-/** Light direction (x right, y down, z towards the viewer): from the top left and the front. */
-const LIGHT = norm([-0.5, -0.65, 0.58]);
-
-function norm(v: readonly [number, number, number]): [number, number, number] {
-  const l = Math.hypot(v[0], v[1], v[2]);
-  return [v[0] / l, v[1] / l, v[2] / l];
-}
-
-/**
- * A sprite being painted: the colours plus, for each pixel, which material it is. The selective
- * outline needs the material: around a lit edge it is that material's own darkest tone, and
- * only on the shadow side (below and right) is it ink.
- */
-export class Paint {
-  readonly cv: Canvas;
-  readonly mat: (Material | null)[][];
-  constructor(w: number, h: number) {
-    this.cv = new Canvas(w, h);
-    this.mat = Array.from({ length: h }, () => new Array<Material | null>(w).fill(null));
-  }
-  px(x: number, y: number, m: Material, tone: number): void {
-    x = Math.round(x);
-    y = Math.round(y);
-    if (x < 0 || y < 0 || x >= this.cv.w || y >= this.cv.h) return;
-    const R = M[m] as Ramp6;
-    this.cv.put(x, y, R[Math.max(0, Math.min(R.length - 1, tone))]!);
-    this.mat[y]![x] = m;
-  }
-  rect(x: number, y: number, w: number, h: number, m: Material, tone: number): void {
-    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) this.px(i, j, m, tone);
-  }
-  /** A raw colour that is not part of a ramp (eyes, glints). Keeps the material under it. */
-  raw(x: number, y: number, c: RGBA): void {
-    this.cv.put(x, y, c);
-  }
-  erase(x: number, y: number): void {
-    if (x < 0 || y < 0 || x >= this.cv.w || y >= this.cv.h) return;
-    this.cv.put(x, y, TRANSPARENT);
-    this.mat[y]![x] = null;
-  }
-  filled(x: number, y: number): boolean {
-    return x >= 0 && y >= 0 && x < this.cv.w && y < this.cv.h && this.cv.get(x, y)[3] > 0;
-  }
-  /**
-   * Shade an ellipsoid (centre, radii) with the light: normals from the sphere equation, ordered
-   * dithering only on the band between two tones. `z` squashes the bulge (0.5 = flatter).
-   */
-  ellipsoid(cx: number, cy: number, rx: number, ry: number, m: Material, o: { z?: number; dither?: number; bias?: number; spec?: boolean } = {}): void {
-    const R = M[m] as Ramp6;
-    for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) {
-      for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
-        const nx = (x + 0.5 - cx) / rx;
-        const ny = (y + 0.5 - cy) / ry;
-        const d = nx * nx + ny * ny;
-        if (d > 1) continue;
-        const nz = Math.sqrt(1 - d) * (o.z ?? 1);
-        const n = norm([nx, ny, nz]);
-        const lit = Math.max(0, n[0] * LIGHT[0] + n[1] * LIGHT[1] + n[2] * LIGHT[2]);
-        const light = 0.12 + lit * 0.95 + (o.bias ?? 0);
-        this.px(x, y, m, toneAt(R, light, x, y, o.dither ?? 0.35));
-        if (o.spec && lit > 0.97) this.raw(x, y, SHINE);
-      }
-    }
-  }
-  /** A horizontal cylinder (a barrel, a hose): the tone depends only on the row. */
-  cylinderH(x: number, y: number, w: number, h: number, m: Material): void {
-    const R = M[m] as Ramp6;
-    for (let j = 0; j < h; j++) {
-      const ny = ((j + 0.5) / h) * 2 - 1;
-      const n = norm([0, ny, Math.sqrt(Math.max(0, 1 - ny * ny))]);
-      const lit = Math.max(0, n[1] * LIGHT[1] + n[2] * LIGHT[2]);
-      for (let i = 0; i < w; i++) this.px(x + i, y + j, m, toneAt(R, 0.1 + lit, x + i, y + j, 0));
-    }
-    this.px(x + 1, y + 1, m, 0);
-    this.px(x + 2, y + 1, m, 0);
-  }
-  /** Selective outline. Returns the finished canvas. */
-  outline(): Canvas {
-    const out = this.cv.clone();
-    const { w, h } = this.cv;
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        if (this.filled(x, y)) continue;
-        // Neighbours: the shape lies left/above this pixel → it is on the shape's shadow side.
-        const shadowSide = this.filled(x - 1, y) || this.filled(x, y - 1);
-        let m: Material | null = null;
-        for (const [dx, dy] of [[0, 1], [1, 0], [-1, 0], [0, -1]] as const) {
-          if (this.filled(x + dx, y + dy)) {
-            m = this.mat[y + dy]![x + dx] ?? m;
-            if (!m) m = 'goma';
-            break;
-          }
-        }
-        if (!m) continue;
-        const R = M[m] as Ramp6;
-        out.put(x, y, shadowSide ? INK : mix(R[R.length - 1]!, INK, 0.45));
-      }
-    }
-    return out;
-  }
-}
-
-/** Floor shadow: a violet-tinted, see-through ellipse (never black). */
-function floorShadow(cv: Canvas, cx: number, cy: number, rx: number, ry: number): void {
-  for (let y = cy - ry; y <= cy + ry; y++) {
-    for (let x = cx - rx; x <= cx + rx; x++) {
-      const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2;
-      if (d <= 1) cv.set(x, y, [24, 14, 44, d < 0.4 ? 80 : 45]);
-    }
-  }
-}
 
 /** Glove: a small shaded ball, the hands still float (no arms). */
 function glove(p: Paint, x: number, y: number, m: Material = 'goma'): void {
@@ -351,12 +244,12 @@ export function vacuum(): Canvas {
   p.rect(14, 2, 10, 1, 'goma', 0);
   p.rect(14, 2, 2, 6, 'goma', 2);
   p.rect(22, 2, 2, 6, 'goma', 3);
-  p.ellipsoid(19, 18, 15, 12, 'azul', { z: 0.85, dither: 0.25, spec: true });
+  p.ellipsoid(19, 18, 15, 12, 'azul', { z: 0.85, dither: 0.25, spec: true, bias: 0.2 });
   // A darker band round the middle (where the two shells close) with screws.
   for (let x = 5; x <= 33; x++) {
     const k = (x + 0.5 - 19) / 15;
     const by = Math.round(18 + 7 * Math.sqrt(Math.max(0, 1 - k * k)));
-    if (p.filled(x, by)) p.px(x, by, 'azul', 6);
+    if (p.filled(x, by)) p.px(x, by, 'azul', 5);
     if (p.filled(x, by + 1)) p.px(x, by + 1, 'azul', x < 19 ? 3 : 4);
   }
   for (const sx of [10, 28]) p.px(sx, Math.round(18 + 7 * Math.sqrt(1 - ((sx + 0.5 - 19) / 15) ** 2)) - 1, 'acero', 1);
@@ -509,6 +402,75 @@ export function comparison(): Canvas {
   return sheet;
 }
 
+// ---------------------------------------------------------------------------------------------
+// M14c (a2): what the new tools do, side by side (art/prueba/herramientas.png).
+
+/** A heart pickup (16 × 16) shaded from a height map: two domes and a point, with a highlight. */
+export function heartDemo(): Canvas {
+  const p = new Paint(16, 16);
+  const height = (x: number, y: number): number | null => {
+    const px = x + 0.5;
+    const py = y + 0.5;
+    const lobe = (cx: number): number => 1 - ((px - cx) / 3.6) ** 2 - ((py - 6) / 3.6) ** 2;
+    const tip = py >= 6 && py <= 13.5 && Math.abs(px - 8) <= (13.5 - py) * 0.85;
+    const l = Math.max(lobe(5.5), lobe(10.5));
+    if (l < 0 && !tip) return null;
+    // A pillow: high in the middle of each lobe, falling to the rim.
+    return 3.2 * Math.sqrt(Math.max(0, l)) + (tip ? 1.4 - Math.abs(px - 8) * 0.25 : 0);
+  };
+  p.heightShade(1, 1, 14, 14, height, 'rojo', { z: 1.3, dither: 0.25, spec: true });
+  const out = new Canvas(16, 16);
+  out.blit(p.outline(), 0, 0);
+  return out;
+}
+
+/** A floor plate with a dent and two rivets, all from one height map, in the floor's ramp. */
+export function dentDemo(): Canvas {
+  const p = new Paint(24, 24);
+  const height = (x: number, y: number): number | null => {
+    if (x < 0 || y < 0 || x > 23 || y > 23) return null;
+    const dent = -4.5 * Math.exp(-(((x - 13) / 4) ** 2) - ((y - 12) / 3) ** 2);
+    const rivet = (cx: number, cy: number): number => Math.max(0, 2.2 - Math.hypot(x - cx, y - cy)) * 1.8;
+    const bevel = x < 1 || y < 1 || x > 22 || y > 22 ? -1 : 0; // the joint, sunk
+    return dent + rivet(4, 4) + rivet(19, 19) + bevel;
+  };
+  // The bias puts the flat plate right on tone 3, so only the slopes change tone (no dither on
+  // the flat: there it would read as a checkerboard).
+  p.heightShade(0, 0, 24, 24, height, 'suelo', { z: 1.6, dither: 0.3, bias: -0.17 });
+  return p.cv;
+}
+
+/** The same ball without and with the pixel-art antialiasing of its edge. */
+export function aaDemo(): Canvas {
+  const out = new Canvas(30, 14);
+  for (const [i, aa] of [[0, undefined], [1, 0.35]] as const) {
+    const p = new Paint(14, 14);
+    p.ellipsoid(7, 7, 5.6, 5.6, 'azul', { dither: 0.2, spec: true, ...(aa === undefined ? {} : { aa }) });
+    out.blit(p.outline(), i * 16, 0);
+  }
+  return out;
+}
+
+export function toolsDemo(): Canvas {
+  const K = 4;
+  const sheet = new Canvas(16 * K + 8 + 24 * K + 8 + 30 * K + 16, 24 * K + 22, hx('#151221'));
+  const label = hx('#f4f1e8');
+  const floor = tiled(floorTile(), 16, 16);
+  floor.blit(heartDemo(), 0, 0);
+  let x = 4;
+  stencil(sheet, x, 6, 'MAPA DE ALTURAS', label);
+  sheet.blit(scaled(floor, K), x, 16);
+  x += 16 * K + 8;
+  stencil(sheet, x, 6, 'ABOLLADURA', label);
+  sheet.blit(scaled(dentDemo(), K), x, 16);
+  x += 24 * K + 8;
+  stencil(sheet, x, 6, 'SIN AA / CON AA', label);
+  const bg = tiled(floorTile(), 30, 14);
+  bg.blit(aaDemo(), 0, 0);
+  sheet.blit(scaled(bg, K), x, 16);
+  return sheet;
+}
+
 export function writeAll(): void {
   const dir = join(ROOT, 'art', 'prueba');
   mkdirSync(dir, { recursive: true });
@@ -516,6 +478,8 @@ export function writeAll(): void {
   writeFileSync(join(dir, 'aspirador.png'), encodePng(vacuum()));
   writeFileSync(join(dir, 'suelo.png'), encodePng(floorTile()));
   writeFileSync(join(dir, 'comparativa.png'), encodePng(comparison()));
+  writeFileSync(join(dir, 'corazon.png'), encodePng(heartDemo()));
+  writeFileSync(join(dir, 'herramientas.png'), encodePng(toolsDemo()));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) writeAll();
