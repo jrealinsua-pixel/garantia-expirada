@@ -1346,6 +1346,11 @@
       "sesion": "2026-11-13 00:25",
       "tarea": "M14 (j3): la Nube de Almacenamiento, segundo jefe de la planta 2",
       "desde": "2026-11-13T00:27:00Z"
+    },
+    {
+      "sesion": "2026-11-13 02:30",
+      "tarea": "M14 (l4): armas y objetos nuevos que solo existen como premio de un logro (src/data/logros.ts, src/data/items.ts, src/data/weapons.ts, tools/sprites, tests/premios.test.ts)",
+      "desde": "2026-11-13T01:30:00Z"
     }
   ]
 }
