@@ -1367,6 +1367,14 @@ try {
     { timeout: 20000 },
   ).catch(() => { throw new Error('La Lavadora no suelta espuma en el prelavado'); });
   await shot('63b-lavadora-espuma.png');
+  // M14b (h10a1): it walks by pivots, leaning onto one corner and then the other.
+  await page.waitForFunction(
+    `(() => { const b = ${lavJs}; const st = b.def.brain.waddle.step;
+      return b.state === 'idle' && Math.hypot(b.vx, b.vy) > 30 && b.waddleT > st * 0.4 && b.waddleT < st * 0.6; })()`,
+    undefined,
+    { timeout: 10000 },
+  ).catch(() => { throw new Error('La Lavadora no anda a pivotes'); });
+  await shot('63ba-lavadora-pivotes.png');
   await page.waitForFunction(`${lavJs}.state === 'idle'`, undefined, { timeout: 8000 });
   await page.evaluate(`${lavJs}.muteIn = 0`);
   await page.waitForFunction(`${lavJs}.state === 'stun'`, undefined, { timeout: 3000 })
@@ -1879,6 +1887,14 @@ try {
   await page.waitForTimeout(300);
   await shot('17g-nevera-escarcha.png');
   await page.keyboard.up('d');
+  // M14b (h10a1): she skates, pushing off and gliding on, and leaves a trail of frost behind her.
+  await page.waitForFunction(
+    `(() => { const w = window.__GE__.scene.world; const b = w.enemies[0];
+      return w.frost.filter((f) => f.trail).length >= 2 && Math.hypot(b.vx, b.vy) > 70; })()`,
+    undefined,
+    { timeout: 15000 },
+  ).catch(() => { throw new Error('La Nevera no patina dejando su rastro de escarcha'); });
+  await shot('17ga-nevera-patina.png');
   if ((await state()).fps < 30) throw new Error(`Va lento contra la jefa: ${(await state()).fps} fps`);
   // Phase 2 («Oferta irrechazable»): half her life gone, the door opens; loyalty cards that chase
   // and expired products spat from the fridge.

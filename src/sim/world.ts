@@ -536,6 +536,15 @@ export interface Enemy {
   legSpin?: number;
   legKeep?: number;
   /**
+   * The Nevera skating (BossBrain.glide): seconds before it may push off again, and px glided since
+   * its last frost patch.
+   */
+  glideT?: number;
+  glideTrail?: number;
+  /** The Lavadora walking by pivots (BossBrain.waddle): seconds into this step, and which corner (1 or -1). */
+  waddleT?: number;
+  waddleSide?: number;
+  /**
    * Bosses that lay a conveyor belt (BossPhase.belt): the line along the end wall it rides (`x`),
    * how much faster than walking it goes there, and whether it has got there yet.
    */
@@ -616,6 +625,8 @@ export interface Frost {
   swept?: boolean;
   /** A piece that lands under the player's feet does nothing until the player has stepped off it. */
   armed?: boolean;
+  /** Not thrown but left behind by a skating boss (BossBrain.glide): it was never in the air. */
+  trail?: boolean;
   /** Who threw it (enemy id, and its kind for the sick-leave report). */
   source: number;
   by: string;
@@ -657,6 +668,8 @@ export interface TurnCircle {
 export const FROST_FLAT = 0.6;
 /** No more patches than this at once: the oldest melts. */
 export const MAX_FROST = 8;
+/** No more patches of the Nevera's trail (Frost.trail) than this, besides those: the oldest melts. */
+export const MAX_TRAIL = 8;
 /** No more building pieces on the floor than this: the oldest is tidied away. */
 export const MAX_BRICKS = 12;
 /** Building pieces hurt within this radius of the player's feet (and are swept by bullets within it). */
@@ -706,6 +719,10 @@ export type SimEvent =
   | { type: 'typing'; x: number; y: number; source: number }
   /** A virtual assistant evades the question: it glides sideways along (dirX, dirY); `first`: its first time. */
   | { type: 'sidestep'; x: number; y: number; dirX: number; dirY: number; first: boolean; source: number }
+  /** A skating boss pushes off (BossBrain.glide): which way, and how fast (px/s). */
+  | { type: 'glide'; boss: number; x: number; y: number; dirX: number; dirY: number; speed: number }
+  /** A boss walking by pivots lands the corner it swung (BossBrain.waddle): `side` 1 right, -1 left. */
+  | { type: 'pivot'; boss: number; x: number; y: number; side: number }
   /** A forklift backing up: one beep (`first`: it has just put it in reverse). */
   | { type: 'reverseBeep'; x: number; y: number; first: boolean; source: number }
   /** A virtual assistant broke: «¿Le he ayudado?» over where it stood. */
@@ -4207,6 +4224,18 @@ export function throwFrost(w: World, x: number, y: number, h: number, tx: number
   return f;
 }
 
+/**
+ * A patch of frost left on the floor at once, never thrown (the Nevera's trail, BossBrain.glide):
+ * no flight, no landing.
+ */
+export function layFrost(w: World, x: number, y: number, r: number, life: number, slow: number, source: number, by: string): Frost {
+  const f: Frost = { id: w.nextId++, x, y, r, t: 0, life, slow, fromX: x, fromY: y, fromH: 0, flight: 0, trail: true, source, by };
+  w.frost.push(f);
+  // Too long a trail: its oldest patch melts.
+  if (w.frost.filter((o) => o.trail).length > MAX_TRAIL) w.frost.splice(w.frost.findIndex((o) => o.trail), 1);
+  return f;
+}
+
 /** Whether (x, y) is inside a landed frost patch. */
 export function inFrost(f: Frost, x: number, y: number): boolean {
   if (f.t < 0 || f.brick !== undefined) return false;
@@ -4248,8 +4277,10 @@ function updateFrost(w: World): void {
     if (f.t < f.life && !f.swept) keep.push(f);
   }
   // Too much frost: the oldest patches on the floor melt first (and the oldest pieces are tidied away).
-  const landed = (brick: boolean) => (f: Frost): boolean => f.t >= 0 && (f.brick !== undefined) === brick;
+  const landed = (brick: boolean) => (f: Frost): boolean => f.t >= 0 && !f.trail && (f.brick !== undefined) === brick;
+  const trail = (f: Frost): boolean => !!f.trail;
   while (keep.filter(landed(false)).length > MAX_FROST) keep.splice(keep.findIndex(landed(false)), 1);
+  while (keep.filter(trail).length > MAX_TRAIL) keep.splice(keep.findIndex(trail), 1);
   while (keep.filter(landed(true)).length > MAX_BRICKS) keep.splice(keep.findIndex(landed(true)), 1);
   w.frost = keep;
   stepOnBricks(w);

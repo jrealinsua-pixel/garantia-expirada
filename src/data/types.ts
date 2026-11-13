@@ -1004,6 +1004,8 @@ export interface BossPhase {
    * `season` is only picked in its own. Every new season is announced with its name (event `season`).
    */
   seasons?: { every: number; names: readonly string[] };
+  /** Its walk by pivots (BossBrain.waddle) in this phase, if not the brain's: the spin, wilder. */
+  waddle?: { angle: number; step: number };
 }
 
 /**
@@ -1028,6 +1030,23 @@ export interface BossBrain {
    * proportion to the life it has lost.
    */
   rage: number;
+  /**
+   * «Patina sobre su escarcha» (the Nevera, M14b (h10a1)): it does not walk, it skates. Between
+   * attacks, whenever it has almost stopped, it pushes off towards a spot of its walk round the
+   * player (bossRoam's circle, a stretch further round) at up to `push` times the phase's walking
+   * speed, and glides on, braking at `friction` px/s² (on landed frost only `ice` times that, so
+   * its own frost is its rink). Firing it does not push off, it just glides on. While gliding fast
+   * it leaves a trail of frost behind it, a patch every `trail.gap` px (radius `r`, slowing to
+   * `slow`, gone after `life` s). Into a wall it stops dead.
+   */
+  glide?: { push: number; friction: number; ice: number; trail: { gap: number; r: number; slow: number; life: number } };
+  /**
+   * «Anda a pivotes» (the Lavadora, M14b (h10a1)): it walks the way a heavy appliance is walked,
+   * one corner and then the other: each `step` s it swings its way `angle` degrees to one side of
+   * where bossRoam takes it, then the same to the other, in a lurch (fast in the middle of the
+   * step, still at its ends). A phase may swing wider and quicker (BossPhase.waddle).
+   */
+  waddle?: { angle: number; step: number };
 }
 
 /**

@@ -73,7 +73,8 @@ test('muerte de la jefa: se desmonta un rato, no hace da√±o y luego cae con bot√
   const during: SimEvent[] = [];
   for (let i = 0; i < ticks(BOSS_DEATH) - 3; i++) {
     w.player.x = boss.x;
-    w.player.y = boss.y + 4;
+    // (On her feet: a step lower could be a wall, wherever her glide left her.)
+    w.player.y = boss.y;
     run(w, 1, () => shoot(w, boss, i), during);
     assert.deepEqual(checkInvariants(w), []);
   }

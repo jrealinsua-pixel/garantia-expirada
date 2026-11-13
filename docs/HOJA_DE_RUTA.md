@@ -713,7 +713,10 @@ juegos del género» de `docs/DISENO.md`.
       reacondicionados, y ya se mueven a su manera.
 - [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
   ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.
-  - [ ] (h10a1) Planta 1: la Nevera Suprema y la Lavadora Programa Eco.
+  - [x] (h10a1) Planta 1: la Nevera Suprema y la Lavadora Programa Eco. Hecho el 2026-11-13: la
+    nevera patina (se impulsa y se desliza frenando despacio, más lejos sobre la escarcha que
+    lanza, y deja un rastro fino de escarcha que frena un poco); la lavadora anda a pivotes, una
+    esquina y luego la otra, a tirones y ladeándose (centrifugando, más ancho y más deprisa).
   - [ ] (h10a2) Planta 2: el Router del Wifi y la Nube de Almacenamiento.
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
   sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo

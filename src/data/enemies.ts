@@ -1332,6 +1332,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       roam: { leg: [0.5, 1.3], burst: [0.6, 1.5], spread: 50 },
       drift: 0.35,
       rage: 0.45,
+      // M14b (h10a1) «Anda a pivotes»: an unbalanced washing machine walks by itself, one corner and
+      // then the other, the way you shift one across a kitchen. In Centrifugado, wilder and quicker.
+      waddle: { angle: 42, step: 0.42 },
       // The porthole, in the middle of its front: everything comes out of the drum.
       muzzle: { x: 7, y: 26 },
       phases: [
@@ -1372,6 +1375,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           keep: 115,
           rest: [0.6, 1],
           line: '1400 revoluciones. Las que pone en la caja.',
+          waddle: { angle: 58, step: 0.26 },
           mute: { every: [10, 13], time: 1.8, taken: 1.5, line: 'Pesando la carga…' },
           frameShift: 14,
           attacks: [
@@ -1569,6 +1573,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       roam: { leg: [0.5, 1.3], burst: [0.6, 1.4], spread: 50 },
       drift: 0.35,
       rage: 0.45,
+      // M14b (h10a1) «Patina sobre su escarcha»: twenty years without defrosting, its feet are ice. It
+      // pushes off and glides (on its own frost, further), leaving a trail that slows you a little.
+      glide: { push: 2.2, friction: 130, ice: 0.35, trail: { gap: 30, r: 22, slow: 0.85, life: 2.6 } },
       // The ice dispenser on its door, facing right.
       muzzle: { x: 5, y: 34 },
       phases: [

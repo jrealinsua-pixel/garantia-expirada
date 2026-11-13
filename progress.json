@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T21:20:00+01:00",
+  "actualizado": "2026-11-13T22:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 1011,
-    "tests_ok": 1011,
+    "tests": 1020,
+    "tests_ok": 1020,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 36054
+    "lineas_codigo": 36233
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T22:20:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h10a1): los jefes de la planta 1 ya no andan como los demás. La Nevera Suprema patina: se impulsa y se desliza frenando despacio (más lejos sobre su propia escarcha) y deja un rastro fino de escarcha. La Lavadora anda a pivotes, una esquina y luego la otra, ladeándose; centrifugando, a bandazos. Y el bot ya abre cofres con la Llave Allen (antes se quedaba plantado)."
+    },
     {
       "fecha": "2026-11-13T21:20:00+01:00",
       "hito": "M14b",
@@ -1400,6 +1405,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/nevera-patina.png",
+      "pie": "M14b (h10a1): la Nevera Suprema patina: se impulsa, se desliza y deja un rastro fino de escarcha"
+    },
+    {
+      "archivo": "capturas/lavadora-pivotes.png",
+      "pie": "M14b (h10a1): la Lavadora anda a pivotes, ladeándose sobre una esquina y luego la otra"
+    },
+    {
       "archivo": "capturas/asistente-evasivas.png",
       "pie": "M14b (h9e2): el Asistente Virtual esquiva la pregunta: le apuntas y se aparta de la línea de tiro"
     },
@@ -1414,17 +1427,9 @@
     {
       "archivo": "capturas/charco-descarga.png",
       "pie": "La descarga corre por el charco y alcanza al aspirador, lejos del alcance de la regleta"
-    },
-    {
-      "archivo": "capturas/estanteria-cae.png",
-      "pie": "Cae lejos de los disparos, encima del aspirador, y se queda tumbada como cobertura baja"
-    },
-    {
-      "archivo": "capturas/dispensador-pared.png",
-      "pie": "M14b (h9e1): el Dispensador de Turnos, pegado al mostrador entre turno y turno"
     }
   ],
-  "proximo": "M14b (h10a) jefes de las plantas 1–2 más únicos, (h11c) plantillas de sala con más forma, o (h10b) jefes de las plantas 3–5 y el final.",
+  "proximo": "M14b (h10a2) el Router del Wifi y la Nube de Almacenamiento con movimiento propio; (h11c) plantillas de sala con más forma; o (h10b) jefes de las plantas 3–5 y el final.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1453,11 +1458,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-13 21:25 (hora peninsular)",
-      "tarea": "M14b (h10a1): la Nevera patina y la Lavadora anda a pivotes",
-      "desde": "2026-11-13T21:25:00+01:00"
-    },
     {
       "sesion": "2026-11-13 22:25 (hora peninsular)",
       "tarea": "M14b (h11c): plantillas de sala con más forma",

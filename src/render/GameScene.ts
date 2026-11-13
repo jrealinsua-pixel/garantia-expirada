@@ -171,7 +171,7 @@ import { formLayout, STAMP_SCALE, type FormRole } from './form.ts';
 import { slipLayout, type SlipRole } from './ficha.ts';
 import { returnSlip, slipHint, slipNumber, STORIES } from '../data/stories.ts';
 import { BOSS_BAR, bossBarVeiled, cardLayout, departmentLabelBox, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
-import { bulbLit, enemyFrame, rattleOffset, spinMirrored } from './enemyAnim.ts';
+import { bulbLit, enemyFrame, rattleOffset, spinMirrored, waddleTilt } from './enemyAnim.ts';
 
 export const VIEW_W = 480;
 
@@ -2891,6 +2891,19 @@ export class GameScene extends Phaser.Scene {
           for (let i = 0; i < 3; i++) this.puff(e.x - e.dirX * this.fx.range(2, 8), e.y + this.fx.range(-2, 1), 0.3);
           if (e.first) this.floatText(e.x + e.dirX * 45, e.y + e.dirY * 45 - 46, fontText(SIDESTEP_LINE), 0x8fe3ff, `evade:${e.source}`, -10, 1);
           break;
+        case 'glide': {
+          // The Nevera pushes off on its frozen feet: a scrape of ice and a spray of frost behind.
+          this.sound2.play('deslizar', { detune: this.fx.range(-900, -500), volume: 0.45 });
+          const back = Math.atan2(-e.dirY, -e.dirX);
+          for (let i = 0; i < 5; i++) this.spark(e.x - e.dirX * 10 + this.fx.range(-8, 8), e.y + this.fx.range(-2, 2), back + this.fx.range(-0.6, 0.6), this.fx.range(40, 90), 0, 0xbff3f1);
+          this.puff(e.x - e.dirX * 12, e.y, 0.3, 0xdff7f6);
+          break;
+        }
+        case 'pivot':
+          // The Lavadora lands the corner it swung: a dull thud on the tiles and dust off that foot.
+          this.sound2.play('golpe', { detune: this.fx.range(-1300, -1000), volume: 0.35 });
+          this.puff(e.x + e.side * 16, e.y + 1, 0.3);
+          break;
         case 'reverseBeep':
           // A forklift backing up: the beep everyone in the workshop has stopped hearing.
           this.sound2.play('pitido');
@@ -4906,6 +4919,8 @@ export class GameScene extends Phaser.Scene {
       else if (en.state === 'brake') rot = -0.12 * en.facing * (1 - en.t / en.until);
       // (A boss gone quiet, BossPhase.mute, stands stock-still instead.)
       else if (en.state === 'stun' && !en.def.boss) rot = Math.sin(en.t * 22) * 0.2 * (1 - en.t / en.until);
+      // The Lavadora rocks onto the corner it swings round (BossBrain.waddle).
+      else rot = waddleTilt(en);
       s.setRotation(rot);
       // The remote switches off like an old TV (squashed to a line, then to a dot) and back on.
       const tv = tvScale(en, v.onAt === undefined ? 1 : (this.time.now - v.onAt) / 1000);
@@ -5719,8 +5734,9 @@ export class GameScene extends Phaser.Scene {
       v.patch.setScale(0.5 + 0.5 * pop);
       // Frost sparkles (a label just lies there).
       if (!f.sticker) v.patch.setFrame(Math.floor(this.time.now / 420 + f.id) % 2);
-      // Melting: it blinks for its last second.
-      v.patch.setAlpha(left < 1 ? (Math.floor(this.time.now / 90) % 2 === 0 ? 0.35 : 0.85) : 1);
+      // Melting: it blinks for its last second. (The Nevera's trail is thinner: it slows you less.)
+      const full = f.trail ? 0.6 : 1;
+      v.patch.setAlpha(left < 1 ? (Math.floor(this.time.now / 90) % 2 === 0 ? 0.3 * full : 0.85 * full) : full);
     }
     for (const [id, v] of this.frostViews) {
       if (alive.has(id)) continue;

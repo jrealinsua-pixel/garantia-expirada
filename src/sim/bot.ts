@@ -120,6 +120,8 @@ export function dodge(w: World): Dodge {
   // Frost: walk out of a patch, and away from where a ball is about to land (once it has seen it).
   for (const f of w.frost) {
     if (f.t < 0 && f.t + f.flight < BOT_REACTION) continue;
+    // The Nevera's trail (Frost.trail) only slows a little: walked through, as a player would.
+    if (f.trail) continue;
     const dx = p.x - f.x;
     const dy = (p.y - f.y) / FROST_FLAT;
     const d = Math.hypot(dx, dy) || 1;
@@ -447,7 +449,9 @@ export class Bot {
   private wantsInteract(w: World): boolean {
     const it = interactable(w);
     if (!it) return false;
-    if (it.kind === 'chest') return w.player.tickets > 0;
+    // With a ticket, or the spare Allen key (floorGoal walks it over for either: with only the key
+    // it used to stand at the chest for good).
+    if (it.kind === 'chest') return w.player.tickets > 0 || freeChestLeft(w) > 0;
     if (it.kind === 'shop') return this.shopping(w) === it.pickup;
     // Something on the floor (M14b (h2)): it picks it all up (an active only if it carries none).
     if (it.kind === 'grab') return it.pickup.kind !== 'activo' || !w.player.active;

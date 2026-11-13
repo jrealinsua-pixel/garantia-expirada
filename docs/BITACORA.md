@@ -2,6 +2,58 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 22:20 (hora peninsular) — Hito M14b — (h10a1) La Nevera patina y la Lavadora anda a pivotes
+- Contexto: nadie tenía nada cogido. Salud al empezar: `check`, 1011 tests, `build` y `bot` en verde.
+  El `main` local volvía a ser un clon viejo que divergía de `origin/main`: lo guardé en una rama
+  local (`backup-old-main`, sin subir) y puse `main` en `origin/main`. La (h10a) era grande (cuatro
+  jefes): la dividí en (h10a1) planta 1 y (h10a2) planta 2.
+- Hecho: M14b (h10a1). Hasta ahora todos los jefes andaban igual (`bossRoam`: vueltas erráticas
+  alrededor de la tostadora); estos dos tienen ya su forma propia, como datos de `BossBrain`:
+  - **La Nevera Suprema patina** (`BossBrain.glide`, `glideWalk`): no anda; cuando casi se ha parado
+    se impulsa (hasta 2,2 veces su paso, hacia donde la llevaría su vuelta) y se desliza frenando a
+    130 px/s². Sobre la escarcha que lanza frena a un tercio (`onIce`): es su pista. Mientras avisa o
+    dispara no se impulsa, pero sigue deslizándose; solo la pausa entre fases la para en seco.
+    Deslizándose deprisa deja un **rastro fino de escarcha** (`layFrost`, `Frost.trail`: un charco
+    cada 30 px, 2,6 s, frena al 85 %, como mucho `MAX_TRAIL` = 8, aparte del tope de la escarcha
+    lanzada) que se dibuja más pálido y que a ella no le sirve de pista (si no, no paraba nunca).
+    Evento `glide`: rascado de hielo (sonido `deslizar` grave) y escarcha que salta hacia atrás.
+  - **La Lavadora anda a pivotes** (`BossBrain.waddle`, `BossPhase.waddle`, `waddleWalk`): como se
+    mueve una lavadora por una cocina, una esquina y luego la otra. Cada 0,42 s cambia de esquina;
+    su camino (el de siempre) se tuerce 42° a un lado y luego al otro, a tirones (parada en los
+    extremos del paso). Se ladea sobre la esquina que gira (`waddleTilt`, 4° como mucho) y al
+    apoyarla suena un golpe sordo con polvo en ese pie (evento `pivot`). Centrifugando, 58° y cada
+    0,26 s: bandazos.
+  - **Arreglo del bot** (lo destapó esta tarea): con la Llave Allen Sobrante y sin tickets, el bot iba
+    al cofre pero no pulsaba interactuar (`wantsInteract` solo miraba los tickets), y se quedaba
+    plantado delante para siempre. Salió en `npm run bot` («planta-16 nivel 5: ni gana ni cae»)
+    porque al cambiar la planta 1 cambian las partidas que llegan arriba. Test nuevo en
+    `tests/objetos-planta3.test.ts`.
+  Tests: `tests/jefes-planta1-movimiento.test.ts` (8): se impulsa y entre impulsos nunca acelera,
+  sobre su escarcha llega casi el triple de lejos, el rastro (en el suelo, de sus pies, con tope,
+  frena 0,85, no es pista), sigue deslizándose al atacar, la lavadora alterna esquinas, se para al
+  cambiar y zigzaguea, centrifugando pivota más deprisa, determinismo. Ajustados tres tests viejos de
+  la nevera para no contar el rastro como escarcha lanzada (el tope de 8 y «los productos no
+  frenan»), y el de su muerte pone a la tostadora en sus pies (deslizándose acaba más cerca de las
+  paredes). e2e: capturas `17ga-nevera-patina` y `63ba-lavadora-pivotes`.
+- Decisiones: la nevera patina porque es lo que es (veinte años sin descongelarse) y porque se
+  combina con lo que ya tenía: su escarcha frena a la tostadora y a ella la acelera. Se lee bien:
+  impulso, deslizamiento largo, rastro. Probé impulso 3,4 con frenada 165 (gana el 80 % en 73 s: los
+  disparos del bot fallan a un blanco que va a 170 px/s) y fui bajando hasta 2,2 y 130. El rastro
+  frena al 85 % y no al 50 % de la escarcha de verdad: es una molestia, no una trampa; el bot lo pisa
+  sin esquivarlo, como haría un jugador. La lavadora no salta (eso ya lo hacen el sello y el
+  teléfono): se arrastra en zigzag; el ladeo con rotación ya se usaba para las embestidas. El ladeo se
+  ve algo dentado en la captura, pero 4° es poco y dura un instante.
+- Medidas (`runBoss`, 80 combates, antes → después): Nevera gana 92,5 → 87,5 % en 50 → 56 s, 2,78 →
+  3,41 heridas por combate, 0,8 → 2,6 s en escarcha; Lavadora 83,8 → 88,8 % en 50 s, 3,48 → 3,0
+  heridas (dentro del ruido; en zigzag avanza algo menos). `npm run bot`: 0 fallos, 5 atascos (los de
+  siempre); planta 1 con daño: la gana el 85 → 75 % y cae ante la jefa el 10 → 20 % (20 partidas:
+  ruidoso, pero va en la dirección que pidió el humano, más difícil por movimiento y no por vida).
+  1020 tests en verde; e2e entero en verde.
+- Problemas conocidos: si la planta 1 resulta demasiado dura, bajar `glide.push` a 2 antes que tocar
+  vida. El bot no aprovecha que la nevera no puede girar mientras se desliza.
+- Siguiente paso: (h10a2) el Router del Wifi y la Nube de Almacenamiento (ideas: el Router no anda,
+  salta de repetidor en repetidor; la Nube flota por encima de los obstáculos), o (h11c) plantillas.
+
 ## 2026-11-13 21:20 (hora peninsular) — Hito M14b — (h9e2) El Asistente esquiva y la Carretilla da marcha atrás
 - Contexto: la (h11a3) estaba cogida por otra sesión (ya la ha terminado; mi trabajo se juntó con el
   suyo sin conflictos). Salud al empezar: `check`, 994 tests, `build` y `bot` en verde. El `main`

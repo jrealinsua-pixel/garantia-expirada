@@ -101,7 +101,8 @@ test('escarcha: siempre cae en suelo libre y no se acumula sin fin', () => {
       // Hugging the walls, so the throws around the player aim at them.
       step(w, { ...NO_INPUT, moveX: i % 600 < 300 ? -1 : 1, moveY: i % 400 < 200 ? -1 : 1, aimX: w.player.x, aimY: w.player.y - 50 });
       for (const f of w.frost) assert.ok(!isWallAt(w.room, f.x, f.y), `escarcha en la pared en ${f.x},${f.y}`);
-      most = Math.max(most, w.frost.filter((f) => f.t >= 0).length);
+      // (Its trail, M14b (h10a1), is counted apart: see tests/jefes-planta1-movimiento.test.ts.)
+      most = Math.max(most, w.frost.filter((f) => f.t >= 0 && !f.trail).length);
     }
     assert.ok(most >= 2 && most <= 8, `charcos a la vez: ${most}`);
   }

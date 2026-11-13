@@ -148,7 +148,8 @@ test('productos caducados: caen en suelo libre, revientan en balas y no dejan ch
         if (e.type === 'frostLand' && e.product !== undefined) {
           landed++;
           spots.push({ x: e.x, y: e.y });
-          assert.equal(frostSlow(w, e.x, e.y), 1, 'no frena');
+          // (Not counting the Nevera's own trail, M14b (h10a1), which may run under it.)
+          assert.equal(frostSlow({ ...w, frost: w.frost.filter((f) => !f.trail) }, e.x, e.y), 1, 'no frena');
         }
       }
     }

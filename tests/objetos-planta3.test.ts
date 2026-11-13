@@ -2,6 +2,7 @@
 // Purpurina, Juguete del Menú Infantil, Caja de Cartón Vacía, Pegatina de Edición Limitada, Llave
 // Allen Sobrante y Mando con Vibración; y la sinergia Unboxing. Cada uno hace lo que dice su ficha.
 import { test } from 'node:test';
+import { Bot } from '../src/sim/bot.ts';
 import assert from 'node:assert/strict';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { ITEMS, itemsUpTo } from '../src/data/items.ts';
@@ -210,6 +211,20 @@ test('Llave Allen Sobrante: un cofre por planta se abre sin ticket (y antes que 
   // A new floor, a new spare key; and without the key a chest needs a ticket.
   const f = createWorld({ seed: 'allen-planta', floor: true, level: 3 });
   assert.equal(f.floor!.freeChests ?? 0, 0);
+});
+
+test('Llave Allen Sobrante: el bot abre con ella el cofre sin ticket (antes se quedaba plantado delante)', () => {
+  // On a floor (in the test room the bot only wanders): its first room, emptied.
+  const w = createWorld({ seed: 'allen-bot', floor: true, level: 3 });
+  w.enemies = [];
+  w.pickups = [];
+  w.noDamage = true;
+  giveItem(w, 'llave-allen');
+  w.player.tickets = 0;
+  const c = placeChest(w, w.player.x + 60, w.player.y - 40, false, 'carton');
+  const bot = new Bot('allen-bot');
+  for (let i = 0; i < ticks(8) && !c.chest!.open; i++) step(w, bot.think(w));
+  assert.ok(c.chest!.open, 'el bot no abre el cofre con la llave');
 });
 
 test('Mando con Vibración: cada golpe suelta un corro de diez balas propias', () => {

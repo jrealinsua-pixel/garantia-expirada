@@ -34,6 +34,8 @@ import {
   stampInk,
   STAMP_LIFT,
   throwFrost,
+  layFrost,
+  inFrost,
   type Enemy,
   type SimEvent,
   type World,
@@ -1674,11 +1676,18 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   const mh = muzzleHeight(w, en, b.muzzle.y);
   let walkX = 0;
   let walkY = 0;
+  // Skating (BossBrain.glide): walkX/walkY are then its velocity itself, not one to approach.
+  let glided = false;
   switch (en.state) {
     case 'idle': {
       // Never still between attacks: from spot to spot round the player, now strolling, now
       // lurching, and quicker the less life it has.
-      ({ x: walkX, y: walkY } = en.rail ? railRoam(w, en, b, phase.walkSpeed * rage) : bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep));
+      // (The Nevera skates instead, pushing off now and then; the Lavadora swings corner to corner.)
+      if (en.rail) ({ x: walkX, y: walkY } = railRoam(w, en, b, phase.walkSpeed * rage));
+      else if (b.glide) {
+        ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, true));
+        glided = true;
+      } else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep)));
       // Gone quiet: its lights blank, it stops dead and takes more (BossPhase.mute). Only between
       // attacks, so a sweep is never cut short and the silence is never under a hail of bullets.
       if (phase.mute && en.muteIn !== undefined && en.muteIn <= 0 && !w.over) {
@@ -1689,6 +1698,7 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         enter(en, 'stun', phase.mute.time);
         walkX = 0;
         walkY = 0;
+        glided = false;
         break;
       }
       // On its way over to the end of the belt it attacks nothing.
@@ -1925,9 +1935,13 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     case 'fire':
       // Once the warning is over it drifts on while its bullets stream out (they follow it).
       // (Spinning on the spot it stays put: BossPatternAttack.spin.)
-      if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) {
+      if (b.glide && !en.rail) {
+        // Skating, it does not push off while it fires: it glides on, braking.
+        ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, false));
+        glided = true;
+      } else if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) {
         const v = phase.walkSpeed * rage * b.drift;
-        ({ x: walkX, y: walkY } = en.rail ? railRoam(w, en, b, v) : bossRoam(w, en, b, v, phase.keep));
+        ({ x: walkX, y: walkY } = en.rail ? railRoam(w, en, b, v) : waddleWalk(w, en, b, phase, bossRoam(w, en, b, v, phase.keep)));
       }
       if (en.t >= en.until) enter(en, 'idle', w.rng.range(phase.rest[0], phase.rest[1]));
       break;
@@ -1944,13 +1958,94 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
       // First tick after its entrance: a short breath, then the first attack.
       enter(en, 'idle', 0.6);
   }
-  approach(en, walkX, walkY, KNOCK_FRICTION);
+  // Skating, it brakes slowly whatever it is doing (warning too); only stopped dead (a break, a
+  // silence) does it lose its glide at once.
+  if (b.glide && !en.rail && !glided && en.state === 'warn') {
+    ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, false));
+    glided = true;
+  }
+  if (glided) {
+    en.vx = walkX;
+    en.vy = walkY;
+  } else approach(en, walkX, walkY, KNOCK_FRICTION);
   if (en.vx !== 0 || en.vy !== 0) {
     const ox = en.x;
     const oy = en.y;
     slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT);
-    en.moved += Math.hypot(en.x - ox, en.y - oy);
+    const moved = Math.hypot(en.x - ox, en.y - oy);
+    en.moved += moved;
+    if (glided && b.glide) iceTrail(w, en, b.glide, moved);
   }
+}
+
+/** Below this share of its push it may push off again (BossBrain.glide), and not sooner than this (s). */
+const GLIDE_REPUSH = 0.3;
+const GLIDE_EVERY = 0.35;
+/** It leaves frost only while gliding faster than this share of its push (not at a crawl). */
+const GLIDE_TRAIL_FROM = 0.35;
+
+/**
+ * «Patina sobre su escarcha» (BossBrain.glide): its velocity this tick. It brakes at `friction`
+ * (less on landed frost); with `push`, once it has almost stopped, it pushes off along its walk
+ * round the player (bossRoam, which is asked every tick so its legs keep turning over).
+ */
+function glideWalk(w: World, en: Enemy, b: BossBrain, g: NonNullable<BossBrain['glide']>, speed: number, keep: number, push: boolean): { x: number; y: number } {
+  const want = bossRoam(w, en, b, speed * g.push, keep);
+  const fr = g.friction * (onIce(w, en.x, en.y) ? g.ice : 1);
+  const sp = Math.hypot(en.vx, en.vy);
+  const ns = Math.max(0, sp - fr * DT);
+  let vx = sp > 0 ? (en.vx / sp) * ns : 0;
+  let vy = sp > 0 ? (en.vy / sp) * ns : 0;
+  en.glideT = (en.glideT ?? 0) - DT;
+  if (push && en.glideT <= 0 && ns < speed * g.push * GLIDE_REPUSH && !w.over) {
+    vx = want.x;
+    vy = want.y;
+    en.glideT = GLIDE_EVERY;
+    const v = Math.hypot(vx, vy) || 1;
+    w.events.push({ type: 'glide', boss: en.id, x: en.x, y: en.y, dirX: vx / v, dirY: vy / v, speed: v });
+  }
+  return { x: vx, y: vy };
+}
+
+/**
+ * Whether (x, y) is on landed frost (not a label, a product or a piece, nor its own thin trail, or it
+ * would never stop): the Nevera's rink.
+ */
+export function onIce(w: World, x: number, y: number): boolean {
+  return w.frost.some((f) => !f.sticker && !f.trail && f.product === undefined && f.brick === undefined && inFrost(f, x, y));
+}
+
+/** The Nevera's trail (BossBrain.glide): a patch of frost every `trail.gap` px it glides fast. */
+function iceTrail(w: World, en: Enemy, g: NonNullable<BossBrain['glide']>, moved: number): void {
+  const b = en.def.brain as BossBrain;
+  const phase = b.phases[en.bossPhase ?? 0]!;
+  if (w.over || Math.hypot(en.vx, en.vy) < phase.walkSpeed * g.push * GLIDE_TRAIL_FROM) return;
+  en.glideTrail = (en.glideTrail ?? 0) + moved;
+  if (en.glideTrail < g.trail.gap) return;
+  en.glideTrail = 0;
+  layFrost(w, en.x, en.y, g.trail.r, g.trail.life, g.trail.slow, en.id, en.def.id);
+}
+
+/**
+ * «Anda a pivotes» (BossBrain.waddle): `want` (where its walk takes it) swung `angle` to one side
+ * and then to the other, step by step, in lurches (still at the ends of each step). Without a
+ * waddle, `want` as it is.
+ */
+function waddleWalk(w: World, en: Enemy, b: BossBrain, phase: BossPhase, want: { x: number; y: number }): { x: number; y: number } {
+  const wd = phase.waddle ?? b.waddle;
+  if (!wd) return want;
+  en.waddleSide ??= 1;
+  en.waddleT = (en.waddleT ?? 0) + DT;
+  if (en.waddleT >= wd.step) {
+    en.waddleT -= wd.step;
+    en.waddleSide = -en.waddleSide;
+    w.events.push({ type: 'pivot', boss: en.id, x: en.x, y: en.y, side: en.waddleSide });
+  }
+  const k = (Math.PI / 2) * Math.sin((Math.PI * en.waddleT) / wd.step);
+  const a = ((wd.angle * Math.PI) / 180) * en.waddleSide;
+  const c = Math.cos(a);
+  const sn = Math.sin(a);
+  return { x: (want.x * c - want.y * sn) * k, y: (want.x * sn + want.y * c) * k };
 }
 
 /**

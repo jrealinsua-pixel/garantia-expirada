@@ -157,3 +157,18 @@ export function rattleOffset(en: Enemy, now: number): { x: number; y: number } {
   const k = Math.floor(now / r.ms) + en.id;
   return { x: k % 2 === 0 ? r.px : -r.px, y: k % 3 === 0 ? -r.px : 0 };
 }
+
+/**
+ * How far a boss walking by pivots leans right now (BossBrain.waddle), in radians: onto the corner it
+ * is swinging round, most in the middle of each step, upright at its ends and whenever it stands.
+ */
+export function waddleTilt(en: Enemy): number {
+  const b = en.def.brain;
+  if (b.kind !== 'boss' || !b.waddle || en.waddleT === undefined || PLANTED.has(en.state)) return 0;
+  if (Math.hypot(en.vx, en.vy) < 4) return 0;
+  const wd = b.phases[en.bossPhase ?? 0]?.waddle ?? b.waddle;
+  return -(en.waddleSide ?? 1) * WADDLE_TILT * Math.sin((Math.PI * en.waddleT) / wd.step);
+}
+
+/** Most a boss walking by pivots leans (radians). */
+const WADDLE_TILT = 0.07;
