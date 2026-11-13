@@ -1437,6 +1437,11 @@
       "sesion": "2026-11-13 19:30",
       "tarea": "M14b (h9e1): el Dispensador de Turnos y el Teléfono de Recepción con movimiento propio (src/data/enemies.ts, src/data/types.ts, src/sim/enemies.ts updateTurner y updatePhone; tests/planta5-movimiento.test.ts)",
       "desde": "2026-11-13T18:30:00Z"
+    },
+    {
+      "sesion": "2026-11-13 19:30",
+      "tarea": "M14b (h11a2): la estantería que cae (src/data/props.ts, PropDef en src/data/types.ts, src/sim/world.ts tumbar y aplastar, relleno hazard, src/render/GameScene.ts sombra de aviso, tools/sprites; tests/estanteria.test.ts)",
+      "desde": "2026-11-13T18:30:00Z"
     }
   ]
 }
