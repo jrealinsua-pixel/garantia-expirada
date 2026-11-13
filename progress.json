@@ -1487,6 +1487,11 @@
       "sesion": "2026-11-14 01:15 (hora peninsular)",
       "tarea": "M14b (h10b2): el Director con movimiento propio",
       "desde": "2026-11-14T01:15:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 01:30 (hora peninsular)",
+      "tarea": "M14c (a3): la carpeta art/entrada/ (tools/sprites/entrada.ts nuevo, art/entrada/LEEME.md, CREDITOS.md, una línea en tools/sprites/build.ts allSheets, tests/entrada.test.ts nuevo)",
+      "desde": "2026-11-14T01:30:00+01:00"
     }
   ]
 }
