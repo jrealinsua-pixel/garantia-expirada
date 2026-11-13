@@ -92,6 +92,10 @@ export const SFX: Record<string, SfxParams> = {
   almidon: { wave: 'noise', freq: 5200, freqEnd: 3000, attack: 0.004, sustain: 0.03, decay: 0.07, volume: 0.1, lowpass: 0.35 },
   suela: { wave: 'noise', freq: 7000, freqEnd: 5200, attack: 0.002, sustain: 0.05, decay: 0.12, volume: 0.08, lowpass: 0.15, vibrato: 0.2, vibratoSpeed: 55 },
   etiqueta: { wave: 'square', freq: 1500, freqEnd: 380, attack: 0.001, sustain: 0.012, decay: 0.045, volume: 0.13, duty: 0.3, crush: 3 },
+  // M14 (l4b): the soldering iron (a short sizzle of flux) and the universal remote (the tiny
+  // electronic chirp of a button, two quick blips).
+  soldador: { wave: 'noise', freq: 6200, freqEnd: 2600, attack: 0.002, sustain: 0.025, decay: 0.08, volume: 0.1, lowpass: 0.3, vibrato: 0.25, vibratoSpeed: 60 },
+  mando: { wave: 'square', freq: 2900, freqEnd: 3300, attack: 0.001, sustain: 0.018, decay: 0.03, volume: 0.09, duty: 0.25, vibrato: 0.3, vibratoSpeed: 90, crush: 2 },
   rebajado: { wave: 'square', freq: 2350, freqEnd: 2300, attack: 0.001, sustain: 0.05, decay: 0.28, volume: 0.13, duty: 0.25, vibrato: 0.03, vibratoSpeed: 30 },
   vaporGolpe: { wave: 'square', freq: 150, freqEnd: 50, attack: 0.001, sustain: 0.03, decay: 0.1, volume: 0.24, duty: 0.5 },
   // Changing weapon (a holster click) and finding one (a little fanfare).

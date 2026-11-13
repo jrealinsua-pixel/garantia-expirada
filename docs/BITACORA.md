@@ -2,6 +2,42 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-13 04:20 (hora peninsular, de `date`) — Hito M14 — Logros (l4b): las dos armas premio
+- Contexto: la misma sesión que la (l4a), siguiendo con el paso 7. La (j4) la tenía otra sesión;
+  esta no toca sus archivos salvo dos líneas del dibujo de las balas pegadas en `GameScene.ts`.
+- Hecho: **el Soldador de Estaño**, premio de «Fin de la garantía» (llegar al final de verdad): la
+  herramienta del Servicio Técnico. Gotas lentas y pesadas (daño 1,7, 2,7 por segundo, cargador
+  10); las que fallan se quedan pegadas 3 s donde chocan (`stick`, la mecánica de la Plastilina) y
+  queman una vez a quien las pisa, con su charco de estaño que brilla y se enfría
+  (`charco-estano`), chisporroteo y chispas naranjas. **El Mando Universal**, premio de «Toda la
+  gama» (ganar con los cinco productos): pulsos de infrarrojo de 1,5 de radio, los más rápidos
+  (500), que atraviesan a uno y uno de cada cinco «acierta con el canal» por el triple (`crit`; el
+  aviso «Doble clic» que ya existía le va que ni pintado). Sprites en la mano, balas y charco en
+  `tools/sprites/premios.ts`; sonidos `soldador` y `mando` en `src/audio/synth.ts`. Las dos están
+  en `FINDABLE_WEAPONS` (desde la planta 1, una vez ganadas) y la Sala de Pruebas tiene dos
+  pedestales más. La ficha del arma dice ahora también «Las que fallan se quedan pegadas 3 s» y
+  «Atraviesa 1 enemigo · 20 % con daño ×3» (y arreglé el «Atraviesa 1 enemigos»). Con esto la (l4)
+  y la tarea de los logros de M14 quedan hechas: **ningún logro se queda sin premio**. Tests
+  nuevos en `tests/armas-premio.test.ts` (3); e2e `19i` (charcos de estaño en la pared) y `19j`
+  (los pulsos y el «Doble clic»).
+- Decisiones: cada arma gana claramente en algo y pierde en otra (la regla del humano, que vigila
+  `tests/armas.test.ts`): le añadí cuatro rasgos a ese test, «se queda pegada», «crítico»,
+  «empuje» y «tamaño de bala». El Soldador gana en lo primero y pierde en empuje (el estaño quema,
+  no empuja); el Mando gana en velocidad de bala y críticos, y pierde en tamaño de bala (un punto
+  de luz hay que apuntarlo). Ajusté los números hasta no quitarle a ninguna otra su único punto
+  flaco: con 2,4 disparos/s el Soldador le robaba al Secador el de «balas por segundo», y con un
+  cargador de 8 el Mando le robaba a la Etiquetadora el de «segundos de cargador». Las dos superan
+  al Secador por segundo (3,33 y 3,46 en el papel, sin contar críticos ni charcos) y el Pulverizador
+  sigue siendo el que menos. El alcance del Soldador (218) es más del doble del Megáfono, como pide
+  su test. «Mando» es id de arma y «mando-vibracion» de objeto: no chocan.
+- Medidas: `npm run bot`, 200 partidas, 0 fallos. Planta 1 (bot con todo desbloqueado): ganada
+  40 % (antes de la l4, 35 %; ruido de 20 partidas). En la Sala de Pruebas el bot sobrevive el
+  86 % (antes 94 %): ahora recorre dos pedestales más, en la esquina de los enemigos. 940 tests en
+  verde. e2e entero en verde.
+- Problemas conocidos: el sprite de la bala del Mando es de 7 × 5 aunque su radio es 1,5 (se ve
+  igual de pequeño que los demás puntos de luz; si estorba, uno de 5 × 3).
+- Siguiente paso: (j5) la Fuente de Agua de Oficina si la (j4) ya está; o los PNJs de M14.
+
 ## 2026-11-13 03:30 (hora peninsular, de `date`) — Hito M14 — Logros (l4a): premios que no existían
 - Contexto: el `main` local volvía a estar divergido (otra copia vieja, de M11); lo puse en
   `origin/main` con `git checkout -B main origin/main` (`reset --hard` no estaba permitido). Salud

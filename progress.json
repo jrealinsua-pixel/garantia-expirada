@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-13T03:30:00+01:00",
+  "actualizado": "2026-11-13T04:18:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -112,7 +112,7 @@
       "id": "M14",
       "nombre": "Más contenido y rejugabilidad",
       "estado": "en_curso",
-      "hechas": 2,
+      "hechas": 3,
       "total": 7
     },
     {
@@ -127,16 +127,21 @@
     "personajes": 5,
     "enemigos": 27,
     "jefes": 8,
-    "armas": 8,
+    "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 935,
-    "tests_ok": 935,
+    "tests": 940,
+    "tests_ok": 940,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 33618
+    "lineas_codigo": 33692
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-13T04:18:00+01:00",
+      "hito": "M14",
+      "resumen": "M14 (l4b): las dos armas premio. Llegar al final de verdad da el Soldador de Estaño, la herramienta del Servicio Técnico: gotas lentas cuyas fallidas se quedan pegadas donde caen, en un charco que quema a quien lo pisa. Ganar con los cinco productos da el Mando Universal: pulsos de infrarrojo rapidísimos que atraviesan a uno y, a veces, aciertan con el canal por el triple. Ya ningún logro se queda sin premio: la tarea de los logros de M14 está hecha."
+    },
     {
       "fecha": "2026-11-13T03:30:00+01:00",
       "hito": "M14",
@@ -1301,6 +1306,10 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/mando-universal.png",
+      "pie": "M14 (l4b): el Mando Universal, premio de ganar con los cinco productos: pulsos de infrarrojo que atraviesan a uno y, a veces, «Doble clic»"
+    },
+    {
       "archivo": "capturas/nube-sincronizando.png",
       "pie": "M14 (j3): la Nube de Almacenamiento, el otro jefe de la planta 2, «Sincronizando…»: si la barra se llena suelta todo lo que guardaba; si le das lo bastante, se rompe"
     },
@@ -1319,13 +1328,9 @@
     {
       "archivo": "capturas/lavadora-calcetines.png",
       "pie": "M14 (j2): la Lavadora Programa Eco, el otro jefe que puede salir en la planta 1, en su programa «Lavado»: calcetines desparejados que rebotan en las paredes"
-    },
-    {
-      "archivo": "capturas/lavadora-centrifugado.png",
-      "pie": "«Centrifugado»: 1400 revoluciones en la pantalla, el ojo de buey hecho un remolino y espirales de agua mientras tiembla por la sala"
     }
   ],
-  "proximo": "M14 (j4): la Consola Edición Coleccionista, el segundo jefe de la planta 3; o la (l4b), dos armas nuevas solo de premio para «Fin de la garantía» y «Toda la gama».",
+  "proximo": "M14 (j5): la Fuente de Agua de Oficina, el segundo jefe de la planta 4 (si la (j4) ya está); o los PNJs de M14.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-11",
@@ -1356,11 +1361,6 @@
       "sesion": "2026-11-13 03:25",
       "tarea": "M14 (j4): la Consola Edición Coleccionista, segundo jefe de la planta 3 (src/data/enemies.ts, src/data/patterns.ts, src/data/types.ts, src/sim/enemies.ts, src/sim/world.ts, src/render/GameScene.ts, tools/sprites/consola.ts, tests/consola.test.ts)",
       "desde": "2026-11-13T02:25:00Z"
-    },
-    {
-      "sesion": "2026-11-13 02:30",
-      "tarea": "M14 (l4b): dos armas nuevas solo de premio, el Soldador de Estaño y el Mando Universal (src/data/weapons.ts, src/data/logros.ts, src/audio/synth.ts, tools/sprites/premios.ts, tools/sprites/build.ts, tests/armas-premio.test.ts)",
-      "desde": "2026-11-13T02:40:00Z"
     }
   ]
 }

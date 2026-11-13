@@ -160,6 +160,6 @@ test('los logros difíciles traen objetos nuevos que solo existen como premio', 
       for (const ch of t.toUpperCase()) assert.ok(ch === ' ' || FONT_CHARS.includes(ch), `${item}: «${ch}» no está en la fuente`);
     }
   }
-  // Only the ending and the five winners are left for the prize weapons of (l4b).
-  assert.deepEqual(ACHIEVEMENTS.filter((x) => !x.reward).map((x) => x.id), ['fin-garantia', 'toda-la-gama']);
+  // Every achievement brings something now (the last two, the prize weapons of (l4b)).
+  assert.deepEqual(ACHIEVEMENTS.filter((x) => !x.reward).map((x) => x.id), []);
 });

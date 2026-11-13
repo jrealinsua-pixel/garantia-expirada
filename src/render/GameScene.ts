@@ -2570,6 +2570,12 @@ export class GameScene extends Phaser.Scene {
           this.shake(90, 0.005);
           break;
         case 'stick':
+          // M14 (l4b): a drop of tin that lands: a sizzle and orange sparks.
+          if (this.world.bullets.some((x) => x.stuck && x.weapon === 'soldador' && Math.abs(x.x - e.x) < 1 && Math.abs(x.y - e.y) < 1)) {
+            this.sound2.play('soldador', { detune: this.fx.range(-150, 150), volume: 0.5 });
+            for (let i = 0; i < 4; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(20, 45), 0, i % 2 ? 0xffb347 : 0xff7a1f);
+            break;
+          }
           // Plastilina Mezclada: a wet squelch and a couple of crumbs (glitter with Manualidades).
           this.sound2.play('chof', { detune: 600 + this.fx.range(-200, 200), volume: 0.35 });
           for (let i = 0; i < 3; i++) this.spark(e.x, e.y, this.fx.range(0, Math.PI * 2), this.fx.range(15, 35), 1, e.slows ? 0xea93a8 : 0x8a7a6a);
@@ -4703,7 +4709,14 @@ export class GameScene extends Phaser.Scene {
       if (b.color === 'sticker' && b.owner === 'enemy') s.setFrame(Math.floor(this.time.now / 90 + b.id) % 4);
       // Plastilina Mezclada: a stuck bullet turns into a blob of mixed plasticine that wobbles
       // (pink-flecked with Manualidades), and shrinks away at the end.
-      if (b.stuck) {
+      if (b.stuck && b.weapon === 'soldador') {
+        // M14 (l4b): the Soldador de Estaño's drop that missed: a puddle of molten tin that
+        // shimmers, and fades and shrinks as it cools in its last second.
+        if (s.texture.key !== 'charco-estano') s.setTexture('charco-estano').setRotation(0).clearTint();
+        s.setFrame(Math.floor(this.time.now / 160 + b.id) % 2);
+        s.setAlpha(Math.min(1, 0.45 + b.life * 0.55));
+        size = Math.min(1, b.life / 0.25);
+      } else if (b.stuck) {
         if (s.texture.key !== 'pegote-plastilina') s.setTexture('pegote-plastilina').setRotation(0).clearTint().setAlpha(1);
         s.setFrame((b.slow?.mul ?? 1) <= 0.5 ? 2 + (Math.floor(this.time.now / 140 + b.id) % 2) : Math.floor(this.time.now / 140 + b.id) % 2);
         size = Math.min(1, b.life / 0.25);

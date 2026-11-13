@@ -206,6 +206,12 @@ test('cada arma gana claramente en algo y pierde en otra cosa (nota del humano)'
     // Bullets that chase (the Notificaciones Push, M13 (6)): seconds they keep seeking.
     persigue: (id) => WEAPONS[id]!.bullets?.homing?.time ?? 0,
     'velocidad de bala': (id) => WEAPONS[id]!.bulletSpeed,
+    // M14 (l4b): the prize weapons. Drops that stay where they land (the Soldador de Estaño), hits
+    // on «the right channel» (the Mando Universal), push and bullet size (the Mando's pinpoint).
+    'se queda pegada': (id) => WEAPONS[id]!.bullets?.stick?.time ?? 0,
+    crítico: (id) => (WEAPONS[id]!.bullets?.crit?.chance ?? 0) * (WEAPONS[id]!.bullets?.crit?.mul ?? 1),
+    empuje: (id) => WEAPONS[id]!.knockback,
+    'tamaño de bala': (id) => WEAPONS[id]!.bulletRadius,
   };
   for (const id of ids) {
     const wins: string[] = [];

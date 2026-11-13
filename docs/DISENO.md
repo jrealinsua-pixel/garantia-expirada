@@ -772,8 +772,13 @@ con la frase de cada una (el campo `why`), una vez que el jugador haya llevado l
   bajas enemigas, el Contenedor Amarillo (las balas atraviesan a uno y rebotan una vez, más
   lentas); 8 sinergias, la Oferta Tres por Dos (dos balas más por disparo, la mitad de daño cada
   una, más abiertas); 4 jefes sin perder vida, el Plástico Protector (la voltereta corta balas y
-  el parpadeo tras un golpe dura ×1,5; voltereta más lenta de recuperar). Llegar al final de verdad
-  y ganar con los cinco productos quedan para dos armas premio (l4b). Reglas: ningún premio es el arma de salida de nadie; ninguna sinergia
+  el parpadeo tras un golpe dura ×1,5; voltereta más lenta de recuperar). Y dos **armas premio**
+  (M14 l4b): llegar al final de verdad da el **Soldador de Estaño**, la herramienta del Servicio
+  Técnico (gotas lentas y pesadas, las que fallan se quedan pegadas 3 s donde caen y queman una vez
+  a quien las pisa; gana en aguantar una puerta, pierde en empuje) y ganar con los cinco productos,
+  el **Mando Universal** (pulsos de infrarrojo, los más rápidos, que atraviesan a uno y uno de cada
+  cinco «acierta con el canal» por el triple; gana en velocidad de bala y críticos, pierde en
+  tamaño de bala: un punto de luz hay que apuntarlo). Ya ningún logro se queda sin nada. Reglas: ningún premio es el arma de salida de nadie; ninguna sinergia
   necesita dos premios; a la planta 1 le queda al menos un objeto y un arma «buenos» (la Caja
   Fuerte Premium); lo que cuentan los logros («30 objetos», «6 armas») se puede conseguir sin ningún
   premio. Ganado en mitad de la partida, el premio ya entra en la planta siguiente; el aviso

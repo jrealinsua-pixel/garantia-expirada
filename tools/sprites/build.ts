@@ -28,6 +28,7 @@ import * as FN from './final.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import { makeMeritSeal } from './meritos.ts';
 import { makeLabelShot, makeMiniLabeller, makeStuckLabels } from './etiquetadora.ts';
+import { makeInfraredPulse, makeMiniRemote, makeMiniSolderingIron, makeTinDrop, makeTinPuddle } from './premios.ts';
 import * as H from './mostrador.ts';
 import * as BV from './batidora-vaso.ts';
 import * as MV from './movil.ts';
@@ -205,6 +206,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'arma-etiquetadora': one(makeMiniLabeller()),
     'bala-etiqueta': one(makeLabelShot()),
     'etiqueta-pegada': { canvas: makeStuckLabels(), frameW: 7, frameH: 6 },
+    // M14 (l4b): the prize weapons.
+    'arma-soldador': one(makeMiniSolderingIron()),
+    'bala-estano': one(makeTinDrop()),
+    'charco-estano': { canvas: makeTinPuddle(), frameW: 12, frameH: 10 },
+    'arma-mando': one(makeMiniRemote()),
+    'bala-infrarrojo': one(makeInfraredPulse()),
     mano: one(P.makeHand()),
     caja: one(P.makeCaja()),
     barril: one(P.makeBarril()),

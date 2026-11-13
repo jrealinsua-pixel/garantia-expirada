@@ -2056,6 +2056,34 @@ try {
   await page.waitForTimeout(60);
   await shot('19h-rebajado.png');
   if (await slotOf0() !== 'etiquetadora') throw new Error('No se ha cogido la Etiquetadora');
+  // M14 (l4b): the prize weapons, on the last two pedestals. The Soldador de Estaño against the
+  // wall: the drops that miss stay stuck there, glowing; then the Mando Universal's pinpoints.
+  await goTo('soldador', -40);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 6', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 110; w.player.y = 230; })()`);
+  await page.waitForTimeout(700);
+  await page.evaluate(`window.__GE__.scene.controls.override = { aimX: 0, aimY: 215, fire: true }`);
+  await page.waitForFunction("window.__GE__.scene.world.bullets.filter((b) => b.owner === 'player' && b.stuck).length >= 3", undefined, { timeout: 5000 })
+    .catch(() => { throw new Error('Las gotas del Soldador no se quedan pegadas'); });
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  await page.waitForTimeout(80);
+  await shot('19i-soldador.png');
+  if (await slotOf0() !== 'soldador') throw new Error('No se ha cogido el Soldador');
+  await goTo('mando', -40);
+  await page.keyboard.down('d');
+  await page.waitForFunction('window.__GE__.scene.world.player.arsenal.length === 7', undefined, { timeout: 4000 });
+  await page.keyboard.up('d');
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.player.x = 360; w.player.y = 276;
+    w.enemies.filter((x) => x.state !== 'gone' && x.def.id !== 'bombilla').slice(0, 2).forEach((e, i) => {
+      e.def = { ...e.def, hp: 999 }; e.x = 440 + 22 * i; e.y = 276; e.vx = 0; e.vy = 0; e.state = 'idle'; e.until = 999; e.t = 0; }); })()`);
+  await page.waitForTimeout(700);
+  await page.evaluate(`window.__GE__.scene.controls.override = { aimX: 560, aimY: 264, fire: true }`);
+  await page.waitForTimeout(260);
+  await page.evaluate('window.__GE__.scene.controls.override = null');
+  await shot('19j-mando.png');
+  if (await slotOf0() !== 'mando') throw new Error('No se ha cogido el Mando Universal');
   const slotOf = (): Promise<string> => page.evaluate<string>('window.__GE__.scene.world.player.weapon.base.id');
   const before = await slotOf();
   await page.keyboard.press('e');

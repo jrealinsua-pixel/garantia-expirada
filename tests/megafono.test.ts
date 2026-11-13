@@ -39,7 +39,8 @@ test('el Megáfono es de la planta 5: no sale en las de abajo y sí en Atención
   for (let level = 1; level <= 4; level++) assert.ok(!weaponsUpTo(level).includes('megafono'), `planta ${level}`);
   assert.ok(weaponsUpTo(5).includes('megafono'));
   // The floors below hand out what they always did, in the same order.
-  assert.deepEqual(weaponsUpTo(1), ['grapadora', 'plancha']);
+  // (M14 (l4b): plus the two prize weapons, which once earned turn up from floor 1.)
+  assert.deepEqual(weaponsUpTo(1), ['grapadora', 'plancha', 'soldador', 'mando']);
   const w = createWorld({ seed: 'megafono-planta', floor: true, level: 5 });
   assert.ok(w.floor!.weapons.includes('megafono'));
   assert.ok(!createWorld({ seed: 'megafono-planta', floor: true, level: 4 }).floor!.weapons.includes('megafono'));

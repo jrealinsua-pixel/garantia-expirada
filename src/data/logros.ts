@@ -90,8 +90,10 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
     reward: { kind: 'objeto', id: 'oferta-tres-dos' } },
   { id: 'como-nuevo', name: 'Estado: como nuevo', text: 'Vence sin perder vida a 4 jefes distintos.', quip: 'Precintado. Nunca abierto.', stat: 'flawless', n: 4,
     reward: { kind: 'objeto', id: 'plastico-protector' } },
-  { id: 'fin-garantia', name: 'Fin de la garantía', text: 'Llega al final de verdad.', quip: 'Lo que pasa en el taller, se queda en el taller.', stat: 'endings', n: 1 },
-  { id: 'toda-la-gama', name: 'Toda la gama', text: 'Gana con los 5 productos.', quip: 'Catálogo completo. Garantía, ninguna.', stat: 'winners', n: 5 },
+  { id: 'fin-garantia', name: 'Fin de la garantía', text: 'Llega al final de verdad.', quip: 'Lo que pasa en el taller, se queda en el taller.', stat: 'endings', n: 1,
+    reward: { kind: 'arma', id: 'soldador' } },
+  { id: 'toda-la-gama', name: 'Toda la gama', text: 'Gana con los 5 productos.', quip: 'Catálogo completo. Garantía, ninguna.', stat: 'winners', n: 5,
+    reward: { kind: 'arma', id: 'mando' } },
 ];
 
 export const ACHIEVEMENT_IDS: readonly string[] = ACHIEVEMENTS.map((a) => a.id);

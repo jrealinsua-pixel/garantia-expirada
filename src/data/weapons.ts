@@ -187,10 +187,58 @@ export const WEAPONS: Record<string, WeaponDef> = {
     bullets: { homing: { turnDeg: 260, time: 2.2, range: 150 } },
     look: { sprite: 'arma-notificaciones', bullet: 'bala-notificacion', sound: 'notificacion', shake: 0.001 },
   },
+  /**
+   * M14 (l4b): only the reward of «Fin de la garantía» (the true ending): the Servicio Técnico's
+   * own tool. Slow drops of molten tin; the ones that miss stay stuck where they land, a few
+   * seconds, and burn whatever walks into them. Wins at holding a doorway; loses on bullet speed
+   * (slow drops) and reach.
+   */
+  soldador: {
+    id: 'soldador',
+    name: 'Soldador de Estaño',
+    description: 'La herramienta del técnico. Las gotas que fallan se quedan donde caen, como las piezas que sobran.',
+    fireRate: 2.7,
+    magazine: 10,
+    reloadTime: 1.4,
+    spreadDeg: 5,
+    bulletSpeed: 230,
+    bulletLife: 0.95,
+    damage: 1.7,
+    bulletRadius: 2,
+    recoil: 8,
+    knockback: 4,
+    pellets: 1,
+    bullets: { stick: { time: 3 } },
+    look: { sprite: 'arma-soldador', bullet: 'bala-estano', sound: 'soldador', shake: 0.0015 },
+  },
+  /**
+   * M14 (l4b): only the reward of «Toda la gama» (winning with all five products). Fast infrared
+   * pulses that go through one enemy, and one in five hits «the right channel» for three times
+   * the damage. Wins on bullet speed (the fastest) and critical hits (the only one); loses on
+   * push (light does not shove).
+   */
+  mando: {
+    id: 'mando',
+    name: 'Mando Universal',
+    description: 'Controla todos los aparatos de la casa. A veces, incluso el que apuntabas.',
+    fireRate: 5,
+    magazine: 20,
+    reloadTime: 1.2,
+    spreadDeg: 4,
+    bulletSpeed: 500,
+    bulletLife: 0.55,
+    damage: 0.9,
+    bulletRadius: 1.5,
+    recoil: 6,
+    knockback: 6,
+    pellets: 1,
+    bullets: { pierce: 1, crit: { chance: 0.2, mul: 3 } },
+    look: { sprite: 'arma-mando', bullet: 'bala-infrarrojo', turn: true, sound: 'mando', shake: 0.001 },
+  },
 };
 
 /** Weapons the toaster can find, in the order a floor hands them out (seeded shuffle). */
-export const FINDABLE_WEAPONS: readonly string[] = ['grapadora', 'plancha', 'megafono', 'etiquetadora'];
+export const FINDABLE_WEAPONS: readonly string[] = ['grapadora', 'plancha', 'megafono', 'etiquetadora', 'soldador', 'mando'];
 
 /**
  * The findable weapons floor `level` can hand out: its own and the lower floors' (like itemsUpTo).

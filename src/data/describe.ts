@@ -157,7 +157,14 @@ export function weaponLines(w: WeaponDef): EffectLine[] {
     { text: `Daño ${round1(w.damage)}${shots} · ${round1(w.fireRate)} disparos/s`, good: true },
     { text: `Cargador ${w.magazine} · recarga ${round1(w.reloadTime)} s · alcance ${range}`, good: true },
     // What its own bullets do (the megaphone): pierce from 20 up reads as «everyone».
-    ...(w.bullets?.pierce ? [{ text: w.bullets.pierce >= 20 ? 'Atraviesa a todos y los empuja' : `Atraviesa ${w.bullets.pierce} enemigos`, good: true }] : []),
+    // M14 (l4b): the remote's pierce and criticals share a line; the soldering iron's drops that stay.
+    ...(w.bullets?.pierce || w.bullets?.crit
+      ? [{ text: [
+          w.bullets.pierce ? (w.bullets.pierce >= 20 ? 'Atraviesa a todos y los empuja' : `Atraviesa ${w.bullets.pierce} ${w.bullets.pierce === 1 ? 'enemigo' : 'enemigos'}`) : '',
+          w.bullets.crit ? `${Math.round(w.bullets.crit.chance * 100)} % con daño ×${String(w.bullets.crit.mul).replace('.', ',')}` : '',
+        ].filter(Boolean).join(' · '), good: true }]
+      : []),
+    ...(w.bullets?.stick ? [{ text: `Las que fallan se quedan pegadas ${String(w.bullets.stick.time).replace('.', ',')} s`, good: true }] : []),
     // The labeller: bursts, and the label that goes off.
     ...(w.burst ? [{ text: `En ráfagas de ${w.burst.shots}${w.bullets?.tag ? ` · la ${ORDINALS[w.bullets.tag.need] ?? String(w.bullets.tag.need)} estalla` : ''}`, good: true }] : []),
   ];
