@@ -338,8 +338,8 @@ interface HubViews {
   t: number;
 }
 
-/** Where the Trituradora's scanner window is in its «diagnostico» frame, from its feet (tools/sprites/trituradora.ts SCANNER_TIP). */
-const SCANNER_TIP = { x: 47, y: 48 } as const;
+/** Where the Trituradora's scanner window is in its «diagnostico» frame, from its feet (tools/sprites/trituradora-nuevo.ts SCANNER_TIP). */
+const SCANNER_TIP = { x: 53, y: 49 } as const;
 
 /** Share of her cord's warning (BossBrain.cord) it takes to fly out and go into the wall. */
 const CORD_PLUG_AT = 0.6;

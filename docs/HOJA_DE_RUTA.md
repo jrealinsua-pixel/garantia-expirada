@@ -956,7 +956,7 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       visera sobre un cuerpo más oscuro, la rotativa que se enciende al avisar, el contrapeso con la
       franja de peligro, la pegatina «APTO», las horquillas al tobillo que suben antes de embestir y
       se doblan al estrellarse, la tarjeta de «Fuera de servicio» y ruedas con bujes que giran.
-- [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
+- [x] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece). Terminada el 2026-11-14 con la (a7h) y la (a7i).
   Partida el 2026-11-14 en un jefe por tarea (son grandes y cada uno tiene sus fases):
   - [x] (a7a) La Nevera Suprema (planta 1). Decide el tamaño de los jefes y el despiece propio.
     Hecho el 2026-11-14 en `tools/sprites/nevera-nuevo.ts`: 84 × 88 (antes 72 × 76), material
@@ -996,7 +996,12 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     música de espera y de barrido, el cambio a la fase 2 y el de la fase 3 con su propio `clap` en
     `BossPhase.look`), `despiece-centralita`, la placa «1962» sin voltear (`placa-centralita`,
     `anim.badge` con `frameDx`); ancla (38, 86); `tests/estilo-a7h.test.ts`.
-  - [ ] (a7i) La Trituradora del Servicio Técnico.
+  - [x] (a7i) La Trituradora del Servicio Técnico. Hecho el 2026-11-14 en
+    `tools/sprites/trituradora-nuevo.ts`: 108 × 96 (antes 96 × 88; el jefe final sigue siendo el más
+    grande), material nuevo `maquinaria`, 26 fotogramas (antes 9: el cambio de fase, sus posturas
+    en rojo para el despiece y en verde con pegatinas para el control de calidad con `BossPhase.look`,
+    y una pose por ataque), la baliza que se enciende con el despiece, `despiece-trituradora`; ancla
+    (53, 93); la placa nueva; `tests/estilo-a7i.test.ts`.
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
   sombras de pared y luz.
 - [ ] (a9) Props y decoración de cada planta (con M14b (h11)).

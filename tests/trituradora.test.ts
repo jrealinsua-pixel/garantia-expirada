@@ -13,7 +13,7 @@ import { DOWN_CAUSES } from '../src/data/texts.ts';
 import { Bot } from '../src/sim/bot.ts';
 import { textWidth } from '../src/art/font.ts';
 import { checkInvariants, createWorld, DT, isLastFloor, NO_INPUT, SERVICE_LEVEL, step, type Enemy, type SimEvent, type World } from '../src/sim/world.ts';
-import { makeTrituradoraFrames, TRITURADORA_FRAMES, TRITURADORA_H, TRITURADORA_W } from '../tools/sprites/trituradora.ts';
+import { makeTrituradoraNuevaFrames as makeTrituradoraFrames, TRITURADORA_FRAMES, TRITURADORA_H, TRITURADORA_W } from '../tools/sprites/trituradora-nuevo.ts';
 
 const def = ENEMIES.trituradora!;
 const brain = def.brain as BossBrain;

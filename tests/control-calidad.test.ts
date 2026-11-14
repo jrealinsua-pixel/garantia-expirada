@@ -11,7 +11,7 @@ import { textWidth } from '../src/art/font.ts';
 import { nextChunk } from '../src/sim/crates.ts';
 import { BACK_WALL_ROWS, TILE } from '../src/sim/room.ts';
 import { checkInvariants, createWorld, DT, frostSlow, NO_INPUT, SERVICE_LEVEL, step, worldHash, type Enemy, type World } from '../src/sim/world.ts';
-import { PLATE, TRITURADORA_FRAMES, trituradoraLook } from '../tools/sprites/trituradora.ts';
+import { PLATE, TRITURADORA_FRAMES, trituradoraLook } from '../tools/sprites/trituradora-nuevo.ts';
 
 const def = ENEMIES.trituradora!;
 const brain = def.brain as BossBrain;

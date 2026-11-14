@@ -92,6 +92,12 @@ export const MATERIALS = {
    */
   mostaza: r('#fbe9a8', '#e8c45e', '#c99c38', '#9c702b', '#6f4b2b', '#48302d', '#361a30'),
   /**
+   * M14c (a7i): the hammered industrial green of the Trituradora (every machine that outlived its
+   * warranty): pale sage lights, shadows to teal and slate blue. Lighter than the workshop's olive
+   * floor and greyer than `menta`, the hand mixer's kitchen green.
+   */
+  maquinaria: r('#eef5d8', '#bfd6a6', '#93b487', '#6b8f71', '#4c6a5d', '#35494f', '#24303f'),
+  /**
    * M14c (a7a): the Nevera Suprema's cold white enamel: a warm white only where the light hits,
    * then frosty blue-greys down to slate violet (colder than `crema`, the microwave's yellowed one).
    */

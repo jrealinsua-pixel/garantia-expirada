@@ -1208,18 +1208,28 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // (phase 2 at 60 %, M12 (4b); phase 3 at 35 %, M12 (4c) and (6)).
     hp: 195,
     sprite: 'trituradora',
-    anchor: { x: 47, y: 85 },
+    anchor: { x: 53, y: 93 },
     hurt: { x: -35, y: -80, w: 72, h: 76 },
     footRadius: 24,
     contactPush: 280,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [0, 0] },
-    // tools/sprites/trituradora.ts TRITURADORA_FRAMES: 0-1 resting, 2-5 rolling on its tracks, 6
-    // diagnosing (the scanner raised, the lamps amber), 7 taking apart (lamps red), 8 quality
-    // control (the label gun up, the lamps green).
-    // Her «EN SERVICIO» plate (TR.PLATE) goes on again unflipped, so it reads when she faces left.
-    anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, badge: { sprite: 'placa-servicio', x: 30, y: 34, w: 47, upTo: 9, frameDy: { 1: 1, 3: 1, 5: 1, 7: 1 } } },
+    // tools/sprites/trituradora-nuevo.ts (M14c (a7i), TRITURADORA_LAYOUT): 0-1 resting, 2-5 rolling on
+    // its tracks, 6 diagnosing (the scanner raised, the lamps amber), 7 between phases (lamps
+    // flashing, gloves up); 8-14 the same with red lamps and the beacon on («Despiece»), 15-17 its
+    // poses taking things apart (screws, springs, keys); 18-24 with the lamps ticked and «APTO»
+    // stickers all over it («Control de calidad»), 25 the label gun up.
+    // Her «EN SERVICIO» plate (PLATE) goes on again unflipped, so it reads when she faces left.
+    anim: {
+      idle: [0, 1],
+      idleMs: 600,
+      walk: [2, 3, 4, 5],
+      stepPx: 6,
+      warn: 6,
+      clap: 7,
+      badge: { sprite: 'placa-servicio', x: 36, y: 38, w: 49, upTo: 26, frameDy: { 1: 1, 3: 1, 5: 1, 9: 1, 11: 1, 13: 1, 19: 1, 21: 1, 23: 1 } },
+    },
     brain: {
       kind: 'boss',
       // On tracks: slow, steady legs, now and then a lurch forward.
@@ -1260,10 +1270,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
           rest: [0.5, 0.8],
           line: 'Procedemos al despiece. No se mueva.',
           belt: { speed: 44, bite: 16, move: 3 },
+          look: { idle: [8, 9], walk: [10, 11, 12, 13], warn: 14 },
           attacks: [
-            { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1.2, pose: 7 },
-            { kind: 'pattern', pattern: 'despiece-muelles', telegraph: 0.8, weight: 1, pose: 7 },
-            { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 1, pose: 7 },
+            { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1.2, pose: 15 },
+            { kind: 'pattern', pattern: 'despiece-muelles', telegraph: 0.8, weight: 1, pose: 16 },
+            { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 1, pose: 17 },
           ],
         },
         {
@@ -1280,11 +1291,12 @@ export const ENEMIES: Record<string, EnemyDef> = {
           rest: [0.4, 0.7],
           line: 'Control de calidad. Todo APTO, sin mirar.',
           crates: { prop: 'pila-cajas', first: 2.5, every: 3.2, warn: 1.2, hurt: 1, cols: 8 },
+          look: { idle: [18, 19], walk: [20, 21, 22, 23], warn: 24 },
           attacks: [
-            { kind: 'frost', count: 4, spread: 64, flight: 0.8, radius: 18, life: 6, slow: 0.55, sticker: 'etiqueta-apto', telegraph: 0.7, weight: 0.8, pose: 8 },
-            { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1, pose: 7 },
-            { kind: 'pattern', pattern: 'despiece-muelles', telegraph: 0.8, weight: 1, pose: 7 },
-            { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 0.8, pose: 7 },
+            { kind: 'frost', count: 4, spread: 64, flight: 0.8, radius: 18, life: 6, slow: 0.55, sticker: 'etiqueta-apto', telegraph: 0.7, weight: 0.8, pose: 25 },
+            { kind: 'pattern', pattern: 'despiece-tornillos', telegraph: 0.7, weight: 1, pose: 15 },
+            { kind: 'pattern', pattern: 'despiece-muelles', telegraph: 0.8, weight: 1, pose: 16 },
+            { kind: 'pattern', pattern: 'despiece-teclas', telegraph: 0.9, weight: 0.8, pose: 17 },
           ],
         },
       ],

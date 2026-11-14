@@ -18,6 +18,7 @@ import * as DN from './director-nuevo.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
 import * as TR from './trituradora.ts';
+import * as TRN from './trituradora-nuevo.ts';
 import * as FN from './final.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';
 import { makeMeritSeal } from './meritos.ts';
@@ -197,8 +198,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'despiece-centralita': { canvas: strip(CTN.makeCentralitaBits()), frameW: CTN.CENTRALITA_BIT, frameH: CTN.CENTRALITA_BIT },
     'placa-centralita': { canvas: CTN.makeCentralitaPlate(), frameW: CTN.CENTRALITA_PLATE.w, frameH: CTN.CENTRALITA_PLATE.h },
     'bala-clavija': one(CT.makePlugBullet()),
-    // The final boss (M12 (4a)): trituradora.ts TRITURADORA_FRAMES names each frame.
-    trituradora: { canvas: strip(TR.makeTrituradoraFrames()), frameW: TR.TRITURADORA_W, frameH: TR.TRITURADORA_H },
+    // The final boss (M12 (4a)) in the new style (M14c (a7i)): trituradora-nuevo.ts TRITURADORA_FRAMES names each frame.
+    trituradora: { canvas: strip(TRN.makeTrituradoraNuevaFrames()), frameW: TRN.TRITURADORA_W, frameH: TRN.TRITURADORA_H },
+    'despiece-trituradora': { canvas: strip(TRN.makeTrituradoraBits()), frameW: TRN.TRITURADORA_BIT, frameH: TRN.TRITURADORA_BIT },
     // Its phase 2, «Despiece» (M12 (4b)): the parts it spits out (two frames each), the belt over the
     // floor and the intake rollers at its end.
     'bala-tornillo': { canvas: TR.makeScrewBullet(), frameW: 10, frameH: 10 },
@@ -209,7 +211,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // «Control de calidad» (M12 (4c)): the «APTO» label on the floor and the stacks of crates.
     'etiqueta-apto': one(TR.makeAptoLabel()),
     // Her «EN SERVICIO» plate, drawn unflipped over the body so it reads both ways (EnemyAnim.badge).
-    'placa-servicio': one(TR.makeServicePlate()),
+    'placa-servicio': one(TRN.makeServicePlate()),
     'etiqueta-apto-vuelo': { canvas: TR.makeAptoLabelFlying(), frameW: 14, frameH: 9 },
     'pila-cajas': one(TR.makeCrateStack()),
     // Phase 3's cords swept round: a coil of curly cord, two frames a quarter-turn apart (M11 5c).

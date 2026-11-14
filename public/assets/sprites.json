@@ -493,9 +493,15 @@
   },
   "trituradora": {
     "file": "trituradora.png",
-    "frameW": 96,
-    "frameH": 88,
-    "frames": 9
+    "frameW": 108,
+    "frameH": 96,
+    "frames": 26
+  },
+  "despiece-trituradora": {
+    "file": "despiece-trituradora.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "bala-tornillo": {
     "file": "bala-tornillo.png",
@@ -535,8 +541,8 @@
   },
   "placa-servicio": {
     "file": "placa-servicio.png",
-    "frameW": 47,
-    "frameH": 8,
+    "frameW": 49,
+    "frameH": 9,
     "frames": 1
   },
   "etiqueta-apto-vuelo": {

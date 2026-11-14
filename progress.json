@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T21:45:00+01:00",
+  "actualizado": "2026-11-14T22:03:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -126,7 +126,7 @@
       "id": "M14c",
       "nombre": "Arte nuevo (nota del humano del 13 de noviembre)",
       "estado": "pendiente",
-      "hechas": 6,
+      "hechas": 7,
       "total": 13
     },
     {
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1197,
-    "tests_ok": 1197,
+    "tests": 1203,
+    "tests_ok": 1203,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38284
+    "lineas_codigo": 38302
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T22:03:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7i): la Trituradora, el jefe final, con el estilo nuevo. 108 × 96 (sigue siendo el jefe más grande), material nuevo «maquinaria», tolva de acero galvanizado con la tostada quemada en las cuchillas, baliza naranja que se enciende con el despiece, pilotos con párpados que cambian de color con la fase (verde, ámbar con la cruz, rojo, verde con un visto, blanco al cambiar), la seta de emergencia tapada con cinta, la tarjeta de revisión y guantes de nitrilo con escáner, destornillador, muelle, medio teclado y etiquetadora. 26 fotogramas (antes 9): cambio de fase, posturas propias de cada fase con BossPhase.look y una pose por ataque; despiece propio; placa «EN SERVICIO» nueva; tests/estilo-a7i.test.ts."
+    },
     {
       "fecha": "2026-11-14T21:45:00+01:00",
       "hito": "M14c",
@@ -1585,6 +1590,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/trituradora-redibujada.png",
+      "pie": "M14c (a7i): la Trituradora, antes (fila de arriba y las dos de abajo del todo) y ahora: reposo, avanzando sobre las orugas y el escáner; el cambio de fase con los pilotos en blanco; el despiece en rojo con la baliza encendida, el destornillador, el muelle y medio teclado; el control de calidad con los pilotos marcados y pegatinas «APTO» por todo el cuerpo, y la etiquetadora; debajo, su despiece, a 2×"
+    },
+    {
+      "archivo": "capturas/trituradora-en-juego.png",
+      "pie": "M14c (a7i): la Trituradora nueva en el despiece, con la cinta del suelo llevando a la tostadora hacia ella entre tornillos"
+    },
+    {
       "archivo": "capturas/centralita-redibujada.png",
       "pie": "M14c (a7h): la Centralita, antes (la primera) y ahora: en reposo, arrastrándose con los cables, hablando, lanzando una clavija, la música de espera y «le paso con el departamento» con el timbre; sin clavijas, arrastrándose, muda, arrancándose las clavijas, los cables en barrido y la música de espera rota; debajo, su despiece, a 3×"
     },
@@ -1599,17 +1612,9 @@
     {
       "archivo": "capturas/director-en-juego.png",
       "pie": "M14c (a7g): el Director nuevo, de pie, girando la línea de recortes en la Sala de Juntas mientras su silla rueda sola"
-    },
-    {
-      "archivo": "capturas/consola-redibujada.png",
-      "pie": "M14c (a7f): la Consola Edición Coleccionista, antes (las dos primeras) y ahora: respirando, andando, la bandeja fuera, actualizando (1/37), escupiendo un cartucho, machacando un combo y una caja de botín en alto; con el pase de temporada, las mismas, su llegada y la pegatina «HD» de la remasterizada; debajo, su despiece, a 3×"
-    },
-    {
-      "archivo": "capturas/consola-en-juego.png",
-      "pie": "M14c (a7f): la consola nueva con el pase de temporada en la Juguetería, en plena «Temporada competitiva», con sus cartuchos y una caja de botín"
     }
   ],
-  "proximo": "M14c (a7i), la Trituradora del Servicio Técnico (cogida por otra sesión); después (a8), suelos, paredes y puertas de cada planta.",
+  "proximo": "M14c (a8), suelos, paredes y puertas de cada planta: los jefes (a7) ya están todos redibujados.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1637,11 +1642,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-14 21:25 (hora peninsular)",
-      "tarea": "M14c (a7i): la Trituradora del Servicio Técnico con el estilo nuevo (tools/sprites/trituradora-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la trituradora, tests/estilo-a7i.test.ts nuevo). No toca otros jefes",
-      "desde": "2026-11-14T21:25:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

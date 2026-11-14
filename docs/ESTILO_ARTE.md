@@ -310,6 +310,31 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   en barrido** a los dos lados y la **música de espera rota** (notas rojas torcidas). Muda: los
   pilotos en blanco y el altavoz a oscuras. Despiece: una clavija, un trozo del cuadro, un piloto,
   el disco, el casco y el pósit.
+- **La Trituradora** (M14c (a7i), `tools/sprites/trituradora-nuevo.ts`; la vieja se queda en
+  `trituradora.ts`, que dibuja aún sus balas, la cinta, los rodillos, las etiquetas y las cajas): el
+  jefe final es **más grande que los demás**, como ya lo era (96 × 88 cuando ellos eran 72 × 76):
+  **108 × 96** frente a sus 84 × 88, ancla (53, 93); la caja de golpes no cambia y el cuerpo la llena
+  en más de un 80 %. Material nuevo **`maquinaria`**, el verde martelé de toda máquina que ha
+  sobrevivido a su garantía (luces salvia, sombras al verde azulado y al pizarra; más claro que el
+  suelo oliva del taller y más gris que la `menta`). Cabina en tres cuartos sobre orugas (la de
+  detrás asoma), la **tolva de acero galvanizado** por boca con los dos rodillos de cuchillas, la
+  **tostada quemada** y la palanca de una tostadora todavía enganchadas, el triángulo amarillo de
+  «no introducir las manos», un bollo y la soldadura; la **baliza naranja** en su poste, apagada en
+  el diagnóstico y encendida (con su haz) desde el despiece. La placa «EN SERVICIO» con bisel y
+  tornillos (la que el juego vuelve a pintar sin voltear es la misma), la visera de acero y **dos
+  pilotos** con párpados de máquina que bajan hacia dentro: verdes en reposo (uno parpadea),
+  **ámbar con la cruz** al diagnosticar, **rojos y más cerrados** en el despiece, **verdes con un
+  visto blanco** en el control de calidad, **blancos y abiertos** al cambiar de fase. La ranura de
+  salida es la sonrisa (su `muzzle`), con un peine de dientes y tiras de papel colgando; en las poses
+  escupe tornillos, muelles o teclas. En el lateral, rejillas, la **seta de emergencia tapada con
+  cinta** y la pegatina redonda «APTO»; delante, la tarjeta de revisión colgando; en el zócalo, la
+  franja de peligro. Guantes de nitrilo azul con sus herramientas: el escáner, un destornillador del
+  tamaño de una tostadora, un muelle estirado, medio teclado y la etiquetadora. **26 fotogramas**
+  (antes 9): reposo, avanzar y el escáner; el cambio de fase (`anim.clap`); las mismas cuatro
+  posturas en rojo para el despiece y en verde con pegatinas «APTO» por todo el cuerpo para el
+  control de calidad (`BossPhase.look`), y una pose por ataque. Despiece propio
+  (`despiece-trituradora`: una cuchilla, la tostada, un piloto, la franja de peligro, el escáner y
+  la seta con su cinta).
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

@@ -2,6 +2,52 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 22:03 (hora peninsular) — Hito M14c — (a7i) La Trituradora con el estilo nuevo
+- Contexto: al llegar (21:25), otra sesión tenía cogida la (a7h) (la Centralita) desde las 20:26,
+  menos de 90 minutos; elegí la (a7i), que solo comparte con ella las líneas de cada jefe en
+  `build.ts` y `enemies.ts`, un sitio de la lista de `paleta.ts` (puse mi material junto a
+  `mostaza`) y el final de la sección de jefes de `docs/ESTILO_ARTE.md`. La rama `main` local estaba
+  vieja (clon superficial): la puse en `origin/main` antes de empezar. Salud al llegar: `check`,
+  `test` (1190), `build` y `bot`, en verde.
+- Hecho: M14c (a7i), en `tools/sprites/trituradora-nuevo.ts` (la vieja sigue en `trituradora.ts`,
+  que dibuja aún sus balas, la cinta, los rodillos, las etiquetas «APTO» y las pilas de cajas).
+  **108 × 96** (antes 96 × 88), ancla (53, 93), material nuevo **`maquinaria`**. La tolva de acero
+  galvanizado con los rodillos de cuchillas, la tostada quemada y la palanca de una tostadora
+  enganchadas, el triángulo de «no introducir las manos»; la **baliza naranja**, apagada en el
+  diagnóstico y encendida con su haz desde el despiece; la placa «EN SERVICIO» con bisel (también
+  la hoja `placa-servicio` que el juego pinta sin voltear); dos pilotos con párpados que cambian
+  con la fase; la ranura con peine de dientes y tiras de papel; la seta de emergencia **tapada con
+  cinta**, la tarjeta de revisión, la pegatina «APTO»; guantes de nitrilo con escáner,
+  destornillador, muelle, medio teclado y etiquetadora. **26 fotogramas** (antes 9): reposo,
+  avanzar, el escáner, el **cambio de fase** (`anim.clap`), las cuatro posturas en rojo para el
+  despiece y en verde con pegatinas para el control de calidad (`BossPhase.look`, como la
+  Centralita) y una pose por ataque (tornillos, muelles, teclas, etiquetadora). Despiece propio
+  (`despiece-trituradora`, seis piezas). `SCANNER_TIP` de `GameScene` movido a la ventana nueva
+  del escáner (53, 49). `tests/estilo-a7i.test.ts` (6 tests); `trituradora`, `despiece` y
+  `control-calidad` leen ya el sprite nuevo (el despiece pide una pose por pieza).
+- Decisiones: (1) **El jefe final más grande que la regla de los jefes** (84 × 88): ya lo era antes
+  (96 × 88 contra 72 × 76) y es «del tamaño de una pared»; 96 de alto es un 36 % de la vista, el
+  máximo razonable. El cuerpo sigue siendo su caja de golpes (la llena en más de un 80 %; la tolva
+  se estrecha y deja aire en las esquinas). (2) Las fases con `look` y no con `frameShift`: con
+  `frameShift` el juego no enseña `clap` y el cambio de fase se quedaría sin fotograma. (3) En la
+  fase 3 los ataques de piezas usan las mismas poses (pilotos rojos) que en la 2: rojo es
+  «desmontando», y así no hacen falta tres fotogramas más. (4) `maquinaria` y no la `menta` de la
+  batidora: más gris y más oscura, para que no parezca un electrodoméstico de cocina, y con el frente
+  a más de 3:1 del suelo oliva del taller. (5) Los guantes, `azul` (nitrilo), y la etiquetadora roja
+  para que no se confunda con ellos.
+- Medidas: la simulación no cambia (el ancla solo coloca el dibujo). `npm run bot` 200 partidas, 0
+  fallos, 5 atascos, como antes; la Trituradora, ganada el 46,7 % en 103,5 s. 1196 tests en verde;
+  `npm run e2e` entero en verde (capturas 53* miradas: el haz sale del escáner, la placa se lee
+  mirando a los dos lados y los pilotos rojos se ven en el despiece).
+- Problemas conocidos: los vistos blancos de los pilotos del control de calidad apenas se leen a
+  tamaño real (se lee el verde más claro). Con la placa dibujada encima, el cuerpo que mira a la
+  izquierda tapa la placa espejada sin problema porque son del mismo tamaño.
+- Al publicar: la (a7h) de la otra sesión había llegado antes; el `rebase` chocó solo en los
+  documentos y en `progress.json` (mezclados a mano, las dos entradas) y en el código mezcló solo.
+  Con las dos juntas: 1203 tests en verde, `check`, `build` y `bot` (0 fallos) en verde. Con la
+  Centralita y la Trituradora, **la (a7) queda terminada** (M14c, 7 de 13).
+- Siguiente paso: la (a8), suelos, paredes y puertas de cada planta.
+
 ## 2026-11-14 21:37 (hora peninsular) — Hito M14c — (a7h) La Centralita con el estilo nuevo
 - Contexto: al llegar, la (a7g) (el Director) estaba cogida desde hacía una hora; elegí la (a7h),
   que solo comparte con ella las líneas de cada jefe en `build.ts` y `enemies.ts`. La rama `main`

@@ -10,7 +10,7 @@ import { textWidth } from '../src/art/font.ts';
 import { BITE_COOLDOWN, conveyorPush, inBite } from '../src/sim/conveyors.ts';
 import { TILE } from '../src/sim/room.ts';
 import { checkInvariants, createWorld, DT, NO_INPUT, SERVICE_LEVEL, step, type Enemy, type World } from '../src/sim/world.ts';
-import { makeTrituradoraFrames, TRITURADORA_FRAMES } from '../tools/sprites/trituradora.ts';
+import { makeTrituradoraNuevaFrames as makeTrituradoraFrames, TRITURADORA_FRAMES } from '../tools/sprites/trituradora-nuevo.ts';
 
 const def = ENEMIES.trituradora!;
 const brain = def.brain as BossBrain;
@@ -43,7 +43,8 @@ test('la fase 2 es «Despiece», desde el 60 %, con su cinta y sus tres abanicos
   assert.deepEqual(colors, ['screw', 'spring', 'key']);
   // While it warns it shows the red lamps and the slot full of parts.
   const frames = makeTrituradoraFrames();
-  for (const a of phase.attacks) assert.equal(TRITURADORA_FRAMES[(a as BossPatternAttack).pose!], 'despiece');
+  // M14c (a7i): a pose for each part (the screwdriver, a spring pulled out, half a keyboard).
+  assert.deepEqual(phase.attacks.map((a) => TRITURADORA_FRAMES[(a as BossPatternAttack).pose!]), ['tornillos', 'muelles', 'teclas']);
   assert.equal(frames.length, TRITURADORA_FRAMES.length);
 });
 
