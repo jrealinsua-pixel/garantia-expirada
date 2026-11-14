@@ -201,3 +201,162 @@ export function makeDestructoraNuevaFrames(): Canvas[] {
     makeDestructoraNueva(undefined, v, true),
   ]);
 }
+
+// ---------------------------------------------------------------------------------------------
+// The Fotocopiadora de Planta: the big floor copier of every office, in pale grey steel-and-plastic
+// (`acero`, so it does not read as one more beige box next to the shredder and the printer) with a
+// charcoal lid (`goma`). Face on the front under the control panel; its mouth is the output slot,
+// with the jammed sheet hanging out like a tongue. It shuffles on office shoes; the paper drawer is
+// its belly. Jokes: the «Averiada, no tocar» sign taped on since the floor opened, the display stuck
+// on E-04, the coin slot with tape over it (it copies for free, like everything in a company), and
+// the side tray full of copies nobody came to pick up. To copy, it lifts its lid and a green light
+// crosses the glass: back, middle, front.
+
+export const COPIER_W = 48;
+export const COPIER_H = 48;
+export const COPIER_FEET = { x: 24, y: 46 } as const;
+export const COPIER_LEGS2 = [18, 26] as const;
+/** Its output slot, px above its feet (muzzleY): the sheets come out of its mouth. */
+export const COPIER_MOUTH_Y = 10;
+/** Its body: the front face's left edge, top row and size, and the depth of the top and side faces. */
+const CP = { x0: 8, y0: 16, fw: 30, fh: 24, depth: 6 } as const;
+
+/** «Averiada, no tocar»: a white sheet, two strips of yellowed tape, three red scribbled lines. */
+function brokenSign(p: Paint, x: number, y: number): void {
+  p.rect(x, y, 7, 8, 'acero', 0);
+  p.rect(x, y + 7, 7, 1, 'crema', 2);
+  p.px(x + 6, y + 7, 'acero', 3);
+  p.rect(x + 1, y - 1, 2, 2, 'amarillo', 0);
+  p.rect(x + 5, y - 1, 2, 2, 'amarillo', 0);
+  p.rect(x + 1, y + 2, 5, 1, 'rojo', 3);
+  p.rect(x + 1, y + 4, 4, 1, 'rojo', 3);
+  p.rect(x + 1, y + 6, 5, 1, 'rojo', 2);
+}
+
+/** The display stuck on «E-04»: amber marks on black. */
+function display(p: Paint, x: number, y: number): void {
+  p.rect(x, y, 9, 5, 'goma', 5);
+  p.rect(x + 1, y + 1, 7, 3, 'amarillo', 4);
+  for (const [i, j] of [[1, 1], [1, 2], [1, 3], [2, 1], [2, 3], [3, 2], [5, 1], [5, 2], [6, 2], [7, 1], [7, 2], [7, 3]] as const) p.px(x + i, y + j, 'amarillo', 1);
+}
+
+/** The eyes: tired, the lids half down; wide open and the brows up while it duplicates someone. */
+function copierEyes(p: Paint, xs: readonly number[], y: number, wide: boolean): void {
+  for (const x of xs) {
+    p.rect(x, y, 4, 4, 'acero', 5);
+    p.rect(x, y + 1, 3, 3, 'acero', 0);
+    p.raw(x + 1, y + 2, INK);
+    p.raw(x + 2, y + 2, INK);
+    p.raw(x + 1, y + 3, INK);
+    if (!wide) p.rect(x, y, 4, 2, 'acero', 3);
+    for (let i = -1; i < 4; i++) p.raw(x + i, wide ? y - 3 : y - 1, INK);
+  }
+}
+
+/** The side tray of uncollected copies, sticking out to the left of the side face. */
+function sideTray(p: Paint, x: number, y: number): void {
+  for (let k = 0; k < 4; k++) p.rect(x + (k % 2), y - k, 7, 1, 'acero', k === 3 ? 0 : 1);
+  p.px(x + 2, y - 2, 'acero', 3);
+  p.px(x + 4, y - 1, 'acero', 3);
+  p.rect(x - 1, y + 1, 9, 2, 'acero', 4);
+  p.rect(x - 1, y + 1, 9, 1, 'acero', 3);
+}
+
+/**
+ * The copier. `lid` 0 shut, 1-3 up with the light at the back, middle and front of the glass;
+ * `out`: a whole fresh copy sliding out of its mouth.
+ */
+export function makeFotocopiadoraNueva(pose: Pose = { xb: COPIER_LEGS2[0], xf: COPIER_LEGS2[1], bob: 0 }, lid = 0, out = false): Canvas {
+  const p = new Paint(COPIER_W, COPIER_H);
+  const F = COPIER_FEET;
+  const { x0, y0, fw, fh, depth } = CP;
+  legs(p, pose, y0 + fh + pose.bob, F.y, 'goma');
+  const b = new Paint(COPIER_W, COPIER_H);
+  const my = F.y - COPIER_MOUTH_Y - 1;
+  glove(b, 0, 20, 'acero');
+  if (lid > 0) {
+    // The lid up, leaning back on its hinge: charcoal back, the white pad facing us.
+    b.rect(x0 + 2, 1, fw + 1, 11, 'goma', 3);
+    b.rect(x0 + 2, 1, fw + 1, 1, 'goma', 1);
+    b.rect(x0 + 4, 3, fw - 3, 7, 'acero', 0);
+    b.rect(x0 + 4, 9, fw - 3, 1, 'acero', 2);
+    b.px(x0 + 6, 4, 'crema', 2);
+  }
+  const { fx } = box34(b, x0, y0, fw, fh, depth, 'acero');
+  // The top face: the lid shut (charcoal slab with its handle), or the glass with the light.
+  for (let j = 0; j < depth; j++) {
+    const xa = x0 + j + 1;
+    const w = fw - 1;
+    if (lid === 0) b.rect(xa, y0 - depth + j, w, 1, 'goma', j === 0 ? 1 : j < 3 ? 2 : 3);
+    else {
+      b.rect(xa, y0 - depth + j, w, 1, 'vidrio', j === 0 ? 4 : 5);
+      // The bar of light, sweeping from the back (left) to the front (right).
+      const bx = xa + [0, 4, 14, 24][lid]!;
+      b.rect(bx, y0 - depth + j, 3, 1, 'verde', 1);
+      b.px(bx + 1, y0 - depth + j, 'verde', 0);
+    }
+  }
+  if (lid === 0) {
+    b.rect(fx + fw - 9, y0 - 1, 6, 1, 'goma', 4);
+    // A coffee ring left on the lid.
+    for (const [i, j] of [[0, 0], [1, -1], [2, 0], [1, 1]] as const) b.px(x0 + 12 + i, y0 - 3 + j, 'goma', 4);
+  }
+  // The control panel: a strip along the top of the front with the display and the buttons.
+  b.rect(fx + 1, y0 + 1, fw - 2, 6, 'acero', 2);
+  b.rect(fx + 1, y0 + 6, fw - 2, 1, 'acero', 4);
+  display(b, fx + fw - 11, y0 + 1);
+  for (let i = 0; i < 4; i++) b.px(fx + 3 + i * 2, y0 + 3, 'acero', i === 3 ? 5 : 4);
+  b.rect(fx + 11, y0 + 3, 2, 2, 'verde', 2);
+  b.px(fx + 11, y0 + 3, 'verde', 0);
+  b.rect(fx + 14, y0 + 3, 2, 2, 'rojo', 2);
+  // The face.
+  copierEyes(b, [fx + 13, fx + 21], y0 + 10, lid > 0);
+  // The mouth: the output slot, dark, with the lip catching the light.
+  b.rect(fx + 7, my - 1, 21, 3, 'acero', 6);
+  b.rect(fx + 7, my + 2, 21, 1, 'acero', 1);
+  if (out) {
+    // A whole fresh copy sliding out, toner lines on it.
+    b.rect(fx + 9, my, 16, 6, 'acero', 0);
+    b.rect(fx + 9, my + 5, 16, 1, 'acero', 2);
+    for (const y of [my + 1, my + 3]) b.rect(fx + 11, y, 10, 1, 'acero', 3);
+    b.raw(fx + 22, my + 2, INK);
+  } else {
+    // The jammed sheet hanging out like a tongue, crumpled at the corner.
+    b.rect(fx + 15, my, 6, 5, 'acero', 0);
+    b.rect(fx + 16, my + 5, 4, 1, 'acero', 0);
+    b.px(fx + 15, my + 4, 'acero', 2);
+    b.px(fx + 20, my + 3, 'crema', 2);
+    b.rect(fx + 17, my + 2, 2, 1, 'acero', 2);
+  }
+  // The paper drawer, its belly: a seam and a handle.
+  b.rect(fx + 1, y0 + fh - 3, fw - 2, 1, 'acero', 4);
+  b.rect(fx + 12, y0 + fh - 2, 6, 1, 'acero', 5);
+  brokenSign(b, fx + 2, y0 + 10);
+  // The coin slot on the side, taped over: it copies for free.
+  b.rect(x0 + 2, y0 + 3, 2, 5, 'acero', 6);
+  b.px(x0 + 1, y0 + 4, 'amarillo', 1);
+  b.px(x0 + 2, y0 + 5, 'amarillo', 1);
+  b.px(x0 + 3, y0 + 6, 'amarillo', 1);
+  b.px(x0 + 4, y0 + 7, 'amarillo', 1);
+  sideTray(b, 1, y0 + 13);
+  // Wear: a scuff on the side, a dent and a speck of rust by the slot.
+  b.px(x0 + 3, y0 + fh - 5, 'acero', 5);
+  b.px(fx + fw - 3, my + 3, 'oxido', 1);
+  glove(b, 43, 21, 'acero');
+  p.stamp(b, 0, pose.bob);
+  return p.outline();
+}
+
+/**
+ * Its frames (the ones its `anim` names): 0-1 humming, 2-5 shuffling, 6-8 lid up with the light at
+ * the back, middle and front of the glass, 9 a copy sliding out.
+ */
+export function makeFotocopiadoraNuevaFrames(): Canvas[] {
+  return [
+    ...poseCycle(COPIER_LEGS2[0], COPIER_LEGS2[1]).map((f) => makeFotocopiadoraNueva(f.pose)),
+    makeFotocopiadoraNueva(undefined, 1),
+    makeFotocopiadoraNueva(undefined, 2),
+    makeFotocopiadoraNueva(undefined, 3),
+    makeFotocopiadoraNueva(undefined, 0, true),
+  ];
+}

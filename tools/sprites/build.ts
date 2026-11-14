@@ -10,7 +10,6 @@ import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
 import {
-  makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -124,7 +123,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // M14c (a6c1): in the new style (planta4-nuevo.ts).
     destructora: { canvas: strip(P4.makeDestructoraNuevaFrames()), frameW: P4.SHRED_W, frameH: P4.SHRED_H },
     // 0-1 humming, 2-5 shuffling, 6-8 lid up and the green light crossing the glass, 9 a copy coming out.
-    fotocopiadora: { canvas: strip(makeFotocopiadoraFrames()), frameW: 38, frameH: 38 },
+    // M14c (a6c2): in the new style (planta4-nuevo.ts).
+    fotocopiadora: { canvas: strip(P4.makeFotocopiadoraNuevaFrames()), frameW: P4.COPIER_W, frameH: P4.COPIER_H },
     // 0-1 standing, 2 crouching, 3 in the air, 4 coming down to stamp, 5 just stamped.
     sello: { canvas: strip(makeSelloFrames()), frameW: 26, frameH: 34 },
     // 0-1 humming, 2-5 dragging itself along, 6 rime on the vent (about to blow).

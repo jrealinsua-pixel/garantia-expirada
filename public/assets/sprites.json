@@ -247,8 +247,8 @@
   },
   "fotocopiadora": {
     "file": "fotocopiadora.png",
-    "frameW": 38,
-    "frameH": 38,
+    "frameW": 48,
+    "frameH": 48,
     "frames": 10
   },
   "sello": {

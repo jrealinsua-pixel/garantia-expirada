@@ -22,6 +22,7 @@ const REDRAWN: Record<string, () => Canvas[]> = {
   'munequito-repetido': () => P3.makeMunequitoNuevoFrames(false),
   'munequito-dorado': () => P3.makeMunequitoNuevoFrames(true),
   destructora: P4.makeDestructoraNuevaFrames,
+  fotocopiadora: P4.makeFotocopiadoraNuevaFrames,
 };
 
 function bottomRow(cv: Canvas, x0 = 0, x1 = cv.w - 1): number {
@@ -299,4 +300,44 @@ test('estilo a6: la destructora, desde sus tres lados, pisa el suelo en su ancla
     return n;
   };
   assert.ok(glass(frames[14]!) > glass(frames[0]!) && glass(frames[0]!) > 40 && glass(frames[7]!) === 0, 'la papelera');
+});
+
+test('estilo a6: la fotocopiadora pisa el suelo en su ancla, saca los folios por la boca y escanea con la tapa levantada', () => {
+  const def = ENEMIES.fotocopiadora!;
+  assert.deepEqual(def.anchor, P4.COPIER_FEET);
+  assert.deepEqual(def.hurt, { x: -16, y: -29, w: 32, h: 29 }, 'la caja de golpes de siempre');
+  const frames = P4.makeFotocopiadoraNuevaFrames();
+  const a = def.anim!;
+  assert.equal(frames.length, 10);
+  for (const k of [...a.idle, a.walk![0]!, a.walk![2]!, a.warn!, ...a.scan!, a.out!]) {
+    assert.equal(bottomRow(frames[k]!, def.anchor.x - 10, def.anchor.x + 10), def.anchor.y, `fotograma ${k}: los pies no tocan el suelo`);
+  }
+  // The output slot (the steel's deepest tone) on the muzzle row.
+  assert.equal(def.brain.kind === 'copier' && def.brain.muzzleY, P4.COPIER_MOUTH_Y);
+  const row = P4.COPIER_FEET.y - P4.COPIER_MOUTH_Y - 1;
+  const count = (cv: Canvas, c: readonly number[], y0 = 0, y1 = cv.h - 1): number => {
+    let n = 0;
+    for (let y = y0; y <= y1; y++) for (let x = 0; x < cv.w; x++) if (same(cv.get(x, y), c)) n++;
+    return n;
+  };
+  assert.ok(count(frames[0]!, MATERIALS.acero[6]!, row - 1, row - 1) >= 15, `la boca no está en la fila ${row}`);
+  // Grey, not one more beige box next to the shredder and the printer.
+  const of = (cv: Canvas, m: readonly (readonly number[])[]): number => m.reduce((n, t) => n + count(cv, t), 0);
+  assert.ok(of(frames[0]!, MATERIALS.acero) > 4 * of(frames[0]!, MATERIALS.beige), 'gris y no beige');
+  // Lid shut: no glass, no light. Copying: the lid stands up over the body and the green bar
+  // crosses the glass from the back to the front.
+  const top = (cv: Canvas): number => { for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3] === 255) return y; return cv.h; };
+  const bar = (cv: Canvas): number => {
+    let s = 0;
+    let n = 0;
+    for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (same(cv.get(x, y), MATERIALS.verde[1]!) && y < 18) { s += x; n++; }
+    return n ? s / n : -1;
+  };
+  assert.equal(bar(frames[0]!), -1, 'con la tapa bajada no se ve la luz');
+  const xs = a.scan!.slice(0, 3).map((k) => bar(frames[k]!));
+  assert.ok(xs[0]! > 0 && xs[0]! < xs[1]! && xs[1]! < xs[2]!, `la luz no cruza el cristal (${xs.join(', ')})`);
+  assert.ok(top(frames[a.warn!]!) < top(frames[0]!) - 4, 'la tapa levantada');
+  // A copy coming out: more white below the slot than with the jammed sheet.
+  const white = (cv: Canvas): number => count(cv, MATERIALS.acero[0]!, row, row + 6);
+  assert.ok(white(frames[a.out!]!) > white(frames[0]!) + 20, 'la copia que sale');
 });

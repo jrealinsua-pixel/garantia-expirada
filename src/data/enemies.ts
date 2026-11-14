@@ -564,7 +564,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description: 'Lleva el cartel de «Averiada, no tocar» desde que se inauguró la planta. Aun así saca copias de cualquiera: peores, más lentas y sin cobrar, como en toda empresa.',
     hp: 6,
     sprite: 'fotocopiadora',
-    anchor: { x: 19, y: 36 },
+    anchor: { x: 24, y: 46 },
     hurt: { x: -16, y: -29, w: 32, h: 29 },
     footRadius: 8,
     contactPush: 160,

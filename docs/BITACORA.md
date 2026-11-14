@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 13:26 (hora peninsular) — Hito M14c — (a6c2) La Fotocopiadora con el estilo nuevo
+- Contexto: al empezar, el `main` local de esta máquina era otra vez una copia vieja y poco
+  profunda (del 6 de noviembre); se trajo la historia entera y se avanzó a `origin/main` sin perder
+  nada. La (a4d2), el Móvil, la tenía otra sesión desde las 11:27; esta cogió la siguiente de la
+  planta 4, que no se pisa con los personajes.
+- Hecho: M14c (a6c2), en `tools/sprites/planta4-nuevo.ts`. **La Fotocopiadora de Planta** (48 ×
+  48, antes 38 × 38; los mismos 10 fotogramas: zumbando, andando, la tapa levantada con la luz
+  atrás, en medio y delante, y la copia saliendo): la fotocopiadora grande de pie de toda oficina,
+  una caja de tres cuartos gris claro (`acero`) con la tapa de `goma`; el panel de mandos arriba
+  con la pantalla atascada en «E-04», los botones gastados, el verde y el rojo; cara de cansada
+  con los párpados a media asta (al copiar, los ojos muy abiertos y las cejas por las nubes); la
+  **ranura de salida por boca, en la fila de su `muzzleY`**, con el folio atascado colgando de
+  lengua; el cajón del papel de barriga; el cartel de **«Averiada, no tocar»** con sus dos tiras
+  de celo; **la ranura de monedas tapada con cinta** (copia sin cobrar, como dice su ficha); y **la
+  bandeja lateral llena de copias que nadie vino a recoger**, que además le da silueta. Al copiar,
+  la tapa se levanta enseñando la almohadilla blanca y una barra verde cruza el cristal de atrás
+  adelante. Ancla nueva (24, 46); la caja de golpes, la de siempre. Las copias que saca las pinta
+  el juego en gris a partir de esta misma hoja, así que también cambian. Test nuevo en
+  `tests/estilo-a6.test.ts` (ahora 13): entra en los generales (legible en todos los fotogramas,
+  hoja y anclas) y otro mira los pies en el ancla, la boca en su fila, que sea gris y no beige, que
+  la luz cruce el cristal en orden y solo con la tapa levantada, la tapa por encima de la caja y la
+  copia saliendo.
+- Decisiones: (1) **Gris y no beige**: en la planta 4 ya hay dos cajas beige (la destructora y la
+  impresora de la planta 2 en sus versiones); la fotocopiadora era gris y sigue siéndolo, con la
+  tapa oscura, que la distingue desde lejos. (2) La boca sigue en el `muzzleY` de 10 de los datos:
+  la simulación no cambia. (3) La bandeja lateral va en el lado de la caja (a la izquierda; se
+  voltea con ella).
+- **e2e**: dos pasadas fallaron al principio en el Mando (paso `08c`, que depende del tiempo real)
+  y otra al final en «Vencida la Trituradora, no empieza el final verdadero»: suelto, el final
+  empieza a los 9,4 s, y el e2e le daba 15; con la máquina cargada al final de la pasada no llega.
+  Subido a 30 s (`tools/e2e.ts`); nada que ver con la fotocopiadora (sus pasos `50r`–`50t` y `50xb`
+  pasaron en todas).
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, idéntico).
+  1127 tests en verde.
+- Problemas conocidos: la pantalla del «E-04» a tamaño real se lee como un garabato ámbar (en 7 × 3
+  píxeles no caben cuatro caracteres); se entiende como pantalla de error. En la captura del
+  escaneo del e2e la fotocopiadora sale con el destello amarillo del aviso, como antes.
+- Siguiente paso: M14c (a6d), el Sello y el Climatizador.
 ## 2026-11-14 12:50 (hora peninsular) — Hito M14c — (a4d2) El Móvil Reacondicionado con el estilo nuevo
 - Contexto: sesión automática. Al llegar, otra sesión tenía la (a6c1), la Destructora (planta 4,
   sin tocar personajes); cogí la (a4d2), que no se pisa con ella. La rama `main` local volvía a ser

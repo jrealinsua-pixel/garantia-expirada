@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T12:50:00+01:00",
+  "actualizado": "2026-11-14T13:26:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1133,
-    "tests_ok": 1133,
+    "tests": 1134,
+    "tests_ok": 1134,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 38171
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T13:26:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a6c2): la Fotocopiadora de Planta con el estilo nuevo: la fotocopiadora grande de pie, gris con la tapa oscura, el panel con la pantalla atascada en «E-04», el folio atascado colgando de la boca, el cartel de «Averiada, no tocar», la ranura de monedas tapada con cinta y la bandeja lateral llena de copias que nadie recogió; al copiar levanta la tapa y la luz verde cruza el cristal."
+    },
     {
       "fecha": "2026-11-14T12:50:00+01:00",
       "hito": "M14c",
@@ -1520,6 +1525,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/fotocopiadora-redibujada.png",
+      "pie": "M14c (a6c2): la Fotocopiadora de Planta, ahora (arriba: zumbando, andando, copiando con la luz que cruza el cristal y sacando una copia) y antes (abajo), a 3×"
+    },
+    {
+      "archivo": "capturas/fotocopiadora-en-juego.png",
+      "pie": "M14c (a6c2): la fotocopiadora nueva junto a dos copias grises que acaba de sacar de un aspirador y una batidora, en la Planta Diáfana"
+    },
+    {
       "archivo": "capturas/movil-fotogramas.png",
       "pie": "M14c (a4d2): la hoja nueva del Móvil Reacondicionado, 24 fotogramas y el apagado: los ocho de siempre (roto, con la grieta de punta a punta y el cable desenchufado); andar en seis pasos cargando; rodar con la rueda de carga; disparar, el golpe que raya la pantalla, la batería vacía y las chispas al morir; abajo, los cinco juntos, a 4×"
     },
@@ -1534,17 +1547,9 @@
     {
       "archivo": "capturas/destructora-en-juego.png",
       "pie": "M14c (a6c1): la destructora nueva, con las cuchillas rojas, a punto de lanzarse contra la tostadora en la Planta en Reforma"
-    },
-    {
-      "archivo": "capturas/piezas-munequitos-redibujados.png",
-      "pie": "M14c (a6b2): los muñequitos del sobre y las piezas del cubo, antes (arriba) y ahora (abajo: el repetido de pie, corriendo y mordiendo; el dorado de pie y corriendo; las cuatro piezas), a 3×"
-    },
-    {
-      "archivo": "capturas/munequitos-en-juego.png",
-      "pie": "M14c (a6b2): los muñequitos repetidos nuevos saliendo de los sobres rotos alrededor de la tostadora, en el Taller de Reparación de la Juguetería"
     }
   ],
-  "proximo": "M14c (a6c2), la Fotocopiadora (si nadie la ha cogido); si no, la (a6d), el Sello y el Climatizador.",
+  "proximo": "M14c (a6d), el Sello y el Climatizador (la (a6e) la tiene otra sesión).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1573,11 +1578,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 12:28 (hora peninsular)",
-      "tarea": "M14c (a6c2): la Fotocopiadora con el estilo nuevo (tools/sprites/planta4-nuevo.ts, tools/sprites/build.ts su línea, tests/estilo-a6.test.ts). No toca personajes",
-      "desde": "2026-11-14T12:28:00+01:00"
-    },
     {
       "sesion": "2026-11-14 13:40 (hora peninsular)",
       "tarea": "M14c (a6e): el Dispensador de Turnos y los Postes de Cola con el estilo nuevo (tools/sprites/planta5-nuevo.ts nuevo, tools/sprites/build.ts sus dos líneas, src/data/enemies.ts sus anclas, tests/estilo-a6e.test.ts nuevo). No toca la planta 4 ni personajes",

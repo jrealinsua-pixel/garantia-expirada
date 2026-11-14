@@ -3117,7 +3117,7 @@ try {
   await page.evaluate(`(() => { const w = window.__GE__.scene.world; w.noDamage = true; w.enemies = [];
     window.__GE__.spawnIdle('trituradora', w.player.x + 90, w.player.y - 30);
     const b = w.enemies[w.enemies.length - 1]; b.damageTaken = b.def.hp; })()`);
-  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('final')", undefined, { timeout: 15000 })
+  await page.waitForFunction("window.__GE_PHASER__.scene.isActive('final')", undefined, { timeout: 30000 })
     .catch(() => { throw new Error('Vencida la Trituradora, no empieza el final verdadero'); });
   if (await page.evaluate<number>("JSON.parse(localStorage.getItem('garantia-expirada/perfil')).endings") !== 1) throw new Error('El final no se apunta en el perfil');
   const finalAt = async (shotId: string, t: number, name: string): Promise<void> => {
