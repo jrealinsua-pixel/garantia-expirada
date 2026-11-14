@@ -1577,6 +1577,11 @@
       "sesion": "2026-11-14 12:28 (hora peninsular)",
       "tarea": "M14c (a6c2): la Fotocopiadora con el estilo nuevo (tools/sprites/planta4-nuevo.ts, tools/sprites/build.ts su línea, tests/estilo-a6.test.ts). No toca personajes",
       "desde": "2026-11-14T12:28:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 13:40 (hora peninsular)",
+      "tarea": "M14c (a6e): el Dispensador de Turnos y los Postes de Cola con el estilo nuevo (tools/sprites/planta5-nuevo.ts nuevo, tools/sprites/build.ts sus dos líneas, src/data/enemies.ts sus anclas, tests/estilo-a6e.test.ts nuevo). No toca la planta 4 ni personajes",
+      "desde": "2026-11-14T13:40:00+01:00"
     }
   ]
 }
