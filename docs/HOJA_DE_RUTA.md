@@ -803,7 +803,16 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     sombra más ancha (`CharacterLook.shadowRx`), `classicOrigin` para la portada y el final (que
     estaban hechos para el marco de 40 × 41) y `tests/tostadora-a4a.test.ts`. El Secador sigue con
     el dibujo viejo: va en la (a13).
-  - [ ] (a4b) Sus fotogramas nuevos: andar 6, rodar 6, disparar, herido y morir.
+  - [x] (a4b) Sus fotogramas nuevos: andar 6, rodar 6, disparar, herido y morir.
+    Hecho el 2026-11-14: dieciséis fotogramas después de los ocho de siempre (hoja de 24) en
+    `tools/sprites/tostadora.ts` (`TOASTER_EXTRA`, `TOASTER_ANIM`): andar en seis pasos con el pie
+    que avanza levantado y el cuerpo que baja al apoyar, rodar hecha una bola (piernas recogidas,
+    ojos cerrados, el cable que da latigazos) y estirando las piernas para aterrizar, disparar
+    (se echa atrás un píxel con los ojos entornados y las tostadas sacudidas), herida en dos
+    tiempos (primero el golpe, con los ojos como platos, y luego la cara apretada) y morir con dos
+    sacudidas que echan chispas antes de que salten las tostadas. `CharacterLook.anim` dice dónde
+    está cada cosa y `src/render/heroAnim.ts` elige el fotograma (los otros cuatro personajes,
+    sin `anim`, siguen con los ocho); `tests/tostadora-a4b.test.ts`.
   - [ ] (a4c) La Batidora de Vaso y la Plancha de Vapor. (Al redibujarlas, que
     `tests/plancha-vapor.test.ts` mida su anchura contra la tostadora nueva, no la vieja.)
   - [ ] (a4d) El Becario Eterno y el Móvil.

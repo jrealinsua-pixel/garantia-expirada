@@ -179,6 +179,7 @@ import { slipLayout, type SlipRole } from './ficha.ts';
 import { returnSlip, slipHint, slipNumber, STORIES } from '../data/stories.ts';
 import { BOSS_BAR, bossBarVeiled, cardLayout, departmentLabelBox, hudLayout, splitTitle, titleLines, stackFloat, TITLE_TOP, titleX, type Box, type HudLayout } from './hud.ts';
 import { bulbLit, enemyFrame, rattleOffset, spinMirrored, waddleTilt } from './enemyAnim.ts';
+import { ROLL_SPIN_END, heroFrame } from './heroAnim.ts';
 
 export const VIEW_W = 480;
 
@@ -210,10 +211,10 @@ export const VIEW_H = 270;
 /** Grip of the hair dryer in its 18x11 sprite. */
 const GUN_GRIP = { x: 6.5, y: 8.5 };
 /** Frames of the toaster sheet: squeezed face when hit, and broken (slices gone, eyes crossed out). */
-const HERO_HURT = 6;
-const HERO_BROKEN = 7;
 /** Seconds from going down to the slices popping out, and to the sick-leave report. */
 const DOWN_POP = 0.35;
+/** How long the squeezed face and the squash last after a hit (s). */
+const HURT_FACE = 0.3;
 const DOWN_REPORT = 1.9;
 /** Seconds the lift takes to sink with the toaster, and until the floor-done report shows. */
 const WIN_SINK = 1.3;
@@ -483,6 +484,8 @@ export class GameScene extends Phaser.Scene {
   private report: string[] = [];
   /** Seconds left showing the squeezed face after a hit. */
   private hurtFace = 0;
+  /** When the toaster last shot (ms of this.time.now), for its shooting pose (M14c (a4b)). */
+  private lastShotAt = -Infinity;
   /** M14b (h7): how high (px) the toaster is drawn while it jumps something low rolling. */
   private vaultLift = 0;
   private particles: Particle[] = [];
@@ -2530,6 +2533,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'shot': {
           this.shots++;
+          this.lastShotAt = this.time.now;
           this.gunKick = 3;
           this.muzzleT = 0.05;
           this.muzzle.setFrame(this.fx.int(0, 1));
@@ -3542,7 +3546,7 @@ export class GameScene extends Phaser.Scene {
             if (e.covered >= e.damage) break;
           }
           this.hitstop = 0.1;
-          this.hurtFace = 0.3;
+          this.hurtFace = HURT_FACE;
           this.flashHero = 0.08;
           this.shake(220, 0.011, true);
           this.sound2.play('dolor');
@@ -4836,11 +4840,19 @@ export class GameScene extends Phaser.Scene {
     const handKey = look.hand ?? 'mano';
     if (this.hand.texture.key !== handKey) this.hand.setTexture(handKey);
     const moving = Math.hypot(p.vx, p.vy) > 12;
-    let frame: number;
-    if (rolling) frame = 3;
-    else if (moving) frame = 2 + (Math.floor(p.walked / 7) % 4);
-    else frame = Math.floor(this.time.now / 500) % 2;
-    this.hero.setFrame(frame);
+    this.hurtFace = Math.max(0, this.hurtFace - dt);
+    // M14c (a4b): the frame (src/render/heroAnim.ts), the redrawn characters with their own.
+    const dying = w.over && this.downT + dt < DOWN_POP;
+    this.hero.setFrame(heroFrame(look, {
+      now: this.time.now,
+      moving,
+      walked: p.walked,
+      roll: rolling ? p.rollT / p.def.rollTime : null,
+      sinceShot: (this.time.now - this.lastShotAt) / 1000,
+      hurt: this.hurtFace > 0 && !w.over ? this.hurtFace / HURT_FACE : 0,
+      dying,
+      broken: w.over && !dying,
+    }));
     // The Móvil switched off by standing still: the black screen with the logo instead.
     if (look.off && phoneIsOff(p) && !w.over) this.hero.setTexture(look.off);
     this.hero.setScale(p.facing, 1);
@@ -4852,23 +4864,20 @@ export class GameScene extends Phaser.Scene {
       const k = p.rollT / p.def.rollTime;
       this.hero.setOrigin(look.feetX / look.w, look.spinY / look.h);
       this.hero.setPosition(Math.round(p.x), Math.round(p.y - (look.feetY - look.spinY)) - lift);
-      this.hero.setRotation(Math.min(1, k / 0.85) * Math.PI * 2 * (p.rollDirX >= 0 ? 1 : -1));
+      this.hero.setRotation(Math.min(1, k / ROLL_SPIN_END) * Math.PI * 2 * (p.rollDirX >= 0 ? 1 : -1));
     } else {
       this.hero.setOrigin(look.feetX / look.w, look.feetY / look.h);
       this.hero.setPosition(Math.round(p.x), Math.round(p.y) - lift);
       this.hero.setRotation(0);
     }
-    this.hurtFace = Math.max(0, this.hurtFace - dt);
     if (this.hurtFace > 0 && !rolling && !w.over) {
-      // Squeezed face and a quick squash after a hit.
-      this.hero.setFrame(HERO_HURT);
+      // Squeezed face (heroFrame) and a quick squash after a hit.
       this.hero.setScale(p.facing * (1 + this.hurtFace * 0.4), 1 - this.hurtFace * 0.4);
     }
     if (w.over) {
       this.downT += dt;
       if (this.downT < DOWN_POP) {
-        // A last shudder with the face screwed up...
-        this.hero.setFrame(HERO_HURT);
+        // A last shudder with the face screwed up (the frame, heroFrame)...
         this.hero.setX(Math.round(p.x) + (Math.floor(this.time.now / 35) % 2 === 0 ? 1 : -1));
         // (Sparks from the appliances; the Becario only shakes.)
         if (characterDown(p.base.def.id).sparks && this.fx.chance(dt * 30)) this.spark(p.x + this.fx.range(-8, 8), p.y - this.fx.range(6, 26), this.fx.range(0, Math.PI * 2), this.fx.range(30, 80), 0);
@@ -4878,7 +4887,6 @@ export class GameScene extends Phaser.Scene {
         const t = this.downT - DOWN_POP;
         const k = Math.min(1, t / 0.28);
         const bounce = t > 0.28 && t < 0.5 ? Math.sin(((t - 0.28) / 0.22) * Math.PI) * 0.12 : 0;
-        this.hero.setFrame(HERO_BROKEN);
         this.hero.setRotation((k * k - bounce) * (Math.PI / 2) * p.facing);
         // Smoke (the toaster's slots, the Plancha's steam) and sparks from the frayed cord: each its own.
         const down = characterDown(p.base.def.id);

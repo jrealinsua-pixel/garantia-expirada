@@ -39,7 +39,7 @@ import * as ES from './estanteria.ts';
 import { makeJug } from './garrafa.ts';
 import * as P1 from './planta1-nuevo.ts';
 import { encodePng } from './png.ts';
-import { TOASTER_H, TOASTER_W, makeToasterFrames, makeToasterHand } from './tostadora.ts';
+import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
 import { ROOT } from '../lib/deps.ts';
 
@@ -62,7 +62,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
   const one = (c: Canvas) => ({ canvas: c, frameW: c.w, frameH: c.h });
   const sheets: Record<string, { canvas: Canvas; frameW: number; frameH: number }> = {
     // M14c (a4a): the toaster in the new style (tools/sprites/tostadora.ts) and its glove.
-    tostadora: { canvas: strip(makeToasterFrames()), frameW: TOASTER_W, frameH: TOASTER_H },
+    tostadora: { canvas: strip(makeToasterSheet()), frameW: TOASTER_W, frameH: TOASTER_H },
     'mano-tostadora': one(makeToasterHand()),
     // M13 (3): the Batidora de Vaso, the same eight frames as the toaster (CharacterLook).
     'batidora-vaso': { canvas: strip(BV.makeBlenderFrames()), frameW: BV.BLENDER_W, frameH: BV.BLENDER_H },

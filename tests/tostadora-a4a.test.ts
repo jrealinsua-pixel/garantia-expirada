@@ -25,10 +25,11 @@ const count = (cv: Canvas, ok: (c: readonly number[]) => boolean): number => {
 test('tostadora (a4a): la hoja del juego es la nueva, con los ocho fotogramas de siempre', () => {
   assert.deepEqual(TOASTER_FRAMES.map((f) => f.name), HERO_FRAMES.map((f) => f.name));
   const s = allSheets().tostadora!;
-  assert.deepEqual([s.frameW, s.frameH, s.canvas.w / s.frameW], [TOASTER_W, TOASTER_H, 8]);
+  // (M14c (a4b): and its own sixteen after them.)
+  assert.deepEqual([s.frameW, s.frameH, s.canvas.w / s.frameW], [TOASTER_W, TOASTER_H, 24]);
   assert.deepEqual([T.look.w, T.look.h, T.look.feetX, T.look.feetY, T.look.spinY], [TOASTER_W, TOASTER_H, TOASTER_FEET_X, TOASTER_FEET_Y, TOASTER_SPIN_Y]);
   const manifest = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frameW: number; frameH: number; frames: number }>;
-  assert.deepEqual(manifest.tostadora, { file: 'tostadora.png', frameW: TOASTER_W, frameH: TOASTER_H, frames: 8 });
+  assert.deepEqual(manifest.tostadora, { file: 'tostadora.png', frameW: TOASTER_W, frameH: TOASTER_H, frames: 24 });
   // Its glove, in the new style too.
   assert.equal(T.look.hand, 'mano-tostadora');
   assert.ok(manifest['mano-tostadora']);

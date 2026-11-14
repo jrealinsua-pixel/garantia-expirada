@@ -2,6 +2,42 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 05:25 (hora peninsular) — Hito M14c — (a4b) Los fotogramas nuevos de la Tostadora
+- Contexto: sesión programada. El `main` local no estaba en ninguna rama (`git checkout main` y
+  `reset` a `origin/main`). La (a5b) la tiene otra sesión desde las 05:00 (menos de 90 minutos);
+  esta coge la (a4b), que no toca enemigos. Salud al empezar: `check`, 1073 tests y `build` en verde.
+- Hecho: M14c (a4b). **La tostadora tiene sus propios fotogramas**: la hoja pasa de 8 a 24
+  (`TOASTER_EXTRA` en `tools/sprites/tostadora.ts`, los ocho de siempre se quedan donde estaban).
+  **Andar ×6**: la pierna de apoyo empuja hacia atrás mientras la otra avanza con el pie un píxel
+  levantado; el cuerpo baja al apoyar y sube al cruzar las piernas, y el guante de atrás se mece.
+  **Rodar ×6**: cinco hecha una bola (piernas recogidas, ojos cerrados y dientes apretados, el
+  cable dando latigazos alrededor) mientras gira, y la última estirando las piernas para
+  aterrizar, cuando ya ha dado la vuelta; la carcasa no se mueve del eje del giro. **Disparar**:
+  quieta y justo después de un tiro (0,1 s), se echa atrás un píxel con los ojos entornados, la
+  boca apretada y las tostadas sacudidas. **Herida** en dos tiempos: primero el golpe (ojos como
+  platos, la boca en O, echada dos píxeles atrás, las tostadas a cuatro píxeles) y luego la cara
+  apretada de siempre. **Morir**: dos sacudidas (ojos como platos y luego en blanco, con las
+  tostadas medio fuera y chispas en las ranuras y el cable) antes de que salten las tostadas y
+  se quede rota. `CharacterLook.anim` (nuevo, opcional) dice dónde está cada animación en la
+  hoja, y `src/render/heroAnim.ts` (puro, sin Phaser) elige el fotograma; `GameScene` lo usa y
+  apunta la hora del último disparo. Los otros cuatro personajes, sin `anim`, siguen igual.
+  Tests: `tests/tostadora-a4b.test.ts` (6: dónde está cada cosa en la hoja, todos distintos y de
+  pie en el suelo, la bola sin mover la carcasa y con los pies en el aire, el retroceso y las
+  chispas, y `heroFrame` para la tostadora y para un personaje con los ocho de siempre);
+  `tests/tostadora-a4a.test.ts` cuenta ahora 24 fotogramas en la hoja.
+- Decisiones: (1) El giro de la voltereta lo sigue haciendo el juego (rota el sprite): los
+  fotogramas de rodar no dibujan la vuelta, dibujan la bola; así no hace falta dibujar la tostadora
+  girada píxel a píxel, que queda mal. (2) Disparar andando sigue con los pasos: el retroceso del
+  cuerpo solo se ve quieta (andando se perdería entre los pasos). (3) Un ciclo de seis pasos
+  recorre los mismos 28 px que el de cuatro, para que los pies no patinen más ni menos. (4) La
+  portada y el final siguen con los fotogramas 0 y 6, que no cambian.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, los de
+  siempre; jefes igual). 1088 tests en verde; `npm run e2e` entero en verde (unos 16 minutos).
+- Problemas conocidos: el `npm run e2e` tarda más de diez minutos y hay que lanzarlo en segundo
+  plano. Los fotogramas de rodar se ven poco en las capturas fijas (gira deprisa); donde mejor se
+  ven es en la hoja del panel.
+- Siguiente paso: M14c (a4c), la Batidora de Vaso y la Plancha de Vapor con el estilo nuevo, ya
+  con sus fotogramas propios desde el principio (`CharacterLook.anim`).
 ## 2026-11-14 05:30 (hora peninsular) — Hito M14c — (a5b) La Bombilla y la Polilla con el estilo nuevo
 - Contexto: segunda tarea de la sesión, tras la (a5a). La (a4a) estaba cogida por otra sesión (desde
   las 03:30), que la subió mientras yo hacía esta; esta no toca a los personajes.

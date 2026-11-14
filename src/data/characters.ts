@@ -16,7 +16,11 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     startWeapon: 'secador',
     footRadius: 5,
     // M14c (a4a): the new style, bigger (tools/sprites/tostadora.ts); the hitbox has not changed.
-    look: { sheet: 'tostadora', w: 40, h: 46, feetX: 22.5, feetY: 45, spinY: 26, hand: 'mano-tostadora', shadowRx: 12 },
+    // M14c (a4b): and its own frames after the eight (TOASTER_ANIM in tools/sprites/tostadora.ts).
+    look: {
+      sheet: 'tostadora', w: 40, h: 46, feetX: 22.5, feetY: 45, spinY: 26, hand: 'mano-tostadora', shadowRx: 12,
+      anim: { walk: [8, 9, 10, 11, 12, 13], roll: [14, 15, 16, 17, 18, 19], shoot: 20, hurt: [21, 6], die: [22, 23] },
+    },
     // «Una de cada dos»: a reload after spending half the magazine pops a slice (every second one burnt).
     ability: { kind: 'toast', damage: 1, burntMul: 2, speed: 230, life: 1.1, radius: 4, knockback: 60, minSpent: 0.5 },
   },

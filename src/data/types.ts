@@ -421,6 +421,25 @@ export interface CharacterLook {
   off?: string;
   /** Half the width of its shadow on the floor (default 9; the characters redrawn bigger in M14c, more). */
   shadowRx?: number;
+  /**
+   * M14c (a4b): the characters redrawn with more frames say where they are, after the eight of
+   * every sheet (src/render/heroAnim.ts picks them; without it, the eight as always).
+   */
+  anim?: HeroAnim;
+}
+
+/** Frames of a sheet with more than the common eight (CharacterLook.anim). */
+export interface HeroAnim {
+  /** The walk cycle (every frame the same stride share). */
+  walk: readonly number[];
+  /** The roll, from take-off to landing (the last one only after the spin). */
+  roll: readonly number[];
+  /** Standing still, just after a shot. */
+  shoot?: number;
+  /** A hit: the first frame first, the rest after (each an equal share of the squash). */
+  hurt?: readonly number[];
+  /** The shudder before it breaks (alternating). */
+  die?: readonly number[];
 }
 
 export interface PropDef {
