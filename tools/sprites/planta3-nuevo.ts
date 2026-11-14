@@ -323,3 +323,221 @@ export function makeCocheNuevo(spin = 0, bob = 0, mood: 0 | 1 | 2 | 3 = 0): Canv
 export function makeCocheNuevoFrames(): Canvas[] {
   return [makeCocheNuevo(0, 0), makeCocheNuevo(0, 1), makeCocheNuevo(1, 0), makeCocheNuevo(0, 1), makeCocheNuevo(0, 0, 1), makeCocheNuevo(0, 0, 2), makeCocheNuevo(0, 0, 3)];
 }
+
+// ---------------------------------------------------------------------------------------------
+// The Cubo de Piezas: a red plastic bucket of building pieces, wider at the top, its yellow studded
+// lid worn as a cap with the peak to the right and its wire handle down under the chin as the
+// cap's strap. Its eyes are two round white pieces; a wrong green piece that fits nothing is stuck
+// on its forehead. Jokes: the «1000+» sticker, a crack mended with a plaster, the shoes two blue
+// bricks. With the lid up (about to throw) a fistful of pieces shows inside and it glares.
+
+export const CUBO_W = 40;
+export const CUBO_H = 42;
+export const CUBO_FEET = { x: 19, y: 40 } as const;
+export const CUBO_LEGS2 = [13, 19] as const;
+/** The rim, px above its feet (muzzleY): the pieces fly out of the bucket from here. */
+export const CUBO_RIM_Y = 26;
+
+/** `lid`: px the lid is lifted (0 worn as a cap; up, the pieces show and it glares). */
+export function makeCuboNuevo(pose: Pose = { xb: CUBO_LEGS2[0], xf: CUBO_LEGS2[1], bob: 0 }, lid = 0): Canvas {
+  const p = new Paint(CUBO_W, CUBO_H);
+  const d = pose.bob;
+  legs(p, pose, 34 + d, CUBO_FEET.y, 'azul');
+  // The shoes are bricks: two studs on each.
+  for (const [x, leg] of [[pose.xb, -1], [pose.xf, 1]] as const) {
+    const up = pose.lift && pose.lift.leg === leg ? pose.lift.px : 0;
+    const yb = CUBO_FEET.y - 3 - up;
+    p.px(x + 1, yb - 1, 'azul', 2);
+    p.px(x + 3, yb - 1, 'azul', 2);
+  }
+  glove(p, 1, 22 + d, 'amarillo');
+  // The bucket: a cone cut short, from the rim down, shaded as a cylinder that narrows.
+  const rim = CUBO_FEET.y - CUBO_RIM_Y - 1 + d;
+  const cx = 18.5;
+  const bottom = 33 + d;
+  const half = (y: number): number => 12.5 - ((y - rim) / (bottom - rim)) * 3.5;
+  p.heightShade(0, rim + 1, CUBO_W, bottom - rim, (x, y) => {
+    if (y < rim + 1 || y > bottom) return null;
+    const u = (x + 0.5 - cx) / half(y);
+    return Math.abs(u) > 1 ? null : 9 * Math.sqrt(1 - u * u);
+  }, 'rojo', { z: 1.4, dither: 0.12, spec: true });
+  // The rim: a lip one px wider all round, lighter on top.
+  p.rect(Math.floor(cx - 13.5), rim, 28, 2, 'rojo', 1);
+  p.rect(Math.floor(cx - 13.5), rim + 1, 28, 1, 'rojo', 3);
+  p.px(Math.floor(cx - 13.5), rim, 'rojo', 3);
+  // The bottom edge in shadow.
+  p.rect(Math.ceil(cx - 9), bottom, 18, 1, 'rojo', 4);
+  // Inside, with the lid up: a dark mouth and a fistful of pieces of every colour.
+  if (lid > 0) {
+    p.rect(Math.floor(cx - 12), rim - 1, 25, 1, 'rojo', 5);
+    const bits: Array<[number, Material]> = [[7, 'azul'], [10, 'amarillo'], [13, 'verde'], [17, 'azul'], [21, 'amarillo'], [25, 'verde'], [28, 'azul']];
+    for (const [i, [x, m]] of bits.entries()) {
+      const y = rim - 2 - (i % 2);
+      p.rect(x, y, 3, 2, m, 2);
+      p.px(x, y, m, 0);
+      p.px(x + 2, y + 1, m, 4);
+    }
+  }
+  // The lid, worn as a cap: a flat yellow disc seen from above, its front edge, the peak to the right.
+  const ly = rim - 4 - lid;
+  p.ellipsoid(cx, ly, 14, 3.2, 'amarillo', { z: 0.4, dither: 0, bias: 0.15 });
+  p.rect(Math.floor(cx - 13), ly + 2, 27, 2, 'amarillo', 3);
+  p.rect(Math.floor(cx - 13), ly + 3, 27, 1, 'amarillo', 4);
+  for (let i = 0; i < 6; i++) p.rect(31 + i, ly + 1 + Math.floor(i / 3), 1, 2, 'amarillo', i < 3 ? 2 : 3);
+  // Four studs on top, in a row going back.
+  for (const sx of [10, 15, 21, 26]) {
+    p.rect(sx, ly - 2, 3, 2, 'amarillo', 2);
+    p.rect(sx, ly - 2, 3, 1, 'amarillo', 1);
+    p.px(sx, ly - 2, 'amarillo', 0);
+    p.px(sx + 2, ly - 1, 'amarillo', 4);
+  }
+  // The wrong piece on its forehead: a green brick stuck on askew, its two studs out of line.
+  const gy = rim + 3;
+  p.rect(21, gy, 6, 3, 'verde', 2);
+  p.rect(21, gy + 2, 6, 1, 'verde', 4);
+  p.px(22, gy - 1, 'verde', 1);
+  p.px(25, gy - 1, 'verde', 1);
+  p.px(21, gy, 'verde', 1);
+  p.px(20, gy + 2, 'verde', 5);
+  // Eyes: two round white pieces with dark centres, looking right; heavy brows.
+  const ey = rim + 8;
+  for (const ex of [17, 24]) {
+    p.ellipsoid(ex + 1.5, ey + 1.5, 2.2, 2.2, 'acero', { dither: 0, bias: 0.3 });
+    p.raw(ex + 2, ey + 1, INK);
+    p.raw(ex + 2, ey + 2, INK);
+    p.raw(ex + 1, ey + 2, INK);
+  }
+  const brows = lid > 0 ? [[15, 2], [16, 2], [17, 1], [18, 1], [19, 0], [23, 0], [24, 1], [25, 1], [26, 2], [27, 2]] : [[16, 1], [17, 1], [18, 1], [19, 1], [24, 1], [25, 1], [26, 1], [27, 1]];
+  for (const [x, up] of brows) p.px(x!, ey - 1 - up!, 'rojo', 5);
+  // Mouth: tight and sour, pulled down at the back (open when it throws).
+  const my = ey + 6;
+  p.rect(21, my, 4, lid > 0 ? 2 : 1, 'rojo', 5);
+  p.px(20, my + 1, 'rojo', 5);
+  if (lid > 0) p.px(22, my + 1, 'acero', 1);
+  // The handle, down round the chin as the cap's strap: wire from the rim to under the mouth.
+  const strap = [[6, 0], [7, 3], [8, 6], [9, 9], [10, 11], [11, 13], [12, 14], [13, 15], [14, 16], [15, 16]] as const;
+  for (const [x, dy] of strap) p.px(x, rim + 2 + dy, 'acero', 2);
+  for (const [x, dy] of [[26, 16], [27, 15], [28, 13], [29, 10], [30, 6], [31, 2]] as const) p.px(x, rim + 2 + dy, 'acero', 3);
+  p.rect(16, rim + 18, 10, 1, 'acero', 2);
+  p.px(16, rim + 18, 'acero', 1);
+  // Its back: the «1000+» sticker (white, a red burst), and the plaster over a crack at the front.
+  p.rect(9, rim + 5, 5, 4, 'acero', 0);
+  p.px(10, rim + 6, 'rojo', 2);
+  p.px(11, rim + 6, 'rojo', 2);
+  p.px(11, rim + 7, 'rojo', 3);
+  p.px(13, rim + 8, 'acero', 2);
+  for (let i = 0; i < 4; i++) p.px(26 + i, bottom - 6 + i, 'crema', i % 2 ? 1 : 0);
+  for (let i = 0; i < 4; i++) p.px(27 + i, bottom - 6 + i, 'crema', 2);
+  p.px(25, bottom - 4, 'rojo', 5);
+  glove(p, 33, (lid > 0 ? rim - 2 : rim + 9), 'amarillo');
+  return p.outline();
+}
+
+/** Its sheet: 0-1 standing, 2-5 a heavy waddle, 6 the lid up (about to throw). */
+export function makeCuboNuevoFrames(): Canvas[] {
+  return [...narrowPoseCycle(CUBO_LEGS2[0], CUBO_LEGS2[1], 1).map((f) => makeCuboNuevo(f.pose)), makeCuboNuevo(undefined, 4)];
+}
+
+// ---------------------------------------------------------------------------------------------
+// The Sobre Sorpresa: a sealed foil packet of collectable stickers, crimped at the top and bottom,
+// a big yellow star with a «?» on its front and a greedy face. Jokes: the dotted «tear here» line
+// with its little scissors, and the side covered in tiny print (the odds). It hops.
+
+export const SOBRE_W = 34;
+export const SOBRE_H = 40;
+export const SOBRE_FEET = { x: 17, y: 38 } as const;
+/** Its mouth, px above its feet (muzzleY): the confetti comes out of here. */
+export const SOBRE_MOUTH_Y = 12;
+
+/**
+ * `squash` crouching to hop (shorter and wider); `air` the legs tucked up in a hop; `puff` cheeks
+ * blown out and the mouth open full of confetti (about to spit); `jx` shakes it (impatience).
+ */
+export function makeSobreNuevo(squash = 0, air = false, puff = false, jx = 0): Canvas {
+  const p = new Paint(SOBRE_W, SOBRE_H);
+  const F = SOBRE_FEET;
+  if (air) {
+    for (const [x, t] of [[12, 3], [18, 2]] as const) {
+      p.rect(x, F.y - 6, 5, 2, 'rojo', t);
+      p.rect(x, F.y - 4, 5, 1, 'acero', t - 1);
+    }
+  } else legs(p, { xb: 12, xf: 18, bob: 0 }, 33, F.y, 'rojo');
+  const b = new Paint(SOBRE_W, SOBRE_H);
+  const top = 3 + squash * 3;
+  const bot = 32;
+  const x0 = 8 - squash;
+  const x1 = 25 + squash;
+  // The packet: a thin side face on the left, the foil front crinkled with diagonal glints.
+  for (let y = top; y <= bot; y++) {
+    for (let x = x0; x <= x1; x++) {
+      if (x < x0 + 2) b.px(x, y, 'fucsia', x === x0 ? 5 : 4);
+      else {
+        const g = (x - y + 40) % 11;
+        const t = g === 0 ? 1 : g === 1 || g === 6 ? 2 : x > x1 - 2 || y > bot - 4 ? 4 : 3;
+        b.px(x, y, 'fucsia', t);
+      }
+    }
+  }
+  // The crimps, top and bottom: a zigzag of foil.
+  for (let x = x0; x <= x1; x++) {
+    const odd = (x - x0) % 2;
+    b.px(x, top, 'fucsia', odd ? 3 : 0);
+    b.px(x, top + 1, 'fucsia', odd ? 1 : 3);
+    b.px(x, bot - 1, 'fucsia', odd ? 2 : 4);
+    b.px(x, bot, 'fucsia', odd ? 4 : 2);
+  }
+  // The crimps' teeth stick out of the silhouette.
+  for (let x = x0; x <= x1; x += 2) {
+    b.erase(x, top);
+    b.erase(x + 1, bot);
+  }
+  // «Tear here»: a dotted line under the crimp, with the scissors at its start.
+  for (let x = x0 + 7; x < x1; x += 2) b.px(x, top + 3, 'acero', 1);
+  for (const [x, y] of [[x0 + 3, top + 2], [x0 + 4, top + 3], [x0 + 3, top + 4], [x0 + 5, top + 3]] as const) b.px(x, y, 'acero', 1);
+  // Tiny print down the side (the odds, unreadable).
+  for (let y = top + 4; y < bot - 2; y += 2) b.px(x0 + 1, y, 'fucsia', 2);
+  // Its face: greedy eyes under brows that go down to the middle.
+  const my = F.y - SOBRE_MOUTH_Y - 1 + Math.max(0, squash);
+  const ey = my - 7;
+  for (const ex of [13, 20]) {
+    b.rect(ex, ey, 3, 4, 'fucsia', 5);
+    b.rect(ex, ey + 1, 2, 2, 'acero', 0);
+    b.raw(ex + 2, ey + 1, INK);
+    b.raw(ex + 2, ey + 2, INK);
+    b.raw(ex + 1, ey + 2, INK);
+    b.raw(ex, ey + 1, SHINE);
+  }
+  for (const [x, up] of [[12, 2], [13, 2], [14, 1], [15, 1], [19, 1], [20, 1], [21, 2], [22, 2], [23, 2]] as const) b.px(x, ey - up, 'fucsia', 5);
+  // The mouth, at the height it spits from: a greedy grin, or puffed and open, full of confetti.
+  if (puff) {
+    b.rect(14, my - 1, 9, 4, 'fucsia', 5);
+    for (const [x, y, m] of [[15, my, 'amarillo'], [17, my + 1, 'cian'], [19, my, 'rojo'], [21, my + 1, 'verde'], [18, my - 1, 'acero']] as const) b.px(x, y, m, 1);
+    b.px(12, my, 'fucsia', 1);
+    b.px(24, my, 'fucsia', 1);
+  } else {
+    b.rect(15, my, 7, 1, 'fucsia', 5);
+    b.px(14, my - 1, 'fucsia', 5);
+    b.px(22, my - 1, 'fucsia', 5);
+    for (const x of [16, 18, 20]) b.px(x, my, 'acero', 0);
+  }
+  // The star in its top corner, a «?» in it. Rows of the star: [dy, from dx, to dx], with a gap
+  // between the two legs.
+  const sx = 13;
+  const sy = top + 7;
+  const rows = [[-3, 0, 0], [-2, -1, 1], [-1, -3, 3], [0, -2, 2], [1, -2, 2], [2, -2, 2]] as const;
+  for (const [y, a, z] of rows) {
+    for (let x = a; x <= z; x++) if (!(y === 1 && x === 0) && !(y === 2 && Math.abs(x) < 2)) b.px(sx + x, sy + y, 'amarillo', y < -1 ? 0 : y > 0 ? 2 : 1);
+  }
+  for (const [x, y] of [[-1, -1], [0, -1], [0, 0], [0, 1]] as const) b.px(sx + x, sy + y, 'amarillo', 4);
+  // The small print along the bottom (the odds again, in case).
+  for (const [x, y, w] of [[x0 + 4, bot - 4, 4], [x0 + 9, bot - 4, 6], [x0 + 4, bot - 3, 7], [x0 + 12, bot - 3, 3]] as const) b.rect(x, y, w, 1, 'fucsia', 4);
+  glove(b, x0 - 5, 17 + squash, 'rosa');
+  glove(b, x1 + 1, 18 + squash, 'rosa');
+  p.stamp(b, jx, 0);
+  return p.outline();
+}
+
+/** Its sheet: 0-1 standing (it trembles with impatience), 2 crouching, 3 in the air, 4 about to spit confetti. */
+export function makeSobreNuevoFrames(): Canvas[] {
+  return [makeSobreNuevo(), makeSobreNuevo(0, false, false, 1), makeSobreNuevo(1), makeSobreNuevo(0, true), makeSobreNuevo(0, false, true)];
+}

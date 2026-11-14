@@ -7,7 +7,6 @@ import { MATERIALS } from '../src/art/paleta.ts';
 import { legibility, silhouetteOverlap } from '../src/art/pintor.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { allSheets } from '../tools/sprites/build.ts';
-import { makeCuboFrames, makeSobreFrames } from '../tools/sprites/enemies.ts';
 import * as P3 from '../tools/sprites/planta3-nuevo.ts';
 
 const FLOOR = MATERIALS.suelo[3]!;
@@ -16,6 +15,8 @@ const FLOOR = MATERIALS.suelo[3]!;
 const REDRAWN: Record<string, () => Canvas[]> = {
   'robot-cuerda': P3.makeRobotNuevoFrames,
   'coche-teledirigido': P3.makeCocheNuevoFrames,
+  'cubo-piezas': P3.makeCuboNuevoFrames,
+  'sobre-sorpresa': P3.makeSobreNuevoFrames,
 };
 
 function bottomRow(cv: Canvas, x0 = 0, x1 = cv.w - 1): number {
@@ -125,19 +126,64 @@ test('estilo a6: el coche volcado está boca abajo y sin pilas enseña la bater�
   assert.ok(rowsWith(frames[6]!, MATERIALS.rojo[2]!).some((y) => y < 6), 'falta la batería baja');
 });
 
-test('estilo a6: los redibujados de la planta 3 no se parecen a los demás de su planta', () => {
+test('estilo a6: los enemigos de la planta 3 no se parecen entre sí', () => {
   const plant3: Array<[string, Canvas]> = [
     ['robot', P3.makeRobotNuevoFrames()[0]!],
     ['coche', P3.makeCocheNuevoFrames()[0]!],
-    ['cubo', makeCuboFrames()[0]!],
-    ['sobre', makeSobreFrames()[0]!],
+    ['cubo', P3.makeCuboNuevoFrames()[0]!],
+    ['sobre', P3.makeSobreNuevoFrames()[0]!],
   ];
-  // Only the pairs with a redrawn one (the old cube and envelope are 0.84 alike: their turn is (a6b)).
-  const redrawn = 2;
-  for (let i = 0; i < redrawn; i++) {
+  for (let i = 0; i < plant3.length; i++) {
     for (let j = i + 1; j < plant3.length; j++) {
       const o = silhouetteOverlap(plant3[i]![1], plant3[j]![1]);
       assert.ok(o < 0.8, `${plant3[i]![0]}–${plant3[j]![0]}: ${o.toFixed(2)}`);
     }
   }
+});
+
+test('estilo a6: el cubo y el sobre pisan el suelo en su ancla y disparan desde donde dicen los datos', () => {
+  const cubo = ENEMIES['cubo-piezas']!;
+  const sobre = ENEMIES['sobre-sorpresa']!;
+  assert.deepEqual(cubo.anchor, P3.CUBO_FEET);
+  assert.deepEqual(sobre.anchor, P3.SOBRE_FEET);
+  const cf = P3.makeCuboNuevoFrames();
+  for (const k of [...cubo.anim!.idle, cubo.anim!.walk![0]!, cubo.anim!.walk![2]!, cubo.anim!.warn!]) {
+    assert.equal(bottomRow(cf[k]!, cubo.anchor.x - 8, cubo.anchor.x + 8), cubo.anchor.y, `cubo ${k}: los pies no tocan el suelo`);
+  }
+  const sf = P3.makeSobreNuevoFrames();
+  const a = sobre.anim!;
+  for (const k of [...a.idle, a.crouch!, a.warn!]) {
+    assert.equal(bottomRow(sf[k]!, sobre.anchor.x - 8, sobre.anchor.x + 8), sobre.anchor.y, `sobre ${k}: los pies no tocan el suelo`);
+  }
+  // In the air, the legs are tucked up (the game lifts it by the hop).
+  assert.ok(bottomRow(sf[a.jump!]!) < sobre.anchor.y - 2, 'en el aire, con los pies recogidos');
+  // muzzleY: the bucket's rim, the envelope's mouth.
+  assert.equal(cubo.brain.kind === 'lobber' && cubo.brain.muzzleY, P3.CUBO_RIM_Y);
+  assert.equal(sobre.brain.kind === 'hopper' && sobre.brain.muzzleY, P3.SOBRE_MOUTH_Y);
+  const rim = P3.CUBO_FEET.y - P3.CUBO_RIM_Y - 1;
+  const red = MATERIALS.rojo;
+  const isRed = (c: readonly number[]): boolean => red.some((t) => t[0] === c[0] && t[1] === c[1] && t[2] === c[2]);
+  let lip = 0;
+  for (let x = 0; x < P3.CUBO_W; x++) if (isRed(cf[0]!.get(x, rim))) lip++;
+  assert.ok(lip >= 24, `el borde del cubo no está en la fila ${rim} (${lip} px)`);
+  // With the lid up, the pieces show between the rim and the lid (blue and green, not just red and yellow).
+  const pieces = (cv: Canvas): number => {
+    let n = 0;
+    for (let y = rim - 4; y < rim; y++) for (let x = 0; x < P3.CUBO_W; x++) {
+      const c = cv.get(x, y);
+      if (MATERIALS.azul.some((t) => same([...t], c)) || MATERIALS.verde.some((t) => same([...t], c))) n++;
+    }
+    return n;
+  };
+  assert.equal(pieces(cf[0]!), 0, 'con la tapa puesta no se ven piezas');
+  assert.ok(pieces(cf[cubo.anim!.warn!]!) >= 8, 'con la tapa levantada se ven las piezas');
+  // About to spit, the envelope's mouth is open: dark, with confetti, on the mouth's row (the side face, left of x 12, is dark too).
+  const my = P3.SOBRE_FEET.y - P3.SOBRE_MOUTH_Y - 1;
+  const deep = MATERIALS.fucsia[5]!;
+  const dark = (cv: Canvas): number => {
+    let n = 0;
+    for (let x = 12; x < P3.SOBRE_W; x++) if (same(cv.get(x, my + 1), deep)) n++;
+    return n;
+  };
+  assert.ok(dark(sf[a.warn!]!) >= 4 && dark(sf[0]!) === 0, 'la boca abierta para escupir el confeti');
 });

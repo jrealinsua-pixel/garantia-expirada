@@ -9,7 +9,7 @@ import { paintRoom } from '../../src/art/room.ts';
 import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
-import { makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
+import { makePiezas, makeMunequitoFrames,
   makeDestructoraFrames, makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
@@ -112,10 +112,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // The workshop's own (M12 (3c)): taller.ts names the frames (FORK_FRAMES).
     carretilla: { canvas: strip(TL.makeCarretillaFrames()), frameW: TL.FORK_W, frameH: TL.FORK_H },
     // 0-1 standing, 2-5 waddling, 6 lid up (about to throw); and the pieces it throws (4 kinds).
-    'cubo-piezas': { canvas: strip(makeCuboFrames()), frameW: 27, frameH: 31 },
+    // M14c (a6b): the bucket and the envelope in the new style (planta3-nuevo.ts); the pieces and
+    // the figurines are still the old ones.
+    'cubo-piezas': { canvas: strip(P3.makeCuboNuevoFrames()), frameW: P3.CUBO_W, frameH: P3.CUBO_H },
     pieza: { canvas: strip(makePiezas()), frameW: 10, frameH: 8 },
     // 0-1 standing, 2 crouching, 3 in the air, 4 about to spit; and what comes out of it.
-    'sobre-sorpresa': { canvas: strip(makeSobreFrames()), frameW: 24, frameH: 28 },
+    'sobre-sorpresa': { canvas: strip(P3.makeSobreNuevoFrames()), frameW: P3.SOBRE_W, frameH: P3.SOBRE_H },
     // Floor 4 (Oficinas): seven frames a side (side, front, back): 0-1 humming, 2-5 shuffling, 6 blades red.
     destructora: { canvas: strip(makeDestructoraFrames()), frameW: 34, frameH: 32 },
     // 0-1 humming, 2-5 shuffling, 6-8 lid up and the green light crossing the glass, 9 a copy coming out.

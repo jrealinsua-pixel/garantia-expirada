@@ -217,8 +217,8 @@
   },
   "cubo-piezas": {
     "file": "cubo-piezas.png",
-    "frameW": 27,
-    "frameH": 31,
+    "frameW": 40,
+    "frameH": 42,
     "frames": 7
   },
   "pieza": {
@@ -229,8 +229,8 @@
   },
   "sobre-sorpresa": {
     "file": "sobre-sorpresa.png",
-    "frameW": 24,
-    "frameH": 28,
+    "frameW": 34,
+    "frameH": 40,
     "frames": 5
   },
   "destructora": {

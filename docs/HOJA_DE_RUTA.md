@@ -873,7 +873,17 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     la antena doblada, el alerón con cinta, la raya que se despega y la rueda de delante de otro
     coche; embistiendo, ojos rojos y humo; volcado, boca abajo; sin pilas, los faros apagados y la
     batería baja encima.
-  - [ ] (a6b) El Cubo de Piezas (y sus piezas) y el Sobre Sorpresa (y sus muñequitos).
+  - [x] (a6b) El Cubo de Piezas y el Sobre Sorpresa.
+    Hecho el 2026-11-14: el cubo, 40 × 42, un cubo rojo de plástico que se estrecha hacia abajo
+    (sombreado como un cilindro con `heightShade`), con la tapa amarilla de cuatro tetones de gorra y
+    la visera a la derecha, el asa de barboquejo, la pieza verde que no encaja en la frente, ojos de
+    pieza redonda, la pegatina del «1000+», el esparadrapo en la grieta y zapatos de ladrillo azul;
+    con la tapa levantada, las piezas de colores en el borde, a la altura de su `muzzleY`. El sobre,
+    34 × 40, de papel de aluminio fucsia (material `fucsia`) con brillos en diagonal, las dos
+    pestañas dentadas que asoman de la silueta, la línea de «corte aquí» con sus tijeras, la letra
+    pequeña, la estrella con la «?» y la sonrisa codiciosa a la altura de su `muzzleY`; agachado,
+    más bajo y ancho; en el aire, los pies recogidos; a punto de escupir, la boca llena de confeti.
+  - [ ] (a6b2) Las piezas que tira el cubo y los muñequitos del sobre (el repetido y el dorado).
   - [ ] (a6c) La Destructora y la Fotocopiadora.
   - [ ] (a6d) El Sello y el Climatizador.
   - [ ] (a6e) El Dispensador de Turnos y los Postes de Cola.

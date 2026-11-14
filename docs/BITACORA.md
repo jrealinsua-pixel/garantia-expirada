@@ -2,6 +2,40 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 09:55 (hora peninsular) — Hito M14c — (a6b) El Cubo de Piezas y el Sobre Sorpresa con el estilo nuevo
+- Contexto: segunda tarea de la sesión, tras la (a6a). La (a4d) sigue libre; esta coge la planta 3,
+  que no se pisa con los personajes.
+- Hecho: M14c (a6b), en `tools/sprites/planta3-nuevo.ts`. **El Cubo de Piezas** (40 × 42): un cubo
+  de plástico rojo que se estrecha hacia abajo, sombreado como un cilindro que adelgaza
+  (`heightShade`, con su brillo), el borde un píxel más ancho **en la fila de su `muzzleY`** (de ahí
+  salen las piezas); la tapa amarilla puesta de gorra (un disco visto desde arriba, su canto y la
+  visera a la derecha) con cuatro tetones; el asa de alambre bajando por los lados hasta debajo de la
+  barbilla, de barboquejo; la pieza verde torcida en la frente; ojos de pieza redonda blanca, cejas
+  gruesas y la boca agria; la pegatina del «1000+» en el costado, el esparadrapo sobre una grieta y
+  zapatos de ladrillo azul con sus tetones. Con la tapa levantada (el aviso antes de tirar), un
+  puñado de piezas azules, amarillas y verdes asoma por el borde, las cejas bajan y la mano sube.
+  **El Sobre Sorpresa** (34 × 40): un sobre de cromos de papel de aluminio fucsia (material nuevo,
+  `fucsia`) con brillos en diagonal, las dos pestañas dentadas que asoman de la silueta, la línea de
+  puntos de «corte aquí» con las tijeras, la letra pequeña en el canto y abajo, la estrella con la
+  «?» en la esquina y una sonrisa codiciosa **a la altura de su `muzzleY`**; agachado para saltar,
+  más bajo y ancho; en el aire, los pies recogidos; a punto de escupir, la boca abierta llena de
+  confeti. Los mismos fotogramas de antes (7 y 5). Anclas nuevas (cubo 19, 40; sobre 17, 38).
+  Tests en `tests/estilo-a6.test.ts` (ahora 9): los dos entran en los generales, y uno nuevo
+  comprueba los pies en el ancla (y recogidos en el aire), el borde del cubo y la boca del sobre en
+  la fila de su `muzzleY`, las piezas que solo se ven con la tapa levantada y la boca abierta del
+  sobre al escupir. La comparación de siluetas ya mide los cuatro de la planta entre sí.
+- Decisiones: (1) El sobre en `rosa` (el del secador) quedaba desvaído, de cojín; el aluminio pide
+  un magenta saturado como el de antes, así que lleva rampa propia. (2) Se probó un código de barras
+  abajo: pegado a la boca parecía una dentadura, y se cambió por más letra pequeña (que además va con
+  el juego). (3) El asa del cubo cruzando la cara parecía una sonrisa; baja por debajo de la boca.
+  (4) Las piezas y los muñequitos se quedan con el dibujo viejo por ahora: van en una tarea aparte,
+  (a6b2), para no alargar esta.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual). Tests
+  y e2e en verde.
+- Problemas conocidos: las cajas de golpes son las de antes. Los muñequitos del sobre, viejos, se
+  ven pequeños al lado.
+- Siguiente paso: M14c (a6b2), las piezas y los muñequitos (la (a4d1) la tiene otra sesión).
+
 ## 2026-11-14 09:20 (hora peninsular) — Hito M14c — (a6a) El Robot de Cuerda y el Coche Teledirigido con el estilo nuevo
 - Contexto: sesión programada. El `main` local era un clon viejo y superficial (`git fetch
   --unshallow` y `main` movido a `origin/main`; no tenía nada propio). Había dos sesiones

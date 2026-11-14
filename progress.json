@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T09:20:00+01:00",
+  "actualizado": "2026-11-14T09:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1116,
-    "tests_ok": 1116,
+    "tests": 1117,
+    "tests_ok": 1117,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38153
+    "lineas_codigo": 38155
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T09:55:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a6b): el Cubo de Piezas y el Sobre Sorpresa con el estilo nuevo. El cubo, de plástico rojo con la tapa de tetones puesta de gorra, la pieza verde que no encaja en la frente y zapatos de ladrillo; al levantar la tapa asoman las piezas que va a tirar. El sobre, de aluminio fucsia con las pestañas dentadas, la línea de «corte aquí» y la boca llena de confeti cuando va a escupir."
+    },
     {
       "fecha": "2026-11-14T09:20:00+01:00",
       "hito": "M14c",
@@ -1495,6 +1500,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/cubo-sobre-redibujados.png",
+      "pie": "M14c (a6b): el Cubo de Piezas y el Sobre Sorpresa, antes (el primero de cada uno) y ahora (de pie, andando y con la tapa levantada; de pie, agachado, en el aire y a punto de escupir confeti), a 3×"
+    },
+    {
+      "archivo": "capturas/sobre-en-juego.png",
+      "pie": "M14c (a6b): dos sobres nuevos saltando y escupiendo confeti alrededor de la tostadora en la Juguetería"
+    },
+    {
       "archivo": "capturas/robot-coche-redibujados.png",
       "pie": "M14c (a6a): el Robot de Cuerda y el Coche Teledirigido, antes (el primero de cada uno) y ahora (de pie, andando, sin cuerda y dándose cuerda; en marcha, embistiendo, volcado y sin pilas), a 3×"
     },
@@ -1509,17 +1522,9 @@
     {
       "archivo": "capturas/plancha-juego.png",
       "pie": "M14c (a4c2): la Plancha nueva dejando vapor con la suela caliente bajo un aspirador, en la Sala de Pruebas (el Pulverizador aún es el viejo: va en la (a13))"
-    },
-    {
-      "archivo": "capturas/raton-webcam-redibujados.png",
-      "pie": "M14c (a5e): el Ratón y la Webcam, antes (el primero de cada uno) y ahora (con la luz parpadeando y congelado; mirando y grabando), a 3×"
-    },
-    {
-      "archivo": "capturas/raton-en-juego.png",
-      "pie": "M14c (a5e): el ratón nuevo congelado sin señal junto a la tostadora, en la planta 2"
     }
   ],
-  "proximo": "M14c (a4d), el Becario Eterno y el Móvil con el estilo nuevo y sus 24 fotogramas, o la (a6b), el Cubo de Piezas y el Sobre Sorpresa (las dos libres; no se pisan).",
+  "proximo": "M14c (a6b2), las piezas del cubo y los muñequitos del sobre (la (a4d1), el Becario, la tiene otra sesión).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1551,11 +1556,6 @@
     {
       "sesion": "2026-11-14 09:30 (hora peninsular)",
       "tarea": "M14c (a4d1): el Becario Eterno con el estilo nuevo y sus 24 fotogramas (tools/sprites/becario*.ts, src/data/characters.ts, tests/becario-a4d.test.ts). No toca enemigos",
-      "desde": "2026-11-14T09:30:00+01:00"
-    },
-    {
-      "sesion": "2026-11-14 09:30 (hora peninsular)",
-      "tarea": "M14c (a6b): el Cubo de Piezas y el Sobre Sorpresa con el estilo nuevo (tools/sprites/planta3-nuevo.ts, build.ts, anclas en src/data/enemies.ts, tests/estilo-a6.test.ts). No toca personajes",
       "desde": "2026-11-14T09:30:00+01:00"
     }
   ]
