@@ -47,7 +47,9 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Problemas conocidos: el cable se dibuja desde debajo de la Centralita, no desde la clavija de su
   mano (el sprite no tiene una pose de «tirar» que lo encaje); la Trituradora solo mira a izquierda
   o derecha, así que el giro se lee por las orugas marcadas y el polvo, no por el dibujo. Las dos
-  cosas se pueden arreglar en M14c (a7), al redibujar los jefes.
+  cosas se pueden arreglar en M14c (a7), al redibujar los jefes. Un tropiezo: el primer commit
+  se subió con un error de tipos en el test nuevo (el `npm run check | tail` se tragó el código de
+  salida); arreglado en el siguiente commit, un minuto después. Comprobar con `set -o pipefail`.
 - Siguiente paso: M14b (h11c), las plantillas de sala con más forma (lo último de M14b), si la
   sesión que la cogió no ha vuelto; si no, M14c (a4a), la Tostadora con el estilo nuevo en el juego.
 
