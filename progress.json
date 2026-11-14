@@ -1652,6 +1652,11 @@
       "sesion": "2026-11-14 23:27 (hora peninsular)",
       "tarea": "M14c (a13a): las cinco primeras armas con el estilo nuevo (Secador, Grapadora, Plancha, Megáfono, Etiquetadora) en tools/sprites/armas-nuevo.ts nuevo, solo las líneas arma-* de tools/sprites/build.ts y tests/estilo-a13a.test.ts nuevo. No toca src/art/room.ts ni las plantas",
       "desde": "2026-11-14T23:27:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 23:47 (hora peninsular)",
+      "tarea": "M14c (a8b): la pared del fondo de la planta 1 (estantería con cajas, techo, tubos y lámparas) y la estantería exenta, con el estilo nuevo (src/art/almacen-nuevo.ts, src/art/room.ts solo las ramas de la planta 1, tests/estilo-a8b.test.ts nuevo). No toca armas, jefes ni otras plantas",
+      "desde": "2026-11-14T23:47:00+01:00"
     }
   ]
 }
