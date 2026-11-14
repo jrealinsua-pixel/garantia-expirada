@@ -958,7 +958,11 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       se doblan al estrellarse, la tarjeta de «Fuera de servicio» y ruedas con bujes que giran.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
   Partida el 2026-11-14 en un jefe por tarea (son grandes y cada uno tiene sus fases):
-  - [ ] (a7a) La Nevera Suprema (planta 1). Decide el tamaño de los jefes y el despiece propio.
+  - [x] (a7a) La Nevera Suprema (planta 1). Decide el tamaño de los jefes y el despiece propio.
+    Hecho el 2026-11-14 en `tools/sprites/nevera-nuevo.ts`: 84 × 88 (antes 72 × 76), material
+    nuevo `esmalte`, 17 fotogramas (antes 12: poses de ataque y la puerta reventando al cambiar de
+    fase), `despiece-nevera-suprema` (6 piezas) que el juego suelta al deshacerse; ancla (38, 86);
+    `tests/estilo-a7a.test.ts`. La regla del tamaño de los jefes, en `docs/ESTILO_ARTE.md`.
   - [ ] (a7b) La Lavadora Eco (planta 1).
   - [ ] (a7c) El Router Wi-Fi y sus repetidores (planta 2).
   - [ ] (a7d) La Nube de Almacenamiento (planta 2).

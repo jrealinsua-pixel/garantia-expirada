@@ -1590,15 +1590,17 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // M9b (15): 200 → 135, to make up for the weapons' lower damage (M9b 7) and keep floor 1 winnable.
     hp: 90,
     sprite: 'nevera-suprema',
-    anchor: { x: 34, y: 73 },
+    anchor: { x: 38, y: 86 },
     hurt: { x: -25, y: -70, w: 48, h: 62 },
     footRadius: 16,
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [3, 4], hearts: 1 },
-    // 0-1 breathing, 2-5 a heavy walk; 6-11 the same with the door open (second phase).
-    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, phaseShift: 6 },
+    // M14c (a7a, tools/sprites/nevera-nuevo.ts): 0-1 breathing, 2-5 a heavy walk, 6-7 its attack
+    // poses (the dispenser shooting, lobbing frost), 8 the door bursting open (the phase change);
+    // 9-14 the same with the door open (second phase), 15-16 its poses (the cards, the food thrown).
+    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, phaseShift: 9, clap: 8 },
     brain: {
       kind: 'boss',
       roam: { leg: [0.5, 1.3], burst: [0.6, 1.4], spread: 50 },
@@ -1617,10 +1619,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
           keep: 130,
           rest: [0.9, 1.5],
           attacks: [
-            { kind: 'pattern', pattern: 'nevera-cubitos', telegraph: 0.7, weight: 3 },
-            { kind: 'pattern', pattern: 'nevera-granizo', telegraph: 0.9, weight: 2 },
+            { kind: 'pattern', pattern: 'nevera-cubitos', telegraph: 0.7, weight: 3, pose: 6 },
+            { kind: 'pattern', pattern: 'nevera-granizo', telegraph: 0.9, weight: 2, pose: 6 },
             // «Escarcha»: frost on the floor that slows you down where you were going to dodge.
-            { kind: 'frost', count: 3, spread: 56, flight: 0.9, radius: 22, life: 7, slow: 0.5, shatter: 'escarcha-esquirlas', telegraph: 0.6, weight: 2 },
+            { kind: 'frost', count: 3, spread: 56, flight: 0.9, radius: 22, life: 7, slow: 0.5, shatter: 'escarcha-esquirlas', telegraph: 0.6, weight: 2, pose: 7 },
           ],
         },
         {
@@ -1631,9 +1633,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
           keep: 120,
           rest: [0.8, 1.3],
           attacks: [
-            { kind: 'pattern', pattern: 'nevera-tarjetas', telegraph: 0.7, weight: 3 },
+            { kind: 'pattern', pattern: 'nevera-tarjetas', telegraph: 0.7, weight: 3, pose: 15 },
             // «Productos caducados»: a spray of expired food from the open fridge, each bursting where it lands.
-            { kind: 'spit', count: 5, spread: 72, flight: 0.85, from: { x: 3, y: 30 }, burst: 'caducado-reventon', telegraph: 0.8, weight: 3 },
+            { kind: 'spit', count: 5, spread: 72, flight: 0.85, from: { x: 3, y: 30 }, burst: 'caducado-reventon', telegraph: 0.8, weight: 3, pose: 16 },
             { kind: 'pattern', pattern: 'nevera-cubitos', telegraph: 0.6, weight: 2 },
           ],
         },

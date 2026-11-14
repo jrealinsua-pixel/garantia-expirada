@@ -2,6 +2,43 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 16:20 (hora peninsular) — Hito M14c — (a7a) La Nevera Suprema con el estilo nuevo
+- Contexto: nadie trabajaba al llegar (`en_curso` vacío) y `main` estaba sano (`check`, `test`,
+  `build` y `bot` en verde). La (a7), «los jefes redibujados», era demasiado grande para una
+  sesión: **partida en nueve**, un jefe por tarea, (a7a)–(a7i).
+- Hecho: M14c (a7a), en `tools/sprites/nevera-nuevo.ts` (la vieja, la aprobada, sigue en
+  `characters.ts` porque la vigila `art/referencia/`). **La Nevera Suprema** (84 × 88, antes
+  72 × 76): frigorífico de dos puertas de **esmalte** (material nuevo en `src/art/paleta.ts`, el
+  blanco frío de las neveras), la cara en el congelador (pilotos rojos en cuencas oscuras,
+  párpados planos y cejas de escarcha), el **dispensador de hielo por boca** en su `muzzle` (dientes
+  de carámbano y de cubito, la paleta colgando como una campanilla, la pantallita del «-18»), la
+  corona de oro torcida, la etiqueta A+++, la escarapela de «Empleada del mes» que se colgó ella,
+  tiradores cromados, carámbanos bajo la junta, óxido, **guantes de fregar rosas** y botas de
+  seguridad. **17 fotogramas** (antes 12): respirar y andar (como antes), una **pose por ataque**
+  (cubitos: el dispensador se enciende; escarcha: guantes arriba y ojos cian) y la **puerta
+  reventando** en el cambio de fase (`anim.clap`); en la fase 2 la nevera abierta con la comida
+  caducada y la puerta por dentro (kétchup, mostaza, el cava de alguna Navidad), y sus poses (el
+  abanico de tarjetas de fidelización y la comida saliendo volando). **Despiece propio**
+  (`despiece-nevera-suprema`, seis piezas de 12 × 12: corona, tirador, cubito, yogur, etiqueta,
+  kétchup): `GameScene` lo usa para cualquier jefe que tenga su hoja `despiece-<sprite>` (mientras
+  se deshace, un 70 % de piezas suyas; al romperse, todas de golpe). Ancla nueva (38, 86); la caja
+  de golpes y la boca, las de siempre. `tests/estilo-a7a.test.ts` (6 tests).
+- Decisiones: (1) **El tamaño de los jefes**: un sexto más de fotograma y no más (la vista es de
+  480 × 270), con el cuerpo del tamaño de su caja de golpes y lo que crece, lo que sobresale
+  (corona, guantes, la puerta); escrito en `docs/ESTILO_ARTE.md` para los demás. (2) Las poses de
+  la fase 1 enseñan la puerta cerrada, así que el ataque de cubitos de la fase 2 se queda sin pose
+  (con la puerta cerrada se vería mal). (3) Esmalte y no `crema`: la crema es el blanco amarillento
+  del microondas; la nevera es fría. (4) Guantes rosas de fregar: en azul parecían burbujas sueltas
+  y con el rosa se leen como guantes y contrastan con el blanco.
+- Medidas: la simulación no cambia (solo el ancla del dibujo). 1156 tests en verde. `npm run e2e`
+  entero en verde; capturas de la nevera miradas (cubitos, cambio de fase, fase 2, tarjetas y
+  liquidación con las piezas volando). `npm run bot`: 200 partidas, 0 fallos, 5
+  atascos y la jefa ganada el 90 % en 57,7 s, igual que antes.
+- Problemas conocidos: el aviso del juego tiñe la silueta mientras avisa, así que las poses se ven
+  sobre todo justo después del aviso (como en los demás jefes). Volteada hacia la izquierda, la
+  puerta abierta queda a la izquierda (se voltea entera, como todos).
+- Siguiente paso: M14c (a7b), la Lavadora Eco.
+
 ## 2026-11-14 15:16 (hora peninsular) — Hito M14c — (a6f1) El Asistente Virtual y el Teléfono de Recepción con el estilo nuevo
 - Contexto: al llegar, la (a6d) y la (a6e) estaban cogidas por otras dos sesiones (planta 4 y
   `planta5-nuevo.ts`); para no pisarlas, esta cogió la (a6f) en un archivo propio,

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T15:16:00+01:00",
+  "actualizado": "2026-11-14T16:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1150,
-    "tests_ok": 1150,
+    "tests": 1156,
+    "tests_ok": 1156,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 38183
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T16:20:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7a): la Nevera Suprema con el estilo nuevo, el primer jefe redibujado (la (a7) partida en un jefe por tarea). Frigorífico de dos puertas de esmalte blanco frío (material nuevo), la cara en el congelador con pilotos rojos y cejas de escarcha, el dispensador de hielo por boca con dientes de carámbano, la corona de oro torcida, la etiqueta A+++, la escarapela de «Empleada del mes», guantes de fregar rosas y botas de seguridad. Más fotogramas (17, antes 12): una pose por ataque y la puerta reventando al cambiar de fase; en la fase 2, la nevera abierta con comida caducada, el abanico de tarjetas y la comida saliendo volando. Despiece propio: al deshacerse suelta su corona, un tirador, cubitos, el yogur, la etiqueta y el kétchup. Regla del tamaño de los jefes: un sexto más, con el cuerpo del tamaño de su caja de golpes."
+    },
     {
       "fecha": "2026-11-14T15:16:00+01:00",
       "hito": "M14c",
@@ -1545,6 +1550,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/nevera-redibujada.png",
+      "pie": "M14c (a7a): la Nevera Suprema, antes (la primera de cada fila) y ahora: arriba, de pie, disparando cubitos, lanzando escarcha, reventando la puerta al cambiar de fase y andando; abajo, la fase 2 con la puerta abierta, el abanico de tarjetas y la comida caducada saliendo volando, a 3×"
+    },
+    {
+      "archivo": "capturas/nevera-en-juego.png",
+      "pie": "M14c (a7a): la nevera nueva en su sala: los cubitos del dispensador, la puerta reventando al cambiar de fase (de cerca) y la fase 2 con la nevera abierta"
+    },
+    {
       "archivo": "capturas/recepcion-redibujada.png",
       "pie": "M14c (a6f1): el Asistente Virtual y el Teléfono de Recepción, ahora (las dos filas de arriba: de pie, andando y escribiendo; de pie, agachado, en el aire, sonando y pasando la llamada) y antes (las dos de abajo), a 3×"
     },
@@ -1559,17 +1572,9 @@
     {
       "archivo": "capturas/carretilla-redibujada.png",
       "pie": "M14c (a6f2): la Carretilla Elevadora, ahora (arriba: en marcha, rodando, avisando con la rotativa y las horquillas arriba, y aturdida con las horquillas dobladas) y antes (abajo), a 3×"
-    },
-    {
-      "archivo": "capturas/carretilla-en-juego.png",
-      "pie": "M14c (a6f2): la carretilla nueva en la Zona de Embalaje del Servicio Técnico: rodando, girando hacia la tostadora, avisando (la silueta se tiñe), embistiendo y aturdida"
-    },
-    {
-      "archivo": "capturas/sello-climatizador-redibujados.png",
-      "pie": "M14c (a6d): el Sello de Denegado y el Climatizador Portátil, ahora y antes (de arriba abajo: el sello nuevo de pie, agachado, en el aire, estampando y recién estampado; el de antes; el climatizador nuevo andando y con escarcha; el de antes), a 3×"
     }
   ],
-  "proximo": "M14c (a7), los jefes redibujados, empezando por la Nevera Suprema (la (a6) ya está terminada).",
+  "proximo": "M14c (a7b), la Lavadora Eco (y después el resto de los jefes, uno por tarea: (a7c)–(a7i)).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1597,11 +1602,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-14 15:27 (hora peninsular)",
-      "tarea": "M14c (a7a): la Nevera Suprema con el estilo nuevo (tools/sprites/nevera-nuevo.ts nuevo, tools/sprites/build.ts su línea, src/data/enemies.ts la nevera, tests/estilo-a7a.test.ts nuevo, y el despiece de los jefes en GameScene). No toca otros jefes ni enemigos",
-      "desde": "2026-11-14T15:27:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

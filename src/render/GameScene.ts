@@ -1173,6 +1173,8 @@ export class GameScene extends Phaser.Scene {
     const v = this.enemySprites.get(e.source);
     // Small fry (the moth) gets a smaller send-off.
     const big = !v || v.s.width >= 20;
+    // (Read before the view is destroyed below.)
+    const own = v ? `despiece-${v.s.texture.key}` : '';
     this.hitstop = big ? 0.08 : 0.04;
     this.shake(big ? 170 : 90, big ? 0.009 : 0.005, true);
     this.sound2.play('desmontar', { detune: big ? this.fx.range(-150, 100) : 500, volume: big ? 1 : 0.6 });
@@ -1229,6 +1231,27 @@ export class GameScene extends Phaser.Scene {
         hw: 3,
         hh: 3,
       });
+    }
+    // A boss with debris of its own (M14c (a7), `despiece-<sprite>`): every piece of it, once.
+    if (own && this.textures.exists(own)) {
+      for (let f = 0; f < this.textures.get(own).frameTotal - 1; f++) {
+        const a = this.fx.range(0, Math.PI * 2);
+        this.particles.push({
+          s: this.add.image(cx, e.y + this.fx.range(-3, 3), own, f),
+          vx: Math.cos(a) * this.fx.range(40, 110),
+          vy: Math.sin(a) * this.fx.range(14, 36),
+          z: Math.max(2, e.y - cy + this.fx.range(16, 48)),
+          vz: this.fx.range(80, 160),
+          life: this.fx.range(2.6, 3.4),
+          maxLife: 3.4,
+          gravity: true,
+          spin: this.fx.range(-10, 10),
+          fade: true,
+          fadeTime: 0.6,
+          hw: 5,
+          hh: 5,
+        });
+      }
     }
     for (let i = 0; i < (big ? 6 : 3); i++) this.puff(cx + this.fx.range(-8, 8), cy - this.fx.range(4, 20), this.fx.range(0.4, 0.7));
     for (let i = 0; i < (big ? 14 : 6); i++) this.spark(cx, cy - 12, this.fx.range(0, Math.PI * 2), this.fx.range(60, 160), this.fx.int(0, 3));
@@ -2300,6 +2323,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * A piece flying off a boss as it comes apart: its own debris if it has a `despiece-<sprite>`
+   * sheet (M14c (a7): the Nevera's crown, handle, ice cube...), mixed with plain scrap; else scrap.
+   */
+  private bossBit(en: Enemy, x: number, y: number): Phaser.GameObjects.Image {
+    const own = `despiece-${en.def.sprite}`;
+    if (this.textures.exists(own) && this.fx.chance(0.7)) {
+      return this.add.image(x, y, own, this.fx.int(0, this.textures.get(own).frameTotal - 2));
+    }
+    return this.add.image(x, y, 'chatarra', this.fx.int(0, 3));
+  }
+
+  /**
    * A boss coming apart (state `dying`): it shakes harder and flashes faster, with blasts of
    * sparks, smoke and screws popping all over it, and cold breath leaking out.
    */
@@ -2328,7 +2363,7 @@ export class GameScene extends Phaser.Scene {
     if (this.fx.chance(0.6)) {
       const a = this.fx.range(0, Math.PI * 2);
       this.particles.push({
-        s: this.add.image(bx, en.y + this.fx.range(-3, 3), 'chatarra', this.fx.int(0, 3)),
+        s: this.bossBit(en, bx, en.y + this.fx.range(-3, 3)),
         vx: Math.cos(a) * this.fx.range(30, 80),
         vy: Math.sin(a) * this.fx.range(10, 25),
         z: Math.max(2, en.y - by),

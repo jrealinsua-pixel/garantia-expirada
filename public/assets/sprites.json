@@ -277,9 +277,15 @@
   },
   "nevera-suprema": {
     "file": "nevera-suprema.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 12
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 17
+  },
+  "despiece-nevera-suprema": {
+    "file": "despiece-nevera-suprema.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "lavadora-eco": {
     "file": "lavadora-eco.png",

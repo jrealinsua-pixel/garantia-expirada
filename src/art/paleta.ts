@@ -75,6 +75,11 @@ export const MATERIALS = {
    * `amarillo` (the coupons' yellow), so a coupon never hides on it; shadows to brown and plum.
    */
   mostaza: r('#fbe9a8', '#e8c45e', '#c99c38', '#9c702b', '#6f4b2b', '#48302d', '#361a30'),
+  /**
+   * M14c (a7a): the Nevera Suprema's cold white enamel: a warm white only where the light hits,
+   * then frosty blue-greys down to slate violet (colder than `crema`, the microwave's yellowed one).
+   */
+  esmalte: r('#fdfbf1', '#e3ebf2', '#bfcde0', '#93a3c4', '#6c76a2', '#4b4f7e', '#312c58'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

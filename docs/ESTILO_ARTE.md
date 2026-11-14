@@ -114,6 +114,37 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   logo de encendido. Manos de silicona de oro rosa (`mano-movil`), zapatillas blancas con una raya
   azul y el cable de cargar arrastrando con su cinta amarilla. El arma y sus balas siguen con el
   dibujo viejo hasta la (a13).
+- **Los jefes** (M14c (a7), decidido en la (a7a)): el fotograma crece **un sexto** (la Nevera,
+  de 72 × 76 a 84 × 88), no más: la vista es de 480 × 270 y un jefe de 90 px ya ocupa un tercio
+  del alto. El **cuerpo se queda del tamaño de su caja de golpes** (que no cambia; el test mira que
+  la llene en más de un 85 % y que la carcasa no se salga más de 6 px por lado): lo que crece es lo
+  que sobresale y se puede rozar sin tocarlo (corona, guantes, la puerta abierta). **Más
+  fotogramas**: una **pose por ataque** (`pose` del ataque: se ve mientras avisa y justo después),
+  un fotograma para el **cambio de fase** (`anim.clap`) y, en la fase 2, las mismas poses con su
+  aspecto nuevo. **Despiece propio**: una hoja `despiece-<sprite>` de piezas de 12 × 12 con sus
+  cosas; mientras se deshace suelta sobre todo piezas suyas (con algo de chatarra), y al romperse
+  del todo salen todas de golpe con los trozos del sprite.
+- **La Nevera Suprema** (M14c (a7a), `tools/sprites/nevera-nuevo.ts`; la vieja, la aprobada, se
+  queda en `characters.ts` para `art/referencia/`): frigorífico de dos puertas en tres cuartos de
+  **esmalte** (material nuevo, el blanco frío de las neveras: luz blanca cálida y sombras gris
+  azulado hasta pizarra violeta; más frío que la `crema` del microondas). La cara en la puerta del
+  congelador: dos pilotos rojos en cuencas oscuras, párpados planos de esmalte y **cejas de
+  escarcha** hacia dentro; la boca es el **dispensador de hielo** (su `muzzle`), un pozo oscuro con
+  dientes de carámbano arriba y de cubito abajo, la paleta colgando como una campanilla y la
+  pantallita del «-18». Encima, la **corona de oro** que se compró ella, un poco torcida; en la
+  puerta, la **etiqueta A+++** con su arcoíris y la **escarapela de «Empleada del mes»** que se
+  colgó ella; tiradores cromados, zócalo con rejilla, óxido en las esquinas y carámbanos bajo la
+  junta: veinte años sin descongelarse. **Guantes de fregar rosas** (de goma, con el pulgar y el
+  puño vuelto) y botas de seguridad. Poses: al disparar cubitos, el dispensador se enciende de
+  `cian` con un cubito saliendo; al lanzar escarcha, los guantes por encima de la cabeza, los ojos
+  cian entornados y escarcha en la corona; el **cambio de fase**, la puerta reventando entreabierta
+  con la luz saliendo y los ojos en blanco. **Fase 2**: la puerta de abajo abierta hacia la
+  derecha (se ve por dentro, con la botella de kétchup, la mostaza y el cava de alguna Navidad) y
+  el interior iluminado es la boca: carámbanos arriba, dos baldas de comida caducada (el yogur con
+  sombrero de moho, el brik de leche, la lata, la tarta con una vela), el cajón de la lechuga mustia
+  y un vaho verde. Poses: el abanico de **tarjetas de fidelización** en el guante, una ceja arriba
+  (vendiendo), y la comida saliendo volando. Despiece: la corona, un tirador, un cubito, el yogur,
+  la etiqueta A+++ y el kétchup.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

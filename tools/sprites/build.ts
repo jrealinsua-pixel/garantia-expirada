@@ -6,9 +6,7 @@ import { Canvas, hx, scaled } from '../../src/art/canvas.ts';
 import { buildRoom } from '../../src/sim/room.ts';
 import { HUB, ROOMS } from '../../src/data/rooms.ts';
 import { paintRoom } from '../../src/art/room.ts';
-import {
-  NEVERA_POSES, makeNevera, miniDryer, miniStapler,
-} from './characters.ts';
+import { miniDryer, miniStapler } from './characters.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
@@ -40,6 +38,7 @@ import * as P5 from './planta5-nuevo.ts';
 import * as TN from './taller-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
 import * as RC from './recepcion-nuevo.ts';
+import * as NV from './nevera-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
@@ -135,8 +134,10 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // What comes out of the envelope (M14c (a6b2), planta3-nuevo.ts): 0-1 standing, 2-5 running, 6 biting.
     'munequito-repetido': { canvas: strip(P3.makeMunequitoNuevoFrames(false)), frameW: P3.MUNE_W, frameH: P3.MUNE_H },
     'munequito-dorado': { canvas: strip(P3.makeMunequitoNuevoFrames(true)), frameW: P3.MUNE_W, frameH: P3.MUNE_H },
-    // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
-    'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
+    // M14c (a7a): La Nevera Suprema in the new style (tools/sprites/nevera-nuevo.ts, NEVERA_FRAMES),
+    // and the debris it sheds as it comes apart (GameScene's dying boss looks for despiece-<sprite>).
+    'nevera-suprema': { canvas: strip(NV.makeNeveraNuevaFrames()), frameW: NV.NEVERA_W, frameH: NV.NEVERA_H },
+    'despiece-nevera-suprema': { canvas: strip(NV.makeNeveraBits()), frameW: NV.NEVERA_BIT, frameH: NV.NEVERA_BIT },
     // Floor 1's second boss (M14 (j2)): seven frames per program (rest, breathing, walking, weighing the
     // load), Prelavado 0-6, Lavado 7-13, Centrifugado 14-20; its soap bubbles and odd socks.
     'lavadora-eco': { canvas: strip(LV.makeLavadoraFrames()), frameW: LV.LAVADORA_W, frameH: LV.LAVADORA_H },
