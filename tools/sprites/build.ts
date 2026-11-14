@@ -9,8 +9,6 @@ import { paintRoom } from '../../src/art/room.ts';
 import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
-import {
-  makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
 import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
@@ -21,7 +19,6 @@ import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
-import * as TL from './taller.ts';
 import * as TR from './trituradora.ts';
 import * as FN from './final.ts';
 import { makeMiniMegaphone, makeSoundWave } from './megafono.ts';

@@ -2,6 +2,48 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 15:16 (hora peninsular) — Hito M14c — (a6f1) El Asistente Virtual y el Teléfono de Recepción con el estilo nuevo
+- Contexto: al llegar, la (a6d) y la (a6e) estaban cogidas por otras dos sesiones (planta 4 y
+  `planta5-nuevo.ts`); para no pisarlas, esta cogió la (a6f) en un archivo propio,
+  `tools/sprites/recepcion-nuevo.ts`. Mientras trabajaba, otra sesión partió la (a6f) en dos y
+  terminó la (a6f2), la Carretilla; el `pull --rebase` solo chocó en la hoja de ruta (resuelto a
+  mano: las dos mitades hechas). El `main` local volvía a ser una copia poco profunda; se trajo la
+  historia entera y se puso en `origin/main`.
+- Hecho: M14c (a6f1). **El Asistente Virtual** (34 × 48, antes 27 × 36; los mismos 8 fotogramas):
+  un tótem de autoservicio de plástico blanco con la pantalla grande de `azul` encendida y su cara
+  de siempre (ojos de punto con brillo, coloretes y la sonrisa enorme con la lengua, el borde de
+  abajo en la fila de su `muzzleY`), la franja de la marca en `turquesa` con su raya blanca y
+  zapatillas a juego; chistes: el «¿En qué puedo ayudarle?» quemado en la pantalla, las huellas de
+  dedos, el cartel de papel del costado, la pegatina QR de «Valore su experiencia», la webcam de
+  arriba con la luz roja siempre encendida y el tique que nadie pidió saliendo de la impresora.
+  Respira con la pantalla y, escribiendo, enseña los tres puntos con la mano tocando el cristal.
+  **El Teléfono de Recepción** (46 × 38, antes 36 × 30; los mismos 7): el teléfono de mesa de
+  treinta años en plástico amarillento (`crema`), una cuña de tres cuartos con la horquilla vacía,
+  la pantallita de «L1 RETENIDA», el pósit «Ext. 0», ojos de recepcionista cansada sobre un teclado
+  de demasiadas teclas con la columna roja que nadie entiende, la luz de mensajes que parpadea y el
+  auricular colgando del cable rizado; agachado, en el aire con las piernas recogidas, sonando
+  (ojos cerrados, boca abierta, se agita y salta el auricular) y pasando la llamada (de reojo,
+  sonrisa de lado y la mano señalando atrás). Anclas nuevas (17, 46) y (23, 36); las cajas de
+  golpes y los `muzzleY`, los de siempre. Test nuevo `tests/estilo-a6f.test.ts` (4);
+  `tests/clientela-sprites.test.ts` mide las hojas nuevas. Sección en `docs/ESTILO_ARTE.md`.
+  **Con esto la (a6) está terminada.**
+- Arreglado de paso: `npm run check` fallaba en `main` por dos imports que se quedaron sin usar en
+  `tools/sprites/build.ts` (los makers viejos del Sello y el Climatizador, y `taller.ts`), de las
+  sesiones de la (a6d) y la (a6f2). Quitados.
+- Decisiones: (1) Archivo propio y no `planta5-nuevo.ts`, que estaba cogido. (2) El teléfono en
+  `crema` amarillento, no en `beige`: en el juego ya hay tres cajas beige (impresora, destructora y
+  la de las versiones) y el chiste es que lleva treinta años amarilleando. (3) El asistente en blanco
+  con turquesa: en la planta 5 ya hay granate (dispensador), cromo y azul (postes) y amarillento
+  (teléfono). (4) Las cejas del teléfono caen por fuera (cansada, no enfadada): con la caída hacia
+  dentro parecía furiosa.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual que
+  antes). 1150 tests en verde. `npm run e2e` entero en verde; capturas del escudo FAQ, los timbres
+  y la llamada miradas: se leen bien al lado de la tostadora.
+- Problemas conocidos: el QR y el tique del asistente, a tamaño real, son una mancha de puntos
+  (se entiende como «cosas pegadas»). El teléfono, volteado hacia la izquierda, lleva el auricular
+  a la derecha (como todos los personajes, se voltea entero).
+- Siguiente paso: M14c (a7), los jefes, empezando por la Nevera Suprema.
+
 ## 2026-11-14 15:00 (hora peninsular) — Hito M14c — (a6f2) La Carretilla Elevadora con el estilo nuevo
 - Contexto: misma sesión que la (a6e). Al cerrarla, la (a6d) y la (a6f1) (el Asistente y el
   Teléfono, en `recepcion-nuevo.ts`) las tenían otras sesiones; **partí la (a6f)** en la hoja de

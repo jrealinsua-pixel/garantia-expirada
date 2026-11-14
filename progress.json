@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T15:00:00+01:00",
+  "actualizado": "2026-11-14T15:16:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -126,7 +126,7 @@
       "id": "M14c",
       "nombre": "Arte nuevo (nota del humano del 13 de noviembre)",
       "estado": "pendiente",
-      "hechas": 4,
+      "hechas": 6,
       "total": 13
     },
     {
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1142,
-    "tests_ok": 1142,
+    "tests": 1150,
+    "tests_ok": 1150,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38171
+    "lineas_codigo": 38183
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T15:16:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a6f1): el Asistente Virtual y el Teléfono de Recepción con el estilo nuevo: el tótem blanco de autoservicio con la pantalla azul, la sonrisa de siempre, la franja turquesa, la webcam con la luz roja, el QR de «Valore su experiencia» y el tique que nadie pidió; el teléfono de mesa amarillento con la horquilla vacía, el pósit «Ext. 0», la pantallita «L1 RETENIDA», demasiadas teclas, la luz de mensajes que parpadea y el auricular colgando del cable rizado. Con esto la (a6) está terminada: todos los enemigos de las plantas 3, 4 y 5 tienen el estilo nuevo."
+    },
     {
       "fecha": "2026-11-14T15:00:00+01:00",
       "hito": "M14c",
@@ -1540,6 +1545,18 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/recepcion-redibujada.png",
+      "pie": "M14c (a6f1): el Asistente Virtual y el Teléfono de Recepción, ahora (las dos filas de arriba: de pie, andando y escribiendo; de pie, agachado, en el aire, sonando y pasando la llamada) y antes (las dos de abajo), a 3×"
+    },
+    {
+      "archivo": "capturas/asistente-en-juego.png",
+      "pie": "M14c (a6f1): el asistente nuevo con su escudo de «Pregunta frecuente» levantado contra los disparos de la tostadora, en Atención al Cliente"
+    },
+    {
+      "archivo": "capturas/telefono-en-juego.png",
+      "pie": "M14c (a6f1): el teléfono nuevo sonando, con su corona de timbres alrededor, en las Ventanillas"
+    },
+    {
       "archivo": "capturas/carretilla-redibujada.png",
       "pie": "M14c (a6f2): la Carretilla Elevadora, ahora (arriba: en marcha, rodando, avisando con la rotativa y las horquillas arriba, y aturdida con las horquillas dobladas) y antes (abajo), a 3×"
     },
@@ -1550,21 +1567,9 @@
     {
       "archivo": "capturas/sello-climatizador-redibujados.png",
       "pie": "M14c (a6d): el Sello de Denegado y el Climatizador Portátil, ahora y antes (de arriba abajo: el sello nuevo de pie, agachado, en el aire, estampando y recién estampado; el de antes; el climatizador nuevo andando y con escarcha; el de antes), a 3×"
-    },
-    {
-      "archivo": "capturas/climatizador-en-juego.png",
-      "pie": "M14c (a6d): el climatizador nuevo soplando su cono de frío hacia la tostadora, atado por la manguera a la pared, en la Planta en Reforma"
-    },
-    {
-      "archivo": "capturas/dispensador-postes-redibujados.png",
-      "pie": "M14c (a6e): el Dispensador de Turnos y los Postes de Cola, ahora (arriba: el dispensador de pie, andando, llamando un turno y con el turno perdido; los postes de pie, andando, disparando, con la cinta suelta y el desconchado) y antes (abajo), a 3×"
-    },
-    {
-      "archivo": "capturas/dispensador-postes-en-juego.png",
-      "pie": "M14c (a6e): los postes nuevos con su cinta tendida y el dispensador escupiendo tiques tras un turno perdido, en las Ventanillas de Atención al Cliente"
     }
   ],
-  "proximo": "M14c (a7), los jefes redibujados, empezando por la Nevera Suprema; o la (a6f1) si sigue sin cerrar más de 90 minutos.",
+  "proximo": "M14c (a7), los jefes redibujados, empezando por la Nevera Suprema (la (a6) ya está terminada).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1592,11 +1597,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-14 14:26 (hora peninsular)",
-      "tarea": "M14c (a6f1): el Asistente Virtual y el Teléfono de Recepción con el estilo nuevo (tools/sprites/recepcion-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts sus anclas, tests/estilo-a6f.test.ts nuevo). No toca planta4-nuevo.ts, planta5-nuevo.ts ni personajes",
-      "desde": "2026-11-14T14:26:00+01:00"
-    }
-  ]
+  "en_curso": []
 }
