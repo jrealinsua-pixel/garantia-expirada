@@ -957,6 +957,16 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       franja de peligro, la pegatina «APTO», las horquillas al tobillo que suben antes de embestir y
       se doblan al estrellarse, la tarjeta de «Fuera de servicio» y ruedas con bujes que giran.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
+  Partida el 2026-11-14 en un jefe por tarea (son grandes y cada uno tiene sus fases):
+  - [ ] (a7a) La Nevera Suprema (planta 1). Decide el tamaño de los jefes y el despiece propio.
+  - [ ] (a7b) La Lavadora Eco (planta 1).
+  - [ ] (a7c) El Router Wi-Fi y sus repetidores (planta 2).
+  - [ ] (a7d) La Nube de Almacenamiento (planta 2).
+  - [ ] (a7e) El Muñeco de Moda y su etiqueta (planta 3).
+  - [ ] (a7f) La Consola de Coleccionista (planta 3).
+  - [ ] (a7g) El Director de Recursos Inhumanos y su silla (planta 4).
+  - [ ] (a7h) La Centralita (planta 5).
+  - [ ] (a7i) La Trituradora del Servicio Técnico.
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
   sombras de pared y luz.
 - [ ] (a9) Props y decoración de cada planta (con M14b (h11)).
