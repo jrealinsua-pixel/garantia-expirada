@@ -1507,6 +1507,11 @@
       "sesion": "2026-11-14 03:30 (hora peninsular)",
       "tarea": "M14c (a4a): la Tostadora en el juego con el estilo nuevo (la h11c está cogida por otra sesión desde las 02:25)",
       "desde": "2026-11-14T03:30:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 05:00 (hora peninsular)",
+      "tarea": "M14c (a5b): la Bombilla y la Polilla con el estilo nuevo (tools/sprites/planta1-nuevo.ts, sus líneas en tools/sprites/build.ts, anchor en src/data/enemies.ts, SPRITE_GLOWS en GameScene, tests/estilo-a5.test.ts). No toca la Tostadora",
+      "desde": "2026-11-14T05:00:00+01:00"
     }
   ]
 }
