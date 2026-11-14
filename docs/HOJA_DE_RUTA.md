@@ -829,7 +829,9 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       camisa quemado pegado debajo, el vapor que sale con los golpes, guantes blancos de algodón
       (`mano-plancha`) y zapatos negros de la entrevista; `tests/plancha-a4c.test.ts` y
       `tests/plancha-vapor.test.ts` la miden contra la tostadora y la batidora nuevas.
-  - [ ] (a4d) El Becario Eterno y el Móvil.
+  - [ ] (a4d) El Becario Eterno y el Móvil, partida en dos el 2026-11-14 como la (a4c).
+    - [ ] (a4d1) El Becario Eterno, con sus fotogramas propios.
+    - [ ] (a4d2) El Móvil, con sus fotogramas propios.
 - [x] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
   - [x] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
     Hecho el 2026-11-14: `tools/sprites/planta1-nuevo.ts` (aspirador 42 × 40 con 7 fotogramas, el
