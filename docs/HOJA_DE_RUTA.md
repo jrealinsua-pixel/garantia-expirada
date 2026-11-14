@@ -859,7 +859,24 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     pinza con el objetivo a la altura de su `muzzleY`, la tapa de privacidad a media asta como un
     párpado, la cinta despegada colgando y el USB de cola; grabando, el iris rojo. En
     `tools/sprites/planta2-nuevo.ts`. Con esto la (a5) está terminada.
-- [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados.
+- [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados (de dos en dos, como la (a5); en
+  `tools/sprites/planta3-nuevo.ts` y los que vengan, con `tests/estilo-a6.test.ts`).
+  - [x] (a6a) El Robot de Cuerda y el Coche Teledirigido.
+    Hecho el 2026-11-14: el robot, 42 × 44, una caja de hojalata verde agua desteñida (material
+    `hojalata`) con la franja roja litografiada abajo, remaches, la costura del cuello, la rejilla de
+    dientes a la altura de su `muzzleY`, el ojo agrio y el tornillo por ojo (la ranura gira al darse
+    cuerda), la antena torcida, la llave de latón con su esparadrapo que gira en tres posiciones y la
+    etiqueta del «33+»; sin cuerda, la antena caída; dándose cuerda, tiembla. El coche, 46 × 30, de
+    plástico violeta (`violeta`, el de la Batidora de Vaso), con la cara de matón en el parachoques,
+    la antena doblada, el alerón con cinta, la raya que se despega y la rueda de delante de otro
+    coche; embistiendo, ojos rojos y humo; volcado, boca abajo; sin pilas, los faros apagados y la
+    batería baja encima.
+  - [ ] (a6b) El Cubo de Piezas (y sus piezas) y el Sobre Sorpresa (y sus muñequitos).
+  - [ ] (a6c) La Destructora y la Fotocopiadora.
+  - [ ] (a6d) El Sello y el Climatizador.
+  - [ ] (a6e) El Dispensador de Turnos y los Postes de Cola.
+  - [ ] (a6f) El Asistente Virtual y el Teléfono de Recepción (y la Carretilla Elevadora del
+    Servicio Técnico, que no es de ninguna planta).
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
   sombras de pared y luz.

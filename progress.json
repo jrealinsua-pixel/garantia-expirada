@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T09:10:00+01:00",
+  "actualizado": "2026-11-14T09:20:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1108,
-    "tests_ok": 1108,
+    "tests": 1116,
+    "tests_ok": 1116,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38151
+    "lineas_codigo": 38153
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T09:20:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a6a): el Robot de Cuerda y el Coche Teledirigido con el estilo nuevo, los primeros de la planta 3. El robot, una caja de hojalata verde agua con la franja roja, un tornillo por ojo y la llave sujeta con esparadrapo, que gira; el coche, de plástico violeta con cara de matón en el parachoques, el alerón con cinta y una rueda de otro coche; volcado, boca abajo, y sin pilas, con la batería baja encima."
+    },
     {
       "fecha": "2026-11-14T09:10:00+01:00",
       "hito": "M14c",
@@ -1490,6 +1495,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/robot-coche-redibujados.png",
+      "pie": "M14c (a6a): el Robot de Cuerda y el Coche Teledirigido, antes (el primero de cada uno) y ahora (de pie, andando, sin cuerda y dándose cuerda; en marcha, embistiendo, volcado y sin pilas), a 3×"
+    },
+    {
+      "archivo": "capturas/robot-en-juego.png",
+      "pie": "M14c (a6a): el robot nuevo rebotando y escupiendo tuercas junto a la tostadora en el Taller de Reparación"
+    },
+    {
       "archivo": "capturas/plancha-fotogramas.png",
       "pie": "M14c (a4c2): la hoja de la Plancha de Vapor, 24 fotogramas: los ocho de siempre; andar en seis pasos con el agua del depósito moviéndose; rodar y aterrizar; disparar, el golpe con vapor por la suela y las dos sacudidas"
     },
@@ -1504,17 +1517,9 @@
     {
       "archivo": "capturas/raton-en-juego.png",
       "pie": "M14c (a5e): el ratón nuevo congelado sin señal junto a la tostadora, en la planta 2"
-    },
-    {
-      "archivo": "capturas/batidora-fotogramas.png",
-      "pie": "M14c (a4c1): la hoja de la Batidora de Vaso, 24 fotogramas: los ocho de siempre; andar en seis pasos con el batido moviéndose; rodar (encogida, las cuchillas a toda velocidad) y aterrizar; disparar, el golpe con la tapa saltando y las dos sacudidas"
-    },
-    {
-      "archivo": "capturas/batidora-juego.png",
-      "pie": "M14c (a4c1): la Batidora de Vaso nueva disparando el Picahielos en la Sala de Pruebas, entre la tostadora y los enemigos (el arma aún es la vieja: va en la (a13))"
     }
   ],
-  "proximo": "M14c (a4d), el Becario Eterno y el Móvil con el estilo nuevo y sus 24 fotogramas (como la tostadora, la batidora y la plancha). La (a6a) la tiene otra sesión.",
+  "proximo": "M14c (a4d), el Becario Eterno y el Móvil con el estilo nuevo y sus 24 fotogramas, o la (a6b), el Cubo de Piezas y el Sobre Sorpresa (las dos libres; no se pisan).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1542,11 +1547,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-14 08:30 (hora peninsular)",
-      "tarea": "M14c (a6a): el Robot de Cuerda y el Coche Teledirigido con el estilo nuevo (tools/sprites/planta3-nuevo.ts, build.ts, anclas en src/data/enemies.ts, tests/estilo-a6.test.ts). No toca personajes ni la planta 2",
-      "desde": "2026-11-14T08:30:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

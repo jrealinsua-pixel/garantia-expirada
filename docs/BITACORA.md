@@ -2,6 +2,51 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 09:20 (hora peninsular) — Hito M14c — (a6a) El Robot de Cuerda y el Coche Teledirigido con el estilo nuevo
+- Contexto: sesión programada. El `main` local era un clon viejo y superficial (`git fetch
+  --unshallow` y `main` movido a `origin/main`; no tenía nada propio). Había dos sesiones
+  trabajando (la (a4c), personajes, y la (a5e), planta 2), así que esta coge la planta 3, que no toca
+  ni a los personajes ni a la planta 2. Salud al empezar: `check`, 1095 tests, `build` y `bot` en verde.
+- Hecho: M14c (a6a), y la (a6) partida en seis (de dos en dos, como la (a5)). Archivo nuevo,
+  `tools/sprites/planta3-nuevo.ts`. **El Robot de Cuerda** (42 × 44): una caja de hojalata en tres
+  cuartos (cabeza y cuerpo en uno) de un verde agua desteñido (material nuevo, `hojalata`), con la
+  franja roja litografiada abajo y su filete amarillo, la costura del cuello con cuatro remaches, la
+  abolladura de la esquina y la pintura saltada; la rejilla de dientes de lata **a la altura de su
+  `muzzleY`** (de ahí salen las tuercas); el ojo de atrás agrio bajo un párpado pesado y el de delante
+  un tornillo, cuya ranura va inclinada cuando está enfadado, plana sin cuerda y gira mientras se da
+  cuerda; la antena torcida con la bola roja (caída sin cuerda); la llave de latón en la espalda con
+  su tira de esparadrapo, que gira en tres posiciones (de frente, de canto y a tres cuartos); la
+  etiqueta amarilla del «33+» en el costado, y zapatos de lata rojos. Nueve fotogramas, los de
+  siempre: de pie, la marcha rígida con la llave girando, sin cuerda (hundido, ojos a media asta) y
+  dándose cuerda (temblando un píxel a cada lado con dos rayitas de esfuerzo). **El Coche
+  Teledirigido** (46 × 30): de lado, morro a la derecha, de plástico violeta, con techo, lunas oscuras
+  con reflejo y el parabrisas inclinado; la cara de matón en el parachoques (faros amarillos bajo
+  cejas gordas y una parrilla de dientes); la antena doblada con la punta roja, el alerón sujeto con
+  cinta, la raya de carreras que se despega por detrás y la rueda de delante de otro coche (más
+  pequeña y blanca). Embistiendo, ojos rojos, la boca abierta y humo por detrás; volcado, boca abajo
+  sobre el techo con los ojos en X; sin pilas, los faros apagados y una batería con una rayita roja
+  encima del techo (el juego ya lo hace parpadear). Anclas nuevas (robot 21, 42; coche 22, 28); las
+  cajas de golpes, las de siempre. Tests en `tests/estilo-a6.test.ts` (8): legibilidad de todos los
+  fotogramas, hojas y anclas, los pies del robot y las ruedas del coche (también volcado) en el
+  ancla, tamaño, la rejilla en la fila del `muzzleY` y la llave que gira, el coche volcado boca abajo
+  y sin pilas con los faros apagados, y que no se parecen a los demás de su planta.
+- Decisiones: (1) El robot conserva su verde agua (es como se le reconoce), pero en una rampa propia
+  de siete tonos; con la cara frontal en los tonos 2–3 (en 1–2 quedaba lavado y los ojos no se
+  leían). (2) El coche iba a llevar un material `morado` nuevo; al juntar con la (a4c1) apareció
+  `violeta` (el de la Batidora de Vaso), casi igual, así que lo usa y la paleta no crece con un
+  duplicado. (3) El cuerpo del robot baja 2 px respecto al primer intento: con 6 px de pierna parecía
+  ir en zancos. (4) En el test de siluetas solo cuentan los pares con un redibujado: el Cubo y el
+  Sobre viejos se solapan 0,84 entre ellos, y eso es cosa de la (a6b). (5) `box34` está copiada de
+  `planta2-nuevo.ts` (allí no se exporta y otra sesión estaba tocando ese archivo); cuando las dos se
+  asienten, que pase a `src/art/pintor.ts`.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual). 1103
+  tests en verde (antes de juntar con las otras sesiones); e2e en verde (una primera pasada falló en
+  `11b` con la garantía en el suelo, mientras corrían los tests a la vez; sola, en verde).
+- Problemas conocidos: las cajas de golpes son las de antes (el coche nuevo es más largo que la
+  suya). El robot embistiendo se ve girado en el juego (lo gira el render, como antes).
+- Siguiente paso: M14c (a6b), el Cubo de Piezas y el Sobre Sorpresa (con las piezas y los
+  muñequitos).
+
 ## 2026-11-14 09:10 (hora peninsular) — Hito M14c — (a4c2) La Plancha de Vapor con el estilo nuevo
 - Contexto: misma sesión que la (a4c1), encadenada (paso 7). Al cogerla, las otras dos sesiones
   tenían la (a5e) y la (a6a), enemigos; esta no los toca.
@@ -33,6 +78,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
 - Problemas conocidos: el vapor del golpe se ve poco encima del suelo oscuro (el juego echa
   además sus bocanadas al herirla). El Pulverizador de Almidón sigue con el dibujo viejo (a13).
 - Siguiente paso: M14c (a4d), el Becario Eterno y el Móvil con el estilo nuevo.
+
 
 ## 2026-11-14 08:45 (hora peninsular) — Hito M14c — (a5e) El Ratón Inalámbrico y la Webcam con el estilo nuevo; (a5) terminada
 - Contexto: tercera tarea de la sesión, tras la (a5c) y la (a5d). La (a4c) sigue cogida por otra
