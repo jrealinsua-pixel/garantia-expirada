@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T16:55:00+01:00",
+  "actualizado": "2026-11-14T17:17:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1162,
-    "tests_ok": 1162,
+    "tests": 1168,
+    "tests_ok": 1168,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38183
+    "lineas_codigo": 38234
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T17:17:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7c): el Router del Wifi y sus repetidores con el estilo nuevo. Router de casa de plástico blanco brillante (material nuevo abs), cuatro antenas de goma (una doblada con cinta), la pegatina de la contraseña arrancada, ojos de párpado pesado con iris de luz de estado, el logo del wifi en la frente que se enciende al emitir, la franja negra de las luces con la de internet siempre en rojo, guantes de nitrilo azul y el cable de red enchufado a nada. 23 fotogramas (antes 12): pose por ataque, el reinicio con las luces una a una y una fase 2 «actualizada» peor que la 1 (ojos rojos, cejas abajo, etiqueta v2.0, puños al suelo para las caídas). Despiece propio. El repetidor, 24 × 28, sobre sus patas de latón. Simulación igual; tests, e2e y bot en verde."
+    },
     {
       "fecha": "2026-11-14T16:55:00+01:00",
       "hito": "M14c",
@@ -1555,6 +1560,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/router-redibujado.png",
+      "pie": "M14c (a7c): el Router del Wifi, antes (el primero) y ahora: de pie, emitiendo ondas, escupiendo paquetes, reiniciándose y, ya «actualizado», de pie, con sus ondas rojas, sus paquetes y los puños al suelo; debajo, el repetidor antes y ahora y las piezas de su despiece, a 3×"
+    },
+    {
+      "archivo": "capturas/router-en-juego.png",
+      "pie": "M14c (a7c): el router nuevo en la Sala de Servidores, actualizado, a punto de soltar las caídas de conexión (los círculos del suelo)"
+    },
+    {
       "archivo": "capturas/lavadora-redibujada.png",
       "pie": "M14c (a7b): la Lavadora Eco, antes (la primera de cada fila) y ahora, un programa por fila (Prelavado, Lavado, Centrifugado): de pie, andando, pesando la carga y su pose de ataque, a 3×"
     },
@@ -1569,17 +1582,9 @@
     {
       "archivo": "capturas/nevera-en-juego.png",
       "pie": "M14c (a7a): la nevera nueva en su sala: los cubitos del dispensador, la puerta reventando al cambiar de fase (de cerca) y la fase 2 con la nevera abierta"
-    },
-    {
-      "archivo": "capturas/recepcion-redibujada.png",
-      "pie": "M14c (a6f1): el Asistente Virtual y el Teléfono de Recepción, ahora (las dos filas de arriba: de pie, andando y escribiendo; de pie, agachado, en el aire, sonando y pasando la llamada) y antes (las dos de abajo), a 3×"
-    },
-    {
-      "archivo": "capturas/asistente-en-juego.png",
-      "pie": "M14c (a6f1): el asistente nuevo con su escudo de «Pregunta frecuente» levantado contra los disparos de la tostadora, en Atención al Cliente"
     }
   ],
-  "proximo": "M14c (a7c), el Router Wi-Fi y sus repetidores (y después el resto de los jefes, uno por tarea: (a7d)–(a7i)).",
+  "proximo": "M14c (a7d), la Nube de Almacenamiento (y después el resto de los jefes, uno por tarea: (a7e)–(a7i)).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1607,11 +1612,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-14 16:35 (hora peninsular)",
-      "tarea": "M14c (a7c): el Router Wi-Fi y sus repetidores con el estilo nuevo (tools/sprites/router-nuevo.ts nuevo, tools/sprites/build.ts sus dos líneas, src/data/enemies.ts el router y el repetidor, tests/estilo-a7c.test.ts nuevo). No toca la lavadora ni otros jefes",
-      "desde": "2026-11-14T16:35:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

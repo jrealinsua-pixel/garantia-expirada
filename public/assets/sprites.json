@@ -361,14 +361,20 @@
   },
   "router-wifi": {
     "file": "router-wifi.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 12
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 23
+  },
+  "despiece-router-wifi": {
+    "file": "despiece-router-wifi.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "repetidor": {
     "file": "repetidor.png",
-    "frameW": 20,
-    "frameH": 24,
+    "frameW": 24,
+    "frameH": 28,
     "frames": 3
   },
   "muneco-moda": {

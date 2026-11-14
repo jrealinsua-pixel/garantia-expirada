@@ -5121,7 +5121,7 @@ export class GameScene extends Phaser.Scene {
       if (en.fadeT !== undefined) s.setAlpha(Math.max(0.1, en.fadeT) * (Math.floor(this.time.now / 60) % 2 === 0 ? 1 : 0.6));
       if (en.state === 'roar' && en.def.anim?.reboot) {
         // Rebooting: still and dark, a spark from the lights now and then as they come on.
-        if (this.fx.chance(0.06)) this.spark(en.x + this.fx.range(-14, 10) * en.facing, en.y - 30, this.fx.range(-Math.PI, 0), this.fx.range(20, 40), 0);
+        if (this.fx.chance(0.06)) this.spark(en.x + this.fx.range(-12, 12) * en.facing, en.y - 21, this.fx.range(-Math.PI, 0), this.fx.range(20, 40), 0);
       } else if (en.state === 'roar') {
         // Between phases: it shudders and breathes out cold.
         s.setX(s.x + (Math.floor(this.time.now / 50) % 2 === 0 ? 1 : -1));

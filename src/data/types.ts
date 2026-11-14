@@ -791,6 +791,8 @@ export interface BossDropAttack {
   pattern: string;
   telegraph: number;
   weight: number;
+  /** Its frame while it warns and just after (EnemyAnim; M14c (a7c), the Router slamming down). */
+  pose?: number;
 }
 
 /**

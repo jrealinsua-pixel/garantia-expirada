@@ -80,6 +80,12 @@ export const MATERIALS = {
    * then frosty blue-greys down to slate violet (colder than `crema`, the microwave's yellowed one).
    */
   esmalte: r('#fdfbf1', '#e3ebf2', '#bfcde0', '#93a3c4', '#6c76a2', '#4b4f7e', '#312c58'),
+  /**
+   * M14c (a7c): glossy white ABS of home electronics (the Router del Wifi): a clean white where the
+   * light hits, then lilac greys down to indigo (neither the cold blue of `esmalte` nor the yellow of
+   * `crema` and `beige`).
+   */
+  abs: r('#fbfaff', '#e7e4f1', '#c8c2da', '#a29bbd', '#7b7399', '#554e76', '#363152'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

@@ -966,7 +966,10 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   - [x] (a7b) La Lavadora Eco (planta 1). Hecho el 2026-11-14 en `tools/sprites/lavadora-nuevo.ts`:
     84 × 88 (antes 72 × 76), 24 fotogramas (ocho por programa, con su pose de ataque),
     `despiece-lavadora-eco`; ancla (38, 86); `tests/estilo-a7b.test.ts`.
-  - [ ] (a7c) El Router Wi-Fi y sus repetidores (planta 2).
+  - [x] (a7c) El Router Wi-Fi y sus repetidores (planta 2). Hecho el 2026-11-14 en
+    `tools/sprites/router-nuevo.ts`: 84 × 88 (antes 72 × 76), material nuevo `abs`, 23 fotogramas
+    (pose por ataque, el reinicio con las luces y la fase 2 «actualizada» con sus poses),
+    `despiece-router-wifi`; ancla (40, 86); el repetidor, 24 × 28; `tests/estilo-a7c.test.ts`.
   - [ ] (a7d) La Nube de Almacenamiento (planta 2).
   - [ ] (a7e) El Muñeco de Moda y su etiqueta (planta 3).
   - [ ] (a7f) La Consola de Coleccionista (planta 3).

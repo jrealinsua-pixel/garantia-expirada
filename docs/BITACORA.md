@@ -2,6 +2,39 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 17:17 (hora peninsular) — Hito M14c — (a7c) El Router del Wifi y sus repetidores con el estilo nuevo
+- Contexto: al llegar, otra sesión tenía cogida la (a7b) (la lavadora) desde hacía unos minutos;
+  elegí la (a7c), que solo comparte con ella dos líneas de `build.ts` y la entrada de cada jefe en
+  `enemies.ts`. La (a7b) terminó mientras tanto; el `pull --rebase` dio un conflicto de una línea
+  (los dos imports de `build.ts`), resuelto dejando los dos. Además, la rama `main` local estaba
+  vieja (el clon es superficial): la puse en `origin/main` antes de empezar, sin tocar el remoto.
+- Hecho: M14c (a7c), en `tools/sprites/router-nuevo.ts` (el viejo, en `router.ts`, con sus tests
+  de siempre en `tests/router.test.ts`). **El Router del Wifi** (84 × 88, antes 72 × 76) de `abs`,
+  material nuevo; ver `docs/ESTILO_ARTE.md`. **23 fotogramas** (antes 12): respirar y andar, una
+  pose por ataque en cada fase (emitir ondas, escupir paquetes; en la 2, las mismas «actualizadas»
+  y los puños al suelo para las caídas de conexión, que ahora acepta `pose`: campo nuevo en
+  `BossDropAttack`), el reinicio con las luces una a una y la fase 2 entera con su aspecto propio
+  (`phaseShift` 14). Despiece propio (`despiece-router-wifi`, seis piezas). **El repetidor**,
+  24 × 28 (antes 20 × 24), con patas de latón. Anclas nuevas (40, 86) y (12, 26); cajas de golpes,
+  bocas y simulación, las de siempre. Las chispas del reinicio (`GameScene`) salen ahora de la
+  franja de las luces. `tests/estilo-a7c.test.ts` (6 tests: legibilidad sobre el suelo del almacén
+  y el verde de Informática, tamaño y ancla, caja de golpes llena, poses, la boca en el logo, las
+  luces); `tests/router-jefe.test.ts` lee los fotogramas del reinicio de los datos.
+- Decisiones: (1) **Sin `clap`**: el reinicio ya es el cambio de fase del router y `enemyFrame`
+  pone el `clap` antes que el `reboot`, así que lo taparía. (2) La primera versión era toda de gris
+  lila y parecía una caja de cartón con antenas; con la cara de delante casi blanca y la **franja
+  negra de las luces** se lee como aparato electrónico y la caja parece más baja. (3) Guantes de
+  nitrilo **azul** y no negros: los negros se perdían sobre el suelo verde oscuro. (4) La fase 2
+  se ve peor y no mejor («actualizado»): el chiste es que la actualización lo estropea.
+- Medidas: la simulación no cambia. 1162 tests en verde; `npm run e2e` entero en verde (capturas
+  del router miradas: ondas, reinicio con su texto y las caídas con la pose de los puños; se lee a
+  tamaño real y el repetidor se distingue en la esquina). `npm run bot`: 200 partidas, 0 fallos,
+  5 atascos; el Router, ganado el 63,3 % en 73,6 s, igual que antes.
+- Problemas conocidos: el aviso del juego tiñe la silueta mientras avisa, así que las poses se ven
+  sobre todo justo después (como en los demás jefes). Las cinco luces son pequeñas (2 × 1) a
+  tamaño real; se distinguen el rojo de internet y el ámbar del reinicio, poco más.
+- Siguiente paso: M14c (a7d), la Nube de Almacenamiento.
+
 ## 2026-11-14 16:55 (hora peninsular) — Hito M14c — (a7b) La Lavadora Eco con el estilo nuevo
 - Contexto: misma sesión que la (a7a); nadie más trabajaba.
 - Hecho: M14c (a7b), en `tools/sprites/lavadora-nuevo.ts` (la vieja sigue en `lavadora.ts`,

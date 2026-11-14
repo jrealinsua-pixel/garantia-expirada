@@ -101,7 +101,7 @@ test('a media vida se reinicia: 5 s apagado, sin recibir daño, sin balas y sin 
     w.bullets.push({ id: w.nextId++, owner: 'player', x: boss.x, y: boss.y - 30, vx: 0, vy: 0, r: 2, life: 1, damage: 3, knockback: 0, color: 'red', age: 0, dir: 0, speed: 0, h: 0 } satisfies Bullet);
     step(w, NO_INPUT);
   }
-  assert.deepEqual([...frames].sort((a, b) => a - b), [6, 7, 8, 9, 10, 11]);
+  assert.deepEqual([...frames].sort((a, b) => a - b), [...boss.def.anim!.reboot!]);
   assert.equal(boss.damageTaken, hp, 'reiniciándose no recibe daño');
   run(w, 0.5);
   assert.notEqual(boss.state, 'roar', 'vuelve');

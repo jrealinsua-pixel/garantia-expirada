@@ -9,7 +9,6 @@ import { paintRoom } from '../../src/art/room.ts';
 import { miniDryer, miniStapler } from './characters.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
-import { makeRepetidorFrames, makeRouterFrames } from './router.ts';
 import * as LV from './lavadora.ts';
 import * as NB from './nube.ts';
 import * as CO from './consola.ts';
@@ -40,6 +39,7 @@ import * as P1 from './planta1-nuevo.ts';
 import * as RC from './recepcion-nuevo.ts';
 import * as NV from './nevera-nuevo.ts';
 import * as LN from './lavadora-nuevo.ts';
+import * as RT from './router-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
@@ -157,10 +157,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'caja-botin': { canvas: strip(CO.makeCajaBotinFrames()), frameW: CO.CAJA_W, frameH: CO.CAJA_H },
     'bala-cartucho': { canvas: CO.makeCartridgeBullet(), frameW: 12, frameH: 12 },
     'bala-cupon-falso': { canvas: CO.makeFakeCouponBullet(), frameW: 12, frameH: 12 },
-    // Floor 2's boss: 0-5 awake (rest, breathing, walking), 6-11 rebooting with 0 to 5 LEDs lit.
-    'router-wifi': { canvas: strip(makeRouterFrames()), frameW: 72, frameH: 76 },
-    // Its repeater: 0-1 on (the LED blinks), 2 unplugged.
-    repetidor: { canvas: strip(makeRepetidorFrames()), frameW: 20, frameH: 24 },
+    // M14c (a7c): Floor 2's boss in the new style (tools/sprites/router-nuevo.ts, ROUTER_FRAMES), its
+    // debris, and its repeater (0-1 on, the LED blinks; 2 unplugged).
+    'router-wifi': { canvas: strip(RT.makeRouterNuevoFrames()), frameW: RT.ROUTER_W, frameH: RT.ROUTER_H },
+    'despiece-router-wifi': { canvas: strip(RT.makeRouterBits()), frameW: RT.ROUTER_BIT, frameH: RT.ROUTER_BIT },
+    repetidor: { canvas: strip(RT.makeRepetidorNuevoFrames()), frameW: RT.REPETIDOR_W, frameH: RT.REPETIDOR_H },
     // Floor 3's boss: 0-5 boxed, 6 boxed posing, 7-12 out of the box, 13 posing, 14-15 spinning.
     'muneco-moda': { canvas: strip(makeMunecoFrames()), frameW: MUNECO_W, frameH: MUNECO_H },
     // The tag on its box (muneco.ts TAG_ANCHOR): full price, −30 %, −50 %, −70 %.

@@ -161,6 +161,27 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   ataque** (la espuma saliendo por toda la goma; un calcetín volando, sin pareja; el remolino a
   tope con los ojos dando vueltas y vapor por arriba). Despiece: el cristal, el mando, el cajón,
   el calcetín, la toalla y una pata.
+- **El Router del Wifi** (M14c (a7c), `tools/sprites/router-nuevo.ts`; el viejo se queda en
+  `router.ts`): router de casa ancho, en tres cuartos, de **`abs`** (material nuevo: el plástico
+  blanco brillante de la electrónica, con sombras gris lila hasta índigo; ni el azul frío del
+  `esmalte` ni el amarillo de `crema` y `beige`). La tapa con rejillas, un cerco de café y cuatro
+  **antenas de goma negra** sombreadas como cilindros (la segunda doblada y con cinta de embalar);
+  el lateral con la **pegatina de la contraseña arrancada**; delante, ojos grandes de párpado
+  pesado con el iris verde de luz de estado y media sonrisa, el **logo del wifi en la frente**
+  (su `muzzle`: se enciende cian al emitir), una **franja de plástico negro brillante** con las
+  cinco luces (la de internet siempre en rojo) y la placa amarilla del «5G» que no es. Guantes de
+  nitrilo azul (los de informática), zapatos marrones de oficina y el cable de red que sale del
+  lateral y acaba en una clavija enchufada a nada. Poses: emitiendo (manos arriba, antenas y logo
+  encendidos y ondas en el aire), escupiendo paquetes (boca abierta, todas las luces parpadeando,
+  un paquete rojo en el guante). El **reinicio** es su cambio de fase (no lleva `clap`): ojos
+  cerrados, antenas caídas, una rueda de carga en lugar del logo y las luces encendiéndose en ámbar
+  una a una. **Fase 2, «actualizado»**: peor que antes: iris rojos, cejas abajo, puntas de las
+  antenas al rojo, la de LAN 2 en ámbar y una etiqueta «v2.0» pegada torcida encima de la
+  contraseña; sus poses, las mismas en rojo y, para las caídas de conexión, los puños al suelo, los
+  ojos «> <» y el logo tachado. Despiece: una antena, una luz, la pegatina, la placa del «5G», la
+  clavija de red y un trozo de tapa. **El repetidor**, 24 × 28: un enchufe de pared blanco de pie
+  sobre sus dos patas de latón, una antena corta, ojos cansados, el logo del wifi pequeño entre
+  ellos (su `muzzleY`) y una luz verde; desenchufado, se hunde, cierra los ojos y la antena cae.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

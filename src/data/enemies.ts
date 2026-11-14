@@ -803,15 +803,17 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // M9b (15): 200 → 170, to make up for the weapons' lower damage (M9b 7).
     hp: 110,
     sprite: 'router-wifi',
-    anchor: { x: 36, y: 74 },
+    anchor: { x: 40, y: 86 },
     hurt: { x: -28, y: -58, w: 56, h: 46 },
     footRadius: 16,
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [3, 5], hearts: 1 },
-    // 0-1 breathing (the wifi light blinks), 2-5 a heavy walk, 6-11 rebooting with its lights coming on one by one.
-    anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 9, reboot: [6, 7, 8, 9, 10, 11] },
+    // M14c (a7c, tools/sprites/router-nuevo.ts): 0-1 breathing (the wifi light blinks), 2-5 a heavy
+    // walk, 6-7 its attack poses (broadcasting, spitting packets), 8-13 rebooting with its lights
+    // coming on one by one; 14-19 the same after the update (phase 2), 20-22 its poses.
+    anim: { idle: [0, 1], idleMs: 600, walk: [2, 3, 4, 5], stepPx: 9, reboot: [8, 9, 10, 11, 12, 13], phaseShift: 14 },
     brain: {
       kind: 'boss',
       roam: { leg: [0.5, 1.3], burst: [0.6, 1.4], spread: 50 },
@@ -832,8 +834,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
           relays: { id: 'repetidor', count: 2 },
           attacks: [
             // Waves of wifi two by two, each with its «zona sin cobertura» a little further round: go through it.
-            { kind: 'pattern', pattern: 'router-cobertura', telegraph: 0.8, weight: 3, relay: 'repetidor-onda' },
-            { kind: 'pattern', pattern: 'router-paquetes', telegraph: 0.6, weight: 2 },
+            { kind: 'pattern', pattern: 'router-cobertura', telegraph: 0.8, weight: 3, relay: 'repetidor-onda', pose: 6 },
+            { kind: 'pattern', pattern: 'router-paquetes', telegraph: 0.6, weight: 2, pose: 7 },
           ],
         },
         {
@@ -847,10 +849,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
           relays: { id: 'repetidor', count: 0, every: 12 },
           attacks: [
             // Three faster rings with two holes that move apart, each one its own way.
-            { kind: 'pattern', pattern: 'router-firmware', telegraph: 0.7, weight: 3, relay: 'repetidor-onda' },
-            { kind: 'pattern', pattern: 'router-paquetes-2', telegraph: 0.55, weight: 2 },
+            { kind: 'pattern', pattern: 'router-firmware', telegraph: 0.7, weight: 3, relay: 'repetidor-onda', pose: 20 },
+            { kind: 'pattern', pattern: 'router-paquetes-2', telegraph: 0.55, weight: 2, pose: 21 },
             // «Caídas de conexión»: marked spots on the floor that burst a second later.
-            { kind: 'drop', count: 3, spread: 80, pattern: 'router-caida', telegraph: 1, weight: 2 },
+            { kind: 'drop', count: 3, spread: 80, pattern: 'router-caida', telegraph: 1, weight: 2, pose: 22 },
           ],
         },
       ],
@@ -1321,7 +1323,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description: 'Amplía la cobertura del router a toda la casa, menos a la habitación donde estás.',
     hp: 4,
     sprite: 'repetidor',
-    anchor: { x: 10, y: 23 },
+    anchor: { x: 12, y: 26 },
     hurt: { x: -8, y: -21, w: 16, h: 20 },
     footRadius: 5,
     contactPush: 100,
