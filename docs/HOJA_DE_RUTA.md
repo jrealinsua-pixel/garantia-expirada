@@ -801,6 +801,11 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   - [ ] (a4c) La Batidora de Vaso y la Plancha de Vapor.
   - [ ] (a4d) El Becario Eterno y el Móvil.
 - [ ] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
+  - [ ] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
+  - [ ] (a5b) La Bombilla y la Polilla.
+  - [ ] (a5c) La Batidora y el Mando.
+  - [ ] (a5d) La Impresora y el Cargador.
+  - [ ] (a5e) El Ratón Inalámbrico y la Webcam.
 - [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
