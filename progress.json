@@ -1517,6 +1517,11 @@
       "sesion": "2026-11-14 05:25 (hora peninsular)",
       "tarea": "M14c (a4b): fotogramas nuevos de la Tostadora (andar 6, rodar 6, disparar, herido, morir): tools/sprites/tostadora.ts, la animación del jugador en src/render, tests/tostadora-a4b.test.ts. No toca enemigos",
       "desde": "2026-11-14T05:25:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 06:25 (hora peninsular)",
+      "tarea": "M14c (a5c): la Batidora y el Mando con el estilo nuevo (tools/sprites/planta1-nuevo.ts o un archivo nuevo de la planta 2, anclas en src/render, tests/estilo-a5.test.ts). No toca la tostadora",
+      "desde": "2026-11-14T06:25:00+01:00"
     }
   ]
 }
