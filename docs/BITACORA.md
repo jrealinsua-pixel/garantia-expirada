@@ -2,6 +2,55 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 02:05 (hora peninsular) — Hito M14b — (h10b3) La Centralita se arrastra con los cables y la Trituradora va sobre orugas
+- Contexto: sesión programada. El `main` local volvía a ser un clon viejo y superficial que no
+  casaba con `origin/main`: `git checkout -B main origin/main`. La (h11c) seguía apuntada en
+  `en_curso` desde las 22:25 del 13 (más de 4 h: la sesión que la cogió ya no está, pero la dejo
+  apuntada por si acaso; esta tarea no toca `src/data/rooms.ts`). Salud al empezar: `check` y 1060
+  tests en verde.
+- Hecho: M14b (h10b3), y con ella la (h10) entera. **La Centralita, «se arrastra con los cables»**
+  (`BossBrain.cord`, `cordWalk`, `letGoCord`): no anda; elige un sitio alrededor de la tostadora,
+  45–100° más allá en su círculo y a su distancia, lanza el cable de delante más allá de él y lo
+  enchufa en lo primero sólido (pared o mostrador): 0,4 s quieta con el cable volando y el carril
+  marcado en el suelo (rayas rojas y un círculo donde parará), y luego se arrastra por él de un
+  tirón (520 px/s² hasta 4,2 veces su paso, frenando a 300 px/s² para pararse justo en el sitio).
+  Entre tirones (0,3–0,7 s, menos con rabia) se arrastra despacio a mano (bossRoam a 0,45 de su
+  paso). Si algo la para, suelta el cable (golpe). Lanzando no lanza el cable (un tirón empezado
+  sigue); con las balas ya fuera, sí. Muda (fase 3) lo suelta y se para en seco. Eventos
+  `cordThrow` (latigazo y el clac al enchufarlo; la primera vez, «Un momento, le conecto») y
+  `cordLetGo`. **La Trituradora, «orugas»** (`BossBrain.treads`, `treadWalk`, `crushAhead`): en la
+  fase 1 gira sobre sí misma hacia la tostadora (90°/s por la rabia), alineada (6°) marca su
+  recorrido con las dos orugas en rojo (0,5 s) y avanza recto a 2,2 veces su paso, sin girar, hasta
+  70 px pasada la tostadora (como mucho 4 s). Lo que pilla delante lo tritura (caja en astillas,
+  barril encendido, garrafa derramada; nunca un cofre); contra la pared se para en seco
+  (`treadBump`) y vuelve a girar. Dispara mientras gira y avanza. Eventos `treadAim` («Recogida a
+  domicilio» la primera vez), `treadGo`, `treadBump` y `crush`. En las fases 2–3 sigue en su cinta.
+  El bot se aparta del carril de los dos (`haulLane` en `src/sim/bot.ts`), como un jugador que lee
+  el aviso. Tests: `tests/jefes-planta5-movimiento.test.ts` (8); `tests/jefes-movimiento.test.ts`
+  cuenta el giro sobre sí misma como cambio de rumbo y el cable en el aire como moverse. e2e:
+  `51fa-centralita-cable`, `51fb-centralita-arrastre`, `53ba-trituradora-orugas`,
+  `53bb-trituradora-avanza`.
+- Decisiones: (1) Cada una con algo que solo ella tiene: la Centralita se mueve como un garfio
+  (el cable dice adónde va antes de ir) y la Trituradora como un tanque (lenta para girar, imparable
+  en recta): las dos se esquivan leyendo el suelo, no por reflejos. (2) Al principio la Centralita
+  se quedaba quieta entre tirones (un 41 % del tiempo entre ataques): ahora se arrastra despacio,
+  porque el humano pidió jefes que no se paren. (3) Sin que el bot leyera los carriles, la
+  Centralita bajaba del 54 % al 27 % de victorias (el bot se comía los tirones): con él, vuelve a
+  donde estaba; la dificultad está en el aviso. (4) La Centralita pasa de 155 a 148 de vida porque
+  moverse más alargaba el combate (126 → 135 s). (5) La línea de la Trituradora sale debajo de ella:
+  arriba se salía de la pantalla.
+- Medidas (`runBoss`, 80 combates en su sala): Centralita antes gana 53,8 % en 126 s con 4,93
+  heridas; después 57,5 % en 133,6 s con 4,64. Trituradora antes 46,3 % en 106,3 s con 5,04
+  heridas (2,24 en la fase 1); después 50 % en 106,2 s con 4,76 (2,03). `npm run bot`: 0 fallos, 5
+  atascos (los de siempre), Centralita 56,7 % en 131,7 s, Trituradora 46,7 % en 103,5 s (30
+  combates). 1068 tests en verde; e2e en verde.
+- Problemas conocidos: el cable se dibuja desde debajo de la Centralita, no desde la clavija de su
+  mano (el sprite no tiene una pose de «tirar» que lo encaje); la Trituradora solo mira a izquierda
+  o derecha, así que el giro se lee por las orugas marcadas y el polvo, no por el dibujo. Las dos
+  cosas se pueden arreglar en M14c (a7), al redibujar los jefes.
+- Siguiente paso: M14b (h11c), las plantillas de sala con más forma (lo último de M14b), si la
+  sesión que la cogió no ha vuelto; si no, M14c (a4a), la Tostadora con el estilo nuevo en el juego.
+
 ## 2026-11-14 02:20 (hora peninsular) — Hito M14b — (h10b2) El Director guarda la distancia de seguridad
 - Contexto: segunda tarea de la sesión, tras la (h10b1). La (h11c) sigue cogida (desde las 22:25) y
   mientras tanto otra sesión ha hecho M14c (a1–a3); esta solo toca al Director, así que no se pisan

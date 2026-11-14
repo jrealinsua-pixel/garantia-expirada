@@ -44,6 +44,8 @@ import {
   SIDESTEP_LINE,
   REVERSE_LINE,
   CHAIR_LINE,
+  CORD_LINE,
+  TREAD_LINE,
   HANDOFF_LINE,
   LAG_BACK_LINE,
   LAG_LINE,
@@ -337,6 +339,9 @@ interface HubViews {
 
 /** Where the Trituradora's scanner window is in its «diagnostico» frame, from its feet (tools/sprites/trituradora.ts SCANNER_TIP). */
 const SCANNER_TIP = { x: 47, y: 48 } as const;
+
+/** Share of her cord's warning (BossBrain.cord) it takes to fly out and go into the wall. */
+const CORD_PLUG_AT = 0.6;
 
 export class GameScene extends Phaser.Scene {
   world!: World;
@@ -2937,6 +2942,46 @@ export class GameScene extends Phaser.Scene {
           if (e.first) this.floatText(e.x, e.y - 72, fontText(CHAIR_LINE), 0xf4f1e8, `chair:${e.boss}`, -10, 1.2);
           break;
         }
+        case 'cordThrow': {
+          // The Centralita throws her cord: it whistles through the air and plugs in with a clack.
+          this.sound2.play('latigo', { detune: this.fx.range(-300, 100), volume: 0.4 });
+          const warnS = this.world.enemies.find((o) => o.id === e.boss)?.cord?.warn ?? 0.4;
+          this.time.delayedCall(Math.round(CORD_PLUG_AT * warnS * 1000), () => this.sound2.play('clinc', { detune: -500, volume: 0.35 }));
+          if (e.first) this.floatText(e.x, e.y - 82, fontText(CORD_LINE), 0xf4f1e8, `cord:${e.boss}`, -10, 1.2);
+          break;
+        }
+        case 'cordLetGo':
+          // Unplugged at the end of the haul; stopped by something on the way, a thud as well.
+          this.sound2.play('pulsar', { detune: -300, volume: 0.3 });
+          this.puff(e.x, e.y, e.bump ? 0.4 : 0.25);
+          if (e.bump) {
+            this.sound2.play('golpe', { detune: this.fx.range(-900, -600), volume: 0.4 });
+            this.shake(60, 0.002, true);
+          }
+          break;
+        case 'treadAim':
+          // The Trituradora lines up: the motor revs while its run is marked.
+          this.sound2.play('motor', { detune: -600, volume: 0.4 });
+          if (e.first) this.floatText(e.x, e.y + 30, fontText(TREAD_LINE), 0x8ef07a, `tread:${e.boss}`, -10, 1.2);
+          break;
+        case 'treadGo':
+          // Off it goes: the tracks bite and kick up dust behind.
+          this.sound2.play('derrape', { detune: -900, volume: 0.4 });
+          this.puff(e.x - e.dirX * 26, e.y, 0.45);
+          this.shake(80, 0.002, true);
+          break;
+        case 'treadBump':
+          this.sound2.play('choque', { detune: -700, volume: 0.5 });
+          this.puff(e.x, e.y - 8, 0.5);
+          this.shake(120, 0.005, true);
+          break;
+        case 'crush':
+          // Whatever was in the way goes under the tracks.
+          this.sound2.play('triturar', { volume: 0.5 });
+          this.sound2.play('carton', { detune: -500 });
+          this.shake(90, 0.004, true);
+          for (let i = 0; i < 6; i++) this.splinter(e.x + this.fx.range(-10, 10), e.y - this.fx.range(4, 18), this.fx.range(0, Math.PI * 2), this.fx.pick([0xb08a5a, 0x7a5a3a, 0x868c80]));
+          break;
         case 'chairBump':
           // Into the wall or a desk: a dull knock, and a short shake.
           this.sound2.play('golpe', { detune: this.fx.range(-900, -600), volume: 0.45 });
@@ -5889,6 +5934,68 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * The Centralita's cord (BossBrain.cord): from her front plug along the floor to where it goes in,
+   * flying out over the first part of the warning; the lane she will haul herself down marked on
+   * the floor in dashes, and the spot she stops at. Purple cloth, a red plug (black, without her
+   * plugs: phase 3).
+   */
+  private drawCord(g: Phaser.GameObjects.Graphics, en: Enemy, c: NonNullable<Enemy['cord']>): void {
+    const x0 = en.x + en.facing * 26;
+    const y0 = en.y - 8;
+    const k = Math.min(1, c.t / (c.warn * CORD_PLUG_AT));
+    const ex = x0 + (c.ax - x0) * k;
+    const ey = c.ay - 2 + (y0 - c.ay) * (1 - k);
+    // The lane: dashes from her feet to the spot, blinking while she braces, steady as she hauls.
+    if (c.t < c.warn ? Math.floor(this.time.now / 70) % 2 === 0 : true) {
+      const len = Math.max(0, (c.tx - en.x) * c.ux + (c.ty - en.y) * c.uy);
+      for (let s = 0; s <= len; s += 8) {
+        const x = Math.round(en.x + c.ux * s);
+        const y = Math.round(en.y + c.uy * s);
+        g.fillStyle(0x0e0c16, 0.6).fillRect(x - 1, y - 1, 5, 3);
+        g.fillStyle(0xe0453b, c.t < c.warn ? 1 : 0.5).fillRect(x, y, 3, 1);
+      }
+      pixelRing(g, Math.round(c.tx), Math.round(c.ty), 7, 0xe0453b);
+    }
+    // The cord: a sag while it flies, taut once it is in.
+    const len = Math.hypot(ex - x0, ey - y0);
+    const sag = k < 1 ? 10 : 0;
+    const n = Math.max(4, Math.ceil(len / 2));
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      const x = Math.round(x0 + (ex - x0) * t);
+      const y = Math.round(y0 + (ey - y0) * t - sag * 4 * t * (1 - t));
+      g.fillStyle(0x0e0c16, 0.9).fillRect(x - 1, y - 1, 3, 4);
+      g.fillStyle(i % 3 === 0 ? 0x8a6a8a : 0x5e4460, 1).fillRect(x, y, 1, 2);
+    }
+    const phase3 = (en.bossPhase ?? 0) >= 2;
+    g.fillStyle(0x0e0c16, 1).fillRect(Math.round(ex) - 3, Math.round(ey) - 3, 7, 6);
+    g.fillStyle(phase3 ? 0x3e3a4c : 0xe0453b, 1).fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 5, 4);
+    g.fillStyle(phase3 ? 0x6a6478 : 0xff8a70, 1).fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 5, 1);
+    // Plugged in: a spark at the wall now and then.
+    if (k >= 1 && Math.floor(this.time.now / 90) % 4 === 0) g.fillStyle(0xfff4c8, 1).fillRect(Math.round(ex) + this.fx.int(-3, 3), Math.round(ey) - this.fx.int(2, 5), 1, 1);
+  }
+
+  /**
+   * The Trituradora's run (BossBrain.treads): its two tracks drawn ahead of it on the floor as far as
+   * it will go, blinking red while it lines up and fading as it drives.
+   */
+  private drawRun(g: Phaser.GameObjects.Graphics, en: Enemy, t: NonNullable<Enemy['tread']>): void {
+    const ux = Math.cos(t.heading);
+    const uy = Math.sin(t.heading);
+    if (t.mode === 'aim' && Math.floor(this.time.now / 70) % 2 === 1) return;
+    const half = en.def.footRadius - 4;
+    const alpha = t.mode === 'aim' ? 1 : 0.35;
+    for (let s = en.def.footRadius; s <= t.left; s += 6) {
+      for (const side of [-1, 1]) {
+        const x = Math.round(en.x + ux * s - uy * half * side);
+        const y = Math.round(en.y + uy * s + ux * half * side);
+        g.fillStyle(0x0e0c16, 0.6 * alpha).fillRect(x - 1, y - 1, 5, 4);
+        g.fillStyle(0xe0453b, alpha).fillRect(x, y, 3, 2);
+      }
+    }
+  }
+
   /** Where a remote is about to switch back on, the floor crackles with TV static. */
   private drawStatic(): void {
     const g = this.warn;
@@ -5940,6 +6047,11 @@ export class GameScene extends Phaser.Scene {
       const rr = Math.round(6 + 18 * (1 - k));
       pixelRing(g, Math.round(r.x), Math.round(r.y), rr + 1, 0x0e0c16);
       if (blink) pixelRing(g, Math.round(r.x), Math.round(r.y), rr, 0x69dbd8);
+    }
+    for (const en of this.world.enemies) {
+      if (en.state === 'dying' || isDead(en)) continue;
+      if (en.cord) this.drawCord(g, en, en.cord);
+      if (en.tread && (en.tread.mode === 'aim' || en.tread.mode === 'drive')) this.drawRun(g, en, en.tread);
     }
     for (const wn of activeWarnings(this.world)) {
       const k = wn.k;

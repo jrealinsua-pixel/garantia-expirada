@@ -64,6 +64,8 @@ for (const def of BOSSES) {
       const gy = boss.lagGhost?.y ?? oy;
       // A boss on its catwalk (the Muñeco) stands still while it poses, at the end of each leg.
       const posing = (boss.catPose ?? 0) > DT;
+      // On its tracks (the Trituradora, M14b (h10b3)) it pivots on the spot: that is moving too.
+      const heading = boss.tread?.heading;
       // The toaster stands still in the middle: the boss moves by itself, not just after it.
       step(w, { ...NO_INPUT, aimX: boss.x, aimY: boss.y });
       const d = Math.hypot(boss.x - ox, boss.y - oy);
@@ -73,9 +75,21 @@ for (const def of BOSSES) {
       if (boss.state === 'idle' && !(brain.catwalk && posing)) {
         idleTicks++;
         const walked = brain.lag && boss.lagGhost ? Math.hypot(boss.lagGhost.x - gx, boss.lagGhost.y - gy) : d;
-        if (walked > 0.05) idleMoving++;
+        const pivoted = heading !== undefined && boss.tread !== undefined && Math.abs(boss.tread.heading - heading) > 1e-4;
+        // Hauling herself about (the Centralita): her cord in the air is the start of the move.
+        const throwing = !!brain.cord && !!boss.cord;
+        if (walked > 0.05 || pivoted || throwing) idleMoving++;
       }
-      if (d > 0.3) {
+      if (boss.tread) {
+        // On its tracks its course is where its front points (it pivots on the spot to change it):
+        // a turn each time it has pivoted a third of the way round.
+        const dir = boss.tread.heading;
+        if (lastDir === null) lastDir = dir;
+        else if (Math.abs(Math.atan2(Math.sin(dir - lastDir), Math.cos(dir - lastDir))) > Math.PI / 3) {
+          turns++;
+          lastDir = dir;
+        }
+      } else if (d > 0.3) {
         const dir = Math.atan2(boss.y - oy, boss.x - ox);
         if (lastDir !== null && Math.abs(Math.atan2(Math.sin(dir - lastDir), Math.cos(dir - lastDir))) > Math.PI / 3) turns++;
         lastDir = dir;

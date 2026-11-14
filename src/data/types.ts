@@ -1088,6 +1088,26 @@ export interface BossBrain {
    * dead and kicks off again sooner. Firing it only rolls on. Not on its feet (BossPhase.onFoot).
    */
   chair?: { push: number; friction: number; angle: [number, number]; far: number };
+  /**
+   * «Se arrastra con los cables» (the Centralita, M14b (h10b3)): it does not walk, it hauls itself
+   * about by its cords. When its rest between hauls is over (`rest` s, random, cut short by rage) it
+   * picks a spot round the toaster, `arc` degrees further round its circle (random, either way) at
+   * about the phase's `keep`, throws its front cord past it to the wall (or whatever stands in the
+   * way) and plugs it in there: `warn` s with the cord in the air, then it hauls itself straight
+   * along it, accelerating at `accel` px/s² up to `top` times the phase's walking speed and braking
+   * at `brake` px/s² to stop at the spot. Into something on the way, it lets go. Firing it does not
+   * throw, but a haul under way goes on.
+   */
+  cord?: { warn: number; top: number; accel: number; brake: number; rest: [number, number]; arc: [number, number] };
+  /**
+   * «Orugas» (the Trituradora, M14b (h10b3)): it does not walk, it drives on its tracks. It pivots
+   * on the spot towards the toaster at `turn` degrees a second; lined up (within `aim` degrees) it
+   * marks its run on the floor for `warn` s and then drives straight ahead at `push` times the
+   * phase's walking speed, through where the toaster was and `over` px past it (at most `run` s),
+   * without steering. Whatever stands in its way is crushed (a drum is lit); into a wall it stops
+   * dead and pivots again. Not while riding its belt (BossPhase.belt).
+   */
+  treads?: { turn: number; aim: number; warn: number; push: number; over: number; run: number };
 }
 
 /**

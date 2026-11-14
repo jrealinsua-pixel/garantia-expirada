@@ -111,6 +111,24 @@ export function dodge(w: World): Dodge {
         }
       }
     }
+    // The Centralita's haul (BossBrain.cord) and the Trituradora's run (BossBrain.treads): a lane
+    // from where it is, marked on the floor; off it, sideways, rolling if it is already coming.
+    const lane = haulLane(en);
+    if (lane && lane.seen >= BOT_REACTION) {
+      const along = dx * lane.ux + dy * lane.uy;
+      const side = dx * -lane.uy + dy * lane.ux;
+      const reach = en.def.footRadius + 14;
+      if (along > -10 && along < lane.len + reach && Math.abs(side) < reach) {
+        const sgn = side >= 0 ? 1 : -1;
+        out.x += -lane.uy * sgn * (lane.moving ? 1.5 : 1);
+        out.y += lane.ux * sgn * (lane.moving ? 1.5 : 1);
+        if (lane.moving && along < 60 && along / 150 < soonest) {
+          soonest = along / 150;
+          out.rollX = -lane.uy * sgn;
+          out.rollY = lane.ux * sgn;
+        }
+      }
+    }
     // A little personal space from everything that bumps.
     if (d < 46) {
       out.x += (dx / d) * (1 - d / 46) * 0.8;
@@ -760,4 +778,22 @@ export function crossHub(seed: string, opts: { chatarrero?: boolean; character?:
   const run = errors.length ? null : leaveHub(w, seed);
   if (!errors.length && !run) errors.push('la cinta no empieza la partida');
   return { run, visited, seconds: w.tick * DT, errors };
+}
+
+/**
+ * The lane a boss is about to go down in a straight line, or is going down: the Centralita's haul
+ * along her cord (to the spot she stops at) and the Trituradora's run on its tracks. How long it
+ * has been marked (s) and whether it is already moving.
+ */
+function haulLane(en: Enemy): { ux: number; uy: number; len: number; seen: number; moving: boolean } | null {
+  const c = en.cord;
+  if (c) {
+    const len = Math.max(0, (c.tx - en.x) * c.ux + (c.ty - en.y) * c.uy);
+    return { ux: c.ux, uy: c.uy, len, seen: c.t, moving: c.t >= c.warn };
+  }
+  const t = en.tread;
+  if (t && (t.mode === 'aim' || t.mode === 'drive')) {
+    return { ux: Math.cos(t.heading), uy: Math.sin(t.heading), len: Math.max(0, t.left), seen: t.mode === 'aim' ? t.t : 9, moving: t.mode === 'drive' };
+  }
+  return null;
 }

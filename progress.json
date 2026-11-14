@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T02:20:00+01:00",
+  "actualizado": "2026-11-14T02:05:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -119,7 +119,7 @@
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
       "estado": "pendiente",
-      "hechas": 9,
+      "hechas": 10,
       "total": 11
     },
     {
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 97,
-    "tests": 1060,
-    "tests_ok": 1060,
+    "tests": 1068,
+    "tests_ok": 1068,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 37153
+    "lineas_codigo": 37559
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T02:05:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h10b3): la Centralita se arrastra con los cables (enchufa el de delante en la pared, pasado un sitio alrededor de la tostadora, y se arrastra por él de un tirón, con el carril marcado en el suelo) y la Trituradora va sobre orugas (gira sobre sí misma, marca su recorrido y avanza recto a través de la tostadora, triturando lo que pilla). Con esto, todos los jefes se mueven a su manera (h10)."
+    },
     {
       "fecha": "2026-11-14T02:20:00+01:00",
       "hito": "M14b",
@@ -1435,6 +1440,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/centralita-cable.png",
+      "pie": "M14b (h10b3): la Centralita enchufa su cable en la pared y se arrastra por él; el carril y el sitio donde parará, marcados en rojo"
+    },
+    {
+      "archivo": "capturas/trituradora-orugas.png",
+      "pie": "M14b (h10b3): la Trituradora, alineada sobre sus orugas, marca su recorrido a través de la tostadora antes de arrancar («Recogida a domicilio»)"
+    },
+    {
       "archivo": "capturas/director-silla.png",
       "pie": "M14b (h10b2): el Director rueda hacia atrás en su silla, siempre de cara a la tostadora («Mantenga la distancia de seguridad»)"
     },
@@ -1449,17 +1462,9 @@
     {
       "archivo": "capturas/muneco-desfile.png",
       "pie": "M14b (h10b1): el Muñeco de Moda desfila y posa al final de cada tramo («Posando para el catálogo»)"
-    },
-    {
-      "archivo": "capturas/consola-lag.png",
-      "pie": "M14b (h10b1): la Consola va con lag: su fantasma cian anda delante y ella salta a donde ha llegado"
-    },
-    {
-      "archivo": "capturas/router-cambio-punto.png",
-      "pie": "M14b (h10a2): el Router avisa con una línea hasta el repetidor y se cambia el sitio con él"
     }
   ],
-  "proximo": "M14c (a4): los cinco personajes jugables con las herramientas nuevas (por personaje); o M14b (h10b3), la Centralita y la Trituradora con movimiento propio; o M14b (h11c) si se suelta.",
+  "proximo": "M14b (h11c): plantillas de sala con más forma (lo último de M14b; seguía apuntada en en_curso desde el 13 a las 22:25); o M14c (a4a), la Tostadora con el estilo nuevo en el juego.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1492,11 +1497,6 @@
       "sesion": "2026-11-13 22:25 (hora peninsular)",
       "tarea": "M14b (h11c): plantillas de sala con más forma",
       "desde": "2026-11-13T22:25:00+01:00"
-    },
-    {
-      "sesion": "2026-11-14 01:27 (hora peninsular)",
-      "tarea": "M14b (h10b3): la Centralita y la Trituradora con movimiento propio (src/data/bosses.ts, src/sim/boss*.ts, src/render/GameScene.ts para su dibujo, tests/jefes-planta5-movimiento.test.ts)",
-      "desde": "2026-11-14T01:27:00+01:00"
     }
   ]
 }

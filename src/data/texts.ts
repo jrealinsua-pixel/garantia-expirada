@@ -99,6 +99,10 @@ export const HANDOFF_LINE = 'Cambiando de punto de acceso...';
 export const POSE_LINE = 'Posando para el catálogo';
 /** The Director kicking off in his chair for the first time (BossBrain.chair). */
 export const CHAIR_LINE = 'Mantenga la distancia de seguridad';
+/** The Centralita plugging her cord into the wall for the first time (BossBrain.cord). */
+export const CORD_LINE = 'Un momento, le conecto';
+/** The Trituradora marking its first run on its tracks (BossBrain.treads). */
+export const TREAD_LINE = 'Recogida a domicilio';
 /** The Consola lagging (BossBrain.lag): its first snap to its ghost, and its first rubber-band back. */
 export const LAG_LINE = 'Conexión inestable';
 export const LAG_BACK_LINE = 'Reconectando...';

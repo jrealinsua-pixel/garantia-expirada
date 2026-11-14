@@ -711,7 +711,7 @@ juegos del género» de `docs/DISENO.md`.
       se conduce como una (gira despacio, solo avanza hacia las horquillas) y da marcha atrás
       pitando tras embestir. Los demás del Servicio Técnico son los de las plantas 1–5,
       reacondicionados, y ya se mueven a su manera.
-- [ ] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
+- [x] (h10) Jefes más únicos: cada uno con un movimiento y una idea que solo tenga él (no solo
   ataques distintos): (h10a) los de las plantas 1–2, (h10b) los de las plantas 3–5 y el final.
   - [x] (h10a1) Planta 1: la Nevera Suprema y la Lavadora Programa Eco. Hecho el 2026-11-13: la
     nevera patina (se impulsa y se desliza frenando despacio, más lejos sobre la escarcha que
@@ -728,7 +728,11 @@ juegos del género» de `docs/DISENO.md`.
   - [x] (h10b2) Planta 4: el Director de Recursos Inhumanos. Hecho el 2026-11-14: «distancia de
     seguridad»: sentado rueda en su silla de cara a la tostadora, impulsándose hacia atrás, lejos de
     ella, y de vuelta cuando se ha alejado demasiado; contra la pared se para en seco. De pie anda.
-  - [ ] (h10b3) Planta 5 y el final: la Centralita y la Trituradora.
+  - [x] (h10b3) Planta 5 y el final: la Centralita y la Trituradora. Hecho el 2026-11-14: la
+    Centralita se arrastra con los cables (enchufa el de delante en la pared, pasado un sitio
+    alrededor de la tostadora, y se arrastra por él de un tirón; entre tirones, despacio); la
+    Trituradora va sobre orugas (gira sobre sí misma hacia la tostadora, marca su recorrido y avanza
+    recto a través de ella, triturando lo que pilla; contra la pared se para en seco).
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
   sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo
   la generación procedural: (h11a) los props nuevos que se usan, (h11b) decoración por planta,

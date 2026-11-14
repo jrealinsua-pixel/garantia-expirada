@@ -1091,7 +1091,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
       'de clavijas del tamaño de un armario, con una voz grabada demasiado amable y los cables de brazos.',
     // M11 (5b). docs/DISENO.md says about 240, like the Director measured; her low counters stop the
     // toaster's bullets too.
-    hp: 155,
+    // M14b (h10b3): 155 → 148: hauling herself about by her cords she is harder to hit (the fight went from 126 to 135 s).
+    hp: 148,
     sprite: 'centralita',
     anchor: { x: 32, y: 73 },
     hurt: { x: -26, y: -66, w: 52, h: 62 },
@@ -1109,6 +1110,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       roam: { leg: [0.6, 1.4], burst: [0.7, 1.4], spread: 40 },
       drift: 0.4,
       rage: 0.5,
+      // M14b (h10b3): «Se arrastra con los cables»: she throws her front cord past a spot round the
+      // toaster, plugs it into the wall (or a counter) and hauls herself along it in a heave.
+      cord: { warn: 0.4, top: 4.2, accel: 520, brake: 300, rest: [0.3, 0.7], arc: [45, 100] },
       // The tip of the front cord, raised: the plugs come out of there.
       muzzle: { x: 30, y: 44 },
       phases: [
@@ -1205,6 +1209,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
       roam: { leg: [0.8, 1.6], burst: [0.6, 1.3], spread: 40 },
       drift: 0.4,
       rage: 0.5,
+      // M14b (h10b3): «Orugas»: it pivots on the spot to face the toaster, marks its run and drives
+      // straight through where it was, crushing whatever is in the way. Off its belt only (phase 1).
+      treads: { turn: 90, aim: 6, warn: 0.5, push: 2.2, over: 70, run: 4 },
       // The output slot, under the lamps: everything comes out of there.
       muzzle: { x: 12, y: 23 },
       phases: [

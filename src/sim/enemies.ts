@@ -17,6 +17,8 @@ import { BACK_WALL_ROWS, isWallAt, TILE, wallRectsNear } from './room.ts';
 import {
   BOSS_PHASE_BREAK,
   clearEnemyFire,
+  crumbleProp,
+  damageProp,
   isDead,
   DT,
   firePattern,
@@ -31,6 +33,7 @@ import {
   restructureRoom,
   slide,
   spawnEnemy,
+  spillProp,
   stampInk,
   STAMP_LIFT,
   throwFrost,
@@ -1608,9 +1611,15 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     }
     en.restructT = 0;
     en.relayT = 0;
-    // A new leg of its catwalk, and its ghost back on it (the break stops both).
+    // A new leg of its catwalk, and its ghost back on it (the break stops both); a haul or a run
+    // under way is over (it starts the new phase pivoting, or resting).
     delete en.catTo;
     delete en.lagGhost;
+    delete en.cord;
+    if (en.tread) {
+      en.tread.mode = 'turn';
+      en.tread.t = 0;
+    }
     // A new phase cuts the voice menu short (its zones go with the bullets on screen), and the
     // transfers start counting from now.
     delete en.menu;
@@ -1702,13 +1711,26 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         ({ x: walkX, y: walkY } = catwalkWalk(w, en, b.catwalk, phase.walkSpeed * rage, phase.keep, rage));
         glided = true;
       } else if (b.lag) ({ x: walkX, y: walkY } = lagWalk(w, en, b, phase.walkSpeed * rage * b.lag.pace, phase.keep));
-      else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep)));
+      else if (b.cord) {
+        ({ x: walkX, y: walkY } = cordWalk(w, en, b, b.cord, phase.walkSpeed * rage, phase.keep, rage, true));
+        glided = true;
+      } else if (b.treads) {
+        ({ x: walkX, y: walkY } = treadWalk(w, en, b.treads, phase.walkSpeed * rage, rage, true));
+        glided = true;
+      } else ({ x: walkX, y: walkY } = waddleWalk(w, en, b, phase, bossRoam(w, en, b, phase.walkSpeed * rage, phase.keep)));
       // Lagging, it snaps to its ghost now and then (BossBrain.lag).
       if (b.lag) updateLag(w, en, b.lag);
       // Gone quiet: its lights blank, it stops dead and takes more (BossPhase.mute). Only between
       // attacks, so a sweep is never cut short and the silence is never under a hail of bullets.
       if (phase.mute && en.muteIn !== undefined && en.muteIn <= 0 && !w.over) {
         en.muteIn = w.rng.range(phase.mute.every[0], phase.mute.every[1]);
+        // Gone quiet mid-haul, she lets go of her cord and stops dead.
+        if (en.cord) {
+          delete en.cord;
+          en.cordRest = 0;
+        }
+        en.vx = 0;
+        en.vy = 0;
         const ev: SimEvent = { type: 'mute', boss: en.id, x: en.x, y: en.y, time: phase.mute.time };
         if (phase.mute.line) ev.line = phase.mute.line;
         w.events.push(ev);
@@ -1961,6 +1983,14 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         // In its chair it does not kick off while it throws: it rolls on, braking.
         ({ x: walkX, y: walkY } = chairWalk(w, en, b.chair!, phase.walkSpeed * rage, phase.keep, false));
         glided = true;
+      } else if (b.cord && !en.rail) {
+        // Warning she throws no cord (a haul under way goes on); once her bullets are out, she does.
+        ({ x: walkX, y: walkY } = cordWalk(w, en, b, b.cord, phase.walkSpeed * rage, phase.keep, rage, en.t > bossWarnTime(phase, en) && !isSpinning(en)));
+        glided = true;
+      } else if (b.treads && !en.rail) {
+        // On its tracks it fires as it goes: pivoting, marking its run and driving on.
+        ({ x: walkX, y: walkY } = treadWalk(w, en, b.treads, phase.walkSpeed * rage, rage, true));
+        glided = true;
       } else if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) {
         const v = phase.walkSpeed * rage * b.drift;
         if (en.rail) ({ x: walkX, y: walkY } = railRoam(w, en, b, v));
@@ -1993,6 +2023,15 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, false));
     glided = true;
   }
+  // A haul under way goes on through a warning; in a break she lets go (the phase change did).
+  if (b.cord && !en.rail && !glided && en.state === 'warn') {
+    ({ x: walkX, y: walkY } = cordWalk(w, en, b, b.cord, phase.walkSpeed * rage, phase.keep, rage, false));
+    glided = true;
+  }
+  if (b.treads && !en.rail && !glided && en.state === 'warn') {
+    ({ x: walkX, y: walkY } = treadWalk(w, en, b.treads, phase.walkSpeed * rage, rage, true));
+    glided = true;
+  }
   if (seated && !glided && (en.state === 'warn' || en.state === 'roar')) {
     ({ x: walkX, y: walkY } = chairWalk(w, en, b.chair!, phase.walkSpeed * rage, phase.keep, false));
     glided = true;
@@ -2010,6 +2049,19 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     const moved = Math.hypot(en.x - ox, en.y - oy);
     en.moved += moved;
     if (glided && b.glide) iceTrail(w, en, b.glide, moved);
+    // Hauling herself into something: she lets go (BossBrain.cord).
+    if (b.cord && en.cord && en.cord.t >= en.cord.warn && (hit.hitX || hit.hitY)) letGoCord(w, en, b.cord, rage, true);
+    // Driving: px of its run left; into a wall, it stops dead and pivots again (BossBrain.treads).
+    if (b.treads && en.tread?.mode === 'drive' && !en.rail) {
+      en.tread.left -= moved;
+      if (hit.hitX || hit.hitY) {
+        en.vx = 0;
+        en.vy = 0;
+        en.tread.mode = 'turn';
+        en.tread.t = 0;
+        w.events.push({ type: 'treadBump', boss: en.id, x: en.x, y: en.y });
+      }
+    }
     // Rolling into something in its chair: it stops dead with a bump, and kicks off again sooner.
     if (seated && glided && (hit.hitX || hit.hitY)) {
       en.vx = 0;
@@ -2177,6 +2229,165 @@ function chairWalk(w: World, en: Enemy, c: NonNullable<BossBrain['chair']>, spee
   w.events.push({ type: 'chairKick', boss: en.id, x: en.x, y: en.y, dirX: Math.cos(dir), dirY: Math.sin(dir), first: !en.kicked });
   en.kicked = true;
   return { x: vx, y: vy };
+}
+
+/** The Centralita never hauls herself a shorter way than this (px), nor plugs her cord in nearer the spot than this past her feet. */
+const CORD_MIN = 48;
+const CORD_PAST = 6;
+/** Farthest she throws her cord past the spot (px): beyond, it is not worth it. */
+const CORD_REACH = 520;
+/** Longest a haul goes on (s, after the warning): something must have gone wrong. */
+const CORD_MAX = 3;
+/** Share of her walking speed she creeps on at between hauls. */
+const CORD_CREEP = 0.45;
+/** Tries at a spot before she rests a little and tries again. */
+const CORD_TRIES = 12;
+
+/** «Se arrastra con los cables»: the haul is over, and she unplugs her cord to rest a while. */
+function letGoCord(w: World, en: Enemy, c: NonNullable<BossBrain['cord']>, rage: number, bump: boolean): void {
+  delete en.cord;
+  en.cordRest = w.rng.range(c.rest[0], c.rest[1]) / rage;
+  w.events.push({ type: 'cordLetGo', boss: en.id, x: en.x, y: en.y, bump });
+}
+
+/**
+ * «Se arrastra con los cables» (BossBrain.cord): her velocity this tick. Resting, still; with `fresh`
+ * and her rest over, she throws her cord at a new spot round the toaster; plugged in, still for the
+ * warning, then hauling herself straight along it (up to her top speed, braking to stop on the spot).
+ */
+function cordWalk(w: World, en: Enemy, b: BossBrain, c: NonNullable<BossBrain['cord']>, speed: number, keep: number, rage: number, fresh: boolean): { x: number; y: number } {
+  const cd = en.cord;
+  if (cd) {
+    cd.t += DT;
+    if (cd.t < cd.warn) return { x: 0, y: 0 };
+    const rem = (cd.tx - en.x) * cd.ux + (cd.ty - en.y) * cd.uy;
+    if (rem <= 1.5 || cd.t > cd.warn + CORD_MAX) {
+      letGoCord(w, en, c, rage, false);
+      return { x: 0, y: 0 };
+    }
+    const now = Math.max(0, en.vx * cd.ux + en.vy * cd.uy);
+    const v = Math.min(speed * c.top, Math.sqrt(2 * c.brake * rem), now + c.accel * DT);
+    return { x: cd.ux * v, y: cd.uy * v };
+  }
+  en.cordRest = (en.cordRest ?? w.rng.range(c.rest[0], c.rest[1])) - DT;
+  if (!fresh || w.over) return { x: 0, y: 0 };
+  // Resting between hauls she creeps on, dragging herself round the toaster by hand.
+  if (en.cordRest > 0) return bossRoam(w, en, b, speed * CORD_CREEP, keep);
+  const p = w.player;
+  const r0 = en.def.footRadius;
+  const deg = Math.PI / 180;
+  // Where she is on her circle round the toaster (flattened, like bossRoam's).
+  const base = Math.atan2((en.y - p.y) / FLOOR_FLAT, en.x - p.x);
+  for (let k = 0; k < CORD_TRIES; k++) {
+    const side = w.rng.next() < 0.5 ? 1 : -1;
+    const a = base + w.rng.range(c.arc[0], c.arc[1]) * deg * side;
+    const rad = keep + w.rng.range(-b.roam.spread, b.roam.spread);
+    const tx = p.x + Math.cos(a) * rad;
+    const ty = p.y + Math.sin(a) * rad * FLOOR_FLAT;
+    const d = Math.hypot(tx - en.x, ty - en.y);
+    if (d < CORD_MIN || !isClear(w, tx, ty, r0) || !clearLine(w, en, { x: tx, y: ty }, r0)) continue;
+    const ux = (tx - en.x) / d;
+    const uy = (ty - en.y) / d;
+    // On past the spot, to the first thing her plug can go into: a wall, a counter.
+    let ax = NaN;
+    let ay = NaN;
+    for (let s = r0 + CORD_PAST; s <= CORD_REACH; s += 3) {
+      const qx = tx + ux * s;
+      const qy = ty + uy * s;
+      if (!isClear(w, qx, qy, 1)) {
+        ax = qx;
+        ay = qy;
+        break;
+      }
+    }
+    if (Number.isNaN(ax)) continue;
+    en.cord = { ax, ay, tx, ty, ux, uy, t: 0, warn: c.warn };
+    w.events.push({ type: 'cordThrow', boss: en.id, x: en.x, y: en.y, ax, ay, first: !en.corded });
+    en.corded = true;
+    return { x: 0, y: 0 };
+  }
+  // Nowhere to go from here: she creeps on and tries again in a moment.
+  en.cordRest = 0.2;
+  return bossRoam(w, en, b, speed * CORD_CREEP, keep);
+}
+
+/** Its run is never shorter than this (px), and it speeds up to full in this long (s). */
+const TREAD_MIN_RUN = 60;
+const TREAD_SPIN_UP = 0.3;
+/** Its front faces (`facing`) only flip once it points this far across (cos of its heading). */
+const TREAD_FLIP = 0.25;
+
+/**
+ * «Orugas» (BossBrain.treads): its velocity this tick. Pivoting on the spot towards the toaster;
+ * lined up, still while its run is marked; then straight ahead, crushing what is in its way, until
+ * its run is over (or a wall stops it: see updateBoss).
+ */
+function treadWalk(w: World, en: Enemy, tr: NonNullable<BossBrain['treads']>, speed: number, rage: number, go: boolean): { x: number; y: number } {
+  const p = w.player;
+  const deg = Math.PI / 180;
+  const t = (en.tread ??= { heading: en.facing > 0 ? 0 : Math.PI, mode: 'turn', t: 0, left: 0 });
+  t.t += DT;
+  const c = Math.cos(t.heading);
+  if (Math.abs(c) > TREAD_FLIP) en.facing = c > 0 ? 1 : -1;
+  if (t.mode === 'turn') {
+    const want = Math.atan2(p.y - en.y, p.x - en.x);
+    const diff = Math.atan2(Math.sin(want - t.heading), Math.cos(want - t.heading));
+    const stepA = tr.turn * deg * rage * DT;
+    t.heading += Math.max(-stepA, Math.min(stepA, diff));
+    if (go && !w.over && Math.abs(diff) <= tr.aim * deg) {
+      const ux = Math.cos(t.heading);
+      const uy = Math.sin(t.heading);
+      // Through where the toaster is and on past it; never a run so short it is not one.
+      const along = (p.x - en.x) * ux + (p.y - en.y) * uy;
+      t.left = Math.max(TREAD_MIN_RUN, along + tr.over);
+      t.mode = 'aim';
+      t.t = 0;
+      w.events.push({ type: 'treadAim', boss: en.id, x: en.x, y: en.y, dirX: ux, dirY: uy, len: runLength(w, en, ux, uy, t.left), first: !en.drove });
+    }
+    return { x: 0, y: 0 };
+  }
+  const ux = Math.cos(t.heading);
+  const uy = Math.sin(t.heading);
+  if (t.mode === 'aim') {
+    if (t.t < tr.warn / Math.sqrt(rage)) return { x: 0, y: 0 };
+    t.mode = 'drive';
+    t.t = 0;
+    en.drove = true;
+    w.events.push({ type: 'treadGo', boss: en.id, x: en.x, y: en.y, dirX: ux, dirY: uy });
+  }
+  if (t.left <= 0 || t.t > tr.run) {
+    t.mode = 'turn';
+    t.t = 0;
+    return { x: 0, y: 0 };
+  }
+  crushAhead(w, en, ux, uy);
+  const v = speed * tr.push * Math.min(1, t.t / TREAD_SPIN_UP + 0.25);
+  return { x: ux * v, y: uy * v };
+}
+
+/** How far along (ux, uy) the run marked (px) goes before a wall stops it (props it crushes). */
+function runLength(w: World, en: Enemy, ux: number, uy: number, left: number): number {
+  const r0 = en.def.footRadius;
+  for (let s = 4; s <= left; s += 4) {
+    const box = playerFeetBox({ x: en.x + ux * s, y: en.y + uy * s }, r0);
+    const walls: Rect[] = [];
+    wallRectsNear(w.room, box, walls);
+    if (walls.length > 0) return s - 4;
+  }
+  return left;
+}
+
+/** Driving, the props right in front of its tracks are crushed: a drum is lit, the rest go to bits. */
+function crushAhead(w: World, en: Enemy, ux: number, uy: number): void {
+  const r0 = en.def.footRadius;
+  const box = playerFeetBox({ x: en.x + ux * 6, y: en.y + uy * 6 }, r0);
+  for (const pr of w.room.props.slice()) {
+    if (pr.chest || pr.slide || pr.fall || pr.fuse !== undefined || !overlaps(box, pr.box)) continue;
+    w.events.push({ type: 'crush', boss: en.id, x: pr.x, y: pr.y, prop: pr.def.id });
+    if (pr.def.hp && !pr.def.crumble && !pr.def.spill) damageProp(w, pr, pr.def.hp - (pr.damage ?? 0));
+    else if (pr.def.spill) spillProp(w, pr);
+    else crumbleProp(w, pr, true);
+  }
 }
 
 /** The catwalk never takes the Muñeco nearer a wall than this (px past its feet), nor on a leg shorter than this (px). */

@@ -1702,6 +1702,14 @@ try {
     { timeout: 40000 },
   );
   await shot('51f-centralita-espera.png');
+  // M14b (h10b3): «Se arrastra con los cables»: her cord plugged into the wall, the lane marked, and
+  // then hauling herself down it.
+  await page.waitForFunction(`(() => { const c = ${centralitaJs}.cord; return !!c && c.t > c.warn * 0.7 && c.t < c.warn; })()`, undefined, { timeout: 15000 })
+    .catch(() => { throw new Error('La Centralita no lanza su cable'); });
+  await shot('51fa-centralita-cable.png');
+  await page.waitForFunction(`(() => { const b = ${centralitaJs}; const c = b.cord; return !!c && c.t > c.warn && Math.hypot(b.vx, b.vy) > 90; })()`, undefined, { timeout: 15000 })
+    .catch(() => { throw new Error('La Centralita no se arrastra por su cable'); });
+  await shot('51fb-centralita-arrastre.png');
   // Rolling over a low counter: from just above the left one, rolling down, it lands below it.
   await page.waitForFunction(`!${centralitaJs}.menu`, undefined, { timeout: 5000 });
   const counter = await page.evaluate<{ x: number; top: number; bottom: number }>(`(() => {
@@ -2091,6 +2099,13 @@ try {
   await page.waitForFunction('!window.__GE__.scene.world.intro', undefined, { timeout: 1500 });
   await page.waitForFunction(`(() => { const s = window.__GE__.scene; return s.scans.length > 0 && s.scans[0].t > 0.35; })()`, undefined, { timeout: 15000 });
   await shot('53b-trituradora-diagnostico.png');
+  // M14b (h10b3): «Orugas»: lined up, its run marked on the floor; then driving down it.
+  await page.waitForFunction(`(() => { const t = ${trituradoraJs}.tread; return !!t && t.mode === 'aim' && t.t > 0.2; })()`, undefined, { timeout: 20000 })
+    .catch(() => { throw new Error('La Trituradora no marca su recorrido'); });
+  await shot('53ba-trituradora-orugas.png');
+  await page.waitForFunction(`(() => { const t = ${trituradoraJs}.tread; return !!t && t.mode === 'drive' && t.t > 0.5; })()`, undefined, { timeout: 10000 })
+    .catch(() => { throw new Error('La Trituradora no avanza sobre sus orugas'); });
+  await shot('53bb-trituradora-avanza.png');
   await page.waitForFunction(
     `(() => { const s = window.__GE__.scene; const v = s.cameras.main.worldView;
       return s.world.bullets.filter((b) => b.color === 'ice' && b.age > 0.5 && v.contains(b.x, b.y)).length >= 10; })()`,

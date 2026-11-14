@@ -571,6 +571,21 @@ export interface Enemy {
   /** The Director in his chair (BossBrain.chair): whether he has kicked off before. */
   kicked?: boolean;
   /**
+   * The Centralita hauling herself about (BossBrain.cord): her cord plugged in at (ax, ay), the spot
+   * (tx, ty) she stops at, the way she goes (ux, uy) and seconds since she threw it; seconds of rest
+   * before the next throw; and whether she has thrown it before.
+   */
+  cord?: { ax: number; ay: number; tx: number; ty: number; ux: number; uy: number; t: number; warn: number };
+  cordRest?: number;
+  corded?: boolean;
+  /**
+   * The Trituradora on its tracks (BossBrain.treads): the way its front points (radians), what it is
+   * doing (pivoting, marking its run, driving), seconds at it, and px of the run left.
+   */
+  tread?: { heading: number; mode: 'turn' | 'aim' | 'drive'; t: number; left: number };
+  /** Whether it has driven before (the first run says so). */
+  drove?: boolean;
+  /**
    * Bosses that lay a conveyor belt (BossPhase.belt): the line along the end wall it rides (`x`),
    * how much faster than walking it goes there, and whether it has got there yet.
    */
@@ -758,6 +773,18 @@ export type SimEvent =
   | { type: 'chairKick'; boss: number; x: number; y: number; dirX: number; dirY: number; first: boolean }
   /** It rolls into a wall or a piece of furniture (BossBrain.chair). */
   | { type: 'chairBump'; boss: number; x: number; y: number }
+  /** The Centralita throws her cord and plugs it in at (ax, ay) to haul herself there (BossBrain.cord). */
+  | { type: 'cordThrow'; boss: number; x: number; y: number; ax: number; ay: number; first: boolean }
+  /** Her haul is over: she unplugs it (`bump`: something stopped her on the way). */
+  | { type: 'cordLetGo'; boss: number; x: number; y: number; bump: boolean }
+  /** The Trituradora, lined up, marks its run (BossBrain.treads): from (x, y), `len` px along (dirX, dirY). */
+  | { type: 'treadAim'; boss: number; x: number; y: number; dirX: number; dirY: number; len: number; first: boolean }
+  /** And off it drives. */
+  | { type: 'treadGo'; boss: number; x: number; y: number; dirX: number; dirY: number }
+  /** Into a wall: it stops dead. */
+  | { type: 'treadBump'; boss: number; x: number; y: number }
+  /** It drives over a prop and crushes it. */
+  | { type: 'crush'; boss: number; x: number; y: number; prop: string }
   /** A lagging boss snaps from (x, y) to (tx, ty) (BossBrain.lag); `back`: rubber-banding back. */
   | { type: 'lag'; boss: number; x: number; y: number; tx: number; ty: number; back: boolean }
   /** A forklift backing up: one beep (`first`: it has just put it in reverse). */
