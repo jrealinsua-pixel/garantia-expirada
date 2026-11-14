@@ -1557,6 +1557,11 @@
       "sesion": "2026-11-14 09:30 (hora peninsular)",
       "tarea": "M14c (a4d1): el Becario Eterno con el estilo nuevo y sus 24 fotogramas (tools/sprites/becario*.ts, src/data/characters.ts, tests/becario-a4d.test.ts). No toca enemigos",
       "desde": "2026-11-14T09:30:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 10:26 (hora peninsular)",
+      "tarea": "M14c (a6b2): las piezas del cubo y los muñequitos del sobre con el estilo nuevo (tools/sprites/planta3-nuevo.ts, tests/estilo-a6.test.ts). No toca personajes ni src/sim",
+      "desde": "2026-11-14T10:26:00+01:00"
     }
   ]
 }
