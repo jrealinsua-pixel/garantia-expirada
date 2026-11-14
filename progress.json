@@ -1632,6 +1632,11 @@
       "sesion": "2026-11-14 19:26 (hora peninsular)",
       "tarea": "M14c (a7g): el Director de Recursos Inhumanos y su silla con el estilo nuevo (tools/sprites/director-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts el director, tests/estilo-a7g.test.ts nuevo). No toca otros jefes",
       "desde": "2026-11-14T19:26:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 20:26 (hora peninsular)",
+      "tarea": "M14c (a7h): la Centralita con el estilo nuevo (tools/sprites/centralita-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la centralita, tests/estilo-a7h.test.ts nuevo). No toca otros jefes",
+      "desde": "2026-11-14T20:26:00+01:00"
     }
   ]
 }
