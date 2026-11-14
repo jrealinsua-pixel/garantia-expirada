@@ -121,7 +121,12 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     rollCooldown: 0.3,
     startWeapon: 'notificaciones',
     footRadius: 5,
-    look: { sheet: 'movil', w: 40, h: 41, feetX: 17.5, feetY: 36, spinY: 22, off: 'movil-apagado' },
+    // M14c (a4d2): the new style, bigger, with its own frames after the eight (PHONE_ANIM in
+    // tools/sprites/movil.ts); the hitbox has not changed.
+    look: {
+      sheet: 'movil', w: 40, h: 48, feetX: 21, feetY: 47, spinY: 22, off: 'movil-apagado', hand: 'mano-movil', shadowRx: 12,
+      anim: { walk: [8, 9, 10, 11, 12, 13], roll: [14, 15, 16, 17, 18, 19], shoot: 20, hurt: [21, 6], die: [22, 23] },
+    },
     // «Carga en movimiento»: a battery every 600 px walked in a fight. «Batería al 1 %»: 3 s still, 1 s off.
     ability: { kind: 'phone', chargeEvery: 600, idleTime: 3, offTime: 1 },
   },

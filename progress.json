@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T11:56:00+01:00",
+  "actualizado": "2026-11-14T12:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1126,
-    "tests_ok": 1126,
+    "tests": 1133,
+    "tests_ok": 1133,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38162
+    "lineas_codigo": 38171
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T12:50:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a4d2): el Móvil Reacondicionado con el estilo nuevo y sus 24 fotogramas. Un móvil viejo de oro rosa con botón de inicio, la cara dibujada en la pantalla (cejas de preocupación y una gota de sudor), la batería al 1 %, el globo de notificaciones sin leer y la pantalla rajada; carga andando, enseña la rueda de carga al rodar, la pantalla se raya con los golpes y al morir sale la batería vacía. Con él, los cinco personajes están redibujados: la (a4) está terminada."
+    },
     {
       "fecha": "2026-11-14T11:56:00+01:00",
       "hito": "M14c",
@@ -1515,6 +1520,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/movil-fotogramas.png",
+      "pie": "M14c (a4d2): la hoja nueva del Móvil Reacondicionado, 24 fotogramas y el apagado: los ocho de siempre (roto, con la grieta de punta a punta y el cable desenchufado); andar en seis pasos cargando; rodar con la rueda de carga; disparar, el golpe que raya la pantalla, la batería vacía y las chispas al morir; abajo, los cinco juntos, a 4×"
+    },
+    {
+      "archivo": "capturas/movil-con-los-cinco.png",
+      "pie": "M14c (a4d2): los cinco en el Mostrador, ya todos con el estilo nuevo; el Móvil, de oro rosa con su globo de notificaciones, a la derecha del Becario"
+    },
+    {
       "archivo": "capturas/destructora-redibujada.png",
       "pie": "M14c (a6c1): la Destructora de Documentos, ahora (arriba: de lado, andando y con las cuchillas rojas; de frente; de espaldas, toda papelera) y antes (abajo), a 3×"
     },
@@ -1529,17 +1542,9 @@
     {
       "archivo": "capturas/munequitos-en-juego.png",
       "pie": "M14c (a6b2): los muñequitos repetidos nuevos saliendo de los sobres rotos alrededor de la tostadora, en el Taller de Reparación de la Juguetería"
-    },
-    {
-      "archivo": "capturas/becario-fotogramas.png",
-      "pie": "M14c (a4d1): la hoja del Becario Eterno, 24 fotogramas: los ocho de siempre (con el café derramado y el pósit caído al romperse); andar en seis pasos; rodar con la acreditación dando vueltas y aterrizar; disparar, el golpe que hace saltar el café y las dos sacudidas con los papeles volando"
-    },
-    {
-      "archivo": "capturas/becario-con-los-cinco.png",
-      "pie": "M14c (a4d1): los cinco en el Mostrador; el Becario, ya con el estilo nuevo, junto a la tostadora, la batidora y la plancha (el Móvil es el que queda por redibujar)"
     }
   ],
-  "proximo": "M14c (a6c2), la Fotocopiadora (la (a4d2), el Móvil, la tiene otra sesión).",
+  "proximo": "M14c (a6c2), la Fotocopiadora (si nadie la ha cogido); si no, la (a6d), el Sello y el Climatizador.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1568,11 +1573,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 11:27 (hora peninsular)",
-      "tarea": "M14c (a4d2): el Móvil con el estilo nuevo y sus 24 fotogramas (tools/sprites/movil.ts o su archivo, tools/sprites/build.ts su línea, src/data/characters.ts su look, src/art/paleta.ts si hace falta un material, tests/movil-a4d.test.ts). No toca enemigos",
-      "desde": "2026-11-14T11:27:00+01:00"
-    },
     {
       "sesion": "2026-11-14 12:28 (hora peninsular)",
       "tarea": "M14c (a6c2): la Fotocopiadora con el estilo nuevo (tools/sprites/planta4-nuevo.ts, tools/sprites/build.ts su línea, tests/estilo-a6.test.ts). No toca personajes",

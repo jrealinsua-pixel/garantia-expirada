@@ -29,6 +29,10 @@ export const MATERIALS = {
   goma: r('#9da0bf', '#73769a', '#53557a', '#3b3c5f', '#2a2a48', '#1d1b35'),
   /** Pink plastic of the hair dryer (the starting weapon). */
   rosa: r('#ffe0e4', '#f7b2c0', '#e8869f', '#c3637f', '#8f4767', '#5c2f4f'),
+  /** M14c (a4d2): the Móvil's «oro rosa» aluminium case: peach-pink lights, shadows to plum. */
+  ororosa: r('#fde6e0', '#f9c6bb', '#eea89d', '#d8888a', '#b46c76', '#82496a', '#4f2f4f'),
+  /** M14c (a4d2): a phone's black glass: a cold blue glint on top, the rest almost ink. */
+  pantalla: r('#8fa6d6', '#5a6fa8', '#3a4a80', '#28325e', '#1d2244', '#161731'),
   /** Price stickers and warnings. */
   amarillo: r('#fff6c2', '#ffd95a', '#f2b233', '#cb7f2a', '#8e4e2a', '#5a2e2a'),
   /** Rust and dirt: never alone, always a few specks. */

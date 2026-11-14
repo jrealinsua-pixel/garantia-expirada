@@ -792,7 +792,7 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   paleta en OKLab, quita los bordes a medias, recorta de pie en su fotograma, contorno selectivo si
   se pide, rechaza lo que no tiene licencia válida y apunta los créditos), `allSheets` los añade a
   las hojas; `tests/entrada.test.ts`.
-- [ ] (a4) Los cinco personajes jugables, redibujados con más fotogramas (andar 6, rodar 6,
+- [x] (a4) Los cinco personajes jugables, redibujados con más fotogramas (andar 6, rodar 6,
   disparar, herido, morir).
   - [x] (a4a) La Tostadora en el juego con el estilo nuevo (parte de `art/prueba/tostadora.png`):
     la hoja nueva, el tamaño de fotograma nuevo en `sprites.json`, el dibujo centrado en su caja
@@ -829,13 +829,19 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       camisa quemado pegado debajo, el vapor que sale con los golpes, guantes blancos de algodón
       (`mano-plancha`) y zapatos negros de la entrevista; `tests/plancha-a4c.test.ts` y
       `tests/plancha-vapor.test.ts` la miden contra la tostadora y la batidora nuevas.
-  - [ ] (a4d) El Becario Eterno y el Móvil, partida en dos el 2026-11-14 como la (a4c).
+  - [x] (a4d) El Becario Eterno y el Móvil, partida en dos el 2026-11-14 como la (a4c).
     - [x] (a4d1) El Becario Eterno, con sus fotogramas propios.
       Hecho el 2026-11-14: `tools/sprites/becario.ts` (24 fotogramas en 40 × 47, `BECARIO_EXTRA`,
       `BECARIO_ANIM`), material nuevo `piel`, el café para llevar en la mano de atrás, la acreditación
       que da vueltas al rodar, los papeles al morir y el café derramado al romperse; mano
       `mano-becario` de 7 × 7; `tests/becario-a4d.test.ts`.
-    - [ ] (a4d2) El Móvil, con sus fotogramas propios.
+    - [x] (a4d2) El Móvil, con sus fotogramas propios.
+      Hecho el 2026-11-14: `tools/sprites/movil.ts` (24 fotogramas en 40 × 48, `PHONE_EXTRA`,
+      `PHONE_ANIM`, y `movil-apagado` en el mismo marco), materiales nuevos `ororosa` y `pantalla`,
+      un modelo viejo con frente y botón de inicio, la cara en la pantalla con la gota de sudor, la
+      batería al 1 %, el globo sin leer, la grieta, el rayo al andar, la rueda de carga al rodar, la
+      pantalla rayada al golpe, la batería vacía y chispas al morir; manos `mano-movil`;
+      `tests/movil-a4d.test.ts`. Con esto la (a4) está terminada.
 - [x] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
   - [x] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
     Hecho el 2026-11-14: `tools/sprites/planta1-nuevo.ts` (aspirador 42 × 40 con 7 fotogramas, el

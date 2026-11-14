@@ -86,13 +86,19 @@
   "movil": {
     "file": "movil.png",
     "frameW": 40,
-    "frameH": 41,
-    "frames": 8
+    "frameH": 48,
+    "frames": 24
   },
   "movil-apagado": {
     "file": "movil-apagado.png",
     "frameW": 40,
-    "frameH": 41,
+    "frameH": 48,
+    "frames": 1
+  },
+  "mano-movil": {
+    "file": "mano-movil.png",
+    "frameW": 7,
+    "frameH": 7,
     "frames": 1
   },
   "arma-notificaciones": {

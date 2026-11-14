@@ -97,6 +97,23 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   céntimo en la ranura. Sus fotogramas, como los de los otros tres; al rodar la acreditación da
   vueltas en su cinta, el golpe hace saltar el café, al morir le vuelan los papeles (no es un
   electrodoméstico: nada de chispas) y roto deja el café derramado en el suelo y el pósit caído.
+- **El Móvil Reacondicionado** (M14c (a4d2), `tools/sprites/movil.ts`): 40 × 48, una losa de pie
+  en tres cuartos con el canto redondeado en sombra a la izquierda (un cilindro visto de lado, con
+  los botones de volumen y la pegatina «REACONDICIONADO» con su código de barras) y la cara de
+  delante entera de **oro rosa** (material nuevo `ororosa`, melocotón rosado con sombras al
+  ciruela): es un modelo viejo, con frente (el auricular y la cámara) y barbilla con el **botón de
+  inicio gastado**. El cristal es `pantalla` (casi tinta, con un reflejo frío en diagonal arriba a
+  la izquierda) y la cara está dibujada en él, iluminada: cejas de preocupación, ojos blancos con un
+  brillo cian debajo, boca temblorosa y una **gota de sudor** (siempre a punto de apagarse). La
+  barra de estado con la hora y la **batería al 1 %** en rojo; el **globo rojo de notificaciones**
+  sin leer asoma por la esquina de arriba (rompe la silueta); la **grieta** sube desde la esquina de
+  abajo. Andando sale el rayo de cargar; rodando, la **rueda de carga** gira en la pantalla; un golpe
+  **raya la pantalla** (filas desplazadas y bandas roja y cian); al morir, la batería vacía ocupa la
+  pantalla y saltan chispas del conector; roto, cristal negro con la grieta de punta a punta, sin
+  globo y con el cable desenchufado delante. Apagado (`movil-apagado`), en el mismo marco, solo el
+  logo de encendido. Manos de silicona de oro rosa (`mano-movil`), zapatillas blancas con una raya
+  azul y el cable de cargar arrastrando con su cinta amarilla. El arma y sus balas siguen con el
+  dibujo viejo hasta la (a13).
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

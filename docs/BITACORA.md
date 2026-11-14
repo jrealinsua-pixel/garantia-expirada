@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 12:50 (hora peninsular) — Hito M14c — (a4d2) El Móvil Reacondicionado con el estilo nuevo
+- Contexto: sesión automática. Al llegar, otra sesión tenía la (a6c1), la Destructora (planta 4,
+  sin tocar personajes); cogí la (a4d2), que no se pisa con ella. La rama `main` local volvía a ser
+  una copia vieja y poco profunda; se puso en `origin/main` con `git checkout -B main origin/main`,
+  sin tocar el remoto. La Destructora terminó mientras tanto; el `pull --rebase` mezcló sin
+  conflictos (`build.ts`, `sprites.json` y la hoja de ruta) y las hojas se regeneraron después.
+- Hecho: **el Móvil Reacondicionado** (`tools/sprites/movil.ts`) en el estilo nuevo, 40 × 48, con los
+  24 fotogramas de los otros cuatro (`PHONE_FRAMES`, `PHONE_EXTRA`, `PHONE_ANIM`) y `movil-apagado` en
+  el mismo marco. Materiales nuevos en `src/art/paleta.ts`: `ororosa` (la carcasa) y `pantalla` (el
+  cristal negro). Una losa de pie en tres cuartos: el canto redondeado en sombra con los botones de
+  volumen y la pegatina «REACONDICIONADO»; delante, todo oro rosa, porque es **un modelo viejo** con
+  frente (auricular y cámara) y barbilla con el botón de inicio gastado. La cara, dibujada en la
+  pantalla e iluminada por ella: cejas de preocupación, ojos blancos con brillo cian, boca temblorosa
+  y una gota de sudor. La batería al 1 % en rojo, el globo de notificaciones sin leer asomando por la
+  esquina y la grieta desde la esquina de abajo. Andando, el rayo de cargar («Carga en movimiento»);
+  rodando, la rueda de carga gira en la pantalla y el cable da latigazos; el golpe raya la pantalla
+  (filas desplazadas y bandas roja y cian); al morir, la batería vacía llena la pantalla y saltan
+  chispas; roto, cristal negro con la grieta de punta a punta, sin globo y con el cable desenchufado
+  delante. Manos de silicona de oro rosa (`mano-movil`), sombra de 12. Tests nuevos en
+  `tests/movil-a4d.test.ts` (7); `tests/movil.test.ts` mide la altura nueva; los dos de la tostadora
+  que usaban al Móvil como «personaje del marco viejo» usan ahora una ficha de mentira (ya no queda
+  ninguno). Sección nueva en `docs/ESTILO_ARTE.md`. **Con esto la (a4) está terminada.**
+- Decisiones: (1) Modelo viejo con botón de inicio y no pantalla de borde a borde: un cristal negro
+  enorme dejaba al personaje en un rectángulo oscuro sin color propio; con frente y barbilla la
+  carcasa manda (y el chiste del reacondicionado mejora). (2) El oro rosa se probó primero más
+  pálido y `tests/cinco-juntos.test.ts` lo leía «gris» (sin color propio); se saturó un poco, con
+  el tono por debajo de 15° para no caer en el del Becario. (3) El cristal es casi todo el tono 4 de
+  `pantalla`, por debajo del umbral de brillo de ese test, para que el color dominante sea la
+  carcasa. (4) La cara se pinta en una capa aparte y baja una fila para no tocar la barra de estado.
+  (5) El arma, sus balas y la batería baja siguen con el dibujo viejo hasta la (a13); el Mostrador
+  pinta su vitrina con los colores viejos (`ROSE`, `SCREEN` siguen exportados para eso).
+- Medidas: la simulación no cambia. `npm run bot` 200 partidas, 0 fallos. 1133 tests en verde;
+  `npm run e2e` entero en verde (en segundo plano: tarda más de 10 minutos).
+- Problemas conocidos: a tamaño real la grieta y la boca quedan cerca y la boca se pierde un poco;
+  el golpe raya también las cejas (se lee como avería, se deja). Rodando, las dos zapatillas se
+  juntan en una mancha (igual que los demás).
+- Siguiente paso: M14c (a6c2), la Fotocopiadora; o la (a6d), el Sello y el Climatizador.
+
 ## 2026-11-14 11:56 (hora peninsular) — Hito M14c — (a6c1) La Destructora con el estilo nuevo
 - Contexto: segunda tarea de la sesión, tras la (a6b2). La (a4d2), el Móvil, la siguiente de la
   lista, es la que la sesión del Becario apuntó como su siguiente paso (y la cogió a las 11:27), así

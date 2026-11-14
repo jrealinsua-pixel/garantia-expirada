@@ -70,10 +70,11 @@ test('sus números y su dibujo: tres corazones, las Notificaciones Push, ocho fo
   // Taller than the blender (a phone stands on end) and, in the middle of the screen, dark glass.
   const top = (c: ReturnType<typeof makePhone>): number =>
     Math.min(...Array.from({ length: c.h }, (_, y) => y).filter((y) => Array.from({ length: c.w }, (_, x) => x).some((x) => c.get(x, y)[3] > 0)));
-  assert.ok(M.look.feetY - top(rest) >= 30 && M.look.feetY - top(rest) <= 34, `alto ${M.look.feetY - top(rest)}`);
+  // (M14c (a4d2): redrawn bigger, 40 × 48; tests/movil-a4d.test.ts.)
+  assert.ok(M.look.feetY - top(rest) >= 40 && M.look.feetY - top(rest) <= 46, `alto ${M.look.feetY - top(rest)}`);
   assert.ok(top(rest) <= top(makeBlenderFrames()[0]!) + 2);
   const off = makePhoneOff();
-  const [r, g, b] = off.get(16, 24);
+  const [r, g, b] = off.get(18, 28);
   assert.ok(r + g + b < 120, 'la pantalla apagada es negra');
   assert.deepEqual([makeLowBattery().w, makeLowBattery().h], [11, 7]);
   for (const s of [PHONE_OFF_LINE, PHONE_ON_LINE]) assert.ok(textWidth(s) > 0 && textWidth(s) < 240, s);
