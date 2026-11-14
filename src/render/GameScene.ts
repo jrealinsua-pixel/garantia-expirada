@@ -43,6 +43,7 @@ import {
   TYPING_LINE,
   SIDESTEP_LINE,
   REVERSE_LINE,
+  CHAIR_LINE,
   HANDOFF_LINE,
   LAG_BACK_LINE,
   LAG_LINE,
@@ -2929,6 +2930,19 @@ export class GameScene extends Phaser.Scene {
           if (e.first) this.floatText(e.x, e.y - 74, fontText(POSE_LINE), 0xf6c431, `pose:${e.boss}`, -10, 1.1);
           break;
         }
+        case 'chairKick': {
+          // The Director kicks off in his office chair: the castors rattle, a scuff of his heels.
+          this.sound2.play('deslizar', { detune: this.fx.range(200, 500), volume: 0.3 });
+          this.puff(e.x - e.dirX * 14, e.y, 0.25);
+          if (e.first) this.floatText(e.x, e.y - 72, fontText(CHAIR_LINE), 0xf4f1e8, `chair:${e.boss}`, -10, 1.2);
+          break;
+        }
+        case 'chairBump':
+          // Into the wall or a desk: a dull knock, and a short shake.
+          this.sound2.play('golpe', { detune: this.fx.range(-900, -600), volume: 0.45 });
+          this.puff(e.x, e.y - 10, 0.35);
+          this.shake(60, 0.002, true);
+          break;
         case 'lag': {
           // The Consola catches up with itself: static at both ends, and a broken-up blip.
           this.sound2.play('zapear', { detune: e.back ? -700 : this.fx.range(700, 1100), volume: 0.4 });

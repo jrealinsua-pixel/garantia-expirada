@@ -725,8 +725,9 @@ juegos del género» de `docs/DISENO.md`.
     2026-11-14: el Muñeco desfila (tramos rectos, solo de lado o solo arriba y abajo, alrededor de
     la tostadora, y posa al final de cada uno con un flash); la Consola va con lag (su fantasma
     anda delante, dibujado cian, y ella salta a donde ha llegado; a veces vuelve atrás).
-  - [ ] (h10b2) Planta 4: el Director de Recursos Inhumanos (en su silla de ruedas, y de pie en la
-    fase 3).
+  - [x] (h10b2) Planta 4: el Director de Recursos Inhumanos. Hecho el 2026-11-14: «distancia de
+    seguridad»: sentado rueda en su silla de cara a la tostadora, impulsándose hacia atrás, lejos de
+    ella, y de vuelta cuando se ha alejado demasiado; contra la pared se para en seco. De pie anda.
   - [ ] (h10b3) Planta 5 y el final: la Centralita y la Trituradora.
 - [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
   sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo

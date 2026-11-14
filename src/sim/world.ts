@@ -568,6 +568,8 @@ export interface Enemy {
   lagGhost?: { x: number; y: number; vx: number; vy: number };
   lagT?: number;
   lagPrev?: { x: number; y: number };
+  /** The Director in his chair (BossBrain.chair): whether he has kicked off before. */
+  kicked?: boolean;
   /**
    * Bosses that lay a conveyor belt (BossPhase.belt): the line along the end wall it rides (`x`),
    * how much faster than walking it goes there, and whether it has got there yet.
@@ -752,6 +754,10 @@ export type SimEvent =
   | { type: 'pivot'; boss: number; x: number; y: number; side: number }
   /** A boss on its catwalk strikes a pose at the end of a leg (BossBrain.catwalk); `first`: its first. */
   | { type: 'pose'; boss: number; x: number; y: number; first: boolean }
+  /** A boss kicks off in its office chair (BossBrain.chair) along (dirX, dirY); `first`: its first. */
+  | { type: 'chairKick'; boss: number; x: number; y: number; dirX: number; dirY: number; first: boolean }
+  /** It rolls into a wall or a piece of furniture (BossBrain.chair). */
+  | { type: 'chairBump'; boss: number; x: number; y: number }
   /** A lagging boss snaps from (x, y) to (tx, ty) (BossBrain.lag); `back`: rubber-banding back. */
   | { type: 'lag'; boss: number; x: number; y: number; tx: number; ty: number; back: boolean }
   /** A forklift backing up: one beep (`first`: it has just put it in reverse). */

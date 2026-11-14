@@ -989,8 +989,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
       'Firma las bajas de todo el edificio sin levantarse de la silla. Sonríe como en su foto de ' +
       'perfil; las gafas reflejan una hoja de cálculo en la que usted es una celda.',
     // M10 planta 4 (5b). docs/DISENO.md said about 240; 220 like the Muñeco, because his long table
-    // stops the toaster's bullets too (measured with the bot: see the log of 2026-11-05).
-    hp: 140,
+    // stops the toaster's bullets too (measured with the bot: see the log of 2026-11-05). 140 → 132
+    // with his chair (M14b (h10b2)), and shorter rests: rolling away from the toaster, the fight had
+    // gone over 130 s.
+    hp: 132,
     sprite: 'director-rrhh',
     anchor: { x: 34, y: 73 },
     hurt: { x: -24, y: -66, w: 48, h: 60 },
@@ -1006,8 +1008,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
     anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, warn: 6, clap: 7, spin: [17, 15, 16, 15], spinMs: 90 },
     brain: {
       kind: 'boss',
-      // On wheels: pushes of the feet in short legs, now a glide, now a lurch.
+      // On wheels: pushes of the feet in short legs, now a glide, now a lurch. (On his feet.)
       roam: { leg: [0.5, 1.3], burst: [0.6, 1.5], spread: 50 },
+      // «Distancia de seguridad» (M14b (h10b2)): seated, he rolls backwards in his chair, facing
+      // you, by kicks of his feet, and kicks himself back in when he has got too far.
+      chair: { push: 2.4, friction: 150, angle: [20, 55], far: 20 },
       drift: 0.35,
       rage: 0.6,
       // His right hand, out in front of the chair: the cards come out of there.
@@ -1020,7 +1025,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
           from: 1,
           walkSpeed: 44,
           keep: 140,
-          rest: [0.85, 1.2],
+          // (0.85–1.2 before his chair: rolling away, he throws more often.)
+          rest: [0.65, 0.95],
           attacks: [
             { kind: 'pattern', pattern: 'director-tarjetas', telegraph: 0.7, weight: 3, pose: 6 },
             {
@@ -1036,7 +1042,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           from: 0.6,
           walkSpeed: 50,
           keep: 130,
-          rest: [0.9, 1.25],
+          rest: [0.7, 1.0],
           line: 'Hemos decidido redistribuir los espacios.',
           restructure: { prop: 'mampara-movil', every: 12, warn: 1, time: 0.7 },
           attacks: [
@@ -1066,6 +1072,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: 'No es nada personal. Es todo.',
           summon: { id: 'silla-director', count: 1, max: 1 },
           frameShift: 9,
+          onFoot: true,
           attacks: [
             { kind: 'pattern', pattern: 'director-recortes', telegraph: 0.7, weight: 2, spin: true },
             { kind: 'pattern', pattern: 'director-recortes-2', telegraph: 0.7, weight: 2, spin: true },

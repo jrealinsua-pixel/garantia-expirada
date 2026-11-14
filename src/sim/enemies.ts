@@ -1683,13 +1683,18 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
   let walkY = 0;
   // Skating (BossBrain.glide): walkX/walkY are then its velocity itself, not one to approach.
   let glided = false;
+  // In its office chair (BossBrain.chair), unless it is on its feet or riding a belt.
+  const seated = !!b.chair && !phase.onFoot && !en.rail;
   switch (en.state) {
     case 'idle': {
       // Never still between attacks: from spot to spot round the player, now strolling, now
       // lurching, and quicker the less life it has.
       // (The Nevera skates instead, pushing off now and then; the Lavadora swings corner to corner.)
       if (en.rail) ({ x: walkX, y: walkY } = railRoam(w, en, b, phase.walkSpeed * rage));
-      else if (b.glide) {
+      else if (seated) {
+        ({ x: walkX, y: walkY } = chairWalk(w, en, b.chair!, phase.walkSpeed * rage, phase.keep, true));
+        glided = true;
+      } else if (b.glide) {
         ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, true));
         glided = true;
       } else if (b.hover) ({ x: walkX, y: walkY } = hoverWalk(w, en, b.hover, phase.walkSpeed * rage));
@@ -1952,6 +1957,10 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
         // Skating, it does not push off while it fires: it glides on, braking.
         ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, false));
         glided = true;
+      } else if (seated) {
+        // In its chair it does not kick off while it throws: it rolls on, braking.
+        ({ x: walkX, y: walkY } = chairWalk(w, en, b.chair!, phase.walkSpeed * rage, phase.keep, false));
+        glided = true;
       } else if (en.t > bossWarnTime(phase, en) && !isSpinning(en)) {
         const v = phase.walkSpeed * rage * b.drift;
         if (en.rail) ({ x: walkX, y: walkY } = railRoam(w, en, b, v));
@@ -1984,6 +1993,10 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     ({ x: walkX, y: walkY } = glideWalk(w, en, b, b.glide, phase.walkSpeed * rage, phase.keep, false));
     glided = true;
   }
+  if (seated && !glided && (en.state === 'warn' || en.state === 'roar')) {
+    ({ x: walkX, y: walkY } = chairWalk(w, en, b.chair!, phase.walkSpeed * rage, phase.keep, false));
+    glided = true;
+  }
   if (glided) {
     en.vx = walkX;
     en.vy = walkY;
@@ -1992,10 +2005,20 @@ function updateBoss(w: World, en: Enemy, b: BossBrain): void {
     const ox = en.x;
     const oy = en.y;
     // (Floating, BossBrain.hover, it goes over the furniture.)
-    slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT, b.hover ? 'all' : false);
+    const fast = Math.hypot(en.vx, en.vy);
+    const hit = slide(w, en, en.def.footRadius, en.vx * DT, en.vy * DT, b.hover ? 'all' : false);
     const moved = Math.hypot(en.x - ox, en.y - oy);
     en.moved += moved;
     if (glided && b.glide) iceTrail(w, en, b.glide, moved);
+    // Rolling into something in its chair: it stops dead with a bump, and kicks off again sooner.
+    if (seated && glided && (hit.hitX || hit.hitY)) {
+      en.vx = 0;
+      en.vy = 0;
+      if (fast > phase.walkSpeed * CHAIR_BUMP) {
+        en.glideT = Math.min(en.glideT ?? 0, CHAIR_BUMP_KICK);
+        w.events.push({ type: 'chairBump', boss: en.id, x: en.x, y: en.y });
+      }
+    }
   }
 }
 
@@ -2095,6 +2118,66 @@ const HOVER_SWAY_X = 1.1;
 const HOVER_SWAY_Y = 1.7;
 const HOVER_GAIN = 1.5;
 const HOVER_BELOW = 0.7;
+
+/** It kicks off again below this share of its kick, and not sooner than this (s) (BossBrain.chair). */
+const CHAIR_REKICK = 0.25;
+const CHAIR_EVERY = 0.3;
+/** Rolling faster than this (times its walking speed) into something is a bump; it kicks off again this soon (s). */
+const CHAIR_BUMP = 0.8;
+const CHAIR_BUMP_KICK = 0.12;
+/** How far ahead it looks for room on each side before it kicks off (px). */
+const CHAIR_LOOK = 48;
+/** Hidden behind something big, it kicks off this far round from straight back (degrees): across. */
+const CHAIR_ROUND = 85;
+
+/**
+ * «Distancia de seguridad» (BossBrain.chair): its velocity this tick. It brakes at `friction`; with
+ * `kick`, once it has almost stopped, it kicks off backwards from the toaster, slanted to the side
+ * with room (or back in, slanted, when it has got too far).
+ */
+function chairWalk(w: World, en: Enemy, c: NonNullable<BossBrain['chair']>, speed: number, keep: number, kick: boolean): { x: number; y: number } {
+  const p = w.player;
+  const sp = Math.hypot(en.vx, en.vy);
+  const ns = Math.max(0, sp - c.friction * DT);
+  let vx = sp > 0 ? (en.vx / sp) * ns : 0;
+  let vy = sp > 0 ? (en.vy / sp) * ns : 0;
+  en.glideT = (en.glideT ?? 0) - DT;
+  // Always facing the toaster: it rolls backwards.
+  if (Math.abs(p.x - en.x) > 4) en.facing = p.x > en.x ? 1 : -1;
+  if (!kick || en.glideT > 0 || ns >= speed * c.push * CHAIR_REKICK || w.over) return { x: vx, y: vy };
+  const away = Math.atan2(en.y - p.y, en.x - p.x);
+  const far = Math.hypot(en.x - p.x, en.y - p.y) > keep + c.far;
+  const deg = Math.PI / 180;
+  // Behind his own table (no line to the toaster): he kicks off across, round the end of it.
+  const hidden = !far && !clearLine(w, en, p, 1);
+  const turn = (far ? w.rng.range(25, 50) : hidden ? CHAIR_ROUND : w.rng.range(c.angle[0], c.angle[1])) * deg;
+  const base = far ? away + Math.PI : away;
+  const r0 = en.def.footRadius;
+  const spot = (a: number): { x: number; y: number } => ({ x: en.x + Math.cos(a) * CHAIR_LOOK, y: en.y + Math.sin(a) * CHAIR_LOOK });
+  const room = (a: number): boolean => {
+    const q = spot(a);
+    return isClear(w, q.x, q.y, r0);
+  };
+  const left = room(base - turn);
+  const right = room(base + turn);
+  let side = w.rng.next() < 0.5 ? 1 : -1;
+  if (left !== right) side = right ? 1 : -1;
+  else if (hidden && left) {
+    // The side from which he would see the toaster again (if only one does).
+    const seeL = clearLine(w, spot(base - turn), p, 1);
+    const seeR = clearLine(w, spot(base + turn), p, 1);
+    if (seeL !== seeR) side = seeR ? 1 : -1;
+  }
+  // Nowhere to go backwards (cornered): it kicks off sideways, across.
+  const dir = !left && !right && !far ? away + (Math.PI / 2) * side : base + turn * side;
+  const v = speed * c.push * w.rng.range(0.85, 1.1);
+  vx = Math.cos(dir) * v;
+  vy = Math.sin(dir) * v;
+  en.glideT = CHAIR_EVERY;
+  w.events.push({ type: 'chairKick', boss: en.id, x: en.x, y: en.y, dirX: Math.cos(dir), dirY: Math.sin(dir), first: !en.kicked });
+  en.kicked = true;
+  return { x: vx, y: vy };
+}
 
 /** The catwalk never takes the Muñeco nearer a wall than this (px past its feet), nor on a leg shorter than this (px). */
 const CAT_MARGIN = 6;

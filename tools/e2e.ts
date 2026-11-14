@@ -1612,6 +1612,14 @@ try {
     { timeout: 25000 },
   );
   await shot('39b-director-tarjetas.png');
+  // M14b (h10b2): «Distancia de seguridad»: he rolls backwards in his chair, facing the toaster.
+  await page.waitForFunction(
+    `(() => { const b = ${directorJs}; const p = window.__GE__.scene.world.player;
+      return b.kicked && b.state === 'idle' && Math.hypot(b.vx, b.vy) > 60 && (b.vx * (b.x - p.x) + b.vy * (b.y - p.y)) > 0 && b.y > 140; })()`,
+    undefined,
+    { timeout: 20000 },
+  ).catch(() => { throw new Error('El Director no rueda hacia atrás en su silla'); });
+  await shot('39ba-director-silla.png');
   // The letters in the air, their red rings on the carpet.
   await page.waitForFunction("window.__GE__.scene.world.frost.filter((f) => f.look === 'carta-despido' && f.t > -0.45 && f.t < -0.15).length >= 2", undefined, { timeout: 40000 });
   await shot('39c-director-cartas.png');

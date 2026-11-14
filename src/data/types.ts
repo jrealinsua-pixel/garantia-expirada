@@ -943,6 +943,8 @@ export interface BossPhase {
    * instead of EnemyAnim.phaseShift: the Muñeco out of its box.
    */
   frameShift?: number;
+  /** On its feet from this phase on: no more rolling about in its chair (BossBrain.chair), it walks. */
+  onFoot?: boolean;
   /**
    * «Reestructuración»: when the phase starts and every `every` s after that, it claps and every
    * movable partition of the room (prop `prop`) is given a new place in its own quarter of the
@@ -1077,6 +1079,15 @@ export interface BossBrain {
    * times the phase's walking speed (it has to make up for the time it stands).
    */
   lag?: { every: [number, number]; back: number; pace: number };
+  /**
+   * «Distancia de seguridad» (the Director, M14b (h10b2)): seated, it rolls about in its office chair
+   * facing the toaster, by kicks of its feet. Whenever it has almost stopped it kicks off at `push`
+   * times the phase's walking speed, backwards (away from the toaster, slanted `angle` degrees, a
+   * random amount in the range, to the side with more room); further than `keep` + `far` px off, it
+   * kicks itself back in, at a slant. It rolls on braking at `friction` px/s²; into a wall it stops
+   * dead and kicks off again sooner. Firing it only rolls on. Not on its feet (BossPhase.onFoot).
+   */
+  chair?: { push: number; friction: number; angle: [number, number]; far: number };
 }
 
 /**

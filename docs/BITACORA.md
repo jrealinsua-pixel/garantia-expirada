@@ -2,6 +2,41 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 02:20 (hora peninsular) — Hito M14b — (h10b2) El Director guarda la distancia de seguridad
+- Contexto: segunda tarea de la sesión, tras la (h10b1). La (h11c) sigue cogida (desde las 22:25) y
+  mientras tanto otra sesión ha hecho M14c (a1–a3); esta solo toca al Director, así que no se pisan
+  (al subir, solo hubo que juntar la bitácora y `progress.json`).
+- Hecho: M14b (h10b2). **«Distancia de seguridad»** (`BossBrain.chair`, `chairWalk`,
+  `BossPhase.onFoot`): sentado, el Director rueda en su silla de oficina siempre de cara a la
+  tostadora, a impulsos de los pies. Cada vez que casi se ha parado se impulsa (2,4 veces su paso)
+  hacia atrás, lejos de ella, torcido 20–55° hacia el lado con sitio (de lado si está acorralado), y
+  rueda frenando a 150 px/s². Si se ha ido más de 20 px por encima de su distancia, se impulsa de
+  vuelta, torcido 25–50°. Si su propia mesa larga le tapa la tostadora, se impulsa de lado (85°),
+  hacia el extremo desde el que la vería. Lanzando no se impulsa: sigue rodando. Contra una pared o
+  un mueble se para en seco (evento `chairBump`: golpe sordo, polvo, temblor corto) y se impulsa a
+  los 0,12 s. Evento `chairKick`: ruedecillas (`deslizar` agudo) y polvo de los talones; la primera
+  vez, «Mantenga la distancia de seguridad». De pie (fase 3, `onFoot`) anda como antes; la silla
+  suelta sigue embistiendo.
+  Tests: `tests/jefes-planta4-movimiento.test.ts` (6): datos (solo él, de pie en la fase 3), se
+  impulsa hacia atrás (nunca hacia la tostadora; de lejos, de vuelta; escondido tras la mesa, de lado)
+  y entre impulsos solo frena, mira siempre a la tostadora, contra la pared se para en seco, de pie no
+  usa la silla, determinismo. e2e: `39ba-director-silla`.
+- Decisiones: un director de RR. HH. que nunca se acerca a nadie y lo dice en voz alta. Se parece a la
+  Nevera (los dos se deslizan), pero se lee al revés: ella patina alrededor de ti, él huye de cara y
+  vuelve. Primera versión: volvía solo a más de 60 px por encima de su distancia, se quedaba lejos
+  (media de 235 px) y casi siempre detrás de su mesa: el combate se iba a 133 s y en el e2e sus
+  tarjetas chocaban todas con la mesa. Bajé la vuelta a 20 px y le hice rodear la mesa cuando le tapa
+  la tostadora. Como se aleja, lanza más a menudo (descanso 0,85–1,2 → 0,65–0,95 s y 0,9–1,25 →
+  0,7–1 s) y tiene algo menos de vida (140 → 132): la dificultad, de las balas, no de la vida.
+- Medidas (`runBoss`, 80 combates en su sala): antes gana 48,8 % en 116,9 s con 5,08 heridas;
+  después 42,5 % en 116,9 s con 4,93 (llega a ponerse de pie el 63,7 %). `npm run bot`: 0 fallos, 5
+  atascos (los de siempre), Director 40 % en 117,5 s (30 combates). 1041 tests en verde; e2e en verde.
+- Problemas conocidos: el bot no le persigue cuando se aleja (un jugador sí puede, y le saldría más
+  fácil); la línea «Mantenga la distancia de seguridad» es larga y tapa un momento la parte de arriba
+  de la sala.
+- Siguiente paso: (h10b3) la Centralita (se arrastra con los cables) y la Trituradora (sobre orugas).
+  O la (h11c) si queda libre.
+
 ## 2026-11-14 01:50 (hora peninsular) — Hito M14c — (a3) La carpeta de sprites hechos fuera
 - Hecho: `art/entrada/` con su `LEEME.md` para el humano (qué PNG dejar y el JSON de al lado: id,
   qué es, autor, licencia, origen y, si hace falta, fotogramas, tamaño, escala, contorno y si

@@ -97,6 +97,8 @@ export const REVERSE_LINE = 'Vehículo en maniobra';
 export const HANDOFF_LINE = 'Cambiando de punto de acceso...';
 /** The Muñeco striking its first pose on its catwalk (BossBrain.catwalk). */
 export const POSE_LINE = 'Posando para el catálogo';
+/** The Director kicking off in his chair for the first time (BossBrain.chair). */
+export const CHAIR_LINE = 'Mantenga la distancia de seguridad';
 /** The Consola lagging (BossBrain.lag): its first snap to its ghost, and its first rubber-band back. */
 export const LAG_LINE = 'Conexión inestable';
 export const LAG_BACK_LINE = 'Reconectando...';
