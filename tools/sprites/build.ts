@@ -9,8 +9,8 @@ import { paintRoom } from '../../src/art/room.ts';
 import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
-import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
-  makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
+import { makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
+  makeImpresoraFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -94,8 +94,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     microondas: { canvas: strip(P1.makeMicroondasNuevoFrames()), frameW: P1.MICROONDAS_W, frameH: P1.MICROONDAS_H },
     bombilla: { canvas: strip(P1.makeBombillaNuevaFrames()), frameW: P1.BOMBILLA_W, frameH: P1.BOMBILLA_H },
     polilla: { canvas: strip(P1.makePolillaNueva()), frameW: P1.POLILLA_W, frameH: P1.POLILLA_H },
-    batidora: { canvas: strip(makeBatidoraFrames()), frameW: 32, frameH: 38 },
-    mando: { canvas: strip(makeMandoFrames()), frameW: 22, frameH: 32 },
+    batidora: { canvas: strip(P1.makeBatidoraNuevaFrames()), frameW: P1.BATIDORA_W, frameH: P1.BATIDORA_H },
+    mando: { canvas: strip(P1.makeMandoNuevoFrames()), frameW: P1.MANDO_W, frameH: P1.MANDO_H },
     impresora: { canvas: strip(makeImpresoraFrames()), frameW: 34, frameH: 32 },
     cargador: { canvas: strip(makeCargadorFrames()), frameW: 22, frameH: 26 },
     'raton-inalambrico': { canvas: strip(makeRatonFrames()), frameW: 26, frameH: 26 },

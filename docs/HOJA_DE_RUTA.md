@@ -825,7 +825,12 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     Hecho el 2026-11-14: la bombilla de bajo consumo, 38 × 48, con traje, cuello de rosca y la
     espiral dentro de un globo con cara (encendida y apagada); la polilla, 17 × 15, vista desde
     arriba con dos aleteos. En `tools/sprites/planta1-nuevo.ts`.
-  - [ ] (a5c) La Batidora y el Mando.
+  - [x] (a5c) La Batidora y el Mando.
+    Hecho el 2026-11-14: la batidora de mano, 42 × 38, verde menta de los setenta (material
+    `menta`), con el asa en lazo, el TURBO atascado en rojo y dos varillas de globo que giran; el
+    mando, 32 × 46, gris, con zapatillas de cuadros, la ventana de infrarrojos a la altura de la
+    que dispara (`MANDO_IR_Y` = `muzzleY`), sin el «1», las pilas con cinta y un ganchito pegado.
+    En `tools/sprites/planta1-nuevo.ts`.
   - [ ] (a5d) La Impresora y el Cargador.
   - [ ] (a5e) El Ratón Inalámbrico y la Webcam.
 - [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados.

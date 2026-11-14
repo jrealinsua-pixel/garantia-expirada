@@ -8,7 +8,7 @@
 // game draws its own under every enemy.
 
 import { Canvas } from '../../src/art/canvas.ts';
-import { INK, SHINE, type Material } from '../../src/art/paleta.ts';
+import { INK, MATERIALS, SHINE, type Material } from '../../src/art/paleta.ts';
 import { Paint } from '../../src/art/pintor.ts';
 import { narrowPoseCycle, poseCycle, type Pose } from './pose.ts';
 
@@ -429,4 +429,264 @@ export function makePolillaNueva(): Canvas[] {
     frames.push(p.outline());
   }
   return frames;
+}
+
+// ---------------------------------------------------------------------------------------------
+// The Batidora de Mano: a seventies mint hand mixer with the carrying handle as a loop on its
+// back, wild uneven eyes and gritted teeth; two balloon whisks crusted with old batter hang in
+// front of it. The speed slider on the handle is jammed on the red TURBO notch and its cord is tied
+// in a knot behind it.
+
+export const BATIDORA_W = 42;
+export const BATIDORA_H = 38;
+export const BATIDORA_FEET = { x: 15, y: 36 } as const;
+export const BATIDORA_LEGS2 = [9, 15] as const;
+
+/** One balloon whisk: a stem from the socket and a wire loop; `phase` turns its inner wires. */
+function whisk(p: Paint, cx: number, top: number, bottom: number, phase: number): void {
+  p.rect(cx, top, 1, 2, 'acero', 3);
+  const y0 = top + 2;
+  const rx = 3.4;
+  for (let y = y0; y <= bottom; y++) {
+    const t = (y - y0 + 0.5) / (bottom - y0 + 1);
+    const w = rx * Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.15)), 0.55);
+    const wl = Math.round(cx - w);
+    const wr = Math.round(cx + w);
+    // Through the wires, the dark inside of the balloon (so it reads as one shape).
+    for (let x = wl + 1; x < wr; x++) p.px(x, y, 'acero', 6);
+    // The silhouette wires: lit on the left, in shade on the right.
+    p.px(wl, y, 'acero', 2);
+    p.px(wr, y, 'acero', 4);
+    // Two inner wires going round: the one in front bright, the one behind dark.
+    for (const [k, front] of [[0, true], [Math.PI / 2, false]] as const) {
+      const x = Math.round(cx + w * Math.cos(phase + k));
+      if (x !== wl && x !== wr) p.px(x, y, 'acero', front ? 0 : 4);
+    }
+  }
+  p.px(cx, bottom + 1, 'acero', 3);
+}
+
+/**
+ * The mixer in a pose; `spin` (0-3) turns the whisks a quarter of a quarter turn each frame (the
+ * game plays them faster while it winds up).
+ */
+export function makeBatidoraNueva(pose: Pose = { xb: BATIDORA_LEGS2[0], xf: BATIDORA_LEGS2[1], bob: 0 }, spin = 0): Canvas {
+  const p = new Paint(BATIDORA_W, BATIDORA_H);
+  const d = pose.bob;
+  // The cord out of its back, tied in a knot, the plug dragging behind.
+  const cord: Array<[number, number]> = [
+    [3, 19], [2, 20], [1, 21], [1, 22], [2, 23], [3, 23], [3, 22], [2, 22], [1, 24], [1, 25], [2, 26], [2, 27], [1, 28],
+  ];
+  for (const [x, y] of cord) p.px(x, y + d, 'goma', 3);
+  p.rect(0, 29 + d, 3, 2, 'goma', 2);
+  p.px(0, 31 + d, 'laton', 1);
+  p.px(2, 31 + d, 'laton', 2);
+  glove(p, 1, 13 + d, 'menta');
+  legs(p, pose, 26 + d, BATIDORA_FEET.y, 'goma');
+  // The whisks under its chin (behind the body's lip), turning.
+  const phase = (spin * Math.PI) / 4;
+  whisk(p, 25, 26 + d, 34 + d, phase);
+  whisk(p, 33, 26 + d, 34 + d, phase + Math.PI / 3);
+  // The sockets: a steel plate under the front.
+  p.rect(22, 25 + d, 13, 2, 'acero', 3);
+  p.rect(22, 25 + d, 13, 1, 'acero', 2);
+  // The handle: a loop over its back (open underneath), shaded like a tube.
+  const hy = 2 + d;
+  const tube = (x: number, y: number, w: number, h: number): void => {
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) p.px(x + i, y + j, 'menta', j === 0 ? 1 : j === h - 1 ? 4 : i === 0 ? 2 : 2);
+  };
+  tube(6, hy, 22, 4);
+  p.rect(7, hy, 20, 1, 'menta', 0);
+  for (let j = 0; j < 6; j++) {
+    p.rect(6, hy + 1 + j, 3, 1, 'menta', 2);
+    p.px(6, hy + 1 + j, 'menta', 1);
+    p.px(8, hy + 1 + j, 'menta', 4);
+    p.rect(25, hy + 1 + j, 3, 1, 'menta', 3);
+    p.px(27, hy + 1 + j, 'menta', 5);
+  }
+  // The speed slider along the handle: a groove, five notches, the knob jammed on red TURBO.
+  p.rect(11, hy + 1, 12, 1, 'menta', 5);
+  for (const x of [12, 14, 16, 18]) p.px(x, hy + 2, 'menta', 4);
+  p.rect(20, hy, 4, 2, 'rojo', 2);
+  p.px(20, hy, 'rojo', 1);
+  p.px(23, hy + 1, 'rojo', 4);
+  // The body: a fat rounded block, shaded as a pillow (flat front, rounded edges).
+  const bx0 = 3;
+  const bx1 = 37;
+  const by0 = 9 + d;
+  const by1 = 26 + d;
+  const cx = (bx0 + bx1) / 2;
+  const cy = (by0 + by1) / 2;
+  const rx = (bx1 - bx0) / 2;
+  const ry = (by1 - by0) / 2;
+  p.heightShade(bx0 - 1, by0 - 1, bx1 - bx0 + 3, by1 - by0 + 3, (x, y) => {
+    const nx = (x + 0.5 - cx) / rx;
+    const ny = (y + 0.5 - cy) / ry;
+    const v = nx ** 4 + ny ** 4;
+    return v > 1 ? null : 7 * Math.pow(1 - v, 0.35);
+  }, 'menta', { dither: 0.3, bias: 0.05 });
+  // A seam round its nose where the two shells close, and the vents at its back.
+  for (let y = by0 + 3; y < by1 - 2; y++) p.px(30, y, 'menta', 4);
+  for (const x of [6, 8, 10]) {
+    p.rect(x, by0 + 4, 1, 5, 'menta', 5);
+    p.px(x, by0 + 4, 'menta', 6);
+  }
+  // Its face, on the front half: the back eye small and squinting, the front one wide and mad.
+  const ex = 15;
+  const ey = by0 + 4;
+  p.rect(ex, ey + 1, 4, 3, 'menta', 6);
+  p.raw(ex + 1, ey + 2, INK);
+  p.raw(ex + 2, ey + 2, INK);
+  p.raw(ex + 3, ey + 2, SHINE);
+  p.rect(ex, ey + 1, 4, 1, 'menta', 3);
+  p.rect(ex + 7, ey, 5, 5, 'menta', 6);
+  p.rect(ex + 8, ey + 1, 3, 3, 'acero', 0);
+  p.raw(ex + 9, ey + 2, INK);
+  p.raw(ex + 10, ey + 2, INK);
+  p.raw(ex + 10, ey + 3, INK);
+  p.raw(ex + 9, ey + 1, SHINE);
+  // Brows: angry, slanting down to the middle; the front one twitching up at its end.
+  const brows = [
+    [ex - 1, ey - 1], [ex, ey - 1], [ex + 1, ey], [ex + 2, ey], [ex + 3, ey],
+    [ex + 6, ey - 1], [ex + 7, ey - 1], [ex + 8, ey - 2], [ex + 9, ey - 2], [ex + 10, ey - 2], [ex + 11, ey - 3],
+  ] as const;
+  for (const [x, y] of brows) p.px(x, y, 'menta', 6);
+  // Gritted teeth, the mouth pulled down at the front in a snarl.
+  const my = ey + 7;
+  p.rect(ex + 1, my, 11, 4, 'menta', 6);
+  p.rect(ex + 2, my + 1, 9, 1, 'acero', 0);
+  p.rect(ex + 2, my + 2, 9, 1, 'crema', 2);
+  for (const x of [ex + 4, ex + 6, ex + 8]) p.rect(x, my + 1, 1, 2, 'menta', 6);
+  p.px(ex + 12, my + 3, 'menta', 6);
+  p.px(ex + 12, my + 4, 'menta', 6);
+  p.px(ex, my, 'menta', 5);
+  // The highlight on the casing, rust specks and old batter dried on its chin.
+  p.raw(6, by0 + 2, SHINE);
+  p.raw(7, by0 + 1, SHINE);
+  for (const [x, y] of [[33, by0 + 3], [12, by1 - 3], [5, by0 + 12]] as const) p.px(x, y, 'oxido', 1);
+  const batter = [
+    [26, by1 - 1, 1], [27, by1 - 2, 2], [33, by1 - 1, 1], [23, 31 + d, 1], [23, 32 + d, 2], [24, 32 + d, 1],
+    [26, 29 + d, 2], [34, 31 + d, 1], [35, 31 + d, 2], [34, 32 + d, 2], [32, 28 + d, 1],
+  ] as const;
+  for (const [x, y, t] of batter) p.px(x, y, 'crema', t);
+  glove(p, 36, 17 + d, 'menta');
+  const out = p.outline();
+  // A fleck of batter flying off the whisks every other frame.
+  if (spin % 2 === 1) out.set(40, 29 + d, [...MATERIALS.crema[1]!] as [number, number, number, number]);
+  else out.set(21, 33 + d, [...MATERIALS.crema[2]!] as [number, number, number, number]);
+  return out;
+}
+
+/** Its sheet: 0-3 standing with the whisks turning, 4-7 running after you (the whisks still turning). */
+export function makeBatidoraNuevaFrames(): Canvas[] {
+  const cycle = poseCycle(...BATIDORA_LEGS2);
+  return [...[0, 1, 2, 3].map((k) => makeBatidoraNueva(cycle[k % 2]!.pose, k)), ...cycle.slice(2).map((f, k) => makeBatidoraNueva(f.pose, k))];
+}
+
+// ---------------------------------------------------------------------------------------------
+// The Mando a Distancia: a TV remote standing on its end in checked house slippers. Shifty eyes
+// under heavy lids and a smug half-smile; the infrared window across its forehead is where its
+// zaps come from. Its battery cover is gone (two batteries held in with tape), the «1» is missing,
+// and a cheese puff is stuck to its top from years between the sofa cushions.
+
+export const MANDO_W = 32;
+export const MANDO_H = 46;
+export const MANDO_FEET = { x: 17, y: 44 } as const;
+export const MANDO_LEGS2 = [12, 18] as const;
+/** The infrared window, px above its feet at rest (the game fires its zaps from here: muzzleY). */
+export const MANDO_IR_Y = 24;
+
+export function makeMandoNuevo(pose: Pose = { xb: MANDO_LEGS2[0], xf: MANDO_LEGS2[1], bob: 0 }): Canvas {
+  const p = new Paint(MANDO_W, MANDO_H);
+  const d = pose.bob;
+  glove(p, 2, 24 + d, 'goma');
+  legs(p, pose, 38 + d, MANDO_FEET.y, 'carton');
+  // Check pattern on the slippers.
+  for (const [x, leg] of [[pose.xb, -1], [pose.xf, 1]] as const) {
+    const up = pose.lift && pose.lift.leg === leg ? pose.lift.px : 0;
+    const yb = MANDO_FEET.y - 3 - up;
+    for (let i = 1; i < 5; i += 2) p.px(x + i, yb + 1, 'carton', 4);
+    p.px(x + 2, yb, 'rojo', 3);
+  }
+  // The box: front face, the left side and the top, foreshortened (like the microwave).
+  const x0 = 7;
+  const y0 = 9 + d;
+  const fw = 15;
+  const fh = 29;
+  const depth = 3;
+  for (let j = 0; j < depth; j++) p.rect(x0 + j, y0 - depth + j, fw, 1, j === 0 ? 'acero' : 'goma', j === 0 ? 3 : 0);
+  for (let i = 0; i < depth; i++) {
+    const back = depth - i;
+    p.rect(x0 + i, y0 - back + 1, 1, fh - 1, 'goma', i === 0 ? 3 : 2);
+    p.px(x0 + i, y0 - back + fh - 1, 'goma', 4);
+  }
+  const fx = x0 + depth;
+  // The front: lit at the top-left, darker towards the bottom; a rounded bottom edge.
+  for (let y = 0; y < fh; y++) for (let x = 0; x < fw; x++) p.px(fx + x, y0 + y, 'goma', y < 2 || (x < 3 && y < 8) ? 0 : y > fh - 3 || x > fw - 2 ? 2 : 1);
+  p.rect(fx, y0, fw, 1, 'acero', 2);
+  p.rect(fx, y0, 1, fh, 'goma', 0);
+  p.erase(fx + fw - 1, y0 + fh - 1);
+  // The cheese puff stuck on its top (curly, orange).
+  const puff = [[x0 + 3, y0 - 4, 1], [x0 + 4, y0 - 5, 0], [x0 + 5, y0 - 5, 1], [x0 + 6, y0 - 4, 2], [x0 + 4, y0 - 4, 1], [x0 + 5, y0 - 4, 2], [x0 + 7, y0 - 5, 1]] as const;
+  for (const [x, y, t] of puff) p.px(x, y, 'oxido', t);
+  // The power button at the top-right of the front, a round red bump.
+  p.ellipsoid(fx + 11.5, y0 + 2.5, 1.8, 1.8, 'rojo', { dither: 0, spec: true });
+  // The infrared window: a dark glossy red band across its forehead.
+  const iy = MANDO_FEET.y - MANDO_IR_Y - 2 + d;
+  p.rect(fx + 1, iy, fw - 2, 3, 'rojo', 5);
+  p.rect(fx + 1, iy, fw - 2, 1, 'rojo', 4);
+  p.raw(fx + 2, iy, MATERIALS.rojo[2]!);
+  p.raw(fx + 3, iy, MATERIALS.rojo[3]!);
+  // The eyes, under the window: looking sideways at you, lids half down (smug).
+  const ey = iy + 4;
+  for (const ex of [fx + 3, fx + 8]) {
+    p.rect(ex, ey, 3, 3, 'acero', 1);
+    p.raw(ex + 2, ey + 1, INK);
+    p.raw(ex + 2, ey + 2, INK);
+    p.raw(ex + 1, ey + 2, INK);
+    p.rect(ex, ey, 3, 1, 'goma', 4);
+    p.px(ex - 1, ey, 'goma', 4);
+  }
+  p.raw(fx + 10, ey + 1, SHINE);
+  // The half-smile, pulled up at the front.
+  p.rect(fx + 5, ey + 4, 4, 1, 'goma', 5);
+  p.px(fx + 9, ey + 3, 'goma', 5);
+  // The keypad: three by three rubber buttons, the «1» just a hole.
+  const ky = ey + 6;
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const bx = fx + 3 + c * 3;
+      const by = ky + r * 3;
+      if (r === 0 && c === 0) {
+        p.rect(bx, by, 2, 2, 'goma', 5);
+        continue;
+      }
+      p.rect(bx, by, 2, 1, 'crema', 2);
+      p.rect(bx, by + 1, 2, 1, 'crema', 4);
+      p.px(bx, by, 'crema', 1);
+    }
+  }
+  // The volume rocker, worn shiny from use.
+  p.rect(fx + 2, y0 + 3, 6, 2, 'acero', 3);
+  p.rect(fx + 2, y0 + 3, 6, 1, 'acero', 1);
+  p.px(fx + 3, y0 + 3, 'acero', 0);
+  // The side: no battery cover, two batteries and a strip of tape across them.
+  p.rect(x0, y0 + 6, 3, 14, 'goma', 5);
+  p.rect(x0, y0 + 7, 1, 12, 'amarillo', 2);
+  p.rect(x0 + 1, y0 + 7, 1, 12, 'amarillo', 3);
+  p.px(x0, y0 + 7, 'acero', 1);
+  p.px(x0 + 1, y0 + 18, 'acero', 3);
+  p.px(x0, y0 + 13, 'goma', 5);
+  p.px(x0 + 1, y0 + 13, 'goma', 5);
+  p.rect(x0 - 1, y0 + 10, 5, 2, 'crema', 1);
+  p.px(x0 + 3, y0 + 11, 'crema', 3);
+  // A scratch.
+  p.px(fx + fw - 3, y0 + fh - 6, 'goma', 1);
+  glove(p, 24, 25 + d, 'goma');
+  return p.outline();
+}
+
+/** Its sheet: 0-1 breathing, 2-5 shuffling round you in its slippers. */
+export function makeMandoNuevoFrames(): Canvas[] {
+  return narrowPoseCycle(...MANDO_LEGS2).map((f) => makeMandoNuevo(f.pose));
 }

@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 07:15 (hora peninsular) — Hito M14c — (a5c) La Batidora y el Mando con el estilo nuevo
+- Contexto: sesión programada. El `main` local era otra vez un clon viejo y superficial (`git reset
+  --hard origin/main`). La (a4b) la tiene otra sesión desde las 05:25 (menos de 90 minutos), así que
+  esta coge la (a5c), que no toca a la tostadora. Salud al empezar: `check`, 1084 tests, `build` y
+  `bot` en verde.
+- Hecho: M14c (a5c). **La Batidora de Mano** (42 × 38, en `tools/sprites/planta1-nuevo.ts`): un
+  bloque redondeado sombreado como un cojín con `heightShade`, en el verde menta de las cocinas de los
+  setenta (material nuevo, `menta`, en `src/art/paleta.ts`), con el asa en lazo sobre el lomo (hueca
+  por debajo), la ranura de las cinco velocidades y el cursor atascado en el TURBO rojo, las rejillas
+  detrás, el ojo de atrás entornado y el de delante desorbitado, dientes apretados torciendo la
+  boca, y el cable con su nudo y el enchufe arrastrando. Debajo de la barbilla, **dos varillas de
+  globo** con masa reseca: un globo oscuro con los alambres del contorno y dos de dentro que giran
+  con el fotograma (`spin`), así cada uno de los cuatro fotogramas de reposo es distinto y el juego
+  los acelera al cargar (`busyMs`). Ocho fotogramas, los mismos que antes. **El Mando a Distancia**
+  (32 × 46): de pie, en tres cuartos como el microondas (frente, lado y tapa), gris claro, con
+  zapatillas de cuadros, el botón rojo de encender, la ventana de infrarrojos en la frente, ojos
+  de reojo con los párpados a media asta y media sonrisa, el teclado sin el «1» (un agujero), el
+  volumen gastado, las pilas al aire sujetas con cinta en el costado y un ganchito pegado en la
+  cabeza. Seis fotogramas, los mismos (`narrowPoseCycle`). Anclas nuevas en `src/data/enemies.ts`
+  (batidora 15, 36; mando 17, 44). Tests en `tests/estilo-a5.test.ts` (ahora 10): los dos entran en
+  los de legibilidad, hojas, pies, tamaño y cajas; uno nuevo comprueba que las varillas giran y otro
+  que la fila de la que dispara el mando (`muzzleY`) cae en su ventana roja.
+- Decisiones: (1) El mando, primero en la goma oscura (un mando de verdad es negro): se fundía con
+  el suelo (el 49 % de sus píxeles sin contraste). Gris claro, con la goma solo en las sombras, se
+  lee y sigue pareciendo de plástico. (2) La ventana de infrarrojos se coloca a la altura de su
+  `muzzleY` (24) y no al revés: así la simulación no cambia y las ondas salen de la ventana; el
+  botón de encender y el volumen ocupan la frente. (3) Las varillas como globo relleno de oscuro
+  con los alambres encima: solo con alambres, el contorno las convertía en un garabato. (4) La
+  batidora no tiene fotograma nuevo para el TURBO: ya se ve en la velocidad de las varillas;
+  pintarla de rojo sería un aviso nuevo, y eso es diseño, no arte.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual que
+  antes). Siluetas de la planta 1, todas por debajo de 0,8 entre sí. 1086 tests en verde; e2e en
+  verde. Al subir, otra sesión había subido la (a4b) (la tostadora con 24 fotogramas): solo chocaron
+  la bitácora y `progress.json`; juntas, 1092 tests, `check`, `build` y `bot` en verde.
+- Problemas conocidos: las cajas de golpes son las de antes, más pequeñas que los dibujos (como en
+  la (a5a)). Las piernas del mando casi no se ven bajo el cuerpo (es así de bajito).
+- Siguiente paso: M14c (a5d), la Impresora y el Cargador.
+
 ## 2026-11-14 05:25 (hora peninsular) — Hito M14c — (a4b) Los fotogramas nuevos de la Tostadora
 - Contexto: sesión programada. El `main` local no estaba en ninguna rama (`git checkout main` y
   `reset` a `origin/main`). La (a5b) la tiene otra sesión desde las 05:00 (menos de 90 minutos);

@@ -7,7 +7,6 @@ import { MATERIALS } from '../src/art/paleta.ts';
 import { legibility, silhouetteOverlap } from '../src/art/pintor.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { allSheets } from '../tools/sprites/build.ts';
-import { makeBatidora, makeMando } from '../tools/sprites/enemies.ts';
 import * as P1 from '../tools/sprites/planta1-nuevo.ts';
 
 const FLOOR = MATERIALS.suelo[3]!;
@@ -17,6 +16,8 @@ const REDRAWN: Record<string, () => Canvas[]> = {
   aspirador: P1.makeAspiradorNuevoFrames,
   microondas: P1.makeMicroondasNuevoFrames,
   bombilla: P1.makeBombillaNuevaFrames,
+  batidora: P1.makeBatidoraNuevaFrames,
+  mando: P1.makeMandoNuevoFrames,
 };
 
 /** The flyers: no feet on the floor (the game lifts them by their altitude). */
@@ -75,6 +76,8 @@ test('estilo a5: más grandes que antes (cuerpo de 24 px o más) y sin cambiar l
   assert.deepEqual(ENEMIES['aspirador']!.hurt, { x: -14, y: -30, w: 28, h: 30 });
   assert.deepEqual(ENEMIES['microondas']!.hurt, { x: -13, y: -31, w: 26, h: 30 });
   assert.deepEqual(ENEMIES['bombilla']!.hurt, { x: -13, y: -31, w: 26, h: 30 });
+  assert.deepEqual(ENEMIES['batidora']!.hurt, { x: -12, y: -31, w: 24, h: 29 });
+  assert.deepEqual(ENEMIES['mando']!.hurt, { x: -8, y: -28, w: 16, h: 26 });
   assert.deepEqual(ENEMIES['polilla']!.hurt, { x: -5, y: -21, w: 10, h: 9 });
 });
 
@@ -83,8 +86,8 @@ test('estilo a5: los enemigos de la planta 1 no se parecen entre sí', () => {
     ['aspirador', P1.makeAspiradorNuevoFrames()[0]!],
     ['microondas', P1.makeMicroondasNuevoFrames()[0]!],
     ['bombilla', P1.makeBombillaNuevaFrames()[0]!],
-    ['batidora', makeBatidora()],
-    ['mando', makeMando()],
+    ['batidora', P1.makeBatidoraNuevaFrames()[0]!],
+    ['mando', P1.makeMandoNuevoFrames()[0]!],
   ];
   for (let i = 0; i < plant1.length; i++) {
     for (let j = i + 1; j < plant1.length; j++) {
@@ -159,4 +162,32 @@ test('estilo a5: los aspavientos de aviso (acelerar y calentar) se distinguen de
   const mic = P1.makeMicroondasNuevoFrames();
   assert.ok(diff(asp[0]!, asp[6]!) > 60, `aspirador: ${diff(asp[0]!, asp[6]!)} px distintos`);
   assert.ok(diff(mic[0]!, mic[6]!) > 60, `microondas: ${diff(mic[0]!, mic[6]!)} px distintos`);
+});
+
+test('estilo a5: las varillas de la batidora giran (cada fotograma de reposo, distinto)', () => {
+  const f = P1.makeBatidoraNuevaFrames();
+  assert.equal(f.length, 8);
+  // The whisks' box, under its chin in front of the legs (same bob on frames 0 and 2).
+  const box = (cv: Canvas): string => {
+    const out: string[] = [];
+    for (let y = 26; y < 37; y++) for (let x = 21; x < 38; x++) out.push(cv.get(x, y).join());
+    return out.join('|');
+  };
+  const seen = new Set([0, 1, 2, 3].map((k) => box(f[k]!)));
+  assert.equal(seen.size, 4, 'dos fotogramas de reposo tienen las varillas igual');
+  assert.notEqual(box(f[0]!), box(f[2]!));
+});
+
+test('estilo a5: el mando dispara desde su ventana de infrarrojos', () => {
+  const def = ENEMIES['mando']!;
+  assert.equal(def.brain.kind, 'blinker');
+  const muzzleY = def.brain.kind === 'blinker' ? def.brain.muzzleY : 0;
+  assert.equal(muzzleY, P1.MANDO_IR_Y);
+  const f = P1.makeMandoNuevoFrames()[0]!;
+  const red = MATERIALS.rojo;
+  const isRed = (c: readonly number[]): boolean => red.some((t) => t[0] === c[0] && t[1] === c[1] && t[2] === c[2]);
+  const y = def.anchor.y - muzzleY;
+  let n = 0;
+  for (let x = 0; x < f.w; x++) if (isRed(f.get(x, y))) n++;
+  assert.ok(n >= 10, `en la fila de la boca (${y}) solo hay ${n} px de la ventana roja`);
 });

@@ -151,14 +151,14 @@
   },
   "batidora": {
     "file": "batidora.png",
-    "frameW": 32,
+    "frameW": 42,
     "frameH": 38,
     "frames": 8
   },
   "mando": {
     "file": "mando.png",
-    "frameW": 22,
-    "frameH": 32,
+    "frameW": 32,
+    "frameH": 46,
     "frames": 6
   },
   "impresora": {

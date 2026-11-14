@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T06:45:00+01:00",
+  "actualizado": "2026-11-14T07:15:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -151,6 +151,11 @@
     "lineas_codigo": 38041
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T07:15:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a5c): la Batidora de Mano y el Mando a Distancia con el estilo nuevo. La batidora, verde menta de los setenta con el TURBO atascado y dos varillas de globo que giran; el mando, de pie en zapatillas, con la ventana de infrarrojos de la que dispara, sin el «1» y con las pilas sujetas con cinta."
+    },
     {
       "fecha": "2026-11-14T05:25:00+01:00",
       "hito": "M14c",
@@ -1465,6 +1470,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/batidora-mando-redibujados.png",
+      "pie": "M14c (a5c): la Batidora y el Mando, antes (el primero de cada uno) y ahora (las varillas girando, andando), a 3×"
+    },
+    {
+      "archivo": "capturas/batidora-mando-en-juego.png",
+      "pie": "M14c (a5c): la batidora nueva cargando contra la tostadora y el mando junto a la bombilla, en la Sala de Pruebas"
+    },
+    {
       "archivo": "capturas/tostadora-juego.png",
       "pie": "M14c (a4a): la tostadora que se juega ya es la del estilo nuevo, con su guante nuevo (el Secador todavía es el viejo: va en la (a13))"
     },
@@ -1479,17 +1492,9 @@
     {
       "archivo": "capturas/bombilla-en-juego.png",
       "pie": "M14c (a5b): la bombilla nueva con su polilla, junto al aspirador y el microondas nuevos, en la Sala de Pruebas"
-    },
-    {
-      "archivo": "capturas/planta1-redibujados.png",
-      "pie": "M14c (a5a): el Aspirador y el Microondas, antes y ahora (quietos y avisando: acelerando y calentando), a 3×"
-    },
-    {
-      "archivo": "capturas/planta1-en-juego.png",
-      "pie": "M14c (a5a): el aspirador y el microondas nuevos en la Sala de Pruebas, entre los enemigos que aún no se han redibujado"
     }
   ],
-  "proximo": "M14c (a4c), la Batidora de Vaso y la Plancha de Vapor con el estilo nuevo (con sus fotogramas propios, CharacterLook.anim). La (a5c) la tiene otra sesión desde las 06:25.",
+  "proximo": "M14c (a5d), la Impresora y el Cargador con el estilo nuevo (la (a4c) la tiene otra sesión).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1518,11 +1523,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 06:25 (hora peninsular)",
-      "tarea": "M14c (a5c): la Batidora y el Mando con el estilo nuevo (tools/sprites/planta1-nuevo.ts o un archivo nuevo de la planta 2, anclas en src/render, tests/estilo-a5.test.ts). No toca la tostadora",
-      "desde": "2026-11-14T06:25:00+01:00"
-    },
     {
       "sesion": "2026-11-14 07:27 (hora peninsular)",
       "tarea": "M14c (a4c): la Batidora de Vaso y la Plancha de Vapor con el estilo nuevo (tools/sprites/ un archivo nuevo de personajes, src/data/characters o su look, tests/personajes-a4c.test.ts). No toca enemigos",
