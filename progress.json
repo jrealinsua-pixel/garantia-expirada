@@ -144,11 +144,11 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1190,
-    "tests_ok": 1190,
+    "tests": 1197,
+    "tests_ok": 1197,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38269
+    "lineas_codigo": 38284
   },
   "sesiones": [
     {
