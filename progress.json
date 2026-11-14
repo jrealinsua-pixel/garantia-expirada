@@ -1532,6 +1532,11 @@
       "sesion": "2026-11-14 07:27 (hora peninsular)",
       "tarea": "M14c (a4c): la Batidora de Vaso y la Plancha de Vapor con el estilo nuevo (tools/sprites/ un archivo nuevo de personajes, src/data/characters o su look, tests/personajes-a4c.test.ts). No toca enemigos",
       "desde": "2026-11-14T07:27:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 08:05 (hora peninsular)",
+      "tarea": "M14c (a5e): el Ratón Inalámbrico y la Webcam con el estilo nuevo (tools/sprites/planta2-nuevo.ts, build.ts, anclas en src/data/enemies.ts, tests/estilo-a5.test.ts). No toca personajes",
+      "desde": "2026-11-14T08:05:00+01:00"
     }
   ]
 }
