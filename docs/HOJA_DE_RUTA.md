@@ -1004,8 +1004,14 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     (53, 93); la placa nueva; `tests/estilo-a7i.test.ts`.
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
   sombras de pared y luz. Partida el 2026-11-14 en una tarea por planta (cada una es una sesión):
-  - [ ] (a8a) Planta 1, el almacén: chapas y sus variantes, muros laterales y delantero, cinta de
+  - [x] (a8a) Planta 1, el almacén: chapas y sus variantes, muros laterales y delantero, cinta de
     peligro, esquinas, sombra de las paredes y pozos de luz.
+    Hecho el 2026-11-14 en `src/art/almacen-nuevo.ts` (material nuevo `muro`): chapas de cara
+    lisa con bisel y remaches, sin ruido de píxeles; las cinco variantes redibujadas; bloques de
+    hormigón en los muros y en los recortes de las salas con forma; cinta desconchada con
+    cantoneras; tubo y rejillas de acero; sombra de las paredes y pozos de luz por escalones;
+    `tools/ver-salas.ts` y `tools/media-suelo.ts` para mirar y medir sin navegador;
+    `tests/estilo-a8a.test.ts`.
   - [ ] (a8b) Planta 1: la pared del fondo (la estantería con las cajas devueltas, el techo y sus
     tubos) y la estantería exenta de dentro.
   - [ ] (a8c) Planta 2, Informática.

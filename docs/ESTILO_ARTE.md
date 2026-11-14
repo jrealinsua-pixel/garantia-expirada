@@ -335,6 +335,28 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   control de calidad (`BossPhase.look`), y una pose por ataque. Despiece propio
   (`despiece-trituradora`: una cuchilla, la tostada, un piloto, la franja de peligro, el escáner y
   la seta con su cinta).
+- **Suelos y paredes, planta 1** (M14c (a8a), `src/art/almacen-nuevo.ts`): **chapas** de 24 × 24
+  de la rampa `suelo` con la **cara lisa de un solo tono** (una sí y otra no, un punto más clara,
+  en damero), la junta en el tono más hondo arriba y a la izquierda, bisel con luz por dentro de
+  la junta y en sombra abajo y a la derecha, y un **remache** con su sombra en cada esquina; a
+  veces un arañazo. El pozo de luz por chapa de `art/prueba/suelo.png` se probó en una sala
+  entera y se quitó: su borde tramado dibujaba una estrellita en cada chapa. Tampoco hay ruido de
+  píxeles sueltos encima (el de antes, ±11 al 8 %, es justo lo que la guía prohíbe). Variantes
+  (con los nombres de siempre): grieta con su labio de luz y una mota de óxido, **desgastada**
+  (el centro pulido un tono más claro, tramado solo en el borde, y un remache que falta, con su
+  agujero), **parche** atornillado (más clara, su bisel, cuatro tornillos de acero y óxido
+  asomando por un lado), **rejilla** (marco biselado, pozo casi tinta, barrotes con luz arriba y
+  una moneda de latón al fondo que nadie recuperará) y **chapa estriada** (rombos de dos píxeles
+  de luz y uno de sombra). **Muros** laterales y delantero: bloques de hormigón de 24 × 12 a
+  tresbolillo vistos desde arriba, material nuevo **`muro`** (más gris y más oscuro que el suelo:
+  la sala se lee como un foso), biselados, con algún poro. **Cinta de peligro** apagada (el
+  amarillo mezclado con el suelo, nunca tan vivo como las balas), con el filo de cada franja un
+  punto más claro y desconchones donde se ve el hormigón; **cantoneras** de acero con su tornillo
+  donde la cinta dobla una esquina. El **tubo** de los muros, de acero redondo con abrazaderas; la
+  **rejilla** del muro de delante, de lamas de acero. **Sombra de las paredes** en tres escalones
+  hacia el violeta más hondo del suelo (no negro), con tramado solo en la costura entre dos
+  escalones; **pozos de luz** de las lámparas en tres anillos de borde limpio (tramados, dibujaban
+  círculos de puntos por toda la sala).
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

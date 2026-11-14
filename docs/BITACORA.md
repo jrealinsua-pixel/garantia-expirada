@@ -2,6 +2,42 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 23:25 (hora peninsular) — Hito M14c — (a8a) Suelos y paredes del almacén con el estilo nuevo
+- Contexto: al llegar (22:24), la (a7i) estaba cogida desde las 21:25; elegí la (a8), que no toca
+  jefes. La rama `main` local volvía a estar vieja (clon superficial): la puse en `origin/main`
+  (`git checkout -B main origin/main`; el `reset --hard` no está permitido). La (a8) entera son seis
+  plantas y las puertas: la partí en la hoja de ruta, (a8a)–(a8h), una sesión cada una. Mientras
+  tanto terminó la (a7i); el `pull --rebase` solo chocó en `en_curso`.
+- Hecho: M14c (a8a), en `src/art/almacen-nuevo.ts` (lo usa `src/art/room.ts` en la planta 1; las
+  demás plantas no cambian). Chapas de la rampa `suelo` con bisel, junta y remaches; las cinco
+  variantes de siempre redibujadas (grieta, desgastada, parche, rejilla con su moneda, chapa
+  estriada); los muros laterales y delantero, bloques de hormigón de un material nuevo, **`muro`**,
+  también en los recortes de las salas con forma; la cinta de peligro apagada y desconchada con
+  cantoneras de acero en las cuatro esquinas (rasgo `esquinas`); el tubo y las rejillas, de acero;
+  la sombra de las paredes y los pozos de luz, por escalones. Sin el ruido de píxeles en la
+  planta 1. Herramientas: `tools/ver-salas.ts` (pinta salas sin navegador, a 2×) y
+  `tools/media-suelo.ts` (color medio de cada planta y la distancia mínima de la 1 a las demás,
+  como `tests/roomart.test.ts`). `tests/estilo-a8a.test.ts` (5 tests).
+- Decisiones: (1) **Cara de la chapa lisa**: el pozo de luz por chapa de `art/prueba/suelo.png`,
+  repetido por toda la sala, dibujaba una estrellita tramada en cada chapa; la luz ya la pone la
+  sala. (2) **Sin rombos en la chapa lisa**: solo en la chapa estriada, para que el suelo no
+  compita con las balas. (3) La chapa alterna del damero es un punto **más clara**, no más oscura:
+  más oscura, el suelo se acercaba al de la planta 5 (distancia 11,4, la prueba pide 12); así, 12,4,
+  como antes. (4) Los pozos de luz, con **bordes limpios**: con la costura tramada salían círculos
+  de puntos por toda la sala; la sombra de las paredes sí lleva costura tramada (sus escalones son
+  grandes). (5) La estantería del fondo y la exenta se quedan como estaban: van en la (a8b).
+  (6) `tests/salas-forma.test.ts` pedía que el recorte fuera de un solo color; ahora pide que cada
+  píxel sea del `muro`.
+- Medidas: la simulación no cambia: `npm run bot`, 200 partidas, 0 fallos, idéntico. Píxeles
+  sueltos en el suelo del Pasillo de Devoluciones: 9,4 % antes, 5,5 % ahora (lo que queda son
+  remaches, basura y decoración). Luminancia media del suelo dentro de 0,035–0,075 en las cuatro
+  salas medidas. 1208 tests en verde; `npm run e2e` entero en verde (captura del Pasillo de
+  Devoluciones en partida mirada: las balas rojas se leen igual o mejor sobre las chapas lisas).
+- Problemas conocidos: los muros de bloques se leen algo «de ladrillo»; la estantería del fondo y
+  las exentas siguen con el dibujo viejo y ahora se nota la diferencia. El Mostrador pinta su suelo
+  como la planta 1 y también cambia (captura `40-mostrador` mirada: queda bien).
+- Siguiente paso: M14c (a8b), la pared del fondo y la estantería exenta de la planta 1.
+
 ## 2026-11-14 22:03 (hora peninsular) — Hito M14c — (a7i) La Trituradora con el estilo nuevo
 - Contexto: al llegar (21:25), otra sesión tenía cogida la (a7h) (la Centralita) desde las 20:26,
   menos de 90 minutos; elegí la (a7i), que solo comparte con ella las líneas de cada jefe en

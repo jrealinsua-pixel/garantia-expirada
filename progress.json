@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T22:03:00+01:00",
+  "actualizado": "2026-11-14T23:40:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1203,
-    "tests_ok": 1203,
+    "tests": 1208,
+    "tests_ok": 1208,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38302
+    "lineas_codigo": 38651
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T23:40:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a8a): el suelo y las paredes del almacén (planta 1) con el estilo nuevo. Chapas de acero de cara lisa con bisel, junta y remaches, sin el ruido de píxeles de antes; grietas, chapas desgastadas, parches atornillados, rejillas con una moneda al fondo y chapa estriada redibujadas; muros de bloques de hormigón (material nuevo «muro»), cinta de peligro desconchada con cantoneras de acero en las esquinas, tubo y rejillas de acero, y la sombra de las paredes y la luz de las lámparas por escalones. La (a8) queda partida en una tarea por planta más las puertas. Simulación sin cambios; 1208 tests y e2e en verde."
+    },
     {
       "fecha": "2026-11-14T22:03:00+01:00",
       "hito": "M14c",
@@ -1590,6 +1595,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/almacen-suelo.png",
+      "pie": "M14c (a8a): el almacén antes (izquierda) y ahora (derecha): chapas lisas con bisel y remaches en vez de ruido, muros de bloques, la cinta desconchada con su cantonera, la sombra de las paredes por escalones y una grieta con óxido"
+    },
+    {
+      "archivo": "capturas/almacen-en-juego.png",
+      "pie": "M14c (a8a): el Pasillo de Devoluciones en partida con el suelo nuevo: las balas rojas se leen sobre las chapas lisas"
+    },
+    {
       "archivo": "capturas/trituradora-redibujada.png",
       "pie": "M14c (a7i): la Trituradora, antes (fila de arriba y las dos de abajo del todo) y ahora: reposo, avanzando sobre las orugas y el escáner; el cambio de fase con los pilotos en blanco; el despiece en rojo con la baliza encendida, el destornillador, el muelle y medio teclado; el control de calidad con los pilotos marcados y pegatinas «APTO» por todo el cuerpo, y la etiquetadora; debajo, su despiece, a 2×"
     },
@@ -1604,17 +1617,9 @@
     {
       "archivo": "capturas/centralita-en-juego.png",
       "pie": "M14c (a7h): la Centralita nueva arrancándose las clavijas al empezar «Se ha cortado la llamada», con la placa «1962» leyéndose aunque mire a la izquierda"
-    },
-    {
-      "archivo": "capturas/director-redibujado.png",
-      "pie": "M14c (a7g): el Director de Recursos Inhumanos, antes (el primero de las dos filas de arriba) y ahora: sentado, empujándose, rodando, el aviso, la palmada, el sello, las tarjetas, la carta y el mando del proyector; de pie, andando y con el dedo arriba; abajo, las tarjetas de pie, el giro de espaldas, de frente y de lado, colocándose la corbata, la silla sola antes y ahora y su despiece, a 3×"
-    },
-    {
-      "archivo": "capturas/director-en-juego.png",
-      "pie": "M14c (a7g): el Director nuevo, de pie, girando la línea de recortes en la Sala de Juntas mientras su silla rueda sola"
     }
   ],
-  "proximo": "M14c (a8), suelos, paredes y puertas de cada planta: los jefes (a7) ya están todos redibujados.",
+  "proximo": "M14c (a8b), la pared del fondo y la estantería exenta de la planta 1; después (a8c)–(a8h), los suelos y paredes de las otras plantas y las puertas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1643,11 +1648,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 22:30 (hora peninsular)",
-      "tarea": "M14c (a8a): suelos y paredes de la planta 1 (el almacén) con el estilo nuevo (src/art/almacen-nuevo.ts nuevo, src/art/room.ts solo las ramas de la planta 1, src/art/paleta.ts un material nuevo al final, tools/ver-salas.ts nuevo, tests/estilo-a8a.test.ts nuevo). No toca jefes ni otras plantas",
-      "desde": "2026-11-14T22:30:00+01:00"
-    },
     {
       "sesion": "2026-11-14 23:27 (hora peninsular)",
       "tarea": "M14c (a13a): las cinco primeras armas con el estilo nuevo (Secador, Grapadora, Plancha, Megáfono, Etiquetadora) en tools/sprites/armas-nuevo.ts nuevo, solo las líneas arma-* de tools/sprites/build.ts y tests/estilo-a13a.test.ts nuevo. No toca src/art/room.ts ni las plantas",

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ROOMS, SLOT_ENEMIES_1, templatesOf } from '../src/data/rooms.ts';
 import { paintRoom } from '../src/art/room.ts';
+import { MATERIALS } from '../src/art/paleta.ts';
 import { Rng } from '../src/sim/rng.ts';
 import { buildRoom, fillTemplate } from '../src/sim/room.ts';
 
@@ -39,14 +40,14 @@ test('salas con forma: el recorte se pinta como pared de fuera (sin estanterías
   const room = buildRoom(t);
   const art = paintRoom({ ...room, level: 1 }, 'forma');
   assert.ok(art.features.includes('recorte'));
-  // The top of a cut-out corner is the plain dark wall: one colour, no shelving in it.
+  // The top of a cut-out corner is the wall's: on floor 1 since M14c (a8a), the concrete blocks
+  // (every pixel a tone of `muro`), no shelving in it.
   const at = (x: number, y: number): string => art.canvas.get(x, y).join(',');
-  const top = at(15 * 24 + 5, 24 + 5);
-  for (const [x, y] of [[15 * 24 + 12, 24 + 12], [17 * 24 + 3, 2 * 24 + 6], [13 * 24 + 20, 2 * 24 + 20]] as const) {
-    const [r, g, b] = art.canvas.get(x, y);
-    const [r0, g0, b0] = art.canvas.get(15 * 24 + 5, 24 + 5);
-    assert.ok(Math.abs(r - r0) + Math.abs(g - g0) + Math.abs(b - b0) < 40, `${x},${y}: ${at(x, y)} frente a ${top}`);
+  const wallTones = new Set(MATERIALS.muro.map((c) => c.join(',')));
+  for (let y = 24; y < 2 * 24; y++) {
+    for (let x = 15 * 24; x < 17 * 24; x++) assert.ok(wallTones.has(at(x, y)), `${x},${y}: ${at(x, y)} no es del muro`);
   }
+  for (const [x, y] of [[17 * 24 + 3, 2 * 24 + 6], [13 * 24 + 20, 2 * 24 + 20]] as const) assert.ok(wallTones.has(at(x, y)), `${x},${y}: ${at(x, y)} no es del muro`);
   // Without cut-outs, a room paints exactly as before.
   const plain = buildRoom(ROOMS['carga-descarga']!);
   assert.ok(!paintRoom({ ...plain, level: 1 }, 'x').features.includes('recorte'));

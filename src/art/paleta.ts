@@ -122,6 +122,11 @@ export const MATERIALS = {
   teca: r('#f6c48e', '#d6965c', '#b26c3e', '#8a4a30', '#62322a', '#402028', '#2a1624'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
+  /**
+   * M14c (a8a): the warehouse's concrete-block walls, seen from above: greyer and darker than the
+   * floor plates (the room has to read as a pit with walls round it), lilac lights, plum shadows.
+   */
+  muro: r('#767891', '#5d5f7b', '#4a4b67', '#3b3c56', '#2f2f47', '#25243a', '#1b192d'),
 } as const;
 
 export type Material = keyof typeof MATERIALS;

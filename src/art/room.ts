@@ -13,6 +13,7 @@ import * as A from './atencion.ts';
 import * as R from './taller.ts';
 import { hubHung } from './hub.ts';
 import * as D from './decor.ts';
+import * as N from './almacen-nuevo.ts';
 
 export interface PaintableRoom {
   cols: number;
@@ -340,9 +341,6 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   };
 
   // Floor tiles: checker, grout, rivets in the corners; some cracked, worn, patched or a grate.
-  const FA = hx('#3a4060');
-  const FB = hx('#353b58');
-  const GR = hx('#262b40');
   const variants = new Map<W.TileVariant | I.PanelVariant | J.MatVariant | O.CarpetVariant | A.LinoVariant | R.WorkshopVariant, number>();
   // Floor 3: each mat's colour and variation (the jigsaw tabs and the cut-outs go on after).
   const mats: Array<RGBA | undefined> = [];
@@ -422,14 +420,9 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
         }
         continue;
       }
-      const base = (c + r) % 2 === 0 ? FA : FB;
-      S.rect(x, y, T, T, base);
-      S.rect(x, y, T, 1, GR);
-      S.rect(x, y, 1, T, GR);
-      for (const [ox, oy] of [[2, 2], [T - 3, 2], [2, T - 3], [T - 3, T - 3]] as const) {
-        S.set(x + ox, y + oy, hx('#58608a'));
-        S.set(x + ox + 1, y + oy + 1, hx('#20243a'));
-      }
+      // M14c (a8a): bevelled steel plates in the new style (src/art/almacen-nuevo.ts).
+      const alt = (c + r) % 2 === 1;
+      N.plate(S, rng, x, y, alt);
       let v = r >= 2 ? W.pickVariant(rng, style) : 'plain';
       if (v === 'grate' && (grates >= maxGrates || r * room.cols + c - lastGrate < 3 || !free(x, y, T, T))) v = 'plain';
       if (v === 'grate') {
@@ -437,7 +430,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
         grates++;
       }
       if (v !== 'plain') {
-        W.paintVariant(S, rng, x, y, base, v);
+        N.paintPlate(S, rng, x, y, alt, v);
         variants.set(v, (variants.get(v) ?? 0) + 1);
       }
     }
@@ -476,17 +469,16 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
         for (let i = 0; i < tw; i++) {
           const x = p.x + i * T;
           const y = p.y + j * T;
-          const base = ((x + y) / T) % 2 === 0 ? FA : FB;
-          S.rect(x + 1, y + 1, T - 1, T - 1, base);
-          W.paintVariant(S, rng, x, y, base, 'checker');
+          const alt = ((x + y) / T) % 2 === 1;
+          N.plate(S, rng, x, y, alt);
+          N.paintPlate(S, rng, x, y, alt, 'checker');
         }
       }
-      S.rect(p.x, p.y, tw * T, 1, hx('#58608a'));
       count('chapa');
     }
   }
-  // Pixel noise.
-  for (let y = 0; y < H; y++) {
+  // Pixel noise (not on the warehouse's new plates: M14c says no dither across a flat face).
+  for (let y = 0; y < (up ? H : 0); y++) {
     for (let x = 0; x < W_; x++) {
       const v = rng.next();
       if (v < 0.045) S.put(x, y, shade(S.get(x, y), 11));
@@ -777,7 +769,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   if (room.kind !== 'hub') {
     const lv = room.level ?? 1;
     const drng = new Rng('room-deco:' + seed);
-    D.wallShadow(S, floorX0, floorY0, floorX1, floorY1, (x, y) => !wall(Math.floor(x / T), Math.floor(y / T)));
+    (up ? D.wallShadow : N.wallShadow)(S, floorX0, floorY0, floorX1, floorY1, (x, y) => !wall(Math.floor(x / T), Math.floor(y / T)));
     count('sombra-paredes');
     const at = (p: D.Piece, x: number, y: number): boolean => {
       const w = p.canvas.w;
@@ -844,6 +836,11 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   for (let r = 0; r < room.rows; r++) {
     for (let c = 0; c < room.cols; c++) {
       if (!wall(c, r)) continue;
+      if (!up) {
+        // M14c (a8a): the tops of the concrete-block walls (the interior shelving goes on top).
+        N.wallTop(S, rng, c * T, r * T);
+        continue;
+      }
       S.rect(c * T, r * T, T, T, WALL);
       if (r >= 2 && (c === 0 || c === room.cols - 1) && r % 2 === 0) S.rect(c * T, r * T, T, 1, SEAM);
       if (r === room.rows - 1 && c % 2 === 1) S.rect(c * T, r * T, 1, T, SEAM);
@@ -886,16 +883,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       for (let y = floorY0 + 14; y < floorY1 - 24; y += 80) if (!nearDoor(wx + 8, y - 2, 8, 22)) A.leafletRack(S, rng, wx + 8, y);
     }
   }
-  for (const wx of up ? [] : [0, W_ - T]) {
-    const px = wx + 7;
-    for (let y = floorY0; y < floorY1; y++) {
-      if (nearDoor(px, y, 3, 1)) continue;
-      S.rect(px, y, 3, 1, hx('#3a4058'));
-      S.set(px, y, hx('#5a627c'));
-      S.set(px + 2, y, hx('#262b40'));
-      if (y % 36 === 0) S.rect(px - 1, y, 5, 2, hx('#5d658a'));
-    }
-  }
+  for (const wx of up ? [] : [0, W_ - T]) N.conduit(S, wx + 7, floorY0, floorY1, (y) => nearDoor(wx + 7, y, 3, 1));
   {
     let boxes = 0;
     for (let i = 0; i < 12 && boxes < Math.max(1, Math.round(area)); i++) {
@@ -915,6 +903,10 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
   for (let x = T * 2; x < W_ - T * 2; x += T * 4) {
     if (nearDoor(x, H - T, 20, T) || !rng.chance(0.5)) continue;
+    if (!up) {
+      N.vent(S, x, H - 15);
+      continue;
+    }
     S.rect(x, H - 15, 18, 8, hx('#14162a'));
     for (let j = H - 14; j < H - 8; j += 2) S.rect(x + 1, j, 16, 1, hx('#3a4058'));
   }
@@ -1075,13 +1067,17 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     sk(S, W_ - T, floorY0, 5, floorY1 - floorY0, true, true);
     sk(S, T, H - T, W_ - 2 * T, 5, false);
   }
-  const ya = hx('#b08a1c');
-  const yb = hx('#191622');
-  for (let y = floorY0; y < (up ? floorY0 : floorY1); y++) {
-    for (let x = T - 5; x < T; x++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
-    for (let x = W_ - T; x < W_ - T + 5; x++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
+  if (!up) {
+    // M14c (a8a): the tape worn in chips, and steel guards where it turns a corner.
+    N.tape(S, T - 5, floorY0, 5, floorY1 - floorY0);
+    N.tape(S, W_ - T, floorY0, 5, floorY1 - floorY0);
+    N.tape(S, T, H - T, W_ - 2 * T, 5);
+    N.cornerGuard(S, T - 5, H - T, 1, -1);
+    N.cornerGuard(S, W_ - T, H - T, -1, -1);
+    N.cornerGuard(S, T - 5, floorY0 - 5, 1, 1);
+    N.cornerGuard(S, W_ - T, floorY0 - 5, -1, 1);
+    count('esquinas');
   }
-  for (let x = T; x < (up ? T : W_ - T); x++) for (let y = H - T; y < H - T + 5; y++) S.set(x, y, Math.floor((x + y) / 4) % 2 === 0 ? ya : yb);
 
   // Cobwebs in the corners of the room nobody visits.
   if (style === 'secret') {
@@ -1144,7 +1140,8 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   // Downstairs the tubes are warm; upstairs the LED panels are cold.
   const glow = six ? R.C.light : five ? A.C.light : four ? O.C.light : three ? J.C.light : two ? I.C.light : ([255, 226, 150] as const);
   const pools = style === 'treasure' ? [{ x: W_ / 2, y: floorY0 + (floorY1 - floorY0) / 2 }] : lamps;
-  for (const l of pools) {
+  for (const l of up ? [] : pools) N.lightPool(S, l.x, l.y, 90, 60, pool / 255, glow, (x, y) => y >= floorY0 && x >= T && x < W_ - T && y < floorY1);
+  for (const l of up ? pools : []) {
     const rx = 90;
     const ry = 60;
     for (let y = Math.round(l.y - ry); y <= l.y + ry; y++) {
@@ -1180,16 +1177,17 @@ function cutOut(
   const face = new Set<string>();
   const floorAt = (c: number, r: number): boolean => !wall(c, r);
   const sk = level >= 6 ? R.skirting : level === 5 ? A.skirting : level === 4 ? O.skirting : level === 3 ? J.skirting : level === 2 ? I.skirting : null;
-  const tape = (x: number, y: number, w: number, h: number): void => {
-    const ya = hx('#b08a1c');
-    const yb = hx('#191622');
-    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) S.set(i, j, Math.floor((i + j) / 4) % 2 === 0 ? ya : yb);
-  };
+  const tape = N.tape.bind(null, S);
+  const crng = new Rng('room-cut:' + room.cols + 'x' + room.rows);
   let any = false;
   for (let r = 0; r < room.rows; r++) {
     for (let c = 0; c < room.cols; c++) {
       if (!out(c, r)) continue;
       any = true;
+      if (level === 1) {
+        N.wallTop(S, crng, c * T, r * T);
+        continue;
+      }
       S.rect(c * T, r * T, T, T, WALL);
       if (r % 2 === 0) S.rect(c * T, r * T, T, 1, SEAM);
     }
