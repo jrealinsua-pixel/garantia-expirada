@@ -253,14 +253,14 @@
   },
   "sello": {
     "file": "sello.png",
-    "frameW": 26,
-    "frameH": 34,
+    "frameW": 34,
+    "frameH": 46,
     "frames": 6
   },
   "climatizador": {
     "file": "climatizador.png",
-    "frameW": 28,
-    "frameH": 40,
+    "frameW": 38,
+    "frameH": 50,
     "frames": 7
   },
   "munequito-repetido": {

@@ -23,6 +23,8 @@ const REDRAWN: Record<string, () => Canvas[]> = {
   'munequito-dorado': () => P3.makeMunequitoNuevoFrames(true),
   destructora: P4.makeDestructoraNuevaFrames,
   fotocopiadora: P4.makeFotocopiadoraNuevaFrames,
+  sello: P4.makeSelloNuevoFrames,
+  climatizador: P4.makeClimatizadorNuevoFrames,
 };
 
 function bottomRow(cv: Canvas, x0 = 0, x1 = cv.w - 1): number {
@@ -340,4 +342,62 @@ test('estilo a6: la fotocopiadora pisa el suelo en su ancla, saca los folios por
   // A copy coming out: more white below the slot than with the jammed sheet.
   const white = (cv: Canvas): number => count(cv, MATERIALS.acero[0]!, row, row + 6);
   assert.ok(white(frames[a.out!]!) > white(frames[0]!) + 20, 'la copia que sale');
+});
+
+test('estilo a6: el sello pisa el suelo en su ancla, recoge los pies al saltar y entinta al estampar', () => {
+  const def = ENEMIES.sello!;
+  assert.deepEqual(def.anchor, P4.STAMP_FEET);
+  assert.deepEqual(def.hurt, { x: -11, y: -27, w: 22, h: 26 }, 'la caja de golpes de siempre');
+  const f = P4.makeSelloNuevoFrames();
+  const a = def.anim!;
+  assert.equal(f.length, 6);
+  for (const k of [...a.idle, a.crouch!, a.out!]) assert.equal(bottomRow(f[k]!), def.anchor.y, `fotograma ${k}: los pies no tocan el suelo`);
+  assert.ok(bottomRow(f[a.jump!]!) < def.anchor.y - 1, 'en el aire, los pies recogidos');
+  // All of it is beech and red rubber (the beech its own material); the knob does not leave the frame.
+  const count = (cv: Canvas, m: readonly (readonly number[])[]): number => {
+    let n = 0;
+    for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (m.some((t) => same([...t], cv.get(x, y)))) n++;
+    return n;
+  };
+  assert.ok(count(f[0]!, MATERIALS.haya) > 300 && count(f[0]!, MATERIALS.rojo) > 60, 'haya y goma roja');
+  for (const [k, fr] of f.entries()) {
+    let top = 0;
+    for (let x = 0; x < fr.w; x++) if (fr.get(x, 0)[3] > 0) top++;
+    assert.equal(top, 0, `fotograma ${k}: el pomo se sale por arriba`);
+  }
+  // Coming down it is taller (stretched) than crouching; just stamped, ink round the rubber.
+  const height = (cv: Canvas): number => { for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3] === 255) return bottomRow(cv) - y; return 0; };
+  assert.ok(height(f[a.warn!]!) > height(f[a.crouch!]!) + 4, 'estirado al bajar');
+  assert.ok(f[a.out!]!.w === P4.STAMP_W);
+});
+
+test('estilo a6: el climatizador pisa el suelo, sopla por la rejilla de su muzzleY y la manguera sale de donde la pinta el juego', () => {
+  const def = ENEMIES.climatizador!;
+  assert.deepEqual(def.anchor, P4.AC_FEET);
+  assert.deepEqual(def.hurt, { x: -12, y: -34, w: 24, h: 33 }, 'la caja de golpes de siempre');
+  const f = P4.makeClimatizadorNuevoFrames();
+  const a = def.anim!;
+  for (const k of [...a.idle, a.walk![0]!, a.walk![2]!, a.warn!]) assert.equal(bottomRow(f[k]!, def.anchor.x - 10, def.anchor.x + 10), def.anchor.y, `fotograma ${k}: los pies no tocan el suelo`);
+  assert.equal(def.brain.kind === 'blower' && def.brain.muzzleY, P4.AC_VENT_Y);
+  const row = P4.AC_FEET.y - P4.AC_VENT_Y - 1;
+  const deep = MATERIALS.crema[6]!;
+  let slot = 0;
+  for (let x = 0; x < f[0]!.w; x++) if (same(f[0]!.get(x, row), deep)) slot++;
+  assert.ok(slot >= 12, `la rejilla no está en la fila ${row} (${slot} px)`);
+  // The hose's outlet (steel) right where GameScene.drawHose plugs the hose: 7 px behind, 10 up.
+  const hx = P4.AC_FEET.x + P4.AC_HOSE.dx;
+  const hy = P4.AC_FEET.y + P4.AC_HOSE.dy;
+  let steel = 0;
+  for (let y = hy - 3; y <= hy + 3; y++) for (let x = hx - 4; x <= hx + 2; x++) if (MATERIALS.acero.some((t) => same([...t], f[0]!.get(x, y)))) steel++;
+  assert.ok(steel >= 6, 'la boca de la manguera');
+  // About to blow: rime (ice) on the vent, none before; the ribbon flutters (frames differ there).
+  const ice = (cv: Canvas): number => {
+    let n = 0;
+    for (let y = row - 7; y <= row + 5; y++) for (let x = 0; x < cv.w; x++) if (MATERIALS.cian.some((t) => same([...t], cv.get(x, y)))) n++;
+    return n;
+  };
+  assert.equal(ice(f[0]!), 0);
+  assert.ok(ice(f[a.warn!]!) >= 10, 'escarcha en la rejilla');
+  const ribbon = (cv: Canvas): string => { const px: string[] = []; for (let y = row - 5; y < row + 2; y++) for (let x = 30; x < 37; x++) px.push(cv.get(x, y).join()); return px.join(';'); };
+  assert.equal(new Set([2, 3, 4].map((k) => ribbon(f[k]!))).size, 3, 'la cinta no ondea');
 });

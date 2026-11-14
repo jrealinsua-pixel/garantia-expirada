@@ -360,3 +360,241 @@ export function makeFotocopiadoraNuevaFrames(): Canvas[] {
     makeFotocopiadoraNueva(undefined, 0, true),
   ];
 }
+
+// ---------------------------------------------------------------------------------------------
+// The Sello de Denegado: an office rubber stamp, all varnished beech (`haya`, a material of its
+// own): a big round knob on top with two tooth marks bitten into it (someone waited a long time),
+// a neck and the mount, a block in three quarters with a face that has seen every form; under it
+// the red rubber, worn pink at the corners, with the backwards letters of «DENEGADO» raised on its
+// edge. Jokes: the tooth marks, and the «Revisado» sticker on its front, stamped over in red. It
+// does not walk: it hops, and comes down to stamp.
+
+export const STAMP_W = 34;
+export const STAMP_H = 46;
+export const STAMP_FEET = { x: 17, y: 44 } as const;
+
+/** The rubber's edge: a red slab with the raised mirrored letters (darker) along its front. */
+function rubber(p: Paint, x: number, y: number, w: number, h: number, inked: boolean): void {
+  p.rect(x, y, w, h, 'rojo', 2);
+  p.rect(x, y, w, 1, 'rojo', 1);
+  p.rect(x, y + h - 1, w, 1, 'rojo', inked ? 4 : 3);
+  // Worn pink at the corners.
+  p.px(x, y, 'rojo', 0);
+  p.px(x + w - 1, y, 'rojo', 0);
+  // «ODAGENED», mirrored: little raised blocks, a letter every three px.
+  for (let i = 2; i < w - 2; i += 3) {
+    p.px(x + i, y + 1, 'rojo', 3);
+    if ((i / 3) % 2 < 1) p.px(x + i, y + 2, 'rojo', 3);
+    else p.px(x + i + 1, y + 2, 'rojo', 3);
+  }
+}
+
+/** Eyes that have seen every form: half shut, brows flat; furious and gritting its teeth to slam. */
+function stampFace(p: Paint, ex: number, ey: number, slam: boolean): void {
+  for (const x of [ex, ex + 7]) {
+    p.rect(x, ey, 4, 3, 'haya', 5);
+    if (!slam) {
+      p.rect(x, ey + 1, 3, 2, 'acero', 0);
+      p.raw(x + 1, ey + 2, INK);
+      p.raw(x + 2, ey + 2, INK);
+      p.rect(x, ey, 4, 1, 'haya', 2);
+    } else {
+      p.rect(x, ey + 1, 3, 1, 'rojo', 1);
+      p.raw(x + 1, ey + 1, INK);
+    }
+  }
+  if (slam) {
+    // Brows slanting down to the middle.
+    const brow = [3, 3, 2, 1, 1] as const;
+    brow.forEach((up, i) => {
+      p.raw(ex - 1 + i, ey - up, INK);
+      p.raw(ex + 11 - i, ey - up, INK);
+    });
+    // Gritted teeth.
+    p.rect(ex + 2, ey + 4, 7, 3, 'haya', 6);
+    p.rect(ex + 3, ey + 5, 5, 1, 'acero', 0);
+    p.raw(ex + 5, ey + 5, INK);
+  } else {
+    for (let i = -1; i < 4; i++) {
+      p.raw(ex + i, ey - 1, INK);
+      p.raw(ex + 7 + i + 1, ey - 1, INK);
+    }
+    // A flat line of a mouth, turned down at one end.
+    p.rect(ex + 3, ey + 5, 5, 1, 'haya', 6);
+    p.px(ex + 8, ey + 6, 'haya', 6);
+  }
+}
+
+/**
+ * The stamp. `squash` px lower (crouching, just stamped), `air`: legs tucked up, `slam`: coming down
+ * stretched and furious, `jx`: shaking sideways, `inked`: just stamped (red ink round the rubber).
+ */
+export function makeSelloNuevo(squash = 0, air = false, slam = false, jx = 0, inked = false): Canvas {
+  const p = new Paint(STAMP_W, STAMP_H);
+  const F = STAMP_FEET;
+  const stretch = slam ? 2 : 0;
+  // The rubber's underside: on the legs standing; tucked a little higher in the air.
+  const rb = air || slam ? F.y - 5 : F.y - 4;
+  if (air || slam) {
+    for (const x of [10, 19]) {
+      p.rect(x, rb + 1, 5, 2, 'goma', 2);
+      p.rect(x + 1, rb + 1, 3, 1, 'goma', 1);
+    }
+  } else legs(p, { xb: 10, xf: 18, bob: 0 }, rb + 1, F.y, 'goma');
+  const b = new Paint(STAMP_W, STAMP_H);
+  const x0 = 5 + jx;
+  const rh = 4;
+  const rt = rb - rh + 1;
+  rubber(b, x0, rt, 24, rh, inked);
+  // The mount: a beech block in three quarters, with the face on its front.
+  const mh = 12 - squash + stretch;
+  const my = rt - mh;
+  const { fx } = box34(b, x0 + 1, my, 19, mh, 4, 'haya');
+  // A dark band where it meets the rubber, and the grain down the side.
+  b.rect(fx, rt - 1, 19, 1, 'haya', 4);
+  b.px(x0 + 2, my + 4, 'haya', 5);
+  b.px(x0 + 3, my + 7, 'haya', 5);
+  // The «Revisado» sticker on the front corner, stamped DENEGADO over in red.
+  b.rect(fx + 1, my + 2, 5, 4, 'acero', 0);
+  b.rect(fx + 2, my + 3, 3, 1, 'verde', 3);
+  for (let i = 0; i < 5; i++) b.px(fx + 1 + i, my + 5 - (i >> 1), 'rojo', 2);
+  stampFace(b, fx + 6, my + Math.max(2, 4 - squash), slam);
+  // Neck and knob: the handle, the knob a varnished ball with two tooth marks.
+  const nh = 4 + stretch;
+  const ny = my - 4 - nh + 1;
+  b.rect(x0 + 10, ny, 6, nh + 1, 'haya', 2);
+  b.rect(x0 + 10, ny, 1, nh + 1, 'haya', 1);
+  b.rect(x0 + 15, ny, 1, nh + 1, 'haya', 4);
+  b.rect(x0 + 9, ny + nh - 1, 8, 1, 'haya', 3);
+  const kc = { x: x0 + 13, y: ny - 5 };
+  b.ellipsoid(kc.x, kc.y, 7, 6, 'haya', { dither: 0.3, spec: true });
+  for (const [dx, dy] of [[4, 1], [4, 2], [2, 3]] as const) b.px(kc.x + dx, kc.y + dy, 'haya', 5);
+  // Gloves at the mount's sides: up in the air while it hops, clenched high to slam.
+  const gy = air ? my - 2 : slam ? my - 4 : my + 4;
+  glove(b, x0 - 5, gy, 'haya');
+  glove(b, x0 + 24, gy, 'haya');
+  if (inked) {
+    // Ink squashed out round the rubber.
+    for (const [x, y] of [[x0 - 1, rb], [x0 - 2, rb - 1], [x0 + 24, rb], [x0 + 25, rb - 1], [x0 + 8, rb + 1], [x0 + 15, rb + 1]] as const) b.px(x, y, 'rojo', 3);
+  }
+  p.stamp(b, 0, 0);
+  return p.outline();
+}
+
+/** Its frames: 0-1 standing (it shakes), 2 crouching to hop, 3 in the air, 4 coming down to stamp, 5 just stamped. */
+export function makeSelloNuevoFrames(): Canvas[] {
+  return [makeSelloNuevo(), makeSelloNuevo(0, false, false, 1), makeSelloNuevo(3), makeSelloNuevo(0, true), makeSelloNuevo(0, false, true), makeSelloNuevo(4, false, false, 0, true)];
+}
+
+// ---------------------------------------------------------------------------------------------
+// The Climatizador Portátil: a tall portable air conditioner in ivory plastic (`crema`), a box in
+// three quarters. On its front the display stuck at «17» (nobody knows who set it), two eyes of
+// smug indifference and, lower down, the louvred vent where the cold comes out (its mouth, at its
+// muzzleY), with a red ribbon tied to it that flutters (stiff with ice when it is about to blow).
+// On its side, the sheet «NO TOCAR. Firmado: Dirección» and the round outlet of the exhaust hose,
+// where the game plugs the hose that runs to the wall (GameScene.drawHose: 7 px behind its feet's
+// column, 10 px up).
+
+export const AC_W = 38;
+export const AC_H = 50;
+export const AC_FEET = { x: 19, y: 48 } as const;
+export const AC_LEGS2 = [14, 21] as const;
+/** Its vent, px above its feet (muzzleY): the flakes come out of here. */
+export const AC_VENT_Y = 12;
+/** Where the hose comes out of its back, from its feet (GameScene.drawHose). */
+export const AC_HOSE = { dx: -7, dy: -10 } as const;
+
+/** «17» in cold blue on a dark display. */
+function display17(p: Paint, x: number, y: number): void {
+  p.rect(x, y, 9, 7, 'goma', 5);
+  p.rect(x + 1, y + 1, 7, 5, 'cian', 5);
+  for (let j = 0; j < 5; j++) p.px(x + 2, y + 1 + j, 'cian', 1);
+  p.px(x + 1, y + 2, 'cian', 1);
+  p.rect(x + 4, y + 1, 3, 1, 'cian', 1);
+  for (const [i, j] of [[6, 2], [6, 3], [5, 4], [5, 5]] as const) p.px(x + i, y + j, 'cian', 1);
+  p.raw(x + 7, y + 1, SHINE);
+}
+
+/**
+ * The air conditioner. `vent` 0-2: the louvres' shimmer and the ribbon's flutter; `frost`: rime on
+ * the vent, the ribbon frozen stiff and the eyes narrowed (about to blow its flakes).
+ */
+export function makeClimatizadorNuevo(pose: Pose = { xb: AC_LEGS2[0], xf: AC_LEGS2[1], bob: 0 }, vent = 0, frost = false): Canvas {
+  const p = new Paint(AC_W, AC_H);
+  const F = AC_FEET;
+  const y0 = 9;
+  const fh = 33;
+  legs(p, pose, y0 + fh + pose.bob, F.y, 'goma');
+  const b = new Paint(AC_W, AC_H);
+  glove(b, 1, 22, 'crema');
+  const x0 = 7;
+  const depth = 5;
+  const { fx } = box34(b, x0, y0, 21, fh, depth, 'crema');
+  // The rounded top: a grille of slots on the top face.
+  for (let j = 1; j < depth; j += 2) for (let i = 4; i < 18; i += 2) b.px(x0 + j + i, y0 - depth + j, 'crema', 3);
+  display17(b, fx + 10, y0 + 2);
+  // Eyes of smug indifference: lids half down, looking off to the side.
+  const ey = y0 + 12;
+  for (const x of [fx + 5, fx + 12]) {
+    b.rect(x, ey, 4, 3, 'crema', 5);
+    b.rect(x, ey + 1, 4, 2, 'acero', 0);
+    b.raw(x + 3, ey + 2, INK);
+    b.raw(x + 2, ey + 2, INK);
+    b.rect(x, ey, 4, frost ? 2 : 1, 'crema', 3);
+    for (let i = 0; i < 4; i++) b.raw(x + i, ey - 1 - (frost && (x === fx + 5 ? i > 1 : i < 2) ? 0 : 1) + (frost ? 1 : 0), INK);
+  }
+  // A smug little smile.
+  b.rect(fx + 9, ey + 5, 4, 1, 'crema', 6);
+  b.px(fx + 13, ey + 4, 'crema', 6);
+  // The vent: louvres, dark slots between pale slats, the mouth's row among them.
+  const my = F.y - AC_VENT_Y - 1;
+  const vx = fx + 3;
+  const vw = 15;
+  b.rect(vx - 1, my - 6, vw + 2, 10, 'crema', 4);
+  for (let j = 0; j < 8; j++) {
+    const slot = (j + vent) % 2 === 0;
+    b.rect(vx, my - 5 + j, vw, 1, slot ? 'crema' : 'crema', slot ? 6 : 1);
+  }
+  b.rect(vx, my, vw, 1, 'crema', 6);
+  if (frost) {
+    // Rime on the slats, icicles under the vent.
+    for (let i = 0; i < vw; i += 2) b.px(vx + i, my - 5 + (i % 4 === 0 ? 1 : 3), 'cian', 1);
+    for (const i of [2, 7, 12]) {
+      b.px(vx + i, my + 3, 'cian', 1);
+      b.px(vx + i, my + 4, 'cian', 2);
+    }
+    b.rect(vx, my - 6, vw, 1, 'cian', 0);
+  }
+  // The ribbon tied to the vent: it flutters out to the right in the draught (frozen straight).
+  const ry = my - 2;
+  b.px(vx + vw - 1, ry, 'rojo', 3);
+  const flutter = frost ? [0, 0, 0, 0, 0] : [[0, -1, -1, 0, 1], [0, 0, 1, 1, 0], [0, 1, 0, -1, -1]][vent]!;
+  flutter.forEach((dy, i) => {
+    b.px(vx + vw + i, ry + dy, frost ? 'cian' : 'rojo', frost ? 2 : i % 2 ? 2 : 1);
+    if (!frost) b.px(vx + vw + i, ry + dy + 1, 'rojo', 3);
+  });
+  // The side: the «NO TOCAR» sheet and the round outlet of the hose.
+  b.rect(x0 + 1, y0 + 4, 4, 7, 'acero', 0);
+  b.rect(x0 + 1, y0 + 3, 2, 1, 'amarillo', 0);
+  for (const j of [1, 3, 5]) b.rect(x0 + 1, y0 + 4 + j, 3, 1, j === 1 ? 'rojo' : 'goma', 3);
+  const hx0 = F.x + AC_HOSE.dx;
+  const hy0 = F.y + AC_HOSE.dy;
+  b.ellipsoid(hx0 - 1, hy0, 3, 3.5, 'acero', { dither: 0 });
+  b.rect(hx0 - 2, hy0 - 1, 2, 3, 'goma', 5);
+  // Silver tape round the outlet, and a drip stain down the front.
+  b.px(hx0 - 4, hy0 - 2, 'acero', 0);
+  b.px(hx0 - 4, hy0 - 1, 'acero', 1);
+  b.px(fx + 18, my + 3, 'crema', 3);
+  b.px(fx + 18, my + 5, 'crema', 3);
+  glove(b, 33, 22, 'crema');
+  p.stamp(b, 0, pose.bob);
+  return p.outline();
+}
+
+/** Its frames: 0-1 humming, 2-5 dragging itself along, 6 rime on the vent (about to blow). */
+export function makeClimatizadorNuevoFrames(): Canvas[] {
+  return [
+    ...poseCycle(AC_LEGS2[0], AC_LEGS2[1]).map((f, i) => makeClimatizadorNuevo(f.pose, i % 3)),
+    makeClimatizadorNuevo(undefined, 0, true),
+  ];
+}

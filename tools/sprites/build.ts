@@ -127,9 +127,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // M14c (a6c2): in the new style (planta4-nuevo.ts).
     fotocopiadora: { canvas: strip(P4.makeFotocopiadoraNuevaFrames()), frameW: P4.COPIER_W, frameH: P4.COPIER_H },
     // 0-1 standing, 2 crouching, 3 in the air, 4 coming down to stamp, 5 just stamped.
-    sello: { canvas: strip(makeSelloFrames()), frameW: 26, frameH: 34 },
+    // M14c (a6d): in the new style (planta4-nuevo.ts).
+    sello: { canvas: strip(P4.makeSelloNuevoFrames()), frameW: P4.STAMP_W, frameH: P4.STAMP_H },
     // 0-1 humming, 2-5 dragging itself along, 6 rime on the vent (about to blow).
-    climatizador: { canvas: strip(makeClimatizadorFrames()), frameW: 28, frameH: 40 },
+    // M14c (a6d): in the new style (planta4-nuevo.ts).
+    climatizador: { canvas: strip(P4.makeClimatizadorNuevoFrames()), frameW: P4.AC_W, frameH: P4.AC_H },
     // What comes out of the envelope (M14c (a6b2), planta3-nuevo.ts): 0-1 standing, 2-5 running, 6 biting.
     'munequito-repetido': { canvas: strip(P3.makeMunequitoNuevoFrames(false)), frameW: P3.MUNE_W, frameH: P3.MUNE_H },
     'munequito-dorado': { canvas: strip(P3.makeMunequitoNuevoFrames(true)), frameW: P3.MUNE_W, frameH: P3.MUNE_H },

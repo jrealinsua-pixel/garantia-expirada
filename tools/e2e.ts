@@ -245,11 +245,17 @@ try {
 
   // Mandos a Distancia: stand near the group and catch one switching off like an old TV, with the
   // static crackling where it will come back.
-  await page.evaluate(`(() => { const w = window.__GE__.scene.world; const m = w.enemies.find((e) => e.def.id === 'mando');
-    if (m) { w.player.x = m.x + 90; w.player.y = m.y - 20; } })()`);
+  // (If the fights before have already taken the remotes down, one is put in, awake: what is
+  // tested is how it switches off.)
+  await page.evaluate(`(() => { const w = window.__GE__.scene.world; let m = w.enemies.find((e) => e.def.id === 'mando');
+    if (!m) { window.__GE__.spawnIdle('mando', w.player.x - 90, w.player.y + 20); m = w.enemies[w.enemies.length - 1]; m.until = 0; }
+    w.player.x = m.x + 90; w.player.y = m.y - 20; })()`);
   const remoteBlinking = `(() => { const w = window.__GE__.scene.world;
     return w.enemies.some((e) => e.def.id === 'mando' && (e.state === 'gone' || (e.state === 'blink' && e.t > e.until * 0.4))); })()`;
-  await page.waitForFunction(remoteBlinking, undefined, { timeout: 8000 });
+  await page.waitForFunction(remoteBlinking, undefined, { timeout: 8000 }).catch(async () => {
+    const st = await page.evaluate<string>(`JSON.stringify(window.__GE__.scene.world.enemies.map((e) => [e.def.id, e.state, Math.round(e.t * 10) / 10, Math.round(e.until * 10) / 10]))`);
+    throw new Error(`El mando no se apaga como una tele vieja: ${st}`);
+  });
   await shot('08c-mando.png');
   await page.waitForTimeout(600);
 

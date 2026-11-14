@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 14:45 (hora peninsular) — Hito M14c — (a6d) El Sello y el Climatizador con el estilo nuevo
+- Contexto: segunda tarea de la sesión, tras la (a6c2). La (a6e) la cogió otra sesión a las 13:40
+  (planta 5, archivo propio); esta sigue en la planta 4.
+- Hecho: M14c (a6d), en `tools/sprites/planta4-nuevo.ts`. **El Sello de Denegado** (34 × 46, antes
+  26 × 34; los mismos 6 fotogramas): todo de **haya barnizada**, material nuevo `haya` en
+  `src/art/paleta.ts` (luces de miel, sombras a marrón y ciruela; pasa las reglas de las rampas):
+  el pomo redondo sombreado como bola, con brillo y **las dos marcas de dientes**; la montura en
+  tres cuartos con la cara de haberlo visto todo (párpados a media asta, la boca torcida); la goma
+  roja gastada en las esquinas con las letras de «DENEGADO» al revés en relieve; la **pegatina de
+  «Revisado» tachada en rojo**; guantes de madera a los lados (arriba al saltar, en alto al
+  estampar). Al bajar se estira, frunce las cejas y aprieta los dientes; recién estampado, aplastado
+  y con la tinta salida alrededor de la goma; en el aire, los pies recogidos. **El Climatizador
+  Portátil** (38 × 50, antes 28 × 40; 7 fotogramas): torre de plástico marfil (`crema`) con la
+  rejilla de ranuras arriba, la pantalla en **«17»** en azul frío, ojos de indiferencia mirando de
+  reojo y una sonrisita; la rejilla de lamas por boca **en la fila de su `muzzleY`**, con **una
+  cinta roja atada que ondea con el aire** (tres posiciones al andar; al avisar, tiesa de hielo, con
+  escarcha en las lamas y carámbanos debajo); el cartel de «No tocar» firmado por Dirección en el
+  lado; y **la boca de la manguera justo donde el juego engancha la que va a la pared**
+  (`GameScene.drawHose`: 7 px detrás de los pies, 10 arriba; `AC_HOSE` lo apunta y el test lo
+  mira). Anclas nuevas (17, 44) y (19, 48); las cajas de golpes, las de siempre. Tests en
+  `tests/estilo-a6.test.ts` (ahora 15): los dos entran en los generales; el del sello mira los
+  pies en el ancla (y recogidos en el aire), la haya y la goma, que el pomo no se salga por arriba
+  (al estirarse se salía: el estirón bajó de 3 a 2 px) y que al bajar sea más alto que agachado; el
+  del climatizador, los pies, la rejilla en su fila, la boca de la manguera, la escarcha solo al
+  avisar y que la cinta ondee.
+- Decisiones: (1) El tampón de tinta colgando del cuello del sello de antes se quitó: a este tamaño
+  era una caja gris encima de la montura que no se entendía; el chiste se queda en los dientes del
+  pomo y la pegatina. (2) El climatizador es `crema` y no `acero`, para no confundirse con la
+  fotocopiadora de la misma planta. (3) La cinta atada a la rejilla es lo que hace la gente en las
+  oficinas para ver si sale aire; aquí además enseña hacia dónde sopla.
+- **e2e**: el paso del Mando (`08c`) fallaba a ratos porque, en tiempo real, las peleas de antes ya
+  habían acabado con los mandos de la Sala de Pruebas y se esperaba a uno que no existía (lo
+  enseñó el mensaje nuevo con los enemigos que quedan). Ahora, si no queda ninguno, se pone uno
+  despierto (`tools/e2e.ts`). Pasada entera en verde.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, idéntico). 1136 tests en
+  verde.
+- Problemas conocidos: con dos sellos estampando a la vez se pisan (son pequeños y del mismo color).
+- Siguiente paso: M14c (a7), los jefes (la (a6f) la tienen otras sesiones).
 ## 2026-11-14 14:20 (hora peninsular) — Hito M14c — (a6e) El Dispensador de Turnos y los Postes de Cola con el estilo nuevo
 - Contexto: sesión automática. Al llegar, otra sesión tenía la (a6c2), la Fotocopiadora, desde hacía
   57 minutos (`planta4-nuevo.ts`, `build.ts`, `tests/estilo-a6.test.ts`); la (a6d) va en los mismos

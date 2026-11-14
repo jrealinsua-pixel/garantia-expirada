@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T14:20:00+01:00",
+  "actualizado": "2026-11-14T14:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1134,
-    "tests_ok": 1134,
+    "tests": 1142,
+    "tests_ok": 1142,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 38171
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T14:45:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a6d): el Sello de Denegado y el Climatizador Portátil con el estilo nuevo. El sello, todo de haya barnizada (material nuevo) con las marcas de dientes en el pomo, la goma roja con «DENEGADO» al revés y la pegatina de «Revisado» tachada; se estira y aprieta los dientes al estampar. El climatizador, una torre marfil con la pantalla en «17», ojos de indiferencia, una cinta roja atada a la rejilla que ondea (tiesa de hielo antes de soplar) y la boca de la manguera donde el juego la engancha."
+    },
     {
       "fecha": "2026-11-14T14:20:00+01:00",
       "hito": "M14c",
@@ -1530,6 +1535,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sello-climatizador-redibujados.png",
+      "pie": "M14c (a6d): el Sello de Denegado y el Climatizador Portátil, ahora y antes (de arriba abajo: el sello nuevo de pie, agachado, en el aire, estampando y recién estampado; el de antes; el climatizador nuevo andando y con escarcha; el de antes), a 3×"
+    },
+    {
+      "archivo": "capturas/climatizador-en-juego.png",
+      "pie": "M14c (a6d): el climatizador nuevo soplando su cono de frío hacia la tostadora, atado por la manguera a la pared, en la Planta en Reforma"
+    },
+    {
       "archivo": "capturas/dispensador-postes-redibujados.png",
       "pie": "M14c (a6e): el Dispensador de Turnos y los Postes de Cola, ahora (arriba: el dispensador de pie, andando, llamando un turno y con el turno perdido; los postes de pie, andando, disparando, con la cinta suelta y el desconchado) y antes (abajo), a 3×"
     },
@@ -1544,17 +1557,9 @@
     {
       "archivo": "capturas/fotocopiadora-en-juego.png",
       "pie": "M14c (a6c2): la fotocopiadora nueva junto a dos copias grises que acaba de sacar de un aspirador y una batidora, en la Planta Diáfana"
-    },
-    {
-      "archivo": "capturas/movil-fotogramas.png",
-      "pie": "M14c (a4d2): la hoja nueva del Móvil Reacondicionado, 24 fotogramas y el apagado: los ocho de siempre (roto, con la grieta de punta a punta y el cable desenchufado); andar en seis pasos cargando; rodar con la rueda de carga; disparar, el golpe que raya la pantalla, la batería vacía y las chispas al morir; abajo, los cinco juntos, a 4×"
-    },
-    {
-      "archivo": "capturas/movil-con-los-cinco.png",
-      "pie": "M14c (a4d2): los cinco en el Mostrador, ya todos con el estilo nuevo; el Móvil, de oro rosa con su globo de notificaciones, a la derecha del Becario"
     }
   ],
-  "proximo": "M14c (a6f2), la Carretilla Elevadora del Servicio Técnico (las (a6d) y (a6f1) las tienen otras sesiones); después la (a7), los jefes, empezando por la Nevera.",
+  "proximo": "M14c (a7), los jefes, empezando por la Nevera (las (a6f1) y (a6f2) las tienen otras sesiones).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1583,11 +1588,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 13:58 (hora peninsular)",
-      "tarea": "M14c (a6d): el Sello y el Climatizador con el estilo nuevo (tools/sprites/planta4-nuevo.ts, tools/sprites/build.ts sus líneas, src/data/enemies.ts sus anclas, tests/estilo-a6.test.ts). No toca la planta 5 ni personajes",
-      "desde": "2026-11-14T13:58:00+01:00"
-    },
     {
       "sesion": "2026-11-14 14:26 (hora peninsular)",
       "tarea": "M14c (a6f1): el Asistente Virtual y el Teléfono de Recepción con el estilo nuevo (tools/sprites/recepcion-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts sus anclas, tests/estilo-a6f.test.ts nuevo). No toca planta4-nuevo.ts, planta5-nuevo.ts ni personajes",

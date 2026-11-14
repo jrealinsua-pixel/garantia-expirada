@@ -921,7 +921,18 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       «Averiada, no tocar», la ranura de monedas tapada con cinta (copia sin cobrar) y la bandeja
       lateral con copias que nadie recogió; al copiar levanta la tapa y la luz verde cruza el
       cristal de atrás adelante; y la copia saliendo. Ancla (24, 46).
-  - [ ] (a6d) El Sello y el Climatizador.
+  - [x] (a6d) El Sello y el Climatizador.
+    Hecho el 2026-11-14: en `tools/sprites/planta4-nuevo.ts`. El sello, 34 × 46 (antes 26 × 34),
+    todo de haya barnizada (material nuevo `haya`): el pomo redondo con las dos marcas de dientes,
+    el cuello, la montura en tres cuartos con cara de haberlo visto todo (furiosa y con los dientes
+    apretados al bajar, estirada), la goma roja gastada con «DENEGADO» al revés en relieve, la
+    pegatina de «Revisado» tachada en rojo y guantes; agachado, en el aire con los pies recogidos y
+    recién estampado con la tinta alrededor. El climatizador, 38 × 50 (antes 28 × 40), una torre de
+    plástico `crema` con la rejilla de arriba, la pantalla en «17», ojos de indiferencia y una
+    sonrisita, la rejilla de lamas por boca a la altura de su `muzzleY` con una cinta roja atada que
+    ondea con el aire (tiesa de hielo al avisar, con escarcha y carámbanos), el cartel de «No tocar»
+    en el lado y la boca de la manguera justo donde el juego engancha la que va a la pared. Anclas
+    (17, 44) y (19, 48).
   - [x] (a6e) El Dispensador de Turnos y los Postes de Cola.
     Hecho el 2026-11-14 (`tools/sprites/planta5-nuevo.ts`): el dispensador, 38 × 48, una caja de
     esmalte granate (material nuevo `granate`, más pardo que el rojo de las balas) con el «087» en

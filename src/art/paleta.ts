@@ -68,6 +68,8 @@ export const MATERIALS = {
    * bullets' red), so a ticket never hides on it; shadows to wine and plum.
    */
   granate: r('#f6b9a0', '#d9705c', '#b54a43', '#8e3540', '#66263e', '#431a35', '#2c1430'),
+  /** M14c (a6d): varnished beech of office rubber stamps: honey lights, shadows to brown and plum. */
+  haya: r('#ffe6b4', '#f2bf7c', '#d4914f', '#a8653a', '#76432f', '#4b2a2d', '#2f1b29'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;
