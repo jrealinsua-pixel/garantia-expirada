@@ -1,7 +1,7 @@
 {
-  "actualizado": "2026-11-14T03:30:00+01:00",
+  "actualizado": "2026-11-14T04:55:00+01:00",
   "version": "0.2.0",
-  "hito_actual": "M14",
+  "hito_actual": "M14c",
   "hitos": [
     {
       "id": "M0",
@@ -125,7 +125,7 @@
     {
       "id": "M14c",
       "nombre": "Arte nuevo (nota del humano del 13 de noviembre)",
-      "estado": "pendiente",
+      "estado": "en_curso",
       "hechas": 3,
       "total": 12
     },
@@ -151,6 +151,11 @@
     "lineas_codigo": 37981
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T04:55:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a5a): el Aspirador y el Microondas, los primeros enemigos con el estilo nuevo en el juego. Más grandes, con sombras de color y contorno selectivo; el aspirador tiene un fotograma acelerando antes de embestir y el microondas, que ahora anda (sigue tu reflejo), tiene paso y un fotograma calentando con el tenedor echando chispas."
+    },
     {
       "fecha": "2026-11-14T03:30:00+01:00",
       "hito": "M14b",
@@ -1445,20 +1450,20 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/planta1-redibujados.png",
+      "pie": "M14c (a5a): el Aspirador y el Microondas, antes y ahora (quietos y avisando: acelerando y calentando), a 3×"
+    },
+    {
+      "archivo": "capturas/planta1-en-juego.png",
+      "pie": "M14c (a5a): el aspirador y el microondas nuevos en la Sala de Pruebas, entre los enemigos que aún no se han redibujado"
+    },
+    {
       "archivo": "capturas/sala-forma-cruz.png",
       "pie": "M14b (h11c): el Centro de Datos en Cruz; las esquinas que no son sala, pared de fuera con su zócalo"
     },
     {
       "archivo": "capturas/sala-forma-ele.png",
       "pie": "M14b (h11c): el Almacén de Mermas, en ele: la pared del fondo, con sus estanterías, dobla la esquina"
-    },
-    {
-      "archivo": "capturas/centralita-cable.png",
-      "pie": "M14b (h10b3): la Centralita enchufa su cable en la pared y se arrastra por él; el carril y el sitio donde parará, marcados en rojo"
-    },
-    {
-      "archivo": "capturas/trituradora-orugas.png",
-      "pie": "M14b (h10b3): la Trituradora, alineada sobre sus orugas, marca su recorrido a través de la tostadora antes de arrancar («Recogida a domicilio»)"
     },
     {
       "archivo": "capturas/estilo-nuevo-prueba.png",
@@ -1469,7 +1474,7 @@
       "pie": "M14c (a2): las herramientas nuevas: un corazón sacado de un mapa de alturas, una plancha abollada con remaches y una bola sin y con antialias"
     }
   ],
-  "proximo": "M14c (a4a), la Tostadora con el estilo nuevo (la tiene otra sesión desde las 03:30); si no, M14c (a4b), sus fotogramas nuevos.",
+  "proximo": "M14c (a5b), la Bombilla y la Polilla con el estilo nuevo; la (a4a), la Tostadora, la tiene otra sesión desde las 03:30.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1502,11 +1507,6 @@
       "sesion": "2026-11-14 03:30 (hora peninsular)",
       "tarea": "M14c (a4a): la Tostadora en el juego con el estilo nuevo (la h11c está cogida por otra sesión desde las 02:25)",
       "desde": "2026-11-14T03:30:00+01:00"
-    },
-    {
-      "sesion": "2026-11-14 04:30 (hora peninsular)",
-      "tarea": "M14c (a5a): el Aspirador y el Microondas con el estilo nuevo (tools/sprites/planta1-nuevo.ts, la línea de las dos hojas en tools/sprites/build.ts, anchor en src/data/enemies.ts, tests/estilo-a5.test.ts). No toca la Tostadora ni src/render/",
-      "desde": "2026-11-14T04:30:00+01:00"
     }
   ]
 }

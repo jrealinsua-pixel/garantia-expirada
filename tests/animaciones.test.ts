@@ -122,7 +122,8 @@ test('la boquilla del Aspirador se queda en el suelo en todos los fotogramas', (
   const s = allSheets().aspirador!;
   const region = (i: number) => {
     const rows: string[] = [];
-    for (let y = 27; y < 32; y++) rows.push(s.canvas.p[y]!.slice(i * s.frameW + 22, i * s.frameW + 32).map((c) => c.join()).join('|'));
+    // M14c (a5a): the new drawing's nozzle (and the end of the hose), right of its feet.
+    for (let y = 32; y < 39; y++) rows.push(s.canvas.p[y]!.slice(i * s.frameW + 29, i * s.frameW + 42).map((c) => c.join()).join('|'));
     return rows.join('/');
   };
   const n = s.canvas.w / s.frameW;

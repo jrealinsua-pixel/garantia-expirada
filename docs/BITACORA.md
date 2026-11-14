@@ -2,6 +2,49 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 04:55 (hora peninsular) — Hito M14c — (a5a) El Aspirador y el Microondas con el estilo nuevo
+- Contexto: sesión programada. El `main` local volvía a ser un clon viejo y superficial que no casaba
+  con `origin/main` (`git checkout -B main origin/main`). La (a4a), la Tostadora, está cogida por
+  otra sesión desde las 03:30 (menos de 90 minutos): como la (a4b)–(a4d) dependen de ella, cogí la
+  (a5), que no toca a los personajes, y la dividí en cinco partes (dos enemigos cada una). Salud al
+  empezar: `check` y los 1071 tests en verde.
+- Hecho: M14c (a5a). **Los dos primeros enemigos con el estilo nuevo en el juego**
+  (`tools/sprites/planta1-nuevo.ts`; las funciones viejas se quedan en `characters.ts` porque
+  `art/referencia/` y su test siguen siendo la historia). **El Aspirador Desahuciado** sale del de
+  `art/prueba/` (M14c (a1)), ahora con pose: 42 × 40, respira, rueda (las ruedas giran, la manguera
+  se mece con el cuerpo y la boquilla no se mueve del suelo) y un fotograma nuevo, el 6, **acelerando
+  antes de embestir** (`anim.warn`): el ojo se pone al blanco amarillo, el párpado baja, aprieta la
+  rejilla, se echa atrás y escupe polvo por debajo. **El Microondas Sin Seguro**, dibujado de nuevo:
+  44 × 46, una caja en tres cuartos de esmalte crema (material nuevo `crema` en
+  `src/art/paleta.ts`), la cara dentro de la ventana iluminada (cejas hacia dentro, ojos entornados,
+  morros), el panel con el 12:00 en verde y dos ruedas, y **un tenedor clavado arriba que echa
+  chispas** (el «sin seguro»). Como desde M14b (h9c) anda (va a donde estaría tu reflejo) y no tenía
+  paso, ahora tiene cuatro fotogramas de andar; y el 6, **calentando**: la ventana al blanco, los
+  dientes apretados, más chispas y vapor por las rejillas. El parpadeo del 12:00 (`SPRITE_BLINKS`)
+  se ha movido al reloj nuevo y lo tapa con el verde apagado de la pantalla. Anclas nuevas en
+  `src/data/enemies.ts`; cajas de choque, `muzzleY` y todo lo de la simulación, igual.
+  Tests: `tests/estilo-a5.test.ts` (6: legibles sobre el suelo en todos los fotogramas, las hojas
+  casan con la animación y los pies con el ancla, más grandes, siluetas distintas de las del resto
+  de la planta 1, el reloj está donde parpadea, los avisos se distinguen); el de la boquilla del
+  aspirador en `tests/animaciones.test.ts`, a las coordenadas nuevas.
+- Decisiones: (1) Los dos con su propio fotograma de aviso: hasta ahora el aviso era solo el
+  parpadeo en blanco del motor; con el dibujo cambiado el jugador lee *qué* va a hacer (embestir o
+  disparar anillos). (2) La cara del microondas va dentro de la ventana, como en el viejo, pero con
+  enfado cansado y no con sonrisa: la primera versión salió amable y la guía dice «nada kawaii».
+  (3) No he cambiado el `muzzleY` del microondas aunque la ventana ha subido 4 px: es simulación y
+  los anillos ya salen de la ventana. (4) Durante M14c conviven sprites viejos y nuevos: en las
+  capturas los nuevos se ven más grandes y más ricos que la tostadora; se igualan cuando entren la
+  (a4) y el resto de la (a5).
+- Medidas: la simulación no cambia: `npm run bot` igual que antes (0 fallos, 5 atascos, sala limpia
+  en 23,4 s, sobrevive el 87 %). Silueta aspirador–microondas 0,64; frente a bombilla, batidora y
+  mando, entre 0,32 y 0,59 (el tope es 0,8). 1077 tests en verde; e2e en verde. (`npm run stats` no se ha vuelto a
+  pasar: sin cambios en la simulación, las métricas son las mismas.)
+- Problemas conocidos: las cajas de choque son las de antes y el dibujo es más grande (el asa del
+  aspirador y la parte de arriba del microondas quedan fuera de la caja de golpes); es lo que dice la
+  guía, pero si al jugar se nota que las balas «atraviesan» el dibujo, habrá que revisar las cajas.
+- Siguiente paso: M14c (a5b), la Bombilla y la Polilla (o la (a4a) si la sesión que la cogió la ha
+  dejado).
+
 ## 2026-11-14 03:30 (hora peninsular) — Hito M14b — (h11c) Salas con más forma; M14b terminado
 - Contexto: sesión programada. El `main` local volvía a ser un clon viejo que no casaba con
   `origin/main` (`git checkout -B main origin/main`). La (h11c) seguía apuntada en `en_curso` desde

@@ -41,6 +41,8 @@ export const MATERIALS = {
   cian: r('#f0ffff', '#b6f1f0', '#69dbd8', '#3aa3b0', '#2e6f8a', '#244a68'),
   /** Cardboard boxes and briefcases: shadows to plum. */
   carton: r('#f1d9a8', '#d2ad78', '#a98258', '#7a5a40', '#523a34', '#35202e'),
+  /** Cream enamel of old white goods (the microwave, M14c (a5)): warm lights, plum shadows. */
+  crema: r('#fffbea', '#f3ead0', '#dccfab', '#b7a582', '#8a7563', '#5e4a55', '#3b2a45'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

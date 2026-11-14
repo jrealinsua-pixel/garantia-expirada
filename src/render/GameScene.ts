@@ -6717,8 +6717,9 @@ const BULLET_TEXTURES: Record<BulletColor, string> = {
 
 /** Rectangles of a sprite (px from its top-left) that blink, drawn over it in `color`. */
 const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number; color: number; frameDy?: Record<number, number> }> = {
-  // Frame 1 is its breath out: the body (and the clock) 1 px lower.
-  microondas: { x: 22, y: 14, w: 4, h: 1, color: 0x0e0c16, frameDy: { 1: 1 } },
+  // Its 12:00 (MICROONDAS_CLOCK in tools/sprites/planta1-nuevo.ts), covered with the dark LCD.
+  // Frame 1 is its breath out (1 px lower); 3 and 5, mid-stride (1 px higher).
+  microondas: { x: 30, y: 17, w: 7, h: 3, color: 0x1f3a40, frameDy: { 1: 1, 3: -1, 5: -1 } },
 };
 
 /** Lights drawn around an enemy (`y` px above its feet, radius `r`) while it is lit. */

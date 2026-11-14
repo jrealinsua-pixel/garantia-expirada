@@ -801,7 +801,10 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   - [ ] (a4c) La Batidora de Vaso y la Plancha de Vapor.
   - [ ] (a4d) El Becario Eterno y el Móvil.
 - [ ] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
-  - [ ] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
+  - [x] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
+    Hecho el 2026-11-14: `tools/sprites/planta1-nuevo.ts` (aspirador 42 × 40 con 7 fotogramas, el
+    último acelerando; microondas 44 × 46 con 7, andando y calentando), el material `crema`,
+    `tests/estilo-a5.test.ts`.
   - [ ] (a5b) La Bombilla y la Polilla.
   - [ ] (a5c) La Batidora y el Mando.
   - [ ] (a5d) La Impresora y el Cargador.

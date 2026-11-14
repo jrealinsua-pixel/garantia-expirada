@@ -7,9 +7,8 @@ import { buildRoom } from '../../src/sim/room.ts';
 import { HUB, ROOMS } from '../../src/data/rooms.ts';
 import { paintRoom } from '../../src/art/room.ts';
 import {
-  ASPIRADOR_LEGS, HERO_FRAMES, MICROONDAS_LEGS, NEVERA_POSES, makeAspirador, makeBombillaFrames, makeHeroPose, makeMicroondas, makeNevera, makePolilla, miniDryer, miniStapler,
+  HERO_FRAMES, NEVERA_POSES, makeBombillaFrames, makeHeroPose, makeNevera, makePolilla, miniDryer, miniStapler,
 } from './characters.ts';
-import { narrowPoseCycle, poseCycle } from './pose.ts';
 import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
   makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
@@ -38,6 +37,7 @@ import * as PV from './plancha-vapor.ts';
 import * as DS from './despiece.ts';
 import * as ES from './estanteria.ts';
 import { makeJug } from './garrafa.ts';
+import * as P1 from './planta1-nuevo.ts';
 import { encodePng } from './png.ts';
 import { incomingSheets } from './entrada.ts';
 import { ROOT } from '../lib/deps.ts';
@@ -87,9 +87,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'despiece-movil': { canvas: DS.makePhoneBits(), frameW: 8, frameH: 8 },
     // Frame 0 of every enemy sheet is its approved (or first) sprite; the order of the rest is in
     // the enemy's `anim` (src/data/enemies.ts).
-    aspirador: { canvas: strip(narrowPoseCycle(...ASPIRADOR_LEGS).map((f) => makeAspirador(f.pose))), frameW: 32, frameH: 36 },
-    // It never walks (bullets only nudge it): just its breathing.
-    microondas: { canvas: strip(poseCycle(...MICROONDAS_LEGS).slice(0, 2).map((f) => makeMicroondas(f.pose))), frameW: 32, frameH: 40 },
+    // M14c (a5a): the new style (tools/sprites/planta1-nuevo.ts); the old ones stay in art/referencia/.
+    aspirador: { canvas: strip(P1.makeAspiradorNuevoFrames()), frameW: P1.ASPIRADOR_W, frameH: P1.ASPIRADOR_H },
+    microondas: { canvas: strip(P1.makeMicroondasNuevoFrames()), frameW: P1.MICROONDAS_W, frameH: P1.MICROONDAS_H },
     bombilla: { canvas: strip(makeBombillaFrames()), frameW: 32, frameH: 39 },
     polilla: { canvas: strip(makePolilla()), frameW: 11, frameH: 9 },
     batidora: { canvas: strip(makeBatidoraFrames()), frameW: 32, frameH: 38 },

@@ -121,15 +121,15 @@
   },
   "aspirador": {
     "file": "aspirador.png",
-    "frameW": 32,
-    "frameH": 36,
-    "frames": 6
+    "frameW": 42,
+    "frameH": 40,
+    "frames": 7
   },
   "microondas": {
     "file": "microondas.png",
-    "frameW": 32,
-    "frameH": 40,
-    "frames": 2
+    "frameW": 44,
+    "frameH": 46,
+    "frames": 7
   },
   "bombilla": {
     "file": "bombilla.png",

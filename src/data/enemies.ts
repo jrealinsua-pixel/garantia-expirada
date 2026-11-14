@@ -12,15 +12,16 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description: 'Lo devolvieron con la bolsa llena y la etiqueta del -70 % puesta. Desde entonces solo sabe ir en línea recta.',
     hp: 6,
     sprite: 'aspirador',
-    anchor: { x: 14, y: 32 },
+    // M14c (a5a): drawn bigger in the new style (42 × 40); the boxes stay the same.
+    anchor: { x: 19, y: 38 },
     hurt: { x: -14, y: -30, w: 28, h: 30 },
     footRadius: 6,
     contactPush: 230,
     contactDamage: 1,
     knockbackScale: 0.5,
     loot: { coupons: [0, 1] },
-    // 0-1 breathing, 2-5 rolling along on its wheeled shoes.
-    anim: { idle: [0, 1], idleMs: 420, walk: [2, 3, 4, 5], stepPx: 5 },
+    // 0-1 breathing, 2-5 rolling along on its wheeled shoes, 6 revving before a charge.
+    anim: { idle: [0, 1], idleMs: 420, walk: [2, 3, 4, 5], stepPx: 5, warn: 6 },
     brain: {
       kind: 'charger',
       walkSpeed: 28,
@@ -43,14 +44,16 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description: 'Su reloj marca las 12:00 desde hace diez años. Lo que calienta por fuera sigue frío por dentro.',
     hp: 8,
     sprite: 'microondas',
-    anchor: { x: 15, y: 35 },
+    // M14c (a5a): drawn bigger in the new style (44 × 46); the boxes stay the same.
+    anchor: { x: 22, y: 44 },
     hurt: { x: -13, y: -31, w: 26, h: 30 },
     footRadius: 7,
     contactPush: 120,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [0, 1] },
-    anim: { idle: [0, 1], idleMs: 480 },
+    // 0-1 breathing, 2-5 walking (it follows your reflection, M14b (h9c)), 6 heating up.
+    anim: { idle: [0, 1], idleMs: 480, walk: [2, 3, 4, 5], stepPx: 5, warn: 6 },
     brain: {
       kind: 'turret',
       range: 260,

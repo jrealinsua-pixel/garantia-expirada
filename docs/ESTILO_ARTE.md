@@ -17,7 +17,8 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   (de 4 solo los de adorno: óxido, latón), del brillo (0) a la sombra más honda (la última).
   Los tonos los elige uno a mano, no salen de una fórmula. Materiales: `acero`, `tostada`,
   `quemada`, `rojo`, `azul`, `goma`, `rosa`, `amarillo`, `oxido`, `laton` y `suelo`; los nuevos
-  se añaden ahí con las mismas reglas.
+  se añaden ahí con las mismas reglas (en (a5a) llegó `crema`, el esmalte de los electrodomésticos
+  blancos viejos, como el microondas).
 - **Sombras de color, nunca negras ni grises**: bajando por la rampa el tono gira hacia el
   azul-violeta y la saturación se mantiene; las luces se calientan hacia el amarillo (el acero
   brilla en blanco cálido `#fbf5e6` y se apaga en violeta `#2a2847`). La sombra en el suelo es
