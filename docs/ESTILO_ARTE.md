@@ -251,6 +251,40 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   encima de la vieja**. Despiece: un cartucho, un disco, el mando, el candado, un trozo de la placa
   y el pase. Crece poco (un 3 % de área), por la misma razón que la Nube: la vieja era más ancha que
   su caja de golpes.
+- **El Director de Recursos Inhumanos** (M14c (a7g), `tools/sprites/director-nuevo.ts`; el viejo
+  se queda en `director.ts`, que sigue dibujando sus balas, las mamparas y la mesa larga hasta la
+  (a9) y la (a10)), 84 × 88, ancla (40, 86). Tres materiales nuevos: **`bronceado`** (su moreno de
+  noviembre, más naranja que la `piel` del becario), **`traje`** (gris marengo con un punto
+  violeta, más oscuro y cálido que el `acero`, para que el traje no parezca cromo) y
+  **`polipiel`** (la silla, granate brillante; más clara que la vieja en sus sombras, porque sobre
+  la moqueta carbón de la Sala de Juntas la de antes se fundía). La cabeza, un bloque de
+  `bronceado` sombreado como un cojín, con el lado izquierdo en sombra y en él la oreja con un
+  **pinganillo** de luz azul (siempre está en una llamada); el pelo gris acero peinado hacia atrás
+  a surcos, con la raya y el tupé con brillo de gomina. **Nunca se le ven los ojos**: las gafas
+  enseñan la hoja de cálculo (cabecera, rejilla, una celda iluminada y el total en rojo), destellan
+  en blanco cuando decide (aviso, palmada, sello, carta) y, presentando, reflejan **su diapositiva**
+  (cabecera roja y un gráfico de barras bajando). Sentado, la sonrisa de la foto de perfil con el
+  hoyuelo y una ceja arriba; de pie, la boca recta, las cejas abajo y la vena en la sien. Traje con
+  hombreras de más, solapas, la corbata granate de logotipos con el pisacorbatas de `laton`, la
+  acreditación de visitante colgando, el pañuelo en punta, **gemelos** de oro en los puños blancos
+  (las manos flotan, pero con puño de camisa) y el anillo de sello en la de delante; zapatos negros
+  con un brillo en la punta. La **silla**: respaldo alto capitoné con botones, asiento, el
+  mecanismo, el pistón de cromo y la **base de estrella de cromo** (en negro desaparecía en la
+  moqueta), con ruedas cuyo brillo gira al rodar. **24 fotogramas** (antes 18): sentado, respirar,
+  los cuatro tiempos del impulso con los pies, el **aviso** (inclinado, los dedos en pirámide: «le
+  voy a ser sincero»), la palmada y una **pose por ataque**: el sello en alto, el abanico de
+  tarjetas, la carta de despido en alto y el **mando del proyector** con el punto del láser (las
+  diapositivas, que antes no tenían pose); de pie (fase 3, `frameShift` 12) el mismo orden: el
+  aviso con el dedo índice arriba («una cosita»), las tarjetas, el giro de espaldas (todo pelo,
+  las orejas y la etiqueta de la tienda en el cuello), de frente con las manos abiertas y de lado
+  (de perfil, con la nariz y una sola lente) y, antes de girar la línea de recortes, **colocándose
+  la corbata**. Sentado llena su caja de golpes en más de un 80 % (bajo el asiento solo hay aire,
+  el pistón y las piernas); de pie, en más de un 60 % (las piernas son el hueco). La **silla sola**
+  (`silla-director`, 46 × 60, ancla (25, 58), la misma silla que la de él): con la marca de su
+  peso en el asiento y la etiqueta de su chaqueta caída encima, que se levanta de una esquina
+  quieta y se echa hacia atrás rodando. Despiece: las gafas con la hoja de cálculo, un trozo de
+  corbata con el pisacorbatas, el sello, una tarjeta de visita, una rueda con su pata y la
+  acreditación.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

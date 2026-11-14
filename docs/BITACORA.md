@@ -2,6 +2,44 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 20:36 (hora peninsular) — Hito M14c — (a7g) El Director de Recursos Inhumanos con el estilo nuevo
+- Contexto: al llegar (19:25), otra sesión tenía cogida la (a7f) (la Consola) desde las 18:27, menos
+  de 90 minutos; elegí la (a7g), que solo comparte con ella las líneas de cada jefe en `build.ts` y
+  `enemies.ts` y un sitio de la lista de `paleta.ts` (puse mis materiales junto a `piel`, lejos del
+  final). La rama `main` local estaba vieja (clon superficial): la puse en `origin/main` antes de
+  empezar, sin tocar el remoto. Salud al llegar: `check`, `test` (1179), `build` y `bot`, en verde.
+- Hecho: M14c (a7g), en `tools/sprites/director-nuevo.ts` (el viejo sigue en `director.ts`, que
+  dibuja aún sus balas, las mamparas y la mesa). **El Director**, 84 × 88 (antes 72 × 76), con tres
+  materiales nuevos: `bronceado`, `traje` y `polipiel`; ver `docs/ESTILO_ARTE.md`. **24
+  fotogramas** (antes 18): sentado, respirar y el impulso en cuatro tiempos, un **aviso** propio
+  (los dedos en pirámide), la palmada y una pose por ataque (sello, abanico de tarjetas, carta y
+  el **mando del proyector** para las diapositivas, que antes avisaban sin pose); de pie
+  (`frameShift` 12, antes 9) el mismo orden con el dedo arriba, las tarjetas, el giro de espaldas,
+  de frente y **de lado** (antes repetía el de lanzar) y colocándose la corbata antes de girar los
+  recortes (`pose` 23). Las gafas cuentan lo que hace: hoja de cálculo, destello, o la diapositiva.
+  La **silla sola** (`silla-director`, 46 × 60, antes 44 × 52) es la misma silla que la de él.
+  Despiece propio (`despiece-director-rrhh`, seis piezas). Anclas nuevas (40, 86) y (25, 58);
+  cajas de golpes, bocas y simulación, las de siempre. `tests/estilo-a7g.test.ts` (5 tests);
+  `tests/director-fase3.test.ts` y `tests/director-jefe.test.ts` leen los fotogramas de
+  `DIRECTOR_FRAMES` en vez de números fijos.
+- Decisiones: (1) `traje` y no `acero` para el traje: con el acero, el traje parecía cromo y se
+  confundía con la base de la silla. (2) La base de estrella, de **cromo** y no negra, y la
+  `polipiel` con las sombras más claras que la vieja: sobre la moqueta carbón de la Sala de Juntas
+  (`#323138`) la silla se fundía (40 % del cuerpo con contraste < 1,5; ahora 27 %). Como esa moqueta
+  es más oscura que el suelo de la regla, el test le pide solo que no se funda (≤ 30 %), y la
+  legibilidad entera sobre el suelo de la guía y el ribete granate. (3) La caja de golpes: sentado
+  la llena en más de un 80 % (no un 85 %: bajo el asiento solo hay aire); de pie, en más de un 60 %.
+  (4) La mano de las tarjetas, bajada 3 px para que la boca (`muzzle`) caiga en ella. (5) Gemelos y
+  puño de camisa en las manos flotantes: dicen «traje» sin dibujar brazos.
+- Medidas: la simulación no cambia. `npm run bot` idéntico línea a línea (200 partidas, 0 fallos,
+  5 atascos; el Director, ganado el 40 % en 117,5 s). 1184 tests en verde; `npm run e2e` entero en
+  verde (capturas del Director miradas: tarjetas, diapositivas, de pie con la silla suelta y los
+  recortes; se lee a tamaño real).
+- Problemas conocidos: `npm run e2e` tarda ya más de 10 minutos (hay que lanzarlo en segundo plano
+  desde estas sesiones). Al cambiar a la fase 3 no hay fotograma de «levantarse» (el juego no
+  enseña el `clap` en una fase con fotogramas propios): sale ya de pie.
+- Siguiente paso: M14c (a7i), la Trituradora (al cerrar, otra sesión había cogido la (a7h), la Centralita).
+
 ## 2026-11-14 19:40 (hora peninsular) — Hito M14c — (a7f) La Consola Edición Coleccionista con el estilo nuevo
 - Contexto: al llegar, la (a7e) (el muñeco) estaba cogida desde hacía 52 minutos; elegí la (a7f).
   La rama `main` local volvía a estar vieja (clon superficial): la puse en `origin/main` antes de

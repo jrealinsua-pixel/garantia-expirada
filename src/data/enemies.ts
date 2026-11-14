@@ -1003,18 +1003,20 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // gone over 130 s.
     hp: 132,
     sprite: 'director-rrhh',
-    anchor: { x: 34, y: 73 },
+    anchor: { x: 40, y: 86 },
     hurt: { x: -24, y: -66, w: 48, h: 60 },
     footRadius: 16,
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [4, 6], hearts: 1 },
-    // tools/sprites/director.ts DIRECTOR_FRAMES: 0-1 in his chair breathing, 2-5 pushing off with
-    // his feet and rolling (his walk), 6 throwing, 7 the clap, 8 up with his own stamp. On his feet
-    // (phase 3, frameShift 9) the same layout: 9-10 breathing, 11-14 walking, 15 throwing; he
-    // spins the line of cuts front, side, back, other side.
-    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, warn: 6, clap: 7, spin: [17, 15, 16, 15], spinMs: 90 },
+    // M14c (a7g), tools/sprites/director-nuevo.ts DIRECTOR_FRAMES: 0-1 in his chair breathing, 2-5
+    // pushing off with his feet and rolling (his walk), 6 leaning in with his fingers steepled (the
+    // warning), 7 the clap, and a pose per attack: 8 his stamp up, 9 a fan of cards, 10 a letter, 11
+    // the projector's remote. On his feet (phase 3, frameShift 12) the same layout: 12-13 breathing,
+    // 14-17 walking, 18 a finger up, 19 the cards; he spins the line of cuts front, side, back, other
+    // side (21, 22, 20, 22), and straightens his tie before (23).
+    anim: { idle: [0, 1], idleMs: 560, walk: [2, 3, 4, 5], stepPx: 9, warn: 6, clap: 7, spin: [21, 22, 20, 22], spinMs: 90 },
     brain: {
       kind: 'boss',
       // On wheels: pushes of the feet in short legs, now a glide, now a lurch. (On his feet.)
@@ -1037,10 +1039,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
           // (0.85–1.2 before his chair: rolling away, he throws more often.)
           rest: [0.65, 0.95],
           attacks: [
-            { kind: 'pattern', pattern: 'director-tarjetas', telegraph: 0.7, weight: 3, pose: 6 },
+            { kind: 'pattern', pattern: 'director-tarjetas', telegraph: 0.7, weight: 3, pose: 9 },
             {
               kind: 'spit', count: 3, spread: 70, flight: 1.1, from: { x: 30, y: 62 }, burst: 'director-folios',
-              telegraph: 0.7, weight: 2, look: 'carta-despido', pose: 6,
+              telegraph: 0.7, weight: 2, look: 'carta-despido', pose: 10,
             },
           ],
         },
@@ -1055,15 +1057,15 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: 'Hemos decidido redistribuir los espacios.',
           restructure: { prop: 'mampara-movil', every: 12, warn: 1, time: 0.7 },
           attacks: [
-            { kind: 'pattern', pattern: 'director-diapositivas', telegraph: 0.7, weight: 3 },
-            { kind: 'pattern', pattern: 'director-tarjetas-2', telegraph: 0.6, weight: 2, pose: 6 },
+            { kind: 'pattern', pattern: 'director-diapositivas', telegraph: 0.7, weight: 3, pose: 11 },
+            { kind: 'pattern', pattern: 'director-tarjetas-2', telegraph: 0.6, weight: 2, pose: 9 },
             {
               kind: 'stamp', count: 2, spread: 64, ink: { w: 40, h: 26, life: 5, max: 4 }, pattern: 'sello-gotas',
               telegraph: 0.8, weight: 1.5, pose: 8,
             },
             {
               kind: 'spit', count: 4, spread: 80, flight: 1.05, from: { x: 30, y: 62 }, burst: 'director-folios',
-              telegraph: 0.6, weight: 1.5, look: 'carta-despido', pose: 6,
+              telegraph: 0.6, weight: 1.5, look: 'carta-despido', pose: 10,
             },
           ],
         },
@@ -1080,12 +1082,12 @@ export const ENEMIES: Record<string, EnemyDef> = {
           rest: [0.8, 1.1],
           line: 'No es nada personal. Es todo.',
           summon: { id: 'silla-director', count: 1, max: 1 },
-          frameShift: 9,
+          frameShift: 12,
           onFoot: true,
           attacks: [
-            { kind: 'pattern', pattern: 'director-recortes', telegraph: 0.7, weight: 2, spin: true },
-            { kind: 'pattern', pattern: 'director-recortes-2', telegraph: 0.7, weight: 2, spin: true },
-            { kind: 'pattern', pattern: 'director-tarjetas-3', telegraph: 0.55, weight: 2.5, pose: 15 },
+            { kind: 'pattern', pattern: 'director-recortes', telegraph: 0.7, weight: 2, spin: true, pose: 23 },
+            { kind: 'pattern', pattern: 'director-recortes-2', telegraph: 0.7, weight: 2, spin: true, pose: 23 },
+            { kind: 'pattern', pattern: 'director-tarjetas-3', telegraph: 0.55, weight: 2.5, pose: 19 },
           ],
         },
       ],
@@ -1295,14 +1297,14 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // It can be broken (it is in the way, not the point), and it falls with him.
     hp: 14,
     sprite: 'silla-director',
-    anchor: { x: 22, y: 50 },
+    anchor: { x: 25, y: 58 },
     hurt: { x: -19, y: -46, w: 38, h: 44 },
     footRadius: 12,
     contactPush: 240,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [0, 0] },
-    // tools/sprites/director.ts makeChairFrames: 0 and 4 still (the tag on the seat stirs), 1-2
+    // M14c (a7g), tools/sprites/director-nuevo.ts makeChairNuevoFrames: 0 and 4 still (the tag on the seat stirs), 1-2
     // and 5-6 rolling (the wheels turn, the tag blown back), 3 about to ram (dust).
     anim: { idle: [0, 4], idleMs: 700, walk: [1, 2, 5, 6], stepPx: 6, warn: 3 },
     brain: {

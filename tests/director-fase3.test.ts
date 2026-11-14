@@ -13,6 +13,7 @@ import { expandPattern, isAimed, type ShotSpec, type SpiralDef } from '../src/si
 import { Rng } from '../src/sim/rng.ts';
 import { checkInvariants, createWorld, DT, isClear, isDead, NO_INPUT, step, worldHash, type Enemy, type World } from '../src/sim/world.ts';
 import { Bot } from '../src/sim/bot.ts';
+import { DIRECTOR_FRAMES as F } from '../tools/sprites/director-nuevo.ts';
 
 const def = ENEMIES['director-rrhh']!;
 const brain = def.brain as BossBrain;
@@ -63,12 +64,12 @@ test('se levanta: de pie se dibuja con sus fotogramas de pie, y la línea de rec
   toPhase3(w, boss, 0.1);
   // Already up while he shouts the phase (his clap is a seated frame).
   assert.equal(boss.state, 'roar');
-  assert.equal(enemyFrame(boss, 0), 9, 'de pie al anunciar la fase');
+  assert.equal(enemyFrame(boss, 0), F.standing, 'de pie al anunciar la fase');
   boss.state = 'idle';
   boss.vx = 0;
   boss.vy = 0;
-  assert.ok([9, 10].includes(enemyFrame(boss, 0)), 'de pie, respirando');
-  // Throughout the phase, every frame is one of his standing ones (9-17), never the chair's.
+  assert.ok([F.standing, F.standing + 1].includes(enemyFrame(boss, 0)), 'de pie, respirando');
+  // Throughout the phase, every frame is one of his standing ones (12-23), never the chair's.
   const seen = new Set<number>();
   let spun = false;
   for (let i = 0; i < ticks(25); i++) {
@@ -77,9 +78,9 @@ test('se levanta: de pie se dibuja con sus fotogramas de pie, y la línea de rec
     seen.add(enemyFrame(boss, i * DT * 1000));
     if (isSpinning(boss)) spun = true;
   }
-  assert.ok([...seen].every((f) => f >= 9 && f <= 17), `fotogramas ${[...seen].join(',')}`);
+  assert.ok([...seen].every((f) => f >= F.standing && f < F.count), `fotogramas ${[...seen].join(',')}`);
   assert.ok(spun, 'gira con la línea de recortes');
-  assert.ok(seen.has(16) && seen.has(17), 'de espaldas y de frente al girar');
+  assert.ok(seen.has(F.spinBack) && seen.has(F.spinFront), 'de espaldas y de frente al girar');
 });
 
 test('la silla sale rodando sola: una, de él, que embiste en línea recta y cae con él', () => {

@@ -985,7 +985,12 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     fotogramas (once por fase, con una pose por ataque; la llegada del pase de temporada y la pose
     «HD» de la remasterizada), `despiece-consola-coleccionista`; ancla (40, 86); `pose` en
     `BossSummonAttack`; `tests/estilo-a7f.test.ts`.
-  - [ ] (a7g) El Director de Recursos Inhumanos y su silla (planta 4).
+  - [x] (a7g) El Director de Recursos Inhumanos y su silla (planta 4). Hecho el 2026-11-14 en
+    `tools/sprites/director-nuevo.ts`: 84 × 88 (antes 72 × 76), materiales nuevos `bronceado`,
+    `traje` y `polipiel`, 24 fotogramas (antes 18: el aviso propio, una pose por ataque, también
+    las diapositivas, y de pie el dedo arriba, el giro de lado propio y la corbata antes de girar),
+    `despiece-director-rrhh`; ancla (40, 86); la silla sola, 46 × 60, ancla (25, 58);
+    `tests/estilo-a7g.test.ts`.
   - [ ] (a7h) La Centralita (planta 5).
   - [ ] (a7i) La Trituradora del Servicio Técnico.
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,

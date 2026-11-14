@@ -11,6 +11,7 @@ import { floorBossOf, ROOMS } from '../src/data/rooms.ts';
 import type { BossBrain } from '../src/data/types.ts';
 import { DOWN_CAUSES } from '../src/data/texts.ts';
 import { enemyFrame } from '../src/render/enemyAnim.ts';
+import { DIRECTOR_FRAMES } from '../tools/sprites/director-nuevo.ts';
 import { expandPattern } from '../src/sim/patterns.ts';
 import { Rng } from '../src/sim/rng.ts';
 import { buildRoom, TILE } from '../src/sim/room.ts';
@@ -91,7 +92,7 @@ test('«Somos una familia»: abanicos de tarjetas de visita y cartas de despido 
     letters = Math.max(letters, fl.length);
     if (fl.length) assert.ok(fl.every((f) => f.product === 0 && f.life === 0), 'una carta no deja charco');
     if (w.bullets.some((b) => b.color === 'sheet')) sheets++;
-    if (boss.state === 'warn' && boss.attack !== undefined && brain.phases[0]!.attacks[boss.attack]!.kind === 'spit') posed ||= enemyFrame(boss, 0) === 6;
+    if (boss.state === 'warn' && boss.attack !== undefined && brain.phases[0]!.attacks[boss.attack]!.kind === 'spit') posed ||= enemyFrame(boss, 0) === DIRECTOR_FRAMES.letter;
   }
   assert.ok(cardSeen, 'lanza tarjetas de visita');
   assert.ok(letters >= 3, `lanza ${letters} cartas a la vez`);
@@ -170,7 +171,7 @@ test('su sello: dos sombras cuadradas avisan, caen dos cuadros de tinta y el que
     const sh = activeWarnings(w).filter((wn) => wn.mark === 'stamp' && wn.size);
     if (sh.length) {
       shadows = Math.max(shadows, sh.length);
-      pose ||= enemyFrame(boss, 0) === 8;
+      pose ||= enemyFrame(boss, 0) === DIRECTOR_FRAMES.stamp;
     }
     if (w.events.some((e) => e.type === 'stamp')) inked = true;
   }

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T19:40:00+01:00",
+  "actualizado": "2026-11-14T20:36:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1185,
-    "tests_ok": 1185,
+    "tests": 1190,
+    "tests_ok": 1190,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38258
+    "lineas_codigo": 38269
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T20:36:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7g): el Director de Recursos Inhumanos con el estilo nuevo. Moreno de noviembre, traje gris marengo y silla de polipiel granate (tres materiales nuevos); las gafas enseñan la hoja de cálculo, destellan al decidir y reflejan su diapositiva al presentar; pinganillo, gemelos y la base de la silla de cromo. 24 fotogramas (antes 18): aviso propio, una pose por ataque (también las diapositivas, con el mando y el láser) y, de pie, el dedo arriba, el giro de lado y la corbata antes de girar. La silla sola redibujada y despiece propio. Simulación igual; tests, e2e y bot en verde."
+    },
     {
       "fecha": "2026-11-14T19:40:00+01:00",
       "hito": "M14c",
@@ -1575,6 +1580,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/director-redibujado.png",
+      "pie": "M14c (a7g): el Director de Recursos Inhumanos, antes (el primero de las dos filas de arriba) y ahora: sentado, empujándose, rodando, el aviso, la palmada, el sello, las tarjetas, la carta y el mando del proyector; de pie, andando y con el dedo arriba; abajo, las tarjetas de pie, el giro de espaldas, de frente y de lado, colocándose la corbata, la silla sola antes y ahora y su despiece, a 3×"
+    },
+    {
+      "archivo": "capturas/director-en-juego.png",
+      "pie": "M14c (a7g): el Director nuevo, de pie, girando la línea de recortes en la Sala de Juntas mientras su silla rueda sola"
+    },
+    {
       "archivo": "capturas/consola-redibujada.png",
       "pie": "M14c (a7f): la Consola Edición Coleccionista, antes (las dos primeras) y ahora: respirando, andando, la bandeja fuera, actualizando (1/37), escupiendo un cartucho, machacando un combo y una caja de botín en alto; con el pase de temporada, las mismas, su llegada y la pegatina «HD» de la remasterizada; debajo, su despiece, a 3×"
     },
@@ -1589,17 +1602,9 @@
     {
       "archivo": "capturas/muneco-en-juego.png",
       "pie": "M14c (a7e): el muñeco nuevo sin caja girando y soltando pegatinas, con su caja rota delante como cobertura"
-    },
-    {
-      "archivo": "capturas/nube-redibujada.png",
-      "pie": "M14c (a7d): la Nube de Almacenamiento, antes (la primera) y ahora: flotando, sincronizando, el error de conexión, el chaparrón, escupiendo archivos y, llena, flotando, lloviendo, escupiendo y soltando carpetas; debajo, su despiece, a 3×"
-    },
-    {
-      "archivo": "capturas/nube-en-juego.png",
-      "pie": "M14c (a7d): la nube nueva, llena, dejando caer su muro de carpetas entre ella y la tostadora en el Almacén"
     }
   ],
-  "proximo": "M14c (a7g), el Director de Recursos Inhumanos y su silla (cogido por otra sesión), y después (a7h) la Centralita y (a7i) la Trituradora, un jefe por tarea.",
+  "proximo": "M14c (a7i), la Trituradora del Servicio Técnico (la (a7h), la Centralita, la tiene otra sesión), y después (a8), suelos, paredes y puertas.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1628,11 +1633,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 19:26 (hora peninsular)",
-      "tarea": "M14c (a7g): el Director de Recursos Inhumanos y su silla con el estilo nuevo (tools/sprites/director-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts el director, tests/estilo-a7g.test.ts nuevo). No toca otros jefes",
-      "desde": "2026-11-14T19:26:00+01:00"
-    },
     {
       "sesion": "2026-11-14 20:26 (hora peninsular)",
       "tarea": "M14c (a7h): la Centralita con el estilo nuevo (tools/sprites/centralita-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la centralita, tests/estilo-a7h.test.ts nuevo). No toca otros jefes",

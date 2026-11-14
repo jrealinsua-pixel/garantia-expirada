@@ -14,6 +14,7 @@ import * as NB from './nube.ts';
 import * as CO from './consola.ts';
 import * as MN from './muneco-nuevo.ts';
 import * as DR from './director.ts';
+import * as DN from './director-nuevo.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
 import * as TR from './trituradora.ts';
@@ -176,10 +177,12 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'etiqueta-rebaja': { canvas: strip(MN.makeTagNuevoFrames()), frameW: MN.TAG_W, frameH: MN.TAG_H },
     // The box it breaks out of in phase 3, left in the room as an obstacle.
     'caja-muneco': one(MN.makeBrokenBoxNuevo()),
-    // Floor 4's boss (M10 planta 4 5a): director.ts DIRECTOR_FRAMES names each frame.
-    'director-rrhh': { canvas: strip(DR.makeDirectorFrames()), frameW: DR.DIRECTOR_W, frameH: DR.DIRECTOR_H },
-    // His chair on its own in phase 3: 0 still, 1-2 rolling, 3 about to ram.
-    'silla-director': { canvas: strip(DR.makeChairFrames()), frameW: DR.CHAIR_W, frameH: DR.CHAIR_H },
+    // M14c (a7g): Floor 4's boss in the new style (tools/sprites/director-nuevo.ts, DIRECTOR_FRAMES):
+    // 0-11 in his chair (with a pose per attack), 12-23 on his feet; and his debris.
+    'director-rrhh': { canvas: strip(DN.makeDirectorNuevoFrames()), frameW: DN.DIRECTOR_W, frameH: DN.DIRECTOR_H },
+    'despiece-director-rrhh': { canvas: strip(DN.makeDirectorBits()), frameW: DN.DIRECTOR_BIT, frameH: DN.DIRECTOR_BIT },
+    // His chair on its own in phase 3: 0 still, 1-2 rolling, 3 about to ram, 4 still (tag stirring), 5-6 rolling.
+    'silla-director': { canvas: strip(DN.makeChairNuevoFrames()), frameW: DN.CHAIR_W, frameH: DN.CHAIR_H },
     'bala-tarjeta-visita': { canvas: DR.makeBusinessCard(), frameW: 10, frameH: 8 },
     'carta-despido': { canvas: DR.makeDismissalLetter(), frameW: 12, frameH: 10 },
     'bala-diapositiva': { canvas: DR.makeSlide(), frameW: 9, frameH: 9 },

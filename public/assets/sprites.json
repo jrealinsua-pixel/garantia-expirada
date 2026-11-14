@@ -415,14 +415,20 @@
   },
   "director-rrhh": {
     "file": "director-rrhh.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 18
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 24
+  },
+  "despiece-director-rrhh": {
+    "file": "despiece-director-rrhh.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "silla-director": {
     "file": "silla-director.png",
-    "frameW": 44,
-    "frameH": 52,
+    "frameW": 46,
+    "frameH": 60,
     "frames": 7
   },
   "bala-tarjeta-visita": {

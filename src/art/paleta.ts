@@ -62,6 +62,15 @@ export const MATERIALS = {
   hojalata: r('#eef8e6', '#b9dcc9', '#8dbcae', '#64968f', '#4a6e74', '#384a62', '#28304a'),
   /** M14c (a4d1): skin of the Becario Eterno (the only person): peach lights, shadows to rose and plum. */
   piel: r('#ffe9d2', '#f8c9a2', '#e2a07e', '#bf7768', '#8e5260', '#5c3651'),
+  /**
+   * M14c (a7g): the Director de Recursos Inhumanos' November tan (the only other person after the
+   * becario): more orange than `piel`, shadows to brown and plum.
+   */
+  bronceado: r('#ffe4c8', '#f2bd92', '#d9976c', '#b47056', '#86504c', '#5a3644', '#3a2238'),
+  /** M14c (a7g): his corporate suit, «gris marengo» with a violet cast (darker and warmer than `acero`). */
+  traje: r('#d4d3de', '#a3a1b5', '#7e7c96', '#605e79', '#46445e', '#302e46', '#211f34'),
+  /** M14c (a7g): the oxblood imitation leather of his executive chair, glossy: shadows to plum. */
+  polipiel: r('#f4b2a8', '#c8606c', '#aa4658', '#8a3450', '#5e2240', '#3a162e'),
   /** Cardboard boxes and briefcases: shadows to plum. */
   carton: r('#f1d9a8', '#d2ad78', '#a98258', '#7a5a40', '#523a34', '#35202e'),
   /** Cream enamel of old white goods (the microwave, M14c (a5)): warm lights, plum shadows. */
