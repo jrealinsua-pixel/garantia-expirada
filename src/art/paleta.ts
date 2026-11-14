@@ -45,6 +45,8 @@ export const MATERIALS = {
   vidrio: r('#f6feff', '#d6eef2', '#aed2db', '#84abbe', '#5e7f9c', '#41587a', '#2c3657'),
   /** Ice and electric sparks: the lights go white, the shadows to deep blue. */
   cian: r('#f0ffff', '#b6f1f0', '#69dbd8', '#3aa3b0', '#2e6f8a', '#244a68'),
+  /** Painted tin of old wind-up toys (M14c (a6a)), a faded teal: shadows to slate blue. */
+  hojalata: r('#eef8e6', '#b9dcc9', '#8dbcae', '#64968f', '#4a6e74', '#384a62', '#28304a'),
   /** Cardboard boxes and briefcases: shadows to plum. */
   carton: r('#f1d9a8', '#d2ad78', '#a98258', '#7a5a40', '#523a34', '#35202e'),
   /** Cream enamel of old white goods (the microwave, M14c (a5)): warm lights, plum shadows. */

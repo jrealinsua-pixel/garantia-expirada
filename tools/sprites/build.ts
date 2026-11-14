@@ -10,7 +10,7 @@ import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
 import { makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
-  makeRcCarFrames, makeRobotFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
+  makeDestructoraFrames, makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -38,6 +38,7 @@ import * as DS from './despiece.ts';
 import * as ES from './estanteria.ts';
 import { makeJug } from './garrafa.ts';
 import * as P2 from './planta2-nuevo.ts';
+import * as P3 from './planta3-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
@@ -103,10 +104,11 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     cargador: { canvas: strip(P2.makeCargadorNuevoFrames()), frameW: P2.CARGADOR_W, frameH: P2.CARGADOR_H },
     'raton-inalambrico': { canvas: strip(P2.makeRatonNuevoFrames()), frameW: P2.RATON_W, frameH: P2.RATON_H },
     webcam: { canvas: strip(P2.makeWebcamNuevaFrames()), frameW: P2.WEBCAM_W, frameH: P2.WEBCAM_H },
-    // Floor 3 (Juguetería): 0-1 standing, 2-5 marching, 6 run down, 7-8 winding itself up.
-    'robot-cuerda': { canvas: strip(makeRobotFrames()), frameW: 27, frameH: 31 },
+    // Floor 3 (Juguetería), M14c (a6a) in the new style (tools/sprites/planta3-nuevo.ts):
+    // 0-1 standing, 2-5 marching, 6 run down, 7-8 winding itself up.
+    'robot-cuerda': { canvas: strip(P3.makeRobotNuevoFrames()), frameW: P3.ROBOT_W, frameH: P3.ROBOT_H },
     // 0-1 idling, 2-3 driving, 4 revving to ram, 5 overturned, 6 batteries out.
-    'coche-teledirigido': { canvas: strip(makeRcCarFrames()), frameW: 32, frameH: 22 },
+    'coche-teledirigido': { canvas: strip(P3.makeCocheNuevoFrames()), frameW: P3.COCHE_W, frameH: P3.COCHE_H },
     // The workshop's own (M12 (3c)): taller.ts names the frames (FORK_FRAMES).
     carretilla: { canvas: strip(TL.makeCarretillaFrames()), frameW: TL.FORK_W, frameH: TL.FORK_H },
     // 0-1 standing, 2-5 waddling, 6 lid up (about to throw); and the pieces it throws (4 kinds).

@@ -199,14 +199,14 @@
   },
   "robot-cuerda": {
     "file": "robot-cuerda.png",
-    "frameW": 27,
-    "frameH": 31,
+    "frameW": 42,
+    "frameH": 44,
     "frames": 9
   },
   "coche-teledirigido": {
     "file": "coche-teledirigido.png",
-    "frameW": 32,
-    "frameH": 22,
+    "frameW": 46,
+    "frameH": 30,
     "frames": 7
   },
   "carretilla": {
