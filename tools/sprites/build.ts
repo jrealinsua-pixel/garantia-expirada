@@ -39,6 +39,7 @@ import { makeJug } from './garrafa.ts';
 import * as P2 from './planta2-nuevo.ts';
 import * as P3 from './planta3-nuevo.ts';
 import * as P4 from './planta4-nuevo.ts';
+import * as P5 from './planta5-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
@@ -199,13 +200,14 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // The voice menu's zones on the floor: 0-2 «Pulse 1-3» waiting, 3-5 the same with bullets coming.
     'zona-menu': { canvas: strip(CT.makeMenuZoneFrames()), frameW: CT.ZONE_W, frameH: CT.ZONE_H },
     // Floor 5's enemies (M11 4s): clientela.ts names each sheet's frames (DISP_FRAMES, POST_FRAMES, AV_FRAMES, PHONE_FRAMES).
-    'dispensador-turnos': { canvas: strip(CL.makeDispensadorFrames()), frameW: CL.DISP_W, frameH: CL.DISP_H },
+    // M14c (a6e): the dispenser, the posts and their belt in the new style (planta5-nuevo.ts).
+    'dispensador-turnos': { canvas: strip(P5.makeDispensadorNuevoFrames()), frameW: P5.DISP_W, frameH: P5.DISP_H },
     // Its tickets (0 flat, 1 fluttering) and the turn circle on the floor (0 called, 1 attended, 2 lost).
     'tique-turno': { canvas: strip(CL.makeTicketBullets()), frameW: 9, frameH: 7 },
     'circulo-turno': { canvas: strip(CL.makeTurnCircleFrames()), frameW: CL.TURN_SIZE, frameH: CL.TURN_SIZE },
     // 0-7 the clean post, 8-15 the one with the chipped foot (the same frames).
-    'poste-cola': { canvas: strip([...CL.makePosteFrames(false), ...CL.makePosteFrames(true)]), frameW: CL.POST_W, frameH: CL.POST_H },
-    'cinta-poste': { canvas: strip(CL.makeBeltFrames()), frameW: CL.BELT_W, frameH: CL.BELT_H },
+    'poste-cola': { canvas: strip([...P5.makePosteNuevoFrames(false), ...P5.makePosteNuevoFrames(true)]), frameW: P5.POST_W, frameH: P5.POST_H },
+    'cinta-poste': { canvas: strip(P5.makeBeltNuevo()), frameW: P5.BELT_W, frameH: P5.BELT_H },
     'bola-acero': one(CL.makeSteelBall()),
     'asistente-virtual': { canvas: strip(CL.makeAsistenteFrames()), frameW: CL.AV_W, frameH: CL.AV_H },
     // Its speech bubbles (0 flying, 1 «…»), the FAQ shield (0 up, 1 fading) and «¿Le he ayudado?» (0 SÍ, 1 NO).

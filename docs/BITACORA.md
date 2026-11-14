@@ -2,6 +2,42 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 14:20 (hora peninsular) — Hito M14c — (a6e) El Dispensador de Turnos y los Postes de Cola con el estilo nuevo
+- Contexto: sesión automática. Al llegar, otra sesión tenía la (a6c2), la Fotocopiadora, desde hacía
+  57 minutos (`planta4-nuevo.ts`, `build.ts`, `tests/estilo-a6.test.ts`); la (a6d) va en los mismos
+  archivos, así que cogí la (a6e) con **un archivo de sprites y un test propios**
+  (`tools/sprites/planta5-nuevo.ts`, `tests/estilo-a6e.test.ts`) y solo dos líneas de `build.ts`. La
+  rama `main` local volvía a ser una copia vieja; se puso en `origin/main` con
+  `git checkout -B main origin/main`, sin tocar el remoto. Salud al llegar: `check`, `build`,
+  1133 tests y `bot` (200 partidas, 0 fallos) en verde.
+- Hecho: **el Dispensador de Turnos** (38 × 48, antes 30 × 35): caja de esmalte **granate**
+  (material nuevo en `src/art/paleta.ts`) en tres cuartos, el «087» en LED de 3 × 5 que se pone al
+  blanco al llamar, ojos con párpados pesados (abiertos al llamar, rojos y con cejas en V al perder
+  el turno), la ranura de los tiques por boca en su `muzzleY` (ahora 16) y la lengua de papel que
+  crece al llamar y sale larga, rota y rizada al escupir, con dos tiques volando; el cartel «Respete
+  su turno», la ventanita del rollo, un arañazo y el pegamento de una pegatina vieja. **Los Postes de
+  Cola** (28 × 42, antes 22 × 34): el tambor de cromo sombreado como cilindro con su tapa, la banda
+  azul de la cinta enrollada justo donde el juego tiende la cinta (`muzzleY - 3`), el enganche que
+  asoma delante y desaparece al soltarla, ojos de portero (rojos al disparar), una huella y una
+  abolladura; el otro de la pareja con óxido en la base. **La cinta** (`cinta-poste`), en el mismo
+  azul. Anclas nuevas en `src/data/enemies.ts`; las cajas de golpes no cambian. Tests nuevos en
+  `tests/estilo-a6e.test.ts` (6); `tests/clientela-sprites.test.ts` mira los tamaños nuevos. Sección
+  nueva en `docs/ESTILO_ARTE.md`. Capturas nuevas en el panel.
+- Decisiones: (1) Material nuevo `granate` y no el `rojo`: el diseño ya pedía que el dispensador
+  fuera más pardo que las balas rojas para que un tique no se pierda encima, y en la captura los
+  tiques se leen sobre él. (2) Al disparar, el poste sube la mano de atrás: la de delante tapaba el
+  enganche (lo vigila el test). (3) El `muzzleY` del dispensador baja de 18 a 16 para que los tiques
+  salgan de la ranura dibujada; el de los postes se queda en 27 (la banda se dibujó a su altura).
+  (4) Los tiques, el círculo del turno y las bolas de acero se quedan para la (a10), los efectos.
+- Medidas: la simulación solo cambia de dónde salen los tiques (2 px más abajo). `npm run bot` 200
+  partidas, 0 fallos, idéntico línea a línea al de antes (la planta 5 no la alcanza en 60 s). 1139
+  tests en verde; `npm run e2e` entero en verde a la primera (solo, sin nada más corriendo).
+- Problemas conocidos: los dos postes miran a la derecha, así que el enganche del de la derecha
+  apunta hacia fuera de la cinta (no hay volteo de enemigos por dirección); la tapa del tambor se
+  lee muy clara a tamaño real.
+- Siguiente paso: al cerrar, la (a6d) y la (a6f1) las tenían otras sesiones; queda la Carretilla
+  Elevadora (la otra mitad de la (a6f)) y después la (a7), los jefes.
+
 ## 2026-11-14 13:26 (hora peninsular) — Hito M14c — (a6c2) La Fotocopiadora con el estilo nuevo
 - Contexto: al empezar, el `main` local de esta máquina era otra vez una copia vieja y poco
   profunda (del 6 de noviembre); se trajo la historia entera y se avanzó a `origin/main` sin perder

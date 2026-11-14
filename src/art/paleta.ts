@@ -63,6 +63,11 @@ export const MATERIALS = {
   menta: r('#f1fbdc', '#cdebb4', '#a2d494', '#73b17c', '#4f8869', '#375e58', '#283c4a'),
   /** Computer beige of office printers (M14c (a5d)), yellowed by the window: greyer than `crema`. */
   beige: r('#f6f2e2', '#dfd9bf', '#c0b797', '#978d74', '#6d6560', '#48435a', '#2e2b42'),
+  /**
+   * M14c (a6e): the Dispensador de Turnos' red enamel: browner and darker than `rojo` (the enemy
+   * bullets' red), so a ticket never hides on it; shadows to wine and plum.
+   */
+  granate: r('#f6b9a0', '#d9705c', '#b54a43', '#8e3540', '#66263e', '#431a35', '#2c1430'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

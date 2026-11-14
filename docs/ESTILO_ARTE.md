@@ -516,6 +516,28 @@ y cada uno con un color que se despega del linóleo azul petróleo: **rojo**, **
   núcleo blanco y un auricular dibujado; los anillos de timbre y la espera usan `bala-roja` y
   `nota-espera`.
 
+**Con el estilo nuevo (M14c (a6e), `tools/sprites/planta5-nuevo.ts`)**, los mismos fotogramas en el
+mismo orden; los de `clientela.ts` se quedan como historia.
+
+- **Dispensador de Turnos** (38 × 48, pies en (20, 46)): caja de esmalte **granate** (material nuevo
+  `granate`, más pardo y oscuro que el `rojo` de las balas, con las sombras al vino y al ciruela) en
+  tres cuartos con `box34`; la pantalla de LED con el **«087»** en dígitos de 3 × 5 (los segmentos
+  apagados brillan un poco; al llamar, al blanco con cuatro destellos en las esquinas); ojos de
+  funcionario con párpados pesados (sin párpados al llamar, rojos y con cejas en V al perder el
+  turno); la **ranura de los tiques por boca a la altura de su `muzzleY`** (16) con la lengua de
+  papel crema que crece al llamar y sale larga, rota y rizada al escupir; la ventanita del rollo en
+  el costado y un arañazo hasta el metal; el cartel «Respete su turno» sobre su alambre, blanco con
+  borde granate; el poste de cromo, el pie de hierro y zapatos negros. Manos granate.
+- **Postes de Cola** (28 × 42, pies en (14, 40)): la cabeza es el **tambor de cromo sombreado como
+  un cilindro** (`heightShade`) con la tapa encima; la **banda azul de la cinta enrollada** da la
+  vuelta al tambor justo donde el juego tiende la cinta (`muzzleY - 3` = 24 px sobre los pies) y el
+  enganche azul asoma por delante (desaparece al soltarla, con dos rayas de movimiento); ojos de
+  portero desconfiado, rojos al disparar; una huella de dedos en el cromo y una abolladura en la
+  tapa. El otro de la pareja, con **motas de óxido en la base**. Manos de cromo a los lados del
+  tambor (al disparar sube la de atrás: la de delante taparía el enganche).
+- **`cinta-poste`** (24 × 6, opaca para repetirse): la misma banda `azul` con «HAGA COLA AQUÍ» del
+  revés; tensa, más clara y con las letras en sombra.
+
 ### Las armas de la planta 5 (`tools/sprites/megafono.ts`)
 
 - **`arma-megafono`** (18×11, la boca a la derecha como todas): el tambor rojo del altavoz detrás,

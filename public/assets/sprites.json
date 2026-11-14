@@ -529,8 +529,8 @@
   },
   "dispensador-turnos": {
     "file": "dispensador-turnos.png",
-    "frameW": 30,
-    "frameH": 35,
+    "frameW": 38,
+    "frameH": 48,
     "frames": 8
   },
   "tique-turno": {
@@ -547,8 +547,8 @@
   },
   "poste-cola": {
     "file": "poste-cola.png",
-    "frameW": 22,
-    "frameH": 34,
+    "frameW": 28,
+    "frameH": 42,
     "frames": 16
   },
   "cinta-poste": {

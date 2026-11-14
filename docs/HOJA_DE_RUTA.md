@@ -922,7 +922,14 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       lateral con copias que nadie recogió; al copiar levanta la tapa y la luz verde cruza el
       cristal de atrás adelante; y la copia saliendo. Ancla (24, 46).
   - [ ] (a6d) El Sello y el Climatizador.
-  - [ ] (a6e) El Dispensador de Turnos y los Postes de Cola.
+  - [x] (a6e) El Dispensador de Turnos y los Postes de Cola.
+    Hecho el 2026-11-14 (`tools/sprites/planta5-nuevo.ts`): el dispensador, 38 × 48, una caja de
+    esmalte granate (material nuevo `granate`, más pardo que el rojo de las balas) con el «087» en
+    LED que se pone al blanco al llamar, ojos de funcionario, la ranura de los tiques por boca en su
+    `muzzleY` y la lengua de papel que crece al llamar y sale rota al escupir, el cartel «Respete su
+    turno» y la ventanita del rollo. Los postes, 28 × 42, con el tambor de cromo sombreado como un
+    cilindro, la banda azul de la cinta donde el juego la tiende y el enganche que desaparece al
+    soltarla; el otro de la pareja, con óxido en la base. La cinta, en el mismo azul. Anclas nuevas.
   - [ ] (a6f) El Asistente Virtual y el Teléfono de Recepción (y la Carretilla Elevadora del
     Servicio Técnico, que no es de ninguna planta).
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).

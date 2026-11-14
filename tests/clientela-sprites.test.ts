@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Canvas } from '../src/art/canvas.ts';
 import * as CL from '../tools/sprites/clientela.ts';
+import * as P5 from '../tools/sprites/planta5-nuevo.ts';
 import { allSheets } from '../tools/sprites/build.ts';
 
 const same = (a: readonly number[], b: readonly number[]): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
@@ -141,10 +142,12 @@ test('el círculo del turno: unos 40 px de radio, translúcido, en espera, atend
 test('las hojas nuevas están en sprites.json sin pisar ninguna (la cinta de la cola del Mostrador sigue siendo suya)', () => {
   const sheets = allSheets();
   const want: Record<string, [number, number, number]> = {
-    'dispensador-turnos': [CL.DISP_W, CL.DISP_H, CL.DISP_FRAMES.length],
+    // M14c (a6e): the dispenser, the posts and their belt are drawn in planta5-nuevo.ts now
+    // (tests/estilo-a6e.test.ts); same frame counts.
+    'dispensador-turnos': [P5.DISP_W, P5.DISP_H, CL.DISP_FRAMES.length],
     'tique-turno': [9, 7, 2],
     'circulo-turno': [CL.TURN_SIZE, CL.TURN_SIZE, 3],
-    'poste-cola': [CL.POST_W, CL.POST_H, CL.POST_FRAMES.length * 2],
+    'poste-cola': [P5.POST_W, P5.POST_H, CL.POST_FRAMES.length * 2],
     'cinta-poste': [CL.BELT_W, CL.BELT_H, 2],
     'bola-acero': [7, 7, 1],
     'asistente-virtual': [CL.AV_W, CL.AV_H, CL.AV_FRAMES.length],
