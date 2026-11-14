@@ -29,6 +29,8 @@ export interface PaintableRoom {
   belt?: { x: number; w: number } | null;
   /** The workshop's conveyor belts (src/sim/room.ts RoomBelt): kept clear of decoration, framed in steel. */
   conveyors?: readonly { x: number; y: number; w: number; h: number; dirX: number; bite: number }[];
+  /** Tiles outside the room's shape (M14b (h11c), ` ` in the template): solid, painted as more of the outer wall, not as shelving. Row-major, 1 = outside. */
+  outside?: Uint8Array;
   /** Which floor of the store (1: the warehouse, 2: Informática, 3: Juguetería, 4: Oficinas, 5: Atención al Cliente, 6 and up: the Taller de Reacondicionado). Picks the tile set. Default 1. */
   level?: number;
 }
@@ -281,6 +283,33 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const H = room.rows * T;
   const S = new Canvas(W_, H, K);
   const wall = (c: number, r: number): boolean => c < 0 || r < 0 || c >= room.cols || r >= room.rows || room.tiles[r * room.cols + c] === 1;
+  // M14b (h11c): the tiles cut out of the room's shape (an L, a cross, a corner cut off).
+  const out = (c: number, r: number): boolean => c >= 0 && r >= 0 && c < room.cols && r < room.rows && room.outside?.[r * room.cols + c] === 1;
+  // The stretch of the back wall still in view (between the cut-out corners), for the lamps and the signs.
+  // How far down the wall comes at each column (1: the back wall; deeper over a cut-out corner,
+  // whose face is the back wall brought forward): a sign hangs whole on one stretch of one face.
+  const faceRow = (c: number): number => {
+    let r = 1;
+    while (r + 1 < room.rows && wall(c, r + 1) && out(c, r + 1)) r++;
+    return r;
+  };
+  const onOneFace = (x0: number, x1: number): boolean => {
+    const c0 = Math.floor(x0 / T);
+    const c1 = Math.floor((x1 - 1) / T);
+    if (c0 < 1 || c1 > room.cols - 2) return false;
+    for (let c = c0; c <= c1; c++) if (faceRow(c) !== faceRow(c0) || !floorBelowFace(c)) return false;
+    return true;
+  };
+  const floorBelowFace = (c: number): boolean => !wall(c, faceRow(c) + 1);
+  let openX0 = T;
+  let openX1 = W_ - T;
+  if (room.outside) {
+    const open = Array.from({ length: room.cols - 2 }, (_, i) => i + 1).filter((c) => !out(c, 2));
+    if (open.length > 0) {
+      openX0 = open[0]! * T;
+      openX1 = (open[open.length - 1]! + 1) * T;
+    }
+  }
   const doorsIn = room.doors ?? [];
   const belts = room.conveyors ?? [];
 
@@ -822,7 +851,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   }
   // Interior walls are free-standing shelving units seen in three-quarter view: the top of the
   // unit on every tile, and the front (shelves full of returns) on the tiles with floor below.
-  const interior = (c: number, r: number): boolean => c > 0 && r > 1 && c < room.cols - 1 && r < room.rows - 1 && wall(c, r);
+  const interior = (c: number, r: number): boolean => c > 0 && r > 1 && c < room.cols - 1 && r < room.rows - 1 && wall(c, r) && !out(c, r);
   for (let r = 0; r < room.rows; r++) {
     for (let c = 0; c < room.cols; c++) {
       if (!interior(c, r)) continue;
@@ -905,7 +934,10 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
   const lamps: RoomArt['lamps'] = [];
   const nLamps = style === 'secret' ? 1 : Math.max(2, Math.round(W_ / 240));
   for (let i = 0; i < nLamps; i++) {
-    const lx = Math.round(((i + 0.5) * W_) / nLamps) - 22;
+    const lx0 = Math.round(((i + 0.5) * W_) / nLamps) - 22;
+    // Over a cut-out corner there is no ceiling: the lamp goes along to the open stretch.
+    const lx = room.outside ? Math.max(openX0 + 4, Math.min(openX1 - 48, lx0)) : lx0;
+    if (room.outside && lamps.some((l) => Math.abs(l.x - (lx + 22)) < 60)) continue;
     if (six) R.lamp(S, lx, 8);
     else if (five) A.lamp(S, lx, 3);
     else if (four) O.officeLamp(S, lx, 4);
@@ -967,7 +999,7 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
     // The Mostrador's board, phone, notice and curtain hang on the shelving: nothing behind them.
     // The room's name plate, at the top of the screen, also covers the middle of it (the hub is never scrolled sideways).
     const hung = room.kind === 'hub' ? [...hubHung(room.stations ?? [], room.belt ?? null), [W_ / 2 - 58, W_ / 2 + 58] as const] : [];
-    const bare = (s: number, half: number): boolean => hung.every(([a, b]) => s + half + 4 < a || s - half - 4 > b);
+    const bare = (s: number, half: number): boolean => hung.every(([a, b]) => s + half + 4 < a || s - half - 4 > b) && (!room.outside || onOneFace(s - half - 4, s + half + 4));
     const spot = (half: number): number | null => {
       const x = spots.find((s) => s - half > 20 && s + half < W_ - 20 && taken.every((t) => Math.abs(t - s) > half + 34) && (!(five || six) || clear(s, half)) && bare(s, half));
       if (x === undefined) return null;
@@ -1122,5 +1154,93 @@ export function paintRoom(room: PaintableRoom, seed: string): RoomArt {
       }
     }
   }
+  if (room.outside) cutOut(S, room, out, wall, WALL, SEAM, room.level ?? 1, () => count('recorte'));
   return { canvas: S, lamps, doors, features };
+}
+
+/**
+ * M14b (h11c): the corners cut out of a room's shape. They are more of the outer wall, not
+ * shelving: the dark top of the wall, and where there is floor below, the back wall itself (the
+ * same painted band, its shelves and its dado) brought forward, so an L or a cross reads as the
+ * room's walls turning the corner. Along the floor, the floor's own skirting (the warehouse's
+ * hazard tape) and the wall's shadow.
+ */
+function cutOut(
+  S: Canvas,
+  room: PaintableRoom,
+  out: (c: number, r: number) => boolean,
+  wall: (c: number, r: number) => boolean,
+  WALL: RGBA,
+  SEAM: RGBA,
+  level: number,
+  counted: () => void,
+): void {
+  const band = new Canvas(S.w, 48);
+  for (let y = 0; y < 48; y++) for (let x = 0; x < S.w; x++) band.put(x, y, S.get(x, y));
+  const face = new Set<string>();
+  const floorAt = (c: number, r: number): boolean => !wall(c, r);
+  const sk = level >= 6 ? R.skirting : level === 5 ? A.skirting : level === 4 ? O.skirting : level === 3 ? J.skirting : level === 2 ? I.skirting : null;
+  const tape = (x: number, y: number, w: number, h: number): void => {
+    const ya = hx('#b08a1c');
+    const yb = hx('#191622');
+    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) S.set(i, j, Math.floor((i + j) / 4) % 2 === 0 ? ya : yb);
+  };
+  let any = false;
+  for (let r = 0; r < room.rows; r++) {
+    for (let c = 0; c < room.cols; c++) {
+      if (!out(c, r)) continue;
+      any = true;
+      S.rect(c * T, r * T, T, T, WALL);
+      if (r % 2 === 0) S.rect(c * T, r * T, T, 1, SEAM);
+    }
+  }
+  if (!any) return;
+  counted();
+  // The faces: the back wall's band, bottom on the last tile before the floor.
+  for (let r = 0; r < room.rows; r++) {
+    for (let c = 0; c < room.cols; c++) {
+      if (!out(c, r) || !floorAt(c, r + 1)) continue;
+      const top = (r + 1) * T - 48;
+      for (let y = 0; y < 48; y++) {
+        const ty = Math.floor((top + y) / T);
+        if (top + y < 0 || !wall(c, ty)) continue;
+        if (ty !== r && !out(c, ty)) continue;
+        face.add(`${c},${ty}`);
+        for (let x = 0; x < T; x++) S.put(c * T + x, top + y, band.get(c * T + x, y));
+      }
+      // Its ends: a dark edge where the face meets open floor beside it.
+      for (const [dc, ex] of [[-1, 0], [1, T - 1]] as const) {
+        if (!floorAt(c + dc, r)) continue;
+        S.rect(c * T + ex, Math.max(0, top), 1, (r + 1) * T - Math.max(0, top), K);
+      }
+    }
+  }
+  // Skirting along the floor (not on the faces: the back wall has none either).
+  for (let r = 0; r < room.rows; r++) {
+    for (let c = 0; c < room.cols; c++) {
+      if (!out(c, r) || face.has(`${c},${r}`)) continue;
+      const x = c * T;
+      const y = r * T;
+      if (floorAt(c + 1, r)) (sk ? sk(S, x + T - 5, y, 5, T, true) : tape(x + T - 5, y, 5, T));
+      if (floorAt(c - 1, r)) (sk ? sk(S, x, y, 5, T, true, true) : tape(x, y, 5, T));
+      if (floorAt(c, r - 1)) (sk ? sk(S, x, y, T, 5, false) : tape(x, y, T, 5));
+    }
+  }
+  // The wall's shadow on the floor next to it: long under a face, short beside the others.
+  const shadeAt = (x: number, y: number, a: number): void => {
+    if (a <= 0 || !floorAt(Math.floor(x / T), Math.floor(y / T))) return;
+    const col = S.get(x, y);
+    const k = 1 - a / 255;
+    S.put(x, y, [Math.round(col[0] * k), Math.round(col[1] * k), Math.round(col[2] * k), col[3]]);
+  };
+  for (let r = 0; r < room.rows; r++) {
+    for (let c = 0; c < room.cols; c++) {
+      if (!out(c, r)) continue;
+      const x = c * T;
+      const y = r * T;
+      if (floorAt(c, r + 1)) for (let j = 0; j < 14; j++) for (let i = 0; i < T; i++) shadeAt(x + i, y + T + j, 120 * (1 - j / 14) ** 1.6);
+      if (floorAt(c + 1, r)) for (let i = 0; i < 6; i++) for (let j = 0; j < T; j++) shadeAt(x + T + i, y + j, 70 * (1 - i / 6) ** 1.3);
+      if (floorAt(c - 1, r)) for (let i = 0; i < 6; i++) for (let j = 0; j < T; j++) shadeAt(x - 1 - i, y + j, 70 * (1 - i / 6) ** 1.3);
+    }
+  }
 }

@@ -604,6 +604,16 @@ try {
     if (n === 0) throw new Error(`La sala ${sala} no tiene enemigos`);
     if (!(await page.evaluate<boolean>('window.__GE__.scene.world.doorsShut'))) throw new Error(`La sala ${sala} no cierra las persianas`);
   }
+  // M14b (h11c): rooms with more shape (an L, a cross, the corners cut off): the cut-out corners
+  // are more of the outer wall, the back wall turning the corner.
+  for (const [i, [sala, planta]] of ([['almacen-ele', 1], ['cpd-cruz', 2], ['despacho-esquina', 4], ['cruce-pasillos', 5]] as const).entries()) {
+    await page.goto(`${url}?semilla=e2e-${sala}&sala=${sala}&planta=${planta}&profundidad=4`);
+    await page.waitForFunction('window.__GE__ && window.__GE__.state().ready', undefined, { timeout: 20000 });
+    await page.evaluate('window.__GE__.scene.world.noDamage = true');
+    await page.waitForTimeout(1400);
+    await shot(`14${'defg'[i]}-sala-forma-${sala}.png`);
+    if ((await page.evaluate<number>('window.__GE__.scene.world.enemies.length')) === 0) throw new Error(`La sala ${sala} no tiene enemigos`);
+  }
   // Clearing the last room rolls its shutters up.
   await page.evaluate('window.__GE__.scene.world.enemies.forEach((e) => { e.damageTaken = e.def.hp; })');
   await page.waitForTimeout(250);

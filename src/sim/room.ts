@@ -87,6 +87,8 @@ export interface Room {
    * The world lays them as Conveyors (src/sim/conveyors.ts layRoomBelts) on entering the room.
    */
   conveyors: RoomBelt[];
+  /** Tiles outside the room's shape (M14b (h11c), ` ` in the template): walls that the painter draws as more of the outer wall. Only in rooms that have them. */
+  outside?: Uint8Array;
   /** Water on the floor (M14b (h11a3)): left by what breaks, it carries a Regleta's zap. */
   puddles?: Puddle[];
 }
@@ -241,6 +243,7 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
   const belt: Cell[] = [];
   const arrows: Array<Cell & { ch: string }> = [];
   let playerStart: Vec | null = null;
+  let outside: Uint8Array | undefined;
   t.rows.forEach((line, r) => {
     if (line.length !== cols) throw new Error(`Room ${t.id}: row ${r} has ${line.length} columns, expected ${cols}`);
     [...line].forEach((ch, c) => {
@@ -248,6 +251,11 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
       const bottom = (r + 1) * TILE - 2;
       // A digit is a group of shelving that the seed may take away (fillTemplate); unfilled, it stands.
       if (ch === '#' || isGroup(ch)) tiles[r * cols + c] = 1;
+      else if (ch === ' ') {
+        // Outside the room's shape (M14b (h11c)): solid, and painted as more of the outer wall.
+        tiles[r * cols + c] = 1;
+        (outside ??= new Uint8Array(rows * cols))[r * cols + c] = 1;
+      }
       else if (ch === 'P') playerStart = { x: cx, y: r * TILE + TILE / 2 + 4 };
       else if (SLOT_CHARS[ch]) {
         slots.push({ kind: SLOT_CHARS[ch], x: cx, y: r * TILE + TILE / 2 + 4 });
@@ -315,6 +323,7 @@ export function buildRoom(t: RoomTemplate, doors?: readonly Dir[]): Room {
     stations,
     belt: beltRect(belt),
     conveyors: roomBelts(t.id, arrows, tiles, cols),
+    ...(outside ? { outside } : {}),
   };
 }
 

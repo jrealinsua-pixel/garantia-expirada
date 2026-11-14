@@ -376,7 +376,8 @@ test('arte de sala, planta 5: lo de la pared del fondo no se pisa ni tapa la pue
     for (const seed of ['a', 'b', 'c', 'd']) {
       const room = buildRoom(t);
       const art = paint5(room, seed);
-      if (!art.features.includes('eslogan')) continue;
+      // A room with a cut-out corner (M14b (h11c)) may hang it on the corner's face, lower down.
+      if (!art.features.includes('eslogan') || room.outside) continue;
       const north = art.doors.find((d) => d.dir === 'N');
       // The first star of the rating (the filled one) is the only #fff1a8 at that height: the slogan is centred 24 px right of it.
       let starX = -1;

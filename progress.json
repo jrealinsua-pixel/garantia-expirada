@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T02:05:00+01:00",
+  "actualizado": "2026-11-14T03:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -118,8 +118,8 @@
     {
       "id": "M14b",
       "nombre": "Lo que pidió el humano el 13 de noviembre",
-      "estado": "pendiente",
-      "hechas": 10,
+      "estado": "hecho",
+      "hechas": 11,
       "total": 11
     },
     {
@@ -143,14 +143,19 @@
     "jefes": 9,
     "armas": 10,
     "objetos": 60,
-    "plantillas_sala": 97,
-    "tests": 1068,
-    "tests_ok": 1068,
+    "plantillas_sala": 109,
+    "tests": 1071,
+    "tests_ok": 1071,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 37559
+    "lineas_codigo": 37981
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T03:30:00+01:00",
+      "hito": "M14b",
+      "resumen": "M14b (h11c): doce salas nuevas con forma, dos por planta (en ele, en cruz, con las esquinas cortadas, de pilares, de columnas y de islas de mesas). Lo que queda fuera de la forma se pinta como más pared, con la pared del fondo que dobla la esquina. Con esto M14b está terminado y la nota del humano del 13 de noviembre, atendida."
+    },
     {
       "fecha": "2026-11-14T02:05:00+01:00",
       "hito": "M14b",
@@ -1440,6 +1445,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/sala-forma-cruz.png",
+      "pie": "M14b (h11c): el Centro de Datos en Cruz; las esquinas que no son sala, pared de fuera con su zócalo"
+    },
+    {
+      "archivo": "capturas/sala-forma-ele.png",
+      "pie": "M14b (h11c): el Almacén de Mermas, en ele: la pared del fondo, con sus estanterías, dobla la esquina"
+    },
+    {
       "archivo": "capturas/centralita-cable.png",
       "pie": "M14b (h10b3): la Centralita enchufa su cable en la pared y se arrastra por él; el carril y el sitio donde parará, marcados en rojo"
     },
@@ -1448,23 +1461,15 @@
       "pie": "M14b (h10b3): la Trituradora, alineada sobre sus orugas, marca su recorrido a través de la tostadora antes de arrancar («Recogida a domicilio»)"
     },
     {
-      "archivo": "capturas/director-silla.png",
-      "pie": "M14b (h10b2): el Director rueda hacia atrás en su silla, siempre de cara a la tostadora («Mantenga la distancia de seguridad»)"
-    },
-    {
       "archivo": "capturas/estilo-nuevo-prueba.png",
       "pie": "M14c (a1): el estilo nuevo a prueba. Arriba, el aprobado; abajo, la tostadora, el aspirador y el suelo redibujados (a tamaño real y a 3×)"
     },
     {
       "archivo": "capturas/herramientas-pintor.png",
       "pie": "M14c (a2): las herramientas nuevas: un corazón sacado de un mapa de alturas, una plancha abollada con remaches y una bola sin y con antialias"
-    },
-    {
-      "archivo": "capturas/muneco-desfile.png",
-      "pie": "M14b (h10b1): el Muñeco de Moda desfila y posa al final de cada tramo («Posando para el catálogo»)"
     }
   ],
-  "proximo": "M14b (h11c): plantillas de sala con más forma (lo último de M14b; seguía apuntada en en_curso desde el 13 a las 22:25); o M14c (a4a), la Tostadora con el estilo nuevo en el juego.",
+  "proximo": "M14c (a4a), la Tostadora con el estilo nuevo (la tiene otra sesión desde las 03:30); si no, M14c (a4b), sus fotogramas nuevos.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1493,11 +1498,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 02:25 (hora peninsular)",
-      "tarea": "M14b (h11c): plantillas de sala con más forma (retomada: la apuntada a las 22:25 del 13 lleva más de 4 h sin señales)",
-      "desde": "2026-11-14T02:25:00+01:00"
-    },
     {
       "sesion": "2026-11-14 03:30 (hora peninsular)",
       "tarea": "M14c (a4a): la Tostadora en el juego con el estilo nuevo (la h11c está cogida por otra sesión desde las 02:25)",

@@ -733,7 +733,7 @@ juegos del género» de `docs/DISENO.md`.
     alrededor de la tostadora, y se arrastra por él de un tirón; entre tirones, despacio); la
     Trituradora va sobre orugas (gira sobre sí misma hacia la tostadora, marca su recorrido y avanza
     recto a través de ella, triturando lo que pilla; contra la pared se para en seco).
-- [ ] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
+- [x] (h11) Escenarios mucho mejores: más detalle, más decoración y más cosas que usar en cada
   sala (props que se rompen, charcos, cables que electrocutan, estanterías que caen…), manteniendo
   la generación procedural: (h11a) los props nuevos que se usan, (h11b) decoración por planta,
   (h11c) plantillas de sala nuevas con más forma.
@@ -754,8 +754,12 @@ juegos del género» de `docs/DISENO.md`.
     apagados y sin los colores de las balas) amontonados en los rincones, junto a las paredes y al
     pie de las estanterías, y la sombra de las paredes en el suelo. Hecho el 2026-11-13:
     `src/art/decor.ts`, `tests/decoracion.test.ts`.
-  - [ ] (h11c) Plantillas de sala nuevas con más forma (columnas, rincones, salas en L, islas de
-    muebles), unas cuantas por planta.
+  - [x] (h11c) Plantillas de sala nuevas con más forma (columnas, rincones, salas en L, islas de
+    muebles), unas cuantas por planta. Hecho el 2026-11-14: dos de combate por planta, de la 1 a la 6
+    (salas en ele, en cruz, con las esquinas cortadas, de pilares, de columnas y de islas de mesas, y
+    una casa maciza en el centro); lo que queda fuera de la forma va con ` ` en la plantilla
+    (`Room.outside`) y se pinta como más pared de fuera, con la pared del fondo que dobla la esquina
+    (`cutOut` en `src/art/room.ts`); `tests/salas-forma.test.ts`, e2e `14d`–`14g`.
 
 ## M14c · Arte nuevo (nota del humano del 13 de noviembre)
 

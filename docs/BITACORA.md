@@ -2,6 +2,42 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 03:30 (hora peninsular) — Hito M14b — (h11c) Salas con más forma; M14b terminado
+- Contexto: sesión programada. El `main` local volvía a ser un clon viejo que no casaba con
+  `origin/main` (`git checkout -B main origin/main`). La (h11c) seguía apuntada en `en_curso` desde
+  las 22:25 del 13, más de cuatro horas sin commits suyos: la retomé (el protocolo da por libre lo
+  que lleva más de 90 minutos). Salud al empezar: `check` y 1068 tests en verde.
+- Hecho: M14b (h11c), y con ella la (h11) y el hito M14b entero. **Doce salas de combate nuevas, dos
+  por planta**: planta 1, el Almacén de Mermas (en ele) y la Nave de Pilares de Carga (rejilla de
+  pilares gordos); planta 2, el Centro de Datos en Cruz y las Islas de Demostración (cuatro islas
+  macizas); planta 3, la Casa de Muñecas a Tamaño Natural (una casa en el centro con puertas que
+  pone la semilla) y la Pista de Bicis (ele); planta 4, el Despacho de Esquina (esquinas cortadas en
+  diagonal, casi redonda) y la Planta de Columnas (columnas sueltas e islas de mesas que se
+  vuelcan); planta 5, la Ventanilla del Fondo a la Derecha (ele) y el Cruce de Pasillos (cruz);
+  planta 6, la Nave de Pilares del Taller y la Esquina de Reparaciones Pendientes (ele). **Lo que
+  queda fuera de la forma** va con un espacio (` `) en la plantilla: es pared (`Room.outside`) y el
+  pintor no lo dibuja como estantería sino como más pared de fuera (`cutOut` en `src/art/room.ts`):
+  arriba, oscura; donde hay suelo debajo, la propia franja de la pared del fondo (con sus
+  estanterías y su zócalo) bajada hasta allí, así que la pared dobla la esquina; a los lados y por
+  arriba, el zócalo de la planta (la cinta amarilla y negra en el almacén) y la sombra en el suelo.
+  Las lámparas se corren al tramo de pared que se ve, y los carteles se cuelgan enteros en un solo
+  tramo (de la pared del fondo o de la cara de una esquina). Tests: `tests/salas-forma.test.ts` (3);
+  e2e `14d`–`14g`.
+- Decisiones: (1) Un carácter nuevo en vez de deducir el recorte de los `#`: las salas de siempre se
+  pintan exactamente igual (sin `outside` no cambia nada), y la plantilla dice lo que es cada cosa.
+  (2) Las esquinas recortadas se pintan como la pared del fondo que avanza, no como un bloque de
+  estanterías: un bloque grande de estanterías se leía como una mesa enorme, no como el borde de la
+  sala. (3) La planta 5 lleva seis huecos de enemigo en sus dos salas nuevas, porque sus salas
+  tienen que traer más enemigos que las de las Oficinas (`tests/planta5-medida.test.ts`). (4) En el
+  Archivo de Tickets, un hueco de enemigo se movió dos casillas: reflejada, la sala lo dejaba a 3,2
+  casillas de la puerta de abajo, y con las plantas nuevas una semilla del test lo sacó. (5) El test
+  de la planta 5 pedía exactamente 12 salas de combate; ahora, al menos 12.
+- Medidas: `npm run bot`: 0 fallos, 5 atascos (los de siempre), sala limpia en 23,4 s, sobrevive el
+  87 %; la planta entera con daño la gana el 60 %. 1071 tests en verde; e2e en verde.
+- Problemas conocidos: el minimapa sigue dibujando cada sala como un rectángulo (la forma no se ve
+  ahí). Las salas nuevas se ven en la cámara normal; en las grandes, la forma se descubre al andar.
+- Siguiente paso: M14c (a4a), la Tostadora en el juego con el estilo nuevo.
+
 ## 2026-11-14 02:05 (hora peninsular) — Hito M14b — (h10b3) La Centralita se arrastra con los cables y la Trituradora va sobre orugas
 - Contexto: sesión programada. El `main` local volvía a ser un clon viejo y superficial que no
   casaba con `origin/main`: `git checkout -B main origin/main`. La (h11c) seguía apuntada en
