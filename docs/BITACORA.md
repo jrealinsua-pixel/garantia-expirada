@@ -2,6 +2,36 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 10:35 (hora peninsular) — Hito M14c — (a4d1) El Becario Eterno con el estilo nuevo
+- Contexto: sesión automática. Al llegar, otra sesión tenía la (a6a) (ya terminada al empezar a
+  programar); la (a4d) estaba libre y la partí en dos como la (a4c): (a4d1) el Becario y (a4d2) el
+  Móvil. La rama `main` local estaba desfasada de `origin/main` (un clon viejo); la puse en
+  `origin/main` sin tocar la historia remota.
+- Hecho: **El Becario Eterno** (`tools/sprites/becario.ts`) en el estilo nuevo, 40 × 47, con los
+  24 fotogramas de los otros tres (`BECARIO_FRAMES`, `BECARIO_EXTRA`, `BECARIO_ANIM`). Material nuevo
+  `piel` en `src/art/paleta.ts` (melocotón, sombras al rosa y al ciruela). Cabeza grande en bloque
+  de tres cuartos con la oreja en sombra y la nariz asomando, el pelo revuelto con mechones de punta
+  y flequillo, el pósit en el pelo (la esquina se levanta en los fotogramas impares) y los ojos de
+  sueño con ojeras; camisa blanca una talla grande con la mancha de café, cinturón, la acreditación
+  con el hueco gris de la foto que nunca le hicieron; chinos y mocasines con un céntimo en la
+  ranura (sus únicos ahorros). Detalle nuevo con chiste: **un café para llevar en la mano de
+  atrás**, que no es suyo. Rodando, la acreditación da vueltas en su cinta; el golpe hace saltar el
+  café; al morir le vuelan los papeles (no es un electrodoméstico: sin chispas); roto, el café
+  derramado en el suelo, la acreditación del revés y el pósit caído. Mano de piel de 7 × 7, sombra
+  de 10. Ficha nueva en `src/data/characters.ts`. Tests nuevos en `tests/becario-a4d.test.ts` (6);
+  `tests/becario.test.ts` actualizado, y los dos tests de la tostadora que usaban al Becario como
+  «personaje del marco viejo» usan ahora el Móvil. Sección nueva en `docs/ESTILO_ARTE.md`.
+- Decisiones: (1) El café en la mano de atrás en lugar de un cable: le da una silueta propia (los
+  cinco siguen distintos: `tests/cinco-juntos.test.ts` en verde) y es el chiste de siempre del
+  personaje. (2) La acreditación se pinta la última para que, al girar, pase por delante de la
+  cara. (3) El pelo y los mocasines, con `quemada`; la camisa, con `acero`; los chinos, con
+  `carton`: solo hacía falta un material nuevo, la piel.
+- Medidas: la simulación no cambia (`npm run bot`: 0 fallos). 1122 tests en verde; `npm run e2e`
+  entero en verde.
+- Problemas conocidos: tumbado al romperse, el juego gira el dibujo entero, así que el charco de
+  café sale en vertical junto a él (pasa lo mismo con el cable de los otros); es pequeño y se deja.
+  El Mostrador sigue pintando su vitrina con los colores viejos, como con los demás.
+- Siguiente paso: M14c (a4d2), el Móvil con el estilo nuevo; con él se cierra la (a4).
 ## 2026-11-14 09:55 (hora peninsular) — Hito M14c — (a6b) El Cubo de Piezas y el Sobre Sorpresa con el estilo nuevo
 - Contexto: segunda tarea de la sesión, tras la (a6a). La (a4d) sigue libre; esta coge la planta 3,
   que no se pisa con los personajes.

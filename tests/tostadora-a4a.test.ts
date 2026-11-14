@@ -83,7 +83,7 @@ test('tostadora (a4a): cada fotograma se mueve; herida salta la tostada y rota s
 
 test('classicOrigin: coloca los dibujos nuevos donde iban los del marco clásico', () => {
   // A sheet still in the classic frame keeps its origin.
-  const old = CHARACTERS.becario!.look;
+  const old = CHARACTERS.movil!.look;
   for (const [ox, oy] of [[0.5, 1], [0, 0]] as const) assert.deepEqual(classicOrigin(old, ox, oy), { x: ox, y: oy });
   // The new toaster: same centre, and its feet at the classic feet's height.
   const L = T.look;

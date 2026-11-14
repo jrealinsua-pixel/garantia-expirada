@@ -32,7 +32,7 @@ import { makeInfraredPulse, makeMiniRemote, makeMiniSolderingIron, makeTinDrop, 
 import * as H from './mostrador.ts';
 import * as BV from './batidora-vaso.ts';
 import * as MV from './movil.ts';
-import { makeBecarioFrames, makeBecarioHand } from './becario.ts';
+import { BECARIO_H, BECARIO_W, makeBecarioHand, makeBecarioSheet } from './becario.ts';
 import * as PV from './plancha-vapor.ts';
 import * as DS from './despiece.ts';
 import * as ES from './estanteria.ts';
@@ -73,7 +73,7 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'arma-picahielos': one(BV.makeMiniIceCrusher()),
     'bala-cubito-zumo': one(BV.makeJuiceCube()),
     // The playable characters (M13): the same eight frames as the toaster (CharacterLook).
-    becario: { canvas: strip(makeBecarioFrames()), frameW: 40, frameH: 41 },
+    becario: { canvas: strip(makeBecarioSheet()), frameW: BECARIO_W, frameH: BECARIO_H },
     'mano-becario': one(makeBecarioHand()),
     // M13 (4): the Plancha de Vapor, her starch spray and the steam her soleplate leaves.
     'plancha-vapor': { canvas: strip(PV.makeIronSheet()), frameW: PV.IRON_W, frameH: PV.IRON_H },

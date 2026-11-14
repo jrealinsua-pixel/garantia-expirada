@@ -64,7 +64,12 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     rollCooldown: 0.3,
     startWeapon: 'grapadora',
     footRadius: 5,
-    look: { sheet: 'becario', w: 40, h: 41, feetX: 17.5, feetY: 36, spinY: 22, hand: 'mano-becario' },
+    // M14c (a4d1): the new style, bigger, with his own frames after the eight (BECARIO_ANIM in
+    // tools/sprites/becario.ts); the hitbox has not changed.
+    look: {
+      sheet: 'becario', w: 40, h: 47, feetX: 20.5, feetY: 46, spinY: 20, hand: 'mano-becario', shadowRx: 10,
+      anim: { walk: [8, 9, 10, 11, 12, 13], roll: [14, 15, 16, 17, 18, 19], shoot: 20, hurt: [21, 6], die: [22, 23] },
+    },
     // «Experiencia demostrable»: +4 % damage per room cleared unhurt (up to 6); a hit halves it.
     // «Sin remunerar»: half the coupons. (With +5 % up to 8 the bot won floor 1 a third more often
     // than with the toaster: the Grapadora already hits harder in its hands.)

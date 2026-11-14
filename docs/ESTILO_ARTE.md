@@ -85,6 +85,18 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   los mezclaría con el píxel vacío y saldrían grises); rota, el asa se suelta del poste de delante
   y la carcasa se raja. Guantes blancos de algodón y los zapatos negros de la entrevista, largos y
   con brillo en la puntera; el trozo del cuello de la camisa quemado sigue pegado bajo la suela.
+- **El Becario Eterno** (M14c (a4d1), `tools/sprites/becario.ts`): 40 × 47, el único con **piel**
+  (material nuevo `piel`, melocotón con las sombras hacia el rosa y el ciruela). Cabeza grande en
+  bloque de tres cuartos (la oreja en el lado de sombra, la nariz asomando por el perfil), el pelo
+  revuelto de `quemada` con mechones de punta y el flequillo por la frente, el pósit amarillo
+  pegado (con la esquina que se levanta) y los ojos de sueño: párpado a media altura y ojeras.
+  Camisa blanca de `acero`, una talla grande, con el cuello abierto, la mancha de café en la
+  barriga, el cinturón con hebilla de latón y la acreditación de `crema` con la franja roja y el
+  hueco gris de la foto que nunca le hicieron. En la mano de atrás, siempre, un **café para
+  llevar** que no es suyo (vaso de cartón con funda y tapa). Chinos de `carton` y mocasines con un
+  céntimo en la ranura. Sus fotogramas, como los de los otros tres; al rodar la acreditación da
+  vueltas en su cinta, el golpe hace saltar el café, al morir le vuelan los papeles (no es un
+  electrodoméstico: nada de chispas) y roto deja el café derramado en el suelo y el pósit caído.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

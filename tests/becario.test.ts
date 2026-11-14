@@ -27,22 +27,23 @@ function clearCombatRoom(w: World, pick: number): void {
   assert.ok(!w.doorsShut, 'la sala se ha limpiado');
 }
 
-test('el Becario es contenido: datos, ocho fotogramas como la tostadora, su mano y sus textos', () => {
+test('el Becario es contenido: datos, los ocho fotogramas de siempre, su mano y sus textos', () => {
   assert.equal(def.startWeapon, 'grapadora');
   assert.equal(def.maxHp, 6);
   assert.ok(def.speed > CHARACTERS.tostadora!.speed, 'anda algo más deprisa');
   assert.ok(ab.kind === 'merit');
   assert.ok(ab.step > 0 && ab.max > 0 && ab.kept > 0 && ab.kept < 1 && ab.couponMul === 0.5);
+  // (M14c (a4d1): redrawn in the new style with his own frames; tests/becario-a4d.test.ts.)
   const frames = makeBecarioFrames();
   assert.equal(frames.length, 8);
-  assert.deepEqual(BECARIO_FRAMES.map((f) => f.name), HERO_FRAMES.map((f) => f.name));
+  assert.equal(BECARIO_FRAMES.length, HERO_FRAMES.length);
   for (const f of frames) assert.deepEqual([f.w, f.h], [def.look.w, def.look.h]);
   assert.equal(def.look.hand, 'mano-becario');
-  assert.deepEqual([makeBecarioHand().w, makeBecarioHand().h], [5, 5]);
-  // The feet stand where the look says (the shoes' last row), like the toaster's.
-  const rest = makeBecarioPose(BECARIO_FRAMES[0]!.pose);
+  assert.deepEqual([makeBecarioHand().w, makeBecarioHand().h], [7, 7]);
+  // The feet stand where the look says (the shoes' last row).
+  const rest = makeBecarioPose(BECARIO_FRAMES[0]!);
   const lowest = Math.max(...Array.from({ length: rest.h }, (_, y) => y).filter((y) => Array.from({ length: rest.w }, (_, x) => x).some((x) => rest.get(x, y)[3] > 0)));
-  assert.equal(lowest, def.look.feetY, 'el contorno de los zapatos, justo donde la tostadora pisa');
+  assert.equal(lowest, def.look.feetY, 'el contorno de los zapatos, justo donde pisa');
   for (const s of [meritLine(1, 6), meritLine(6, 6), MERIT_LOST_LINE]) assert.ok(textWidth(s) > 0 && textWidth(s) < 220, s);
   assert.deepEqual(meritRows(CHARACTERS.tostadora!, 3), []);
   assert.equal(meritRows(def, 3)[0]!.now, '3 (daño +12 %)');

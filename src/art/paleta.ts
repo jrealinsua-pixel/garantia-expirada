@@ -49,6 +49,8 @@ export const MATERIALS = {
   fucsia: r('#ffe6f7', '#ffa8de', '#e86cc6', '#b8469f', '#86307f', '#5a215e', '#3a1842'),
   /** Painted tin of old wind-up toys (M14c (a6a)), a faded teal: shadows to slate blue. */
   hojalata: r('#eef8e6', '#b9dcc9', '#8dbcae', '#64968f', '#4a6e74', '#384a62', '#28304a'),
+  /** M14c (a4d1): skin of the Becario Eterno (the only person): peach lights, shadows to rose and plum. */
+  piel: r('#ffe9d2', '#f8c9a2', '#e2a07e', '#bf7768', '#8e5260', '#5c3651'),
   /** Cardboard boxes and briefcases: shadows to plum. */
   carton: r('#f1d9a8', '#d2ad78', '#a98258', '#7a5a40', '#523a34', '#35202e'),
   /** Cream enamel of old white goods (the microwave, M14c (a5)): warm lights, plum shadows. */

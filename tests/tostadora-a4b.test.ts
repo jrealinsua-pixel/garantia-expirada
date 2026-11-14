@@ -111,8 +111,8 @@ test('heroFrame: elige el fotograma de la tostadora según lo que hace', () => {
 });
 
 test('heroFrame: los personajes sin fotogramas propios siguen con los ocho de siempre', () => {
-  // (The Batidora de Vaso had none until M14c (a4c1); the Becario still has none.)
-  const L = CHARACTERS.becario!.look;
+  // (The Batidora de Vaso had none until M14c (a4c1); the Becario until (a4d1); the Móvil still has none.)
+  const L = CHARACTERS.movil!.look;
   assert.equal(L.anim, undefined);
   assert.equal(heroFrame(L, { ...still, sinceShot: 0 }), 0);
   assert.deepEqual([0, 7, 14, 21].map((walked) => heroFrame(L, { ...still, moving: true, walked })), [2, 3, 4, 5]);

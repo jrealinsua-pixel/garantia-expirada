@@ -830,7 +830,11 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       (`mano-plancha`) y zapatos negros de la entrevista; `tests/plancha-a4c.test.ts` y
       `tests/plancha-vapor.test.ts` la miden contra la tostadora y la batidora nuevas.
   - [ ] (a4d) El Becario Eterno y el Móvil, partida en dos el 2026-11-14 como la (a4c).
-    - [ ] (a4d1) El Becario Eterno, con sus fotogramas propios.
+    - [x] (a4d1) El Becario Eterno, con sus fotogramas propios.
+      Hecho el 2026-11-14: `tools/sprites/becario.ts` (24 fotogramas en 40 × 47, `BECARIO_EXTRA`,
+      `BECARIO_ANIM`), material nuevo `piel`, el café para llevar en la mano de atrás, la acreditación
+      que da vueltas al rodar, los papeles al morir y el café derramado al romperse; mano
+      `mano-becario` de 7 × 7; `tests/becario-a4d.test.ts`.
     - [ ] (a4d2) El Móvil, con sus fotogramas propios.
 - [x] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
   - [x] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
