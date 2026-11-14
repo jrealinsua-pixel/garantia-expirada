@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T05:10:00+01:00",
+  "actualizado": "2026-11-14T05:30:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -151,6 +151,11 @@
     "lineas_codigo": 38041
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T05:30:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a5b): la Bombilla de Bajo Consumo y la Polilla Fiel con el estilo nuevo. La bombilla es ahora un mando intermedio con traje, maletín y una cabeza de cristal con la espiral fluorescente dentro (y su sonrisita); la polilla, una polilla de verdad vista desde arriba."
+    },
     {
       "fecha": "2026-11-14T03:30:00+01:00",
       "hito": "M14c",
@@ -1463,23 +1468,23 @@
       "pie": "M14c (a4a): sus ocho fotogramas: reposo ×2, andar ×4, herida (las tostadas saltan) y rota (sin tostadas), y el guante"
     },
     {
+      "archivo": "capturas/bombilla-redibujada.png",
+      "pie": "M14c (a5b): la Bombilla y la Polilla, antes (izquierda) y ahora (encendida, apagada y los dos aleteos), a 3×"
+    },
+    {
+      "archivo": "capturas/bombilla-en-juego.png",
+      "pie": "M14c (a5b): la bombilla nueva con su polilla, junto al aspirador y el microondas nuevos, en la Sala de Pruebas"
+    },
+    {
       "archivo": "capturas/planta1-redibujados.png",
       "pie": "M14c (a5a): el Aspirador y el Microondas, antes y ahora (quietos y avisando: acelerando y calentando), a 3×"
     },
     {
       "archivo": "capturas/planta1-en-juego.png",
       "pie": "M14c (a5a): el aspirador y el microondas nuevos en la Sala de Pruebas, entre los enemigos que aún no se han redibujado"
-    },
-    {
-      "archivo": "capturas/sala-forma-cruz.png",
-      "pie": "M14b (h11c): el Centro de Datos en Cruz; las esquinas que no son sala, pared de fuera con su zócalo"
-    },
-    {
-      "archivo": "capturas/estilo-nuevo-prueba.png",
-      "pie": "M14c (a1): el estilo nuevo a prueba. Arriba, el aprobado; abajo, la tostadora, el aspirador y el suelo redibujados (a tamaño real y a 3×)"
     }
   ],
-  "proximo": "M14c (a4b), los fotogramas nuevos de la tostadora (andar 6, rodar 6, disparar, herido y morir); la (a5b) la tiene otra sesión desde las 05:00.",
+  "proximo": "M14c (a5c), la Batidora y el Mando con el estilo nuevo (la (a4b), los fotogramas de la tostadora, la tiene otra sesión desde las 05:25).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1508,11 +1513,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 05:00 (hora peninsular)",
-      "tarea": "M14c (a5b): la Bombilla y la Polilla con el estilo nuevo (tools/sprites/planta1-nuevo.ts, sus líneas en tools/sprites/build.ts, anchor en src/data/enemies.ts, SPRITE_GLOWS en GameScene, tests/estilo-a5.test.ts). No toca la Tostadora",
-      "desde": "2026-11-14T05:00:00+01:00"
-    },
     {
       "sesion": "2026-11-14 05:25 (hora peninsular)",
       "tarea": "M14c (a4b): fotogramas nuevos de la Tostadora (andar 6, rodar 6, disparar, herido, morir): tools/sprites/tostadora.ts, la animación del jugador en src/render, tests/tostadora-a4b.test.ts. No toca enemigos",

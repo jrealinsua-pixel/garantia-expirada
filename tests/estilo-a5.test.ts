@@ -8,7 +8,6 @@ import { legibility, silhouetteOverlap } from '../src/art/pintor.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { allSheets } from '../tools/sprites/build.ts';
 import { makeBatidora, makeMando } from '../tools/sprites/enemies.ts';
-import { makeBombilla } from '../tools/sprites/characters.ts';
 import * as P1 from '../tools/sprites/planta1-nuevo.ts';
 
 const FLOOR = MATERIALS.suelo[3]!;
@@ -17,6 +16,12 @@ const FLOOR = MATERIALS.suelo[3]!;
 const REDRAWN: Record<string, () => Canvas[]> = {
   aspirador: P1.makeAspiradorNuevoFrames,
   microondas: P1.makeMicroondasNuevoFrames,
+  bombilla: P1.makeBombillaNuevaFrames,
+};
+
+/** The flyers: no feet on the floor (the game lifts them by their altitude). */
+const FLYERS: Record<string, () => Canvas[]> = {
+  polilla: P1.makePolillaNueva,
 };
 
 function bottomRow(cv: Canvas, x0 = 0, x1 = cv.w - 1): number {
@@ -25,7 +30,7 @@ function bottomRow(cv: Canvas, x0 = 0, x1 = cv.w - 1): number {
 }
 
 test('estilo a5: los enemigos redibujados se leen sobre el suelo, en todos sus fotogramas', () => {
-  for (const [id, make] of Object.entries(REDRAWN)) {
+  for (const [id, make] of Object.entries({ ...REDRAWN, ...FLYERS })) {
     for (const [i, f] of make().entries()) {
       const l = legibility(f, FLOOR);
       assert.ok(l.darkEdge >= 0.8, `${id} ${i}: borde oscuro ${l.darkEdge.toFixed(2)}`);
@@ -45,12 +50,12 @@ test('estilo a5: las hojas del juego son las nuevas y casan con los datos (fotog
     assert.equal(s.canvas.w / s.frameW, frames.length, `${id}: número de fotogramas`);
     // Every frame its animation names exists.
     const a = def.anim!;
-    const used = [...a.idle, ...(a.walk ?? []), ...(a.warn !== undefined ? [a.warn] : [])];
+    const used = [...a.idle, ...(a.walk ?? []), ...[a.warn, a.off].filter((k) => k !== undefined)];
     for (const k of used) assert.ok(k < frames.length, `${id}: el fotograma ${k} no está en la hoja`);
     // Its feet: the anchor is the row under the soles, right under the legs, on every frame that is
     // not a lifted step.
     assert.ok(def.anchor.x > 0 && def.anchor.x < s.frameW && def.anchor.y < s.frameH, `${id}: el ancla se sale`);
-    for (const k of [...a.idle, a.walk![0]!, a.walk![2]!, a.warn!]) {
+    for (const k of [...a.idle, a.walk![0]!, a.walk![2]!, ...[a.warn, a.off].filter((k) => k !== undefined)]) {
       assert.equal(bottomRow(frames[k]!, def.anchor.x - 8, def.anchor.x + 8), def.anchor.y, `${id} ${k}: los pies no tocan el suelo`);
     }
   }
@@ -69,18 +74,61 @@ test('estilo a5: más grandes que antes (cuerpo de 24 px o más) y sin cambiar l
   }
   assert.deepEqual(ENEMIES['aspirador']!.hurt, { x: -14, y: -30, w: 28, h: 30 });
   assert.deepEqual(ENEMIES['microondas']!.hurt, { x: -13, y: -31, w: 26, h: 30 });
+  assert.deepEqual(ENEMIES['bombilla']!.hurt, { x: -13, y: -31, w: 26, h: 30 });
+  assert.deepEqual(ENEMIES['polilla']!.hurt, { x: -5, y: -21, w: 10, h: 9 });
 });
 
-test('estilo a5: el aspirador y el microondas no se parecen entre sí ni a los demás de la planta 1', () => {
-  const asp = P1.makeAspiradorNuevoFrames()[0]!;
-  const mic = P1.makeMicroondasNuevoFrames()[0]!;
-  assert.ok(silhouetteOverlap(asp, mic) < 0.8, `aspirador–microondas ${silhouetteOverlap(asp, mic).toFixed(2)}`);
-  for (const [name, other] of [['bombilla', makeBombilla()], ['batidora', makeBatidora()], ['mando', makeMando()]] as const) {
-    for (const [mine, cv] of [['aspirador', asp], ['microondas', mic]] as const) {
-      const o = silhouetteOverlap(cv, other);
-      assert.ok(o < 0.8, `${mine}–${name}: ${o.toFixed(2)}`);
+test('estilo a5: los enemigos de la planta 1 no se parecen entre sí', () => {
+  const plant1: Array<[string, Canvas]> = [
+    ['aspirador', P1.makeAspiradorNuevoFrames()[0]!],
+    ['microondas', P1.makeMicroondasNuevoFrames()[0]!],
+    ['bombilla', P1.makeBombillaNuevaFrames()[0]!],
+    ['batidora', makeBatidora()],
+    ['mando', makeMando()],
+  ];
+  for (let i = 0; i < plant1.length; i++) {
+    for (let j = i + 1; j < plant1.length; j++) {
+      const o = silhouetteOverlap(plant1[i]![1], plant1[j]![1]);
+      assert.ok(o < 0.8, `${plant1[i]![0]}–${plant1[j]![0]}: ${o.toFixed(2)}`);
     }
   }
+});
+
+test('estilo a5: la bombilla se apaga de verdad al encenderse y su halo va en el globo', () => {
+  const [lit, off] = P1.makeBombillaNuevaFrames();
+  const F = P1.BOMBILLA_FEET;
+  const glass = MATERIALS.amarillo;
+  const isGlass = (c: readonly number[]): boolean => glass.some((t) => t[0] === c[0] && t[1] === c[1] && t[2] === c[2]);
+  // The glow's centre, and the globe round it, are lit glass.
+  const cy = F.y - P1.BOMBILLA_GLOW_Y;
+  let litGlass = 0;
+  let offGlass = 0;
+  for (let y = cy - 8; y <= cy + 8; y++) {
+    for (let x = F.x - 8; x <= F.x + 8; x++) {
+      if (isGlass(lit!.get(x, y))) litGlass++;
+      if (isGlass(off!.get(x, y))) offGlass++;
+    }
+  }
+  assert.ok(litGlass > 150, `encendida: ${litGlass} px de cristal iluminado alrededor del halo`);
+  assert.equal(offGlass, 0, 'apagada no queda nada encendido');
+});
+
+test('estilo a5: la polilla aletea y su cuerpo queda sobre su caja de golpes', () => {
+  const frames = P1.makePolillaNueva();
+  const def = ENEMIES['polilla']!;
+  assert.equal(frames.length, 2);
+  assert.ok(Math.max(...def.anim!.idle) < frames.length);
+  // Wings up and wings down are different shapes.
+  const top = (cv: Canvas): number => {
+    for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3] === 255 && (x < 4 || x > 12)) return y;
+    return cv.h;
+  };
+  assert.ok(top(frames[1]!) - top(frames[0]!) >= 4, 'las alas no bajan');
+  // The body (the column in the middle) is centred on the hit box (relative to the same anchor).
+  const altitude = def.brain.kind === 'moth' ? def.brain.altitude : 0;
+  const hitMid = def.hurt.y + def.hurt.h / 2 + altitude;
+  const bodyMid = 6.5 - def.anchor.y;
+  assert.ok(Math.abs(hitMid - bodyMid) <= 2, `cuerpo ${bodyMid}, caja ${hitMid}`);
 });
 
 test('estilo a5: el 12:00 del microondas está donde el juego lo hace parpadear', () => {

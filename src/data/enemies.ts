@@ -72,7 +72,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description: 'Mando intermedio. Tarda en encenderse y, cuando se enciende, gasta poco y rinde menos.',
     hp: 12,
     sprite: 'bombilla',
-    anchor: { x: 16, y: 35 },
+    // M14c (a5b): drawn bigger in the new style (38 × 48); the boxes stay the same.
+    anchor: { x: 18, y: 46 },
     hurt: { x: -13, y: -31, w: 26, h: 30 },
     footRadius: 6,
     contactPush: 140,
@@ -102,7 +103,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description: 'Lleva toda la vida dando vueltas alrededor de la misma bombilla. Lo llama lealtad; la bombilla lo llama «compromiso con la empresa».',
     hp: 2,
     sprite: 'polilla',
-    anchor: { x: 5, y: 8 },
+    // M14c (a5b): 17 × 15 in the new style, its body where the old one's was (over the hit box).
+    anchor: { x: 8, y: 11 },
     // It flies `altitude` px above its shadow: the hit box is up there.
     hurt: { x: -5, y: -21, w: 10, h: 9 },
     footRadius: 3,

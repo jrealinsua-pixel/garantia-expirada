@@ -276,3 +276,157 @@ export function makeMicroondasNuevoFrames(): Canvas[] {
   const cycle = poseCycle(...MICROONDAS_LEGS2);
   return [...cycle.map((f) => makeMicroondasNuevo(f.pose)), makeMicroondasNuevo(cycle[0]!.pose, true)];
 }
+
+// ---------------------------------------------------------------------------------------------
+// The Bombilla de Bajo Consumo: an energy-saving bulb in a suit (middle management). Its head is
+// a glass globe with the fluorescent spiral showing inside it, lit or off; a white ballast collar
+// with its A+ label, the brass screw cap as a neck, a briefcase.
+
+export const BOMBILLA_W = 38;
+export const BOMBILLA_H = 48;
+export const BOMBILLA_FEET = { x: 18, y: 46 } as const;
+export const BOMBILLA_LEGS2 = [12, 19] as const;
+/** The middle of its glass globe, px above its feet (where the game draws its glow). */
+export const BOMBILLA_GLOW_Y = 33;
+
+/** `lit`: the globe glowing (false: switching on, the glass grey and dead). */
+export function makeBombillaNueva(pose: Pose = { xb: BOMBILLA_LEGS2[0], xf: BOMBILLA_LEGS2[1], bob: 0 }, lit = true): Canvas {
+  const p = new Paint(BOMBILLA_W, BOMBILLA_H);
+  const d = pose.bob;
+  // Briefcase in the back hand (behind the body), then the legs.
+  const by = 31 + d;
+  p.rect(1, by + 2, 9, 6, 'carton', 2);
+  p.rect(1, by + 2, 9, 1, 'carton', 1);
+  p.rect(1, by + 7, 9, 1, 'carton', 4);
+  p.rect(1, by + 2, 1, 6, 'carton', 3);
+  p.rect(4, by + 1, 3, 1, 'carton', 4);
+  p.px(5, by + 4, 'laton', 1);
+  glove(p, 7, by - 1, 'goma');
+  legs(p, pose, 39 + d, 46, 'quemada');
+  // The suit: a short jacket, darker on the left, the shirt and the tie down the middle.
+  const sy = 30 + d;
+  for (let y = 0; y < 9; y++) for (let x = 0; x < 16; x++) p.px(10 + x, sy + y, 'goma', x < 3 ? 4 : y < 1 ? 2 : 3);
+  p.rect(16, sy, 4, 3, 'acero', 1);
+  p.px(16, sy + 3, 'acero', 2);
+  p.px(19, sy + 3, 'acero', 2);
+  p.rect(17, sy + 1, 2, 7, 'rojo', 2);
+  p.px(17, sy + 1, 'rojo', 1);
+  p.px(18, sy + 7, 'rojo', 4);
+  // Lapels and a pen in the breast pocket.
+  p.px(15, sy + 1, 'goma', 1);
+  p.px(20, sy + 1, 'goma', 1);
+  p.rect(22, sy + 3, 2, 1, 'goma', 5);
+  p.px(23, sy + 2, 'azul', 2);
+  // The brass screw cap as a neck, its threads.
+  const ny = 27 + d;
+  p.rect(15, ny, 7, 3, 'laton', 1);
+  p.rect(15, ny + 1, 7, 1, 'laton', 2);
+  p.rect(15, ny, 2, 3, 'laton', 3);
+  // The white ballast collar, with the A+ label it is so proud of.
+  const cy = 23 + d;
+  for (let x = 0; x < 15; x++) p.rect(11 + x, cy, 1, 4, 'acero', x < 3 ? 3 : x < 11 ? 1 : 2);
+  p.rect(11, cy, 15, 1, 'acero', 0);
+  p.rect(12, cy + 1, 4, 2, 'verde', 2);
+  p.px(12, cy + 1, 'verde', 1);
+  p.px(15, cy + 2, 'verde', 4);
+  // The globe: glass lit from inside (brightest in the middle) or dead grey, shaded as a ball.
+  const gx = 18.5;
+  const gy = 12.5 + d;
+  const gm: Material = lit ? 'amarillo' : 'acero';
+  p.ellipsoid(gx, gy, 10.8, 10.8, gm, { dither: 0.3, bias: lit ? 0.45 : 0.15, z: 0.9 });
+  // The spiral tube showing through: slanted loops, a tone darker than the glass round them, above
+  // and below the face (across it, they muddle the eyes).
+  for (const ly of [gy - 9, gy - 6, gy + 7]) {
+    for (let x = -7; x <= 7; x++) {
+      const y = Math.round(ly + x * 0.18 + (Math.abs(x) > 5 ? 1 : 0));
+      if (!p.filled(Math.round(gx + x), y)) continue;
+      p.px(Math.round(gx + x), y, gm, lit ? 3 : 4);
+    }
+  }
+  // The face on the glass, looking right: heavy brows, lids half down, a smug little mouth.
+  const fx = 18;
+  const fy = Math.round(gy) - 1;
+  for (const ex of [fx, fx + 6]) {
+    p.rect(ex, fy, 3, 3, gm, lit ? 5 : 6);
+    p.raw(ex + 1, fy + 1, INK);
+    p.raw(ex + 2, fy + 1, INK);
+    p.raw(ex + 2, fy + 2, INK);
+    p.raw(ex + 1, fy + 2, lit ? SHINE : INK);
+    p.rect(ex, fy, 3, 1, gm, lit ? 4 : 5);
+  }
+  for (const [x, y] of [[fx - 1, fy - 2], [fx, fy - 2], [fx + 1, fy - 2], [fx + 2, fy - 1], [fx + 6, fy - 1], [fx + 7, fy - 2], [fx + 8, fy - 2], [fx + 9, fy - 2]] as const) p.px(x, y, gm, 5);
+  p.rect(fx + 2, fy + 6, 5, 1, gm, 5);
+  p.px(fx + 7, fy + 5, gm, 5);
+  // The highlight on the glass, and a crack (it has seen things).
+  p.raw(12, Math.round(gy) - 6, SHINE);
+  p.raw(13, Math.round(gy) - 7, SHINE);
+  p.raw(11, Math.round(gy) - 4, SHINE);
+  for (const [x, y] of [[24, gy - 9], [25, gy - 8], [24, gy - 7], [25, gy - 6]] as const) p.px(x, Math.round(y), gm, lit ? 3 : 5);
+  // The front hand.
+  glove(p, 27, sy + 1, 'goma');
+  return p.outline();
+}
+
+/** Its sheet: 0 lit, 1 off (switching on), 2 lit breathing out, 3-6 walking (all lit). */
+export function makeBombillaNuevaFrames(): Canvas[] {
+  const cycle = poseCycle(...BOMBILLA_LEGS2);
+  return [makeBombillaNueva(cycle[0]!.pose), makeBombillaNueva(cycle[0]!.pose, false), ...cycle.slice(1).map((f) => makeBombillaNueva(f.pose))];
+}
+
+// ---------------------------------------------------------------------------------------------
+// The Polilla Fiel: a moth seen from above, two wing beats, its head to the right like the rest.
+
+export const POLILLA_W = 17;
+export const POLILLA_H = 15;
+export const POLILLA_FEET = { x: 8, y: 14 } as const;
+
+/** Whether (x, y) is inside the triangle a, b, c. */
+function inTri(x: number, y: number, a: readonly [number, number], b: readonly [number, number], c: readonly [number, number]): boolean {
+  const s = (p: readonly [number, number], q: readonly [number, number]): number => (q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0]);
+  const d1 = s(a, b);
+  const d2 = s(b, c);
+  const d3 = s(c, a);
+  return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+}
+
+export function makePolillaNueva(): Canvas[] {
+  const frames: Canvas[] = [];
+  for (const up of [true, false]) {
+    const p = new Paint(POLILLA_W, POLILLA_H);
+    // Each side: a fore wing (a triangle from the body out to its tip) and a smaller hind wing
+    // below it. Up, the tips reach high and wide; down, they fold low and in.
+    for (const side of [-1, 1]) {
+      const X = (dx: number): number => 8 + side * dx;
+      const tip: [number, number] = up ? [X(8), 1] : [X(7), 9];
+      const fore: Array<[number, number]> = [[X(0.5), 4], tip, [X(up ? 5 : 3), up ? 8 : 11]];
+      const hind: Array<[number, number]> = [[X(0.5), 7], [X(up ? 5 : 4.5), up ? 10 : 12.5], [X(1.5), up ? 12 : 13]];
+      for (let y = 0; y < POLILLA_H; y++) {
+        for (let x = 0; x < POLILLA_W; x++) {
+          if (inTri(x + 0.5, y + 0.5, hind[0]!, hind[1]!, hind[2]!)) p.px(x, y, 'carton', 2);
+        }
+      }
+      for (let y = 0; y < POLILLA_H; y++) {
+        for (let x = 0; x < POLILLA_W; x++) {
+          if (!inTri(x + 0.5, y + 0.5, fore[0]!, fore[1]!, fore[2]!)) continue;
+          // Lighter out towards the tip, a dark band across the middle.
+          const out = Math.abs(x + 0.5 - 8) / 8;
+          p.px(x, y, 'carton', out > 0.7 ? 0 : out > 0.45 ? 3 : 1);
+        }
+      }
+      // The eyespot on the fore wing.
+      p.px(X(4), up ? 5 : 7, 'quemada', 2);
+    }
+    // The furry body down the middle, the head with its eye to the right, feathery antennae.
+    p.rect(7, 3, 2, 8, 'quemada', 1);
+    p.rect(7, 3, 1, 8, 'quemada', 2);
+    p.px(8, 10, 'quemada', 3);
+    p.rect(7, 2, 3, 2, 'quemada', 0);
+    p.raw(9, 2, [255, 217, 90, 255]);
+    p.px(10, 1, 'quemada', 1);
+    p.px(11, 0, 'quemada', 1);
+    p.px(6, 1, 'quemada', 2);
+    p.px(5, 0, 'quemada', 2);
+    frames.push(p.outline());
+  }
+  return frames;
+}

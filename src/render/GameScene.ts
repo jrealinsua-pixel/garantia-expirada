@@ -6726,7 +6726,8 @@ const SPRITE_BLINKS: Record<string, { x: number; y: number; w: number; h: number
 
 /** Lights drawn around an enemy (`y` px above its feet, radius `r`) while it is lit. */
 const SPRITE_GLOWS: Record<string, { y: number; r: number; color: number }> = {
-  bombilla: { y: 23, r: 26, color: 0xfff1a0 },
+  // The middle of its glass globe (BOMBILLA_GLOW_Y in tools/sprites/planta1-nuevo.ts).
+  bombilla: { y: 33, r: 26, color: 0xfff1a0 },
 };
 
 /** The boss's life bar: its parts, and the life it showed (the white trail catches up with it). */

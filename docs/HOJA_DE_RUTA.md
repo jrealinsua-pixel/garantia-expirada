@@ -812,7 +812,10 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     Hecho el 2026-11-14: `tools/sprites/planta1-nuevo.ts` (aspirador 42 × 40 con 7 fotogramas, el
     último acelerando; microondas 44 × 46 con 7, andando y calentando), el material `crema`,
     `tests/estilo-a5.test.ts`.
-  - [ ] (a5b) La Bombilla y la Polilla.
+  - [x] (a5b) La Bombilla y la Polilla.
+    Hecho el 2026-11-14: la bombilla de bajo consumo, 38 × 48, con traje, cuello de rosca y la
+    espiral dentro de un globo con cara (encendida y apagada); la polilla, 17 × 15, vista desde
+    arriba con dos aleteos. En `tools/sprites/planta1-nuevo.ts`.
   - [ ] (a5c) La Batidora y el Mando.
   - [ ] (a5d) La Impresora y el Cargador.
   - [ ] (a5e) El Ratón Inalámbrico y la Webcam.

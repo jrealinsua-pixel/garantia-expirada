@@ -139,14 +139,14 @@
   },
   "bombilla": {
     "file": "bombilla.png",
-    "frameW": 32,
-    "frameH": 39,
+    "frameW": 38,
+    "frameH": 48,
     "frames": 7
   },
   "polilla": {
     "file": "polilla.png",
-    "frameW": 11,
-    "frameH": 9,
+    "frameW": 17,
+    "frameH": 15,
     "frames": 2
   },
   "batidora": {

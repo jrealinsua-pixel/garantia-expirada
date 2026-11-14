@@ -7,7 +7,7 @@ import { buildRoom } from '../../src/sim/room.ts';
 import { HUB, ROOMS } from '../../src/data/rooms.ts';
 import { paintRoom } from '../../src/art/room.ts';
 import {
-  NEVERA_POSES, makeBombillaFrames, makeNevera, makePolilla, miniDryer, miniStapler,
+  NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
 import { makeBatidoraFrames, makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
   makeImpresoraFrames, makeMandoFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
@@ -92,8 +92,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // M14c (a5a): the new style (tools/sprites/planta1-nuevo.ts); the old ones stay in art/referencia/.
     aspirador: { canvas: strip(P1.makeAspiradorNuevoFrames()), frameW: P1.ASPIRADOR_W, frameH: P1.ASPIRADOR_H },
     microondas: { canvas: strip(P1.makeMicroondasNuevoFrames()), frameW: P1.MICROONDAS_W, frameH: P1.MICROONDAS_H },
-    bombilla: { canvas: strip(makeBombillaFrames()), frameW: 32, frameH: 39 },
-    polilla: { canvas: strip(makePolilla()), frameW: 11, frameH: 9 },
+    bombilla: { canvas: strip(P1.makeBombillaNuevaFrames()), frameW: P1.BOMBILLA_W, frameH: P1.BOMBILLA_H },
+    polilla: { canvas: strip(P1.makePolillaNueva()), frameW: P1.POLILLA_W, frameH: P1.POLILLA_H },
     batidora: { canvas: strip(makeBatidoraFrames()), frameW: 32, frameH: 38 },
     mando: { canvas: strip(makeMandoFrames()), frameW: 22, frameH: 32 },
     impresora: { canvas: strip(makeImpresoraFrames()), frameW: 34, frameH: 32 },

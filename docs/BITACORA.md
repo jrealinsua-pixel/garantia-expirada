@@ -2,6 +2,40 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 05:30 (hora peninsular) — Hito M14c — (a5b) La Bombilla y la Polilla con el estilo nuevo
+- Contexto: segunda tarea de la sesión, tras la (a5a). La (a4a) estaba cogida por otra sesión (desde
+  las 03:30), que la subió mientras yo hacía esta; esta no toca a los personajes.
+- Hecho: M14c (a5b). **La Bombilla de Bajo Consumo**, redibujada (38 × 48, en
+  `tools/sprites/planta1-nuevo.ts`): un mando intermedio con traje oscuro, camisa, corbata roja,
+  boli en el bolsillo y maletín de cartón; el casquillo de latón de cuello, el balasto blanco con su
+  etiqueta A+ de collar, y la cabeza es **un globo de cristal con la espiral fluorescente que se
+  transparenta** (la «bajo consumo» se reconoce por la espiral), con la cara encima: cejas hacia
+  dentro, párpados a media asta y una sonrisita de suficiencia. Una grieta en el cristal. Encendida
+  brilla desde dentro; apagada (el fotograma de encenderse, que parpadea) es cristal gris muerto.
+  Siete fotogramas, los mismos que antes (0 encendida, 1 apagada, 2 respirando, 3–6 andando). Su
+  halo (`SPRITE_GLOWS`) sube al centro del globo nuevo. **La Polilla Fiel** (17 × 15, antes 11 × 9):
+  vista desde arriba como una polilla de verdad, alas delanteras en triángulo con su ocelo y las de
+  atrás más pequeñas, cuerpo peludo, antenas de pluma y el ojo amarillo a la derecha; alas arriba y
+  alas abajo. Su ancla deja el cuerpo donde estaba el de la vieja, encima de su caja de golpes.
+  Tests: `tests/estilo-a5.test.ts` ahora con 8 (los de la (a5a) cubren también la bombilla y la
+  polilla; uno nuevo comprueba que apagada no queda cristal encendido y que el halo cae en el
+  globo; otro, que la polilla aletea y que su cuerpo queda sobre su caja).
+- Decisiones: (1) Primero probé la espiral sola como cabeza, con la cara en el balasto: se leía como
+  una colmena o una pila de monedas, y la cabeza de cristal (lo que la hace bombilla) quedaba
+  pequeña. El globo con la espiral dentro existe de verdad y conserva la cabeza grande de la guía.
+  (2) La espiral se ve por encima y por debajo de la cara, no a través: cruzándola, los ojos no se
+  leían. (3) Apagada, el gris se aclaró: con el gris oscuro, un tercio del cuerpo se fundía con el
+  suelo (lo vio el test de legibilidad).
+- Medidas: la simulación no cambia (cajas, `muzzleY`, alturas, igual). Siluetas de la planta 1, todas
+  por debajo de 0,8 entre sí. 1084 tests en verde (con los de la (a4a), que otra sesión subió a la
+  vez: al juntarlas solo chocaron la bitácora, `progress.json` y una línea de imports); e2e en
+  verde (una pasada falló en la tinta del
+  sello, en la planta 4, por ir a la vez que los tests: el e2e es de tiempo real y con la máquina
+  cargada pasaron 0,42 s en vez de 0,16; repetido solo, en verde).
+- Problemas conocidos: los de la (a5a) (las cajas de golpes son las de antes). La polilla, con las
+  alas abajo, baja 2 px por debajo de su ancla; no se nota porque vuela.
+- Siguiente paso: M14c (a5c), la Batidora y el Mando.
+
 ## 2026-11-14 03:30 (hora peninsular) — Hito M14c — (a4a) La Tostadora del juego, con el estilo nuevo
 - Contexto: sesión programada. El `main` local otra vez era un clon viejo (`git checkout -B main
   origin/main`). La (h11c) la había cogido otra sesión a las 02:25 (menos de 90 minutos), así que
