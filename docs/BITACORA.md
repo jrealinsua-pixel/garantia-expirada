@@ -2,6 +2,46 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 11:10 (hora peninsular) — Hito M14c — (a6b2) Las piezas del cubo y los muñequitos del sobre
+- Contexto: la (a4d1), el Becario, la tenía otra sesión (terminó mientras tanto; el `pull --rebase`
+  mezcló sin conflictos). Al empezar, el `main` local de esta máquina era una copia vieja y poco
+  profunda del 6 de noviembre que git veía «sin historia común» con `origin/main`; se puso `main`
+  donde `origin/main` (`git checkout -B main origin/main`) sin tocar nada del remoto.
+- Hecho: M14c (a6b2), en `tools/sprites/planta3-nuevo.ts`. **Las piezas** (`pieza`, 12 × 10, antes
+  10 × 8; las mismas cuatro: la roja de 2 × 2, la azul de 3 × 1, la amarilla de 2 × 1 y la esquina
+  verde): cara de arriba con un tetón por casilla (brillo arriba a la izquierda y sombra debajo),
+  cara de delante con el filo iluminado y la sombra contra el suelo, y un canto de un píxel a la
+  derecha; se pintan de la fila de atrás a la de delante, así la esquina enseña el canto de la pieza
+  de atrás. **El Muñequito Repetido** (24 × 28, antes 18 × 20): una figura de vinilo casi toda
+  cabeza (un cuadrado redondeado, superelipse sombreada con `heightShade`, en `carton` aclarado),
+  el pelo pintado de un bloque con flequillo y su sombra en la frente, la costura del molde por el
+  lado, cejas de enfado, ojos de punto con brillo, **la sonrisa roja impresa un píxel por debajo
+  de la boca** (impresión barata), colorete, el peto turquesa con la **pegatina «x3»** en el pecho,
+  bracitos sin dedos y pies de una pieza; mordiendo, la boca abierta con dos dientes. **El Dorado**:
+  el mismo molde en `amarillo` con brillos especulares, párpados a media asta, una sonrisita de
+  lado, el destello de cuatro puntas en la cabeza y **la estrella del pecho en la fila de su
+  `muzzleY`** (de ahí salen sus anillos). Los mismos fotogramas que antes (7 y 6); anclas nuevas
+  (12, 26) en `src/data/enemies.ts`; las cajas de golpes, las de siempre. Tests en
+  `tests/estilo-a6.test.ts` (ahora 11): los dos muñequitos entran en los generales (legibilidad,
+  hojas y anclas); uno nuevo mira los pies en el ancla, la altura, la pegatina y la estrella en la
+  fila de su `muzzleY`, la boca abierta al morder y que los dos salen del mismo molde; otro, que las
+  piezas son una por clase, de su color, legibles y del ancho del círculo que pica (`BRICK_RADIUS`).
+- Decisiones: (1) Sin materiales nuevos: el vinilo es `carton` con más luz (`bias`), que es casi
+  el tono del muñequito viejo, y el pelo `quemada`; así no se toca `src/art/paleta.ts`, que la otra
+  sesión podía estar tocando. (2) Las cejas y los ojos bajaron una fila: pegados al flequillo se
+  leían como pelos sueltos. (3) Sin tramado en la cabeza: con él la cara salía con motas de
+  suciedad (lo que ya dice la guía). (4) Los muñequitos siguen siendo bastante más pequeños que el
+  sobre (34 × 40): son lo que sale de él y tienen 2 de vida. (5) Las piezas no crecen más: tienen
+  que medir lo que el círculo que hace daño en el suelo (radio 5).
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual que al
+  empezar). 1125 tests en verde; e2e entero en verde (`35u` con las piezas en el suelo y `35w` con
+  los muñequitos).
+- Problemas conocidos: sobre el suelo de puzle de colores de la Juguetería, las piezas se leen por
+  el contorno más que por el color; si molesta, una sombra violeta debajo (la pondría el juego,
+  como a los personajes). Los restos que suelta el sobre al romperse son los de antes.
+- Siguiente paso: M14c (a4d2), el Móvil, si nadie lo ha cogido; si no, la (a6c), la Destructora y la
+  Fotocopiadora.
+
 ## 2026-11-14 10:35 (hora peninsular) — Hito M14c — (a4d1) El Becario Eterno con el estilo nuevo
 - Contexto: sesión automática. Al llegar, otra sesión tenía la (a6a) (ya terminada al empezar a
   programar); la (a4d) estaba libre y la partí en dos como la (a4c): (a4d1) el Becario y (a4d2) el

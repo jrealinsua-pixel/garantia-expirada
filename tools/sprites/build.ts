@@ -9,7 +9,7 @@ import { paintRoom } from '../../src/art/room.ts';
 import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
-import { makePiezas, makeMunequitoFrames,
+import {
   makeDestructoraFrames, makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
@@ -112,10 +112,10 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // The workshop's own (M12 (3c)): taller.ts names the frames (FORK_FRAMES).
     carretilla: { canvas: strip(TL.makeCarretillaFrames()), frameW: TL.FORK_W, frameH: TL.FORK_H },
     // 0-1 standing, 2-5 waddling, 6 lid up (about to throw); and the pieces it throws (4 kinds).
-    // M14c (a6b): the bucket and the envelope in the new style (planta3-nuevo.ts); the pieces and
-    // the figurines are still the old ones.
+    // M14c (a6b): the bucket and the envelope in the new style (planta3-nuevo.ts); (a6b2) the pieces
+    // and the figurines too.
     'cubo-piezas': { canvas: strip(P3.makeCuboNuevoFrames()), frameW: P3.CUBO_W, frameH: P3.CUBO_H },
-    pieza: { canvas: strip(makePiezas()), frameW: 10, frameH: 8 },
+    pieza: { canvas: strip(P3.makePiezasNuevas()), frameW: P3.PIEZA_W, frameH: P3.PIEZA_H },
     // 0-1 standing, 2 crouching, 3 in the air, 4 about to spit; and what comes out of it.
     'sobre-sorpresa': { canvas: strip(P3.makeSobreNuevoFrames()), frameW: P3.SOBRE_W, frameH: P3.SOBRE_H },
     // Floor 4 (Oficinas): seven frames a side (side, front, back): 0-1 humming, 2-5 shuffling, 6 blades red.
@@ -126,8 +126,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     sello: { canvas: strip(makeSelloFrames()), frameW: 26, frameH: 34 },
     // 0-1 humming, 2-5 dragging itself along, 6 rime on the vent (about to blow).
     climatizador: { canvas: strip(makeClimatizadorFrames()), frameW: 28, frameH: 40 },
-    'munequito-repetido': { canvas: strip(makeMunequitoFrames(false)), frameW: 18, frameH: 20 },
-    'munequito-dorado': { canvas: strip(makeMunequitoFrames(true)), frameW: 18, frameH: 20 },
+    // What comes out of the envelope (M14c (a6b2), planta3-nuevo.ts): 0-1 standing, 2-5 running, 6 biting.
+    'munequito-repetido': { canvas: strip(P3.makeMunequitoNuevoFrames(false)), frameW: P3.MUNE_W, frameH: P3.MUNE_H },
+    'munequito-dorado': { canvas: strip(P3.makeMunequitoNuevoFrames(true)), frameW: P3.MUNE_W, frameH: P3.MUNE_H },
     // Frames 0-5, door shut (breathing and walking, NEVERA_POSES); 6-11, the same with the door open.
     'nevera-suprema': { canvas: strip([false, true].flatMap((open) => NEVERA_POSES.map((f) => makeNevera(open, f.pose)))), frameW: 72, frameH: 76 },
     // Floor 1's second boss (M14 (j2)): seven frames per program (rest, breathing, walking, weighing the

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T10:40:00+01:00",
+  "actualizado": "2026-11-14T11:10:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1122,
-    "tests_ok": 1122,
+    "tests": 1125,
+    "tests_ok": 1125,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38160
+    "lineas_codigo": 38162
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T11:10:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a6b2): las piezas del Cubo y los muñequitos del Sobre con el estilo nuevo. Las piezas, algo más grandes y con volumen (tetones con brillo, cara de delante y canto); el Muñequito Repetido, una figura de vinilo casi toda cabeza con la costura del molde, la sonrisa impresa un píxel fuera de la boca y la pegatina «x3»; el Dorado, el mismo molde en oro, con cara de suficiencia y una estrella en el pecho."
+    },
     {
       "fecha": "2026-11-14T10:35:00+01:00",
       "hito": "M14c",
@@ -1505,6 +1510,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/piezas-munequitos-redibujados.png",
+      "pie": "M14c (a6b2): los muñequitos del sobre y las piezas del cubo, antes (arriba) y ahora (abajo: el repetido de pie, corriendo y mordiendo; el dorado de pie y corriendo; las cuatro piezas), a 3×"
+    },
+    {
+      "archivo": "capturas/munequitos-en-juego.png",
+      "pie": "M14c (a6b2): los muñequitos repetidos nuevos saliendo de los sobres rotos alrededor de la tostadora, en el Taller de Reparación de la Juguetería"
+    },
+    {
       "archivo": "capturas/becario-fotogramas.png",
       "pie": "M14c (a4d1): la hoja del Becario Eterno, 24 fotogramas: los ocho de siempre (con el café derramado y el pósit caído al romperse); andar en seis pasos; rodar con la acreditación dando vueltas y aterrizar; disparar, el golpe que hace saltar el café y las dos sacudidas con los papeles volando"
     },
@@ -1517,19 +1530,11 @@
       "pie": "M14c (a6b): el Cubo de Piezas y el Sobre Sorpresa, antes (el primero de cada uno) y ahora (de pie, andando y con la tapa levantada; de pie, agachado, en el aire y a punto de escupir confeti), a 3×"
     },
     {
-      "archivo": "capturas/sobre-en-juego.png",
-      "pie": "M14c (a6b): dos sobres nuevos saltando y escupiendo confeti alrededor de la tostadora en la Juguetería"
-    },
-    {
       "archivo": "capturas/robot-coche-redibujados.png",
       "pie": "M14c (a6a): el Robot de Cuerda y el Coche Teledirigido, antes (el primero de cada uno) y ahora (de pie, andando, sin cuerda y dándose cuerda; en marcha, embistiendo, volcado y sin pilas), a 3×"
-    },
-    {
-      "archivo": "capturas/robot-en-juego.png",
-      "pie": "M14c (a6a): el robot nuevo rebotando y escupiendo tuercas junto a la tostadora en el Taller de Reparación"
     }
   ],
-  "proximo": "M14c (a4d2), el Móvil con el estilo nuevo y sus 24 fotogramas (con él se cierra la (a4)); la (a6b2) la tiene otra sesión.",
+  "proximo": "M14c (a4d2), el Móvil (si nadie lo ha cogido); si no, la (a6c), la Destructora y la Fotocopiadora.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1557,11 +1562,5 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": [
-    {
-      "sesion": "2026-11-14 10:26 (hora peninsular)",
-      "tarea": "M14c (a6b2): las piezas del cubo y los muñequitos del sobre con el estilo nuevo (tools/sprites/planta3-nuevo.ts, tests/estilo-a6.test.ts). No toca personajes ni src/sim",
-      "desde": "2026-11-14T10:26:00+01:00"
-    }
-  ]
+  "en_curso": []
 }

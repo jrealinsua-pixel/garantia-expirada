@@ -223,8 +223,8 @@
   },
   "pieza": {
     "file": "pieza.png",
-    "frameW": 10,
-    "frameH": 8,
+    "frameW": 12,
+    "frameH": 10,
     "frames": 4
   },
   "sobre-sorpresa": {
@@ -259,14 +259,14 @@
   },
   "munequito-repetido": {
     "file": "munequito-repetido.png",
-    "frameW": 18,
-    "frameH": 20,
+    "frameW": 24,
+    "frameH": 28,
     "frames": 7
   },
   "munequito-dorado": {
     "file": "munequito-dorado.png",
-    "frameW": 18,
-    "frameH": 20,
+    "frameW": 24,
+    "frameH": 28,
     "frames": 6
   },
   "nevera-suprema": {

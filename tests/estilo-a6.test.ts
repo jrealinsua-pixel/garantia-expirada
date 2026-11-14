@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import type { Canvas } from '../src/art/canvas.ts';
 import { MATERIALS } from '../src/art/paleta.ts';
 import { legibility, silhouetteOverlap } from '../src/art/pintor.ts';
-import { ENEMIES } from '../src/data/enemies.ts';
+import { BRICK_KINDS, ENEMIES } from '../src/data/enemies.ts';
+import { BRICK_RADIUS } from '../src/sim/world.ts';
 import { allSheets } from '../tools/sprites/build.ts';
 import * as P3 from '../tools/sprites/planta3-nuevo.ts';
 
@@ -17,6 +18,8 @@ const REDRAWN: Record<string, () => Canvas[]> = {
   'coche-teledirigido': P3.makeCocheNuevoFrames,
   'cubo-piezas': P3.makeCuboNuevoFrames,
   'sobre-sorpresa': P3.makeSobreNuevoFrames,
+  'munequito-repetido': () => P3.makeMunequitoNuevoFrames(false),
+  'munequito-dorado': () => P3.makeMunequitoNuevoFrames(true),
 };
 
 function bottomRow(cv: Canvas, x0 = 0, x1 = cv.w - 1): number {
@@ -186,4 +189,74 @@ test('estilo a6: el cubo y el sobre pisan el suelo en su ancla y disparan desde 
     return n;
   };
   assert.ok(dark(sf[a.warn!]!) >= 4 && dark(sf[0]!) === 0, 'la boca abierta para escupir el confeti');
+});
+
+test('estilo a6: los muñequitos pisan el suelo en su ancla, con la pegatina o la estrella a la altura de su muzzleY', () => {
+  const plain = P3.makeMunequitoNuevoFrames(false);
+  const gold = P3.makeMunequitoNuevoFrames(true);
+  for (const [id, frames] of [['munequito-repetido', plain], ['munequito-dorado', gold]] as const) {
+    const def = ENEMIES[id]!;
+    assert.deepEqual(def.anchor, P3.MUNE_FEET, `${id}: el ancla`);
+    const a = def.anim!;
+    for (const k of [...a.idle, ...a.walk!.filter((_, i) => i % 2 === 0), ...[a.warn].filter((k) => k !== undefined)]) {
+      assert.equal(bottomRow(frames[k]!, def.anchor.x - 6, def.anchor.x + 6), def.anchor.y, `${id} ${k}: los pies no tocan el suelo`);
+    }
+    // The hurt box is the old one, and the figure fills it (and is bigger than the old 18 x 20 one).
+    assert.deepEqual(def.hurt, { x: -7, y: -18, w: 14, h: 17 });
+    let top = frames[0]!.h;
+    for (let y = 0; y < frames[0]!.h && top === frames[0]!.h; y++) for (let x = 0; x < frames[0]!.w; x++) if (frames[0]!.get(x, y)[3] === 255) { top = y; break; }
+    assert.ok(def.anchor.y - top >= 22, `${id}: mide ${def.anchor.y - top} px`);
+  }
+  // The gold one shoots from its chest: the star (SHINE) on the row of its muzzleY; the plain one
+  // wears its white «x3» sticker there with the red print.
+  const dorado = ENEMIES['munequito-dorado']!;
+  assert.equal(dorado.brain.kind === 'turret' && dorado.brain.muzzleY, P3.MUNE_CHEST_Y);
+  const row = P3.MUNE_FEET.y - P3.MUNE_CHEST_Y - 1;
+  const count = (cv: Canvas, c: readonly number[]): number => {
+    let n = 0;
+    for (let x = 8; x < 18; x++) if (same(cv.get(x, row), c)) n++;
+    return n;
+  };
+  assert.ok(count(gold[0]!, [255, 250, 240, 255]) >= 3, 'la estrella del dorado');
+  assert.ok(count(plain[0]!, MATERIALS.acero[0]!) >= 1 && count(plain[0]!, MATERIALS.rojo[3]!) >= 2, 'la pegatina del repetido');
+  // Biting, the mouth is open (darker pixels in the face than standing); the gold one has no bite.
+  assert.equal(plain.length, 7);
+  assert.equal(gold.length, 6);
+  const darkFace = (cv: Canvas): number => {
+    let n = 0;
+    for (let y = 11; y < 15; y++) for (let x = 12; x < 19; x++) { const c = cv.get(x, y); if (c[3] === 255 && c[0] + c[1] + c[2] < 200) n++; }
+    return n;
+  };
+  assert.ok(darkFace(plain[6]!) >= darkFace(plain[0]!) + 6, 'la boca abierta para morder');
+  // The plain ones and the gold one are told apart by colour, not only by size: they share the mould.
+  assert.ok(silhouetteOverlap(plain[0]!, gold[0]!) > 0.8, 'el mismo molde');
+});
+
+test('estilo a6: las piezas del suelo, una por clase, de su color, del tamaño de su radio y legibles', () => {
+  const pieces = P3.makePiezasNuevas();
+  assert.equal(pieces.length, BRICK_KINDS);
+  const sheets = allSheets();
+  assert.equal(sheets.pieza!.frameW, P3.PIEZA_W);
+  assert.equal(sheets.pieza!.canvas.w / sheets.pieza!.frameW, BRICK_KINDS);
+  const mats = ['rojo', 'azul', 'amarillo', 'verde'] as const;
+  for (const [i, f] of pieces.entries()) {
+    const l = legibility(f, FLOOR);
+    assert.ok(l.darkEdge >= 0.8 && l.melts <= 1 / 3, `pieza ${i}: no se lee sobre el suelo`);
+    // Most of it is its own colour.
+    let own = 0;
+    let all = 0;
+    let x0 = f.w;
+    let x1 = -1;
+    for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) {
+      const c = f.get(x, y);
+      if (c[3] !== 255) continue;
+      all++;
+      x0 = Math.min(x0, x);
+      x1 = Math.max(x1, x);
+      if (MATERIALS[mats[i]!].some((t) => same([...t], c))) own++;
+    }
+    assert.ok(own / all >= 0.55, `pieza ${i}: ${own}/${all} de su color`);
+    // As wide as the circle that hurts on the floor (BRICK_RADIUS), give or take the outline.
+    assert.ok(x1 - x0 + 1 >= 2 * BRICK_RADIUS - 2 && x1 - x0 + 1 <= 2 * BRICK_RADIUS + 3, `pieza ${i}: ${x1 - x0 + 1} px de ancho`);
+  }
 });

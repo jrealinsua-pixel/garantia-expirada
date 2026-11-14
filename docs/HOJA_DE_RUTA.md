@@ -887,7 +887,15 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     pestañas dentadas que asoman de la silueta, la línea de «corte aquí» con sus tijeras, la letra
     pequeña, la estrella con la «?» y la sonrisa codiciosa a la altura de su `muzzleY`; agachado,
     más bajo y ancho; en el aire, los pies recogidos; a punto de escupir, la boca llena de confeti.
-  - [ ] (a6b2) Las piezas que tira el cubo y los muñequitos del sobre (el repetido y el dorado).
+  - [x] (a6b2) Las piezas que tira el cubo y los muñequitos del sobre (el repetido y el dorado).
+    Hecho el 2026-11-14: las piezas, 12 × 10 (antes 10 × 8, del ancho del círculo que pica,
+    `BRICK_RADIUS`), con la cara de arriba, un tetón con brillo por casilla, la cara de delante y
+    un canto a la derecha; los muñequitos, 24 × 28 (antes 18 × 20), una figura de vinilo casi toda
+    cabeza (un cuadrado redondeado sombreado con `heightShade`), el pelo pintado de un bloque, la
+    costura del molde, cejas de enfado, la sonrisa roja impresa un píxel fuera de la boca, el
+    colorete, la pegatina «x3» en el pecho y peto turquesa; el dorado, el mismo molde en oro, con
+    párpados de suficiencia, una sonrisita, el destello en la cabeza y la estrella del pecho a la
+    altura de su `muzzleY`. En `tools/sprites/planta3-nuevo.ts`; anclas nuevas (12, 26).
   - [ ] (a6c) La Destructora y la Fotocopiadora.
   - [ ] (a6d) El Sello y el Climatizador.
   - [ ] (a6e) El Dispensador de Turnos y los Postes de Cola.

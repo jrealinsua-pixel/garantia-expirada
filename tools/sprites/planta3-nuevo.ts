@@ -541,3 +541,177 @@ export function makeSobreNuevo(squash = 0, air = false, puff = false, jx = 0): C
 export function makeSobreNuevoFrames(): Canvas[] {
   return [makeSobreNuevo(), makeSobreNuevo(0, false, false, 1), makeSobreNuevo(1), makeSobreNuevo(0, true), makeSobreNuevo(0, false, true)];
 }
+
+// ---------------------------------------------------------------------------------------------
+// M14c (a6b2): the building pieces the bucket throws, lying on the floor, and the figurines that
+// come out of the envelope, in the new style.
+
+export const PIEZA_W = 12;
+export const PIEZA_H = 10;
+
+/**
+ * A building piece seen from the front and above, as it lies on the floor waiting for a bare
+ * foot: `cols` x `rows` studs (3 px a stud, 2 px of top per row), a 3 px front face and a 1 px
+ * side face on the right, each stud a little dome lit at its top-left. `skip`: an empty cell (the
+ * corner piece). Painted from the back row to the front, so the front ones cover the back ones.
+ */
+function brick(cols: number, rows: number, m: Material, skip?: readonly [number, number]): Canvas {
+  const p = new Paint(PIEZA_W, PIEZA_H);
+  const U = 3;
+  const D = 2;
+  const F = 3;
+  const ox = Math.floor((PIEZA_W - cols * U - 1) / 2);
+  const oy = Math.floor((PIEZA_H - rows * D - F) / 2);
+  const has = (c: number, r: number): boolean => c >= 0 && r >= 0 && c < cols && r < rows && !(skip && skip[0] === c && skip[1] === r);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!has(c, r)) continue;
+      const x = ox + c * U;
+      const y = oy + r * D;
+      // The top, and its stud.
+      p.rect(x, y, U, D, m, 2);
+      p.px(x, y, m, 0);
+      p.px(x + 1, y, m, 1);
+      p.px(x + 1, y + 1, m, 3);
+      // The front face, if nothing stands in front of this cell: lit edge, body, shadow at the floor.
+      if (!has(c, r + 1)) {
+        p.rect(x, y + D, U, F, m, 3);
+        p.rect(x, y + D, U, 1, m, 2);
+        p.rect(x, y + D + F - 1, U, 1, m, 4);
+        if (c === 0 || !has(c - 1, r + 1)) p.px(x, y + D + 1, m, 2);
+      }
+      // The side face on the right, if nothing stands to its right.
+      if (!has(c + 1, r)) {
+        const deep = has(c, r + 1) ? D : D + F;
+        p.rect(x + U, y + 1, 1, deep - 1, m, 4);
+        p.px(x + U, y + deep - 1, m, 5);
+      }
+    }
+  }
+  return p.outline();
+}
+
+/** The four pieces (frames of `pieza`, BRICK_KINDS): a red 2x2, a blue 3x1, a yellow 2x1 and a green corner. */
+export function makePiezasNuevas(): Canvas[] {
+  return [brick(2, 2, 'rojo'), brick(3, 1, 'azul'), brick(2, 1, 'amarillo'), brick(2, 2, 'verde', [1, 0])];
+}
+
+// The Muñequito Repetido: a little mass-produced vinyl figure, nearly all head, the mould seam down
+// the side of its face, the smile printed out of register (the red ink a pixel off its mouth) and a
+// «x3» sticker on its chest: you have it three times already. The Muñequito Dorado Ultrarraro is the
+// same mould in gold: shiny, smug, a star where the sticker goes and a sparkle on its head.
+
+export const MUNE_W = 24;
+export const MUNE_H = 28;
+export const MUNE_FEET = { x: 12, y: 26 } as const;
+export const MUNE_LEGS2 = [9, 13] as const;
+/** Where the gold one's rings come from, px above its feet (its muzzleY): the star on its chest. */
+export const MUNE_CHEST_Y = 10;
+
+/** `gold` the ultra-rare one; `bite` the mouth wide open (about to bite, the plain ones). */
+export function makeMunequitoNuevo(pose: Pose = { xb: MUNE_LEGS2[0], xf: MUNE_LEGS2[1], bob: 0 }, gold = false, bite = false): Canvas {
+  const skin: Material = gold ? 'amarillo' : 'carton';
+  const cloth: Material = gold ? 'amarillo' : 'turquesa';
+  const p = new Paint(MUNE_W, MUNE_H);
+  const F = MUNE_FEET;
+  const d = pose.bob;
+  // Stubby moulded legs and feet, all one piece with the trousers (no laces on a figurine).
+  for (const [x, back, leg] of [[pose.xb, true, -1], [pose.xf, false, 1]] as const) {
+    const up = pose.lift && pose.lift.leg === leg ? pose.lift.px : 0;
+    const yb = F.y - 2 - up;
+    const top = 21 + d;
+    p.rect(x, top, 2, Math.max(1, yb - top), cloth, back ? 4 : 3);
+    p.rect(x, yb, 4, 2, gold ? 'amarillo' : 'goma', back ? 3 : 2);
+    p.px(x + 1, yb, gold ? 'amarillo' : 'goma', back ? 2 : 1);
+  }
+  const b = new Paint(MUNE_W, MUNE_H);
+  // The body: a small painted block, a dome lit at the top left.
+  b.ellipsoid(12.5, 18.4, 4.6, 3.4, cloth, { dither: 0.2, z: 0.8, spec: gold });
+  // Stubby arms: two nubs of vinyl, no fingers (the mould saved on fingers).
+  b.ellipsoid(7.2, 18.8, 1.7, 1.7, skin, { dither: 0, bias: 0.15 });
+  b.ellipsoid(18, 18, 1.7, 1.7, skin, { dither: 0, bias: 0.15 });
+  // The head: a big rounded square of vinyl (a superellipse), lit at the top left.
+  const hx = 12.5;
+  const hy = 7.4;
+  b.heightShade(2, 0, 21, 16, (x, y) => {
+    const u = Math.abs((x + 0.5 - hx) / 8.6);
+    const v = Math.abs((y + 0.5 - hy) / 6.9);
+    const s = u ** 3 + v ** 3;
+    return s > 1 ? null : 6 * Math.sqrt(1 - s);
+  }, skin, { z: gold ? 0.9 : 1.6, dither: 0, spec: gold, bias: gold ? -0.05 : 0.2 });
+  // The chest, right under the chin and at its muzzleY: the «x3» sticker (white, red print), or
+  // the gold one's star.
+  const cy = F.y - MUNE_CHEST_Y - 1;
+  if (gold) {
+    for (const [x, y] of [[13, cy - 1], [12, cy], [13, cy], [14, cy], [13, cy + 1]] as const) b.raw(x, y, SHINE);
+    b.px(12, cy + 1, 'amarillo', 4);
+    b.px(14, cy + 1, 'amarillo', 4);
+  } else {
+    b.rect(11, cy, 5, 3, 'acero', 0);
+    b.px(15, cy + 2, 'acero', 2);
+    for (const [x, y] of [[11, cy], [12, cy + 1], [11, cy + 2], [13, cy + 2], [14, cy], [14, cy + 1], [14, cy + 2]] as const) b.px(x, y, 'rojo', 3);
+  }
+  // Painted hair: a flat cap of brown, deeper at the back of the head (on the left) with a jagged
+  // fringe; on the gold one, the same shape one tone down (it is all one cast) and a sparkle.
+  const fringe = [8, 8, 7, 6, 6, 5, 4, 4, 4, 3, 3, 4, 3, 3, 3, 3, 3];
+  for (const [i, n] of fringe.entries()) {
+    const x = 4 + i;
+    for (let y = 0; y < n; y++) {
+      if (!b.filled(x, y)) continue;
+      const t = y <= 1 && x > 6 ? 0 : x < 6 ? 2 : 1;
+      if (gold) b.px(x, y, 'amarillo', t + 1);
+      else b.px(x, y, 'quemada', t);
+    }
+    // The hair's shadow on the forehead.
+    if (!gold && b.filled(x, n) && x > 5) b.px(x, n, 'carton', 2);
+  }
+  if (gold) {
+    for (const [x, y] of [[8, 1], [7, 2], [8, 2], [9, 2], [8, 3]] as const) b.raw(x, y, SHINE);
+  } else {
+    b.px(10, 1, 'quemada', 0);
+    b.px(11, 1, 'carton', 1);
+  }
+  // The mould seam down the side of its head.
+  for (let y = 7; y <= 13; y += 2) b.px(5, y, skin, 3);
+  // Eyes, looking right: two black dots with a glint (plain), or half shut and smug (gold), under
+  // brows that slope down to the middle.
+  const ey = 8;
+  for (const ex of [12, 17]) {
+    b.raw(ex, ey, INK);
+    b.raw(ex + 1, ey, INK);
+    b.raw(ex, ey + 1, INK);
+    b.raw(ex + 1, ey + 1, INK);
+    if (gold) {
+      b.px(ex, ey, skin, 3);
+      b.px(ex + 1, ey, skin, 3);
+    } else b.px(ex, ey, 'acero', 0);
+  }
+  const brows = gold ? [[11, 6], [12, 6], [13, 6], [17, 6], [18, 6], [19, 6]] : [[11, 6], [12, 6], [13, 7], [16, 7], [17, 6], [18, 6]];
+  for (const [x, y] of brows) b.px(x!, y!, gold ? 'amarillo' : 'quemada', gold ? 5 : 3);
+  // Mouth: the hole of the mould, and the red smile printed a pixel off it (cheap printing);
+  // wide open to bite; on the gold one, a smirk.
+  const my = 12;
+  if (bite) {
+    b.rect(13, my, 5, 3, skin, 5);
+    b.raw(13, my, INK);
+    b.px(14, my, 'acero', 0);
+    b.px(16, my, 'acero', 0);
+    b.px(15, my + 2, 'rojo', 3);
+  } else if (gold) {
+    b.rect(14, my, 3, 1, 'amarillo', 5);
+    b.px(17, my - 1, 'amarillo', 5);
+  } else {
+    b.rect(14, my, 3, 1, skin, 4);
+    for (const [x, y] of [[12, my], [13, my + 1], [14, my + 1], [15, my + 1], [16, my]] as const) b.px(x, y, 'rojo', 2);
+  }
+  // A blush of cheap paint on the cheek (the plain ones).
+  if (!gold) b.px(19, 11, 'rosa', 2);
+  p.stamp(b, 0, d);
+  return p.outline();
+}
+
+/** The figurines' frames: 0-1 standing, 2-5 running, 6 biting (the plain ones only). */
+export function makeMunequitoNuevoFrames(gold: boolean): Canvas[] {
+  const cyc = narrowPoseCycle(MUNE_LEGS2[0], MUNE_LEGS2[1], 1).map((f) => makeMunequitoNuevo(f.pose, gold));
+  return gold ? cyc : [...cyc, makeMunequitoNuevo(undefined, false, true)];
+}
