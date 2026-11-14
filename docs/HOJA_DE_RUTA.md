@@ -1023,7 +1023,10 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   una pasada de capturas comparando antes y después en el panel.
 - [ ] (a13) Las armas con el estilo nuevo, empezando por el Secador (ya dibujado en
   `art/prueba/tostadora.png`): el dibujo en la mano (sin cambiar el agarre `GUN_GRIP` ni la boca
-  del cañón, o cambiándolos para todas a la vez) y el del suelo y la tienda.
+  del cañón, o cambiándolos para todas a la vez) y el del suelo y la tienda. Partida el 2026-11-14
+  en dos (el mismo dibujo de 18 × 11 sirve para la mano, el suelo, la tienda y el marcador):
+  - [ ] (a13a) El Secador, la Grapadora, la Plancha, el Megáfono y la Etiquetadora.
+  - [ ] (a13b) El Picahielos, el Almidón, las Notificaciones, el Soldador y el Mando.
 
 ## M15 · Versión de escritorio (lo último)
 
