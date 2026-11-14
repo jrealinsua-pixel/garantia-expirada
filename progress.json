@@ -1637,6 +1637,11 @@
       "sesion": "2026-11-14 20:26 (hora peninsular)",
       "tarea": "M14c (a7h): la Centralita con el estilo nuevo (tools/sprites/centralita-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la centralita, tests/estilo-a7h.test.ts nuevo). No toca otros jefes",
       "desde": "2026-11-14T20:26:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 21:25 (hora peninsular)",
+      "tarea": "M14c (a7i): la Trituradora del Servicio Técnico con el estilo nuevo (tools/sprites/trituradora-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la trituradora, tests/estilo-a7i.test.ts nuevo). No toca otros jefes",
+      "desde": "2026-11-14T21:25:00+01:00"
     }
   ]
 }
