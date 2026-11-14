@@ -2,6 +2,39 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 11:56 (hora peninsular) — Hito M14c — (a6c1) La Destructora con el estilo nuevo
+- Contexto: segunda tarea de la sesión, tras la (a6b2). La (a4d2), el Móvil, la siguiente de la
+  lista, es la que la sesión del Becario apuntó como su siguiente paso (y la cogió a las 11:27), así
+  que esta coge la planta 4, que no se pisa con los personajes. La (a6c) se partió en dos en la hoja
+  de ruta: la destructora se dibuja desde tres lados y sola ya es una tarea.
+- Hecho: M14c (a6c1), en un archivo nuevo, `tools/sprites/planta4-nuevo.ts` (para las de la
+  planta 4; `box34` de la planta 3 se exporta para usarla aquí). **La Destructora de Documentos**
+  (46 × 44, antes 34 × 32; 21 fotogramas, los mismos siete por lado: zumbando, andando y con las
+  cuchillas rojas): de lado, una caja de tres cuartos de plástico `beige` de oficina con la cara
+  delante y la **papelera de `vidrio`** a la espalda (tiras de papel verticales que se ven a través
+  del cristal, el reflejo de la ventana y el montón asomando por arriba); de frente, la cara con las
+  tiras asomando detrás; de espaldas, toda papelera con la pegatina. La boca es **la ranura de las
+  cuchillas en la fila de su `muzzleY`** (dientes de acero; rojos y los ojos entornados cuando
+  avisa o mastica una bala); cejas hacia dentro y párpados pesados («un documento es un
+  documento»); el **pósit «Confidencial»** tapando una esquina de la boca, la pegatina de **«No
+  introducir la mano»**, **un documento a medio tragar** en la ranura de arriba con su sello rojo,
+  el piloto verde (rojo al avisar), una raja, el cerco de un café y zapatos de oficina. Ancla nueva
+  (23, 42); la caja de golpes, la de siempre. Tests en `tests/estilo-a6.test.ts` (ahora 12): entra
+  en los generales y uno nuevo mira los pies en el ancla en los tres lados, la boca en su fila (y
+  sin boca de espaldas), los dientes rojos solo al avisar y la papelera de cristal de lado y de
+  espaldas pero no de frente. e2e: `50p` y `50q` (en la captura del atasco, las cuchillas rojas).
+- Decisiones: (1) Las tiras de la papelera son columnas de papel de dos píxeles con un hueco que
+  se mecen cada cuatro filas: la primera versión, con el vaivén de cada dos filas, se leía como un
+  tablero de ajedrez. (2) La caja creció hasta 22 de alto: con 18 las piernas parecían largas y la
+  destructora, pequeña. (3) El documento a medio tragar es el chiste nuevo: se ve desde los dos
+  lados que tienen cara.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual).
+  1126 tests en verde; e2e entero en verde (una primera pasada falló al principio por correrlo a la
+  vez que el bot: el e2e, solo).
+- Problemas conocidos: la cara de delante es una superficie beige grande y lisa; si a tamaño real
+  aburre, se le puede añadir la rejilla de ventilación. Las tiras que escupe son las de antes ((a10)).
+- Siguiente paso: M14c (a6c2), la Fotocopiadora.
+
 ## 2026-11-14 11:10 (hora peninsular) — Hito M14c — (a6b2) Las piezas del cubo y los muñequitos del sobre
 - Contexto: la (a4d1), el Becario, la tenía otra sesión (terminó mientras tanto; el `pull --rebase`
   mezcló sin conflictos). Al empezar, el `main` local de esta máquina era una copia vieja y poco

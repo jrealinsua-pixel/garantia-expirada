@@ -10,7 +10,7 @@ import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
 import {
-  makeDestructoraFrames, makeFotocopiadoraFrames,
+  makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -39,6 +39,7 @@ import * as ES from './estanteria.ts';
 import { makeJug } from './garrafa.ts';
 import * as P2 from './planta2-nuevo.ts';
 import * as P3 from './planta3-nuevo.ts';
+import * as P4 from './planta4-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
@@ -119,7 +120,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // 0-1 standing, 2 crouching, 3 in the air, 4 about to spit; and what comes out of it.
     'sobre-sorpresa': { canvas: strip(P3.makeSobreNuevoFrames()), frameW: P3.SOBRE_W, frameH: P3.SOBRE_H },
     // Floor 4 (Oficinas): seven frames a side (side, front, back): 0-1 humming, 2-5 shuffling, 6 blades red.
-    destructora: { canvas: strip(makeDestructoraFrames()), frameW: 34, frameH: 32 },
+    // M14c (a6c1): in the new style (planta4-nuevo.ts).
+    destructora: { canvas: strip(P4.makeDestructoraNuevaFrames()), frameW: P4.SHRED_W, frameH: P4.SHRED_H },
     // 0-1 humming, 2-5 shuffling, 6-8 lid up and the green light crossing the glass, 9 a copy coming out.
     fotocopiadora: { canvas: strip(makeFotocopiadoraFrames()), frameW: 38, frameH: 38 },
     // 0-1 standing, 2 crouching, 3 in the air, 4 coming down to stamp, 5 just stamped.

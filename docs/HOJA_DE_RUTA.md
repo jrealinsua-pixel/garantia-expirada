@@ -898,7 +898,13 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     altura de su `muzzleY`. En `tools/sprites/planta3-nuevo.ts`; anclas nuevas (12, 26).
   - [ ] (a6c) La Destructora y la Fotocopiadora, partida en dos el 2026-11-14 (la destructora
     se dibuja desde tres lados).
-    - [ ] (a6c1) La Destructora (de lado, de frente y de espaldas).
+    - [x] (a6c1) La Destructora (de lado, de frente y de espaldas).
+      Hecho el 2026-11-14: `tools/sprites/planta4-nuevo.ts` (46 × 44, 21 fotogramas, siete por
+      lado), caja de tres cuartos de plástico `beige` con la ranura de las cuchillas por boca a la
+      altura de su `muzzleY` (dientes de acero, rojos al avisar), cejas hacia dentro y párpados
+      pesados, el pósit «Confidencial», la pegatina de «No introducir la mano», un documento a
+      medio tragar en la ranura de arriba, el piloto verde (rojo al avisar) y la papelera de
+      `vidrio` con las tiras dentro y el montón asomando; zapatos de oficina. Ancla (23, 42).
     - [ ] (a6c2) La Fotocopiadora.
   - [ ] (a6d) El Sello y el Climatizador.
   - [ ] (a6e) El Dispensador de Turnos y los Postes de Cola.

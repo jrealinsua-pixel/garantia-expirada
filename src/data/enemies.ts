@@ -530,7 +530,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     description: 'Tritura todo lo que le dan por delante, sin leerlo, que es como se toman las decisiones en esta planta. Por detrás lleva la papelera a rebosar.',
     hp: 8,
     sprite: 'destructora',
-    anchor: { x: 17, y: 32 },
+    anchor: { x: 23, y: 42 },
     hurt: { x: -14, y: -26, w: 28, h: 24 },
     footRadius: 7,
     contactPush: 180,

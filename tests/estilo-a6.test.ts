@@ -9,6 +9,7 @@ import { BRICK_KINDS, ENEMIES } from '../src/data/enemies.ts';
 import { BRICK_RADIUS } from '../src/sim/world.ts';
 import { allSheets } from '../tools/sprites/build.ts';
 import * as P3 from '../tools/sprites/planta3-nuevo.ts';
+import * as P4 from '../tools/sprites/planta4-nuevo.ts';
 
 const FLOOR = MATERIALS.suelo[3]!;
 
@@ -20,6 +21,7 @@ const REDRAWN: Record<string, () => Canvas[]> = {
   'sobre-sorpresa': P3.makeSobreNuevoFrames,
   'munequito-repetido': () => P3.makeMunequitoNuevoFrames(false),
   'munequito-dorado': () => P3.makeMunequitoNuevoFrames(true),
+  destructora: P4.makeDestructoraNuevaFrames,
 };
 
 function bottomRow(cv: Canvas, x0 = 0, x1 = cv.w - 1): number {
@@ -259,4 +261,42 @@ test('estilo a6: las piezas del suelo, una por clase, de su color, del tamaño d
     // As wide as the circle that hurts on the floor (BRICK_RADIUS), give or take the outline.
     assert.ok(x1 - x0 + 1 >= 2 * BRICK_RADIUS - 2 && x1 - x0 + 1 <= 2 * BRICK_RADIUS + 3, `pieza ${i}: ${x1 - x0 + 1} px de ancho`);
   }
+});
+
+test('estilo a6: la destructora, desde sus tres lados, pisa el suelo en su ancla con la boca en su muzzleY', () => {
+  const def = ENEMIES.destructora!;
+  assert.deepEqual(def.anchor, P4.SHRED_FEET);
+  assert.deepEqual(def.hurt, { x: -14, y: -26, w: 28, h: 24 }, 'la caja de golpes de siempre');
+  const frames = P4.makeDestructoraNuevaFrames();
+  const a = def.anim!;
+  assert.equal(frames.length, 21);
+  assert.deepEqual(a.views, { front: 7, back: 14 });
+  for (const shift of [0, 7, 14]) {
+    for (const k of [...a.idle, a.walk![0]!, a.walk![2]!, a.warn!]) {
+      assert.equal(bottomRow(frames[k + shift]!, def.anchor.x - 10, def.anchor.x + 10), def.anchor.y, `fotograma ${k + shift}: los pies no tocan el suelo`);
+    }
+  }
+  assert.equal(def.brain.kind === 'shredder' && def.brain.muzzleY, P4.SHRED_MOUTH_Y);
+  // The blade slot (the beige's deepest tone with teeth) on the muzzle row, in the side and front
+  // views; the teeth go red in the warning frame; from the back, no mouth at all.
+  const row = P4.SHRED_FEET.y - P4.SHRED_MOUTH_Y - 1;
+  const deep = MATERIALS.beige[6]!;
+  const count = (cv: Canvas, c: readonly number[], y = row): number => {
+    let n = 0;
+    for (let x = 0; x < cv.w; x++) if (same(cv.get(x, y), c)) n++;
+    return n;
+  };
+  const mouthRow = (cv: Canvas): number => count(cv, deep, row - 1) + count(cv, deep, row + 1);
+  assert.ok(mouthRow(frames[0]!) >= 30, `de lado, la boca no está en la fila ${row}`);
+  assert.ok(mouthRow(frames[7]!) >= 30, 'de frente, la boca');
+  assert.equal(mouthRow(frames[14]!), 0, 'de espaldas no tiene boca');
+  assert.equal(count(frames[0]!, MATERIALS.rojo[1]!), 0, 'los dientes, de acero');
+  assert.ok(count(frames[6]!, MATERIALS.rojo[1]!) >= 5, 'a punto de embestir, los dientes rojos');
+  // The bin shows (see-through glass) on the side and all over the back, not from the front.
+  const glass = (cv: Canvas): number => {
+    let n = 0;
+    for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (MATERIALS.vidrio.some((t) => same([...t], cv.get(x, y)))) n++;
+    return n;
+  };
+  assert.ok(glass(frames[14]!) > glass(frames[0]!) && glass(frames[0]!) > 40 && glass(frames[7]!) === 0, 'la papelera');
 });

@@ -17,7 +17,7 @@ const raw = (m: Material, t: number): RGBA => [...MATERIALS[m][t]!] as RGBA;
  * A box in three quarters (the same convention as plant 2's): the front face lit at its top-left,
  * the top face going back and up to the left, the left side in shade. Returns the front's corner.
  */
-function box34(p: Paint, x0: number, y0: number, fw: number, fh: number, depth: number, m: Material, tones = { top: [0, 1], side: [4, 3], front: [1, 2, 3] }): { fx: number; fy: number } {
+export function box34(p: Paint, x0: number, y0: number, fw: number, fh: number, depth: number, m: Material, tones = { top: [0, 1], side: [4, 3], front: [1, 2, 3] }): { fx: number; fy: number } {
   for (let j = 0; j < depth; j++) p.rect(x0 + j, y0 - depth + j, fw, 1, m, j === 0 ? tones.top[0]! : tones.top[1]!);
   for (let i = 0; i < depth; i++) {
     const back = depth - i;

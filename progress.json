@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T11:10:00+01:00",
+  "actualizado": "2026-11-14T11:56:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1125,
-    "tests_ok": 1125,
+    "tests": 1126,
+    "tests_ok": 1126,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 38162
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T11:56:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a6c1): la Destructora de Documentos con el estilo nuevo, desde sus tres lados: una caja de plástico beige de oficina con la ranura de las cuchillas por boca, el pósit «Confidencial», la pegatina de «No introducir la mano», un documento a medio tragar en la ranura de arriba y la papelera transparente llena de tiras a la espalda; las cuchillas se ponen rojas antes de lanzarse."
+    },
     {
       "fecha": "2026-11-14T11:10:00+01:00",
       "hito": "M14c",
@@ -1510,6 +1515,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/destructora-redibujada.png",
+      "pie": "M14c (a6c1): la Destructora de Documentos, ahora (arriba: de lado, andando y con las cuchillas rojas; de frente; de espaldas, toda papelera) y antes (abajo), a 3×"
+    },
+    {
+      "archivo": "capturas/destructora-en-juego.png",
+      "pie": "M14c (a6c1): la destructora nueva, con las cuchillas rojas, a punto de lanzarse contra la tostadora en la Planta en Reforma"
+    },
+    {
       "archivo": "capturas/piezas-munequitos-redibujados.png",
       "pie": "M14c (a6b2): los muñequitos del sobre y las piezas del cubo, antes (arriba) y ahora (abajo: el repetido de pie, corriendo y mordiendo; el dorado de pie y corriendo; las cuatro piezas), a 3×"
     },
@@ -1524,17 +1537,9 @@
     {
       "archivo": "capturas/becario-con-los-cinco.png",
       "pie": "M14c (a4d1): los cinco en el Mostrador; el Becario, ya con el estilo nuevo, junto a la tostadora, la batidora y la plancha (el Móvil es el que queda por redibujar)"
-    },
-    {
-      "archivo": "capturas/cubo-sobre-redibujados.png",
-      "pie": "M14c (a6b): el Cubo de Piezas y el Sobre Sorpresa, antes (el primero de cada uno) y ahora (de pie, andando y con la tapa levantada; de pie, agachado, en el aire y a punto de escupir confeti), a 3×"
-    },
-    {
-      "archivo": "capturas/robot-coche-redibujados.png",
-      "pie": "M14c (a6a): el Robot de Cuerda y el Coche Teledirigido, antes (el primero de cada uno) y ahora (de pie, andando, sin cuerda y dándose cuerda; en marcha, embistiendo, volcado y sin pilas), a 3×"
     }
   ],
-  "proximo": "M14c (a4d2), el Móvil (si nadie lo ha cogido); si no, la (a6c), la Destructora y la Fotocopiadora.",
+  "proximo": "M14c (a6c2), la Fotocopiadora (la (a4d2), el Móvil, la tiene otra sesión).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1563,11 +1568,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 11:15 (hora peninsular)",
-      "tarea": "M14c (a6c1): la Destructora con el estilo nuevo (tools/sprites/planta4-nuevo.ts nuevo, tools/sprites/build.ts su línea, src/data/enemies.ts su ancla, tests/estilo-a6.test.ts). No toca personajes",
-      "desde": "2026-11-14T11:15:00+01:00"
-    },
     {
       "sesion": "2026-11-14 11:27 (hora peninsular)",
       "tarea": "M14c (a4d2): el Móvil con el estilo nuevo y sus 24 fotogramas (tools/sprites/movil.ts o su archivo, tools/sprites/build.ts su línea, src/data/characters.ts su look, src/art/paleta.ts si hace falta un material, tests/movil-a4d.test.ts). No toca enemigos",
