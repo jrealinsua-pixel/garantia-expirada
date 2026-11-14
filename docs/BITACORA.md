@@ -2,6 +2,30 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 17:53 (hora peninsular) — Hito M14c — (a7d) La Nube de Almacenamiento con el estilo nuevo
+- Contexto: la misma sesión que la (a7c), seguida (paso 7); nadie más trabajaba.
+- Hecho: M14c (a7d), en `tools/sprites/nube-nuevo.ts` (la vieja, en `nube.ts`, que sigue
+  dibujando la carpeta y las balas). **La Nube** (84 × 88, antes 72 × 76): una sola masa de
+  `vidrio` sombreada con `heightShade` sobre la unión de diez esferas; ver `docs/ESTILO_ARTE.md`.
+  **17 fotogramas** (antes 12): ocho por fase (flotar 4, aguantar la respiración, el error, y una
+  pose para el chaparrón y otra para escupir archivos) y, llena, una pose soltando carpetas. `pose`
+  nuevo en `BossRainAttack` y `BossFolderAttack`; `frameShift` de la fase 2, 8. Despiece propio
+  (`despiece-nube-almacenamiento`, seis piezas). Ancla (42, 86); caja de golpes y boca, las de
+  siempre. `tests/estilo-a7d.test.ts` (5 tests); `tests/nube.test.ts` mira ya la hoja nueva.
+- Decisiones: (1) Crece poco (un 7 % de área): la vieja se salía de su caja de golpes por arriba y
+  por los lados, y la regla de los jefes dice que el cuerpo se ciña a ella; lo que gana es la forma
+  (una nube de verdad, con volumen) y los fotogramas. El test pide un 5 % y no un 10 %. (2) La
+  sincronización no lleva pose: usa el fotograma de aviso (aguantar la respiración), como antes. (3)
+  Guantes de chubasquero de `mostaza` y no de `amarillo`, el color de los cupones. (4) La primera
+  versión, sombreada con las normales casi planas (`z` 6), se veía gris y moteada; con `z` 1,8 y
+  menos tramado los bultos se leen redondos y blancos.
+- Medidas: la simulación no cambia. 1173 tests en verde; `npm run e2e` entero en verde (capturas de
+  la nube miradas: lluvia en calles, el chaparrón, llena soltando carpetas). `npm run bot`: 200
+  partidas, 0 fallos; la Nube, ganada el 76,7 % en 84,8 s, igual que antes.
+- Problemas conocidos: mirando a la izquierda se voltea entera, y el «100» de la barra se lee al
+  revés (como el texto de otros jefes volteados).
+- Siguiente paso: M14c (a7e), el Muñeco de Moda y su etiqueta.
+
 ## 2026-11-14 17:17 (hora peninsular) — Hito M14c — (a7c) El Router del Wifi y sus repetidores con el estilo nuevo
 - Contexto: al llegar, otra sesión tenía cogida la (a7b) (la lavadora) desde hacía unos minutos;
   elegí la (a7c), que solo comparte con ella dos líneas de `build.ts` y la entrada de cada jefe en

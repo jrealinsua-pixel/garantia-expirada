@@ -182,6 +182,23 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   clavija de red y un trozo de tapa. **El repetidor**, 24 × 28: un enchufe de pared blanco de pie
   sobre sus dos patas de latón, una antena corta, ojos cansados, el logo del wifi pequeño entre
   ellos (su `muzzleY`) y una luz verde; desenchufado, se hunde, cierra los ojos y la antena cae.
+- **La Nube de Almacenamiento** (M14c (a7d), `tools/sprites/nube-nuevo.ts`; la vieja se queda en
+  `nube.ts`, que sigue dibujando su carpeta y sus balas hasta la (a10)): **una sola masa** de
+  `vidrio` (casi blanca, sombras a azul pizarra) sombreada con el sombreador de volumen sobre la
+  unión de diez esferas, así que las costuras entre los bultos salen solas de las pendientes; la
+  barriga plana con una franja de sombra honda. Flota: nada suyo toca el suelo salvo la llovizna
+  (transparente), el **cable USB** que dice que no necesita, colgando con la clavija que se balancea,
+  y la sombra que pone el juego. Ojos de párpado pesado con el iris azul cielo, la boca en su
+  `muzzle` (de ahí salen los archivos), la **barra de almacenamiento al 99 %** en el lado de
+  sombra, la pegatina del **candado abierto** de «privacidad garantizada» y **guantes de
+  chubasquero** de `mostaza`. Poses: aguantando la respiración (sincronizando: mejillas hinchadas,
+  ojos apretados, un píxel más gorda), el error de conexión (ojos en X, boca temblona y el triángulo
+  rojo encima), el chaparrón (manos arriba, mirando al suelo, lluvia larga y la barriga más oscura)
+  y escupiendo archivos (boca abierta con un folio saliendo). **Llena**: la misma de `acero`, gris
+  de tormenta, un píxel más gorda, con carpetas de `carton` clavadas, ojeras y la barra al 100 % en
+  rojo; su pose propia, soltando carpetas por la barriga. Despiece: un trozo de nube, una carpeta,
+  un folio, el candado, la clavija USB y la barra. Crece poco respecto a la vieja (un 7 % de área):
+  la vieja ya se salía de su caja de golpes y la nueva se ciñe a ella.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

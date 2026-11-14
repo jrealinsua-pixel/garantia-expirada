@@ -970,7 +970,10 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     `tools/sprites/router-nuevo.ts`: 84 × 88 (antes 72 × 76), material nuevo `abs`, 23 fotogramas
     (pose por ataque, el reinicio con las luces y la fase 2 «actualizada» con sus poses),
     `despiece-router-wifi`; ancla (40, 86); el repetidor, 24 × 28; `tests/estilo-a7c.test.ts`.
-  - [ ] (a7d) La Nube de Almacenamiento (planta 2).
+  - [x] (a7d) La Nube de Almacenamiento (planta 2). Hecho el 2026-11-14 en
+    `tools/sprites/nube-nuevo.ts`: 84 × 88 (antes 72 × 76), una sola masa sombreada con
+    `heightShade`, 17 fotogramas (ocho por fase con sus poses, y soltando carpetas),
+    `despiece-nube-almacenamiento`; ancla (42, 86); `tests/estilo-a7d.test.ts`.
   - [ ] (a7e) El Muñeco de Moda y su etiqueta (planta 3).
   - [ ] (a7f) La Consola de Coleccionista (planta 3).
   - [ ] (a7g) El Director de Recursos Inhumanos y su silla (planta 4).

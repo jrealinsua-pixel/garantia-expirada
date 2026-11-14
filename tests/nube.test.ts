@@ -12,7 +12,7 @@ import { DOWN_CAUSES } from '../src/data/texts.ts';
 import { bossesOfFloor, pickFloorBoss } from '../src/sim/bosses.ts';
 import { dropFolders, rainColumns } from '../src/sim/enemies.ts';
 import { enemyFrame } from '../src/render/enemyAnim.ts';
-import { makeNubeFrames, NUBE_PER_PHASE } from '../tools/sprites/nube.ts';
+import { makeNubeNuevaFrames, NUBE_H, NUBE_PER_PHASE, NUBE_W } from '../tools/sprites/nube-nuevo.ts';
 import { activeWarnings, checkInvariants, createWorld, damageProp, DT, firePattern, NO_INPUT, step, type Enemy, type World } from '../src/sim/world.ts';
 
 const def = ENEMIES['nube-almacenamiento']!;
@@ -52,7 +52,7 @@ test('la planta 2 elige entre el Router y la Nube con la semilla, más o menos a
   assert.ok(nube > 140 && nube < 260, `${nube} de 400`);
 });
 
-test('sus datos: dos fases, lema, causa de baja, la carpeta y una hoja de 12 fotogramas', () => {
+test('sus datos: dos fases, lema, causa de baja, la carpeta y una hoja de 17 fotogramas', () => {
   assert.deepEqual(brain.phases.map((p) => p.name), ['Subiendo archivos', 'Almacenamiento lleno']);
   assert.deepEqual(brain.phases.map((p) => p.frameShift ?? 0), [0, NUBE_PER_PHASE]);
   for (const p of brain.phases) {
@@ -64,9 +64,10 @@ test('sus datos: dos fases, lema, causa de baja, la carpeta y una hoja de 12 fot
   assert.ok(DOWN_CAUSES['nube-almacenamiento']?.bullet && DOWN_CAUSES['nube-almacenamiento']?.contact);
   const carpeta = PROPS['carpeta-nube']!;
   assert.ok(carpeta.crumble && carpeta.hp && carpeta.blocksBullets);
-  const frames = makeNubeFrames();
-  assert.equal(frames.length, 2 * NUBE_PER_PHASE);
-  for (const f of frames) assert.deepEqual([f.w, f.h], [72, 76]);
+  // M14c (a7d): the new sheet, two phases and the folders pose.
+  const frames = makeNubeNuevaFrames();
+  assert.equal(frames.length, 2 * NUBE_PER_PHASE + 1);
+  for (const f of frames) assert.deepEqual([f.w, f.h], [NUBE_W, NUBE_H]);
 });
 
 test('lluvia en columnas: una sobre el jugador, las demás separadas, marcadas desde la pared del fondo', () => {

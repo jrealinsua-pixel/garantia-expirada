@@ -40,6 +40,7 @@ import * as RC from './recepcion-nuevo.ts';
 import * as NV from './nevera-nuevo.ts';
 import * as LN from './lavadora-nuevo.ts';
 import * as RT from './router-nuevo.ts';
+import * as NN from './nube-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
@@ -148,7 +149,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-calcetin': { canvas: LV.makeSockBullet(), frameW: 12, frameH: 12 },
     // Floor 2's second boss (M14 (j3)): six frames per phase (floating 0-3, holding its breath,
     // the error), «Subiendo archivos» 0-5 and «Almacenamiento lleno» 6-11; its folders, rain and files.
-    'nube-almacenamiento': { canvas: strip(NB.makeNubeFrames()), frameW: NB.NUBE_W, frameH: NB.NUBE_H },
+    'nube-almacenamiento': { canvas: strip(NN.makeNubeNuevaFrames()), frameW: NN.NUBE_W, frameH: NN.NUBE_H },
+    // M14c (a7d): the new Nube (tools/sprites/nube-nuevo.ts, NUBE_FRAMES) and its debris.
+    'despiece-nube-almacenamiento': { canvas: strip(NN.makeNubeBits()), frameW: NN.NUBE_BIT, frameH: NN.NUBE_BIT },
     'carpeta-nube': one(NB.makeCarpeta()),
     'bala-gota': { canvas: NB.makeDropBullet(), frameW: 10, frameH: 10 },
     'bala-archivo': { canvas: NB.makeFileBullet(), frameW: 12, frameH: 12 },

@@ -313,9 +313,15 @@
   },
   "nube-almacenamiento": {
     "file": "nube-almacenamiento.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 12
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 17
+  },
+  "despiece-nube-almacenamiento": {
+    "file": "despiece-nube-almacenamiento.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "carpeta-nube": {
     "file": "carpeta-nube.png",

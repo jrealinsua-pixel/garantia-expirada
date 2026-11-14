@@ -1426,7 +1426,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // Like the Router (170): the same floor. Measured with the bot (j3).
     hp: 115,
     sprite: 'nube-almacenamiento',
-    anchor: { x: 36, y: 74 },
+    anchor: { x: 42, y: 86 },
     // It floats: the body is up in the air, its shadow on the floor.
     hurt: { x: -30, y: -66, w: 60, h: 40 },
     footRadius: 16,
@@ -1434,9 +1434,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [3, 5], hearts: 1 },
-    // Six frames per phase (tools/sprites/nube.ts): 0-3 floating (it bobs and its wisps drift), 4
-    // holding its breath (warning, syncing), 5 the connection error. «Almacenamiento lleno» is the
-    // same six on, swollen and grey.
+    // M14c (a7d, tools/sprites/nube-nuevo.ts): eight frames per phase: 0-3 floating (it bobs, the
+    // cable swings, the drizzle falls), 4 holding its breath (warning, syncing), 5 the connection
+    // error, 6-7 its attack poses (the downpour, spitting files). «Almacenamiento lleno» is the same
+    // eight on, swollen and grey with folders, and 16 its pose dropping folders.
     anim: { idle: [0, 1, 2, 3], idleMs: 280, walk: [0, 1, 2, 3], stepPx: 14, warn: 4, stun: 5 },
     brain: {
       kind: 'boss',
@@ -1457,8 +1458,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
           rest: [0.9, 1.4],
           attacks: [
             // «Lluvia en columnas»: lanes marked from the back wall down, one over you.
-            { kind: 'rain', cols: 5, gap: 50, pattern: 'nube-lluvia', telegraph: 0.9, weight: 3 },
-            { kind: 'pattern', pattern: 'nube-archivos', telegraph: 0.6, weight: 2 },
+            { kind: 'rain', cols: 5, gap: 50, pattern: 'nube-lluvia', telegraph: 0.9, weight: 3, pose: 6 },
+            { kind: 'pattern', pattern: 'nube-archivos', telegraph: 0.6, weight: 2, pose: 7 },
             // «Sincronizando…»: a bar fills; shoot it hard enough and it breaks.
             { kind: 'sync', time: 3.2, cancel: 8, pattern: 'nube-sincronizada', stun: 1.8, weight: 2 },
           ],
@@ -1471,11 +1472,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
           keep: 130,
           rest: [0.8, 1.2],
           line: 'Su almacenamiento está lleno. Mejore su plan.',
-          frameShift: 6,
+          frameShift: 8,
           attacks: [
-            { kind: 'folders', count: 5, prop: 'carpeta-nube', life: 7, dist: 0.45, telegraph: 0.7, weight: 3 },
-            { kind: 'rain', cols: 6, gap: 44, pattern: 'nube-lluvia-2', telegraph: 0.85, weight: 3 },
-            { kind: 'pattern', pattern: 'nube-archivos-2', telegraph: 0.55, weight: 2 },
+            { kind: 'folders', count: 5, prop: 'carpeta-nube', life: 7, dist: 0.45, telegraph: 0.7, weight: 3, pose: 16 },
+            { kind: 'rain', cols: 6, gap: 44, pattern: 'nube-lluvia-2', telegraph: 0.85, weight: 3, pose: 14 },
+            { kind: 'pattern', pattern: 'nube-archivos-2', telegraph: 0.55, weight: 2, pose: 15 },
             { kind: 'sync', time: 2.8, cancel: 9, pattern: 'nube-sincronizada', stun: 1.6, weight: 2 },
           ],
         },

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T17:17:00+01:00",
+  "actualizado": "2026-11-14T17:53:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1168,
-    "tests_ok": 1168,
+    "tests": 1173,
+    "tests_ok": 1173,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38234
+    "lineas_codigo": 38239
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T17:53:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7d): la Nube de Almacenamiento con el estilo nuevo. Una sola nube con volumen (sombreada como una unión de esferas), ojos de párpado pesado, la barra de almacenamiento al 99 %, el candado abierto de «privacidad garantizada», el cable USB colgando y guantes de chubasquero. 17 fotogramas (antes 12): poses para el chaparrón, los archivos y, llena, soltando carpetas; llena se vuelve nube de tormenta gris con carpetas clavadas, ojeras y la barra al 100 % en rojo. Despiece propio. Simulación igual; tests, e2e y bot en verde."
+    },
     {
       "fecha": "2026-11-14T17:17:00+01:00",
       "hito": "M14c",
@@ -1560,6 +1565,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/nube-redibujada.png",
+      "pie": "M14c (a7d): la Nube de Almacenamiento, antes (la primera) y ahora: flotando, sincronizando, el error de conexión, el chaparrón, escupiendo archivos y, llena, flotando, lloviendo, escupiendo y soltando carpetas; debajo, su despiece, a 3×"
+    },
+    {
+      "archivo": "capturas/nube-en-juego.png",
+      "pie": "M14c (a7d): la nube nueva, llena, dejando caer su muro de carpetas entre ella y la tostadora en el Almacén"
+    },
+    {
       "archivo": "capturas/router-redibujado.png",
       "pie": "M14c (a7c): el Router del Wifi, antes (el primero) y ahora: de pie, emitiendo ondas, escupiendo paquetes, reiniciándose y, ya «actualizado», de pie, con sus ondas rojas, sus paquetes y los puños al suelo; debajo, el repetidor antes y ahora y las piezas de su despiece, a 3×"
     },
@@ -1574,17 +1587,9 @@
     {
       "archivo": "capturas/lavadora-en-juego.png",
       "pie": "M14c (a7b): la lavadora nueva en su sala: la espuma del Prelavado, el calcetín volando del Lavado y el Centrifugado a tope"
-    },
-    {
-      "archivo": "capturas/nevera-redibujada.png",
-      "pie": "M14c (a7a): la Nevera Suprema, antes (la primera de cada fila) y ahora: arriba, de pie, disparando cubitos, lanzando escarcha, reventando la puerta al cambiar de fase y andando; abajo, la fase 2 con la puerta abierta, el abanico de tarjetas y la comida caducada saliendo volando, a 3×"
-    },
-    {
-      "archivo": "capturas/nevera-en-juego.png",
-      "pie": "M14c (a7a): la nevera nueva en su sala: los cubitos del dispensador, la puerta reventando al cambiar de fase (de cerca) y la fase 2 con la nevera abierta"
     }
   ],
-  "proximo": "M14c (a7d), la Nube de Almacenamiento (y después el resto de los jefes, uno por tarea: (a7e)–(a7i)).",
+  "proximo": "M14c (a7e), el Muñeco de Moda (cogido por otra sesión), y después (a7f)–(a7i), un jefe por tarea.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1613,11 +1618,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 17:22 (hora peninsular)",
-      "tarea": "M14c (a7d): la Nube de Almacenamiento con el estilo nuevo (tools/sprites/nube-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la nube, tests/estilo-a7d.test.ts nuevo). No toca otros jefes",
-      "desde": "2026-11-14T17:22:00+01:00"
-    },
     {
       "sesion": "2026-11-14 17:33 (hora peninsular)",
       "tarea": "M14c (a7e): el Muñeco de Moda y su etiqueta con el estilo nuevo (tools/sprites/muneco-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts el muñeco, tests/estilo-a7e.test.ts nuevo). No toca otros jefes",

@@ -840,6 +840,8 @@ export interface BossRainAttack {
   pattern: string;
   telegraph: number;
   weight: number;
+  /** Its frame while it warns and just after (EnemyAnim; M14c (a7d), the Nube). */
+  pose?: number;
 }
 
 /**
@@ -856,6 +858,8 @@ export interface BossFolderAttack {
   dist: number;
   telegraph: number;
   weight: number;
+  /** Its frame while it warns and just after (EnemyAnim; M14c (a7d), the Nube). */
+  pose?: number;
 }
 
 /**
