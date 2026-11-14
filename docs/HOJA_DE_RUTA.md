@@ -794,11 +794,18 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   las hojas; `tests/entrada.test.ts`.
 - [ ] (a4) Los cinco personajes jugables, redibujados con más fotogramas (andar 6, rodar 6,
   disparar, herido, morir).
-  - [ ] (a4a) La Tostadora en el juego con el estilo nuevo (parte de `art/prueba/tostadora.png`):
+  - [x] (a4a) La Tostadora en el juego con el estilo nuevo (parte de `art/prueba/tostadora.png`):
     la hoja nueva, el tamaño de fotograma nuevo en `sprites.json`, el dibujo centrado en su caja
     de choque de siempre, el arma y la mano que gira encajadas, e2e y capturas.
+    Hecho el 2026-11-14: `tools/sprites/tostadora.ts` (los ocho fotogramas de siempre en 40 × 46,
+    piernas y cuerpo pintados aparte y unidos con `Paint.stamp` para un solo contorno; herida, las
+    tostadas saltan; rota, sin tostadas y con la palanca abajo), su guante `mano-tostadora`, una
+    sombra más ancha (`CharacterLook.shadowRx`), `classicOrigin` para la portada y el final (que
+    estaban hechos para el marco de 40 × 41) y `tests/tostadora-a4a.test.ts`. El Secador sigue con
+    el dibujo viejo: va en la (a13).
   - [ ] (a4b) Sus fotogramas nuevos: andar 6, rodar 6, disparar, herido y morir.
-  - [ ] (a4c) La Batidora de Vaso y la Plancha de Vapor.
+  - [ ] (a4c) La Batidora de Vaso y la Plancha de Vapor. (Al redibujarlas, que
+    `tests/plancha-vapor.test.ts` mida su anchura contra la tostadora nueva, no la vieja.)
   - [ ] (a4d) El Becario Eterno y el Móvil.
 - [ ] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
   - [x] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
@@ -820,6 +827,9 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   Pequeña» revisada.
 - [ ] (a12) Luz y ambiente: sombra bajo cada personaje, luces de color por planta, viñeta, y
   una pasada de capturas comparando antes y después en el panel.
+- [ ] (a13) Las armas con el estilo nuevo, empezando por el Secador (ya dibujado en
+  `art/prueba/tostadora.png`): el dibujo en la mano (sin cambiar el agarre `GUN_GRIP` ni la boca
+  del cañón, o cambiándolos para todas a la vez) y el del suelo y la tienda.
 
 ## M15 · Versión de escritorio (lo último)
 

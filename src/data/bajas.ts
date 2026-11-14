@@ -38,9 +38,10 @@ const TOSTADORA: CharacterDown = {
   debris: 'despiece',
   burst: 'crumbs',
   scrap: true,
-  // Smoke from the empty slots (now on its side) and sparks from the frayed cord.
-  smoke: { x: 26, y: -6 },
-  sparks: { x: -12, y: -2 },
+  // Smoke from the empty slots (now on its side) and sparks from the frayed cord's plug
+  // (M14c (a4a): further out, the new toaster is bigger).
+  smoke: { x: 30, y: -6 },
+  sparks: { x: -20, y: -2 },
 };
 
 /** Each character's death; any other id goes down like the toaster. */

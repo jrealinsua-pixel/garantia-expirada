@@ -419,6 +419,8 @@ export interface CharacterLook {
   hand?: string;
   /** A one-frame texture drawn instead of the sheet while it is switched off (the Móvil's battery). */
   off?: string;
+  /** Half the width of its shadow on the floor (default 9; the characters redrawn bigger in M14c, more). */
+  shadowRx?: number;
 }
 
 export interface PropDef {

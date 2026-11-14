@@ -4831,6 +4831,8 @@ export class GameScene extends Phaser.Scene {
     // Hero body: the character's own sheet (it changes in the Mostrador when another goes on display).
     const look = p.base.def.look;
     if (this.hero.texture.key !== look.sheet) this.hero.setTexture(look.sheet, 0);
+    const shadowKey = shadowTexture(this, look.shadowRx ?? 9, 3);
+    if (this.heroShadow.texture.key !== shadowKey) this.heroShadow.setTexture(shadowKey);
     const handKey = look.hand ?? 'mano';
     if (this.hand.texture.key !== handKey) this.hand.setTexture(handKey);
     const moving = Math.hypot(p.vx, p.vy) > 12;

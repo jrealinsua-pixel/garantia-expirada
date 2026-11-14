@@ -2,6 +2,47 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 03:30 (hora peninsular) — Hito M14c — (a4a) La Tostadora del juego, con el estilo nuevo
+- Contexto: sesión programada. El `main` local otra vez era un clon viejo (`git checkout -B main
+  origin/main`). La (h11c) la había cogido otra sesión a las 02:25 (menos de 90 minutos), así que
+  esta coge M14c (a4a), que no toca `src/data/rooms.ts` ni nada de la (h11c). Salud al empezar:
+  `check`, 1068 tests y `build` en verde.
+- Hecho: M14c (a4a). **La tostadora que se juega es la nueva** (la de `art/prueba/tostadora.png`):
+  `tools/sprites/tostadora.ts` dibuja los ocho fotogramas de siempre (reposo ×2, andar ×4, herida y
+  rota) en un marco de 40 × 46 con los pies en la última fila (`feetY` 45, `feetX` 22,5) y el giro
+  de la voltereta en el centro de la carcasa (`spinY` 26). Sin el arma ni el guante de delante (los
+  pone el juego, girando con la mira) y sin sombra ni migas en el suelo. Las piernas y el cable se
+  pintan aparte del cuerpo, que respira y bota encima, y se juntan con `Paint.stamp` (nuevo en
+  `src/art/pintor.ts`) antes del contorno: un solo contorno para toda la figura. Herida: ojos
+  apretados (> <), la boca abierta y las dos tostadas saltan dos píxeles. Rota: ojos tachados, sin
+  tostadas (han salido disparadas), la palanca abajo, la boca colgando y sin guante de atrás. El
+  humo de la quemada se mueve un píxel entre fotogramas. Su guante, `mano-tostadora` (7 × 7, el
+  estilo nuevo), y una sombra más ancha (`CharacterLook.shadowRx` 12; el resto sigue en 9). La
+  caja de choque no cambia. La portada y el final, que colocaban el dibujo a mano para el marco de
+  40 × 41, lo colocan ahora con `classicOrigin` (mismo centro, pies a la misma altura; para los
+  demás personajes da lo mismo que antes), y en la estantería del final lo que asomaría por encima
+  de la caja cerrada se recorta. El humo y las chispas de la tostadora rota salen un poco más
+  lejos (`bajas.ts`). Tests: `tests/tostadora-a4a.test.ts` (5: la hoja, los pies y el centro, la
+  tinta y la legibilidad sobre el suelo, cada fotograma distinto con las tostadas que saltan y
+  desaparecen, y `classicOrigin`).
+- Decisiones: (1) El Secador se queda con el dibujo viejo: lo llevan todos los personajes y su
+  agarre (`GUN_GRIP`) es el de todas las armas; cambiarlo es otra tarea, la nueva **(a13) Las armas
+  con el estilo nuevo** al final de M14c. (2) La mano sigue a la misma distancia del cuerpo
+  (`HAND_REACH`, simulación): con la carcasa más ancha el arma queda delante de la parte baja del
+  cuerpo, como en el dibujo de prueba, y así no cambia por dónde salen las balas. (3) En
+  `tests/plancha-vapor.test.ts`, «la Plancha es más ancha que la tostadora» se mide contra la
+  tostadora vieja (las dos al mismo tamaño) hasta que la (a4c) la redibuje; apuntado en la hoja de
+  ruta. (4) En la caja abierta del final las tostadas asoman por arriba: se deja, es una tostadora
+  metida en su caja.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, los de
+  siempre; jefes igual que antes). 1073 tests en verde.
+- Problemas conocidos: la sombra sigue siendo la vieja, casi negra (la (a12) la hace violeta); las
+  otras cuatro personas jugables siguen en el estilo viejo y se ven más pequeñas que la tostadora
+  hasta la (a4c) y la (a4d). Un e2e corrido a la vez que los tests y el bot falló por tiempo («la
+  ficha de devolución no se cierra», con 2 s de margen); a solas pasa.
+- Siguiente paso: M14c (a4b), los fotogramas nuevos de la tostadora (andar 6, rodar 6, disparar,
+  herido y morir). (Al subir, la (h11c) y la (a5a) ya estaban hechas por otra sesión, que sigue con la
+  (a5b); solo hubo que juntar la bitácora, `progress.json` y una línea de imports de `build.ts`.)
 ## 2026-11-14 04:55 (hora peninsular) — Hito M14c — (a5a) El Aspirador y el Microondas con el estilo nuevo
 - Contexto: sesión programada. El `main` local volvía a ser un clon viejo y superficial que no casaba
   con `origin/main` (`git checkout -B main origin/main`). La (a4a), la Tostadora, está cogida por

@@ -2,8 +2,14 @@
   "tostadora": {
     "file": "tostadora.png",
     "frameW": 40,
-    "frameH": 41,
+    "frameH": 46,
     "frames": 8
+  },
+  "mano-tostadora": {
+    "file": "mano-tostadora.png",
+    "frameW": 7,
+    "frameH": 7,
+    "frames": 1
   },
   "batidora-vaso": {
     "file": "batidora-vaso.png",

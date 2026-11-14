@@ -168,6 +168,22 @@ export class Paint {
       }
     }
   }
+  /**
+   * Copy another painting on top of this one, moved by (dx, dy), with its materials: a body
+   * painted apart can bob over its legs and still get one outline round the whole figure.
+   */
+  stamp(other: Paint, dx: number, dy: number): void {
+    for (let y = 0; y < other.cv.h; y++) {
+      for (let x = 0; x < other.cv.w; x++) {
+        if (!other.filled(x, y)) continue;
+        const tx = x + dx;
+        const ty = y + dy;
+        if (tx < 0 || ty < 0 || tx >= this.cv.w || ty >= this.cv.h) continue;
+        this.cv.put(tx, ty, other.cv.get(x, y));
+        this.mat[ty]![tx] = other.mat[y]![x] ?? null;
+      }
+    }
+  }
   /** Selective outline. Returns the finished canvas. */
   outline(): Canvas {
     const out = this.cv.clone();

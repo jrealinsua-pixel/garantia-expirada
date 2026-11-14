@@ -10,7 +10,7 @@ import { FINDABLE_WEAPONS, WEAPONS } from '../src/data/weapons.ts';
 import { weaponProfile } from '../src/data/describe.ts';
 import { createWorld, DT, isDead, NO_INPUT, PLAYER_HURT_Y, spawnEnemy, step, worldHash, type Enemy, type World } from '../src/sim/world.ts';
 import { makeBlenderFrames, makeWhirlFrames } from '../tools/sprites/batidora-vaso.ts';
-import { HERO_FRAMES, makeHeroPose } from '../tools/sprites/characters.ts';
+import { makeToasterFrames } from '../tools/sprites/tostadora.ts';
 
 const B = CHARACTERS['batidora-vaso']!;
 const T = CHARACTERS['tostadora']!;
@@ -160,7 +160,7 @@ test('la partida con la batidora es determinista', () => {
 test('sprites: ocho fotogramas del tamaño de la tostadora, violeta y con el vaso: no se confunde con ella', () => {
   const frames = makeBlenderFrames();
   assert.equal(frames.length, 8);
-  const toaster = makeHeroPose(HERO_FRAMES[0]!.pose);
+  const toaster = makeToasterFrames()[0]!;
   for (const f of frames) assert.deepEqual([f.w, f.h], [B.look.w, B.look.h]);
   assert.deepEqual([toaster.w, toaster.h], [T.look.w, T.look.h]);
   // Dominant colour: count opaque pixels that are clearly violet (blue and red over green).

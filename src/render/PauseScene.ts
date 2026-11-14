@@ -56,7 +56,7 @@ import { glossary, glossaryProgress, GLOSSARY_TAB_ORDER, type GlossaryTab } from
 import { paintGlossary } from './glosario.ts';
 import { topCause } from '../sim/profile.ts';
 import { DAILY_CHARACTER, dailyKey, dayOfWeek, dailyNumber, dailyStreak, giftName } from '../sim/daily.ts';
-import { CHARACTERS } from '../data/characters.ts';
+import { CHARACTERS, classicOrigin } from '../data/characters.ts';
 import { DAILY_FOOT, DAILY_MENU, DAILY_START, DAILY_SUB, DAILY_TITLE, dailyLines } from '../data/texts.ts';
 import { profile, saveSeenAchievements } from './save.ts';
 import { SYNERGIES } from '../data/synergies.ts';
@@ -184,7 +184,9 @@ export class PauseScene extends Phaser.Scene {
     if (!this.textures.exists('portada-sala')) addCanvasTexture(this, 'portada-sala', paintRoom(room, 'portada').canvas);
     this.add.image(VIEW_W / 2, VIEW_H / 2 + 20, 'portada-sala').setOrigin(0.5, 0.5);
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x0e0c16, 0.6).setOrigin(0, 0);
-    this.hero = this.add.image(74, VIEW_H - 30, 'tostadora', 0).setOrigin(0.5, 1).setScale(3);
+    const look = CHARACTERS.tostadora!.look;
+    const o = classicOrigin(look, 0.5, 1);
+    this.hero = this.add.image(74, VIEW_H - 30, look.sheet, 0).setOrigin(o.x, o.y).setScale(3);
     this.add.image(0, 0, 'vineta').setOrigin(0, 0);
   }
 

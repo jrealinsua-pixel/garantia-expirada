@@ -1,4 +1,4 @@
-import type { CharacterDef } from './types.ts';
+import type { CharacterDef, CharacterLook } from './types.ts';
 
 export const CHARACTERS: Record<string, CharacterDef> = {
   tostadora: {
@@ -15,7 +15,8 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     rollCooldown: 0.3,
     startWeapon: 'secador',
     footRadius: 5,
-    look: { sheet: 'tostadora', w: 40, h: 41, feetX: 17.5, feetY: 36, spinY: 22 },
+    // M14c (a4a): the new style, bigger (tools/sprites/tostadora.ts); the hitbox has not changed.
+    look: { sheet: 'tostadora', w: 40, h: 46, feetX: 22.5, feetY: 45, spinY: 26, hand: 'mano-tostadora', shadowRx: 12 },
     // «Una de cada dos»: a reload after spending half the magazine pops a slice (every second one burnt).
     ability: { kind: 'toast', damage: 1, burntMul: 2, speed: 230, life: 1.1, radius: 4, knockback: 60, minSpent: 0.5 },
   },
@@ -106,3 +107,20 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     ability: { kind: 'phone', chargeEvery: 600, idleTime: 3, offTime: 1 },
   },
 };
+
+/**
+ * The classic character frame (40 × 41, feet at y 36): screens that place a character's picture
+ * by hand (the title, the ending) were laid out for it. M14c (a4a) redraws the characters bigger,
+ * so their sheets no longer share that frame.
+ */
+export const CLASSIC_FRAME = { w: 40, h: 41, feetY: 36 } as const;
+
+/**
+ * The origin that puts a character's picture where an origin of (ox, oy) put it in the classic
+ * frame: centred the same way and with the feet at the same height. For a sheet still in the
+ * classic frame it is (ox, oy) itself.
+ */
+export function classicOrigin(look: CharacterLook, ox: number, oy: number): { x: number; y: number } {
+  const C = CLASSIC_FRAME;
+  return { x: (look.w / 2 + ox * C.w - C.w / 2) / look.w, y: (look.feetY + oy * C.h - C.feetY) / look.h };
+}

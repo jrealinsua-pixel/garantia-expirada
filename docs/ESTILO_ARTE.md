@@ -56,6 +56,14 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   `npm run sprites` los mete en las hojas. Tienen que cumplir esta guía igual que los de código
   (los tests de legibilidad valen para ellos); lo semitransparente (humo, brillos suaves) se pierde
   y se añade después por código.
+- **En el juego** (M14c (a4a), la Tostadora primero, en `tools/sprites/tostadora.ts`): el
+  personaje se pinta en dos capas, las piernas y el cable (fijos en el suelo) y el cuerpo (que
+  respira y bota), y se juntan con `Paint.stamp` antes del contorno, para que la figura tenga un
+  solo contorno. El fotograma deja dos filas arriba para el humo y la última fila es el contorno de
+  las zapatillas (`feetY`); el cuerpo, centrado en `feetX`. Sin sombra en el suelo ni migas: el
+  juego pone la sombra (`CharacterLook.shadowRx`, la mitad del ancho de la carcasa) y el arma con
+  el guante. Las pantallas hechas a mano para el marco viejo de 40 × 41 (portada, final) colocan
+  el dibujo con `classicOrigin`, con los pies donde iban.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

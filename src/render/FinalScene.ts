@@ -10,7 +10,8 @@ import {
   endingCredits, endingFor, endingShotAt, endingWarranty, shotCaption, type CharacterEnding, type CreditLine, type EndingShotId,
 } from '../data/final.ts';
 import { buildRoom } from '../sim/room.ts';
-import { CHARACTERS } from '../data/characters.ts';
+import { CHARACTERS, CLASSIC_FRAME, classicOrigin } from '../data/characters.ts';
+import type { CharacterLook } from '../data/types.ts';
 import type { GameScene } from './GameScene.ts';
 import { readScale, settings } from './settings.ts';
 import { addCanvasTexture, FONT } from './textures.ts';
@@ -27,9 +28,11 @@ const ROLL = 24;
 /** Box sheet geometry (tools/sprites/final.ts BOX_W/BOX_H, BOX_SLOT; SHELF_SLOT, SHELF_W/H). */
 const BOX = 60;
 const SLOT = { x: 14, y: 12 };
+/** The closed box's top edge (row of its frames 2 and 3). */
+const CLOSED_TOP = 10;
 const SHELF = { w: 236, h: 132, slotX: 118, slotY: 108 };
-/** The product's sprite (40x41) and frames of the toaster's sheet. */
-const HERO = { w: 40, h: 41, idle: 0, hurt: 6 };
+/** The product's frames (every character's sheet has them in the same place) and the classic frame's height the layout was made for. */
+const HERO = { h: 41, idle: 0, hurt: 6 };
 
 type Obj = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Visible;
 
@@ -158,7 +161,17 @@ export class FinalScene extends Phaser.Scene {
   }
 
   private hero(x: number, y: number, scale: number, frame: number): Phaser.GameObjects.Image {
-    return this.add_(this.add.image(x, y, this.character, frame).setOrigin(0.5, 1).setScale(scale));
+    return this.add_(this.picture(x, y, frame, 0.5, 1).setScale(scale));
+  }
+
+  private look(): CharacterLook {
+    return Object.values(CHARACTERS).find((c) => c.look.sheet === this.character)?.look ?? CHARACTERS.tostadora!.look;
+  }
+
+  /** The product's picture, placed as an origin of (ox, oy) placed it in the classic 40 × 41 frame. */
+  private picture(x: number, y: number, frame: number, ox: number, oy: number): Phaser.GameObjects.Image {
+    const o = classicOrigin(this.look(), ox, oy);
+    return this.add.image(x, y, this.character, frame).setOrigin(o.x, o.y);
   }
 
   private startShot(i: number): void {
@@ -190,7 +203,7 @@ export class FinalScene extends Phaser.Scene {
       this.parts.back = this.add_(this.add.image(bx, by, 'final-caja', 0).setOrigin(0.5, 1).setScale(3).setDepth(1));
       const top = by - BOX * 3;
       const left = bx - (BOX * 3) / 2;
-      this.parts.hero = this.add_(this.add.image(left + SLOT.x * 3, top + SLOT.y * 3 - 160, this.character, HERO.idle).setOrigin(0, 0).setScale(3).setDepth(2));
+      this.parts.hero = this.add_(this.picture(left + SLOT.x * 3, top + SLOT.y * 3 - 160, HERO.idle, 0, 0).setScale(3).setDepth(2));
       this.parts.front = this.add_(this.add.image(bx, by, 'final-caja', 1).setOrigin(0.5, 1).setScale(3).setDepth(3));
       this.parts.sticker = this.add_(this.add.image(left + 46 * 3, top + 48 * 3, 'final-pegatina').setScale(3).setRotation(-0.12).setDepth(4).setVisible(false));
       if (this.end.label) this.parts.label = this.boxLabel(left, top, 3, 3.5).setVisible(false);
@@ -218,7 +231,11 @@ export class FinalScene extends Phaser.Scene {
     const top = y - BOX * scale;
     const left = x - (BOX * scale) / 2;
     this.add_(this.add.image(x, y, 'final-caja', 3).setOrigin(0.5, 1).setScale(scale).setDepth(depth));
-    this.add_(this.add.image(left + SLOT.x * scale, top + SLOT.y * scale, this.character, HERO.idle).setOrigin(0, 0).setScale(scale).setDepth(depth + 0.1));
+    const pic = this.add_(this.picture(left + SLOT.x * scale, top + SLOT.y * scale, HERO.idle, 0, 0).setScale(scale).setDepth(depth + 0.1));
+    // The box is closed: whatever of a bigger product (M14c) would stick out over its top stays inside.
+    const look = this.look();
+    const hidden = Math.max(0, Math.round(look.feetY - CLASSIC_FRAME.feetY + CLOSED_TOP - SLOT.y));
+    if (hidden > 0) pic.setCrop(0, hidden, look.w, look.h - hidden);
     this.add_(this.add.image(x, y, 'final-caja', 2).setOrigin(0.5, 1).setScale(scale).setDepth(depth + 0.2));
     this.add_(this.add.image(left + 46 * scale, top + 48 * scale, 'final-pegatina').setScale(scale).setRotation(-0.12).setDepth(depth + 0.3));
     // Up close, each one's label can be read (at game size it would be a smudge).
