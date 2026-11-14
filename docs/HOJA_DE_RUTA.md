@@ -824,7 +824,7 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     - [ ] (a4c2) La Plancha de Vapor. (Al redibujarla, que `tests/plancha-vapor.test.ts` mida su
       anchura contra la tostadora y la batidora nuevas, no contra la tostadora vieja.)
   - [ ] (a4d) El Becario Eterno y el Móvil.
-- [ ] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
+- [x] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
   - [x] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).
     Hecho el 2026-11-14: `tools/sprites/planta1-nuevo.ts` (aspirador 42 × 40 con 7 fotogramas, el
     último acelerando; microondas 44 × 46 con 7, andando y calentando), el material `crema`,
@@ -846,7 +846,13 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     arruga la factura y echa humo. El cargador, 32 × 32, un ladrillo blanco con los cuernos de
     latón, antifaz de ladrón, sonrisa de dientes y chanclas; tirado en el suelo, tumbado con el
     cable enrollado. En `tools/sprites/planta2-nuevo.ts`.
-  - [ ] (a5e) El Ratón Inalámbrico y la Webcam.
+  - [x] (a5e) El Ratón Inalámbrico y la Webcam.
+    Hecho el 2026-11-14: el ratón, 36 × 34, una cúpula plateada con los dos botones, la rueda, la
+    luz de batería baja que parpadea, el hueco de las pilas con su telaraña y el cable cortado;
+    congelado, gris con el círculo de carga. La webcam, 38 × 40, una barra negra brillante sobre su
+    pinza con el objetivo a la altura de su `muzzleY`, la tapa de privacidad a media asta como un
+    párpado, la cinta despegada colgando y el USB de cola; grabando, el iris rojo. En
+    `tools/sprites/planta2-nuevo.ts`. Con esto la (a5) está terminada.
 - [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,

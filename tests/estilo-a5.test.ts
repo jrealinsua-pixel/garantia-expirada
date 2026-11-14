@@ -7,7 +7,6 @@ import { MATERIALS } from '../src/art/paleta.ts';
 import { legibility, silhouetteOverlap } from '../src/art/pintor.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { allSheets } from '../tools/sprites/build.ts';
-import { makeRaton, makeWebcam } from '../tools/sprites/enemies.ts';
 import * as P1 from '../tools/sprites/planta1-nuevo.ts';
 import * as P2 from '../tools/sprites/planta2-nuevo.ts';
 
@@ -22,6 +21,8 @@ const REDRAWN: Record<string, () => Canvas[]> = {
   mando: P1.makeMandoNuevoFrames,
   impresora: P2.makeImpresoraNuevaFrames,
   cargador: P2.makeCargadorNuevoFrames,
+  'raton-inalambrico': P2.makeRatonNuevoFrames,
+  webcam: P2.makeWebcamNuevaFrames,
 };
 
 /** The flyers: no feet on the floor (the game lifts them by their altitude). */
@@ -84,6 +85,8 @@ test('estilo a5: más grandes que antes (cuerpo de 24 px o más) y sin cambiar l
   assert.deepEqual(ENEMIES['mando']!.hurt, { x: -8, y: -28, w: 16, h: 26 });
   assert.deepEqual(ENEMIES['impresora']!.hurt, { x: -14, y: -28, w: 28, h: 26 });
   assert.deepEqual(ENEMIES['cargador']!.hurt, { x: -9, y: -21, w: 18, h: 19 });
+  assert.deepEqual(ENEMIES['raton-inalambrico']!.hurt, { x: -11, y: -21, w: 22, h: 19 });
+  assert.deepEqual(ENEMIES['webcam']!.hurt, { x: -11, y: -25, w: 22, h: 23 });
   assert.deepEqual(ENEMIES['polilla']!.hurt, { x: -5, y: -21, w: 10, h: 9 });
 });
 
@@ -202,8 +205,8 @@ test('estilo a5: los enemigos de la planta 2 no se parecen entre sí', () => {
   const plant2: Array<[string, Canvas]> = [
     ['impresora', P2.makeImpresoraNuevaFrames()[0]!],
     ['cargador', P2.makeCargadorNuevoFrames()[0]!],
-    ['raton-inalambrico', makeRaton()],
-    ['webcam', makeWebcam()],
+    ['raton-inalambrico', P2.makeRatonNuevoFrames()[0]!],
+    ['webcam', P2.makeWebcamNuevaFrames()[0]!],
   ];
   for (let i = 0; i < plant2.length; i++) {
     for (let j = i + 1; j < plant2.length; j++) {
@@ -247,4 +250,26 @@ test('estilo a5: la impresora atascada tiembla y el cargador tirado está tumbad
   for (let y = lurk.h - 1; y >= 0; y--) for (let x = 0; x < lurk.w; x++) if (lurk.get(x, y)[3] === 255) top = y;
   assert.ok(cd.anchor.y - top <= 12, `tumbado mide ${cd.anchor.y - top} px`);
   assert.equal(bottomRow(lurk), cd.anchor.y, 'el cebo no está en el suelo');
+});
+
+test('estilo a5: la webcam mira (y graba) por el objetivo, que está donde nacen sus disparos', () => {
+  const def = ENEMIES['webcam']!;
+  const muzzleY = 'muzzleY' in def.brain ? (def.brain as { muzzleY: number }).muzzleY : -1;
+  assert.equal(muzzleY, P2.WEBCAM_LENS_Y);
+  const frames = P2.makeWebcamNuevaFrames();
+  const y = def.anchor.y - muzzleY;
+  const count = (cv: Canvas, m: readonly (readonly number[])[]): number => {
+    let n = 0;
+    for (let yy = y - 2; yy <= y + 2; yy++) for (let x = 0; x < cv.w; x++) if (m.some((t) => cv.get(x, yy).slice(0, 3).join() === t.slice(0, 3).join())) n++;
+    return n;
+  };
+  assert.ok(count(frames[0]!, MATERIALS.azul) >= 8, 'el iris azul no está a la altura de la boca');
+  assert.ok(count(frames[def.anim!.warn!]!, MATERIALS.rojo) >= 8, 'grabando, el iris no se pone rojo');
+  assert.equal(count(frames[def.anim!.warn!]!, MATERIALS.azul), 0);
+  // The mouse frozen without signal is a different picture (grey, no light).
+  const r = P2.makeRatonNuevoFrames();
+  const rd = ENEMIES['raton-inalambrico']!;
+  let diff = 0;
+  for (let yy = 0; yy < r[0]!.h; yy++) for (let x = 0; x < r[0]!.w; x++) if (r[0]!.get(x, yy).join() !== r[rd.anim!.warn!]!.get(x, yy).join()) diff++;
+  assert.ok(diff > 200, `congelado solo cambian ${diff} px`);
 });

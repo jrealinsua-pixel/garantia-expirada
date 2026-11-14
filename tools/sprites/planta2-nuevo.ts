@@ -286,3 +286,169 @@ export function makeCargadorNuevoFrames(): Canvas[] {
     makeCargadorNuevo({ xb: CARGADOR_LEGS2[0], xf: CARGADOR_LEGS2[1], bob: -2 }, 2),
   ];
 }
+
+// ---------------------------------------------------------------------------------------------
+// The Ratón Inalámbrico sin Pilas: a silver office mouse on legs, two buttons split down the
+// middle and the scroll wheel sticking up, fed-up eyes on its front. The low-battery light blinks
+// red, the battery cover is gone (a cobweb in the empty slot), and its cable was cut off with
+// scissors to make it «wireless». Frozen without signal it goes grey with a loading spinner.
+
+export const RATON_W = 36;
+export const RATON_H = 34;
+export const RATON_FEET = { x: 17, y: 32 } as const;
+export const RATON_LEGS2 = [11, 18] as const;
+/** Its mouth, px above its feet (muzzleY). */
+export const RATON_MOUTH_Y = 10;
+
+/** `led`: the low-battery light on; `frozen`: the no-signal frame. */
+export function makeRatonNuevo(pose: Pose = { xb: RATON_LEGS2[0], xf: RATON_LEGS2[1], bob: 0 }, led = false, frozen = false): Canvas {
+  const p = new Paint(RATON_W, RATON_H);
+  const d = pose.bob;
+  const m: Material = frozen ? 'goma' : 'acero';
+  // The cut cable tail out of its back, copper showing at the end.
+  for (const [x, y] of [[5, 16], [4, 17], [3, 18], [2, 19], [2, 20], [1, 21]] as const) p.px(x, y + d, 'goma', 3);
+  p.px(0, 22 + d, 'oxido', 0);
+  p.px(1, 22 + d, 'laton', 1);
+  glove(p, 2, 19 + d, m);
+  legs(p, pose, 26 + d, RATON_FEET.y, 'goma');
+  // The body: a long dome, highest towards the back like a real mouse.
+  const cx = 17;
+  const cy = 18 + d;
+  p.heightShade(3, 6 + d, 30, 22, (x, y) => {
+    const nx = (x + 0.5 - cx) / 13.5;
+    const ny = (y + 0.5 - cy) / (8.5 - (x > cx ? (x - cx) * 0.12 : 0));
+    const v = nx * nx + ny * ny;
+    if (v > 1 || y + 0.5 > 26 + d) return null;
+    return 9 * Math.sqrt(1 - v);
+  }, m, { dither: 0.15, bias: frozen ? 0.3 : -0.08, z: 1.2 });
+  // The flat underside rim.
+  for (let x = 6; x < 30; x++) if (p.filled(x, 25 + d)) p.px(x, 25 + d, m, 4);
+  // The two buttons: the split line from the top of the dome down its back half.
+  for (let i = 0; i < 5; i++) p.px(15 + Math.floor(i / 2), 10 + d + i, m, 5);
+  // The scroll wheel sticking up at the top of the split (dark rubber, ridged).
+  p.rect(13, 7 + d, 3, 4, 'goma', 3);
+  p.rect(13, 7 + d, 3, 1, 'goma', 1);
+  p.px(14, 9 + d, 'goma', 1);
+  p.px(15, 8 + d, 'goma', 5);
+  // The low-battery light on top, behind the wheel.
+  if (frozen) p.px(9, 11 + d, 'goma', 4);
+  else {
+    p.px(9, 11 + d, 'rojo', led ? 1 : 4);
+    p.px(10, 11 + d, 'rojo', led ? 2 : 5);
+    if (led) p.raw(9, 10 + d, [...MATERIALS.rojo[0]!] as RGBA);
+  }
+  // The face on its front, low on the slope.
+  const ey = 15 + d;
+  if (frozen) {
+    // No signal: a loading spinner where the eyes were.
+    const ring = [[24, ey - 1], [25, ey - 1], [26, ey - 1], [27, ey], [27, ey + 1], [27, ey + 2], [26, ey + 3], [25, ey + 3], [24, ey + 3], [23, ey + 2], [23, ey + 1], [23, ey]] as const;
+    ring.forEach(([x, y], i) => (i < 4 ? p.raw(x, y, SHINE) : p.px(x, y, 'goma', 5)));
+  } else {
+    // Fed up: dark eyes with the lids half down, brows pulled down to the middle.
+    for (const [ex, w] of [[19, 3], [24, 4]] as const) {
+      p.rect(ex - 1, ey, w + 2, 4, m, 6);
+      p.rect(ex, ey + 1, w, 2, 'acero', 0);
+      p.raw(ex + w - 1, ey + 1, INK);
+      p.raw(ex + w - 1, ey + 2, INK);
+      p.raw(ex + w - 2, ey + 2, INK);
+    }
+    for (const [x, y] of [[17, ey - 2], [18, ey - 2], [19, ey - 1], [20, ey - 1], [21, ey - 1], [24, ey - 1], [25, ey - 1], [26, ey - 1], [27, ey - 2], [28, ey - 2]] as const) p.px(x, y, m, 6);
+  }
+  // A flat mouth pulled to one side, at the height it fires from.
+  const my = RATON_FEET.y - RATON_MOUTH_Y + d;
+  for (let x = 21; x < 26; x++) p.raw(x, my, INK);
+  p.raw(26, my - 1, INK);
+  // The empty battery slot low on its back, with a cobweb.
+  p.rect(6, 19 + d, 5, 3, m, 6);
+  for (const [x, y] of [[6, 20], [7, 21], [8, 19], [9, 20], [10, 21]] as const) p.px(x, y + d, m, 2);
+  glove(p, 29, 20 + d, m);
+  return p.outline();
+}
+
+/** Its sheet: 0-1 breathing (the light blinks), 2-5 walking, 6 frozen without signal. */
+export function makeRatonNuevoFrames(): Canvas[] {
+  const cyc = poseCycle(...RATON_LEGS2);
+  return [...cyc.map((f, k) => makeRatonNuevo(f.pose, k === 1 || k === 3 || k === 5)), makeRatonNuevo(undefined, false, true)];
+}
+
+// ---------------------------------------------------------------------------------------------
+// The Webcam Siempre Encendida: a webcam bar standing on its monitor clip, one big lens for an eye
+// under the privacy shutter, slid half down like a suspicious lid. The «not recording» light is dead
+// and cracked, the tape someone stuck over the lens hangs peeled off its side, and its USB tail ends
+// in the plug. Recording, the shutter goes up and the lens is red inside (the light stays off: that's
+// the joke).
+
+export const WEBCAM_W = 38;
+export const WEBCAM_H = 40;
+export const WEBCAM_FEET = { x: 18, y: 38 } as const;
+export const WEBCAM_LEGS2 = [13, 19] as const;
+/** The middle of its lens, px above its feet (muzzleY). */
+export const WEBCAM_LENS_Y = 17;
+
+/** `look` shifts the iris (the lens refocusing); `rec` is the recording frame. */
+export function makeWebcamNueva(pose: Pose = { xb: WEBCAM_LEGS2[0], xf: WEBCAM_LEGS2[1], bob: 0 }, look = 0, rec = false): Canvas {
+  const p = new Paint(WEBCAM_W, WEBCAM_H);
+  const d = pose.bob;
+  // The USB tail from its back down to the floor, the plug at the end.
+  for (const [x, y] of [[4, 22], [3, 23], [2, 24], [2, 25], [2, 26], [1, 27], [1, 28], [1, 29]] as const) p.px(x, y + d, 'goma', 3);
+  p.rect(0, 30 + d, 3, 3, 'acero', 2);
+  p.rect(0, 30 + d, 3, 1, 'acero', 1);
+  p.px(1, 32 + d, 'acero', 5);
+  legs(p, pose, 33 + d, WEBCAM_FEET.y, 'goma');
+  // The monitor clip it stands on: a hinged neck, the hinge pin catching the light.
+  p.rect(14, 27 + d, 9, 6, 'goma', 2);
+  p.rect(14, 27 + d, 9, 1, 'goma', 1);
+  p.rect(14, 27 + d, 2, 6, 'goma', 3);
+  p.rect(14, 30 + d, 9, 1, 'goma', 4);
+  p.px(21, 28 + d, 'acero', 1);
+  glove(p, 2, 21 + d, 'goma');
+  // The bar: a wide capsule, glossy charcoal lit from the top-left.
+  const cy = WEBCAM_FEET.y - WEBCAM_LENS_Y + d;
+  p.heightShade(2, cy - 10, 34, 20, (x, y) => {
+    const nx = (x + 0.5 - 18.5) / 15.5;
+    const ny = (y + 0.5 - cy) / 8.5;
+    const v = Math.max(0, Math.abs(nx) - 0.45) / 0.55;
+    const r = v * v + ny * ny;
+    return r > 1 ? null : 6 * Math.sqrt(1 - r);
+  }, 'goma', { dither: 0.3, bias: 0.3, z: 1.1 });
+  // The lens: a steel bezel, the dark glass, the iris (blue, or red while it records).
+  const lx = 21;
+  p.ellipsoid(lx + 0.5, cy + 0.5, 7, 7, 'acero', { dither: 0, bias: 0.1 });
+  p.ellipsoid(lx + 0.5, cy + 0.5, 5.2, 5.2, 'goma', { dither: 0, bias: -0.5 });
+  const iris: Material = rec ? 'rojo' : 'azul';
+  const ix = lx + look;
+  p.ellipsoid(ix + 0.5, cy + 0.5, 3.2, 3.2, iris, { dither: 0, bias: rec ? 0.2 : 0 });
+  p.rect(ix, cy, 2, 2, iris, rec ? 0 : 6);
+  p.raw(ix, cy, INK);
+  p.raw(ix - 2, cy - 2, SHINE);
+  p.raw(ix - 1, cy - 2, SHINE);
+  if (!rec) {
+    // The privacy shutter slid half down over the lens: a heavy lid, lower towards the front.
+    for (let x = lx - 6; x <= lx + 6; x++) {
+      const rows = 5 + (x > lx ? 1 : 0);
+      for (let r = 0; r < rows; r++) if (p.filled(x, cy - 6 + r)) p.px(x, cy - 6 + r, 'acero', r === 0 ? 1 : r === rows - 1 ? 5 : r === rows - 2 ? 3 : 2);
+    }
+  }
+  // The microphone holes either side of the lens.
+  for (const x of [8, 10, 12, 31, 33]) p.px(x, cy + 3, 'goma', 5);
+  // The «not recording» light: dead and cracked, recording or not.
+  p.rect(31, cy - 5, 2, 2, 'goma', 4);
+  p.px(32, cy - 5, 'acero', 2);
+  // The tape someone stuck over the lens, peeled off and hanging from its side.
+  p.rect(5, cy - 4, 5, 2, 'crema', 1);
+  p.px(9, cy - 3, 'crema', 3);
+  p.rect(5, cy - 2, 3, 6, 'crema', 2);
+  p.px(5, cy - 2, 'crema', 1);
+  p.px(7, cy + 3, 'crema', 4);
+  glove(p, 32, 22 + d, 'goma');
+  const out = p.outline();
+  // Recording: a little red glint off the iris.
+  if (rec) out.set(lx + 4, cy - 3, raw('rojo', 0));
+  return out;
+}
+
+/** Its sheet: 0-1 looking about, 2-5 tiptoeing on its clip, 6 recording. */
+export function makeWebcamNuevaFrames(): Canvas[] {
+  const cyc = narrowPoseCycle(...WEBCAM_LEGS2);
+  return [...cyc.map((f, k) => makeWebcamNueva(f.pose, k === 1 || k === 4 ? -1 : 0)), makeWebcamNueva(undefined, 0, true)];
+}

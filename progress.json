@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T08:35:00+01:00",
+  "actualizado": "2026-11-14T08:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -151,6 +151,11 @@
     "lineas_codigo": 38142
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T08:45:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a5e): el Ratón Inalámbrico y la Webcam con el estilo nuevo, y con ellos todos los enemigos de las plantas 1 y 2 redibujados. El ratón, plateado y harto, con la luz de batería baja; la webcam, con la tapa de privacidad a media asta como un párpado y el iris que se pone rojo al grabar."
+    },
     {
       "fecha": "2026-11-14T08:35:00+01:00",
       "hito": "M14c",
@@ -1480,6 +1485,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/raton-webcam-redibujados.png",
+      "pie": "M14c (a5e): el Ratón y la Webcam, antes (el primero de cada uno) y ahora (con la luz parpadeando y congelado; mirando y grabando), a 3×"
+    },
+    {
+      "archivo": "capturas/raton-en-juego.png",
+      "pie": "M14c (a5e): el ratón nuevo congelado sin señal junto a la tostadora, en la planta 2"
+    },
+    {
       "archivo": "capturas/batidora-fotogramas.png",
       "pie": "M14c (a4c1): la hoja de la Batidora de Vaso, 24 fotogramas: los ocho de siempre; andar en seis pasos con el batido moviéndose; rodar (encogida, las cuchillas a toda velocidad) y aterrizar; disparar, el golpe con la tapa saltando y las dos sacudidas"
     },
@@ -1494,17 +1507,9 @@
     {
       "archivo": "capturas/impresora-en-juego.png",
       "pie": "M14c (a5d): dos impresoras nuevas soltando facturas en el Taller de Reparación de la planta 2"
-    },
-    {
-      "archivo": "capturas/cargador-en-juego.png",
-      "pie": "M14c (a5d): dos cargadores falsos descubiertos («No homologado») saltando sobre la tostadora"
-    },
-    {
-      "archivo": "capturas/batidora-mando-redibujados.png",
-      "pie": "M14c (a5c): la Batidora y el Mando, antes (el primero de cada uno) y ahora (las varillas girando, andando), a 3×"
     }
   ],
-  "proximo": "M14c (a4c2), la Plancha de Vapor con el estilo nuevo y sus 24 fotogramas (como la tostadora y la batidora). La (a5e) la tiene otra sesión.",
+  "proximo": "M14c (a6b) o la (a4d), las siguientes libres: la (a4c2) (la Plancha) y la (a6a) (el Robot y el Coche) las tienen otras sesiones.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1533,11 +1538,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 08:05 (hora peninsular)",
-      "tarea": "M14c (a5e): el Ratón Inalámbrico y la Webcam con el estilo nuevo (tools/sprites/planta2-nuevo.ts, build.ts, anclas en src/data/enemies.ts, tests/estilo-a5.test.ts). No toca personajes",
-      "desde": "2026-11-14T08:05:00+01:00"
-    },
     {
       "sesion": "2026-11-14 08:30 (hora peninsular)",
       "tarea": "M14c (a6a): el Robot de Cuerda y el Coche Teledirigido con el estilo nuevo (tools/sprites/planta3-nuevo.ts, build.ts, anclas en src/data/enemies.ts, tests/estilo-a6.test.ts). No toca personajes ni la planta 2",

@@ -2,6 +2,36 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 08:45 (hora peninsular) — Hito M14c — (a5e) El Ratón Inalámbrico y la Webcam con el estilo nuevo; (a5) terminada
+- Contexto: tercera tarea de la sesión, tras la (a5c) y la (a5d). La (a4c) sigue cogida por otra
+  sesión; esta no toca personajes.
+- Hecho: M14c (a5e), y con ella la (a5) entera. En `tools/sprites/planta2-nuevo.ts`. **El Ratón
+  Inalámbrico sin Pilas** (36 × 34): una cúpula plateada sombreada con `heightShade`, más alta por
+  detrás como un ratón de verdad, con la raya de los dos botones, la rueda de goma asomando, la luz
+  roja de batería baja que parpadea entre fotogramas, ojos de harto mirando hacia ti, la boca torcida
+  a la altura de su `muzzleY`, el hueco de las pilas sin tapa con su telaraña y el cable cortado con
+  el cobre al aire. Congelado sin señal (el aviso): gris, la luz apagada y el círculo de carga en
+  lugar de los ojos. **La Webcam Siempre Encendida** (38 × 40): una barra negra brillante en
+  cápsula, de pie sobre su pinza de monitor, con un objetivo grande (bisel de acero, cristal oscuro e
+  iris azul que se reenfoca) justo en la fila de la que dispara, la tapa de privacidad plateada a
+  media asta como un párpado desconfiado, la luz de «no estoy grabando» muerta, la cinta que alguien
+  le pegó encima, despegada y colgando, los agujeros del micro y el USB de cola. Grabando: sin tapa
+  y con el iris rojo (la luz sigue apagada: es el chiste). Anclas nuevas (ratón 17, 32; webcam 18,
+  38). Tests: los dos entran en los generales de `tests/estilo-a5.test.ts` (ahora 14) y en el de
+  siluetas de la planta 2; uno nuevo comprueba que el iris está en la fila de su `muzzleY`, que
+  grabando se pone rojo y que el ratón congelado es otro dibujo.
+- Decisiones: (1) El ratón en `acero` un poco oscurecido (plateado): en blanco se confundía con el
+  cargador, que es de la misma planta. (2) Su cara, abajo en la pendiente de delante, con ojos de
+  esclerótica blanca en una cuenca oscura: con ojos oscuros sobre el gris de la sombra no se leían
+  a tamaño real; y el hueco de las pilas, bajo y pequeño, porque más grande parecía otra cara.
+  (3) La tapa de la webcam, plateada y no negra: en el negro del cuerpo no se veía el párpado.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual).
+  1096 tests en verde; e2e en verde (corrido antes del último retoque de los ojos del ratón, que solo
+  cambia píxeles de la cara; `check`, tests, `build` y `bot` repetidos después).
+- Problemas conocidos: el ratón sigue siendo el menos expresivo de la planta 2 a tamaño real; si al
+  humano no le convence, que se apunte en sus notas. Las cajas de golpes son las de antes.
+- Siguiente paso: M14c (a6b) (la (a6a) ya la ha cogido otra sesión) o la (a4d).
+
 ## 2026-11-14 08:35 (hora peninsular) — Hito M14c — (a4c1) La Batidora de Vaso con el estilo nuevo
 - Contexto: sesión programada. El `main` local era una copia vieja y superficial que se había
   separado de `origin/main` (50 y 50 commits): se dejó igual que `origin/main`

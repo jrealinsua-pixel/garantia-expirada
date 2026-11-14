@@ -181,14 +181,14 @@
   },
   "raton-inalambrico": {
     "file": "raton-inalambrico.png",
-    "frameW": 26,
-    "frameH": 26,
+    "frameW": 36,
+    "frameH": 34,
     "frames": 7
   },
   "webcam": {
     "file": "webcam.png",
-    "frameW": 26,
-    "frameH": 30,
+    "frameW": 38,
+    "frameH": 40,
     "frames": 7
   },
   "robot-cuerda": {

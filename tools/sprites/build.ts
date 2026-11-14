@@ -10,7 +10,7 @@ import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
 import { makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
-  makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
+  makeRcCarFrames, makeRobotFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -100,8 +100,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     mando: { canvas: strip(P1.makeMandoNuevoFrames()), frameW: P1.MANDO_W, frameH: P1.MANDO_H },
     impresora: { canvas: strip(P2.makeImpresoraNuevaFrames()), frameW: P2.IMPRESORA_W, frameH: P2.IMPRESORA_H },
     cargador: { canvas: strip(P2.makeCargadorNuevoFrames()), frameW: P2.CARGADOR_W, frameH: P2.CARGADOR_H },
-    'raton-inalambrico': { canvas: strip(makeRatonFrames()), frameW: 26, frameH: 26 },
-    webcam: { canvas: strip(makeWebcamFrames()), frameW: 26, frameH: 30 },
+    'raton-inalambrico': { canvas: strip(P2.makeRatonNuevoFrames()), frameW: P2.RATON_W, frameH: P2.RATON_H },
+    webcam: { canvas: strip(P2.makeWebcamNuevaFrames()), frameW: P2.WEBCAM_W, frameH: P2.WEBCAM_H },
     // Floor 3 (Juguetería): 0-1 standing, 2-5 marching, 6 run down, 7-8 winding itself up.
     'robot-cuerda': { canvas: strip(makeRobotFrames()), frameW: 27, frameH: 31 },
     // 0-1 idling, 2-3 driving, 4 revving to ram, 5 overturned, 6 batteries out.
