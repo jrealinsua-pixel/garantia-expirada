@@ -163,14 +163,14 @@
   },
   "impresora": {
     "file": "impresora.png",
-    "frameW": 34,
-    "frameH": 32,
+    "frameW": 48,
+    "frameH": 42,
     "frames": 8
   },
   "cargador": {
     "file": "cargador.png",
-    "frameW": 22,
-    "frameH": 26,
+    "frameW": 32,
+    "frameH": 32,
     "frames": 8
   },
   "raton-inalambrico": {

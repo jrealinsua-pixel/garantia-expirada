@@ -9,8 +9,8 @@ import { paintRoom } from '../../src/art/room.ts';
 import {
   NEVERA_POSES, makeNevera, miniDryer, miniStapler,
 } from './characters.ts';
-import { makeCargadorFrames, makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
-  makeImpresoraFrames, makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
+import { makeCuboFrames, makePiezas, makeSobreFrames, makeMunequitoFrames,
+  makeRatonFrames, makeRcCarFrames, makeRobotFrames, makeWebcamFrames, makeDestructoraFrames, makeFotocopiadoraFrames,
   makeSelloFrames, makeClimatizadorFrames } from './enemies.ts';
 import { ITEM_GRIDS, makeItem } from './items.ts';
 import * as P from './props.ts';
@@ -37,6 +37,7 @@ import * as PV from './plancha-vapor.ts';
 import * as DS from './despiece.ts';
 import * as ES from './estanteria.ts';
 import { makeJug } from './garrafa.ts';
+import * as P2 from './planta2-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
@@ -96,8 +97,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     polilla: { canvas: strip(P1.makePolillaNueva()), frameW: P1.POLILLA_W, frameH: P1.POLILLA_H },
     batidora: { canvas: strip(P1.makeBatidoraNuevaFrames()), frameW: P1.BATIDORA_W, frameH: P1.BATIDORA_H },
     mando: { canvas: strip(P1.makeMandoNuevoFrames()), frameW: P1.MANDO_W, frameH: P1.MANDO_H },
-    impresora: { canvas: strip(makeImpresoraFrames()), frameW: 34, frameH: 32 },
-    cargador: { canvas: strip(makeCargadorFrames()), frameW: 22, frameH: 26 },
+    impresora: { canvas: strip(P2.makeImpresoraNuevaFrames()), frameW: P2.IMPRESORA_W, frameH: P2.IMPRESORA_H },
+    cargador: { canvas: strip(P2.makeCargadorNuevoFrames()), frameW: P2.CARGADOR_W, frameH: P2.CARGADOR_H },
     'raton-inalambrico': { canvas: strip(makeRatonFrames()), frameW: 26, frameH: 26 },
     webcam: { canvas: strip(makeWebcamFrames()), frameW: 26, frameH: 30 },
     // Floor 3 (Juguetería): 0-1 standing, 2-5 marching, 6 run down, 7-8 winding itself up.

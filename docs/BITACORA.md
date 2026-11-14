@@ -2,6 +2,39 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 08:00 (hora peninsular) — Hito M14c — (a5d) La Impresora y el Cargador con el estilo nuevo
+- Contexto: segunda tarea de la sesión, tras la (a5c). La (a4c) la tiene otra sesión desde las 07:27;
+  esta no toca a los personajes.
+- Hecho: M14c (a5d). Archivo nuevo, `tools/sprites/planta2-nuevo.ts`, para los enemigos de la planta
+  2 (usa las piernas y los guantes de la planta 1, que ahora se exportan, y un `box34` para las cajas
+  en tres cuartos como el microondas). **La Impresora que se Atasca** (48 × 42): ancha y plana, en un
+  beige de oficina amarilleado (material nuevo, `beige`, más gris que el `crema` del microondas), con
+  la tapa grande, el montón de folios inclinado en la bandeja de atrás, ojos cansados con las cejas
+  hacia dentro, la pantallita verde con ERR y la luz amarilla, el pósit amarillo del NO y la etiqueta
+  roja del precio de la tinta en el costado, y la ranura de salida por boca **a la altura de su
+  `muzzleY`** con una factura de borde rojo asomando. Atascada (los fotogramas 6 y 7): el cuerpo se
+  sacude un píxel a cada lado sobre las piernas quietas (pintado aparte y unido con `Paint.stamp`),
+  ojos > <, la factura arrugada en los rodillos, la luz en rojo, humo y una chispa. **El Cargador
+  Falso** (32 × 32): un ladrillo blanco con los dos cuernos de latón, un antifaz de ladrón
+  (los ojos de reojo en una franja oscura), sonrisa de dientes a la altura de la que escupe, la
+  quemadura de calentarse, chanclas, y el cable de cola con la etiqueta amarilla de GRATIS. Zumbando,
+  una chispa entre los cuernos; descubierto, los ojos como platos y chispas. **El cebo** es un
+  cargador tumbado en el suelo con los cuernos a un lado, los ojos cerrados y el cable enrollado.
+  Ocho fotogramas cada uno, los de siempre. Anclas nuevas (impresora 24, 40; cargador 15, 30). Tests
+  en `tests/estilo-a5.test.ts` (ahora 13): los dos entran en los generales; nuevos, las siluetas
+  de la planta 2 entre sí, que la boca de cada uno esté en la fila de su `muzzleY`, que la impresora
+  atascada se sacuda 2 px entre sus dos fotogramas y que el cebo esté tumbado y en el suelo.
+- Decisiones: (1) Con los ojos negros y la sonrisa de dientes el cargador parecía una calavera; con
+  los ojos claros no se leían sobre el blanco. La franja oscura de antifaz los hace legibles y le
+  va al personaje (es un cargador pirata que se hace pasar por gratis). (2) El guante de atrás de la
+  impresora se separa un píxel del borde para que al sacudirse no se corte el contorno. (3) Las
+  balas (las facturas) siguen con el dibujo viejo: van con los efectos, en la (a10).
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, igual). 1095
+  tests en verde; e2e en verde.
+- Problemas conocidos: las cajas de golpes son las de antes (más pequeñas que los dibujos). El
+  ratón y la webcam, con el estilo viejo, se ven pequeños al lado de la impresora hasta la (a5e).
+- Siguiente paso: M14c (a5e), el Ratón Inalámbrico y la Webcam.
+
 ## 2026-11-14 07:15 (hora peninsular) — Hito M14c — (a5c) La Batidora y el Mando con el estilo nuevo
 - Contexto: sesión programada. El `main` local era otra vez un clon viejo y superficial (`git reset
   --hard origin/main`). La (a4b) la tiene otra sesión desde las 05:25 (menos de 90 minutos), así que

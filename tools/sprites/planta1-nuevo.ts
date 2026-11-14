@@ -13,7 +13,7 @@ import { Paint } from '../../src/art/pintor.ts';
 import { narrowPoseCycle, poseCycle, type Pose } from './pose.ts';
 
 /** Glove: a small shaded ball, the hands float (no arms). */
-function glove(p: Paint, x: number, y: number, m: Material): void {
+export function glove(p: Paint, x: number, y: number, m: Material): void {
   p.ellipsoid(x + 2, y + 2, 2.2, 2.2, m, { dither: 0 });
 }
 
@@ -22,7 +22,7 @@ function glove(p: Paint, x: number, y: number, m: Material): void {
  * `top` (the body's underside, already moved by the bob) and grow or shrink to reach the floor.
  * A lifted foot (pose.lift) is drawn `px` off the floor with a shorter leg.
  */
-function legs(p: Paint, pose: Pose, top: number, floor: number, shoe: Material): void {
+export function legs(p: Paint, pose: Pose, top: number, floor: number, shoe: Material): void {
   for (const [x, back, leg] of [[pose.xb, true, -1], [pose.xf, false, 1]] as const) {
     const up = pose.lift && pose.lift.leg === leg ? pose.lift.px : 0;
     const yb = floor - 3 - up;

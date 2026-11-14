@@ -831,7 +831,13 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     mando, 32 × 46, gris, con zapatillas de cuadros, la ventana de infrarrojos a la altura de la
     que dispara (`MANDO_IR_Y` = `muzzleY`), sin el «1», las pilas con cinta y un ganchito pegado.
     En `tools/sprites/planta1-nuevo.ts`.
-  - [ ] (a5d) La Impresora y el Cargador.
+  - [x] (a5d) La Impresora y el Cargador.
+    Hecho el 2026-11-14: la impresora, 48 × 42, en beige de oficina (material `beige`), ancha y
+    plana con el montón de folios detrás, la ranura por boca a la altura de su `muzzleY` con la
+    factura asomando, ERR en la pantalla, el pósit del NO y el precio de la tinta; atascada tiembla,
+    arruga la factura y echa humo. El cargador, 32 × 32, un ladrillo blanco con los cuernos de
+    latón, antifaz de ladrón, sonrisa de dientes y chanclas; tirado en el suelo, tumbado con el
+    cable enrollado. En `tools/sprites/planta2-nuevo.ts`.
   - [ ] (a5e) El Ratón Inalámbrico y la Webcam.
 - [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).

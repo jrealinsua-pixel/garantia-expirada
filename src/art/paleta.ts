@@ -45,6 +45,8 @@ export const MATERIALS = {
   crema: r('#fffbea', '#f3ead0', '#dccfab', '#b7a582', '#8a7563', '#5e4a55', '#3b2a45'),
   /** Seventies kitchen mint of the hand mixer (M14c (a5c)): shadows to teal and slate blue. */
   menta: r('#f1fbdc', '#cdebb4', '#a2d494', '#73b17c', '#4f8869', '#375e58', '#283c4a'),
+  /** Computer beige of office printers (M14c (a5d)), yellowed by the window: greyer than `crema`. */
+  beige: r('#f6f2e2', '#dfd9bf', '#c0b797', '#978d74', '#6d6560', '#48435a', '#2e2b42'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

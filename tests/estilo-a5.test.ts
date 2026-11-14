@@ -7,7 +7,9 @@ import { MATERIALS } from '../src/art/paleta.ts';
 import { legibility, silhouetteOverlap } from '../src/art/pintor.ts';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { allSheets } from '../tools/sprites/build.ts';
+import { makeRaton, makeWebcam } from '../tools/sprites/enemies.ts';
 import * as P1 from '../tools/sprites/planta1-nuevo.ts';
+import * as P2 from '../tools/sprites/planta2-nuevo.ts';
 
 const FLOOR = MATERIALS.suelo[3]!;
 
@@ -18,6 +20,8 @@ const REDRAWN: Record<string, () => Canvas[]> = {
   bombilla: P1.makeBombillaNuevaFrames,
   batidora: P1.makeBatidoraNuevaFrames,
   mando: P1.makeMandoNuevoFrames,
+  impresora: P2.makeImpresoraNuevaFrames,
+  cargador: P2.makeCargadorNuevoFrames,
 };
 
 /** The flyers: no feet on the floor (the game lifts them by their altitude). */
@@ -78,6 +82,8 @@ test('estilo a5: más grandes que antes (cuerpo de 24 px o más) y sin cambiar l
   assert.deepEqual(ENEMIES['bombilla']!.hurt, { x: -13, y: -31, w: 26, h: 30 });
   assert.deepEqual(ENEMIES['batidora']!.hurt, { x: -12, y: -31, w: 24, h: 29 });
   assert.deepEqual(ENEMIES['mando']!.hurt, { x: -8, y: -28, w: 16, h: 26 });
+  assert.deepEqual(ENEMIES['impresora']!.hurt, { x: -14, y: -28, w: 28, h: 26 });
+  assert.deepEqual(ENEMIES['cargador']!.hurt, { x: -9, y: -21, w: 18, h: 19 });
   assert.deepEqual(ENEMIES['polilla']!.hurt, { x: -5, y: -21, w: 10, h: 9 });
 });
 
@@ -190,4 +196,55 @@ test('estilo a5: el mando dispara desde su ventana de infrarrojos', () => {
   let n = 0;
   for (let x = 0; x < f.w; x++) if (isRed(f.get(x, y))) n++;
   assert.ok(n >= 10, `en la fila de la boca (${y}) solo hay ${n} px de la ventana roja`);
+});
+
+test('estilo a5: los enemigos de la planta 2 no se parecen entre sí', () => {
+  const plant2: Array<[string, Canvas]> = [
+    ['impresora', P2.makeImpresoraNuevaFrames()[0]!],
+    ['cargador', P2.makeCargadorNuevoFrames()[0]!],
+    ['raton-inalambrico', makeRaton()],
+    ['webcam', makeWebcam()],
+  ];
+  for (let i = 0; i < plant2.length; i++) {
+    for (let j = i + 1; j < plant2.length; j++) {
+      const o = silhouetteOverlap(plant2[i]![1], plant2[j]![1]);
+      assert.ok(o < 0.8, `${plant2[i]![0]}–${plant2[j]![0]}: ${o.toFixed(2)}`);
+    }
+  }
+});
+
+test('estilo a5: la impresora escupe por la ranura y el cargador por la boca (muzzleY)', () => {
+  const dark = (c: readonly number[], m: readonly (readonly number[])[]): boolean => m.slice(4).some((t) => t[0] === c[0] && t[1] === c[1] && t[2] === c[2]);
+  for (const [id, f, mat] of [
+    ['impresora', P2.makeImpresoraNuevaFrames()[0]!, MATERIALS.beige],
+    ['cargador', P2.makeCargadorNuevoFrames()[0]!, MATERIALS.acero],
+  ] as const) {
+    const def = ENEMIES[id]!;
+    const muzzleY = 'muzzleY' in def.brain ? (def.brain as { muzzleY: number }).muzzleY : -1;
+    const y = def.anchor.y - muzzleY;
+    // The mouth is the dark band round that row (the row and the ones above and below it).
+    let n = 0;
+    for (let yy = y - 1; yy <= y + 1; yy++) for (let x = 0; x < f.w; x++) if (dark(f.get(x, yy), mat)) n++;
+    assert.ok(n >= 20, `${id}: alrededor de la fila de la boca (${y}) solo hay ${n} px oscuros`);
+  }
+  assert.equal(ENEMIES['impresora']!.anchor.y - P2.IMPRESORA_SLOT_Y, P2.IMPRESORA_FEET.y - 14);
+});
+
+test('estilo a5: la impresora atascada tiembla y el cargador tirado está tumbado en el suelo', () => {
+  const imp = P2.makeImpresoraNuevaFrames();
+  const def = ENEMIES['impresora']!;
+  const [j0, j1] = def.anim!.jam! as [number, number];
+  const left = (cv: Canvas): number => {
+    for (let x = 0; x < cv.w; x++) for (let y = 0; y < 30; y++) if (cv.get(x, y)[3] === 255) return x;
+    return -1;
+  };
+  assert.equal(left(imp[j1]!) - left(imp[j0]!), 2, 'atascada no se sacude');
+  const car = P2.makeCargadorNuevoFrames();
+  const cd = ENEMIES['cargador']!;
+  const lurk = car[cd.anim!.lurk!]!;
+  // Lying down: much lower than standing, its bottom on the floor.
+  let top = lurk.h;
+  for (let y = lurk.h - 1; y >= 0; y--) for (let x = 0; x < lurk.w; x++) if (lurk.get(x, y)[3] === 255) top = y;
+  assert.ok(cd.anchor.y - top <= 12, `tumbado mide ${cd.anchor.y - top} px`);
+  assert.equal(bottomRow(lurk), cd.anchor.y, 'el cebo no está en el suelo');
 });

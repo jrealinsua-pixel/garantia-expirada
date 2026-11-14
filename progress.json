@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T07:15:00+01:00",
+  "actualizado": "2026-11-14T08:00:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1088,
-    "tests_ok": 1082,
+    "tests": 1095,
+    "tests_ok": 1095,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38041
+    "lineas_codigo": 38135
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T08:00:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a5d): la Impresora que se Atasca y el Cargador Falso con el estilo nuevo. La impresora, ancha y beige con los folios detrás, escupe facturas por la ranura y se sacude atascada; el cargador, un ladrillo blanco con cuernos de latón y antifaz de ladrón, se hace el muerto tumbado en el suelo."
+    },
     {
       "fecha": "2026-11-14T07:15:00+01:00",
       "hito": "M14c",
@@ -1470,6 +1475,18 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/impresora-cargador-redibujados.png",
+      "pie": "M14c (a5d): la Impresora y el Cargador, antes (el primero de cada uno) y ahora (andando, atascada; zumbando, tirado en el suelo y descubierto), a 3×"
+    },
+    {
+      "archivo": "capturas/impresora-en-juego.png",
+      "pie": "M14c (a5d): dos impresoras nuevas soltando facturas en el Taller de Reparación de la planta 2"
+    },
+    {
+      "archivo": "capturas/cargador-en-juego.png",
+      "pie": "M14c (a5d): dos cargadores falsos descubiertos («No homologado») saltando sobre la tostadora"
+    },
+    {
       "archivo": "capturas/batidora-mando-redibujados.png",
       "pie": "M14c (a5c): la Batidora y el Mando, antes (el primero de cada uno) y ahora (las varillas girando, andando), a 3×"
     },
@@ -1480,21 +1497,9 @@
     {
       "archivo": "capturas/tostadora-juego.png",
       "pie": "M14c (a4a): la tostadora que se juega ya es la del estilo nuevo, con su guante nuevo (el Secador todavía es el viejo: va en la (a13))"
-    },
-    {
-      "archivo": "capturas/tostadora-fotogramas.png",
-      "pie": "M14c (a4b): la hoja de la tostadora, 24 fotogramas: los ocho de siempre; andar en seis pasos; rodar (bola y aterrizaje); disparar, el golpe y las dos sacudidas antes de romperse"
-    },
-    {
-      "archivo": "capturas/bombilla-redibujada.png",
-      "pie": "M14c (a5b): la Bombilla y la Polilla, antes (izquierda) y ahora (encendida, apagada y los dos aleteos), a 3×"
-    },
-    {
-      "archivo": "capturas/bombilla-en-juego.png",
-      "pie": "M14c (a5b): la bombilla nueva con su polilla, junto al aspirador y el microondas nuevos, en la Sala de Pruebas"
     }
   ],
-  "proximo": "M14c (a5d), la Impresora y el Cargador con el estilo nuevo (la (a4c) la tiene otra sesión).",
+  "proximo": "M14c (a5e), el Ratón Inalámbrico y la Webcam con el estilo nuevo (la (a4c) la tiene otra sesión).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1527,11 +1532,6 @@
       "sesion": "2026-11-14 07:27 (hora peninsular)",
       "tarea": "M14c (a4c): la Batidora de Vaso y la Plancha de Vapor con el estilo nuevo (tools/sprites/ un archivo nuevo de personajes, src/data/characters o su look, tests/personajes-a4c.test.ts). No toca enemigos",
       "desde": "2026-11-14T07:27:00+01:00"
-    },
-    {
-      "sesion": "2026-11-14 07:40 (hora peninsular)",
-      "tarea": "M14c (a5d): la Impresora y el Cargador con el estilo nuevo (tools/sprites/planta2-nuevo.ts nuevo, build.ts, anclas en src/data/enemies.ts, tests/estilo-a5.test.ts). No toca personajes",
-      "desde": "2026-11-14T07:40:00+01:00"
     }
   ]
 }
