@@ -896,7 +896,10 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     colorete, la pegatina «x3» en el pecho y peto turquesa; el dorado, el mismo molde en oro, con
     párpados de suficiencia, una sonrisita, el destello en la cabeza y la estrella del pecho a la
     altura de su `muzzleY`. En `tools/sprites/planta3-nuevo.ts`; anclas nuevas (12, 26).
-  - [ ] (a6c) La Destructora y la Fotocopiadora.
+  - [ ] (a6c) La Destructora y la Fotocopiadora, partida en dos el 2026-11-14 (la destructora
+    se dibuja desde tres lados).
+    - [ ] (a6c1) La Destructora (de lado, de frente y de espaldas).
+    - [ ] (a6c2) La Fotocopiadora.
   - [ ] (a6d) El Sello y el Climatizador.
   - [ ] (a6e) El Dispensador de Turnos y los Postes de Cola.
   - [ ] (a6f) El Asistente Virtual y el Teléfono de Recepción (y la Carretilla Elevadora del

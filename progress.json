@@ -1562,5 +1562,11 @@
     },
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
-  "en_curso": []
+  "en_curso": [
+    {
+      "sesion": "2026-11-14 11:15 (hora peninsular)",
+      "tarea": "M14c (a6c1): la Destructora con el estilo nuevo (tools/sprites/planta4-nuevo.ts nuevo, tools/sprites/build.ts su línea, src/data/enemies.ts su ancla, tests/estilo-a6.test.ts). No toca personajes",
+      "desde": "2026-11-14T11:15:00+01:00"
+    }
+  ]
 }
