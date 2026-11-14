@@ -1492,6 +1492,11 @@
       "sesion": "2026-11-13 22:25 (hora peninsular)",
       "tarea": "M14b (h11c): plantillas de sala con más forma",
       "desde": "2026-11-13T22:25:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 01:27 (hora peninsular)",
+      "tarea": "M14b (h10b3): la Centralita y la Trituradora con movimiento propio (src/data/bosses.ts, src/sim/boss*.ts, src/render/GameScene.ts para su dibujo, tests/jefes-planta5-movimiento.test.ts)",
+      "desde": "2026-11-14T01:27:00+01:00"
     }
   ]
 }
