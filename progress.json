@@ -1617,6 +1617,11 @@
       "sesion": "2026-11-14 17:22 (hora peninsular)",
       "tarea": "M14c (a7d): la Nube de Almacenamiento con el estilo nuevo (tools/sprites/nube-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la nube, tests/estilo-a7d.test.ts nuevo). No toca otros jefes",
       "desde": "2026-11-14T17:22:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 17:33 (hora peninsular)",
+      "tarea": "M14c (a7e): el Muñeco de Moda y su etiqueta con el estilo nuevo (tools/sprites/muneco-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts el muñeco, tests/estilo-a7e.test.ts nuevo). No toca otros jefes",
+      "desde": "2026-11-14T17:33:00+01:00"
     }
   ]
 }
