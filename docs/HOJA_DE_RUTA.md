@@ -785,6 +785,12 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   las hojas; `tests/entrada.test.ts`.
 - [ ] (a4) Los cinco personajes jugables, redibujados con más fotogramas (andar 6, rodar 6,
   disparar, herido, morir).
+  - [ ] (a4a) La Tostadora en el juego con el estilo nuevo (parte de `art/prueba/tostadora.png`):
+    la hoja nueva, el tamaño de fotograma nuevo en `sprites.json`, el dibujo centrado en su caja
+    de choque de siempre, el arma y la mano que gira encajadas, e2e y capturas.
+  - [ ] (a4b) Sus fotogramas nuevos: andar 6, rodar 6, disparar, herido y morir.
+  - [ ] (a4c) La Batidora de Vaso y la Plancha de Vapor.
+  - [ ] (a4d) El Becario Eterno y el Móvil.
 - [ ] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
 - [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
