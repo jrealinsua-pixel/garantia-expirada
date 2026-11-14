@@ -944,7 +944,12 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   - [ ] (a6f) El Asistente Virtual y el Teléfono de Recepción (y la Carretilla Elevadora del
     Servicio Técnico, que no es de ninguna planta), partida en dos el 2026-11-14.
     - [ ] (a6f1) El Asistente Virtual y el Teléfono de Recepción.
-    - [ ] (a6f2) La Carretilla Elevadora del Servicio Técnico.
+    - [x] (a6f2) La Carretilla Elevadora del Servicio Técnico.
+      Hecho el 2026-11-14 (`tools/sprites/taller-nuevo.ts`): 46 × 46, pintura mostaza (material
+      nuevo `mostaza`, más parda que el amarillo de los cupones), la cabina con la cara de faros y
+      visera sobre un cuerpo más oscuro, la rotativa que se enciende al avisar, el contrapeso con la
+      franja de peligro, la pegatina «APTO», las horquillas al tobillo que suben antes de embestir y
+      se doblan al estrellarse, la tarjeta de «Fuera de servicio» y ruedas con bujes que giran.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
   sombras de pared y luz.

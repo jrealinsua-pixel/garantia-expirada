@@ -217,8 +217,8 @@
   },
   "carretilla": {
     "file": "carretilla.png",
-    "frameW": 36,
-    "frameH": 37,
+    "frameW": 46,
+    "frameH": 46,
     "frames": 8
   },
   "cubo-piezas": {

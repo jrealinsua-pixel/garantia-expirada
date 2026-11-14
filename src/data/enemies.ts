@@ -380,7 +380,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
     hp: 9,
     workshop: true,
     sprite: 'carretilla',
-    anchor: { x: 17, y: 36 },
+    anchor: { x: 22, y: 44 },
     hurt: { x: -15, y: -34, w: 30, h: 33 },
     footRadius: 8,
     contactPush: 280,

@@ -2,6 +2,35 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 15:00 (hora peninsular) — Hito M14c — (a6f2) La Carretilla Elevadora con el estilo nuevo
+- Contexto: misma sesión que la (a6e). Al cerrarla, la (a6d) y la (a6f1) (el Asistente y el
+  Teléfono, en `recepcion-nuevo.ts`) las tenían otras sesiones; **partí la (a6f)** en la hoja de
+  ruta y cogí la (a6f2), la Carretilla, con archivos propios (`tools/sprites/taller-nuevo.ts`,
+  `tests/estilo-a6f2.test.ts`) y una línea de `build.ts`.
+- Hecho: **la Carretilla Elevadora** del Servicio Técnico (46 × 46, antes 36 × 37): pintura
+  **mostaza** (material nuevo `mostaza` en `src/art/paleta.ts`), el cuerpo largo en tonos más
+  oscuros y la cabina más clara con la cara (visera de acero por cejas, faros por ojos con párpados
+  aburridos, la rejilla por boca); el arco de seguridad con la rotativa ámbar (encendida y con
+  destellos al avisar); el contrapeso de hierro con la franja de peligro; la pegatina «APTO» y un
+  arañazo; el mástil con las horquillas al tobillo que suben 8 px antes de embestir y se doblan al
+  estrellarse; la tarjeta roja de «Fuera de servicio»; ruedas de goma con bujes que giran y la
+  carrocería que tiembla con el motor; guantes de nitrilo azules. Aturdida, ojos en X, rotativa
+  apagada y un muelle suelto. Ancla nueva (22, 44); la caja de golpes no cambia. Tests nuevos en
+  `tests/estilo-a6f2.test.ts` (4). Sección nueva en `docs/ESTILO_ARTE.md`. Capturas en el panel.
+- Decisiones: (1) Material nuevo y no `amarillo`: el diseño del taller ya pedía una mostaza más
+  parda para que los cupones no se pierdan encima. (2) Cuerpo más oscuro que la cabina: con los
+  mismos tonos, cabina y cuerpo se leían como un solo bloque. (3) Las ruedas no se mueven con el
+  temblor del motor (los pies tocan el suelo en el ancla en todos los fotogramas, como pide el test).
+- Medidas: la simulación no cambia (solo el ancla del dibujo). `npm run bot` 200 partidas, 0 fallos,
+  igual que antes. 1144 tests en verde; `npm run e2e` entero en verde (la captura `17z-taller-carretilla`
+  ya enseña la nueva). `npm run stats` no se pasó: tarda más de 5 minutos en esta máquina.
+- Problemas conocidos: el aviso del juego pinta toda la silueta de color durante el aviso, así que
+  la rotativa encendida apenas se ve en partida; el fotograma se ve en los demás momentos (al
+  girar, la carretilla se voltea bien). La caja de golpes (30 × 33) se queda por debajo del dibujo
+  nuevo, más alto: se mirará con las demás en una pasada de cajas si hace falta.
+- Siguiente paso: la (a7), los jefes, empezando por la Nevera Suprema; o la (a6f1) si se queda
+  sin cerrar más de 90 minutos (la (a6d) ya está hecha).
+
 ## 2026-11-14 14:45 (hora peninsular) — Hito M14c — (a6d) El Sello y el Climatizador con el estilo nuevo
 - Contexto: segunda tarea de la sesión, tras la (a6c2). La (a6e) la cogió otra sesión a las 13:40
   (planta 5, archivo propio); esta sigue en la planta 4.

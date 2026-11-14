@@ -538,6 +538,23 @@ mismo orden; los de `clientela.ts` se quedan como historia.
 - **`cinta-poste`** (24 × 6, opaca para repetirse): la misma banda `azul` con «HAGA COLA AQUÍ» del
   revés; tensa, más clara y con las letras en sombra.
 
+### La Carretilla Elevadora del Servicio Técnico (`tools/sprites/taller-nuevo.ts`)
+
+M14c (a6f2), con el estilo nuevo; la de `taller.ts` (M12 (3c)) se queda como historia. 46 × 46,
+ruedas en (22, 44); los ocho fotogramas de `FORK_FRAMES`. Pintura **mostaza** (material nuevo
+`mostaza`, más parda que el `amarillo` de los cupones, sombras al marrón y al ciruela): el cuerpo,
+una caja larga con el costado hacia ti en tonos más oscuros, y encima la cabina, más clara, con la
+cara delante (visera de acero por cejas, dos faros por ojos con párpados mostaza de aburrimiento, la
+rejilla por boca). Arco de seguridad de acero con la **rotativa ámbar** encima (encendida y con
+destellos al avisar); contrapeso de hierro con la franja de peligro amarilla y tinta; la pegatina
+verde «APTO» torcida y un arañazo hasta la imprimación. El mástil de acero delante, las horquillas
+a la altura del tobillo (`FORK_TINE_LOW`, 3 px) que suben a 11 px antes de embestir y se doblan
+hacia arriba al estrellarse, y la **tarjeta roja de «Fuera de servicio»** colgando del mástil. Dos
+ruedas de goma con el buje mostaza y dos tornillos que giran un octavo por fotograma (la de atrás,
+grande; la de delante, pequeña); la carrocería tiembla sobre ellas con el motor. Guantes de nitrilo
+azules (`azul`), uno flotando detrás y otro en la palanca. Aturdida: ojos en X, rotativa apagada y
+un muelle suelto saltando del techo. No se reacondiciona: conserva sus colores en el taller.
+
 ### Las armas de la planta 5 (`tools/sprites/megafono.ts`)
 
 - **`arma-megafono`** (18×11, la boca a la derecha como todas): el tambor rojo del altavoz detrás,

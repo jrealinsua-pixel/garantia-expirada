@@ -40,6 +40,7 @@ import * as P2 from './planta2-nuevo.ts';
 import * as P3 from './planta3-nuevo.ts';
 import * as P4 from './planta4-nuevo.ts';
 import * as P5 from './planta5-nuevo.ts';
+import * as TN from './taller-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
@@ -112,7 +113,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     // 0-1 idling, 2-3 driving, 4 revving to ram, 5 overturned, 6 batteries out.
     'coche-teledirigido': { canvas: strip(P3.makeCocheNuevoFrames()), frameW: P3.COCHE_W, frameH: P3.COCHE_H },
     // The workshop's own (M12 (3c)): taller.ts names the frames (FORK_FRAMES).
-    carretilla: { canvas: strip(TL.makeCarretillaFrames()), frameW: TL.FORK_W, frameH: TL.FORK_H },
+    // M14c (a6f2): in the new style (taller-nuevo.ts); same frames (TL.FORK_FRAMES).
+    carretilla: { canvas: strip(TN.makeCarretillaNuevaFrames()), frameW: TN.FORK_W, frameH: TN.FORK_H },
     // 0-1 standing, 2-5 waddling, 6 lid up (about to throw); and the pieces it throws (4 kinds).
     // M14c (a6b): the bucket and the envelope in the new style (planta3-nuevo.ts); (a6b2) the pieces
     // and the figurines too.
