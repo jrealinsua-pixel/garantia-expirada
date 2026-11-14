@@ -1003,7 +1003,17 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     y una pose por ataque), la baliza que se enciende con el despiece, `despiece-trituradora`; ancla
     (53, 93); la placa nueva; `tests/estilo-a7i.test.ts`.
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
-  sombras de pared y luz.
+  sombras de pared y luz. Partida el 2026-11-14 en una tarea por planta (cada una es una sesión):
+  - [ ] (a8a) Planta 1, el almacén: chapas y sus variantes, muros laterales y delantero, cinta de
+    peligro, esquinas, sombra de las paredes y pozos de luz.
+  - [ ] (a8b) Planta 1: la pared del fondo (la estantería con las cajas devueltas, el techo y sus
+    tubos) y la estantería exenta de dentro.
+  - [ ] (a8c) Planta 2, Informática.
+  - [ ] (a8d) Planta 3, la Juguetería.
+  - [ ] (a8e) Planta 4, las Oficinas.
+  - [ ] (a8f) Planta 5, Atención al Cliente.
+  - [ ] (a8g) Planta 6, el Taller de Reacondicionado.
+  - [ ] (a8h) Las puertas (huecos, marcos y persianas) de todas las plantas.
 - [ ] (a9) Props y decoración de cada planta (con M14b (h11)).
 - [ ] (a10) Efectos: disparos, impactos, explosiones, chispas, humo, muerte (más fotogramas,
   partículas con color).
