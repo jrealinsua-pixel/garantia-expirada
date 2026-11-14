@@ -565,8 +565,8 @@
   },
   "asistente-virtual": {
     "file": "asistente-virtual.png",
-    "frameW": 27,
-    "frameH": 36,
+    "frameW": 34,
+    "frameH": 48,
     "frames": 8
   },
   "bocadillo": {
@@ -589,8 +589,8 @@
   },
   "telefono-recepcion": {
     "file": "telefono-recepcion.png",
-    "frameW": 36,
-    "frameH": 30,
+    "frameW": 46,
+    "frameH": 38,
     "frames": 7
   },
   "bala-llamada": {

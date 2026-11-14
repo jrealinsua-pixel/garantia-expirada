@@ -871,7 +871,7 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     pinza con el objetivo a la altura de su `muzzleY`, la tapa de privacidad a media asta como un
     párpado, la cinta despegada colgando y el USB de cola; grabando, el iris rojo. En
     `tools/sprites/planta2-nuevo.ts`. Con esto la (a5) está terminada.
-- [ ] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados (de dos en dos, como la (a5); en
+- [x] (a6) Los enemigos de las plantas 3, 4 y 5, redibujados (de dos en dos, como la (a5); en
   `tools/sprites/planta3-nuevo.ts` y los que vengan, con `tests/estilo-a6.test.ts`).
   - [x] (a6a) El Robot de Cuerda y el Coche Teledirigido.
     Hecho el 2026-11-14: el robot, 42 × 44, una caja de hojalata verde agua desteñida (material
@@ -941,9 +941,15 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     turno» y la ventanita del rollo. Los postes, 28 × 42, con el tambor de cromo sombreado como un
     cilindro, la banda azul de la cinta donde el juego la tiende y el enganche que desaparece al
     soltarla; el otro de la pareja, con óxido en la base. La cinta, en el mismo azul. Anclas nuevas.
-  - [ ] (a6f) El Asistente Virtual y el Teléfono de Recepción (y la Carretilla Elevadora del
+  - [x] (a6f) El Asistente Virtual y el Teléfono de Recepción (y la Carretilla Elevadora del
     Servicio Técnico, que no es de ninguna planta), partida en dos el 2026-11-14.
-    - [ ] (a6f1) El Asistente Virtual y el Teléfono de Recepción.
+    - [x] (a6f1) El Asistente Virtual y el Teléfono de Recepción.
+      Hecho el 2026-11-14: `tools/sprites/recepcion-nuevo.ts` (el asistente, 34 × 48, antes 27 × 36;
+      el teléfono, 46 × 38, antes 36 × 30; los mismos fotogramas). El tótem blanco con la pantalla
+      azul y la sonrisa en la fila de su `muzzleY`, la franja turquesa, la webcam con la luz roja,
+      el QR, el cartel y el tique; el teléfono amarillento con la horquilla vacía, el pósit, la
+      pantallita, el teclado de demasiadas teclas, la luz de mensajes y el auricular colgando.
+      Anclas nuevas (17, 46) y (23, 36); `tests/estilo-a6f.test.ts`.
     - [x] (a6f2) La Carretilla Elevadora del Servicio Técnico.
       Hecho el 2026-11-14 (`tools/sprites/taller-nuevo.ts`): 46 × 46, pintura mostaza (material
       nuevo `mostaza`, más parda que el amarillo de los cupones), la cabina con la cara de faros y

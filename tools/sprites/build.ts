@@ -42,6 +42,7 @@ import * as P4 from './planta4-nuevo.ts';
 import * as P5 from './planta5-nuevo.ts';
 import * as TN from './taller-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
+import * as RC from './recepcion-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
@@ -213,12 +214,13 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'poste-cola': { canvas: strip([...P5.makePosteNuevoFrames(false), ...P5.makePosteNuevoFrames(true)]), frameW: P5.POST_W, frameH: P5.POST_H },
     'cinta-poste': { canvas: strip(P5.makeBeltNuevo()), frameW: P5.BELT_W, frameH: P5.BELT_H },
     'bola-acero': one(CL.makeSteelBall()),
-    'asistente-virtual': { canvas: strip(CL.makeAsistenteFrames()), frameW: CL.AV_W, frameH: CL.AV_H },
+    // M14c (a6f1): the new style (recepcion-nuevo.ts); the old makers stay in clientela.ts.
+    'asistente-virtual': { canvas: strip(RC.makeAsistenteNuevoFrames()), frameW: RC.AV_W, frameH: RC.AV_H },
     // Its speech bubbles (0 flying, 1 «…»), the FAQ shield (0 up, 1 fading) and «¿Le he ayudado?» (0 SÍ, 1 NO).
     bocadillo: { canvas: strip(CL.makeBubbleFrames()), frameW: 11, frameH: 9 },
     'escudo-faq': { canvas: strip(CL.makeFaqShieldFrames()), frameW: CL.FAQ_W, frameH: CL.FAQ_H },
     'boton-ayuda': { canvas: strip(CL.makeHelpButtons()), frameW: 13, frameH: 10 },
-    'telefono-recepcion': { canvas: strip(CL.makeTelefonoFrames()), frameW: CL.PHONE_W, frameH: CL.PHONE_H },
+    'telefono-recepcion': { canvas: strip(RC.makeTelefonoNuevoFrames()), frameW: RC.PHONE_W, frameH: RC.PHONE_H },
     'bala-llamada': { canvas: strip(CL.makeCallBullets()), frameW: 13, frameH: 13 },
     maniqui: one(P.makeManiqui()),
     'arma-secador': one(miniDryer()),

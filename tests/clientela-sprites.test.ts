@@ -6,6 +6,7 @@ import type { Canvas } from '../src/art/canvas.ts';
 import * as CL from '../tools/sprites/clientela.ts';
 import * as P5 from '../tools/sprites/planta5-nuevo.ts';
 import { allSheets } from '../tools/sprites/build.ts';
+import * as RC from '../tools/sprites/recepcion-nuevo.ts';
 
 const same = (a: readonly number[], b: readonly number[]): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 const count = (cv: Canvas, c: readonly number[]): number => cv.p.flat().filter((p) => p[3] === 255 && same(p, c)).length;
@@ -150,11 +151,12 @@ test('las hojas nuevas están en sprites.json sin pisar ninguna (la cinta de la 
     'poste-cola': [P5.POST_W, P5.POST_H, CL.POST_FRAMES.length * 2],
     'cinta-poste': [CL.BELT_W, CL.BELT_H, 2],
     'bola-acero': [7, 7, 1],
-    'asistente-virtual': [CL.AV_W, CL.AV_H, CL.AV_FRAMES.length],
+    // M14c (a6f1): the game's sheets are the new style now (tests/estilo-a6f.test.ts).
+    'asistente-virtual': [RC.AV_W, RC.AV_H, CL.AV_FRAMES.length],
     bocadillo: [11, 9, 2],
     'escudo-faq': [CL.FAQ_W, CL.FAQ_H, 2],
     'boton-ayuda': [13, 10, 2],
-    'telefono-recepcion': [CL.PHONE_W, CL.PHONE_H, CL.PHONE_FRAMES.length],
+    'telefono-recepcion': [RC.PHONE_W, RC.PHONE_H, CL.PHONE_FRAMES.length],
     'bala-llamada': [13, 13, 2],
   };
   for (const [k, [w, h, n]] of Object.entries(want)) {

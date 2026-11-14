@@ -475,6 +475,27 @@ y cada uno con un color que se despega del linóleo azul petróleo: **rojo**, **
 **beis**. Los nombres de los fotogramas están en `DISP_FRAMES`, `POST_FRAMES`, `AV_FRAMES` y
 `PHONE_FRAMES`.
 
+**Con el estilo nuevo (M14c (a6f1), `tools/sprites/recepcion-nuevo.ts`)** el Asistente Virtual y el
+Teléfono de Recepción tienen hoja propia (los dibujos de arriba quedan como historia en
+`clientela.ts`), con los mismos nombres de fotograma:
+
+- **El Asistente Virtual**, 34 × 48: un tótem de autoservicio de plástico blanco (`acero` en sus
+  tonos claros) con la pantalla grande de `azul` encendida, más clara arriba, con el reflejo en la
+  esquina; la cara de siempre (ojos de punto con brillo, coloretes y una sonrisa enorme con la
+  lengua) con la parte de abajo de la sonrisa en la fila de su `muzzleY`. La franja de la marca, en
+  `turquesa`, con su raya blanca, y zapatillas a juego. Chistes: el «¿En qué puedo ayudarle?»
+  quemado arriba de la pantalla, las huellas de dedos, el cartel de papel del costado, la pegatina
+  QR de «Valore su experiencia», la webcam de arriba con la luz roja encendida (siempre escucha) y
+  el tique que nadie pidió saliendo de la impresora. Escribiendo, los tres puntos bajo la sonrisa y
+  la mano tocando la pantalla.
+- **El Teléfono de Recepción**, 46 × 38: el teléfono de mesa de treinta años, de plástico
+  amarillento (`crema`, ni el gris de la fotocopiadora ni el beis de las impresoras), una cuña de
+  tres cuartos con la horquilla vacía arriba, la pantallita de «L1 RETENIDA» y el pósit «Ext. 0»;
+  delante, ojos de recepcionista cansada (cejas caídas por fuera) sobre un teclado con demasiadas
+  teclas y una columna roja que nadie sabe para qué es, y la luz de mensajes que parpadea. El
+  auricular cuelga a la izquierda del cable rizado. Sonando, ojos cerrados, boca abierta, se agita y
+  el auricular salta; pasando la llamada, mira de reojo, sonríe de lado y señala atrás con la mano.
+
 - **Dispensador de Turnos** (`dispensador-turnos`, 30 × 35, 8): una caja roja de «coja número»
   (más oscura y parda que las balas, para que un tique no se pierda encima) sobre un poste cromado y
   un pie de hierro redondo, con sus piernas debajo. En la frente, la pantalla de LED con **«087»**,
