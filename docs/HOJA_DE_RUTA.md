@@ -931,7 +931,9 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     cilindro, la banda azul de la cinta donde el juego la tiende y el enganche que desaparece al
     soltarla; el otro de la pareja, con óxido en la base. La cinta, en el mismo azul. Anclas nuevas.
   - [ ] (a6f) El Asistente Virtual y el Teléfono de Recepción (y la Carretilla Elevadora del
-    Servicio Técnico, que no es de ninguna planta).
+    Servicio Técnico, que no es de ninguna planta), partida en dos el 2026-11-14.
+    - [ ] (a6f1) El Asistente Virtual y el Teléfono de Recepción.
+    - [ ] (a6f2) La Carretilla Elevadora del Servicio Técnico.
 - [ ] (a7) Los jefes, redibujados (más grandes, más fotogramas, despiece).
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
   sombras de pared y luz.

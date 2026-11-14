@@ -1592,6 +1592,11 @@
       "sesion": "2026-11-14 14:26 (hora peninsular)",
       "tarea": "M14c (a6f1): el Asistente Virtual y el Teléfono de Recepción con el estilo nuevo (tools/sprites/recepcion-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts sus anclas, tests/estilo-a6f.test.ts nuevo). No toca planta4-nuevo.ts, planta5-nuevo.ts ni personajes",
       "desde": "2026-11-14T14:26:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 15:05 (hora peninsular)",
+      "tarea": "M14c (a6f2): la Carretilla Elevadora con el estilo nuevo (tools/sprites/taller-nuevo.ts nuevo, tools/sprites/build.ts su línea, src/data/enemies.ts su ancla, tests/estilo-a6f2.test.ts nuevo). No toca planta4-nuevo.ts, recepcion-nuevo.ts ni personajes",
+      "desde": "2026-11-14T15:05:00+01:00"
     }
   ]
 }
