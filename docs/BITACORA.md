@@ -2,6 +2,43 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 18:17 (hora peninsular) — Hito M14c — (a7e) El Muñeco de Moda con el estilo nuevo
+- Contexto: al llegar, otra sesión tenía cogida la (a7d) (la nube) desde hacía tres minutos; elegí
+  la (a7e), que solo comparte con ella las líneas de cada jefe en `build.ts` y `enemies.ts` (y un
+  material en `paleta.ts`, puesto en otro sitio de la lista). La rama `main` local estaba vieja
+  (clon superficial): la puse en `origin/main` antes de empezar, sin tocar el remoto.
+- Hecho: M14c (a7e), en `tools/sprites/muneco-nuevo.ts` (el viejo sigue en `muneco.ts` con sus
+  tests). **El Muñeco de Moda**, 84 × 88 (antes 72 × 76), con dos materiales nuevos: `cartulina`
+  (la caja, rosa chicle desteñido, mate) y `vinilo` (el muñeco); ver `docs/ESTILO_ARTE.md`. La
+  caja en tres cuartos con la pestaña de colgar (con la ranura hueca), «MODA» con el «2025»
+  tachado, el muñeco aplastado tras el plástico con sus alambres y la estrella de «¡Novedad!»
+  tachada. **22 fotogramas** (antes 16): con caja, posar, lanzar accesorios (bolso y tacón),
+  «¡Rebajas!» y el **cambio de fase** (`clap`): horrorizado al verse rebajado; sin caja
+  (`frameShift` 10), el pelo de punta en todas direcciones, ojos de muñeca con el iris encogido, la
+  sonrisa rajada, el giro de espaldas, de frente y **de lado** (antes repetía el de reposo),
+  lanzando y cogiendo impulso para girar. Poses en sus ataques (`pose` 7, 8, 20 y 21). La
+  **etiqueta** (`etiqueta-rebaja`) y la **caja rota** (`caja-muneco`, 56 × 62) redibujadas;
+  despiece propio (`despiece-muneco-moda`). La etiqueta ahora sube y baja con el cuerpo en todos
+  los fotogramas (`frameDy`). Ancla (42, 86); caja de golpes, boca y simulación, las de siempre.
+  `tests/estilo-a7e.test.ts` (6 tests); `tests/muneco-fase3.test.ts` lee los fotogramas de
+  `MUNECO_FRAMES` en vez de números fijos.
+- Decisiones: (1) Con caja **no crece**: ya era del tamaño de su caja de golpes (la regla de los
+  jefes); lo que crece es el muñeco sin caja (un 41 % más de área). El test lo dice así. (2) El
+  reflejo del plástico, en tres trazos cortos en los bordes de la ventana: la primera versión
+  cruzaba la cara y no se leía. (3) La estrella tachada, abajo a la derecha, por el mismo motivo.
+  (4) El pelo suelto, mechones que salen de la coronilla, cada uno de su largo: en filas iguales
+  parecía un corte al cepillo. (5) En el cambio a la fase 3 no hay fotograma propio de «romper la
+  caja»: `enemyAnim` no enseña el `clap` en una fase con fotogramas propios (lo necesita el
+  Director), y el juego ya hace el estallido de cartón.
+- Medidas: la simulación no cambia. `npm run bot` idéntico línea a línea (200 partidas, 0 fallos,
+  5 atascos; el Muñeco, ganado el 63,3 % en 98,3 s). 1174 tests en verde; `npm run e2e` entero en
+  verde (capturas del Muñeco miradas: se lee con caja, la etiqueta en su sitio, y sin caja con la
+  caja rota delante).
+- Problemas conocidos: las manos de vinilo, a tamaño real, parecen bollitos; si el humano lo dice,
+  que lleven dedos marcados. En la comparativa del panel las etiquetas de la fila de arriba son de
+  muestra (no la de cada fase).
+- Siguiente paso: M14c (a7f), la Consola de Coleccionista (al cerrar, otra sesión la acababa de coger); si no, la (a7g), el Director.
+
 ## 2026-11-14 17:53 (hora peninsular) — Hito M14c — (a7d) La Nube de Almacenamiento con el estilo nuevo
 - Contexto: la misma sesión que la (a7c), seguida (paso 7); nadie más trabajaba.
 - Hecho: M14c (a7d), en `tools/sprites/nube-nuevo.ts` (la vieja, en `nube.ts`, que sigue

@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T17:53:00+01:00",
+  "actualizado": "2026-11-14T18:17:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -151,6 +151,11 @@
     "lineas_codigo": 38239
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T18:17:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7e): el Muñeco de Moda con el estilo nuevo. La caja de escaparate de cartulina rosa desteñida (material nuevo) con la pestaña de colgar, «MODA» con el 2025 tachado y el muñeco de vinilo (material nuevo) aplastado tras el plástico; 22 fotogramas (antes 16): pose por ataque, el horror de verse rebajado al cambiar de fase y, sin caja, el pelo de punta, ojos desorbitados y un giro de lado propio. Etiqueta y caja rota redibujadas, despiece propio. Simulación igual; tests, e2e y bot en verde."
+    },
     {
       "fecha": "2026-11-14T17:53:00+01:00",
       "hito": "M14c",
@@ -1565,6 +1570,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/muneco-redibujado.png",
+      "pie": "M14c (a7e): el Muñeco de Moda, antes (el primero de cada fila) y ahora: con caja, de pie, posando, lanzando accesorios, «¡Rebajas!» y horrorizado al verse rebajado; sin caja, de pie, posando, girando de espaldas, de frente y de lado, lanzando y cogiendo impulso; abajo, la caja rota, las etiquetas viejas y nuevas y su despiece, a 3×"
+    },
+    {
+      "archivo": "capturas/muneco-en-juego.png",
+      "pie": "M14c (a7e): el muñeco nuevo sin caja girando y soltando pegatinas, con su caja rota delante como cobertura"
+    },
+    {
       "archivo": "capturas/nube-redibujada.png",
       "pie": "M14c (a7d): la Nube de Almacenamiento, antes (la primera) y ahora: flotando, sincronizando, el error de conexión, el chaparrón, escupiendo archivos y, llena, flotando, lloviendo, escupiendo y soltando carpetas; debajo, su despiece, a 3×"
     },
@@ -1579,17 +1592,9 @@
     {
       "archivo": "capturas/router-en-juego.png",
       "pie": "M14c (a7c): el router nuevo en la Sala de Servidores, actualizado, a punto de soltar las caídas de conexión (los círculos del suelo)"
-    },
-    {
-      "archivo": "capturas/lavadora-redibujada.png",
-      "pie": "M14c (a7b): la Lavadora Eco, antes (la primera de cada fila) y ahora, un programa por fila (Prelavado, Lavado, Centrifugado): de pie, andando, pesando la carga y su pose de ataque, a 3×"
-    },
-    {
-      "archivo": "capturas/lavadora-en-juego.png",
-      "pie": "M14c (a7b): la lavadora nueva en su sala: la espuma del Prelavado, el calcetín volando del Lavado y el Centrifugado a tope"
     }
   ],
-  "proximo": "M14c (a7e), el Muñeco de Moda (cogido por otra sesión), y después (a7f)–(a7i), un jefe por tarea.",
+  "proximo": "M14c (a7g), el Director de Recursos Inhumanos y su silla (la (a7f) la tiene otra sesión), y después (a7h)–(a7i).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1618,11 +1623,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 17:33 (hora peninsular)",
-      "tarea": "M14c (a7e): el Muñeco de Moda y su etiqueta con el estilo nuevo (tools/sprites/muneco-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts el muñeco, tests/estilo-a7e.test.ts nuevo). No toca otros jefes",
-      "desde": "2026-11-14T17:33:00+01:00"
-    },
     {
       "sesion": "2026-11-14 18:27 (hora peninsular)",
       "tarea": "M14c (a7f): la Consola de Coleccionista con el estilo nuevo (tools/sprites/consola-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la consola, tests/estilo-a7f.test.ts nuevo). No toca otros jefes",

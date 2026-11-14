@@ -12,7 +12,7 @@ import * as P from './props.ts';
 import * as LV from './lavadora.ts';
 import * as NB from './nube.ts';
 import * as CO from './consola.ts';
-import { makeBrokenBox, makeMunecoFrames, makeTagFrames, MUNECO_H, MUNECO_W, TAG_H, TAG_W } from './muneco.ts';
+import * as MN from './muneco-nuevo.ts';
 import * as DR from './director.ts';
 import * as CT from './centralita.ts';
 import * as CL from './clientela.ts';
@@ -165,12 +165,14 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'router-wifi': { canvas: strip(RT.makeRouterNuevoFrames()), frameW: RT.ROUTER_W, frameH: RT.ROUTER_H },
     'despiece-router-wifi': { canvas: strip(RT.makeRouterBits()), frameW: RT.ROUTER_BIT, frameH: RT.ROUTER_BIT },
     repetidor: { canvas: strip(RT.makeRepetidorNuevoFrames()), frameW: RT.REPETIDOR_W, frameH: RT.REPETIDOR_H },
-    // Floor 3's boss: 0-5 boxed, 6 boxed posing, 7-12 out of the box, 13 posing, 14-15 spinning.
-    'muneco-moda': { canvas: strip(makeMunecoFrames()), frameW: MUNECO_W, frameH: MUNECO_H },
-    // The tag on its box (muneco.ts TAG_ANCHOR): full price, −30 %, −50 %, −70 %.
-    'etiqueta-rebaja': { canvas: strip(makeTagFrames()), frameW: TAG_W, frameH: TAG_H },
+    // M14c (a7e): Floor 3's boss in the new style (tools/sprites/muneco-nuevo.ts, MUNECO_FRAMES):
+    // 0-9 boxed (with its poses and the markdown), 10-21 out of the box; and its debris.
+    'muneco-moda': { canvas: strip(MN.makeMunecoNuevoFrames()), frameW: MN.MUNECO_W, frameH: MN.MUNECO_H },
+    'despiece-muneco-moda': { canvas: strip(MN.makeMunecoBits()), frameW: MN.MUNECO_BIT, frameH: MN.MUNECO_BIT },
+    // The tag on its box (muneco-nuevo.ts TAG_ANCHOR): full price, −30 %, −50 %, −70 %.
+    'etiqueta-rebaja': { canvas: strip(MN.makeTagNuevoFrames()), frameW: MN.TAG_W, frameH: MN.TAG_H },
     // The box it breaks out of in phase 3, left in the room as an obstacle.
-    'caja-muneco': one(makeBrokenBox()),
+    'caja-muneco': one(MN.makeBrokenBoxNuevo()),
     // Floor 4's boss (M10 planta 4 5a): director.ts DIRECTOR_FRAMES names each frame.
     'director-rrhh': { canvas: strip(DR.makeDirectorFrames()), frameW: DR.DIRECTOR_W, frameH: DR.DIRECTOR_H },
     // His chair on its own in phase 3: 0 still, 1-2 rolling, 3 about to ram.

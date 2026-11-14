@@ -199,6 +199,36 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   rojo; su pose propia, soltando carpetas por la barriga. Despiece: un trozo de nube, una carpeta,
   un folio, el candado, la clavija USB y la barra. Crece poco respecto a la vieja (un 7 % de área):
   la vieja ya se salía de su caja de golpes y la nueva se ciñe a ella.
+- **El Muñeco de Moda** (M14c (a7e), `tools/sprites/muneco-nuevo.ts`; el viejo se queda en
+  `muneco.ts`), 84 × 88: la caja de escaparate en tres cuartos, de **`cartulina`** (material
+  nuevo: el rosa chicle de las cajas de muñecas, desteñido por una temporada al sol; mate y más
+  cálido que el `fucsia` brillante del Sobre Sorpresa), del tamaño de su caja de golpes. Encima, la
+  **pestaña de colgar con su ranura** (se ve el suelo a través), como cualquier juguete de
+  percha; en el lateral en sombra, el código de barras, el «3+» y una abolladura; delante, la banda
+  amarilla con «MODA» en letras de bloque y el «2025» tachado (es del año pasado), y la ventana:
+  fondo azul noche con estrellas rosas y, detrás del plástico, el muñeco aplastado (el pelo dorado
+  de `tostada` pegado al techo de la ventana, cara de **`vinilo`**, material nuevo, un melocotón
+  más naranja y brillante que la `piel` del becario, ojos azules pintados con pestañas y ojeras, la
+  sonrisa del anuncio y el colorete un poco fuera de sitio), americana turquesa y los **alambres**
+  del cuello y la cintura; el reflejo del plástico, en tres trazos cortos que no tapan la cara; la
+  estrella de «¡Novedad!» tachada con la cinta de «Temporada anterior», abajo a la derecha. La
+  etiqueta del precio sigue siendo su hoja (`etiqueta-rebaja`, 22 × 12, redibujada con los
+  materiales: blanca, amarilla, `tostada` y roja, cada rebaja pegada encima de la anterior) y ahora
+  sube y baja con el cuerpo en todos los fotogramas. Manos de vinilo, vaqueros con el bajo vuelto y
+  zapatillas blancas de suela rosa. Poses: posando (guiño, mano arriba y destello), lanzando
+  accesorios (el bolso en la mano de atrás y un tacón rosa en la de delante), **«¡Rebajas!»** (las
+  dos manos arriba junto a la pestaña, la sonrisa más grande) y el **cambio de fase** (`clap`):
+  horrorizado por su precio nuevo, cejas arriba, los ojos en blanco, la boca en «O» y una gota de
+  sudor. **Sin caja** (fase 3, `frameShift` 10): la cabeza grande de vinilo, el pelo **de punta en
+  todas direcciones** (mechones que salen de la coronilla, cada uno de su largo), ojos de muñeca
+  enormes con el iris encogido alrededor de un punto, la sonrisa rajada en la comisura, el alambre
+  aún al cuello con la punta cortada y la cinta pegada en el pecho; de espaldas (todo pelo y la
+  etiqueta «made in»), de frente con los ojos apretados y de lado con la nariz asomando para el
+  giro, lanzando (gritando con un bolso) y cogiendo impulso para girar (las manos cruzadas, los
+  ojos entornados). La caja rota (`caja-muneco`, 56 × 62): la misma caja vacía, el troquel del
+  muñeco en el cartón, los alambres cortados, el plástico roto en picos brillantes, la pestaña
+  arrancada y el −70 % puesto. Despiece: un tacón, una mano, la pestaña, un alambre, la estrella
+  tachada y un mechón de pelo.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

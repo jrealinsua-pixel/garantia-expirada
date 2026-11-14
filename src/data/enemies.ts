@@ -870,25 +870,27 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // (h10b1)): it keeps the toaster further off and the fight had gone over 100 s.
     hp: 128,
     sprite: 'muneco-moda',
-    anchor: { x: 36, y: 74 },
+    anchor: { x: 42, y: 86 },
     hurt: { x: -26, y: -68, w: 52, h: 58 },
     footRadius: 16,
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [3, 5], hearts: 1 },
-    // 0-1 breathing in its box, 2-5 the walk, 6 posing (it warns before the catwalk). Out of the
-    // box (phase 3, frameShift 7) the same layout seven frames on, and it spins: front, side,
-    // back, other side.
+    // M14c (a7e), tools/sprites/muneco-nuevo.ts MUNECO_FRAMES: 0-1 breathing in its box, 2-5 the
+    // walk, 6 posing (it warns before the catwalk), 7 throwing accessories, 8 «¡Rebajas!», 9 horrified
+    // at its new price (the phase change). Out of the box (phase 3, frameShift 10) the same layout ten
+    // frames on, and it spins: front, side, back, other side; 20 throwing, 21 winding up to spin.
     anim: {
       idle: [0, 1],
       idleMs: 520,
       walk: [2, 3, 4, 5],
       stepPx: 8,
       warn: 6,
-      spin: [15, 7, 14, 7],
+      clap: 9,
+      spin: [18, 19, 17, 19],
       spinMs: 70,
-      badge: { sprite: 'etiqueta-rebaja', x: 16, y: 48, w: 22, upTo: 7, frameDy: { 6: -1 } },
+      badge: { sprite: 'etiqueta-rebaja', x: 25, y: 61, w: 22, upTo: 10, frameDy: { 1: 1, 2: -1, 4: -1, 5: 1, 6: -1, 8: -1 } },
     },
     brain: {
       kind: 'boss',
@@ -909,7 +911,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           rest: [0.85, 1.2],
           badge: 0,
           attacks: [
-            { kind: 'pattern', pattern: 'muneco-accesorios', telegraph: 0.7, weight: 3 },
+            { kind: 'pattern', pattern: 'muneco-accesorios', telegraph: 0.7, weight: 3, pose: 7 },
             // The catwalk: from side to side posing, leaving camera flashes that go off behind it.
             { kind: 'runway', speed: 150, gap: 38, fuse: 0.6, pattern: 'muneco-flash', telegraph: 0.7, weight: 1.2 },
           ],
@@ -927,8 +929,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: '¡Ahora con más accesorios!',
           summon: { id: 'munequito-repetido', count: 2, max: 4 },
           attacks: [
-            { kind: 'pattern', pattern: 'muneco-rebaja-30', telegraph: 0.7, weight: 3 },
-            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.6, weight: 2 },
+            { kind: 'pattern', pattern: 'muneco-rebaja-30', telegraph: 0.7, weight: 3, pose: 8 },
+            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.6, weight: 2, pose: 7 },
             { kind: 'runway', speed: 165, gap: 36, fuse: 0.6, pattern: 'muneco-flash', telegraph: 0.6, weight: 1.5 },
           ],
         },
@@ -943,8 +945,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: '¡Ahora con más accesorios!',
           summon: { id: 'munequito-repetido', count: 2, max: 4 },
           attacks: [
-            { kind: 'pattern', pattern: 'muneco-rebaja-50', telegraph: 0.65, weight: 3 },
-            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.55, weight: 2 },
+            { kind: 'pattern', pattern: 'muneco-rebaja-50', telegraph: 0.65, weight: 3, pose: 8 },
+            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.55, weight: 2, pose: 7 },
             { kind: 'runway', speed: 180, gap: 34, fuse: 0.55, pattern: 'muneco-flash', telegraph: 0.55, weight: 1.5 },
           ],
         },
@@ -959,8 +961,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: '¡Ahora con más accesorios!',
           summon: { id: 'munequito-repetido', count: 2, max: 4 },
           attacks: [
-            { kind: 'pattern', pattern: 'muneco-rebaja-70', telegraph: 0.6, weight: 3 },
-            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.5, weight: 2 },
+            { kind: 'pattern', pattern: 'muneco-rebaja-70', telegraph: 0.6, weight: 3, pose: 8 },
+            { kind: 'pattern', pattern: 'muneco-accesorios-2', telegraph: 0.5, weight: 2, pose: 7 },
             { kind: 'runway', speed: 195, gap: 32, fuse: 0.5, pattern: 'muneco-flash', telegraph: 0.5, weight: 1.5 },
           ],
         },
@@ -978,11 +980,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: '¡Todo debe desaparecer! Yo también.',
           shed: { prop: 'caja-muneco' },
           taken: 1.25,
-          frameShift: 7,
+          frameShift: 10,
           attacks: [
-            { kind: 'pattern', pattern: 'muneco-pegatinas', telegraph: 0.55, weight: 3, spin: true },
-            { kind: 'pattern', pattern: 'muneco-pegatinas-2', telegraph: 0.5, weight: 2, spin: true },
-            { kind: 'pattern', pattern: 'muneco-accesorios-3', telegraph: 0.45, weight: 1.5 },
+            { kind: 'pattern', pattern: 'muneco-pegatinas', telegraph: 0.55, weight: 3, spin: true, pose: 21 },
+            { kind: 'pattern', pattern: 'muneco-pegatinas-2', telegraph: 0.5, weight: 2, spin: true, pose: 21 },
+            { kind: 'pattern', pattern: 'muneco-accesorios-3', telegraph: 0.45, weight: 1.5, pose: 20 },
           ],
         },
       ],

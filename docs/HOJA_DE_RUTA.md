@@ -974,7 +974,12 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     `tools/sprites/nube-nuevo.ts`: 84 × 88 (antes 72 × 76), una sola masa sombreada con
     `heightShade`, 17 fotogramas (ocho por fase con sus poses, y soltando carpetas),
     `despiece-nube-almacenamiento`; ancla (42, 86); `tests/estilo-a7d.test.ts`.
-  - [ ] (a7e) El Muñeco de Moda y su etiqueta (planta 3).
+  - [x] (a7e) El Muñeco de Moda y su etiqueta (planta 3). Hecho el 2026-11-14 en
+    `tools/sprites/muneco-nuevo.ts`: 84 × 88 (antes 72 × 76), material nuevo `cartulina` para la
+    caja y `vinilo` para el muñeco, 22 fotogramas (antes 16: con caja, una pose por ataque y el
+    horror de verse rebajado como cambio de fase; sin caja, sus poses y un giro de lado propio),
+    la etiqueta y la caja rota redibujadas, `despiece-muneco-moda`; ancla (42, 86);
+    `tests/estilo-a7e.test.ts`.
   - [ ] (a7f) La Consola de Coleccionista (planta 3).
   - [ ] (a7g) El Director de Recursos Inhumanos y su silla (planta 4).
   - [ ] (a7h) La Centralita (planta 5).

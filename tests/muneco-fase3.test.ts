@@ -10,6 +10,7 @@ import type { BossBrain } from '../src/data/types.ts';
 import { BOSS_DOWN_STAMP } from '../src/data/texts.ts';
 import { enemyFrame, spinMirrored } from '../src/render/enemyAnim.ts';
 import { isSpinning } from '../src/sim/enemies.ts';
+import { MUNECO_FRAMES } from '../tools/sprites/muneco-nuevo.ts';
 import { expandPattern } from '../src/sim/patterns.ts';
 import { Rng } from '../src/sim/rng.ts';
 import { TILE } from '../src/sim/room.ts';
@@ -85,18 +86,21 @@ test('sin caja: sus fotogramas sin caja (la etiqueta no se pinta), y recibe un 2
   const { w, boss } = fight('sin-caja');
   assert.equal(takenScale(boss), 1);
   const before = enemyFrame(boss, 0);
-  assert.ok(before < 7, 'con caja antes');
+  assert.ok(before < MUNECO_FRAMES.boxed, 'con caja antes');
   toPhase3(w, boss, 2.5);
   assert.equal(takenScale(boss), 1.25);
   const badge = def.anim!.badge!;
   for (let t = 0; t < 400; t++) {
     step(w, NO_INPUT);
     const f = enemyFrame(boss, t * 16);
-    assert.ok(f >= badge.upTo && f <= 15, `fotograma sin caja: ${f}`);
+    assert.ok(f >= badge.upTo && f < MUNECO_FRAMES.count, `fotograma sin caja: ${f}`);
   }
-  // Its pose before an attack, out of the box.
+  // Its pose before an attack, out of the box (M14c (a7e): its attacks have poses of their own).
   boss.state = 'warn';
-  assert.equal(enemyFrame(boss, 0), def.anim!.warn! + 7);
+  boss.attack = undefined;
+  assert.equal(enemyFrame(boss, 0), def.anim!.warn! + MUNECO_FRAMES.loose);
+  boss.attack = last.attacks.findIndex((a) => a.kind === 'pattern' && a.pattern === 'muneco-accesorios-3');
+  assert.equal(enemyFrame(boss, 0), MUNECO_FRAMES.accessories3);
 });
 
 test('gira sobre sí mismo soltando espirales de pegatinas que persiguen un poco', () => {
@@ -127,7 +131,8 @@ test('gira sobre sí mismo soltando espirales de pegatinas que persiguen un poco
     }
   }
   assert.ok(spun, 'tarde o temprano gira');
-  assert.deepEqual([...frames].sort((a, b) => a - b), [7, 14, 15], 'de frente, de lado y de espaldas');
+  const F = MUNECO_FRAMES;
+  assert.deepEqual([...frames].sort((a, b) => a - b), [F.spinBack, F.spinFront, F.spinSide], 'de frente, de lado y de espaldas');
   assert.ok(mirrored > 0, 'y del otro lado');
   stickers = w.bullets.filter((b) => b.owner === 'enemy' && b.color === 'sticker').length;
   assert.ok(stickers > 20, `${stickers} pegatinas en el aire`);

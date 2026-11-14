@@ -385,9 +385,15 @@
   },
   "muneco-moda": {
     "file": "muneco-moda.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 16
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 22
+  },
+  "despiece-muneco-moda": {
+    "file": "despiece-muneco-moda.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "etiqueta-rebaja": {
     "file": "etiqueta-rebaja.png",
@@ -398,7 +404,7 @@
   "caja-muneco": {
     "file": "caja-muneco.png",
     "frameW": 56,
-    "frameH": 64,
+    "frameH": 62,
     "frames": 1
   },
   "director-rrhh": {

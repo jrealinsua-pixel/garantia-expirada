@@ -51,6 +51,13 @@ export const MATERIALS = {
   cian: r('#f0ffff', '#b6f1f0', '#69dbd8', '#3aa3b0', '#2e6f8a', '#244a68'),
   /** Magenta foil of the sticker packets (M14c (a6b)): the glints go pink-white, the shadows plum. */
   fucsia: r('#ffe6f7', '#ffa8de', '#e86cc6', '#b8469f', '#86307f', '#5a215e', '#3a1842'),
+  /**
+   * M14c (a7e): the printed card of the Muñeco de Moda's shop-window box, a hot pink gone dusty
+   * after a season in the sun (matte and warmer than `fucsia`, the shiny foil): shadows to plum.
+   */
+  cartulina: r('#fbe3e6', '#f2adc7', '#e57aae', '#c25596', '#923c7c', '#62295e', '#3d1a42'),
+  /** M14c (a7e): doll vinyl, a peach-tan that never existed in nature (glossier than `piel`). */
+  vinilo: r('#fff1e0', '#ffd2ad', '#f4ad84', '#d78468', '#a95f5a', '#723f50', '#46283f'),
   /** Painted tin of old wind-up toys (M14c (a6a)), a faded teal: shadows to slate blue. */
   hojalata: r('#eef8e6', '#b9dcc9', '#8dbcae', '#64968f', '#4a6e74', '#384a62', '#28304a'),
   /** M14c (a4d1): skin of the Becario Eterno (the only person): peach lights, shadows to rose and plum. */
