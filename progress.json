@@ -1512,6 +1512,11 @@
       "sesion": "2026-11-14 05:00 (hora peninsular)",
       "tarea": "M14c (a5b): la Bombilla y la Polilla con el estilo nuevo (tools/sprites/planta1-nuevo.ts, sus líneas en tools/sprites/build.ts, anchor en src/data/enemies.ts, SPRITE_GLOWS en GameScene, tests/estilo-a5.test.ts). No toca la Tostadora",
       "desde": "2026-11-14T05:00:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 05:25 (hora peninsular)",
+      "tarea": "M14c (a4b): fotogramas nuevos de la Tostadora (andar 6, rodar 6, disparar, herido, morir): tools/sprites/tostadora.ts, la animación del jugador en src/render, tests/tostadora-a4b.test.ts. No toca enemigos",
+      "desde": "2026-11-14T05:25:00+01:00"
     }
   ]
 }
