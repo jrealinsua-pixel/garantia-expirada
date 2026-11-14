@@ -14,8 +14,14 @@
   "batidora-vaso": {
     "file": "batidora-vaso.png",
     "frameW": 40,
-    "frameH": 41,
-    "frames": 8
+    "frameH": 50,
+    "frames": 24
+  },
+  "mano-batidora": {
+    "file": "mano-batidora.png",
+    "frameW": 7,
+    "frameH": 7,
+    "frames": 1
   },
   "giro-cuchillas": {
     "file": "giro-cuchillas.png",

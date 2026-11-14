@@ -64,6 +64,16 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   juego pone la sombra (`CharacterLook.shadowRx`, la mitad del ancho de la carcasa) y el arma con
   el guante. Las pantallas hechas a mano para el marco viejo de 40 × 41 (portada, final) colocan
   el dibujo con `classicOrigin`, con los pies donde iban.
+- **La Batidora de Vaso** (M14c (a4c1), `tools/sprites/batidora-vaso.ts`): 40 × 50, más alta que
+  la tostadora por el vaso. El motor es un cubo de tres cuartos de plástico violeta (material
+  `violeta`) con la cara delante: ojos muy abiertos de no dormir (pupila diminuta, una vena roja y
+  ojeras) y una sonrisa con todos los dientes; encima, el collar de goma acanalado y el vaso de
+  `vidrio`, un cilindro con el reflejo de la ventana por el lado de la luz, las marcas de medida y
+  el batido verde de la dieta seco dentro (su superficie se inclina al andar y se agita al rodar,
+  `slosh`). Sus fotogramas son los mismos que los de la tostadora (andar 6, rodar 6, disparar,
+  golpe en dos tiempos, dos sacudidas); el golpe hace saltar la tapa en lugar de las tostadas, y
+  rota se queda con la tapa torcida, sin pajita y el vaso rajado. Guantes y zapatillas de correr
+  lima, con calcetines blancos: compradas para la misma dieta, casi sin usar.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

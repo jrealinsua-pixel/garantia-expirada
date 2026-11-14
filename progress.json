@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T08:00:00+01:00",
+  "actualizado": "2026-11-14T08:35:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1095,
-    "tests_ok": 1095,
+    "tests": 1101,
+    "tests_ok": 1101,
     "partidas_bot": 100,
     "fallos_bot": 0,
-    "lineas_codigo": 38135
+    "lineas_codigo": 38142
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T08:35:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a4c1): la Batidora de Vaso ya es del estilo nuevo, con sus 24 fotogramas como la tostadora: motor violeta con ojos de no dormir y sonrisa de todos los dientes, un vaso de cristal con el batido verde de la dieta que se mueve al andar y se agita al rodar, la tapa que salta con los golpes y, rota, torcida y con el vaso rajado. Guantes y zapatillas de correr lima. La (a4c) se parte en dos: la Plancha va en la (a4c2)."
+    },
     {
       "fecha": "2026-11-14T08:00:00+01:00",
       "hito": "M14c",
@@ -1475,6 +1480,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/batidora-fotogramas.png",
+      "pie": "M14c (a4c1): la hoja de la Batidora de Vaso, 24 fotogramas: los ocho de siempre; andar en seis pasos con el batido moviéndose; rodar (encogida, las cuchillas a toda velocidad) y aterrizar; disparar, el golpe con la tapa saltando y las dos sacudidas"
+    },
+    {
+      "archivo": "capturas/batidora-juego.png",
+      "pie": "M14c (a4c1): la Batidora de Vaso nueva disparando el Picahielos en la Sala de Pruebas, entre la tostadora y los enemigos (el arma aún es la vieja: va en la (a13))"
+    },
+    {
       "archivo": "capturas/impresora-cargador-redibujados.png",
       "pie": "M14c (a5d): la Impresora y el Cargador, antes (el primero de cada uno) y ahora (andando, atascada; zumbando, tirado en el suelo y descubierto), a 3×"
     },
@@ -1489,17 +1502,9 @@
     {
       "archivo": "capturas/batidora-mando-redibujados.png",
       "pie": "M14c (a5c): la Batidora y el Mando, antes (el primero de cada uno) y ahora (las varillas girando, andando), a 3×"
-    },
-    {
-      "archivo": "capturas/batidora-mando-en-juego.png",
-      "pie": "M14c (a5c): la batidora nueva cargando contra la tostadora y el mando junto a la bombilla, en la Sala de Pruebas"
-    },
-    {
-      "archivo": "capturas/tostadora-juego.png",
-      "pie": "M14c (a4a): la tostadora que se juega ya es la del estilo nuevo, con su guante nuevo (el Secador todavía es el viejo: va en la (a13))"
     }
   ],
-  "proximo": "M14c (a5e), el Ratón Inalámbrico y la Webcam con el estilo nuevo (la (a4c) la tiene otra sesión).",
+  "proximo": "M14c (a4c2), la Plancha de Vapor con el estilo nuevo y sus 24 fotogramas (como la tostadora y la batidora). La (a5e) la tiene otra sesión.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1528,11 +1533,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 07:27 (hora peninsular)",
-      "tarea": "M14c (a4c): la Batidora de Vaso y la Plancha de Vapor con el estilo nuevo (tools/sprites/ un archivo nuevo de personajes, src/data/characters o su look, tests/personajes-a4c.test.ts). No toca enemigos",
-      "desde": "2026-11-14T07:27:00+01:00"
-    },
     {
       "sesion": "2026-11-14 08:05 (hora peninsular)",
       "tarea": "M14c (a5e): el Ratón Inalámbrico y la Webcam con el estilo nuevo (tools/sprites/planta2-nuevo.ts, build.ts, anclas en src/data/enemies.ts, tests/estilo-a5.test.ts). No toca personajes",

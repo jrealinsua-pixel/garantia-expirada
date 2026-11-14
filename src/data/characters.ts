@@ -42,7 +42,12 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     rollCooldown: 0.26,
     startWeapon: 'picahielos',
     footRadius: 5,
-    look: { sheet: 'batidora-vaso', w: 40, h: 41, feetX: 18.5, feetY: 36, spinY: 22 },
+    // M14c (a4c): the new style, bigger, with her own frames after the eight (BLENDER_ANIM in
+    // tools/sprites/batidora-vaso.ts); the hitbox has not changed.
+    look: {
+      sheet: 'batidora-vaso', w: 40, h: 50, feetX: 20.5, feetY: 49, spinY: 22, hand: 'mano-batidora', shadowRx: 12,
+      anim: { walk: [8, 9, 10, 11, 12, 13], roll: [14, 15, 16, 17, 18, 19], shoot: 20, hurt: [21, 6], die: [22, 23] },
+    },
     ability: { kind: 'blades', damage: 4, reach: 9, knockback: 150 },
   },
   becario: {

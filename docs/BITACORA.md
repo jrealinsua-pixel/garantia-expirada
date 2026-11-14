@@ -2,6 +2,52 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 08:35 (hora peninsular) — Hito M14c — (a4c1) La Batidora de Vaso con el estilo nuevo
+- Contexto: sesión programada. El `main` local era una copia vieja y superficial que se había
+  separado de `origin/main` (50 y 50 commits): se dejó igual que `origin/main`
+  (`git checkout -B main origin/main`), sin perder nada (no tenía commits propios). La (a5c) la
+  tenía otra sesión desde las 06:25 (menos de 90 minutos), así que esta cogió la (a4c), que no toca
+  enemigos. Salud al empezar: `check`, 1088 tests, `build` y `bot` en verde.
+- Hecho: **la (a4c) partida en dos** en la hoja de ruta (cada personaje con 24 fotogramas es una
+  sesión, como lo fue la tostadora en (a4a) y (a4b)), y hecha la **(a4c1), la Batidora de Vaso**
+  (`tools/sprites/batidora-vaso.ts`), en el estilo nuevo y ya con sus propios fotogramas: 40 × 50,
+  24 en la hoja (`BLENDER_FRAMES` y `BLENDER_EXTRA`, `BLENDER_ANIM`), los mismos que la tostadora
+  (andar 6, rodar 6, disparar, el golpe en dos tiempos y dos sacudidas). Motor de plástico
+  **violeta** en tres cuartos con la cara delante: ojos muy abiertos de no dormir (pupila diminuta,
+  una vena roja y ojeras), cejas hacia la nariz y una sonrisa con todos los dientes; en el lado, el
+  dial atascado en PULSE y la pegatina de devolución; el pie de goma con sus ventosas. Encima, el
+  collar acanalado y el **vaso de cristal** (reflejo de la ventana por el lado de la luz, marcas de
+  medida, el borde de atrás) con el **batido verde de la dieta seco dentro**, cuya superficie se
+  inclina con los pasos y se agita al rodar (`slosh`), salpicaduras secas por el cristal y un
+  chorreón por el motor. La **tapa y la pajita saltan** con el golpe y en las sacudidas; rota, la
+  tapa queda torcida, sin pajita y con el vaso rajado. Rodando: encogida, ojos cerrados, dientes
+  apretados, las cuchillas hechas un borrón y el cable dando latigazos (el juego sigue poniendo el
+  giro de cuchillas encima). Guantes (`mano-batidora`, nuevo) y zapatillas de correr **lima** con
+  calcetines blancos, «compradas para la misma dieta, casi sin usar»; el cable enrollado en el
+  suelo con su brida amarilla. Materiales nuevos `violeta` y `vidrio` en `src/art/paleta.ts`. Su
+  ficha (`src/data/characters.ts`) trae el marco nuevo, `anim`, la mano y la sombra de 12.
+  Tests nuevos en `tests/batidora-a4c.test.ts` (6: la hoja y la ficha, los pies y el centro, el
+  estilo y la legibilidad de los 24, que se distinga de la tostadora, el batido que se mueve, la
+  tapa, la grieta, las chispas, la bola sin mover el cuerpo, el retroceso y `heroFrame`). Sección
+  nueva en `docs/ESTILO_ARTE.md`.
+- Decisiones: (1) Más alta que la tostadora (40 × 50, el vaso por encima) y no más ancha: así la
+  silueta de las dos se distingue en el suelo (solape medido por debajo de 0,8). (2) La cara es la
+  del motor, no la del vaso: el vaso es la «cabeza» de cristal, y una cara detrás del cristal no se
+  leía. (3) El eje del giro (`spinY` 22) es el medio de todo el cuerpo, de la pajita al pie de
+  goma, porque el vaso pesa en la silueta. (4) El arma y el giro de cuchillas siguen siendo los
+  viejos: las armas van en la (a13). (5) Tests ajustados: `tests/batidora-vaso.test.ts` cuenta 24
+  fotogramas y mide la altura desde los pies (los marcos ya no son iguales);
+  `tests/plancha-vapor.test.ts` ya no mide a la Plancha contra la batidora (la nueva es más grande;
+  la (a4c2) la medirá contra las nuevas); `tests/tostadora-a4b.test.ts` usa al Becario como
+  personaje sin fotogramas propios.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, los de
+  siempre). 1101 tests en verde (con los de la (a5c) y la (a5d), que entraron mientras); `npm run e2e` entero en verde a la segunda (la primera falló
+  esperando a que la batidora de mano enemiga cogiera carrerilla en la Sala de Pruebas, `08b`, a
+  los dos minutos: nada de esta tarea; a la segunda pasó entero).
+- Problemas conocidos: en el juego el arma queda a la altura de la boca (la mano va a la altura de
+  siempre y ella es más alta): se lee bien, pero si molesta, que la (a13) suba un poco la mano de
+  los personajes altos. El tablón del Mostrador sigue con su icono viejo.
+- Siguiente paso: M14c (a4c2), la Plancha de Vapor con el estilo nuevo y sus 24 fotogramas.
 ## 2026-11-14 08:00 (hora peninsular) — Hito M14c — (a5d) La Impresora y el Cargador con el estilo nuevo
 - Contexto: segunda tarea de la sesión, tras la (a5c). La (a4c) la tiene otra sesión desde las 07:27;
   esta no toca a los personajes.

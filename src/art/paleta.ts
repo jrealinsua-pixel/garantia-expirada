@@ -37,6 +37,10 @@ export const MATERIALS = {
   laton: r('#fff0a0', '#e0b84a', '#a87a2e', '#6c4a26'),
   /** Green of the A+++ labels and the screens: shadows to teal. */
   verde: r('#e4f7a8', '#a6e070', '#64b85a', '#3f8a52', '#2b5e4c', '#1f3a40'),
+  /** M14c (a4c): berry-violet plastic of the Batidora de Vaso's motor: pink-warm lights, indigo shadows. */
+  violeta: r('#f4e2ff', '#d3b2f5', '#ab86e3', '#8462c7', '#6146a1', '#45317c', '#2d2053'),
+  /** M14c (a4c): glass (the blender's jar): almost white with a cold tint, the shadows to slate blue. */
+  vidrio: r('#f6feff', '#d6eef2', '#aed2db', '#84abbe', '#5e7f9c', '#41587a', '#2c3657'),
   /** Ice and electric sparks: the lights go white, the shadows to deep blue. */
   cian: r('#f0ffff', '#b6f1f0', '#69dbd8', '#3aa3b0', '#2e6f8a', '#244a68'),
   /** Cardboard boxes and briefcases: shadows to plum. */

@@ -194,10 +194,11 @@ test('sprites: ocho fotogramas del tamaño de la tostadora, verde azulado, ancha
     for (let y = 0; y < 30; y++) for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3]! === 255) ((lo = Math.min(lo, x)), (hi = Math.max(hi, x)));
     return hi - lo;
   };
-  // Measured against the toaster drawn at its scale (the old one): the new toaster (M14c (a4a)) is
-  // bigger, and the Plancha grows when (a4c) redraws her; then she is measured against the new one.
+  // Measured against the toaster drawn at its scale (the old one): the new toaster (M14c (a4a)) and
+  // the new blender (M14c (a4c1)) are bigger, and the Plancha grows when (a4c2) redraws her; then
+  // she is measured against the new ones.
   const oldToaster = makeHeroPose(HERO_FRAMES[0]!.pose);
-  assert.ok(width(frames[0]!) > width(oldToaster) + 4 && width(frames[0]!) > width(blender) + 4);
+  assert.ok(width(frames[0]!) > width(oldToaster) + 4);
   for (let i = 1; i < 8; i++) assert.notDeepEqual(frames[i]!.p, frames[i - 1]!.p, `fotograma ${i}`);
   assert.equal(makeSteamFrames().length, 4);
   const manifest = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames: number }>;

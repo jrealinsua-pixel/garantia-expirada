@@ -66,7 +66,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     tostadora: { canvas: strip(makeToasterSheet()), frameW: TOASTER_W, frameH: TOASTER_H },
     'mano-tostadora': one(makeToasterHand()),
     // M13 (3): the Batidora de Vaso, the same eight frames as the toaster (CharacterLook).
-    'batidora-vaso': { canvas: strip(BV.makeBlenderFrames()), frameW: BV.BLENDER_W, frameH: BV.BLENDER_H },
+    'batidora-vaso': { canvas: strip(BV.makeBlenderSheet()), frameW: BV.BLENDER_W, frameH: BV.BLENDER_H },
+    'mano-batidora': one(BV.makeBlenderHand()),
     'giro-cuchillas': { canvas: strip(BV.makeWhirlFrames()), frameW: BV.WHIRL_SIZE, frameH: BV.WHIRL_SIZE },
     'arma-picahielos': one(BV.makeMiniIceCrusher()),
     'bala-cubito-zumo': one(BV.makeJuiceCube()),

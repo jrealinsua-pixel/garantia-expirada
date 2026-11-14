@@ -157,7 +157,7 @@ test('la partida con la batidora es determinista', () => {
   assert.equal(play(), play());
 });
 
-test('sprites: ocho fotogramas del tamaño de la tostadora, violeta y con el vaso: no se confunde con ella', () => {
+test('sprites: los ocho fotogramas de siempre, violeta y con el vaso: no se confunde con la tostadora', () => {
   const frames = makeBlenderFrames();
   assert.equal(frames.length, 8);
   const toaster = makeToasterFrames()[0]!;
@@ -172,17 +172,19 @@ test('sprites: ocho fotogramas del tamaño de la tostadora, violeta y con el vas
   };
   assert.ok(count(frames[0]!) > 150, 'la batidora es violeta');
   assert.ok(count(toaster) < 20, 'la tostadora, no');
-  // Taller than the toaster: the jar sticks up over where the toaster's slices end.
+  // Taller than the toaster: the jar sticks up over where the toaster's slices end (measured from
+  // the feet: since M14c (a4c) the two frames are not the same height).
   const top = (cv: { w: number; h: number; get(x: number, y: number): readonly number[] }): number => {
     for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3]! > 0 && !(cv.get(x, y)[3]! < 255)) return y;
     return cv.h;
   };
-  assert.ok(top(frames[0]!) < top(toaster));
+  assert.ok(B.look.feetY - top(frames[0]!) > T.look.feetY - top(toaster));
   // Every frame differs from the last (it moves) and the hurt and broken faces differ from idle.
   for (let i = 1; i < 8; i++) assert.notDeepEqual(frames[i]!.p, frames[i - 1]!.p, `fotograma ${i}`);
   assert.equal(makeWhirlFrames().length, 4);
   // And the game has them (npm run sprites).
   const manifest = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames: number }>;
-  assert.equal(manifest['batidora-vaso']?.frames, 8);
+  // (M14c (a4c): and her own sixteen after them.)
+  assert.equal(manifest['batidora-vaso']?.frames, 24);
   for (const k of ['giro-cuchillas', 'arma-picahielos', 'bala-cubito-zumo']) assert.ok(manifest[k], k);
 });
