@@ -1522,6 +1522,11 @@
       "sesion": "2026-11-14 06:25 (hora peninsular)",
       "tarea": "M14c (a5c): la Batidora y el Mando con el estilo nuevo (tools/sprites/planta1-nuevo.ts o un archivo nuevo de la planta 2, anclas en src/render, tests/estilo-a5.test.ts). No toca la tostadora",
       "desde": "2026-11-14T06:25:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 07:27 (hora peninsular)",
+      "tarea": "M14c (a4c): la Batidora de Vaso y la Plancha de Vapor con el estilo nuevo (tools/sprites/ un archivo nuevo de personajes, src/data/characters o su look, tests/personajes-a4c.test.ts). No toca enemigos",
+      "desde": "2026-11-14T07:27:00+01:00"
     }
   ]
 }
