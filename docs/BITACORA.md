@@ -40,6 +40,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
   verde.
 - Problemas conocidos: con dos sellos estampando a la vez se pisan (son pequeños y del mismo color).
 - Siguiente paso: M14c (a7), los jefes (la (a6f) la tienen otras sesiones).
+
 ## 2026-11-14 14:20 (hora peninsular) — Hito M14c — (a6e) El Dispensador de Turnos y los Postes de Cola con el estilo nuevo
 - Contexto: sesión automática. Al llegar, otra sesión tenía la (a6c2), la Fotocopiadora, desde hacía
   57 minutos (`planta4-nuevo.ts`, `build.ts`, `tests/estilo-a6.test.ts`); la (a6d) va en los mismos
