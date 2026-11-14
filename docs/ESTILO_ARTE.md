@@ -145,6 +145,22 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   y un vaho verde. Poses: el abanico de **tarjetas de fidelización** en el guante, una ceja arriba
   (vendiendo), y la comida saliendo volando. Despiece: la corona, un tirador, un cubito, el yogur,
   la etiqueta A+++ y el kétchup.
+- **La Lavadora Programa Eco** (M14c (a7b), `tools/sprites/lavadora-nuevo.ts`): el mismo marco
+  de jefe (84 × 88) y el mismo **esmalte** que la Nevera (nunca coinciden: la semilla elige una de
+  las dos para la planta 1), y todo lo demás distinto: el **ojo de buey** grande de cromo con su
+  goma, que es la barriga y la boca (su `muzzle`), con lo de cada programa dentro (espuma hasta
+  arriba en Prelavado; agua que se mueve y el calcetín rojo dando vueltas en Lavado; un remolino en
+  Centrifugado); el **panel** sobre los ojos con el cajón del detergente medio abierto soltando
+  polvo azul, la pantalla con el «2:59» de siempre (el «1400» en rojo centrifugando, rayas ámbar
+  pesando) y el mando con la flecha en ECO; los ojos debajo del panel (párpados planos de
+  superioridad en Prelavado, inclinados en Lavado, abiertos con la pupila en un punto
+  centrifugando, mirándose los pies al pesar); la **toalla** encima, la etiqueta A+++ toda verde y
+  la hoja ECO que se pegó ella, el calcetín rojo pillado en la goma, la manguera que no va a ningún
+  sitio, **guantes turquesa** de la gama eco y **patas niveladoras** de rosca con su taco de goma
+  (anda sobre las esquinas). Ocho fotogramas por programa (antes siete): el octavo es su **pose de
+  ataque** (la espuma saliendo por toda la goma; un calcetín volando, sin pareja; el remolino a
+  tope con los ojos dando vueltas y vapor por arriba). Despiece: el cristal, el mando, el cajón,
+  el calcetín, la toalla y una pata.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

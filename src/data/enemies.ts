@@ -1342,16 +1342,16 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // Like the Nevera (135): the same floor, the same toaster with one weapon. Measured with the bot (j2).
     hp: 85,
     sprite: 'lavadora-eco',
-    anchor: { x: 34, y: 73 },
+    anchor: { x: 38, y: 86 },
     hurt: { x: -25, y: -66, w: 50, h: 58 },
     footRadius: 16,
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [3, 4], hearts: 1 },
-    // Seven frames per program (tools/sprites/lavadora.ts): 0-1 breathing (the drum sloshing), 2-5 a
-    // heavy walk, 6 weighing the load. Lavado is the same seven on, Centrifugado fourteen on, and in
-    // Centrifugado the whole machine rattles.
+    // Eight frames per program (M14c (a7b), tools/sprites/lavadora-nuevo.ts): 0-1 breathing (the drum
+    // sloshing), 2-5 a heavy walk, 6 weighing the load, 7 its attack pose. Lavado is the same eight
+    // on, Centrifugado sixteen on, and in Centrifugado the whole machine rattles.
     anim: { idle: [0, 1], idleMs: 520, walk: [2, 3, 4, 5], stepPx: 9, stun: 6, rattle: { phase: 2, px: 1, ms: 45 } },
     brain: {
       kind: 'boss',
@@ -1374,8 +1374,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
           mute: { every: [8, 11], time: 2.2, taken: 1.5, line: 'Pesando la carga…' },
           attacks: [
             // Rings of foam that slow to a drift and fill the room (shoot them to pop a way through).
-            { kind: 'pattern', pattern: 'lavadora-espuma', telegraph: 0.8, weight: 3 },
-            { kind: 'pattern', pattern: 'lavadora-llenado', telegraph: 0.6, weight: 2 },
+            { kind: 'pattern', pattern: 'lavadora-espuma', telegraph: 0.8, weight: 3, pose: 7 },
+            { kind: 'pattern', pattern: 'lavadora-llenado', telegraph: 0.6, weight: 2, pose: 7 },
           ],
         },
         {
@@ -1386,11 +1386,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
           keep: 125,
           rest: [0.8, 1.2],
           mute: { every: [9, 12], time: 2, taken: 1.5, line: 'Pesando la carga…' },
-          frameShift: 7,
+          frameShift: 8,
           attacks: [
-            { kind: 'pattern', pattern: 'lavadora-calcetines', telegraph: 0.7, weight: 3 },
-            { kind: 'pattern', pattern: 'lavadora-calcetines-par', telegraph: 0.6, weight: 2 },
-            { kind: 'pattern', pattern: 'lavadora-espuma', telegraph: 0.7, weight: 1 },
+            { kind: 'pattern', pattern: 'lavadora-calcetines', telegraph: 0.7, weight: 3, pose: 15 },
+            { kind: 'pattern', pattern: 'lavadora-calcetines-par', telegraph: 0.6, weight: 2, pose: 15 },
+            { kind: 'pattern', pattern: 'lavadora-espuma', telegraph: 0.7, weight: 1, pose: 15 },
           ],
         },
         {
@@ -1403,11 +1403,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: '1400 revoluciones. Las que pone en la caja.',
           waddle: { angle: 58, step: 0.26 },
           mute: { every: [10, 13], time: 1.8, taken: 1.5, line: 'Pesando la carga…' },
-          frameShift: 14,
+          frameShift: 16,
           attacks: [
-            { kind: 'pattern', pattern: 'lavadora-centrifugado', telegraph: 0.7, weight: 3 },
-            { kind: 'pattern', pattern: 'lavadora-desague', telegraph: 0.7, weight: 2 },
-            { kind: 'pattern', pattern: 'lavadora-calcetines', telegraph: 0.6, weight: 1 },
+            { kind: 'pattern', pattern: 'lavadora-centrifugado', telegraph: 0.7, weight: 3, pose: 23 },
+            { kind: 'pattern', pattern: 'lavadora-desague', telegraph: 0.7, weight: 2, pose: 23 },
+            { kind: 'pattern', pattern: 'lavadora-calcetines', telegraph: 0.6, weight: 1, pose: 23 },
           ],
         },
       ],

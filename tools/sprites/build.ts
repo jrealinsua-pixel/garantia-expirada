@@ -39,6 +39,7 @@ import * as TN from './taller-nuevo.ts';
 import * as P1 from './planta1-nuevo.ts';
 import * as RC from './recepcion-nuevo.ts';
 import * as NV from './nevera-nuevo.ts';
+import * as LN from './lavadora-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
@@ -140,7 +141,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'despiece-nevera-suprema': { canvas: strip(NV.makeNeveraBits()), frameW: NV.NEVERA_BIT, frameH: NV.NEVERA_BIT },
     // Floor 1's second boss (M14 (j2)): seven frames per program (rest, breathing, walking, weighing the
     // load), Prelavado 0-6, Lavado 7-13, Centrifugado 14-20; its soap bubbles and odd socks.
-    'lavadora-eco': { canvas: strip(LV.makeLavadoraFrames()), frameW: LV.LAVADORA_W, frameH: LV.LAVADORA_H },
+    // M14c (a7b): La Lavadora Eco in the new style (tools/sprites/lavadora-nuevo.ts) and its debris.
+    'lavadora-eco': { canvas: strip(LN.makeLavadoraNuevaFrames()), frameW: LN.LAVADORA_W, frameH: LN.LAVADORA_H },
+    'despiece-lavadora-eco': { canvas: strip(LN.makeLavadoraBits()), frameW: LN.LAVADORA_BIT, frameH: LN.LAVADORA_BIT },
     'bala-espuma': { canvas: LV.makeFoamBullet(), frameW: 16, frameH: 16 },
     'bala-calcetin': { canvas: LV.makeSockBullet(), frameW: 12, frameH: 12 },
     // Floor 2's second boss (M14 (j3)): six frames per phase (floating 0-3, holding its breath,

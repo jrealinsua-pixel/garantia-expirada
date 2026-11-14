@@ -2,6 +2,36 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 16:55 (hora peninsular) — Hito M14c — (a7b) La Lavadora Eco con el estilo nuevo
+- Contexto: misma sesión que la (a7a); nadie más trabajaba.
+- Hecho: M14c (a7b), en `tools/sprites/lavadora-nuevo.ts` (la vieja sigue en `lavadora.ts`,
+  que también dibuja sus balas, que no se tocan hasta la (a10)). **La Lavadora Programa Eco**
+  (84 × 88, antes 72 × 76): lavadora de carga frontal en tres cuartos, del mismo **esmalte** que
+  la Nevera, con el **ojo de buey** de cromo y goma por barriga y boca (en su `muzzle`): espuma
+  hasta arriba en Prelavado, agua que se mueve con el calcetín rojo dando vueltas en Lavado y un
+  remolino en Centrifugado; el **panel** con el cajón del detergente medio abierto soltando polvo
+  azul, la pantalla del «2:59» (el «1400» en rojo, rayas ámbar al pesar) y el mando en ECO; los
+  ojos bajo el panel con el párpado de cada programa; la toalla encima, la etiqueta A+++ toda verde,
+  la hoja ECO, el calcetín pillado en la goma, la manguera que no va a ninguna parte, **guantes
+  turquesa** y **patas niveladoras** de rosca. **24 fotogramas** (antes 21): ocho por programa, el
+  octavo su **pose de ataque** (espuma por toda la goma; un calcetín volando; remolino a tope con
+  los ojos dando vueltas y vapor). `despiece-lavadora-eco` (cristal, mando, cajón, calcetín,
+  toalla y una pata). Ancla nueva (38, 86); caja de golpes y boca, las de siempre;
+  `frameShift` 8 y 16. `tests/estilo-a7b.test.ts` (6) y `tests/lavadora.test.ts` mide la hoja nueva.
+- Decisiones: (1) El mismo esmalte que la Nevera: las dos son de la planta 1 pero la semilla elige
+  una, nunca están juntas; las distinguen el ojo de buey, el panel, los guantes turquesa (la Nevera,
+  rosas) y las patas niveladoras (la Nevera, botas). Solapan 0,77 en silueta (las dos son cajas). (2)
+  La carcasa un poco más ancha y alta que la de la vieja (46 × 57 de frente) para cumplir el «un
+  sexto más» de la (a7a) sin salirse de la caja de golpes. (3) No tiene fotograma de cambio de fase
+  (`clap`): con `frameShift` por fase el juego no lo usa, y al cambiar de programa ya cambian el ojo
+  de buey, la pantalla y los ojos.
+- Medidas: 1162 tests en verde; `npm run e2e` entero en verde (capturas de la espuma, los
+  calcetines y el centrifugado miradas: se lee como lavadora y la pose se ve). `npm run bot`:
+  200 partidas, 0 fallos, 5 atascos; la Lavadora, ganada el 76,7 % en 47 s, igual que antes.
+- Problemas conocidos: los ojos, a tamaño real, son pequeños al lado del ojo de buey (como en la
+  vieja); se entienden por los párpados.
+- Siguiente paso: M14c (a7c), el Router Wi-Fi y sus repetidores.
+
 ## 2026-11-14 16:20 (hora peninsular) — Hito M14c — (a7a) La Nevera Suprema con el estilo nuevo
 - Contexto: nadie trabajaba al llegar (`en_curso` vacío) y `main` estaba sano (`check`, `test`,
   `build` y `bot` en verde). La (a7), «los jefes redibujados», era demasiado grande para una

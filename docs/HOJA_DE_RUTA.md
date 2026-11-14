@@ -963,7 +963,9 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     nuevo `esmalte`, 17 fotogramas (antes 12: poses de ataque y la puerta reventando al cambiar de
     fase), `despiece-nevera-suprema` (6 piezas) que el juego suelta al deshacerse; ancla (38, 86);
     `tests/estilo-a7a.test.ts`. La regla del tamaño de los jefes, en `docs/ESTILO_ARTE.md`.
-  - [ ] (a7b) La Lavadora Eco (planta 1).
+  - [x] (a7b) La Lavadora Eco (planta 1). Hecho el 2026-11-14 en `tools/sprites/lavadora-nuevo.ts`:
+    84 × 88 (antes 72 × 76), 24 fotogramas (ocho por programa, con su pose de ataque),
+    `despiece-lavadora-eco`; ancla (38, 86); `tests/estilo-a7b.test.ts`.
   - [ ] (a7c) El Router Wi-Fi y sus repetidores (planta 2).
   - [ ] (a7d) La Nube de Almacenamiento (planta 2).
   - [ ] (a7e) El Muñeco de Moda y su etiqueta (planta 3).

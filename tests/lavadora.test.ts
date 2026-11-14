@@ -11,7 +11,7 @@ import type { BossBrain } from '../src/data/types.ts';
 import { DOWN_CAUSES } from '../src/data/texts.ts';
 import { bossesOfFloor, pickFloorBoss } from '../src/sim/bosses.ts';
 import { enemyFrame, rattleOffset } from '../src/render/enemyAnim.ts';
-import { LAVADORA_PER_PROGRAM, makeLavadoraFrames } from '../tools/sprites/lavadora.ts';
+import { LAVADORA_PER_PROGRAM, makeLavadoraNuevaFrames } from '../tools/sprites/lavadora-nuevo.ts';
 import { checkInvariants, createWorld, DT, firePattern, NO_INPUT, step, takenScale, type Enemy, type World } from '../src/sim/world.ts';
 
 const def = ENEMIES['lavadora-eco']!;
@@ -40,7 +40,7 @@ test('la planta 1 elige entre la Nevera y la Lavadora con la semilla, más o men
   assert.equal(w.floor!.boss, 'À');
 });
 
-test('sus datos: tres programas, nombre, lema, causa de baja y una hoja de 21 fotogramas', () => {
+test('sus datos: tres programas, nombre, lema, causa de baja y una hoja de 24 fotogramas', () => {
   assert.deepEqual(brain.phases.map((p) => p.name), ['Prelavado', 'Lavado', 'Centrifugado']);
   assert.deepEqual(brain.phases.map((p) => p.frameShift ?? 0), [0, LAVADORA_PER_PROGRAM, 2 * LAVADORA_PER_PROGRAM]);
   for (const p of brain.phases) {
@@ -50,9 +50,10 @@ test('sus datos: tres programas, nombre, lema, causa de baja y una hoja de 21 fo
   }
   assert.equal(def.boss?.motto, 'Tres horas para lavar lo mismo. Pero ahorra.');
   assert.ok(DOWN_CAUSES['lavadora-eco']?.bullet && DOWN_CAUSES['lavadora-eco']?.contact);
-  const frames = makeLavadoraFrames();
+  // M14c (a7b): the new style, eight frames per program (the eighth, its attack pose).
+  const frames = makeLavadoraNuevaFrames();
   assert.equal(frames.length, 3 * LAVADORA_PER_PROGRAM);
-  for (const f of frames) assert.deepEqual([f.w, f.h], [72, 76]);
+  for (const f of frames) assert.deepEqual([f.w, f.h], [84, 88]);
 });
 
 test('Lavado: los calcetines rebotan en las paredes (dos veces) en lugar de romperse', () => {

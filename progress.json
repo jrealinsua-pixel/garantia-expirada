@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T16:20:00+01:00",
+  "actualizado": "2026-11-14T16:55:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -144,13 +144,18 @@
     "armas": 10,
     "objetos": 60,
     "plantillas_sala": 109,
-    "tests": 1156,
-    "tests_ok": 1156,
+    "tests": 1162,
+    "tests_ok": 1162,
     "partidas_bot": 100,
     "fallos_bot": 0,
     "lineas_codigo": 38183
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T16:55:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7b): la Lavadora Programa Eco con el estilo nuevo: lavadora de carga frontal del mismo esmalte que la Nevera, con el ojo de buey de cromo por barriga y boca (espuma, agua con el calcetín, remolino según el programa), el cajón del detergente soltando polvo azul, la pantalla del «2:59», el mando en ECO, la toalla encima, la hoja ECO, guantes turquesa y patas niveladoras. Ocho fotogramas por programa (antes siete) con su pose de ataque, y su despiece propio."
+    },
     {
       "fecha": "2026-11-14T16:20:00+01:00",
       "hito": "M14c",
@@ -1550,6 +1555,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/lavadora-redibujada.png",
+      "pie": "M14c (a7b): la Lavadora Eco, antes (la primera de cada fila) y ahora, un programa por fila (Prelavado, Lavado, Centrifugado): de pie, andando, pesando la carga y su pose de ataque, a 3×"
+    },
+    {
+      "archivo": "capturas/lavadora-en-juego.png",
+      "pie": "M14c (a7b): la lavadora nueva en su sala: la espuma del Prelavado, el calcetín volando del Lavado y el Centrifugado a tope"
+    },
+    {
       "archivo": "capturas/nevera-redibujada.png",
       "pie": "M14c (a7a): la Nevera Suprema, antes (la primera de cada fila) y ahora: arriba, de pie, disparando cubitos, lanzando escarcha, reventando la puerta al cambiar de fase y andando; abajo, la fase 2 con la puerta abierta, el abanico de tarjetas y la comida caducada saliendo volando, a 3×"
     },
@@ -1564,17 +1577,9 @@
     {
       "archivo": "capturas/asistente-en-juego.png",
       "pie": "M14c (a6f1): el asistente nuevo con su escudo de «Pregunta frecuente» levantado contra los disparos de la tostadora, en Atención al Cliente"
-    },
-    {
-      "archivo": "capturas/telefono-en-juego.png",
-      "pie": "M14c (a6f1): el teléfono nuevo sonando, con su corona de timbres alrededor, en las Ventanillas"
-    },
-    {
-      "archivo": "capturas/carretilla-redibujada.png",
-      "pie": "M14c (a6f2): la Carretilla Elevadora, ahora (arriba: en marcha, rodando, avisando con la rotativa y las horquillas arriba, y aturdida con las horquillas dobladas) y antes (abajo), a 3×"
     }
   ],
-  "proximo": "M14c (a7b), la Lavadora Eco (y después el resto de los jefes, uno por tarea: (a7c)–(a7i)).",
+  "proximo": "M14c (a7c), el Router Wi-Fi y sus repetidores (y después el resto de los jefes, uno por tarea: (a7d)–(a7i)).",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1603,11 +1608,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 16:25 (hora peninsular)",
-      "tarea": "M14c (a7b): la Lavadora Eco con el estilo nuevo (tools/sprites/lavadora-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la lavadora, tests/estilo-a7b.test.ts nuevo). No toca otros jefes ni enemigos",
-      "desde": "2026-11-14T16:25:00+01:00"
-    },
     {
       "sesion": "2026-11-14 16:35 (hora peninsular)",
       "tarea": "M14c (a7c): el Router Wi-Fi y sus repetidores con el estilo nuevo (tools/sprites/router-nuevo.ts nuevo, tools/sprites/build.ts sus dos líneas, src/data/enemies.ts el router y el repetidor, tests/estilo-a7c.test.ts nuevo). No toca la lavadora ni otros jefes",

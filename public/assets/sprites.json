@@ -289,9 +289,15 @@
   },
   "lavadora-eco": {
     "file": "lavadora-eco.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 21
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 24
+  },
+  "despiece-lavadora-eco": {
+    "file": "despiece-lavadora-eco.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "bala-espuma": {
     "file": "bala-espuma.png",
