@@ -469,9 +469,21 @@
   },
   "centralita": {
     "file": "centralita.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 14
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 19
+  },
+  "despiece-centralita": {
+    "file": "despiece-centralita.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
+  },
+  "placa-centralita": {
+    "file": "placa-centralita.png",
+    "frameW": 19,
+    "frameH": 6,
+    "frames": 1
   },
   "bala-clavija": {
     "file": "bala-clavija.png",

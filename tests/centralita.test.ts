@@ -16,7 +16,7 @@ import { DEPARTMENT_NAMES, DOWN_CAUSES, menuOptionLine } from '../src/data/texts
 import { departmentOf, departmentRect, inMenuZone, MENU_ZONE_H, MENU_ZONE_W } from '../src/sim/enemies.ts';
 import { Bot } from '../src/sim/bot.ts';
 import { enemyFrame } from '../src/render/enemyAnim.ts';
-import { CENTRALITA_FRAMES } from '../tools/sprites/centralita.ts';
+import { CENTRALITA_FRAMES } from '../tools/sprites/centralita-nuevo.ts';
 import { TILE } from '../src/sim/room.ts';
 import { checkInvariants, createWorld, DT, isClear, isRolling, NO_INPUT, onLowProp, step, takenScale, worldHash, type Enemy, type Input, type SimEvent, type World } from '../src/sim/world.ts';
 import { LOW_COUNTER_BOX, LOW_COUNTER_V_BOX, ZONE_H, ZONE_W } from '../tools/sprites/centralita.ts';
@@ -393,7 +393,8 @@ test('fase 3: a ratos se queda muda: quieta, sin atacar, en blanco y con más da
   assert.ok(muted >= 2, `${muted} silencios en 20 s`);
   assert.equal(takenScale(boss) === mute.taken, boss.state === 'stun');
   // Without her plugs: her own frames.
-  if (boss.state !== 'stun') assert.match(CENTRALITA_FRAMES[enemyFrame(boss, 0)]!, /^sin-clavijas/);
+  // (M14c (a7h): or one of her phase-3 attack poses, swinging her cords or her hold music gone wrong.)
+  if (boss.state !== 'stun') assert.match(CENTRALITA_FRAMES[enemyFrame(boss, 0)]!, /^(sin-clavijas|barrido|espera-rota)/);
 });
 
 test('fase 3: con el bot, la pelea entera se acaba, y a veces la gana', () => {

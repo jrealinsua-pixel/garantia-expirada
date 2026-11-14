@@ -285,6 +285,31 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   quieta y se echa hacia atrás rodando. Despiece: las gafas con la hoja de cálculo, un trozo de
   corbata con el pisacorbatas, el sello, una tarjeta de visita, una rueda con su pata y la
   acreditación.
+- **La Centralita** (M14c (a7h), `tools/sprites/centralita-nuevo.ts`; la vieja se queda en
+  `centralita.ts`, que sigue dibujando sus balas, los mostradores bajos y las zonas del menú): el
+  armario de conexiones en tres cuartos (lado oscuro a la izquierda) de **`teca`**, material nuevo:
+  la madera barnizada de cuando las centralitas eran muebles, miel donde el barniz coge la luz y
+  marrón rojizo hasta una sombra ciruela (más oscura y roja que la `haya` del sello). El lado en
+  sombra va un tono más claro de lo que pediría la luz: con el tono hondo, el mueble se fundía con
+  el linóleo. El cuadro de clavijas es de **baquelita** (`quemada`) con los conectores de aro de
+  latón y los pilotos de las llamadas en espera, que se turnan y nunca se apagan todos. La cara: dos
+  pilotos ámbar en bisel de cromo tapados por abajo en arco (**sonríen, ^ ^**) y el altavoz de tela
+  `crema` con lamas, una **sonrisa de media luna** que se lee como dientes (la de una grabación:
+  también cuando está furiosa). El pupitre con sus nueve clavijas de pie, las palancas y el disco
+  de marcar; dos puertas con el **casco de la operadora colgado de un gancho, sin nadie**; el
+  **pósit «Vuelva a llamar más tarde»** en el lado oscuro; la **placa de latón «1962»** (el juego
+  la vuelve a pintar sin voltear, `placa-centralita` con `anim.badge`, para que se lea mirando a la
+  izquierda); el zócalo rozado de arrastrarse. Sin piernas ni guantes: sus **brazos son los dos
+  cables** de tela `violeta` (también en el cable que lanza en partida) con una **clavija gorda**
+  por mano, `rojo` con núcleo blanco y negra (`goma`) en la fase 3. Poses: lanzando una clavija
+  (la clavija en su `muzzle`), la **música de espera** (ojos cerrados de gusto, los cables
+  dirigiendo y notas de latón; las balas siguen siendo cian), **«le paso con el departamento»**
+  (el cambio a la fase 2, `anim.clap`: su clavija metida en su propio cuadro, todas las llamadas
+  encendidas y el timbre sonando encima), y en la fase 3 **arrancándose las clavijas** (su propio
+  `clap`, en `BossPhase.look`: ojos rojos muy abiertos, clavijas volando y chispas), **los cables
+  en barrido** a los dos lados y la **música de espera rota** (notas rojas torcidas). Muda: los
+  pilotos en blanco y el altavoz a oscuras. Despiece: una clavija, un trozo del cuadro, un piloto,
+  el disco, el casco y el pósit.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

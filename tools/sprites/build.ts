@@ -43,6 +43,7 @@ import * as LN from './lavadora-nuevo.ts';
 import * as RT from './router-nuevo.ts';
 import * as NN from './nube-nuevo.ts';
 import * as CN from './consola-nuevo.ts';
+import * as CTN from './centralita-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
@@ -191,7 +192,10 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'mampara-movil': { canvas: strip(DR.makePartitionFrames()), frameW: DR.PARTITION_W, frameH: DR.PARTITION_H },
     'mesa-juntas': one(DR.makeBoardTable()),
     // Floor 5's boss (M11 5a): centralita.ts CENTRALITA_FRAMES names each frame.
-    centralita: { canvas: strip(CT.makeCentralitaFrames()), frameW: CT.CENTRALITA_W, frameH: CT.CENTRALITA_H },
+    // M14c (a7h): the new Centralita (tools/sprites/centralita-nuevo.ts, CENTRALITA_FRAMES) and her debris.
+    centralita: { canvas: strip(CTN.makeCentralitaNuevaFrames()), frameW: CTN.CENTRALITA_W, frameH: CTN.CENTRALITA_H },
+    'despiece-centralita': { canvas: strip(CTN.makeCentralitaBits()), frameW: CTN.CENTRALITA_BIT, frameH: CTN.CENTRALITA_BIT },
+    'placa-centralita': { canvas: CTN.makeCentralitaPlate(), frameW: CTN.CENTRALITA_PLATE.w, frameH: CTN.CENTRALITA_PLATE.h },
     'bala-clavija': one(CT.makePlugBullet()),
     // The final boss (M12 (4a)): trituradora.ts TRITURADORA_FRAMES names each frame.
     trituradora: { canvas: strip(TR.makeTrituradoraFrames()), frameW: TR.TRITURADORA_W, frameH: TR.TRITURADORA_H },

@@ -2,6 +2,48 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 21:37 (hora peninsular) — Hito M14c — (a7h) La Centralita con el estilo nuevo
+- Contexto: al llegar, la (a7g) (el Director) estaba cogida desde hacía una hora; elegí la (a7h),
+  que solo comparte con ella las líneas de cada jefe en `build.ts` y `enemies.ts`. La rama `main`
+  local volvía a estar vieja (clon superficial): la puse en `origin/main` antes de empezar. Mientras
+  tanto terminó la (a7g) y otra sesión cogió la (a7i); el `pull --rebase` dio conflictos solo en la
+  bitácora, la hoja de ruta, `ESTILO_ARTE.md` y `progress.json` (las dos partes, conservadas), y
+  regeneré los sprites y volví a pasar todo encima.
+- Hecho: M14c (a7h), en `tools/sprites/centralita-nuevo.ts` (la vieja, en `centralita.ts`, sigue
+  dibujando sus balas, los mostradores bajos y las zonas del menú). **La Centralita** (84 × 88,
+  antes 72 × 76) de **`teca`**, material nuevo (madera barnizada: miel, marrón rojizo y sombra
+  ciruela), con el cuadro de baquelita (`quemada`), los pilotos ámbar que sonríen, el altavoz con
+  la sonrisa de grabación, el pupitre con sus clavijas y el disco, el casco de la operadora sin
+  nadie, el pósit en el lado oscuro y la **placa «1962»**. Brazos: los dos cables `violeta` con una
+  clavija gorda por mano (`rojo`; negra en la fase 3). **19 fotogramas** (antes 14): los de siempre
+  y poses nuevas para la música de espera (fase 1–2) y para el barrido de cables y la música de
+  espera rota (fase 3), más **un fotograma por cambio de fase**: «le paso con el departamento» (su
+  clavija en su propio cuadro, todas las llamadas encendidas y el timbre) y «arrancándose las
+  clavijas» (clavijas volando y chispas). La clavija lanzada sale por su `muzzle` (el de siempre).
+  Despiece propio (`despiece-centralita`, seis piezas). Ancla (38, 86); caja de golpes, la de
+  siempre. `tests/estilo-a7h.test.ts` (7 tests, uno con la simulación: cada cambio de fase enseña
+  su fotograma).
+- Motor (solo dibujo): (1) `BossPhase.look` acepta `clap`: la fase 3 tiene su propio fotograma de
+  cambio de fase (antes `anim.clap` era uno para todos los cambios). (2) `anim.badge` acepta
+  `frameDx`: la placa «1962» se vuelve a pintar sin voltear (`placa-centralita`, como la placa de
+  la Trituradora) y se mueve un píxel en los dos fotogramas en que el mueble da el tirón. (3) El
+  cable que lanza en partida (`drawCord`) usa ya el violeta y el rojo del sprite nuevo.
+- Decisiones: (1) El lado en sombra va con un tono más claro de lo que pide la luz: con el hondo,
+  el 35 % del mueble se fundía con el suelo (la prueba pide un tercio como mucho); ahora, 26 %.
+  (2) Sin piernas ni guantes, como decidió la (5a): los cables son sus brazos y las clavijas, sus
+  manos; lo que crece fuera de la caja de golpes son ellos. (3) Las notas de la música de espera del
+  dibujo son de latón (y rojas, rotas, en la fase 3), nunca cian: cian es el de las balas de verdad.
+  (4) La fase 2 no cambia de aspecto (la pelea ya la distinguen el teléfono y los departamentos);
+  su llegada sí tiene fotograma. (5) Los tests viejos que nombraban fotogramas (`centralita.test.ts`)
+  usan ya los nombres nuevos y aceptan las poses de la fase 3.
+- Medidas: la simulación no cambia. 1197 tests en verde (con los del Director); `npm run e2e` entero en verde (capturas de
+  la Centralita miradas: el cartel, la música de espera, el cable, los departamentos y el arranque
+  de clavijas; la placa se lee mirando a la izquierda). `npm run bot`: 200 partidas, 0 fallos,
+  idéntico línea a línea (la Centralita, ganada el 56,7 % en 131,7 s).
+- Problemas conocidos: el altavoz con lamas se lee como una boca de dientes (queda bien, pero no es
+  lo que dice el diseño). El cable en partida sale del pie del mueble, no del extremo del pupitre
+  del sprite. La pose de la música de espera dura poco (el aviso es de 0,6 s).
+- Siguiente paso: M14c (a7g) si sigue cogida, la (a7i), la Trituradora.
 ## 2026-11-14 20:36 (hora peninsular) — Hito M14c — (a7g) El Director de Recursos Inhumanos con el estilo nuevo
 - Contexto: al llegar (19:25), otra sesión tenía cogida la (a7f) (la Consola) desde las 18:27, menos
   de 90 minutos; elegí la (a7g), que solo comparte con ella las líneas de cada jefe en `build.ts` y

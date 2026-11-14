@@ -6011,12 +6011,13 @@ export class GameScene extends Phaser.Scene {
       const x = Math.round(x0 + (ex - x0) * t);
       const y = Math.round(y0 + (ey - y0) * t - sag * 4 * t * (1 - t));
       g.fillStyle(0x0e0c16, 0.9).fillRect(x - 1, y - 1, 3, 4);
-      g.fillStyle(i % 3 === 0 ? 0x8a6a8a : 0x5e4460, 1).fillRect(x, y, 1, 2);
+      // M14c (a7h): the violet cloth of her new sprite's cords.
+      g.fillStyle(i % 3 === 0 ? 0x8462c7 : 0x6146a1, 1).fillRect(x, y, 1, 2);
     }
     const phase3 = (en.bossPhase ?? 0) >= 2;
     g.fillStyle(0x0e0c16, 1).fillRect(Math.round(ex) - 3, Math.round(ey) - 3, 7, 6);
-    g.fillStyle(phase3 ? 0x3e3a4c : 0xe0453b, 1).fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 5, 4);
-    g.fillStyle(phase3 ? 0x6a6478 : 0xff8a70, 1).fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 5, 1);
+    g.fillStyle(phase3 ? 0x3b3c5f : 0xe44a3f, 1).fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 5, 4);
+    g.fillStyle(phase3 ? 0x73769a : 0xff7d5c, 1).fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 5, 1);
     // Plugged in: a spark at the wall now and then.
     if (k >= 1 && Math.floor(this.time.now / 90) % 4 === 0) g.fillStyle(0xfff4c8, 1).fillRect(Math.round(ex) + this.fx.int(-3, 3), Math.round(ey) - this.fx.int(2, 5), 1, 1);
   }
@@ -6324,7 +6325,9 @@ export class GameScene extends Phaser.Scene {
     }
     const b = en.def.brain;
     const tag = b.kind === 'boss' ? (b.phases[en.bossPhase ?? 0]?.badge ?? 0) : 0;
-    const fx = en.facing === 1 ? bd.x : en.def.anchor.x * 2 - bd.x - bd.w;
+    // (frameDx: frames where the body lurches sideways, the Centralita dragging herself.)
+    const bx = bd.x + (bd.frameDx?.[frame] ?? 0);
+    const fx = en.facing === 1 ? bx : en.def.anchor.x * 2 - bx - bd.w;
     t.setVisible(true).setFrame(tag);
     t.setPosition(Math.round(s.x - en.def.anchor.x + fx), Math.round(s.y - en.def.anchor.y + bd.y + (bd.frameDy?.[frame] ?? 0)));
     t.setDepth(s.depth + 0.05);

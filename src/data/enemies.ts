@@ -1105,16 +1105,22 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // M14b (h10b3): 155 → 148: hauling herself about by her cords she is harder to hit (the fight went from 126 to 135 s).
     hp: 148,
     sprite: 'centralita',
-    anchor: { x: 32, y: 73 },
+    anchor: { x: 38, y: 86 },
     hurt: { x: -26, y: -66, w: 52, h: 62 },
     footRadius: 18,
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [4, 6], hearts: 1 },
-    // tools/sprites/centralita.ts CENTRALITA_FRAMES: 0-1 resting, 2-5 dragging herself with the
-    // cords, 6-7 talking, 8 throwing a plug; 9-13 phase 3 (M11 5c).
-    anim: { idle: [0, 1], idleMs: 620, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, talk: [6, 7], talkMs: 170, stun: 13 },
+    // M14c (a7h, tools/sprites/centralita-nuevo.ts CENTRALITA_FRAMES): 0-1 resting, 2-5 dragging
+    // herself with the cords, 6-7 talking, 8 throwing a plug, 9 the hold music, 10 putting you through
+    // (the change to phase 2: her plug in her own panel, the bell ringing); 11-15 phase 3 (M11 5c),
+    // 16 tearing her plugs out (its change), 17 swinging her cords round, 18 the hold music gone wrong.
+    // Her «1962» plate goes on again unflipped (placa-centralita), one px on where she lurches forward.
+    anim: {
+      idle: [0, 1], idleMs: 620, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, talk: [6, 7], talkMs: 170, stun: 15, clap: 10,
+      badge: { sprite: 'placa-centralita', x: 33, y: 22, w: 19, upTo: 19, frameDx: { 4: 1, 13: 1 } },
+    },
     brain: {
       kind: 'boss',
       // She drags herself: short legs, now slow, now a heave.
@@ -1138,7 +1144,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           attacks: [
             { kind: 'menu', zones: 3, wait: 1.5, drops: 8, pattern: 'centralita-lluvia', far: 0.35, telegraph: 0.7, weight: 2.5 },
             { kind: 'pattern', pattern: 'centralita-clavijas', telegraph: 0.6, weight: 2.5, pose: 8 },
-            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.6, weight: 2 },
+            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.6, weight: 2, pose: 9 },
           ],
         },
         {
@@ -1164,7 +1170,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
           attacks: [
             { kind: 'menu', zones: 3, wait: 1.4, drops: 8, pattern: 'centralita-lluvia', far: 0.45, telegraph: 0.6, weight: 2 },
             { kind: 'pattern', pattern: 'centralita-clavijas-2', telegraph: 0.55, weight: 2.5, pose: 8 },
-            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.55, weight: 1.5 },
+            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.55, weight: 1.5, pose: 9 },
           ],
         },
         {
@@ -1181,11 +1187,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
           line: 'Le atenderemos lo antes posible. No.',
           opening: 'centralita-arranque',
           mute: { every: [4.5, 6.5], time: 1, taken: 1.5 },
-          look: { idle: [9, 10], walk: [11, 12], warn: 10 },
+          look: { idle: [11, 12], walk: [13, 14], warn: 12, clap: 16 },
           attacks: [
-            { kind: 'pattern', pattern: 'centralita-cables', telegraph: 0.8, weight: 2.5 },
-            { kind: 'pattern', pattern: 'centralita-cables-2', telegraph: 0.8, weight: 2.5 },
-            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.5, weight: 1 },
+            { kind: 'pattern', pattern: 'centralita-cables', telegraph: 0.8, weight: 2.5, pose: 17 },
+            { kind: 'pattern', pattern: 'centralita-cables-2', telegraph: 0.8, weight: 2.5, pose: 17 },
+            { kind: 'pattern', pattern: 'centralita-espera', telegraph: 0.5, weight: 1, pose: 18 },
           ],
         },
       ],

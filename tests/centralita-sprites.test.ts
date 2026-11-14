@@ -130,8 +130,8 @@ test('las zonas del menú de voz: «Pulse 1, 2, 3», en espera y con las balas e
 
 test('las hojas nuevas están en el exportador con sus medidas', () => {
   const s = allSheets();
-  assert.equal(s['centralita']!.frameW, CENTRALITA_W);
-  assert.equal(s['centralita']!.canvas.w, CENTRALITA_W * CENTRALITA_FRAMES.length);
+  // M14c (a7h): the game's sheet is the new one (tests/estilo-a7h.test.ts); this file's drawing stays as history.
+  assert.ok(s['centralita']!.frameW > CENTRALITA_W && CENTRALITA_FRAMES.length === 14);
   for (const k of ['bala-clavija', 'nota-espera', 'mostrador-bajo', 'mostrador-bajo-v', 'zona-menu']) assert.ok(s[k], k);
   assert.equal(s['zona-menu']!.canvas.w / s['zona-menu']!.frameW, 6);
 });

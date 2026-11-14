@@ -1006,7 +1006,7 @@ export interface BossPhase {
    * Its own frames from this phase on (instead of shifting the usual ones, BossPhase.frameShift),
    * when the phase has fewer of them: the Centralita without her plugs, two to drag herself.
    */
-  look?: { idle: readonly number[]; walk: readonly number[]; warn: number };
+  look?: { idle: readonly number[]; walk: readonly number[]; warn: number; clap?: number };
   /**
    * Its attacks go in the order of the list, one per turn, and round again (instead of weighted
    * at random): the Trituradora answering with each fallen boss in turn (M12 (4a)).
@@ -1656,7 +1656,7 @@ export interface EnemyAnim {
    * mirrored with the body (the sheet itself is not flipped, so its text reads), on the frames
    * below `upTo`, `frameDy` px lower on some of them. Its frame is the phase's `badge`.
    */
-  badge?: { sprite: string; x: number; y: number; w: number; upTo: number; frameDy?: Readonly<Record<number, number>> };
+  badge?: { sprite: string; x: number; y: number; w: number; upTo: number; frameDy?: Readonly<Record<number, number>>; frameDx?: Readonly<Record<number, number>> };
   /**
    * A boss spinning on the spot (BossPatternAttack.spin): these frames in turn, `spinMs` each, the
    * second half of them mirrored (front, side, back, other side).

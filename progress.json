@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T20:36:00+01:00",
+  "actualizado": "2026-11-14T21:45:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -151,6 +151,11 @@
     "lineas_codigo": 38269
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T21:45:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a7h): la Centralita con el estilo nuevo. Armario de conexiones de teca barnizada (material nuevo teca) con el cuadro de baquelita, los pilotos ámbar que sonríen, el altavoz con sonrisa de grabación, el casco de la operadora sin nadie, el pósit «Vuelva a llamar más tarde» y la placa «1962», que el juego vuelve a pintar sin voltear. Los cables son sus brazos, con una clavija gorda por mano. 19 fotogramas (antes 14): poses de clavija, música de espera y barrido, y un fotograma propio para cada cambio de fase (le paso con el departamento; arrancándose las clavijas). Despiece propio. Simulación igual; tests, e2e y bot en verde."
+    },
     {
       "fecha": "2026-11-14T20:36:00+01:00",
       "hito": "M14c",
@@ -1580,6 +1585,14 @@
   ],
   "capturas": [
     {
+      "archivo": "capturas/centralita-redibujada.png",
+      "pie": "M14c (a7h): la Centralita, antes (la primera) y ahora: en reposo, arrastrándose con los cables, hablando, lanzando una clavija, la música de espera y «le paso con el departamento» con el timbre; sin clavijas, arrastrándose, muda, arrancándose las clavijas, los cables en barrido y la música de espera rota; debajo, su despiece, a 3×"
+    },
+    {
+      "archivo": "capturas/centralita-en-juego.png",
+      "pie": "M14c (a7h): la Centralita nueva arrancándose las clavijas al empezar «Se ha cortado la llamada», con la placa «1962» leyéndose aunque mire a la izquierda"
+    },
+    {
       "archivo": "capturas/director-redibujado.png",
       "pie": "M14c (a7g): el Director de Recursos Inhumanos, antes (el primero de las dos filas de arriba) y ahora: sentado, empujándose, rodando, el aviso, la palmada, el sello, las tarjetas, la carta y el mando del proyector; de pie, andando y con el dedo arriba; abajo, las tarjetas de pie, el giro de espaldas, de frente y de lado, colocándose la corbata, la silla sola antes y ahora y su despiece, a 3×"
     },
@@ -1594,17 +1607,9 @@
     {
       "archivo": "capturas/consola-en-juego.png",
       "pie": "M14c (a7f): la consola nueva con el pase de temporada en la Juguetería, en plena «Temporada competitiva», con sus cartuchos y una caja de botín"
-    },
-    {
-      "archivo": "capturas/muneco-redibujado.png",
-      "pie": "M14c (a7e): el Muñeco de Moda, antes (el primero de cada fila) y ahora: con caja, de pie, posando, lanzando accesorios, «¡Rebajas!» y horrorizado al verse rebajado; sin caja, de pie, posando, girando de espaldas, de frente y de lado, lanzando y cogiendo impulso; abajo, la caja rota, las etiquetas viejas y nuevas y su despiece, a 3×"
-    },
-    {
-      "archivo": "capturas/muneco-en-juego.png",
-      "pie": "M14c (a7e): el muñeco nuevo sin caja girando y soltando pegatinas, con su caja rota delante como cobertura"
     }
   ],
-  "proximo": "M14c (a7i), la Trituradora del Servicio Técnico (la (a7h), la Centralita, la tiene otra sesión), y después (a8), suelos, paredes y puertas.",
+  "proximo": "M14c (a7i), la Trituradora del Servicio Técnico (cogida por otra sesión); después (a8), suelos, paredes y puertas de cada planta.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1633,11 +1638,6 @@
     "calendario": "Con una sesión por hora sin parones, la primera versión jugable (M6) llegaría en medio día o un día, la versión pulida (M7) ya está, y el juego completo con escritorio (M15) en unos 6–8 días. Si las sesiones se espacian por los créditos (unas 10 al día), unas 2–3 semanas. El margen del 30 % cubre arreglos, notas del humano y sorpresas."
   },
   "en_curso": [
-    {
-      "sesion": "2026-11-14 20:26 (hora peninsular)",
-      "tarea": "M14c (a7h): la Centralita con el estilo nuevo (tools/sprites/centralita-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la centralita, tests/estilo-a7h.test.ts nuevo). No toca otros jefes",
-      "desde": "2026-11-14T20:26:00+01:00"
-    },
     {
       "sesion": "2026-11-14 21:25 (hora peninsular)",
       "tarea": "M14c (a7i): la Trituradora del Servicio Técnico con el estilo nuevo (tools/sprites/trituradora-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la trituradora, tests/estilo-a7i.test.ts nuevo). No toca otros jefes",

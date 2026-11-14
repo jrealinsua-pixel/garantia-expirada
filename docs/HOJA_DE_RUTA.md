@@ -991,7 +991,11 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     las diapositivas, y de pie el dedo arriba, el giro de lado propio y la corbata antes de girar),
     `despiece-director-rrhh`; ancla (40, 86); la silla sola, 46 × 60, ancla (25, 58);
     `tests/estilo-a7g.test.ts`.
-  - [ ] (a7h) La Centralita (planta 5).
+  - [x] (a7h) La Centralita (planta 5). Hecho el 2026-11-14 en `tools/sprites/centralita-nuevo.ts`:
+    84 × 88 (antes 72 × 76), material nuevo `teca`, 19 fotogramas (antes 14: poses de clavija, de
+    música de espera y de barrido, el cambio a la fase 2 y el de la fase 3 con su propio `clap` en
+    `BossPhase.look`), `despiece-centralita`, la placa «1962» sin voltear (`placa-centralita`,
+    `anim.badge` con `frameDx`); ancla (38, 86); `tests/estilo-a7h.test.ts`.
   - [ ] (a7i) La Trituradora del Servicio Técnico.
 - [ ] (a8) Suelos, paredes y puertas de cada planta: losetas con variantes, bordes, esquinas,
   sombras de pared y luz.

@@ -108,6 +108,12 @@ export const MATERIALS = {
    * the way gloss black is mostly dark with sharp reflections).
    */
   lacado: r('#eef3ff', '#a9b7e2', '#6874a8', '#3e4670', '#262a48', '#181a31', '#100d24'),
+  /**
+   * M14c (a7h): the Centralita's varnished teak (a switchboard from the days when they were
+   * furniture): honey where the varnish catches the light, then red-brown down to a plum shadow
+   * (darker and redder than the `haya` of the stamp).
+   */
+  teca: r('#f6c48e', '#d6965c', '#b26c3e', '#8a4a30', '#62322a', '#402028', '#2a1624'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

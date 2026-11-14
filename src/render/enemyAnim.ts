@@ -56,7 +56,7 @@ function sideFrame(en: Enemy, now: number): number {
   if (!base) return 0;
   // A phase with frames of its own (BossPhase.look): the Centralita without her plugs.
   const look = phaseLook(en);
-  const a = look ? { ...base, idle: look.idle, walk: look.walk, warn: look.warn } : base;
+  const a = look ? { ...base, idle: look.idle, walk: look.walk, warn: look.warn, clap: look.clap ?? base.clap } : base;
   // Chewing a bullet it swallowed: the blades show red for a moment.
   if (a.warn !== undefined && (en.chompT ?? 0) > 0) return a.warn;
   const own = phaseFrameShift(en);
@@ -118,10 +118,10 @@ function attackPose(en: Enemy): number | undefined {
 }
 
 /** The frames of the boss's current phase (BossPhase.look), the last one that set them. */
-function phaseLook(en: Enemy): { idle: readonly number[]; walk: readonly number[]; warn: number } | undefined {
+function phaseLook(en: Enemy): { idle: readonly number[]; walk: readonly number[]; warn: number; clap?: number } | undefined {
   const b = en.def.brain;
   if (b.kind !== 'boss') return undefined;
-  let out: { idle: readonly number[]; walk: readonly number[]; warn: number } | undefined;
+  let out: { idle: readonly number[]; walk: readonly number[]; warn: number; clap?: number } | undefined;
   for (let i = 0; i <= (en.bossPhase ?? 0) && i < b.phases.length; i++) out = b.phases[i]!.look ?? out;
   return out;
 }
