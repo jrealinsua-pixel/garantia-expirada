@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { ENEMIES } from '../src/data/enemies.ts';
 import { PROPS } from '../src/data/props.ts';
 import type { BossBrain } from '../src/data/types.ts';
+import type { PropInstance } from '../src/sim/room.ts';
 import { createWorld, DT, isClear, NO_INPUT, SERVICE_LEVEL, step, worldHash, type Enemy, type SimEvent, type World } from '../src/sim/world.ts';
 
 const ticks = (s: number): number => Math.ceil(s / DT);
@@ -182,7 +183,7 @@ test('lo que pilla por delante lo tritura: una caja se rompe y un barril se enci
     // A prop right between it and the toaster, and the toaster beyond.
     w.player.x = boss.x;
     w.player.y = boss.y + 170;
-    const pr = { def, x: boss.x, y: boss.y + 70, box: { x: boss.x + def.box.x, y: boss.y + 70 + def.box.y, w: def.box.w, h: def.box.h } };
+    const pr: PropInstance = { def, x: boss.x, y: boss.y + 70, box: { x: boss.x + def.box.x, y: boss.y + 70 + def.box.y, w: def.box.w, h: def.box.h } };
     w.room.props.push(pr);
     boss.tread = { heading: Math.PI / 2, mode: 'turn', t: 0, left: 0 };
     const events: SimEvent[] = [];
