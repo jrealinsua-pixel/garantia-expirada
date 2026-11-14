@@ -1607,6 +1607,11 @@
       "sesion": "2026-11-14 16:25 (hora peninsular)",
       "tarea": "M14c (a7b): la Lavadora Eco con el estilo nuevo (tools/sprites/lavadora-nuevo.ts nuevo, tools/sprites/build.ts sus líneas, src/data/enemies.ts la lavadora, tests/estilo-a7b.test.ts nuevo). No toca otros jefes ni enemigos",
       "desde": "2026-11-14T16:25:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 16:35 (hora peninsular)",
+      "tarea": "M14c (a7c): el Router Wi-Fi y sus repetidores con el estilo nuevo (tools/sprites/router-nuevo.ts nuevo, tools/sprites/build.ts sus dos líneas, src/data/enemies.ts el router y el repetidor, tests/estilo-a7c.test.ts nuevo). No toca la lavadora ni otros jefes",
+      "desde": "2026-11-14T16:35:00+01:00"
     }
   ]
 }
