@@ -30,7 +30,7 @@ La entrada más reciente va arriba. Cada sesión añade una.
   0,7–1 s) y tiene algo menos de vida (140 → 132): la dificultad, de las balas, no de la vida.
 - Medidas (`runBoss`, 80 combates en su sala): antes gana 48,8 % en 116,9 s con 5,08 heridas;
   después 42,5 % en 116,9 s con 4,93 (llega a ponerse de pie el 63,7 %). `npm run bot`: 0 fallos, 5
-  atascos (los de siempre), Director 40 % en 117,5 s (30 combates). 1041 tests en verde; e2e en verde.
+  atascos (los de siempre), Director 40 % en 117,5 s (30 combates). 1041 tests en verde (1060 tras juntarla con M14c); e2e en verde.
 - Problemas conocidos: el bot no le persigue cuando se aleja (un jugador sí puede, y le saldría más
   fácil); la línea «Mantenga la distancia de seguridad» es larga y tapa un momento la parte de arriba
   de la sala.
