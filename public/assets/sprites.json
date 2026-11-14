@@ -55,9 +55,15 @@
   },
   "plancha-vapor": {
     "file": "plancha-vapor.png",
-    "frameW": 40,
-    "frameH": 41,
-    "frames": 8
+    "frameW": 46,
+    "frameH": 43,
+    "frames": 24
+  },
+  "mano-plancha": {
+    "file": "mano-plancha.png",
+    "frameW": 7,
+    "frameH": 7,
+    "frames": 1
   },
   "vapor-suela": {
     "file": "vapor-suela.png",

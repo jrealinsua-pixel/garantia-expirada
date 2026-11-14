@@ -75,7 +75,8 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     becario: { canvas: strip(makeBecarioFrames()), frameW: 40, frameH: 41 },
     'mano-becario': one(makeBecarioHand()),
     // M13 (4): the Plancha de Vapor, her starch spray and the steam her soleplate leaves.
-    'plancha-vapor': { canvas: strip(PV.makeIronFrames()), frameW: PV.IRON_W, frameH: PV.IRON_H },
+    'plancha-vapor': { canvas: strip(PV.makeIronSheet()), frameW: PV.IRON_W, frameH: PV.IRON_H },
+    'mano-plancha': one(PV.makeIronHand()),
     'vapor-suela': { canvas: strip(PV.makeSteamFrames()), frameW: PV.STEAM_W, frameH: PV.STEAM_H },
     'arma-almidon': one(PV.makeMiniStarchSpray()),
     'bala-almidon': one(PV.makeStarchDrop()),

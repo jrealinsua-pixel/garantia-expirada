@@ -813,7 +813,7 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     sacudidas que echan chispas antes de que salten las tostadas. `CharacterLook.anim` dice dónde
     está cada cosa y `src/render/heroAnim.ts` elige el fotograma (los otros cuatro personajes,
     sin `anim`, siguen con los ocho); `tests/tostadora-a4b.test.ts`.
-  - [ ] (a4c) La Batidora de Vaso y la Plancha de Vapor, partida en dos el 2026-11-14 (cada una
+  - [x] (a4c) La Batidora de Vaso y la Plancha de Vapor, partida en dos el 2026-11-14 (cada una
     con sus 24 fotogramas es una sesión, como la tostadora).
     - [x] (a4c1) La Batidora de Vaso, con sus fotogramas propios.
       Hecho el 2026-11-14: `tools/sprites/batidora-vaso.ts` (24 fotogramas en 40 × 50: los ocho de
@@ -821,8 +821,14 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
       plástico violeta y vaso de cristal (materiales nuevos `violeta` y `vidrio` en
       `src/art/paleta.ts`), el batido que se mueve al andar y al rodar, la tapa que salta, los
       guantes y las zapatillas de correr lima (`mano-batidora`); `tests/batidora-a4c.test.ts`.
-    - [ ] (a4c2) La Plancha de Vapor. (Al redibujarla, que `tests/plancha-vapor.test.ts` mida su
+    - [x] (a4c2) La Plancha de Vapor. (Al redibujarla, que `tests/plancha-vapor.test.ts` mida su
       anchura contra la tostadora y la batidora nuevas, no contra la tostadora vieja.)
+      Hecho el 2026-11-14: `tools/sprites/plancha-vapor.ts` (24 fotogramas en 46 × 43, `IRON_EXTRA`,
+      `IRON_ANIM`), carcasa de plástico `turquesa` (material nuevo) con la punta hacia delante, el
+      asa azul marino en arco, el depósito con el agua que se mueve, la suela de acero, el cuello de
+      camisa quemado pegado debajo, el vapor que sale con los golpes, guantes blancos de algodón
+      (`mano-plancha`) y zapatos negros de la entrevista; `tests/plancha-a4c.test.ts` y
+      `tests/plancha-vapor.test.ts` la miden contra la tostadora y la batidora nuevas.
   - [ ] (a4d) El Becario Eterno y el Móvil.
 - [x] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).
   - [x] (a5a) El Aspirador y el Microondas (el aspirador parte de `art/prueba/aspirador.png`).

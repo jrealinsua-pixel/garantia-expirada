@@ -89,7 +89,12 @@ export const CHARACTERS: Record<string, CharacterDef> = {
     rollCooldown: 0.48,
     startWeapon: 'almidon',
     footRadius: 5,
-    look: { sheet: 'plancha-vapor', w: 40, h: 41, feetX: 19.5, feetY: 36, spinY: 22 },
+    // M14c (a4c2): the new style, bigger, with her own frames after the eight (IRON_ANIM in
+    // tools/sprites/plancha-vapor.ts); the hitbox has not changed.
+    look: {
+      sheet: 'plancha-vapor', w: 46, h: 43, feetX: 23.5, feetY: 42, spinY: 20, hand: 'mano-plancha', shadowRx: 15,
+      anim: { walk: [8, 9, 10, 11, 12, 13], roll: [14, 15, 16, 17, 18, 19], shoot: 20, hurt: [21, 6], die: [22, 23] },
+    },
     // «Suela caliente»: a puff of steam every 7 px walked, 1.2 s on the floor, 2 damage a second.
     ability: { kind: 'sole', every: 7, radius: 7, life: 1.2, damage: 0.5, tick: 0.25 },
   },

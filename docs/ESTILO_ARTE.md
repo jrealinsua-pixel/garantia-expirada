@@ -74,6 +74,17 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   golpe en dos tiempos, dos sacudidas); el golpe hace saltar la tapa en lugar de las tostadas, y
   rota se queda con la tapa torcida, sin pajita y el vaso rajado. Guantes y zapatillas de correr
   lima, con calcetines blancos: compradas para la misma dieta, casi sin usar.
+- **La Plancha de Vapor** (M14c (a4c2), `tools/sprites/plancha-vapor.ts`): 46 × 43, la más ancha y
+  la más baja de los tres, de perfil mirando a la derecha con la punta de la suela hacia delante
+  (silueta que no tiene nadie más). Carcasa de plástico `turquesa` con el lomo en sombra atrás, el
+  canto inclinado de delante brillando y un reflejo largo arriba; el asa azul marino en arco con el
+  botón rojo del vapor; el depósito de `cian` con el agua que se balancea al andar; el dial en
+  LINO; la franja blanca y la suela de acero con sus agujeros. La cara, párpados planos a media
+  altura y una boca recta: ha planchado cosas peores que tú. Los golpes y las sacudidas echan
+  vapor por la suela (el vapor y los demás semitransparentes se ponen con `put`, no con `set`, que
+  los mezclaría con el píxel vacío y saldrían grises); rota, el asa se suelta del poste de delante
+  y la carcasa se raja. Guantes blancos de algodón y los zapatos negros de la entrevista, largos y
+  con brillo en la puntera; el trozo del cuello de la camisa quemado sigue pegado bajo la suela.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

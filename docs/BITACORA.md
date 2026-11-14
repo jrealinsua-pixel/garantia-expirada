@@ -2,6 +2,38 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 09:10 (hora peninsular) — Hito M14c — (a4c2) La Plancha de Vapor con el estilo nuevo
+- Contexto: misma sesión que la (a4c1), encadenada (paso 7). Al cogerla, las otras dos sesiones
+  tenían la (a5e) y la (a6a), enemigos; esta no los toca.
+- Hecho: M14c (a4c2), y con ella la (a4c) entera. **La Plancha de Vapor**
+  (`tools/sprites/plancha-vapor.ts`) en el estilo nuevo con sus propios fotogramas: 46 × 43, 24 en
+  la hoja (`IRON_FRAMES`, `IRON_EXTRA`, `IRON_ANIM`), los mismos que la tostadora y la batidora.
+  De perfil, la punta de la suela hacia delante: la más ancha y la más baja de los tres. Carcasa
+  de plástico **turquesa** (material nuevo en `src/art/paleta.ts`, más hondo que la `menta` de la
+  batidora de mano) con el lomo en sombra, el canto de delante brillando y un reflejo largo arriba;
+  el asa azul marino en arco con el botón rojo del vapor; el depósito con el agua que se balancea
+  al andar y al rodar (`slosh`); el dial en LINO; la franja blanca y la suela de acero con sus
+  agujeros; y el trozo del cuello de la camisa de la entrevista, quemado, pegado debajo. Cara de
+  párpados planos y boca recta («ha planchado cosas peores que tú»). El golpe y la primera
+  sacudida **echan vapor por la suela** (`burst`); rota, el asa se suelta del poste y la carcasa
+  se raja. Guantes blancos de algodón (`mano-plancha`, nuevo) y los zapatos negros de la
+  entrevista, largos y con brillo. Ficha nueva en `src/data/characters.ts` (marco, `anim`, mano y
+  sombra de 15). Tests nuevos en `tests/plancha-a4c.test.ts` (6, como los de la batidora);
+  `tests/plancha-vapor.test.ts` cuenta 24 fotogramas y la mide ya contra la tostadora y la
+  batidora nuevas (la fila más ancha, y más baja que la batidora desde los pies), como pedía la
+  hoja de ruta. Sección nueva en `docs/ESTILO_ARTE.md`.
+- Decisiones: (1) El vapor semitransparente se pone con `Canvas.put` y no con `set`: `set` lo
+  mezclaba con el píxel vacío y salía gris oscuro (lo mismo le pasaba al vapor de la punta de la
+  plancha vieja); el humo de la tostadora sigue como estaba, para no cambiar su hoja. (2) La cara
+  en el costado y no en la punta: es donde cabe con los párpados planos, y así mira hacia delante
+  como las demás. (3) El eje del giro (`spinY` 20) es el medio del asa a la suela.
+- Medidas: la simulación no cambia (`npm run bot`: 200 partidas, 0 fallos, 5 atascos, los de
+  siempre). 1108 tests en verde (con los de la (a5e), que entró mientras); `npm run e2e` entero
+  en verde a la primera.
+- Problemas conocidos: el vapor del golpe se ve poco encima del suelo oscuro (el juego echa
+  además sus bocanadas al herirla). El Pulverizador de Almidón sigue con el dibujo viejo (a13).
+- Siguiente paso: M14c (a4d), el Becario Eterno y el Móvil con el estilo nuevo.
+
 ## 2026-11-14 08:45 (hora peninsular) — Hito M14c — (a5e) El Ratón Inalámbrico y la Webcam con el estilo nuevo; (a5) terminada
 - Contexto: tercera tarea de la sesión, tras la (a5c) y la (a5d). La (a4c) sigue cogida por otra
   sesión; esta no toca personajes.

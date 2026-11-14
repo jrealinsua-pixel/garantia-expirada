@@ -12,7 +12,6 @@ import { createWorld, DT, isDead, NO_INPUT, spawnEnemy, step, worldHash, type En
 import { makeIronFrames, makeSteamFrames } from '../tools/sprites/plancha-vapor.ts';
 import { makeBlenderFrames } from '../tools/sprites/batidora-vaso.ts';
 import { makeToasterFrames } from '../tools/sprites/tostadora.ts';
-import { HERO_FRAMES, makeHeroPose } from '../tools/sprites/characters.ts';
 
 const P = CHARACTERS['plancha']!;
 const T = CHARACTERS['tostadora']!;
@@ -171,7 +170,7 @@ test('la partida con la plancha es determinista', () => {
   assert.equal(play(), play());
 });
 
-test('sprites: ocho fotogramas del tamaño de la tostadora, verde azulado, ancha y baja: no se confunde con las otras', () => {
+test('sprites: los ocho fotogramas de siempre, verde azulada, ancha y baja: no se confunde con las otras', () => {
   const frames = makeIronFrames();
   assert.equal(frames.length, 8);
   type Cv = { w: number; h: number; get(x: number, y: number): readonly number[] };
@@ -187,22 +186,31 @@ test('sprites: ocho fotogramas del tamaño de la tostadora, verde azulado, ancha
   const blender = makeBlenderFrames()[0]!;
   assert.ok(count(frames[0]!) > 150, `la plancha es verde azulada (${count(frames[0]!)})`);
   assert.ok(count(toaster) < 20 && count(blender) < 40, 'las otras, no');
-  // Wider than the others: the soleplate's point sticks out in front.
-  const width = (cv: Cv): number => {
-    let lo = cv.w;
-    let hi = 0;
-    for (let y = 0; y < 30; y++) for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3]! === 255) ((lo = Math.min(lo, x)), (hi = Math.max(hi, x)));
-    return hi - lo;
+  // Wider than the others: the soleplate's point sticks out in front. Measured on the widest row
+  // above the feet (since M14c (a4c2) all three are in the new style, each in its own frame).
+  const widest = (cv: Cv, feetY: number): number => {
+    let best = 0;
+    for (let y = 0; y < feetY - 8; y++) {
+      let lo = cv.w;
+      let hi = -1;
+      for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3]! === 255) ((lo = Math.min(lo, x)), (hi = Math.max(hi, x)));
+      best = Math.max(best, hi - lo);
+    }
+    return best;
   };
-  // Measured against the toaster drawn at its scale (the old one): the new toaster (M14c (a4a)) and
-  // the new blender (M14c (a4c1)) are bigger, and the Plancha grows when (a4c2) redraws her; then
-  // she is measured against the new ones.
-  const oldToaster = makeHeroPose(HERO_FRAMES[0]!.pose);
-  assert.ok(width(frames[0]!) > width(oldToaster) + 4);
+  const wide = widest(frames[0]!, P.look.feetY);
+  assert.ok(wide > widest(toaster, T.look.feetY) + 4 && wide > widest(blender, B.look.feetY) + 4, `${wide}`);
+  // And lower than both from the feet up (the handle is the top of her).
+  const top = (cv: Cv): number => {
+    for (let y = 0; y < cv.h; y++) for (let x = 0; x < cv.w; x++) if (cv.get(x, y)[3]! === 255) return y;
+    return cv.h;
+  };
+  assert.ok(P.look.feetY - top(frames[0]!) < B.look.feetY - top(blender));
   for (let i = 1; i < 8; i++) assert.notDeepEqual(frames[i]!.p, frames[i - 1]!.p, `fotograma ${i}`);
   assert.equal(makeSteamFrames().length, 4);
   const manifest = JSON.parse(readFileSync(new URL('../public/assets/sprites.json', import.meta.url), 'utf8')) as Record<string, { frames: number }>;
-  assert.equal(manifest['plancha-vapor']?.frames, 8);
+  // (M14c (a4c2): and her own sixteen after the eight.)
+  assert.equal(manifest['plancha-vapor']?.frames, 24);
   assert.equal(manifest['vapor-suela']?.frames, 4);
   for (const k of ['arma-almidon', 'bala-almidon']) assert.ok(manifest[k], k);
 });
