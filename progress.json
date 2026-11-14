@@ -1497,6 +1497,11 @@
       "sesion": "2026-11-14 02:25 (hora peninsular)",
       "tarea": "M14b (h11c): plantillas de sala con más forma (retomada: la apuntada a las 22:25 del 13 lleva más de 4 h sin señales)",
       "desde": "2026-11-14T02:25:00+01:00"
+    },
+    {
+      "sesion": "2026-11-14 03:30 (hora peninsular)",
+      "tarea": "M14c (a4a): la Tostadora en el juego con el estilo nuevo (la h11c está cogida por otra sesión desde las 02:25)",
+      "desde": "2026-11-14T03:30:00+01:00"
     }
   ]
 }
