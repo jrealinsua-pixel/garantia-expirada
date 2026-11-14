@@ -775,9 +775,14 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
   antialias `aa`, el contorno selectivo, `legibility` y `silhouetteOverlap`; el tramado Bayer y
   las rampas, en `src/art/paleta.ts`), demostración en `art/prueba/herramientas.png`,
   `tests/pintor.test.ts`.
-- [ ] (a3) Carpeta `art/entrada/` para sprites hechos fuera (por otra IA de imagen o por el
+- [x] (a3) Carpeta `art/entrada/` para sprites hechos fuera (por otra IA de imagen o por el
   humano): un script que los reduce a la paleta del juego, los recorta a la rejilla, los mete en
   las hojas y apunta su origen y licencia en `CREDITOS.md`.
+  Hecho el 2026-11-14: `art/entrada/LEEME.md` (cómo se deja un sprite y su JSON), `node
+  tools/sprites/entrada.ts` (encuentra la escala y la rejilla, reduce bloque a bloque, ajusta a la
+  paleta en OKLab, quita los bordes a medias, recorta de pie en su fotograma, contorno selectivo si
+  se pide, rechaza lo que no tiene licencia válida y apunta los créditos), `allSheets` los añade a
+  las hojas; `tests/entrada.test.ts`.
 - [ ] (a4) Los cinco personajes jugables, redibujados con más fotogramas (andar 6, rodar 6,
   disparar, herido, morir).
 - [ ] (a5) Los enemigos de las plantas 1 y 2, redibujados (y más distinguibles entre sí).

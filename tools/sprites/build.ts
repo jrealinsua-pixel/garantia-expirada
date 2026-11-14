@@ -39,6 +39,7 @@ import * as DS from './despiece.ts';
 import * as ES from './estanteria.ts';
 import { makeJug } from './garrafa.ts';
 import { encodePng } from './png.ts';
+import { incomingSheets } from './entrada.ts';
 import { ROOT } from '../lib/deps.ts';
 
 export interface SheetInfo {
@@ -356,6 +357,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'final-estanteria': one(FN.makeEndingShelf()),
   };
   for (const n of Object.keys(ITEM_GRIDS)) sheets['objeto-' + n] = one(makeItem(n));
+  // M14c (a3): sprites made outside (art/entrada/), already in the palette; they only replace a
+  // sheet drawn by code if their JSON says «reemplaza».
+  Object.assign(sheets, incomingSheets(new Set(Object.keys(sheets))));
   return sheets;
 }
 

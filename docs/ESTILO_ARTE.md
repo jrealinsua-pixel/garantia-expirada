@@ -50,6 +50,11 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   medio ≥ 1,6, y no más de un tercio del cuerpo puede fundirse con el suelo (contraste < 1,5);
   dos enemigos de la misma planta no deberían solaparse más de 0,8 en silueta (tostadora y
   aspirador viejos: 0,72; nuevos: 0,51).
+- **Sprites hechos fuera** (M14c (a3)): se dejan en `art/entrada/` con su JSON (instrucciones en
+  `art/entrada/LEEME.md`); `node tools/sprites/entrada.ts` los pasa a esta paleta y a su tamaño y
+  `npm run sprites` los mete en las hojas. Tienen que cumplir esta guía igual que los de código
+  (los tests de legibilidad valen para ellos); lo semitransparente (humo, brillos suaves) se pierde
+  y se añade después por código.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

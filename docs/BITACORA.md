@@ -2,6 +2,36 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 01:50 (hora peninsular) — Hito M14c — (a3) La carpeta de sprites hechos fuera
+- Hecho: `art/entrada/` con su `LEEME.md` para el humano (qué PNG dejar y el JSON de al lado: id,
+  qué es, autor, licencia, origen y, si hace falta, fotogramas, tamaño, escala, contorno y si
+  reemplaza una hoja del juego); `tools/sprites/entrada.ts`: encuentra a qué escala viene el
+  dibujo y dónde empieza la rejilla (los cambios de color entre vecinos caen todos en el borde de
+  los bloques: el k más grande que reúne el 80 % en un mismo resto, y luego bloques de un color),
+  lo reduce bloque a bloque por votación, ajusta cada color al más parecido de la paleta en OKLab,
+  quita los bordes semitransparentes, recorta todos los fotogramas igual y los pone de pie y
+  centrados en su tamaño, con el contorno selectivo si se pide; rechaza (con todos los motivos a
+  la vez) lo que no tiene JSON, licencia válida (CC0, CC-BY, CC-BY-SA, OFL, MIT, propia o
+  IA-uso-comercial) o pisa una hoja del juego sin decir `reemplaza`; deja una vista previa en
+  `art/entrada/procesados/` y reescribe su sección de `CREDITOS.md` (entre dos marcas, para no
+  duplicarla). `allSheets` (tools/sprites/build.ts) añade las hojas de fuera al final. La paleta
+  gana `verde`, `cian` y `carton`, que faltaban para lo que llegue de fuera.
+  `tests/entrada.test.ts` (6 tests, con un dibujo «de IA» sintético: 6×, desplazado 2 px, con
+  ruido y borde suave).
+- Decisiones: (1) La escala se busca por los bordes y no probando todos los desplazamientos: con
+  una imagen de IA de 512 × 512 lo otro eran cientos de millones de comparaciones. (2) El borde de
+  la silueta de una imagen con antialias está movido un píxel, así que la rejilla se busca con los
+  bordes de dentro y solo si hay pocos con los de la silueta. (3) Lo semitransparente se pierde (el
+  juego lo pinta por código: humo, brillos). (4) Licencia `IA-uso-comercial` para lo que haga otra
+  IA: el humano es quien sabe las condiciones de la que use; el script solo exige que lo diga.
+- Medidas: la tostadora aprobada, ampliada 8× con ruido, vuelve a su tamaño en 66 ms y con la
+  paleta nueva casi idéntica (el contorno negro pasa a la tinta violeta); la de prueba, 109 ms.
+- Problemas conocidos: no hay ningún sprite de fuera todavía (depende de que el humano quiera
+  usar una IA de imagen); si un sprite trae colores que la paleta no tiene, salen con el más
+  parecido.
+- Siguiente paso: (a4) los cinco personajes jugables redibujados con `src/art/pintor.ts`
+  (andar 6, rodar 6, disparar, herido, morir); es grande, dividirla por personaje.
+
 ## 2026-11-14 01:25 (hora peninsular) — Hito M14c — (a2) Las herramientas de dibujo nuevas
 - Hecho: `src/art/pintor.ts` con lo que la (a1) tenía dentro de su herramienta (`Paint`, el
   sombreado por normales de `ellipsoid` y `cylinderH`, el contorno selectivo y la sombra violeta

@@ -35,6 +35,12 @@ export const MATERIALS = {
   oxido: r('#f0aa6a', '#c8723e', '#94492f', '#62302a'),
   /** Brass of the plug's pins. */
   laton: r('#fff0a0', '#e0b84a', '#a87a2e', '#6c4a26'),
+  /** Green of the A+++ labels and the screens: shadows to teal. */
+  verde: r('#e4f7a8', '#a6e070', '#64b85a', '#3f8a52', '#2b5e4c', '#1f3a40'),
+  /** Ice and electric sparks: the lights go white, the shadows to deep blue. */
+  cian: r('#f0ffff', '#b6f1f0', '#69dbd8', '#3aa3b0', '#2e6f8a', '#244a68'),
+  /** Cardboard boxes and briefcases: shadows to plum. */
+  carton: r('#f1d9a8', '#d2ad78', '#a98258', '#7a5a40', '#523a34', '#35202e'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

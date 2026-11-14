@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-14T01:25:00+01:00",
+  "actualizado": "2026-11-14T01:50:00+01:00",
   "version": "0.2.0",
   "hito_actual": "M14",
   "hitos": [
@@ -126,7 +126,7 @@
       "id": "M14c",
       "nombre": "Arte nuevo (nota del humano del 13 de noviembre)",
       "estado": "pendiente",
-      "hechas": 2,
+      "hechas": 3,
       "total": 12
     },
     {
@@ -151,6 +151,11 @@
     "lineas_codigo": 36658
   },
   "sesiones": [
+    {
+      "fecha": "2026-11-14T01:50:00+01:00",
+      "hito": "M14c",
+      "resumen": "M14c (a3): la carpeta art/entrada/ para sprites hechos fuera (por otra IA de imagen o por el humano). Un script encuentra a qué escala vienen, los reduce a píxeles de verdad, los pasa a la paleta del juego, los recorta a su fotograma, les pone el contorno si hace falta, los mete en las hojas y apunta su licencia en CREDITOS.md. Instrucciones en art/entrada/LEEME.md."
+    },
     {
       "fecha": "2026-11-14T01:25:00+01:00",
       "hito": "M14c",
@@ -1449,7 +1454,7 @@
       "pie": "M14b (h10a2): la Nube, como un nubarrón, siempre encima de la tostadora"
     }
   ],
-  "proximo": "M14c (a3): la carpeta art/entrada/ y el script que pasa sprites de fuera a la paleta; o (a4) los cinco personajes; o M14b (h11c) si se suelta.",
+  "proximo": "M14c (a4): los cinco personajes jugables con las herramientas nuevas (dividirla por personaje); o M14b (h11c) si se suelta.",
   "bloqueos": [],
   "estimacion": {
     "fecha": "2026-11-13",
@@ -1487,11 +1492,6 @@
       "sesion": "2026-11-14 01:15 (hora peninsular)",
       "tarea": "M14b (h10b2): el Director con movimiento propio",
       "desde": "2026-11-14T01:15:00+01:00"
-    },
-    {
-      "sesion": "2026-11-14 01:30 (hora peninsular)",
-      "tarea": "M14c (a3): la carpeta art/entrada/ (tools/sprites/entrada.ts nuevo, art/entrada/LEEME.md, CREDITOS.md, una línea en tools/sprites/build.ts allSheets, tests/entrada.test.ts nuevo)",
-      "desde": "2026-11-14T01:30:00+01:00"
     }
   ]
 }
