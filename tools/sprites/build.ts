@@ -41,6 +41,7 @@ import * as NV from './nevera-nuevo.ts';
 import * as LN from './lavadora-nuevo.ts';
 import * as RT from './router-nuevo.ts';
 import * as NN from './nube-nuevo.ts';
+import * as CN from './consola-nuevo.ts';
 import { encodePng } from './png.ts';
 import { TOASTER_H, TOASTER_W, makeToasterHand, makeToasterSheet } from './tostadora.ts';
 import { incomingSheets } from './entrada.ts';
@@ -156,7 +157,9 @@ export function allSheets(): Record<string, { canvas: Canvas; frameW: number; fr
     'bala-gota': { canvas: NB.makeDropBullet(), frameW: 10, frameH: 10 },
     'bala-archivo': { canvas: NB.makeFileBullet(), frameW: 12, frameH: 12 },
     // M14 (j4): La Consola Edición Coleccionista, its loot boxes, cartridges and fake coupons.
-    'consola-coleccionista': { canvas: strip(CO.makeConsolaFrames()), frameW: CO.CONSOLA_W, frameH: CO.CONSOLA_H },
+    'consola-coleccionista': { canvas: strip(CN.makeConsolaNuevaFrames()), frameW: CN.CONSOLA_W, frameH: CN.CONSOLA_H },
+    // M14c (a7f): the new Consola (tools/sprites/consola-nuevo.ts, CONSOLA_FRAMES) and its debris.
+    'despiece-consola-coleccionista': { canvas: strip(CN.makeConsolaBits()), frameW: CN.CONSOLA_BIT, frameH: CN.CONSOLA_BIT },
     'caja-botin': { canvas: strip(CO.makeCajaBotinFrames()), frameW: CO.CAJA_W, frameH: CO.CAJA_H },
     'bala-cartucho': { canvas: CO.makeCartridgeBullet(), frameW: 12, frameH: 12 },
     'bala-cupon-falso': { canvas: CO.makeFakeCouponBullet(), frameW: 12, frameH: 12 },

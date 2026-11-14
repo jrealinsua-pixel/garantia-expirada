@@ -229,6 +229,28 @@ ahora, a tamaño real sobre su suelo y a 3×), la genera `tools/sprites/prueba-a
   muñeco en el cartón, los alambres cortados, el plástico roto en picos brillantes, la pestaña
   arrancada y el −70 % puesto. Despiece: un tacón, una mano, la pestaña, un alambre, la estrella
   tachada y un mechón de pelo.
+- **La Consola Edición Coleccionista** (M14c (a7f), `tools/sprites/consola-nuevo.ts`; la vieja se
+  queda en `consola.ts`, que sigue dibujando la caja de botín y las balas): la torre de pie en tres
+  cuartos (lado oscuro a la izquierda) de **`lacado`**, material nuevo: el negro piano brillante,
+  casi todo azul negro hondo con **reflejos fríos y nítidos** (la veta de luz arriba a la izquierda,
+  el reflejo de una ventana en diagonal, el canto de arriba encendido, un filo de luz en el canto
+  del lado). Sus tonos medios se funden con el suelo, así que se usan poco: el brillo negro es eso,
+  oscuro con reflejos. El oro de la edición coleccionista es `laton` (el filo de arriba, el zócalo y
+  la **placa «000001»**). Ojos grandes de párpado de laca caído hacia dentro con el iris azul de
+  consola; la **bandeja del disco** es la boca (su `muzzle`, la ranura de tinta), con la tira de luz
+  debajo. La pegatina **«+3 %»**, la **trampilla del contenido descargable con candado** en el lado
+  oscuro, dos USB (uno con pelusa), **guantes de jugador** sin dedos de `violeta` con el puño dorado
+  y el **mando con cable** en la mano de delante, el cable hasta el suelo (el inalámbrico se vende
+  aparte). Patas cortas de goma. Poses: la bandeja fuera con un disco (aviso), **escupiendo un
+  cartucho** (ojos abiertos), **machacando un combo** con el mando en las dos manos (mirando abajo),
+  una **caja de botín en alto** (iris de moneda) y **actualizando** (ojos cerrados, la barra de
+  progreso verde casi vacía con «1/37», el botón ámbar). **Pase de temporada**: el pase morado
+  colgado del cordón tapando la pegatina, la tira de luz de todos los colores y los iris dorados con
+  el párpado más caído; su llegada (el cambio de fase, `anim.clap`) con la bandeja abierta, las
+  manos arriba y destellos; y su pose de «Temporada remasterizada»: una **pegatina «HD» nueva
+  encima de la vieja**. Despiece: un cartucho, un disco, el mando, el candado, un trozo de la placa
+  y el pase. Crece poco (un 3 % de área), por la misma razón que la Nube: la vieja era más ancha que
+  su caja de golpes.
 - **Lo que no cambia**: tres cuartos mirando a la derecha, manos flotantes sin brazos, piernas
   cortas con zapatos propios, cabeza grande con actitud (párpados caídos, cejas hacia dentro),
   2 o 3 detalles con chiste por personaje (la pegatina del −70 %, la tostada quemada que humea),

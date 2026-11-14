@@ -980,7 +980,11 @@ de imagen (o él) deje sprites que el juego adapte a la paleta.
     horror de verse rebajado como cambio de fase; sin caja, sus poses y un giro de lado propio),
     la etiqueta y la caja rota redibujadas, `despiece-muneco-moda`; ancla (42, 86);
     `tests/estilo-a7e.test.ts`.
-  - [ ] (a7f) La Consola de Coleccionista (planta 3).
+  - [x] (a7f) La Consola de Coleccionista (planta 3). Hecho el 2026-11-14 en
+    `tools/sprites/consola-nuevo.ts`: 84 × 88 (antes 72 × 76), material nuevo `lacado`, 24
+    fotogramas (once por fase, con una pose por ataque; la llegada del pase de temporada y la pose
+    «HD» de la remasterizada), `despiece-consola-coleccionista`; ancla (40, 86); `pose` en
+    `BossSummonAttack`; `tests/estilo-a7f.test.ts`.
   - [ ] (a7g) El Director de Recursos Inhumanos y su silla (planta 4).
   - [ ] (a7h) La Centralita (planta 5).
   - [ ] (a7i) La Trituradora del Servicio Técnico.

@@ -343,9 +343,15 @@
   },
   "consola-coleccionista": {
     "file": "consola-coleccionista.png",
-    "frameW": 72,
-    "frameH": 76,
-    "frames": 16
+    "frameW": 84,
+    "frameH": 88,
+    "frames": 24
+  },
+  "despiece-consola-coleccionista": {
+    "file": "despiece-consola-coleccionista.png",
+    "frameW": 12,
+    "frameH": 12,
+    "frames": 6
   },
   "caja-botin": {
     "file": "caja-botin.png",

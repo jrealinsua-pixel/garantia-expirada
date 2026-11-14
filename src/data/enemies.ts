@@ -1496,17 +1496,20 @@ export const ENEMIES: Record<string, EnemyDef> = {
     // A little less than the Muñeco (220): its loot boxes take shots too. Measured with the bot (j4).
     hp: 105,
     sprite: 'consola-coleccionista',
-    anchor: { x: 36, y: 74 },
+    anchor: { x: 40, y: 86 },
     hurt: { x: -24, y: -64, w: 48, h: 60 },
     footRadius: 16,
     contactPush: 260,
     contactDamage: 1,
     knockbackScale: 0,
     loot: { coupons: [3, 5], hearts: 1 },
-    // Eight frames per phase (tools/sprites/consola.ts): 0-1 breathing, 2-5 walking, 6 the disc
-    // tray out (warning), 7 updating (BossPhase.mute: the progress bar on its front). «Pase de
-    // temporada» is the same eight on, with the season pass hung round it and its lights in colours.
-    anim: { idle: [0, 1], idleMs: 380, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, stun: 7 },
+    // M14c (a7f, tools/sprites/consola-nuevo.ts): eleven frames per phase: 0-1 breathing, 2-5
+    // walking, 6 the disc tray out (warning), 7 updating (BossPhase.mute: the progress bar on its
+    // front), 8-10 its attack poses (spitting a cartridge, mashing a combo on the pad, a loot box
+    // overhead). «Pase de temporada» is the same eleven on, with the season pass hung round it and
+    // its lights in colours; 22 the season pass arriving (the phase change), 23 «Remasterizada»'s
+    // pose with the new «HD» sticker.
+    anim: { idle: [0, 1], idleMs: 380, walk: [2, 3, 4, 5], stepPx: 6, warn: 6, stun: 7, phaseShift: 11, clap: 22 },
     brain: {
       kind: 'boss',
       roam: { leg: [0.5, 1.2], burst: [0.6, 1.5], spread: 70 },
@@ -1524,10 +1527,10 @@ export const ENEMIES: Record<string, EnemyDef> = {
           keep: 135,
           rest: [0.85, 1.25],
           attacks: [
-            { kind: 'pattern', pattern: 'consola-cartuchos', telegraph: 0.65, weight: 3 },
-            { kind: 'pattern', pattern: 'consola-mando', telegraph: 0.6, weight: 2 },
+            { kind: 'pattern', pattern: 'consola-cartuchos', telegraph: 0.65, weight: 3, pose: 8 },
+            { kind: 'pattern', pattern: 'consola-mando', telegraph: 0.6, weight: 2, pose: 9 },
             // «Cajas de botín»: out they go; shoot them open or they open by themselves (worse).
-            { kind: 'summon', id: 'caja-botin', count: 2, max: 3, toss: 260, telegraph: 0.6, weight: 1.5 },
+            { kind: 'summon', id: 'caja-botin', count: 2, max: 3, toss: 260, telegraph: 0.6, weight: 1.5, pose: 10 },
           ],
           // «Actualización obligatoria»: it stops dead to update, and takes more meanwhile.
           mute: { every: [8, 11], time: 2.2, taken: 1.6, line: 'Actualización obligatoria (1 de 37)' },
@@ -1540,15 +1543,14 @@ export const ENEMIES: Record<string, EnemyDef> = {
           keep: 125,
           rest: [0.7, 1.05],
           line: 'Temporada nueva disponible. Su progreso no se conserva.',
-          frameShift: 8,
           seasons: { every: 8, names: ['Temporada de botín', 'Temporada competitiva', 'Temporada remasterizada'] },
           attacks: [
-            { kind: 'summon', id: 'caja-botin', count: 2, max: 3, toss: 270, telegraph: 0.55, weight: 2, season: 0 },
-            { kind: 'pattern', pattern: 'consola-cartuchos-2', telegraph: 0.55, weight: 2, season: 0 },
-            { kind: 'pattern', pattern: 'consola-mando-2', telegraph: 0.55, weight: 3, season: 1 },
-            { kind: 'pattern', pattern: 'consola-rafaga', telegraph: 0.45, weight: 2, season: 1 },
-            { kind: 'pattern', pattern: 'consola-remaster', telegraph: 0.6, weight: 3, season: 2 },
-            { kind: 'pattern', pattern: 'consola-cartuchos', telegraph: 0.5, weight: 2, season: 2 },
+            { kind: 'summon', id: 'caja-botin', count: 2, max: 3, toss: 270, telegraph: 0.55, weight: 2, season: 0, pose: 21 },
+            { kind: 'pattern', pattern: 'consola-cartuchos-2', telegraph: 0.55, weight: 2, season: 0, pose: 19 },
+            { kind: 'pattern', pattern: 'consola-mando-2', telegraph: 0.55, weight: 3, season: 1, pose: 20 },
+            { kind: 'pattern', pattern: 'consola-rafaga', telegraph: 0.45, weight: 2, season: 1, pose: 20 },
+            { kind: 'pattern', pattern: 'consola-remaster', telegraph: 0.6, weight: 3, season: 2, pose: 23 },
+            { kind: 'pattern', pattern: 'consola-cartuchos', telegraph: 0.5, weight: 2, season: 2, pose: 19 },
           ],
           mute: { every: [8, 11], time: 2, taken: 1.6, line: 'Descargando contenido de temporada (2 de 37)' },
         },

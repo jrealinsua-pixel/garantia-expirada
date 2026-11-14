@@ -890,6 +890,8 @@ export interface BossSummonAttack {
   toss: number;
   telegraph: number;
   weight: number;
+  /** Its frame while it warns and just after (EnemyAnim; M14c (a7f), the Consola). */
+  pose?: number;
 }
 
 /** What every boss attack can carry besides its own fields. */

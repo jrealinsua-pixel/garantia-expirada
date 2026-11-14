@@ -93,6 +93,12 @@ export const MATERIALS = {
    * `crema` and `beige`).
    */
   abs: r('#fbfaff', '#e7e4f1', '#c8c2da', '#a29bbd', '#7b7399', '#554e76', '#363152'),
+  /**
+   * M14c (a7f): piano-black gloss of the collector's-edition console: cold blue-white reflections,
+   * then a jump to deep blue-black (the mid tones melt into the floor, so they are used sparingly,
+   * the way gloss black is mostly dark with sharp reflections).
+   */
+  lacado: r('#eef3ff', '#a9b7e2', '#6874a8', '#3e4670', '#262a48', '#181a31', '#100d24'),
   /** Warehouse floor (plant 1): as dark as the old one so the bullets still read on it. */
   suelo: r('#5d6890', '#4b547d', '#40486e', '#373e60', '#2e3352', '#242843', '#1c1e35'),
 } as const;

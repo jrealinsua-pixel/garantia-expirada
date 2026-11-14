@@ -54,7 +54,8 @@ test('la planta 3 elige entre el Muñeco y la Consola con la semilla, más o men
 
 test('sus datos: dos fases, lema, causa de baja, la caja de botín y sus hojas', () => {
   assert.deepEqual(brain.phases.map((p) => p.name), ['Edición Coleccionista', 'Pase de temporada']);
-  assert.deepEqual(brain.phases.map((p) => p.frameShift ?? 0), [0, CONSOLA_PER_PHASE]);
+  // M14c (a7f): the second phase shifts the new sheet's frames (EnemyAnim.phaseShift; see tests/estilo-a7f.test.ts).
+  assert.equal(def.anim?.phaseShift, 11);
   for (const p of brain.phases) for (const a of p.attacks) if (a.kind === 'pattern') assert.ok(PATTERNS[a.pattern], a.pattern);
   for (const s of [...(caja.surprise ?? []), ...(caja.selfSurprise ?? [])]) {
     if (s.pattern) assert.ok(PATTERNS[s.pattern], s.pattern);

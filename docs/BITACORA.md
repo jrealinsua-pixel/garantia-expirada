@@ -2,6 +2,39 @@
 
 La entrada más reciente va arriba. Cada sesión añade una.
 
+## 2026-11-14 19:40 (hora peninsular) — Hito M14c — (a7f) La Consola Edición Coleccionista con el estilo nuevo
+- Contexto: al llegar, la (a7e) (el muñeco) estaba cogida desde hacía 52 minutos; elegí la (a7f).
+  La rama `main` local volvía a estar vieja (clon superficial): la puse en `origin/main` antes de
+  empezar, sin tocar el remoto. Mientras tanto terminó la (a7e) y otra sesión cogió la (a7g); el
+  `pull --rebase` dio conflictos solo en la hoja de ruta y en `ESTILO_ARTE.md` (las dos entradas,
+  conservadas) y regeneré los sprites encima.
+- Hecho: M14c (a7f), en `tools/sprites/consola-nuevo.ts` (la vieja, en `consola.ts`, sigue
+  dibujando la caja de botín y las balas). **La Consola** (84 × 88, antes 72 × 76) de **`lacado`**,
+  material nuevo (negro piano: azul negro hondo con reflejos fríos), con el oro en `laton`; ver
+  `docs/ESTILO_ARTE.md`. **24 fotogramas** (antes 16): once por fase (respirar, andar, la bandeja
+  fuera, actualizando y tres poses de ataque: cartucho, combo con el mando, caja de botín en alto)
+  y, aparte, la llegada del pase de temporada (`anim.clap`) y la pose de la «Temporada
+  remasterizada» con una pegatina «HD» nueva encima de la vieja. `pose` nuevo en
+  `BossSummonAttack` (las cajas de botín). Despiece propio (`despiece-consola-coleccionista`, seis
+  piezas). Ancla (40, 86); caja de golpes y boca, las de siempre. `tests/estilo-a7f.test.ts` (6
+  tests, uno con la simulación: la pose de las cajas sale de verdad al avisar).
+- Decisiones: (1) La fase 2 pasa de `frameShift` a `anim.phaseShift` (lo mismo para el dibujo):
+  con `frameShift` el fotograma del cambio de fase no se ve nunca (`enemyAnim` no usa `clap` si la
+  fase desplaza sus fotogramas). `tests/consola.test.ts` mira ya `phaseShift`. (2) El `lacado` salta
+  de los reflejos claros a los tonos casi negros: los tonos medios se funden con el suelo (la prueba
+  de legibilidad lo mide), y el negro brillante de verdad es así. (3) Guantes `violeta` con puño
+  dorado, de jugador: el cuerpo es negro y unas manos oscuras se perdían en el suelo. (4) Crece
+  poco (un 3 % de área): la vieja ya era más ancha que su caja de golpes; la nueva se ciñe a ella y
+  lo que crece son las manos, el mando con su cable y las poses. La bandeja sale como mucho 5 px por
+  fuera de la caja (el test pide 6).
+- Medidas: la simulación no cambia. 1185 tests en verde; `npm run e2e` entero en verde (capturas de
+  la consola miradas: los cartuchos, el fantasma del lag y la temporada competitiva; se lee bien
+  sobre el suelo de la Juguetería). `npm run bot`: 200 partidas, 0 fallos, idéntico línea a línea
+  (la Consola, ganada el 66,7 % en 89,2 s).
+- Problemas conocidos: con el pase, los ojos dorados de párpado caído se leen pequeños a tamaño
+  real. El «+3 %» de la pegatina no se lee a 1×, solo se ve la estrella (como antes).
+- Siguiente paso: M14c (a7g) si sigue cogida, la (a7h), la Centralita.
+
 ## 2026-11-14 18:17 (hora peninsular) — Hito M14c — (a7e) El Muñeco de Moda con el estilo nuevo
 - Contexto: al llegar, otra sesión tenía cogida la (a7d) (la nube) desde hacía tres minutos; elegí
   la (a7e), que solo comparte con ella las líneas de cada jefe en `build.ts` y `enemies.ts` (y un
